@@ -1,0 +1,362 @@
+J. Fluid Mech. (2025), vol. 1003, R1, doi:10.1017/jfm.2024.1208
+Stokes flow of an evolving fluid film with arbitrary shape and topology
+Cuncheng Zhu1, David Saintillan1,† and Albert Chern2
+1Department of Mechanical and Aerospace Engineering, University of California San Diego, La Jolla, CA 92093, USA
+2Department of Computer Science and Engineering, University of California San Diego, La Jolla, CA 92093, USA
+(Received 19 July 2024; revised 8 December 2024; accepted 12 December 2024)
+The dynamics of evolving fluid films in the viscous Stokes limit is relevant to various applications, such as the modelling of lipid bilayers in cells. While the governing equations were formulated by Scriven (1960), solving for the flow of a deformable viscous surface with arbitrary shape and topology has remained a challenge. In this study, we present a straightforward discrete model based on variational principles to address this long-standing problem. We replace the classical equations, which are expressed with tensor calculus in local coordinates, with a simple coordinate-free, differential-geometric formulation. The formulation provides a fundamental understanding of the underlying mechanics and translates directly to discretization. We construct a discrete analogue of the system using Onsager’s variational principle, which, in a smooth context, governs the flow of a viscous medium. In the discrete setting, instead of term-wise discretizing the coordinate-based Stokes equations, we construct a discrete Rayleighian for the system and derive the discrete Stokes equations via the variational principle. This approach results in a stable, structure-preserving variational integrator that solves the system on general manifolds.
+Key words: thin films, membranes
+1. Introduction
+When surface dissipation dominates bulk dissipation (i.e. when the Saffman–Delbrück length far exceeds the system size), the viscous flow of evolving fluid films can be modelled without accounting for the bulk fluid (Saffman & Delbrück 1975;
+† Email address for correspondence: dstn@ucsd.edu
+© The Author(s), 2025. Published by Cambridge University Press. This is an Open Access article, distributed under the terms of the Creative Commons Attribution licence (http://creativecommons.org/ licenses/by/4.0), which permits unrestricted re-use, distribution and reproduction, provided the original article is properly cited. 1003 R1-1
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+C. Zhu, D. Saintillan and A. Chern
+Arroyo & DeSimone 2009). The governing equations, known as the evolving Stokes equations, have not only been of theoretical interest, but also found practical applications in engineering, such as the study of foam (Exerowa & Kruglyakov 1997). Their use also has a long-standing history in biophysical contexts, addressing fundamental problems across scales – from modelling subcellular structures such as lipid bilayers to tissue-level phenomena such as epithelial monolayers (Al-Izzi & Morris 2021). Historically, the governing equations were formulated by Scriven (1960) to study foam instability. When coupled with bending elasticity, the evolving Stokes equations serve as a common model for lipid membranes (Arroyo & DeSimone 2009). Recently, there has been substantial interest in modelling cell and tissue growth by coupling the viscous layer with additional anisotropy and active processes, such as those seen in the cellular cortex and active nematic fluids (Metselaar, Yeomans & Doostmohammadi 2019; Torres-Sánchez, Millán & Arroyo 2019; Al-Izzi & Morris 2023). The evolving Stokes equations, along with extensions to the full Navier–Stokes equations, have been derived independently through various principles (Scriven 1960; Arroyo & DeSimone 2009; Koba, Liu & Giga 2017; Miura 2018; Torres-Sánchez et al. 2019; Reuther, Nitschke & Voigt 2020; Sahu et al. 2020; Al-Izzi & Morris 2023) and are compared in Brandner, Reusken & Schwering (2022). Our approach is closest to the formulation of Arroyo & DeSimone (2009) via Onsager’s variational principle for dissipative systems. To computationally solve the evolving Stokes equations, most existing methods tackle the partial differential equations by explicitly splitting them into normal and tangential components. This involves a vector-valued equation for the tangent velocity and a scalar equation for the normal velocity on a manifold. When viewed this way, the system of equations is challenging to solve. First, the tangent equation is tensor-valued on an evolving Riemannian manifold, necessitating specialized techniques for covariant differentiation (Knöppel et al. 2013; Gross & Atzberger 2018; Nestler, Nitschke & Voigt 2019; Voigt 2019; Torres-Sánchez, Santos-Oliván & Arroyo 2020). Some methods avoid the tensor-valued equation of tangent velocity through streamfunction formulations, although this approach is limited to simply connected domains (Torres-Sánchez et al. 2019) unless additional topological techniques are employed (Yin et al. 2023). Second, the equations in the decomposed form are explicitly coupled with surface curvatures, which, in classic numerical approximations, require representations using high-order basis functions (Sahu et al. 2020; Krause & Voigt 2023). In this study, instead of directly tackling the classic equations, we return to the fundamental governing kinematics and principles of a viscous surface film. We replace the system of equations expressed in tangent–normal splitting with a simple, coordinate-free differential-geometric formulation. We show that our resulting equations agree with earlier formulations by Scriven (1960) and Arroyo & DeSimone (2009) but in a more elegant form. Our approach also directly carries over to the discrete setting. The abstraction directly leads to a discretization for the strain rate tensor on discrete meshes. We then construct a discrete Rayleighian for the system and derive the discrete Stokes equations via Onsager’s variational principle, leading to a simple linear system. We provide a self-contained exposition of both the continuous and discrete models, as well as the numerical methods used to solve the system of equations on arbitrary geometries and topologies.
+2. Theory
+We derive the equations of motion for an evolving surface driven by viscous Stokes flow using Onsager’s variational principle. Specifically, a dissipation functional, called
+1003 R1-2
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+Stokes flow of an evolving fluid film
+the Rayleighian, is assigned to each position and velocity state of a deformable surface. The equations of motion are then obtained by finding the velocity that minimizes this functional. We adopt a differential-geometric approach, similar to Marsden & Hughes (1994), to describe continuum mechanics. Tensors are expressed using fibre bundle notation for clarity. Readers unfamiliar with this terminology can refer to § 2.1 for a brief overview. We first define relevant tensors and differential operators in § 2.2, followed by the definition of the Rayleighian for the system in § 2.3. For simplicity in presenting our smooth theory, all
+functions and tensors are assumed to be of C∞ class.
+2.1. Terminology and notation
+On a manifold M, the ‘tangent space’ TpM is a vector space that provides a local linear approximation of the manifold at p ∈ M. The disjoint union of all tangent spaces forms the
+‘tangent bundle’ TM = ⋃
+p TpM, where each TpM is also called the ‘fibre’ of the tangent bundle TM at the ‘base point’ p ∈ M on its ‘base manifold’ M. The dual bundle of TM is the ‘cotangent bundle’, T∗M, whose fibres are the dual spaces of the tangent spaces. The (m, n)-typed tensor bundle is written as TM⊗m,n = TM⊗m ⊗ T∗M⊗n. A tensor field Ψ on
+M is a ‘section’ of the tensor bundle, denoted as Ψ ∈ Γ (TM⊗m,n), which assigns a tensor Ψ |p ∈ TpM⊗m,n to each point p ∈ M. When a basis section is chosen, its components,
+Ψ j1...jm
+i1...in , have m contravariant indices and n covariant indices.
+For a map φ : M → W, where W is another manifold, the ‘pullback bundle’ TφW =
+φ∗TW is defined with M as its base manifold, while the fibre at p ∈ M, (TφW)|p = Tφ( p)W, is the tangent space to W at φ( p) ∈ W.
+Note that tensors can be identified with linear maps; for example, Ψ |p ∈ TpM⊗m,n acts as a linear map Ψ |p : TpM → TpM⊗m,n−1.
+2.2. Differential geometry of an evolving surface
+We describe a deformable surface as follows. Let M be a 2-dimensional closed manifold (∂M = ∅) with arbitrary genus, representing the ‘material/Lagrangian space’. Let W be a three-dimensional (3-D) Riemannian manifold representing the ‘world/Eulerian space’. Let g ∈ Γ (T∗W ⊗symm T∗W) (i.e. a symmetric (0, 2) tensor field) denote the
+Riemannian metric tensor on W. The common setup is to set W = R3, the Euclidean
+3-space, with g[[V , W ]] = V · W being the Euclidean inner product for any V , W ∈ R3. However, our theory is not limited to this assumption. The ‘position’ of a deformable surface is an embedding function φ : M ↪→ W from the material space to the world space. A time-dependent deformable surface, or an evolving surface, is a time-dependent embedding φ(t) = φt : M ↪→ W. The ‘material velocity’ of an evolving surface φ(t) is given by φ ̇t := ∂tφt, which is a ‘pullback’ vector field φ ̇t ∈ Γ (Tφt W) with its base point in
+the material frame M (cf. § 2.1). (The velocity φ ̇t|p is evaluated at each point p ∈ M in the material domain, and its value φ ̇t|p ∈ Tφt( p)W is a tangent vector to the world space based
+at φt( p) ∈ W.) Each material velocity φ ̇t ∈ Γ (Tφt W) can be extended to a ‘spatial velocity’ over W,
+denoted by Ut ∈ Γ (TW), such that φ ̇t = Ut ◦ φt, or equivalently, φ ̇t|p = Ut|φt( p) for
+φt( p) ∈ W. Note that this extension is not unique, as the assignment of Ut at locations away from the surface φt(M) ⊂ W is arbitrary.
+1003 R1-3
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+C. Zhu, D. Saintillan and A. Chern
+2.2.1. Deformation gradient and Cauchy–Green tensor
+The differential of the positioning φ : M ↪→ W of a surface is denoted by F := dφ ∈
+Γ (TφW ⊗ T∗M). This differential is also known as the pushforward map, the tangent map, or the ‘deformation gradient’. At each point p ∈ M, the two-point tensor F |p can be identified with a linear map (cf. § 2.1) F |p = dφ|p : TpM → Tφ( p)W that realizes a material tangent vector as a 3-D world vector, as expected for the deformation gradient.
+(At each point p ∈ M, the tensor F |p ∈ Tφ( p)W ⊗ Tp∗M pairs with a vector in TpM and returns a value in Tφ( p)W. Since it relates quantities in two different spaces M and W, it is called a two-point tensor.) The embedding φ : M ↪→ W induces a Riemannian metric (the first fundamental form)
+I ∈ Γ (T∗M ⊗symm T∗M) on M from the Riemannian structure g on W. This induced metric is defined by I[[v, w]] := g[[F v, F w]] = v F gF w for each v, w ∈ TpM, p ∈ M. In continuum mechanics, I = F gF is known as the ‘right Cauchy–Green tensor’. Here we
+identify tensors I, g, F as linear maps Ip : TpM → Tp∗M, gq : TqW → Tq∗W, F p : TpM →
+Tφ( p)W. Then we have the compositional relation I = F gF , where F p : Tφ∗( p)W → Tp∗M is the adjoint of F p.) For brevity, we denote the induced metric as 〈·, ·〉 = I[[·, ·]] and the L2 inner product as
+〈〈·, ·〉〉 = ∫
+M〈·, ·〉 dA where dA is the area form from the metric I. These inner products
+define the vector norm |·|2 and the L2 norm ‖·‖2. Dual pairings between primal
+(contravariant) and dual (covariant) tensors are denoted by 〈· | ·〉 and 〈〈· | ·〉〉 = ∫
+M〈· | ·〉 dA.
+The L2 inner product between two scalar functions f and g is denoted by 〈〈 f , g〉〉 =
+∫
+M fg dA.
+2.2.2. Strain rate tensor
+For an evolving surface φt, the induced metric It ∈ Γ (T∗M ⊗symm T∗M) varies with time
+t. The ‘strain rate tensor’ Et ∈ Γ (T∗M ⊗symm T∗M) is defined as half the rate of change of the induced metric: 2Et := I ̇t. To compute the time derivative of It = F t gF t we first calculate the time derivative of
+F t. Let Ut ∈ Γ (TW) be any extended velocity field such that φ ̇t = Ut ◦ φt. Then,
+F ̇ = dφ ̇t = d(Ut ◦ φt) = ∇(Ut ◦ φt) ◦ dφt ≡ (∇Ut)F , (2.1)
+where ∇ : Γ (TW) → Γ (TW ⊗ T∗W) is the Levi-Civita covariant derivative compatible
+with the metric g. When applied to a vector v ∈ Γ (TM), F ̇ tv = ∇FtvUt, which is a
+directional derivative of Ut tangential to the surface. In particular, (2.1) depends only on the values of Ut ◦ φt at the surface and not on the choice of its extension Ut over W. With a time-invariant metric g and (2.1), the strain rate tensor is given by
+2Et = I ̇t = F ̇ t gF t + F t gF ̇ t = F t ((∇U t) g + g∇U t)F t. (2.2)
+When applied to vectors, 2Et[[v, w]]|p = (∇FtvUt) · (F tw) + (∇FtwUt) · (F tv) for v, w ∈
+Γ (TpM). Again, Et depends only on the values of Ut ◦ φt and not on the choice of its extension Ut.
+2.2.3. Differential operators
+The operator that takes each velocity field φ ̇ = U ◦ φ at the surface to its induced strain rate tensor (2.2) is called the Killing operator:
+K : Γ (TφW) → Γ (T∗M ⊗symm T∗M), Kφ ̇ := E = F (∇U) g + g∇U
+2 F . (2.3a,b)
+1003 R1-4
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+Stokes flow of an evolving fluid film
+The trace of the strain rate tensor defines the ‘divergence operator’
+DIV : Γ (TφW) → C∞(M), DIV φ ̇ := tr(Kφ ̇), (2.4a,b)
+which measures the rate of change of area induced by the given velocity field. Define the ‘gradient operator’ as the negative adjoint of the divergence operator:
+GRAD = − DIV∗ : C∞(M) → Γ (Tφ∗W), 〈〈GRAD f | φ ̇〉〉 = −〈〈 f , DIV φ ̇〉〉, (2.5a,b)
+for all f ∈ C∞(M). The ‘covariant divergence’ is the negative adjoint of the Killing operator:
+DIV∇ = −K∗ : Γ (TM ⊗symm TM) → Γ (Tφ∗W), 〈〈DIV∇ T | φ ̇〉〉 = −〈〈T | Kφ ̇〉〉,
+(2.6a,b)
+for all symmetric tensor fields T ∈ Γ (TM ⊗symm TM). Here the dual pairing 〈T | E〉
+between (0, 2) and (2, 0) tensors is 〈T | E〉 = tr(T E) = ∑
+ij TijEij.
+Notably, the operators K, DIV, GRAD and DIV∇, derived from the strain rate tensor E of the evolving surface, differ from the commonly used intrinsic operators K , div, grad
+and div∇. As shown through the normal–tangent decomposition in the Appendix, these differences arise from additional contributions related to curvature (cf. A3–A5).
+2.3. Onsager’s variational principle for an evolving viscous fluid film
+The relaxation dynamics of an evolving viscous fluid film is governed by Onsager’s variational principle, which states that Stokes flow follows the dynamics of the least energy dissipation (Arroyo & DeSimone 2009; Doi 2011). The dissipation functional, or Rayleighian, captures the system’s dissipation rate, and the governing flow is the stationary condition of this functional subject to the incompressibility constraint. Consider a viscous dynamical system where the dissipation functional D comprises the
+rate of viscous dissipation, and power inputs from an external force B ∈ Γ (T∗W) and a shape-dependent potential energy Vφ:
+D(U) = 1
+2 〈〈E | T 〉〉 − 〈〈B | U〉〉 + V ̇ φ
+=1
+2
+∫
+M
+〈E | T 〉 dA −
+∫
+φ(M)
+〈B | U〉 dA +
+∫
+M
+〈δφVφ | φ ̇〉 dA. (2.7)
+Here, T = 2μE ∈ Γ (TM ⊗symm TM) is the viscous stress tensor (assumed Newtonian with constant viscosity μ), δφVφ is the conservative force obtained by taking the variation of Vφ, and φ ̇ = U ◦ φ is the material velocity. Onsager’s variational principle determines the Stokes flow by solving the constrained optimization problem:
+mUin D(U) subject to DIV U = 0. (2.8)
+Using the fluid pressure p ∈ C∞(M) as a Lagrange multiplier, this problem can be formulated as a minimax problem involving the augmented Rayleighian R:
+mUin mpax R(U, p), where R(U, p) = D(U) + 〈〈p, DIV U〉〉. (2.9)
+1003 R1-5
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+C. Zhu, D. Saintillan and A. Chern
+On a closed surface, the stationary conditions yield the Stokes equations for an evolving surface:
+2μ DIV∇ KU − GRAD p + B − δφVφ = 0, DIV U = 0. (2.10)
+The symmetric, negative-definite, Laplacian-like operator 2 DIV∇ K : Γ (TW) →
+Γ (T∗W) quantifies the viscous force, and is thus termed viscosity Laplacian. Although not the main focus of this paper, a common free energy in this context
+is the Helfrich Hamiltonian Vφ = ∫
+W κH2 dA, which results in the bending force
+Bκ = −δφVφ = κN( H + 2H(H2 − K)), where H and K are the mean and Gaussian curvatures, respectively, κ is the bending modulus, and N is the surface normal (Helfrich 1973). This bending-driven relaxation dynamics is also used in the numerical examples of § 4. The commonly used form of (2.10), expressed through normal–tangent decomposition, is derived in the Appendix.
+2.3.1. Remarks on the evolving Stokes equations and their solvability
+Note that the presence of a ‘Killing vector field’ X (KX = 0) can make the solution to (2.10) non-unique. In that case we select the least-norm solution, effectively projecting out rigid motions. This treatment aligns with scenarios where the surface is immersed with friction in a bulk fluid. A simple way to model friction is by augmenting the Rayleighian to
+Rα = R + α‖U − U0‖2/2, where U0 is the bulk velocity and α is the friction coefficient. This introduces a friction force Bα = α(U − U0) in the momentum equation. Such flow driven by the bulk fluid is used as a numerical example in § 4.3. When U0 = 0, the solution approaches the least-norm solution as α → 0.
+3. Methods
+In this section, we present a simple numerical method to solve (2.10) on a triangle mesh with general geometry and topology. We begin by discretizing the strain rate tensor using finite elements, following the definition provided in (2.2). Based on the discretized strain rate, we construct the system’s Rayleighian. A nonlinearly stable, structure-preserving variational integrator is derived based on Onsager’s variational principle. To keep the numerical scheme minimal, we demonstrate the method using first-order spatial and temporal discretizations. We discretize the system on a closed triangular mesh M of arbitrary genus, consisting of vertices, edges and faces {V, E, F}. The vertex positions are given by the realization
+φ : M ↪→ R3. Here M has a tangent space TαM and a surface normal Nα at each face α ∈ F (cf. figure 1). In the discrete setting, we express tensor-valued functions and operators using index notation, with upper indices denoting their components in Cartesian coordinates. Vertex and face elements are denoted with lower indices, where vertex indices are Roman letters and face indices are Greek letters. For example, we denote vertex positions as φi
+j , face
+normals as Niα, face pressure as pα, for j ∈ V, α ∈ F and i ∈ {1, 2, 3}.
+3.1. Strain rate tensor and differential operators
+To express the strain rate tensor E on M (cf. (2.2)) in Cartesian coordinates, we
+first realize it in R3. We denote this realization as 2E ̃ = P((∇U) g + g∇U)P, which
+satisfies E ̃ [[V , W ]] = E[[PV , PW ]] for V , W ∈ Γ (R3). Here, the linear projector P =
+g − N ⊗ N : Γ (R3) → Γ (TM) projects R3 vectors onto the surface. In the discrete
+1003 R1-6
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+Stokes flow of an evolving fluid film
+Ui Nα
+Eβ
+Φj
+Figure 1. Discretization of the strain rate tensor. The velocity Ui is defined at each vertex i, with surface normals Nα at each face α. The finite-element hat function Φj, shown by the colourmap, has local support around vertex j. Differentiating Ui via Φj produces (∇U)β , which is symmetrized and projected using Pβ = g − Nβ ⊗ Nβ to yield the strain rate tensor Eβ on each face β.
+setting (cf. figure 1), the strain rate tensor E ̃ kαj and Killing operator Kkji
+αl are expressed
+in terms of the velocity Ui
+j, projector Piαj = δiαj − NiαNαj , and R3 component-wise surface
+derivative (∇P )iαj as
+2E ̃ kαj = ∑
+l,i
+2Kkji
+αl Ui
+l =∑
+l,i
+(Piαk(∇P ) j
+αl + Piαj(∇P )kαl)Ui
+l. (3.1)
+Component-wise, (∇P )iαj = ∇iΦαj follows scalar finite-element discretization, where Φαj
+is the hat function at vertex j restricted to face α. The divergence (2.4) is given by the trace
+DIViαl = ∑
+j Kjji
+αl. The gradient (2.5) and covariant divergence (2.6) can be obtained, up to a sign flip, by permuting the lower indices of the divergence and Killing operators, respectively.
+3.2. Variational integrator by Onsager’s variational principle
+Given the vertex position φ(0) and pressure p(0) at the current time t = 0, with a time
+step > 0, the velocity is discretized as U = φ◦ / = (φ − φ(0))/ , and the power input
+as V ̇ φ = (Vφ − Vφ(0))/ . State variables φ( ) and p( ) at t = follow a time-incremental
+Onsager’s variational principle on a discrete Rayleighian (cf. § 2.3), φ( ), p( ) =
+arg minφ maxp R, where
+R(φ, p; φ(0), p(0), ) := 2[μ‖E ̃ ‖2 + 〈〈DIV U, p〉〉 + V ̇ φ − 〈〈U | B〉〉]
+≡ μKkji
+λm(Aλγ )−1Kkγjln
+φ◦ |i
+m
+φ◦ |l
+n + (φ◦ |l
+i DIVlαi pα + Vφ − φ◦ |l
+iBl
+i)
+≡ μφ◦ L φ◦ + [(DIV φ◦ ) p + Vφ − φ◦ B]. (3.2)
+Here, we assume Einstein summation and L = K A−1K is half of the discrete viscosity Laplacian (cf. § 2.3), where Aλγ is the area of the face γ for λ = γ and zero otherwise. Under any choice of Vφ (assuming B = 0), the variational integrator is unconditionally stable by design, as it preserves the system’s dissipative structure. The dynamics follow a gradient flow of Vφ in the metric space defined by the Stokes operator, ensuring a monotonic decrease in the Rayleighian: R( ) ≤ R(0). Therefore, the allowable time
+1003 R1-7
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+C. Zhu, D. Saintillan and A. Chern
+step size depends only on the solvability of the optimization in (3.2), which can be efficiently handled using standard numerical optimization methods. Here we use a
+simple gradient flow to solve this saddle-point optimization: Hφ ̇ = −δφR = −2μLφ◦ −
+(DIV p + δφVφ − B) and h ̇p = δpR = DIV φ◦ , where H and h provide a general metric for the gradient flow. Remeshing is performed using SideFx Houdini.) In § 4, we adopt the Helfrich Hamiltonian as V and follow the discretization used in Zhu, Lee & Rangamani (2022). As mentioned in § 2.3.1, (2.10) and its discrete version (3.2) have non-unique solutions up to rigid body modes in R3. To ensure that we obtain continuous dynamics during time evolution, we consistently project out rigid body modes. A MATLAB implementation of our discrete theory is available at https://t.ly/vUxfh. Tensorial calculations in (3.1) and (3.2) utilize sptensor (Bader & Kolda 2008), with remeshing performed using SideFx Houdini as needed.
+4. Results
+In this section, we validate the discrete model, analyse its convergence properties, and demonstrate its applicability to manifolds with intricate geometries and topologies. Numerical validation against analytical solutions is presented in § 4.1, with further examples provided in §§ 4.2 and 4.3 to showcase its effectiveness.
+4.1. Validations
+We validate the differential operators K and GRAD on a spheroid with semi-axes a and c, parametrized by latitude β ∈ [−π/2, π/2] and longitude θ ∈ (−π, π], using the realization φ(β, θ) = [a cos β cos θ, a cos β sin θ, c sin β]. In figure 2(a), we test the operator K by computing the lowest 10 eigenvalues of L =
+K A−1K with LUi = λiAUi (cf. (3.2)). As predicted by the continuous theory, there are six vanishing eigenvalues, forming a six dimensional kernel of K corresponding to the
+space of rigid body motions in R3. To validate the operator GRAD (A4), we check that the numerical evaluation of
+A−1| DIV 1| aligns with the analytical mean curvature H(β) of an oblate spheroid with a = 1 and c = 0.5, as shown in figure 2(b). In fact, this evaluation of mean curvature is identical with the established cotan Laplacian discretization (Meyer et al. 2003). We evaluate the convergence of our discretization of (2.10) by comparing it to an analytical solution on a unit sphere. The forcing term is prescribed analytically as B = b + bnN = N × grad φ + bnN, where φ is a spherical harmonic satisfying φ := div grad φ = λφ, N is the surface normal, and bn is a constant. On the unit sphere, b is an eigenfunction of the viscosity Laplacian with eigenvalue λ + 2. The analytical solution U = −b/(λ + 2) and  ̄p = −bn/2 satisfies (2.10) (μ = 1, δφVφ = 0) exactly (cf. (A7)). Numerically, the relative residual of the momentum equation, εU =
+‖2A−1LU − A−1 DIV  ̄p − B‖/‖B‖, and the residual of the continuity equation, εp = ‖A−1 DIV U‖, shown in figure 2(c), decrease approximately linearly as the mesh is refined. Lastly, figure 2(d) illustrates the total area of the fluid film during the Stokes relaxation (μ = 1) from a prolate spheroid (a = 1, c = 2) to a sphere under Helfrich energy (κ = 0.05), without mesh reparametrization. Local incompressibility conserves the global area
+within a relative error of 10−5 throughout the evolution.
+1003 R1-8
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+Stokes flow of an evolving fluid film
+100 10–1 –30
+–2
+–1
+0
+1
+2
+(A – A0)/A0
+3
+10 0 π/2 β
+–π/2
+6789 i
+12345
+(×10–5)
+20 40 60 80 100
+10–1
+10–15
+10–10
+10–5
+|λi|
+100 3.0
+H(β)
+GRAD 1
+2.5
+2.0
+1.5
+H
+1.0
+0.5
+10–2
+εp ∼ l0.98
+εU ∼ l0.97
+l
+ε
+t
+(a) (b)
+(d )
+(c)
+Figure 2. Validation of our model and method. (a) Minimum eigenvalues λ1≤i≤10 of LUi = λiAUi. (b) Comparison of numerical GRAD 1 and analytical H(β) evaluations of the mean curvature on a spheroid. (c) Relative error εU for the momentum equation and εp for the continuity equation as functions of mean edge length l, with the inset showing the tangential forcing b constructed from a spherical harmonic. (d) Relative error in total area A compared to the initial area A0 during Helfrich–Stokes relaxation, with insets showing the initial frame (prolate spheroid) and the final frame (sphere) of the relaxation.
+4.2. Relaxation of a genus-6 torus
+We model the evolution of a high-genus, non-analytical lipid membrane (μ = 1, κ = 0.05) based on the Helfrich–Stokes relaxation in figure 3(a). In theory, the elastic Helfrich Hamiltonian should be monotonically dissipated through viscosity, V + Eμ =
+∫ κH2 dA + ∫ t
+0〈〈T | E〉〉/2|τ dτ = const. Although our numerical results in figure 3(b) do
+not exactly match this theoretical expectation, they show very good agreement.
+4.3. Deformation of a lipid membrane under bulk flow
+We model the deformation of a spherical lipid vesicle (μ = 1, κ = 0.01) under the friction (α = 0.5, cf. § 2.3.1) from a constant bulk shear-extension flow defined
+by U 0(θ, r, z) = U shear
+0 + U ext
+0 = (5rz)eˆθ + (−0.5reˆr + zeˆz) in cylindrical coordinates.
+As illustrated in figure 4(a), this bulk flow stretches and twists the initially spherical vesicle along the z-direction. A snapthrough-like instability occurs around t = 3.7 between frame (iii) and frame (iv) in figure 4(a). While the bulk friction governs most of the dynamics, the Helfrich energy dominates during this buckling event, as indicated by the dip of the energy dissipation rate in figure 4(b) around t = 3.7.
+1003 R1-9
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+C. Zhu, D. Saintillan and A. Chern
+0
+2
+4
+6
+8
+10
+10 20 t
+E
+V Eμ
+30 40
+(a) (b)
+Figure 3. (a) Helfrich–Stokes relaxation of a genus-6 torus. Snapshots are taken at t = 0, 2, 8, 14, 20, and 40, from left to right, top to bottom. The animated simulation is available at https://youtu.be/Llh0_N0hCPw and in movie 1 of the supplementary movies available at https://doi.org/10.1017/jfm.2024.1208. (b) Elastic energy
+V = ∫ κH2 dA and cumulative dissipation Eμ = ∫ t
+0〈〈T | E〉〉/2|τ dτ , which theoretically sum to a constant value.
+0
+–2
+–4
+–6
+0
+2
+4
+6
+12 t
+E ̇
+T
+UN Bα
+Bκ
+34
+(b)
+(i) (ii)
+(iii) (iv)
+(a)
+Figure 4. (a) Deformation of a lipid membrane under bulk flow, with the tangent velocity u shown as streamlines and the normal velocity UN displayed in a colourmap ranging from −1 to 1 (cf. the Appendix for the tangent–normal decomposition). Snapshots (i)–(iv) are taken at t = 1.5, 2.5, 3.4 and 3.8, respectively. The animated simulation is available at https://youtu.be/M0WsLihzRJk and in movie 2 of the supplementary
+movies. (b) Energy dissipation rate E ̇ of the system due to viscosity E ̇ μ = 〈〈T | E〉〉/2, elasticity E ̇ κ = 〈〈Bκ | U〉〉
+and bulk friction E ̇ α = 〈〈Bα | U〉〉/2.
+5. Conclusion
+Using Onsager’s variational principle, we derived and reformulated the evolving Stokes equations on a manifold. We replaced the classic system of equations expressed in tangent–normal splitting with a simple, coordinate-free differential-geometric formulation. This approach leads directly to a straightforward discrete model and a numerical scheme to solve this long-standing problem in its full geometric generality. Although the theoretical framework is not limited, the current minimal implementation is restricted to closed manifolds and employs first-order discretization. Future work could incorporate boundary conditions and higher-order discretizations. For applications, we expect the minimal system presented here to serve as a foundation for integrating more complex models for specific biophysical problems. These could include additional global volumetric/areal constraints, heterogeneity in material properties, in-plane anisotropy and surface activity, as exemplified in Zhu et al. (2022) and Zhu, Saintillan & Chern (2024).
+1003 R1-10
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+Stokes flow of an evolving fluid film
+Supplementary movies. Supplementary movies are available at https://doi.org/10.1017/jfm.2024.1208.
+Funding. The authors acknowledge funding from National Science Foundation grant no. DMS-2153520 (D.S.) and National Science Foundation CAREER Award 2239062 (A.C.). Additional support was provided by SideFX software.
+Declaration of interests. The authors report no conflict of interest.
+Author ORCIDs.
+Cuncheng Zhu https://orcid.org/0000-0003-1373-3492; David Saintillan https://orcid.org/0000-0001-9948-708X; Albert Chern https://orcid.org/0000-0002-9802-3619.
+Appendix. Evolving Stokes equations through normal–tangent decomposition
+A.1. Differential operators for an evolving surface
+The second fundamental form (i.e. curvature tensor), II ∈ Γ (T∗M ⊗symm T∗M), is given by the derivative of the surface normal N:
+II[[v, w]] = (F v) · (∇FwN ) =: 〈v, Sw〉, (A1)
+where S : Γ (TM) → Γ (TM) is the shape operator. With the induced metric I, there is an intrinsic Levi-Civita covariant derivative ∇ :
+Γ (TM) → Γ (TM ⊗ T∗M) on M. The covariant derivative in W used in (A1) and (2.1) can be expressed in terms of the intrinsic covariant derivative and curvature tensor as
+∇FwF v = ∇wv − II[[w, v]]N . (A2)
+We can decompose the velocity into tangent and normal parts, U = F u + UNN, where
+u ∈ Γ (TM), UN ∈ C∞(W). Since F u effectively embeds the tangent vector u in R3, we will abbreviate F u as u when unambiguous. Given v ∈ TpM, (2.1) can be expressed as ∇FvU = ∇vu + UNSv + N(〈grad UN, v〉 − II[[u, v]]). Combining with (2.2) and (2.3), we have 2(KU)[[v, w]] = 〈∇vu, w〉 + 〈∇wu, v〉 + 2UNII[[v, w]], or
+2KU = ∇u + (∇u) + 2UNII =: 2K u + 2UNII, (A3)
+where K : Γ (TM) → Γ (T∗M ⊗symm T∗M) denotes the intrinsic Killing operator. Combining (2.4), (2.5) and (A3), the divergence and gradient can be expressed as
+DIV U = div u + 2HUN, GRAD( p) = grad p − 2pHN, (A4a,b)
+where div = tr(◦K ) is the intrinsic divergence, grad = − div∗ is the intrinsic gradient, and H = tr II/2 is the mean curvature of the surface. From (2.6) and (A3), we get:
+DIV∇ T = div∇ T − 〈II | T 〉N , (A5)
+where div∇ = −K ∗ : Γ (TM ⊗ TM) → Γ (T∗M) is the intrinsic covariant divergence.
+A.2. Evolving Stokes equations
+The viscosity Laplacian for an evolving surface can be explicitly decomposed as
+2 DIV∇ KU = 2[div∇ K u + div∇(UNII) − (〈II, K u〉 + UN|II|2)N ]
+= ( + K + grad ◦ div)u + 2S(grad UN) + 4UN grad H
+− 2[〈∇u, II〉 + UN(4H2 − 2K)]N, (A6)
+where = div∇ ∇ : Γ (TM) → Γ (T∗M) is the intrinsic Bochner Laplacian, and K = det II is the Gaussian curvature.
+1003 R1-11
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+C. Zhu, D. Saintillan and A. Chern
+To summarize, by substituting (A3)–(A6) into (2.10), we get the system of evolving Stokes equations subject to external force B = b + bnN and bending force Bκ =
+κN( H + 2H(H2 − K)):
+μ[( + K)u + 2Q(grad UN) + 2UN grad H] − grad p + b = 0,
+−2μ[〈∇u, II〉 + UN(4H2 − 2K)] + 2pH + bn + κ( H + 2H(H2 − K)) = 0,
+div u + 2HUN = 0.
+⎫⎪⎬
+⎪⎭
+(A7)
+Note that the Hopf differential Q = S − HI is the traceless part of the shape operator S that represents the deviatoric curvature. Formulation (A7) agrees with earlier results by Scriven (1960) and Arroyo & DeSimone (2009).
+REFERENCES
+AL-IZZI, S.C. & MORRIS, R.G. 2021 Active flows and deformable surfaces in development. Semin. Cell Dev. Biol. 120, 44–52. AL-IZZI, S.C. & MORRIS, R.G. 2023 Morphodynamics of active nematic fluid surfaces. J. Fluid Mech. 957, A4. ARROYO, M. & DESIMONE, A. 2009 Relaxation dynamics of fluid membranes. Phys. Rev. E 79, 031915. BADER, B.W. & KOLDA, T.G. 2008 Efficient MATLAB computations with sparse and factored tensors. SIAM J. Sci. Comput. 30, 205–231.
+BRANDNER, P., REUSKEN, A. & SCHWERING, P. 2022 On derivations of evolving surface Navier–Stokes equations. Interfaces Free Bound. 24, 533–563.
+DOI, M. 2011 Onsager’s variational principle in soft matter. J. Phys. Condens. Matter 23, 284118.
+EXEROWA, D. & KRUGLYAKOV, P.M. 1997 Foam and Foam Films: Theory, Experiment, Application. Elsevier. GROSS, B.J. & ATZBERGER, P.J. 2018 Hydrodynamic flows on curved surfaces: spectral numerical methods for radial manifold shapes. J. Comput. Phys. 371, 663–689. HELFRICH, W. 1973 Elastic properties of lipid bilayers: theory and possible experiments. Z. Natürforsch. C 28, 693–703. KNÖPPEL, F., CRANE, K., PINKALL, U. & SCHRÖDER, P. 2013 Globally optimal direction fields. ACM Trans. Graph. 32, 1–10.
+KOBA, H., LIU, C. & GIGA, Y. 2017 Energetic variational approaches for incompressible fluid systems on an evolving surface. Q. Appl. Maths 75, 359–389. KRAUSE, V. & VOIGT, A. 2023 A numerical approach for fluid deformable surfaces with conserved enclosed volume. J. Comput. Phys. 486, 112097. MARSDEN, J.E. & HUGHES, T.J.R. 1994 Mathematical Foundations of Elasticity. Dover. METSELAAR, L., YEOMANS, J.M. & DOOSTMOHAMMADI, A. 2019 Topology and morphology of self-deforming active shells. Phys. Rev. Lett. 123, 208001. MEYER, M., DESBRUN, M., SCHRÖDER, P. & BARR, A.H. 2003 Discrete differential-geometry operators for triangulated 2-manifolds. In Visualization and Mathematics III, pp. 35–57. Springer. MIURA, T.-H. 2018 On singular limit equations for incompressible fluids in moving thin domains. Q. Appl. Maths 76, 215–251. NESTLER, M., NITSCHKE, I. & VOIGT, A. 2019 A finite element approach for vector- and tensor-valued surface PDEs. J. Comput. Phys. 389, 48–61. REUTHER, S., NITSCHKE, I. & VOIGT, A. 2020 A numerical approach for fluid deformable surfaces. J. Fluid Mech. 900, R8.
+SAFFMAN, P.G. & DELBRÜCK, M. 1975 Brownian motion in biological membranes. Proc. Natl Acad. Sci. USA 72, 3111–3113. SAHU, A., OMAR, Y.A.D., SAUER, R.A. & MANDADAPU, K.K. 2020 Arbitrary Lagrangian–Eulerian finite element method for curved and deforming surfaces: I. General theory and application to fluid interfaces. J. Comput. Phys. 407, 109253.
+SCRIVEN, L.E. 1960 Dynamics of a fluid interface equation of motion for Newtonian surface fluids. Chem. Engng Sci. 12, 98–108.
+TORRES-SÁNCHEZ, A., SANTOS-OLIVÁN, D. & ARROYO, M. 2020 Approximation of tensor fields on surfaces of arbitrary topology based on local Monge parametrizations. J. Comput. Phys. 405, 109168.
+1003 R1-12
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press
+
+
+Stokes flow of an evolving fluid film
+TORRES-SÁNCHEZ, A., MILLÁN, D. & ARROYO, M. 2019 Modelling fluid deformable surfaces with an emphasis on biological interfaces. J. Fluid Mech. 872, 218–271. VOIGT, A. 2019 Fluid deformable surfaces. J. Fluid Mech. 878, 1–4. YIN, H., NABIZADEH, M.S., WU, B., WANG, S. & CHERN, A. 2023 Fluid cohomology. ACM Trans. Graph. 42, 126. ZHU, C., LEE, C.T. & RANGAMANI, P. 2022 Mem3DG: modeling membrane mechanochemical dynamics in 3D using discrete differential geometry. Biophys. Rep. 2, 100062. ZHU, C., SAINTILLAN, D. & CHERN, A. 2024 Active nematic fluids on Riemannian 2-manifolds. arXiv:2405.06044
+1003 R1-13
+https://doi.org/10.1017/jfm.2024.1208 Published online by Cambridge University Press

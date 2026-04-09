@@ -1,0 +1,686 @@
+Journal of Computational Physics 298 (2015) 565–584
+Contents lists available at ScienceDirect
+Journal of Computational Physics
+www.elsevier.com/locate/jcp
+A semi-implicit finite element method for viscous lipid membranes
+Diego S. Rodrigues, Roberto F. Ausas, Fernando Mut, Gustavo C. Buscaglia ∗
+Instituto de Ciências Matemáticas e de Computação, Universidade de São Paulo, Av. do Trabalhador são-carlense, 400, 13566-590 São Carlos, SP, Brazil
+article info abstract
+Article history:
+Received 27 June 2014 Accepted 7 June 2015 Available online 25 June 2015
+Keywords:
+Biological membranes Lipid bilayer Bending energy Canham–Helfrich energy Surface viscosity Boussinesq–Scriven operator Inextensibility Tangential calculus Surface finite elements
+A finite element formulation to approximate the behavior of lipid membranes is proposed. The mathematical model incorporates tangential viscous stresses and bending elastic forces, together with the inextensibility constraint and the enclosed volume constraint. The membrane is discretized by a surface mesh made up of planar triangles, over which a mixed formulation (velocity–curvature) is built based on the viscous bilinear form (Boussinesq–Scriven operator) and the Laplace–Beltrami identity relating position and curvature. A semi-implicit approach is then used to discretize in time, with piecewise linear interpolants for all variables. Two stabilization terms are needed: The first one stabilizes the inextensibility constraint by a pressure–gradient–projection scheme (Codina and Blasco (1997) [33]), the second couples curvature and velocity to improve temporal stability, as proposed by Bänsch (2001) [36]. The volume constraint is handled by a Lagrange multiplier (which turns out to be the internal pressure), and an analogous strategy is used to filter out rigid-body motions. The nodal positions are updated in a Lagrangian manner according to the velocity solution at each time step. An automatic remeshing strategy maintains suitable refinement and mesh quality throughout the simulation. Numerical experiments show the convergent and robust behavior of the proposed method. Stability limits are obtained from numerous relaxation tests, and convergence with mesh refinement is confirmed both in the relaxation transient and in the final equilibrium shape. Virtual tweezing experiments are also reported, computing the dependence of the deformed membrane shape with the tweezing velocity (a purely dynamical effect). For sufficiently high velocities, a tether develops which shows good agreement, both in its final radius and in its transient behavior, with available analytical solutions. Finally, simulation results of a membrane subject to the simultaneous action of six tweezers illustrate the robustness of the method. © 2015 Elsevier Inc. All rights reserved.
+1. Introduction
+Phospholipid membranes are two-molecule-thick surface arrays of phospholipids [1] that constitute the fundamental building material of the Living Cell membrane, of many intra-cellular units, and of synthetic vesicles such as liposomes. The static properties of this two-dimensional material are governed by geometry. In fact remarkable agreement with biophysical
+* Corresponding author. E-mail addresses: diegosarodrigues@gmail.com (D.S. Rodrigues), rfausas@icmc.usp.br (R.F. Ausas), fermut@gmail.com (F. Mut), gustavo.buscaglia@icmc.usp.br (G.C. Buscaglia).
+http://dx.doi.org/10.1016/j.jcp.2015.06.010 0021-9991/© 2015 Elsevier Inc. All rights reserved.
+
+
+566 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+observations has been obtained with models in which the energy density (per unit area) is a function of the local curvature alone [2,3]. Such an energy density is typical of thin elastic solids in bending. Numerical methods for computing equilibrium shapes of these membranes by gradient flow (which in this context is called Willmore flow) first appeared about ten years ago, with the works of Dziuk [4], Rusu [5], Feng and Klug [6] and Barrett et al. [7], among others. These methods evolve the geometry by gradient descent towards an equilibrium of the applied forces (if any) with the elastic forces. Bonito et al. [8,9] considered the effect of the bulk fluid, while Elliot and Stinner modeled two-phase effects [10], both of them without modeling the membrane’s tangential rheology. The actual dynamics of phospholipid membranes does not obey gradient flow. Their evolution results from the interplay between the applied forces, the hydrodynamic forces coming from the adjacent inner and outer liquids, and the forces that develop on the membrane itself, which include an elastic contribution (as in gradient flow) and also a surface viscous contribution arising from the lipid-to-lipid sliding. In this article we focus just on the membrane forces, restricting the effect of the adjacent liquids to just a volume constraint. The combination of the methods proposed below with more realistic treatments of the inner and outer liquids is straightforward (though the added computational cost is obviously significant). We assume that the surface viscous forces that develop on the membrane and determine its dynamics correspond to an area-preserving Newtonian surface fluid [11–13]. Our goal is thus to present a finite element method for the viscous flow of phospholipid bilayers; i.e., for the dynamical simulation of phospholipid bilayers, considering an elastic model for bending deformations and a (viscous) Newtonian area-preserving fluid model for the dissipative tangential motions. For this purpose, we adopt the same treatment of elastic forces used for gradient flows [4,8], combined with a novel treatment of surface viscous forces. The mathematical formulation of surface viscous behavior was first derived by Scriven [14]. Schemes for its numerical approximation have been proposed by Arroyo and coworkers [13,15,16] in the axisymmetric case, and by Tasso and Buscaglia [17] in the general 3D case. The formulation of this latter article relies heavily on the numerical differentiation of the energy of the membrane (including an “evanescent elasticity” term which accounts for tangential viscosity) to compute forces and stresses, and on yet another numerical differentiation to compute the approximate tangent matrix. In this work another approach is followed, developing a semi-implicit scheme issued in a classical way from the continuous variational formulation, without adjustable numerical differentiation parameters and involving the solution of just one linear system per time step. After introducing the mathematical formulation in Section 2 and the proposed discretization scheme in Section 3, we assess the proposed method through numerical examples in Section 4. Special attention is given to experiments that involve membrane tweezing and tether formation. The latter is a salient phenomenon that takes place in phospholipid bilayers, by which if a small part of a vesicle is pulled away by some localized force (using an optical trap, for example [18–20]) it carries with it a narrow bilayer tube (tether) that can be much longer than the vesicle itself and nanometric in diameter [21]. The proposed method is shown to be sufficiently robust to allow for accurate simulations of tether formation and extension, which are important to shed light on fundamental mechanisms of cell mechanics [22–24]. Section 5 is then devoted to summarize the conclusions of the study.
+2. Mathematical formulation
+2.1. Virtual power at the interface
+We consider the motion of a closed surface ⊂ R3 under the action of surface elastic forces and external forces coming
+from the adjacent liquid. The virtual work principle for such a system reads ∫
+σ : D v = −dE(v) +
+∫
+f · v ∀ v ∈ V , (1)
+where σ is the tensor of tangential stresses, E( ) is the elastic energy from which elastic forces are derived, f is the net interaction force with the surroundings, V the space of admissible virtual velocities and D v the surface virtual strain rate. In (1), by dE(v) we denote the derivative (or first variation) of E( ) along the virtual velocity field v. In turn, D v represents the surface differential operator
+D v= 1
+2 P (∇ v + ∇ vT ) P , (2)
+which is the surface analog of the usual three-dimensional symmetric gradient Dv = (∇v + ∇vT )/2. Some elements of differential geometry are needed at this point. We follow the presentation of Buscaglia and Ausas [25], the reader is also referred to Biria et al. [26] for a more comprehensive review. The tensor P above is the tangent projector onto given by
+P = I − ̂n ⊗ ̂n, (3)
+̂n being the outward normal to , and the symbol ∇ refers to the surface gradient, given by
+∇ f = P ∇̂ f , (4)
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 567
+where ̂ f is any smooth extension of the function f from its values on to a three-dimensional neighborhood of it. The surface Laplacian f is defined as ∇ · (∇ f ). The surface gradient ∇ w of a vector field w defined on is defined as the matrix (Cartesian tensor)
+{∇ w}ij = {∇ wi} j, (5)
+where wi is the i-th Cartesian component of w.
+2.2. The Boussinesq–Scriven operator
+The rheology of a viscous interface is governed by the Boussinesq–Scriven law [27,14,28], which is the tangential analog to the Newtonian constitutive law, i.e.,
+σ = (−ps + λ ∇ · u) P + 2 μ D u, (6)
+where λ and μ are surface viscosity coefficients, u is the material velocity of the membrane particles, and ps is a surface thermodynamic pressure, which requires a closure law. An area-preserving membrane (frequently called inextensible membrane) is defined by the constraint
+∇ · u = 0 . (7)
+The inextensible limit is obtained making λ tend to infinity. It is a classical result that there exists a surface pressure πs, the Lagrange multiplier associated to the constraint (7), such that, irrespective of the closure law for ps,
+lim
+λ→+∞ (−ps + λ∇ · u) = − πs . (8)
+As a consequence, the tangential stresses from (6) read, for inextensible membranes,
+σ = −πs P + 2 μ D u .
+The bilinear form that expresses the virtual power along a virtual velocity field v performed by the stresses σ corresponding to an actual velocity field u and surface pressure πs is given by
+W ((u, πs), v) =
+∫
+σ :D v=
+=
+∫
+2μD u: D v −
+∫
+πs ∇ · v . (9)
+Remark. The bilinear form W is the surface analog of the Stokes form for bulk fluids, namely
+Wbulk ((u, p), v) =
+∫
+2μ Du : Dv −
+∫
+p∇ ·v
+with the integrals performed this time over the volume occupied by the bulk fluid. As it is well known, there is a differential operator that corresponds to Wbulk, which reads
+−μ ∇2u + ∇ p.
+Similarly, there exists a surface differential operator associated to W, which can be denoted by
+−S u + ∇ πs,
+but the actual expression of S is quite involved. It can be found in the pioneering work of Scriven [14], which is why S is sometimes referred to as Boussinesq–Scriven operator. It can also be found, written in the language of differential forms, in the interesting article by Arroyo and DeSimone [13] (see also [29]).
+2.3. The Canham–Helfrich energy
+The elastic bending energy considered here is the simplest version of the model proposed by Canham and Helfrich [2,30],
+E( ) = cCH
+2
+∫
+κ2, (10)
+where κ = κ1 + κ2 stands for the mean scalar curvature of (κ1 and κ2 are the principal curvatures) and cCH is a material dependent parameter, known as bending rigidity or bending stiffness. In differential geometry, equation (10) is known as Willmore energy [31].
+
+
+568 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+The Canham–Helfrich energy (10) depends on the shape of and is thus affected by motions along a virtual velocity field v. The derivative of E along v was computed by Rusu [5] as
+dE(v) = cCH
+∫ [ | χ |2
+2 ∇ χ : ∇ v + ∇ ( χ ) : ∇ v − 2 (∇ ( χ )T̂n) · (∇ vT̂n)
+]
+, (11)
+where χ stands for the identity mapping on (i.e., χ (x) = x, ∀ x ∈ ), which obeys
+P = ∇ χ , and κ =. κ ̂n = − χ . (12)
+In terms of the vector curvature κ , the first variation dE(v) can be rewritten as
+dE(v) = cCH
+∫ [ |κ|2
+2 P : ∇ v + (I − 2 P)∇ v : ∇ κ
+]
+. (13)
+Alternative formulas for dE(v) were produced by Dziuk [4] and Bonito et al. [8]. The latter was adopted in our implementation, which reads
+dE(v) = cCH
+∫[
+(I − 2 P)∇ v : ∇ κ + 1
+2 (∇ · v) (∇ · κ)
+]
+. (14)
+Clearly, (13) and (14) hold if κ obeys − χ = κ , or equivalently,
+∫
+κ·ζ =
+∫
+P : ∇ ζ ∀ ζ ∈ H1( )3 . (15)
+2.4. Volume and area constraints
+Let V be the volume enclosed by the lipid membrane . It satisfies
+V=1
+3
+∫
+χ · ̂n (16)
+and its time derivative, when the membrane velocity is u, is given by
+dV
+dt =
+∫
+u · ̂n . (17)
+In general, osmotic equilibrium determines the (fixed) volume V∗ that the surface must enclose at all times along
+its evolution, so that the instantaneous constraint reads ∫ u · ̂n = 0. When the membrane evolution is discretized in time, however, the enclosed volume may drift away from the value V∗. To mitigate this error, we implemented a volume controller as follo∫ws
+u ·̂n = V∗ − V
+τV
+. (18)
+The controller drives the volume towards the target value V∗ with characteristic time τV . Equation (18) acts as an additional constraint on the membrane’s dynamics, which materializes as an internal pressure p (uniform) which exerts a surface force
+fp = p̂n
+on . The area A of an inextensible membrane is also constant, this time as a consequence of (7) because
+dA
+dt =
+∫
+∇ · u = 0. (19)
+Upon time discretization, as discussed above for the enclosed volume, the restriction dA
+dt = 0 may be inexactly satisfied and
+thus A may drift away from its correct value A∗. An area controller is thus implemented as
+∇ · u − A∗ − A
+A τA
+= 0 (20)
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 569
+so that, integrating over , one retrieves
+dA
+dt = A∗ − A
+τA
+which drives the membrane area towards A∗ with characteristic time τA.
+Remark. The modifications introduced by the volume and area controllers have no effect in the exact problem if the initial volume equals V∗ and the initial area equals A∗. In fact, if V(t = 0) = V∗ then (18) forces V(t) to equal V∗ at all times.
+Similarly, if A(t = 0) = A∗, then (20) implies A(t) = A∗ for all t > 0.
+The Lagrange multiplier associated to the conservation of area is the surface pressure πs, already discussed, so that the area controller adds nothing to the bilinear form (9).
+2.5. Variational formulation
+Collecting the ingredients discussed in the previous sections, the variational formulation that determines the velocity of the membrane corresponds to the following linear problem:
+Problem P. Find (u, πs, κ , p) ∈ V × Q × K × R such that
+∫
+2μD u: D v −
+∫
+πs ∇ · v +
++ cCH
+∫[
+(I − 2 P)∇ κ : ∇ v + 1
+2 (∇ · κ) (∇ · v)
+]
+−p
+∫
+v ·̂n =
+∫
+f · v (21)
+∫
+ξ ∇ · u = A∗ − A
+A τA
+∫
+ξ (22)
+∫
+κ·ζ =
+∫
+P : ∇ ζ (23)
+∫
+u ·̂n = V∗ − V
+τV
+(24)
+∀ (v, ξ, ζ ) ∈ V × Q × K.
+The surface pressure πs, the vector curvature κ and the internal pressure p arise in this formulation as “by-products” of computing u. Notice that the force field f on the right-hand side of (21) now comprises all interaction forces with the surroundings other than that coming from the internal pressure. For problem P to be well-posed, the spaces V, Q and K need to be discussed. Assuming the surface to be smooth, which implies that χ is smooth, one can integrate by parts the right-hand side of (23) so as to take K = L2( )3. There is then a unique solution κ ∈ K, which can then be seen to be smooth because of the smoothness of P = ∇ χ . Let us consider then existence and uniqueness of u. For simplicity, let us set πs = p = 0 and leave aside Eqs. (22) and (24), which are constraints handled by Lagrange multipliers. All that remains is to plug κ into (21) and solve the Boussinesq–Scriven operator to determine u. The well-posedness of problem P thus demands that the bilinear form
+B(u, v) =
+∫
+2 μ D u : D v (25)
+be continuous on V and (weakly) coercive over the admissible velocity space, i.e., over the subspace of V consisting of inextensible and volume-preserving motions. For continuity, V must be contained in H1( )3. For coercivity, H1( )3 must be quotiented with the space of (infinitesimal) rigid movements
+R =. {w : R3 → R3 | w(x) = ω ∧ x + β, ω, β ∈ R3} (26)
+or, more generally, with
+Z =. {w ∈ H1( )3 | D w(x) = 0 a.e. in } . (27)
+
+
+570 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+In this exposition we assume V to be equal to H1( )3/R, or equivalently that Z = R, what makes the bilinear form B(·,·) to be coercive over the whole of V. This assumption allows us to consider u as uniquely defined by (21), assuming κ already computed (remember that to simplify the argument we are for now considering πs = p = 0).
+Remark. For later use, let us recall that the energy dissipation rate of the surface is given by
+D=
+∫
+2μ ‖D u‖2 = B(u, u). (28)
+If we now turn to the existence and uniqueness of πs and p as Lagrange multipliers enforcing the inextensibility equation (22) and volume preservation, the situation is similar to that of the incompressible Stokes equation in that an inf–sup condition arises, namely,
+inf
+0=(ξ,r) ∈ Q ×R sup
+0=v ∈ V
+∫(
+ξ ∇ · v + r κ v ·̂n
+)
+‖(ξ, r)‖Q ×R ‖v‖V
+> 0 . (29)
+This condition is indeed fulfilled when Q = L2( ) unless the surface has constant mean curvature (a sphere), in which case the two constraints become linearly dependent. As a consequence the subspace of inextensible volume-preserving fields is closed in V (this was implicitly assumed in the previous paragraph) and the mixed formulation (Problem P) is well posed. The reader should be warned that the viscous model above considers the membrane as a single surface and does not incorporate the layer-to-layer slippage of the two molecular sheets that form the lipid bilayer. This mode of deformation may well be dominant in some situations, as discussed by Evans and Yeung [32] and more recently by Rahimi and Arroyo [16]. In this contribution the focus is in the numerical treatment of the Boussinesq–Scriven operator coupled to the Canham–Helfrich elastic model, so that the incorporation of layer-to-layer slippage models is left for future work.
+2.6. The evolutionary problem
+Up to now we have considered a single instant of time, at which the membrane configuration is described by a surface . Since an outcome of the instantaneous problem is in fact the velocity field with which the membrane’s particles are moving, one is lead to the following evolutionary problem:
+Evolutionary problem EP: Given (0), the initial surface, compute the continuous family of surfaces (t) that evolves from (0) as convected by the velocity field u(t) : (t) → R3 that solves problem P. In mathematical terms, the family (t) must satisfy
+∀x ∈ (t), dist ( x + u(x, t) δt , (t + δt) ) C δt2 (30)
+where dist stands for the distance between a point and a surface, for some C > 0.
+Notice that the tangential component of u(t) is inconsequential in the evolution of (t). However, and contrary to what happens in gradient flow, the tangential velocity generated by viscous flow is not zero.
+3. Discretization
+We consider triangulation surfaces in 3D space, which for a fixed mesh connectivity are uniquely described by the vector X of vertex positions. Time is discretized so that a sequence of triangulation surfaces 0, 1, . . . , n, . . . are computed, corresponding to vertex positions X0, X1, . . . , Xn, . . . . On each n we define the piecewise-affine finite element space
+Pn
+1 = { f ∈ C0( n) : f |K is affine, ∀ K triangle in n} (31)
+and the approximation spaces for velocity, surface pressure and curvature
+Vn
+h = (Pn
+1
+)3 / R (32)
+Qn
+h = Pn
+1 (33)
+Kn
+h = (Pn
+1
+)3 . (34)
+Discrete problem DP: Defining δt = tn+1 − tn, the proposed scheme updates the nodal positions in a Lagrangian way, i.e.,
+X J ,n+1 = X J ,n + δt un+1
+h (X J ,n) (35)
+where J is the nodal index, so that (30) is by construction satisfied. Notice that the velocity field un+1
+h is computed on n
+and is thus an element of Vn
+h.
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 571
+The fully discrete linear problem that determines un+1
+h is the following:
+Find (un+1
+h , π n+1
+h , κn+1
+h , pn+1) ∈ Vn
+h× Qn
+h × Kn
+h × R such that ∫
+n
+2 μ D un+1
+h :D v −
+∫
+n
+π n+1
+h ∇ · v − pn+1
+∫
+n
+v ·̂n +
++ cCH
+∫
+n
+[
+(I − 2 P)∇ v : ∇ κn+1
+h +1
+2 (∇ · v) (∇ · κn+1
+h)
+] =
+∫
+n
+fn+1 · v (36)
+∫
+n
+ξ ∇ · un+1
+h+
+∫
+n
+γh (∇ π n+1
+h − gn
+h) · ∇ ξ = A∗ − An
+An τA
+∫
+n
+ξ (37)
+−
+∫
+n
+τκ ∇ un+1
+h :∇ ζ +
+∫
+n
+κ n+1
+h ·ζ =
+∫
+n
+P : ∇ ζ (38)
+∫
+n
+un+1
+h ·̂n = V∗ − Vn
+τV
+(39)
+hold ∀v ∈ Vn
+h, ∀ξ ∈ Q n
+h and ∀ζ ∈ Kn
+h. Together with (35), this completely defines the fully discrete formulation. Notice that all
+integrals are performed over the known discrete surface n. Several remarks are in order:
+• Algorithms that compute the velocity with frozen vertex positions, as is the case of DP, suffer severe stability restrictions on δt. The trend has thus been to “implicitize” as many terms as possible while keeping the problem to be solved at each time step linear, as done by Rusu [5], Dziuk [4] and others.
+• A stabilization term
+∫
+n
+γh (∇ π n+1
+h − gn
+h) · ∇ ξ
+has been added in the inextensibility equation (37). This aims at stabilizing checkerboard modes arising from the equal-order interpolation of uh and πh. The stabilization technique is taken from the “stabilization by pressure gradient
+projection” method proposed by Codina and Blasco [33–35]. The vector field gn is the L2( )-projection of ∇ πn
+h onto
+(Q n
+h )3, i.e., ∫
+n
+gn
+h ·v=
+∫
+n
+∇ πn
+h · v ∀v ∈ (Q n
+h )3 . (40)
+The parameter γh varies from element to element, according to
+γh = h2
+K
+10 μ , (41)
+where hK is the diameter of element K . The consistent mass matrix is used in solving (40). • By comparing (38) to its exact version (23), one notices the addition of the stabilization term due to Bänsch [36]
+−
+∫
+n
+τκ ∇ un+1
+h : ∇ ζh ,
+for which the usual choice is τκ = δt, adopted throughout this article. This term significantly increases the temporal stability. It allows time steps hundreds of times larger than those allowed by the unstabilized algorithm (τκ = 0).
+• The space Vn
+h needs to have its rigid modes filtered out. We accomplish this by a classical Lagrange multiplier technique,
+which adds 6 equations (∫
+n un+1
+h = 0 and ∫
+n x ∧ un+1
+h = 0) and 6 unknowns to the global matrix.
+• The characteristic times τA and τV of the area and volume controllers, respectively, which are non-physical, are taken as
+τA = τV = 10 δt . (42)
+This choice yields the best results in terms of accuracy and stability, as concluded from numerous experiments.
+
+
+572 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+4. Remeshing
+The simulation of evolving surfaces that undergo large deformations requires adaptive meshing techniques to maintain good accuracy along the computations. The loss of accuracy is not only related to the degradation of triangles quality, but also to the changes in time of the local surface curvature. In order to cope with these issues an automatic discrete surface regridding software was employed [37]. The remeshing procedure starts by defining a single discrete patch as the whole support surface whose boundary is the largest edge. Using this edge as the initial front, the discrete patch is triangulated using an advancing front technique. The desired local element size is defined using the curvature information by the rule
+h∗(κ) = ch
+|κ| ,
+where ch is a user-defined parameter and κ is the scalar mean curvature provided by the field solver. The specified element size is isotropic since only scalar curvature information is used. The output of this step is a completely new discrete surface. Although the new nodes lie on the original surface, the two surfaces are not coincident. In particular, discrepancies in the curvature introduce discontinuities in the elastic energy after each remeshing. These perturbations are however rapidly dissipated and seem to not have any major impact on the simulation results. In order to assess the quality of a given surface discretization, two parameters are defined as measures of the shape and size quality of each individual triangle K as follows:
+• Element shape quality:
+qshape
+K = 12 √3 aK
+p2
+K
+,
+where aK and pK are the triangle’s area and perimeter, respectively. • Element size quality:
+qsize
+K = min
+{ h∗(κK )
+hK
+,1
+} .
+Global measures of shape and size qualities are then defined as
+Q shape = mKin
+{
+qshape
+K
+}
+and Q size = mKin
+{
+qsize
+K
+}
+respectively. These definitions of mesh quality are surface analogs of those previously used for volume meshes [38,39]. The evolving discrete surface is remeshed every time one of the two quality measures drops below given threshold values (Q ∗
+shape and Q ∗
+size). For all the simulations presented in this paper Q ∗
+shape and Q ∗
+size were set to 0.65 and 0.55 respectively.
+5. Numerical results
+5.1. Adimensionalization
+It is convenient to express the numerical results in non-dimensional form. For this purpose, one defines the basic length scale for an inextensible membrane as
+R0 =
+√A
+4π , so that the non-dimensional area is always 4 π . This allows for the definition of consistent scales for velocity, surface pressure, surface stress, curvature, internal pressure and other variables as shown in Table 1. A relaxation experiment corresponds to solving problem P repeatedly starting from an initial configuration 0 and with no forces other than the internal pressure applied (i.e., f = 0), so that the membrane evolves towards a nearby equilibrium. In
+a relaxation experiment all non-dimensional variables depend just on the non-dimensional initial configuration ̂ 0, where ̂ 0 is the scaled version of 0, i.e.,
+x ∈ 0 ⇐⇒ ̂ x .= 1
+R0
+x ∈ ̂ 0. (43)
+If two relaxation experiments share the same ̂ 0, then the time history (in terms of non-dimensional time) of all (nondimensional) variables must coincide, irrespective of the actual values of R0, cCH and μ. In a tweezing experiment, on the other hand, there is a part of the membrane that is pulled away with some imposed velocity V T or some imposed force F T . In this case the non-dimensional solutions will depend both on ̂ 0 and on the non-dimensional value of the imposed velocity or force, which acts as an additional non-dimensional parameter. In what follows, all reported quantities are non-dimensional unless explicitly said otherwise. The sample values in Table 1 may help the reader in translating the non-dimensional results into physical quantities.
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 573
+Table 1
+Adimensionalization scales for the intervening variables. The sample values correspond to R0 =
+10−6 m, cCH = 4 × 10−20 J and μ = 10−8 Pa s m.
+Quantity Symbol Scale Sample value
+Space x R0 10−6 m
+Time t μ R2
+0 cCH
+0.25 s
+Velocity u cCH
+μ R0
+4 × 10−6 m s−1
+Area A R2
+0 10−12 m2
+Energy E cCH 4 × 10−20 J
+Dissipation D c2
+CH μ R2
+0
+1.6 × 10−19 W
+Surface pressure πs
+cCH
+R2
+0
+4 × 10−8 Pa m
+Surface stress σ cCH
+R2
+0
+4 × 10−8 Pa m
+Curvature κ 1
+R0
+106 m−1
+Internal pressure p cCH
+R3
+0
+0.04 Pa
+Surface force f cCH
+R3
+0
+0.04 Pa
+Force F cCH
+R0
+4 × 10−14 N
+5.2. Relaxation experiments: stability limit, convergence and equilibrium shape
+Equilibrium shapes of lipid membranes, or equivalently stationary points (local minima) of the Canham–Helfrich energy, are configurations ∞ at which the membrane is in static equilibrium (the solution to problem P is u(x) = 0 ∀x ∈ ). Equilibrium shapes have been studied extensively by Seifert and coworkers [3], among others. The viscous relaxation of a membrane corresponds to the evolution, without any external force (f ≡ 0), from an initial
+shape 0 towards an equilibrium shape ∞, obeying the viscous model described in this article. In what follows we assess the performance of the proposed method (defined by problem DP, Eqs. (35)–(39)) for relaxation experiments. For this purpose, we first determine the stability limit of the method (maximum δt for stable behavior, as a function of the mesh size), and then conduct numerical relaxations with increasingly refined meshes. There is no analytical solution for the relaxation transient, so that what is being analyzed is the consistency of the results obtained for different meshes. The discrete equilibrium shape, on the other hand, can be compared to quasi-analytical results (analogous to those of Veerapaneni et al. [40]).
+5.2.1. Stability limits
+The initial shape can be seen in Fig. 1, with a triangulation that corresponds to the finest mesh employed (mesh MR3). The enclosed volume is V(t = 0) = 3.1907, and this same value is taken as V∗. Though this value is non-dimensional, it is customary to express the volume in terms of another non-dimensional quantity, the reduced volume [3]
+v .= 6 √π Volume
+Area 3
+2
+= 3V
+4 π , (44)
+where “Volume” and “Area” stand for the actual (dimensional) volume enclosed by the membrane and area of the membrane, respectively. The reduced volume enclosed by mesh MR3 is v(t = 0) = 0.7617. All results below and in the next sections are computed with algorithm DP with τκ = δt, τA = τV = 10 δt and γh given by (41). The first experiments aim at determining the maximum time step size δtlim for which the fully-discrete method behaves in a stable way. For this purpose, one hundred time steps are run on each mesh for several choices of δt. Unstable runs are easily recognizable by violent fluctuations of the elastic energy and of the maximum velocity. The limit value δtlim is obtained by dichotomic search with a tolerance 20%. Three increasingly refined triangulations are employed, of which the most refined is the already described mesh MR3. The maximum time steps allowed by the method can be observed in Table 2. They obey the formula
+δtlim 0.42 h2
+min (45)
+almost exactly. Notice that this formula is non-dimensional, expressed dimensionally it reads
+δtlim
+0.42 μ
+cCH
+h2
+min (dimensionally).
+
+
+574 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+Table 2
+Maximum time step for stable behavior of the method, as obtained for each of the meshes of the relaxation study.
+Mesh # nodes # elements hmin δtlim
+MR1 592 1180 0.041 7.0 × 10−4 MR2 2177 4350 0.021 1.6 × 10−4 MR3 8126 16 248 0.010 4.2 × 10−5
+Fig. 1. Stability limit δtlim plotted as a function of the minimum edge size hmin. The triangles are experimentally obtained values for meshes of different shapes and refinement (some of the shapes are shown and the corresponding data point indicated). In magenta the best-fit line 0.42 h2
+min. In cyan the adopted time-stepping strategy, 0.105 h2
+min. (For interpretation of the references to color in this figure legend, the reader is referred to the web version of this article.)
+The constant 0.42 can of course depend on the shape of the membrane, so that a similar study was performed on several very different shapes and with uniform or adaptively refined triangulations. The δtlim obtained for each initial mesh is plotted as a function of hmin in Fig. 1. The best-fit line in magenta corresponds to (45), which as observed from the plot in some cases overestimates δtlim. Further, we have observed quite often that choosing δt very close to the stability limit deteriorates the accuracy of the
+computations. This could be a consequence of the term ∫
+n τκ ∇ un+1
+h : ∇ ζ in (38), since we are taking τκ = δt. For these
+two reasons we adopt as automatic time-step determination formula (adjusted every single time step) one fourth of the value given by (45), that is,
+δt = δt∗(hmin) =. 0.105 h2
+min. (46)
+Unless otherwise stated, all relaxation experiments described below have been conducted with this time-stepping strategy.
+5.2.2. Convergence of relaxation dynamics
+Let us assess now the convergence of the proposed method. The initial meshes are MR1, MR2 and MR3, and the time step is updated according to (46). The initial values of the time step are, thus, 1.75 × 10−4, 0.40 × 10−4 and 1.05 × 10−5. The simulated non-dimensional time is 0.06. There is no analytical solution for this evolutionary problem, so that the experiments aim at checking the consistency of the results with mesh (and time step) refinement. In Fig. 2 we plot several integral quantities of the relaxation process, namely the (all non-dimensional) energy E , the internal pressure p, the dissipation rate D, and the L2( ) norms of the velocity u and of the surface pressure πs, as functions of non-dimensional time t. The shape evolution is shown at the top of the figure. The relaxation process is seen to take until about t = 0.06, with an energy reduction of about 20% (from ∼ 49 to ∼ 39). The consistency of the curves corresponding to MR1, MR2 and MR3, and the close agreement between the two finest meshes, provide strong evidence of mesh convergence. Notice how some spurious transient that takes place at t 0.03–0.04 for mesh MR1 (especially evident in the plot of ‖u‖2) completely disappears upon mesh refinement.
+5.2.3. Equilibrium shapes
+Discrete equilibrium shapes can be obtained by gradient flow or by viscous flow, once the evolutionary problem reaches its steady state. It is an important consistency check for the proposed method that the discrete equilibrium shapes it provides are indeed approximations of exact equilibrium shapes.
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 575
+Fig. 2. Time evolution of energy, internal pressure, dissipation, velocity norm and surface pressure norm (both in L2( )) along the relaxation experiment. The different colors correspond to the increasingly refined meshes MR1, MR2 and MR3. On top, the shape of the membrane at different instants (the horizontal position of each shape approximately corresponds to its time).
+To perform this check, quasi-analytical solutions were computed for axisymmetric shapes by numerically integrating the associated system of ODEs with an extremely fine discretization. In this way, axisymmetrical versions of the quasi-analytical shapes produced by Veerapaneni et al. [40] were obtained. They can be compared to the numerical shapes at which the algorithm arrives after the relaxation process. We selected for this comparison oblate equilibrium shapes with reduced volumes of v = 0.61 and v = 0.81. For each reduced volume, three increasingly refined meshes were used, as in the previous section (in fact, essentially the same meshes). To compare the 3D results with the axisymmetric solution, the symmetry axis of the 3D mesh is identified by diago
+nalizing the tensor ∫ x ⊗ x, and so a cylindrical coordinate system r–z–φ can be assigned to each point in , and also an arc-length coordinate s along the meridians. In Fig. 3(a) the r–z coordinates of the nodes of the coarsest relaxed mesh are superposed to the corresponding quasianalytical curves (just one fifth of the nodes are plotted, to leave the exact curve visible). Just the results of the equilibrium shape corresponding to v = 0.61 are shown, since those of v = 0.81 are analogous. The shape is seen to be quite correctly reproduced. To compare the curvature, we plot it as a function of the arc-length coordinate in Fig. 3(b). Each data point of these figures involves an error, from which we compute
+err(x) =
+⎡
+⎣1
+# nodes
+# nodes
+∑
+J =1
+‖X J − cp(X J )‖2
+⎤
+⎦
+1 2
+where cp(x) is the closest projection of x onto the exact equilibrium shape . In the same way, comparing the numerical nodal values of the different quantities to their exact value at the closest point of , we compute discrete estimates of the
+errors of the different fields, i.e., err(̂n), err(κ ), err(κ), err(πs).
+
+
+576 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+Fig. 3. Numerical and quasi-analytical equilibrium shapes for v = 0.61. (a) Coordinates r–z of nodal positions (red circles) and exact shape (black line). (b) Mean curvature at the nodes as a function of the meridian-arc length (red circles) and exact mean curvature (black line). (c) Nodal errors of the curvature vector κh as a function of the meridian-arc length for the three meshes MR1 (red), MR2 (green) and MR3 (blue). (d) Idem as (c) for the normal
+vector ̂nh . (For interpretation of the references to color in this figure legend, the reader is referred to the web version of this article.)
+Table 3
+Experimental convergence analysis of the different variables as compared to those of the exact shapes for v = 0.61 and v = 0.81. EOC stands for “estimated order of convergence”.
+Mesh hmin err(x) err(̂n) err(κ ) err(κ) err(πs) err(p) err(E)
+Case v = 0.6104 (p = −15.61, E = 48.47) MR1 0.04 2.91e−03 1.21e−01 1.04e−01 7.34e−02 6.26e−01 5.1581e−01 5.7932e−01 MR2 0.02 8.45e−04 3.43e−02 3.25e−02 1.99e−02 2.34e−01 1.4022e−01 1.5458e−01 MR3 0.01 2.68e−04 2.59e−02 1.23e−02 5.38e−03 1.55e−01 3.7460e−02 3.8833e−02 EOC 1.67 1.08 1.50 1.83 0.98 1.84 1.90
+Case v = 0.8101 (p = −14.39, E = 35.89) MR1 0.04 2.61e−03 1.48e−01 5.41e−02 3.90e−02 5.74e−01 3.92e−01 1.49e−01 MR2 0.02 7.54e−04 4.43e−02 1.62e−02 1.05e−02 1.74e−01 1.08e−01 3.52e−02 MR3 0.01 2.55e−04 2.52e−02 6.02e−03 2.80e−03 8.12e−02 2.91e−02 5.36e−03 EOC 1.63 1.24 1.54 1.85 1.37 1.83 2.34
+The results are summarized in Table 3 for the two reduced volumes v = 0.61 and v = 0.81. One observes convergent behaviors of order O(h5/3) for the position and O(h3/2) for the vector curvature κ , which are the main unknowns of the problem. The surface pressure πs seems to converge with first order, while internal pressure p and the elastic energy E seem to be second order.
+It is interesting that the algorithmic normal ̂n, numerically computed as κh/κh, converges with less accuracy than κ
+itself. In Fig. 3(c)–(d) we plot the error distribution of κ and of ̂n as a function of the arc-length coordinate. Notice how the
+error in ̂n concentrates at regions where the mean curvature takes values close to zero.
+5.2.4. Mesh distortions near equilibrium
+The remeshing process is important in the long term stability of the method. In relaxation simulations, once the shape has minimized its energy there still persists a small velocity field on the membrane. These velocities, arguably similar to the parasitic velocities that appear in capillary flows [41–45], slowly distort the mesh until some sort of instability is triggered and the simulation diverges. An attempt to illustrate this phenomenon is made in Fig. 4. There the evolution of the energy and of the mesh quality along a relaxation simulation are plotted. The relaxation should end at t 0.06, with the velocity going to zero and the membrane remaining forever after in the equilibrium configuration. One observes, however, that the quality of the mesh deteriorates steadily and the elastic energy begins to grow after t 0.07. This behavior, if allowed to progress, completely
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 577
+Fig. 4. Long-term evolution of a relaxing membrane. Plotted are the elastic energy and mesh quality as functions of time. The state of rest is not completely achieved and small parasitic velocities distort the mesh activating the remeshing process. The dotted lines show the evolution of the variables if remeshing is inhibited, and the inserts show the unstable distortion pattern.
+pollutes the simulation. The dotted curves after t = 0.1 correspond to the evolutions of energy and mesh quality that would be obtained if the remeshing operation automatically activated at t = 0.1 were inhibited. The mesh distortions in these instabilities are more pronounced in some localized region. The inserts in Fig. 4 show the affected region at the time of remeshing and sometime later, in a non-remeshed simulation. After remeshing at t = 0.1 there is a slight adjustment of the energy due to the change in mesh and then again a state of pseudo-rest develops, in which nothing happens other than a slow distortion of the nodal positions. After time t 0.3 this spurious movement begins to significantly affect mesh quality and the energy begins to grow again. A new instability develops quite similar to the one that activated the first remeshing, leading to a second remeshing at t 0.36. The inserts show the critical regions, exhibiting the unstable distortion pattern. Remeshing is thus seen to serve not just as a mesh adaptation strategy, but also as a control mechanism for spurious unstable distortions.
+5.3. Tethering experiments: membrane tweezing, dynamical effects
+5.3.1. Basic description
+A tether develops when a small parcel of the membrane is pulled away. If a force F T is applied to the parcel, a structure develops composed of a head, a cylindrical tube of length L(t) and radius R(t) and the connection to the membrane body as shown in Fig. 5. The dynamics of the tether can be understood with the help of the analytical solution corresponding to a (circular) cylindrical inextensible membrane. We here go back to dimensional quantities and consider a membrane of surface viscosity μ and Canham–Helfrich’s constant cCH that is being pulled from its end by an external axial force F T . In this particular geometry, the exact problem admits an analytical solution with uniform (independent of x) circumferential and axial stresses. The exact velocity field is given by
+u = Ur
+̂ er + χ ẑ ez (47)
+with Ur and χ given by
+Ur = − 1
+8π μ
+[
+F T − 2π cCH
+1
+R
+(
+1 + p R3
+cCH
+)]
+, (48)
+χ= 1
+8π μR
+[
+F T − 2π cCH
+1
+R
+(
+1 + p R3
+cCH
+)]
+. (49)
+
+
+578 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+Fig. 5. Schematics of membrane tethering.
+Neglecting the contribution of the internal pressure p, and noticing that
+dR
+dt = Ur (50)
+one arrives at the more tractable equation
+dR
+dt = cCH
+4μ
+(1
+R eq
+−1
+R (t )
+)
+. (51)
+There exists an equilibrium radius Req given by
+Req = 2π cCH
+FT
+, (52)
+to which the cylinder will tend as t → ∞. At equilibrium, the surface pressure πs takes the value
+πs,eq = − F T
+4π Req
+=− F2
+T
+8π 2cCH
+.
+Further, the final decay when R Req must have the asymptotic behavior
+R(t) = Req + C exp
+(
+− cCH
+4 μ Re2q
+t
+)
+. (53)
+The characteristic relaxation time is
+T = 4 μ Re2q
+cCH
+= 16 π 2 μ cCH
+F2
+T
+.
+For t much greater than T the tether is expected to be at equilibrium following a rigid-body translation along the line of F T . The material deforms to take the shape of a cylinder in the region to the left of point “b” in Fig. 5, which is approximately fixed in space (the “beginning” of the tether). Once the material enters the tether it simply moves at constant velocity along it. The “end” of the tether (point “e”) moves at a constant velocity U T determined by a balance between the applied force and the viscous stresses at the connection region between the tether and the membrane body. Going back to non-dimensional quantities, the equilibrium radius and the tether relaxation time are given by
+Req = 2 π
+FT
+and T = 16 π 2
+F2
+T
+. (54)
+5.3.2. Numerical tweezers
+We have implemented numerical tweezers as a model for the external surface force f. Each numerical tweezer has a radius rT , which is fixed in time, while the position of its center follows a path described by the vectors x0
+T , x1
+T , etc.
+Given a point x in R3, the tweezer’s penetration at point x and time tn+1, denoted by wn+1(x), is defined as
+wn+1(x) =. rT − ‖dn+1
+T (x)‖
+where
+dn+1
+T (x) .= x − xn+1
+T.
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 579
+Fig. 6. An illustration of the tweezing strategy. In this case six tweezers are simultaneously acting on a membrane.
+The repulsive force that the tweezer exerts on x depends exponentially on wn+1(x), according to
+fn+1(x) = kT
+exp (wn+1(x)/ T ) ‖dn+1
+T (x)‖ dn+1
+T (x)
+In an exact setting, this force would be integrated over x ∈ n+1. Unfortunately, this force is needed at the time of comput
+ing un+1
+h through (36), and thus the integral is performed over n. One could replace fn+1 by fn in (36), but the following approximation has much more stable behavior:
+fn+1(x) = kT
+exp (wn+1(x)/ T ) ‖dn
+T (x)‖ dn
+T (x) − kT
+δt exp (wn(x)/ T ) T ‖dn
+T (x)‖2
+(dn
+T (x) ⊗ dn
+T (x)) un+1
+h (x) (55)
+Notice that the last term in (55) is an implicit linearization that must be added to the matrix arising from the left-hand side of (36). The two parameters kT and T are given the values 105 and rT /50, respectively. The numerical tweezer can be moved specifying either the velocity or the total force exerted on the membrane. In the former case, the update rule is simply
+xn+1
+T = xn
+T + δt Un+1
+T
+where UT is the specified tweezer velocity. In cases where the force is specified, a simple proportional feedback controller
+was implemented that adjusts Un+1
+T so as to keep the force at the target value. Fig. 6 illustrates our tweezing strategy, depicting a situation in which six tweezers are simultaneously pushing a membrane outwards, from within.
+5.3.3. Dynamical effects in tweezing
+The viscous-flow model presented here can deal, unlike gradient-flow models, with dynamical effects in excursions away from equilibrium. An illustrative application is the analysis of velocity effects in tether development carried below. Let us consider an equilibrium oblate shape corresponding to a reduced volume v = 0.6666. A tweezer of constants
+rT = 0.04, kT = 105, T = rT
+50
+is placed at xT (t = 0) on the interior of the surface, close to it, and is moved at constant velocity U T along the outward normal direction. The simulations are run until a time T such that the tweezer displacement D T = ‖xT (T )−xT (0)‖ = U T T = 1.0, meaning a non-dimensional displacement of the tweezer of 1.0 for all cases. We have observed that it is necessary to reduce the time step for the tweezing simulations. Specifically, δt is now chosen as
+δt = 1
+4 δt∗(hmin) (56)
+and the results are confirmed by re-running the simulation with one half of this value. Since the goal is to consider just the interaction of one tweezer, the rigid motions are filtered out by Lagrange multipliers just as in the free relaxation cases. The resulting membrane shapes at different positions of the tweezer, indicated by its displacement D T , and for several values of the tweezer velocity U T are shown in Fig. 7.
+
+
+580 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+Fig. 7. Dynamical effects in tweezing. Deformation of an equilibrium oblate shape with v = 0.6666 by a tweezer of radius rT = 0.04 moving outwards at constant velocity U T (vertically). Shown are the membrane shapes for four values of the tweezer’s displacement D T = 0.1, 0.4, 0.7 and 1.0, and for U T = 1, 10, 100 and 1000.
+The leftmost column of the figure corresponds to the smallest velocity, U T = 1. In this case, the membrane deforms almost quasistatically, without showing any localized response at the tweezer’s location. As the velocity is increased to U T = 10 one begins to “see” the tweezer pushing outwards from within the membrane. But it is only for U T = 100 and U T = 1000 that the small size of the tweezer (rT = 0.04) becomes apparent and the tweezer produces a tethering-like deformation. Considering just the bottom row of Fig. 7, for which the tweezer position is exactly the same (and the center of mass of the membrane too, thanks to the rigid-motion filtering), the ability of the proposed method to capture velocity-dependent deformations of the membrane is evident.
+5.3.4. Tether dynamical equilibrium
+We now assess the ability of the method to correctly predict the dynamical equilibrium of the tether. For that purpose, we take a tether formed by applying a tweezer force of F T = 400 and suddenly change the force. Two runs were performed, in one of them F T is changed to 500 and in the other to 600. The time is redefined to be zero at the time of the force change. The mesh is adapted and remeshed using ch = 1/2, which is rather coarse (h Req/2). The time step is adjusted according to (56). By post-processing the mesh it is possible to compute the radius of the tether as a function of time, as shown in Fig. 8. The initial exact equilibrium radius is Req(F T = 400) = 0.0157, which is reasonably approximated by the method despite the mesh being quite coarse. After changing the force to F T = 500, the tether’s radius shrinks to a value of approximately 0.013, which is a good approximation to Req(F T = 500) = 0.0126. Further, the evolution towards the new radius is in good agreement with an exponential of the form a e−t/T + b, where T = 6.32 × 10−4 is given by (54), as shown by a continuous line in the figure. A similar procedure is conducted for the change to F T = 600, for which the exact values are Req(F T = 600) = 0.0105
+and T = 4.39 × 10−4. The relaxation towards the equilibrium radius is seen to agree quite well with the analytical solution (though better for F T = 500 than for F T = 600), and the equilibrium radius itself is predicted with an error of about 5%. This error level is reasonable, considering that there are just about twelve elements in the tether’s circumference.
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 581
+Fig. 8. Response of the tether’s radius to a sudden change in the tweezer’s force. From a tether in dynamical equilibrium at F T = 400, the force is changed to F T = 500 or F T = 600 at t = 0. The circles correspond to the numerical results obtained with the proposed method. The black lines correspond to an exponential adjustment with characteristic time given by (54). On the right the exact equilibrium radius (as given by (54)) is shown with a short blue segment. (For interpretation of the references to color in this figure legend, the reader is referred to the web version of this article.)
+5.3.5. Complex tweezing
+This last section reports on a more complex tweezing experiment which aims at testing the robustness of the proposed method. Starting from a spherical membrane of area 4 π (i.e., taking as R0 the radius of the initial sphere), six independent tweezers of radius rT = 0.1 move radially outwards with U T = 100 acting upon it. The tweezers initial positions are the intersection of the membrane with the six Cartesian semi-axes. Though the imposed values of area, A∗, and volume, V∗, were introduced as constants, in this experiment they are set as specified functions of time,
+A∗(t) = 4π + 400 t (57)
+V∗(t) = 4π
+3 − 50 t (58)
+A time-dependent enclosed volume may result from a variable osmotic pressure in the fluid that surrounds the membrane, while a time-dependent area may result from the incorporation of lipids to the membrane. Along the simulation, the time step was continually adjusted according to
+δt = 0.105 h2
+min
+and the remeshing procedure was applied automatically, with ch = 0.5. A picture of the membrane’s evolution can be seen in Fig. 9. The tweezers are seen to “emerge” from the sphere first deforming the membrane into an approximate octahedron (at time ∼ 0.005) and then further stretching the octahedron into a star-like shape. Though there exist mechanisms that may create protrusions such as those in Fig. 9 in actual cells or lipid vesicles [46,47], this case does not attempt to model a specific physical phenomenon. In Fig. 10 plots of several variables of the simulation can be found. The energy is seen to increase monotonically along the deformation, with the area and volume following their target values A∗(t) and V∗(t) quite closely. The forces exerted by each of the six tweezers are also plotted in Fig. 10. They differ from one another until at t 0.005 the membrane tightens and all the tweezers start behaving alike. Notice the strong perturbations introduced by remeshing, which are the result of slight changes in the penetration of each tweezer by the interpolatory construction of the new mesh. The algorithm is able to recover itself from these strong perturbations quite rapidly.
+
+
+582 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+Fig. 9. Evolution of the membrane’s shape along the “complex tweezing” simulation. Shown are snapshots of the shape at equispaced time intervals of 0.8 × 10−3 time units. The shapes are shaded according to the absolute value of the scalar curvature.
+Fig. 10. Plots of energy, area, volume and tweezer forces (the six of them) as functions of time as obtained in the “complex tweezing” simulation.
+Finally, let us provide some computational data of this simulation. The time step and the minimum element size hmin are plotted as functions of time in Fig. 11. Also shown are the shape and size qualities of the mesh, Q shape and Q size, as functions of time in Fig. 12. The initial mesh consists of 2160 elements and 1082 nodes, while the final one consists of 5128 elements and 2566 nodes. The complete simulation comprises 1525 time steps, which take 29 minutes on an i7-based laptop at 2.8 GHz. The linear system is solved by LU factorization using the MUMPS package [48,49], with a memory requirement of 2 GBytes.
+
+
+D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584 583
+Fig. 11. Plots of δt and hmin as functions of time in the “complex tweezing” simulation.
+Fig. 12. Plots of Q shape and Q size as functions of time in the “complex tweezing” simulation.
+6. Conclusions
+In this contribution, we have introduced a fully discrete semi-implicit finite element scheme for the simulation of viscous membranes with bending elasticity of the Canham–Helfrich type. The membrane is discretized by a surface mesh made up of planar triangles, over which a mixed formulation (velocity–curvature) is built with P 1 interpolants for all fields. Two stabilization terms are incorporated in the discrete formulation: The first one stabilizes the inextensibility constraint by a pressure–gradient–projection scheme [33], the second couples curvature and velocity to improve temporal stability [36]. The volume constraint is handled by a Lagrange multiplier (which turns out to be the internal pressure), and an analogous strategy is used to filter out rigid-body motions. Feedback controllers are used to avoid drifting from imposed values of enclosed volume and total area. The nodal positions are updated in a Lagrangian manner and automatic remeshing strategy maintains suitable refinement and mesh shape quality throughout the simulation. The method has been numerically assessed through extensive relaxation and tweezing experiments. For the latter, a specific virtual tweezing algorithm was devised. It has been shown that the proposed method is convergent and robust, though with a severe (of order h2) stability restriction on the time step for which a practical estimate was derived. This stability restriction is the main difficulty in the applications of the algorithm, since it makes thousands of time steps necessary for the simulation of relatively simple membrane motions. Another difficulty still encountered, though currently avoided by quality-based automatic remeshing, is the existence of small persistent velocities at the numerical equilibrium which slowly but continually deteriorate the mesh quality.
+Acknowledgements
+The authors gratefully acknowledge the financial support received from São Paulo Research Foundation (FAPESP, grants no. 2011/01800-5, 2012/14481-8, 2012/23383-0 and 2014/19249-1), from the Brazilian National Research and Technology Council (CNPq, grants no. 308728/2013-0 and 447607/2014-6) and INCT-MACC, Brazil, grant no. 573710/2008-2.
+References
+[1] B. Alberts, D. Bray, K. Hopkin, A. Johnson, J. Lewis, M. Raff, K. Roberts, P. Walter, Essential Cell Biology, Garland Publishing, New York, 2009.
+
+
+584 D.S. Rodrigues et al. / Journal of Computational Physics 298 (2015) 565–584
+[2] P. Canham, The minimum energy of bending as a possible explanation of the biconcave shape of the human red blood cell, J. Theor. Biol. 26 (1970) 61–81. [3] U. Seifert, Configurations of fluid membranes and vesicles, Adv. Phys. 46 (1997) 13–137. [4] G. Dziuk, Computational parametric Willmore flow, Numer. Math. 111 (2008) 55–80. [5] R. Rusu, An algorithm for the elastic flow of surfaces, Interfaces Free Bound. 7 (2005) 229–239. [6] F. Feng, W. Klug, Finite element modeling of lipid bilayer membranes, J. Comput. Phys. 220 (2006) 394–408. [7] J. Barrett, H. Garcke, R. Nürnberg, Parametric approximation of Willmore flow and related geometric evolution equations, SIAM J. Sci. Comput. 31 (2008) 225–253. [8] A. Bonito, R. Nochetto, M. Pauletti, Parametric FEM for geometric biomembranes, J. Comput. Phys. 229 (2010) 3171–3188. [9] A. Bonito, R. Nochetto, M. Pauletti, Dynamics of biomembranes: effect of the bulk fluid, Math. Model. Nat. Phenom. 6 (2011) 25–43. [10] C. Elliott, B. Stinner, Modeling and computation of two phase geometric biomembranes using surface finite elements, J. Comput. Phys. 229 (2010) 6585–6612. [11] C. Harland, M. Bradley, R. Parthasarathy, Phospholipid bilayers are viscoelastic, Proc. Natl. Acad. Sci. USA 107 (2010) 19146–19150. [12] C. Harland, M. Bradley, R. Parthasarathy, Retraction, Proc. Natl. Acad. Sci. USA 108 (2011) 14705. [13] M. Arroyo, A. DeSimone, Relaxation dynamics of fluid membranes, Phys. Rev. E 79 (2009) 031915 (17 pp.). [14] L. Scriven, Dynamics of a fluid interface: equations of motion for Newtonian surface fluids, Chem. Eng. Sci. 12 (1960) 98–108. [15] M. Arroyo, A. DeSimone, L. Heltai, The role of membrane viscosity in the dynamics of fluid membranes, Tech. rep., arXiv:1007.4934v1, 2010. [16] M. Rahimi, M. Arroyo, Shape dynamics, lipid hydrodynamics, and the complex viscoelasticity of bilayer membranes, Phys. Rev. E 86 (2012) 011932 (15 pp.). [17] I. Tasso, G. Buscaglia, A finite element method for viscous membranes, Comput. Methods Appl. Mech. Eng. 255 (2013) 226–237. [18] A. Ashkin, Optical trapping and manipulation of neutral particles using lasers, Proc. Natl. Acad. Sci. USA 94 (1997) 4853–4860. [19] B. Pontes, Y. Ayala, A.C.C. Fonseca, L.F. Romão, R.F. Amaral, L.T. Salgado, F.R. Lima, M. Farina, N.B. Viana, V. Moura-Neto, H.M. Nussenzveig, Membrane elastic properties and cell function, PLoS ONE 8 (2013) e67708 (13 pp.). [20] H. Lee, E. Peterson, R. Phillips, W. Klug, P. Wiggins, Membrane shape as a reporter for applied forces, Proc. Natl. Acad. Sci. USA 105 (2008) 19253–19257. [21] A. Smith, E. Sackmann, U. Seifert, Pulling tethers from adhered vesicles, Phys. Rev. Lett. 92 (2004) 208101 (4 pp.). [22] R. Waugh, Surface viscosity measurements from large bilayer vesicle tether formation I: analysis, Biophys. J. 38 (1982) 19–27. [23] B. Božicˇ, S. Svetina, B. Žekš, Theoretical analysis of the formation of membrane microtubes on axially strained vesicles, Phys. Rev. E 55 (1997) 5834–5842. [24] R. Waugh, Surface viscosity measurements from large bilayer vesicle tether formation II: experiments, Biophys. J. 38 (1982) 28–37. [25] G. Buscaglia, R. Ausas, Variational formulations for surface tension, capillarity and wetting, Comput. Methods Appl. Mech. Eng. 200 (45–46) (2011) 3011–3025. [26] A. Biria, M. Maleki, E. Fried, Continuum theory for the edge of an open lipid bilayer, Adv. Appl. Mech. 46 (2013) 1–68. [27] J. Boussinesq, Sur l’existence d’une viscosité superficielle, dans le mince couche de transition separant un liquide d’une autre fluide contigu, Ann. Chim. Phys. 29 (1913) 349–357. [28] S. Gross, A. Reusken, Numerical Methods for Two-Phase Incompressible Flows, Springer Ser. Comput. Math., vol. 40, 2011. [29] P. Rangamani, A. Agrawal, K. Mandadapu, G. Oster, D. Steigmann, Interaction between surface shape and intra-surface viscous flow on lipid membranes, Biomech. Model. Mechanobiol. 12 (2013) 833–845. [30] W. Helfrich, Elastic properties of lipid bilayers – theory and possible experiments, Z. Nat.forsch., C J. Biosci. 28 (1973) 693–703. [31] T. Willmore, Riemannian Geometry, Clarendon Press, Oxford, 1993. [32] E. Evans, A. Yeung, Hidden dynamics in rapid changes of bilayer shape, Chem. Phys. Lipids 73 (1994) 39–56. [33] R. Codina, J. Blasco, A finite element formulation for the Stokes problem allowing equal velocity–pressure interpolation, Comput. Methods Appl. Mech. Eng. 143 (1997) 373–391. [34] G. Buscaglia, F. Basombrío, R. Codina, Fourier analysis of an equal-order incompressible flow solver stabilized by pressure-gradient projection, Int. J. Numer. Methods Fluids 34 (2000) 65–92. [35] R. Codina, J. Blasco, G.C. Buscaglia, A. Huerta, Implementation of a stabilized finite element formulation for the incompressible Navier–Stokes equations based on a pressure gradient projection, Int. J. Numer. Methods Fluids 37 (2001) 419–444. [36] E. Bänsch, Finite element discretization of the Navier–Stokes equations with a free capillary surface, Numer. Math. 88 (2001) 203–235. [37] R. Löhner, Regridding surface triangulations, J. Comput. Phys. 126 (1996) 1–10. [38] P. Zavattieri, E. Dari, G. Buscaglia, Optimization strategies in unstructured mesh generation, Int. J. Numer. Methods Eng. 39 (1996) 2055–2071. [39] G. Buscaglia, E. Dari, Anisotropic mesh optimization and its application in adaptivity, Int. J. Numer. Methods Eng. 40 (1997) 4119–4136. [40] S. Veerapaneni, R. Raj, G. Biros, P. Purohit, Analytical and numerical solutions for shapes of quiescent two-dimensional vesicles, Int. J. Non-Linear Mech. 44 (3) (2009) 257–262. [41] S. Ganesan, G. Matthies, L. Tobiska, On spurious velocities in incompressible flow problems with interfaces, Comput. Methods Appl. Mech. Eng. 196 (2007) 1193–1202. [42] S. Gross, A. Reusken, An extended pressure finite element space for two-phase incompressible flows with surface tension, J. Comput. Phys. 224 (2007) 40–58. [43] A. Reusken, Analysis of an extended pressure finite element space for two-phase incompressible flows, Comput. Vis. Sci. 11 (2008) 293–305. [44] S. Popinet, An accurate adaptive solver for surface-tension-driven interfacial flows, J. Comput. Phys. 228 (2009) 5838–5866. [45] R. Ausas, F. Sousa, G. Buscaglia, An improved finite element space for discontinuous pressures, Comput. Methods Appl. Mech. Eng. 199 (2010) 1019–1031. [46] D. Fygenson, J. Marko, A. Libchaber, Mechanics of microtubule-based membrane extension, Phys. Rev. Lett. 79 (1997) 4497–4500. [47] M. Staykova, M. Arroyo, M. Rahimi, H. Stone, Confined bilayers passively regulate shape and stress, Phys. Rev. Lett. 110 (2013) 028101 (5 pp.). [48] P. Amestoy, I. Duff, J. Koster, J. L’Excellent, A fully asynchronous multifrontal solver using distributed dynamic scheduling, SIAM J. Matrix Anal. Appl. 23 (2001) 15–41. [49] P. Amestoy, A. Guermouche, J. L’Excellent, S. Pralet, Hybrid scheduling for the parallel solution of linear systems, Parallel Comput. 32 (2006) 136–156.

@@ -1,0 +1,6401 @@
+Comput Mech (2008) 43:3–37 DOI 10.1007/s00466-008-0315-x
+ORIGINAL PAPER
+Isogeometric ﬂuid-structure interaction: theory, algorithms, and computations
+Y. Bazilevs · V. M. Calo · T. J. R. Hughes · Y. Zhang
+
+Received: 25 May 2008 / Accepted: 16 June 2008 / Published online: 6 August 2008 © Springer-Verlag 2008
+
+Abstract We present a fully-coupled monolithic formulation of the ﬂuid-structure interaction of an incompressible ﬂuid on a moving domain with a nonlinear hyperelastic solid. The arbitrary Lagrangian–Eulerian description is utilized for the ﬂuid subdomain and the Lagrangian description is utilized for the solid subdomain. Particular attention is paid to the derivation of various forms of the conservation equations; the conservation properties of the semi-discrete and fully discretized systems; a uniﬁed presentation of the generalized-α time integration method for ﬂuid-structure interaction; and the derivation of the tangent matrix, including the calculation of shape derivatives. A NURBS-based isogeometric analysis methodology is used for the spatial discretization and three numerical examples are presented which demonstrate the good behavior of the methodology.
+Keywords Blood ﬂow · Cardiovascular modeling · Fluid-structure interaction · Hyperelastic solids · Incompressible ﬂuids · Isogeometric analysis · Mesh movement · Moving domains · NURBS · Shape derivatives · Space-time Piola transformation
+Y. Bazilevs (B)
+Department of Structural Engineering, University of California, San Diego 9500 Gilman Drive, La Jolla, CA 92093, USA e-mail: bazily@ices.utexas.edu
+V. M. Calo · T. J. R. Hughes Institute for Computational Engineering and Sciences, The University of Texas at Austin, 201 East 24th Street, 1 University Station C0200, Austin, TX 78712, USA
+Y. Zhang Mechanical Engineering, Carnegie Mellon University, Scalfe Hall 303, 5000 Forbes Avenue, Pittsburgh, PA 15213, USA
+
+Contents
+1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . 3 2 Conservation laws on moving domains . . . . . . . . . . 5
+2.1 Space-time mapping and Piola transform . . . . . 5 2.2 Master balance laws . . . . . . . . . . . . . . . . 7 2.3 Discussion of discretization choices for balance laws
+on moving domains . . . . . . . . . . . . . . . . . 8 2.4 Speciﬁc forms of solid and ﬂuid equations . . . . . 10 3 Variational formulation of the coupled ﬂuid-structure interaction problem at the continuous level . . . . . . . . . . 11 3.1 Solid problem . . . . . . . . . . . . . . . . . . . . 12 3.2 Motion of the ﬂuid subdomain . . . . . . . . . . . 12 3.3 Fluid problem . . . . . . . . . . . . . . . . . . . . 13 3.4 Coupled problem . . . . . . . . . . . . . . . . . . 13 4 Formulation of the ﬂuid-structure interaction problem at the discrete level . . . . . . . . . . . . . . . . . . . . . . 14 4.1 Approximation spaces and enforcement of kinematic
+compatibility conditions . . . . . . . . . . . . . . 14 4.2 Semi-discrete problem . . . . . . . . . . . . . . . 15 4.3 Discussion of conservation . . . . . . . . . . . . . 16 4.4 Time integration of the ﬂuid-structure interaction
+system . . . . . . . . . . . . . . . . . . . . . . . . 17 5 Linearization of the ﬂuid-structure interaction equations: a
+methodology for computing shape derivatives . . . . . . 19 6 NURBS-based isogeometric analysis . . . . . . . . . . . 23 7 Numerical examples: selected benchmark computations . 23
+7.1 Flow over an elastic beam attached to a ﬁxed square block . . . . . . . . . . . . . . . . . . . . . . . . 23
+7.2 Inﬂation of a balloon . . . . . . . . . . . . . . . . 24 8 Computation of vascular ﬂows . . . . . . . . . . . . . . 26
+8.1 Construction of the arterial geometry . . . . . . . 26 8.2 Investigation of the solid model for a range of
+physiological stresses . . . . . . . . . . . . . . . . 29 8.3 Flow in a patient-speciﬁc abdominal aortic aneurysm 30 9 Conclusions . . . . . . . . . . . . . . . . . . . . . . . . 32 Appendix A: A note on exterior calculus . . . . . . . . . . . 33
+1 Introduction
+There are two major classes of discrete ﬂuid-structure interaction (FSI) formulations: staggered and monolithic, which
+
+123
+
+4
+
+Comput Mech (2008) 43:3–37
+
+are also referred to as loosely- and strongly-coupled, respectively.
+In staggered approaches, the ﬂuid, solid and mesh movement equations are solved sequentially, in uncoupled fashion. This enables the use of existing well-validated ﬂuid and structural solvers, a signiﬁcant motivation for adopting this approach. In addition, for many problems the staggered approach works well and is very efﬁcient. However, difﬁculties in the form of lack of convergence have been noted in a number of situations and considerable recent literature has been devoted to a discussion of these problems and attempts to circumvent them. It seems that “light” structures interacting with “heavy” ﬂuids are particularly problematic (see, e.g., [50,52,53]). Another situation that has proved difﬁcult is when an incompressible ﬂuid region is fully contained by a solid, such as for the ﬁlling of a balloon with water [42]. In cases like this, special modiﬁcations need to be introduced to achieve success. On the other hand, Farhat et al. [18] has reported consistent success for staggered approaches to compressible ﬂuids. As of this writing, these claims have not been fully reconciled with those for incompressible ﬂuids. It is somewhat puzzling because incompressible ﬂows may be thought of as limiting phenomena within a compressible formulation.
+In monolithic approaches, the ﬂuid, solid and mesh movement equations are solved simultaneously in fully-coupled fashion. The main advantage is that monolithic solvers tend to be more robust. Many of the problems encountered with the staggered approach are completely avoided with the monolithic approach. Of course, there is a price to pay in that the monolithic approach necessitates writing a fully-integrated ﬂuid-structure solver, precluding the use of existing ﬂuid and structure software. However, recent attempts have been made to design schemes that could in principle use existing ﬂuid and structure software in the context of fully-coupled approaches [24].
+Our aim in this work was to develop a robust isogeometric analysis formulation for ﬂuid-structure interaction. Consequently, we opted for a monolithic approach, but we note various staggered techniques can also be obtained from the fully-coupled formulation at the linearization stage by removing certain blocks from the tangent matrix and employing a ﬁxed, small number of Newton steps (see, e.g., [49]).
+Isogeometric analysis was introduced in Hughes et al. [30] and further developed in [2–5,13,14,16,74]. Isogeometric analysis is based on the technologies used in engineering design, animation, graphic art, and visualization. It is a generalization of ﬁnite element analysis and it is a relatively simple matter to develop an isogeometric code from an existing ﬁnite element code. The main change involves writing a new shape function routine (see Hughes [28, Chap. 3]). It also requires an element routine that is written in a parameterized way, in particular, the number of degrees-of-freedom per
+
+element needs to be a parameter. The element routines described in Hughes [28] possess this property. Some additional simple data structures are also required. We plan to describe these implementational aspects in detail in future work. In addition to including ﬁnite element analysis as a special case, isogeometric analysis offers the following possibilities: Precise and efﬁcient geometry modeling; simpliﬁed mesh reﬁnement and order elevation procedures; superior approximation properties; smooth basis functions with compact support; and, ultimately, the integration of geometric design and analysis.
+In Sect. 2, we begin with a presentation of general continuum mechanics on domains undergoing arbitrary motion. The motion is described in terms of a space-time mapping of an arbitrary reference domain. The description is specialized for the cases of interest, namely, the Lagrangian description of a solid and the arbitrary Lagrangian–Eulerian (ALE) description of the ﬂuid [32]. In the ALE description the domain is in motion but the motion does not coincide with the motion of material particles. The material particles are in relative motion with respect to the motion of the referential domain (mobilis mobili). In the derivations, it is found helpful to employ a space-time Piola transformation. Several useful forms of the conservation equations are presented, speciﬁcally, the advective, conservative and mixed forms.
+The mixed form seems to be the preferred one for implementing the ALE description in the semi-discrete format. A key relation is identiﬁed that inﬂuences the ability of the formulation to conserve momentum in the discrete case. Speciﬁc forms of the ﬂuid and solid equations used in the sequel are presented.
+In Sect. 3 the variational formulation is described. The constituent formulations for the solid, ﬂuid, mesh motion, and coupled problems are presented. In Sect. 4 the discrete spaces and continuity conditions at the ﬂuid-structure interface are described. The semi-discrete problem is then introduced and a discussion of conservation properties follows. The conservation laws of interest are mass, momentum, and the so-called geometric conservation law. It is argued that all these are satisﬁed in the semi-discrete case, and the mass and geometric conservation laws also hold in the fully-discrete case. Momentum conservation in the fully discrete case depends on whether or not the time integrator preserves the key relation alluded to previously. If it does not, then the momentum is conserved up to the truncation errors introduced by the time integration algorithm in this key relation. The time integration is performed by the generalized-α method [12,36]. We present, apparently for the ﬁrst time, a subfamily of the generalized-α family of methods that is dissipative, second-order accurate, and unconditionally stable for the coupled ﬂuid-structure case. In Sect. 5 the linearization of the system is presented including a discussion of the calculation of shape derivatives, that is, derivatives taken with
+
+123
+
+Comput Mech (2008) 43:3–37
+
+5
+
+respect to the motion of the reference domain, namely, the mesh motion. The tangent that is derived contains all terms in the consistent tangent except ones involving derivatives of stabilization parameters appearing in the ﬂuid subproblem. This is a common practice in the solution of stabilized formulations and does not seem to adversely affect convergence of the nonlinear problem in each time step.
+Some speciﬁc aspects of isogeometric analysis are described in Sect. 6. Two benchmark calculations are presented in Sect. 7, ﬂow over an elastic beam attached to a ﬁxed square block and the inﬂation of a balloon. The inﬂation of a balloon is a particularly stringent test for a ﬂuid-structure formulation. In Sect. 8 the application of NURBS-based isogeometric analysis to patient-speciﬁc arterial conﬁgurations is described. A simple ﬁnite-deformation constitutive law is studied for arterial applications and justiﬁed on the basis of an elementary equilibrium analysis of a simple arterial conﬁguration. This model is then used in the ﬂuid-structure interaction analysis of a patient-speciﬁc abdominal aortic aneurysm. Conclusions are drawn in Sect. 9. The derivation of some fundamental relations used in Sect. 2 by exterior calculus methodology is presented in Appendix A.
+
+2 Conservation laws on moving domains
+
+We begin by introducing the concept of a space-time mapping and the associated mathematical apparatus. In particular, a space-time Piola transformation (see, e.g., [46,47] for background) emerges as a key concept. We then turn our attention to generic scalar and vector balance laws and make use of the space-time Piola transformation to derive their various forms.
+
+2.1 Space-time mapping and Piola transform
+
+Let y ∈ R3 be an open and bounded domain, referred to as
+the referential domain. Let r denote a time coordinate and let
+]0, T [ be a time interval of interest. We deﬁne a space-time referential domain as Q y = y×]0, T [⊂ R4.
+Let φˆ (4) : Q y → Qx ⊂ R4 be a space-time mapping onto
+a space-time spatial domain, given by
+
+Qx=
+
+(x, t)|
+
+t x
+
+=φˆ (4)( y, r )=
+
+r φˆ ( y, r )
+
+∀( y, r )∈Q y
+
+(1)
+
+where φˆ : y → x ⊂ R3 denotes a mapping of the referential domain onto its spatial counterpart. (See Fig. 1 for an illustration.) Note that in (1), t = r , that is the spatial and referential clocks are synchronized.
+
+Remark 2.1 It is convenient to think of Q y, Qx , y, and x |t = φˆ ( y, r = t) as differential manifolds. Despite the
+
+Fig. 1 The space-time mapping of the referential domain onto the
+spatial domain. Note that, in all cases, the referential domain y is ﬁxed for all r ∈]0, T [ in contrast with the spatial domain
+
+fact that we take t = r , it is important to distinguish between the differential operators ∂/∂r and ∂/∂t, because in the former case we are assuming points y ∈ y are being held ﬁxed, whereas in the latter case we are assuming points x ∈ x |t are being held ﬁxed.
+
+Remark 2.2 The spatial description is often referred to as the Eulerian description.
+
+The deformation gradient associated with φˆ (4) becomes
+
+Fˆ (4) = Dφˆ (4) =
+
+∂t ∂t
+∂r ∂ y
+∂φˆ ∂φˆ
+∂r ∂ y
+
+=
+
+1 0T vˆ Fˆ
+
+,
+
+(2)
+
+where 0 ∈ R3 is the zero vector, Fˆ ∈ R3×3 is the usual deformation gradient associated with φˆ , and vˆ ∈ R3 is the
+referential velocity vector, deﬁned as,
+
+vˆ
+
+=
+
+∂ uˆ ∂r
+
+,
+
+(3)
+
+where uˆ is the displacement of a point in the referential domain,
+
+uˆ ( y, r ) = φˆ ( y, r ) − y,
+
+(4)
+
+and
+
+∂ ∂r
+
+is
+
+the
+
+derivative
+
+with
+
+respect
+
+to
+
+the
+
+referential
+
+time
+
+variable taken with y held ﬁxed.
+
+The inverse of Fˆ (4) may be computed as
+
+Fˆ (4) −1 =
+
+1 −Fˆ −1vˆ
+
+0T Fˆ −1
+
+,
+
+(5)
+
+and its transpose is
+
+Fˆ (4) −T =
+
+1 −vˆ T Fˆ −T 0 Fˆ −T
+
+.
+
+(6)
+
+123
+
+6
+
+Comput Mech (2008) 43:3–37
+
+The following relationship is also easily veriﬁed
+
+Jˆ(4) ≡ det Fˆ (4) = Jˆ ≡ det Fˆ ,
+
+(7)
+
+that is, the determinants of Fˆ (4) and Fˆ are equal, a conse-
+
+quence of time synchronization.
+
+Let
+
+γ
+
+(4) x
+
+:
+
+Qx
+
+→
+
+R4
+
+denote a space-time ﬂux vector
+
+ﬁeld deﬁned on the spatial conﬁguration. In order to preserve
+
+the conservation structure in the reference conﬁguration, we
+
+deﬁne
+
+γ
+
+(4) y
+
+,
+
+a
+
+space-time
+
+ﬂux
+
+vector
+
+ﬁeld
+
+in
+
+the
+
+referential
+
+conﬁguration, as
+
+γ
+
+(4) y
+
+=
+
+Jˆ(4) Fˆ (4)
+
+−1γ
+
+(4) x
+
+.
+
+(8)
+
+This is the space-time Piola transformation. With (8), we can prove the following space-time integral theorem:
+
+∇x(4)
+
+·
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+=
+
+∇y(4)
+
+·
+
+γ
+
+(4) y
+
+d
+
+Qy,
+
+(9)
+
+Qx
+
+Qy
+
+where
+
+∂
+
+∇x(4) ≡
+
+∂t
+∇x
+
+(10)
+
+∂
+
+∇y(4) ≡
+
+∂r
+∇y
+
+(11)
+
+are the space-time gradient operators. The proof of (9) is based on the Piola identity, namely,
+
+∇y(4) · Jˆ(4) Fˆ (4) −1 = 0,
+
+(12)
+
+the transformation formula for volume elements,
+
+d Qx = Jˆ(4)d Q y,
+
+(13)
+
+and straightforward calculations. One must be careful in analysis on a space-time manifold
+because many commonly invoked results depend on the existence of a Riemannian metric, which in the present case does not exist. For example, there is no well-deﬁned unit normal vector to the boundary of ∂ Qx , in contrast with ∂ Q y, for which there is a well-deﬁned unit outward normal vector. However, many important results can be obtained without the existence of a Riemannian metric, or any metric for that matter. The subject of analysis on manifolds without metric structure (i.e., differential topology) is well-developed (see, Flanders [21], Spivak [57], Lang [44,45], Guillermin and Pollack [23], Bishop and Goldberg [8], Marsden and Hughes [47]). A proof of (9) using exterior calculus methodology is presented in Appendix A.
+A way to understand (8) is to assume Cartesian coordinate charts on both Qx and Q y. We will denote these charts as {xa} and {yA}, respectively. We use lower case indices (i.e., a, b, c, . . .) to denote the current conﬁguration and upper case indices (i.e., A, B, C, . . .) to denote the reference conﬁguration. All the indices run over the range 0, 1, 2, 3 with 0
+
+referring to the time coordinate, and 1, 2, 3 referring to the space coordinates. Summation over the range of the indices is implied for repeated indices. With these one can compute as follows:
+
+∂( Jˆ(4) FˆA(4a) ∂yA
+
+−1)
+
+=
+
+∂ Jˆ(4) ∂yA
+
+Fˆ A(4a)
+
+−1
+
++
+
+Jˆ(4) ∂ FˆA(4a) −1 ∂yA
+
+(14)
+
+∂ Jˆ(4) ∂yA
+
+=
+
+∂ Jˆ(4) ∂ Fˆb(4B)
+
+∂ Fˆb(4B) ∂yA
+
+=
+
+cof Fˆb(4B)
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+=
+
+Jˆ(4) Fˆb(4B)
+
+−T
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+(15)
+
+∂ FˆC(4a) −1 ∂yA
+
+= −FˆC(4b)
+
+−1
+
+∂ Fˆb(4B) ∂yA
+
+FˆB(4a)
+
+−1
+
+=
+
+− FˆC(4b)
+
+−1
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+FˆB(4a)
+
+−1
+
+(16)
+
+∂ FˆA(4a) −1 ∂yA
+
+= −FˆA(4b)
+
+−1
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+FˆB(4a)
+
+−1
+
+(17)
+
+∂( Jˆ(4) FˆA(4a) ∂yA
+
+−1)
+
+=
+
+Jˆ(4)
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+FˆB(4b)
+
+−1 FˆA(4a)
+
+−1
+
+−
+
+Jˆ(4)
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+Fˆ A(4b)
+
+−1 FˆB(4a)
+
+−1
+
+=
+
+Jˆ(4)
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+FˆB(4b) −1 FˆA(4a) −1
+
+− FˆA(4b) −1 FˆB(4a) −1
+
+= 0.
+
+(18)
+
+This is the component form of (12). The last line of (18)
+
+follows from the fact that
+
+∂ 2 φˆb(4) ∂yA∂yB
+
+is symmetric in
+
+A and
+
+B,
+
+and the term in parenthesis is skew-symmetric in A and B.
+
+The referential domain can take on several interpreta-
+
+tions. In ﬂuid-structure interaction, it is usually taken to be
+
+the initial conﬁguration of the problem domain. When the
+
+ﬂuid domain moves, it becomes the so-called arbitrary
+
+Lagrangian–Eulerian (ALE) description. The material des-
+
+cription is often utilized for the solid domain. By virtue of
+
+the fact that the referential domain is arbitrary, it can be spe-
+
+cialized for the material description. This representation is
+
+also important for deriving material forms of the conserva-
+
+tion laws. A summary of notations and important results for the material description follows. We set y = X ∈ X ⊂ R3, a “particle” in the material domain, and r = s ∈ ]0, T [,
+
+the material time. As before, the differential operator ∂/∂s,
+
+needs to be distinguished from ∂/∂r and ∂/∂t. In the case
+
+of ∂/∂s, known as the material time derivative, the material
+
+point (i.e., particle) X ∈ X is held ﬁxed. The material des-
+
+cription is often referred to as the Lagrangian description.
+
+123
+
+Comput Mech (2008) 43:3–37
+
+7
+
+The material and referential clocks are also synchronized. Let Q X = X ×]0, T [⊂ R4 and φ(4) : Q X → Qx , where
+
+Qx =
+
+(x, t)|
+
+t x
+
+= φ(4)(X, s)
+
+=
+
+s φ(X, s)
+
+∀(X, s) ∈ Qs
+
+(19)
+
+⎡
+
+⎤
+
+∂t ∂t
+
+F(4)
+
+=
+
+Dφ(4)
+
+=
+
+⎣
+
+∂s ∂X
+∂φ ∂φ
+
+⎦
+
+=
+
+1 0T vF
+
+,
+
+(20)
+
+∂s ∂X
+
+F
+
+=
+
+∂φ ∂X
+
+(deformation gradient),
+
+(21)
+
+u(X, s) = φ(X, s) − X(particle displacement),
+
+(22)
+
+v
+
+=
+
+∂φ ∂s
+
+=
+
+∂u ∂s
+
+(particle
+
+velocity),
+
+(23)
+
+F(4) −1 =
+
+1 − F−1v
+
+0T F−1
+
+,
+
+(24)
+
+F(4) −T =
+
+1 −vT F−T 0 F−T
+
+.
+
+(25)
+
+J (4) ≡ det F(4) = J ≡ det F,
+
+(26)
+
+γ
+
+(4) X
+
+T
+
+=
+
+J
+
+γ
+
+(4) x
+
+T F(4) −T .
+
+(27)
+
+∇x(4) · γ (x4)d Qx = ∇X(4) · γ (X4)d Q X ,
+
+(28)
+
+Qx
+
+QX
+
+∇X(4) ≡
+
+∂ ∂s
+∇X
+
+(29)
+
+2.2 Master balance laws
+
+In this section we derive generic master balance laws for vectors and scalars, and present their various forms in the spatial and referential domains.
+The following master balance laws hold on the spatial domain x (see, e.g., [47] for background): Scalar case
+
+d dt
+
+αd x =
+
+γ
+
+T x
+
+nx
+
+d
+
+∂
+
+x+
+
+β d x,
+
+(30)
+
+x
+
+∂x
+
+x
+
+Vector case
+
+d dt
+
+αd x =
+
+x nx d∂ x + β d x.
+
+(31)
+
+x
+
+∂x
+
+x
+
+In the above equations α, a scalar, and α, a vector, are the
+
+conserved quantities of interest, β, a scalar, and β, a vector,
+
+are
+
+the
+
+volumetric
+
+source
+
+terms,
+
+and
+
+γ
+
+T x
+
+n,
+
+a
+
+scalar,
+
+and
+
+x n,
+
+a vector, are the surface ﬂuxes. n is the unit outward normal
+
+to ∂ x , the boundary of x , γ x is a vector, and x is a second-rank tensor. Note that the unit outward normal vector
+
+to the 3-dimensional spatial slices is well deﬁned. Recall
+
+that the domain x changes with time and this must be taken into account in the time differentiation of the left-hand sides. Standard procedures (see [47]) yield the following:
+
+∂α ∂t d x =
+
+(γ x − αv)T nx d ∂ x + β d x (32)
+
+x
+
+∂x
+
+x
+
+and
+
+∂α ∂t d x = ( x −α ⊗ v)nx d ∂ x + β d x , (33)
+
+x
+
+∂x
+
+x
+
+where the partial time derivative ∂/∂t is taken with the spatial coordinate x held ﬁxed. Note that the boundary terms are modiﬁed by the ﬂuxes involving the material particle velocity v. Employing the divergence theorem on the boundary terms in (32) and (33) gives
+
+∂α ∂t
+
++
+
+∇x
+
+·
+
+(αv
+
+−
+
+γ
+
+x)
+
+−
+
+β
+
+d
+
+x =0
+
+(34)
+
+x
+
+and
+
+∂α ∂t
+
++
+
+∇x
+
+·
+
+(α
+
+⊗
+
+v
+
+−
+
+x) − β d
+
+x = 0.
+
+(35)
+
+x
+
+Equations (34) and (35) represent the scalar and vector master balance laws on the spatial domain written in a divergence form. We are going to employ Eq. (10) in (34) and (35) to obtain the same balance laws on the referential space-time domain, also in the divergence form. For this purpose we integrate (34) and (35) in time
+
+∂α ∂t
+
++
+
+∇x
+
+·
+
+(αv
+
+−
+
+γ
+
+x)
+
+−
+
+β
+
+d Qx
+
+=
+
+0
+
+(36)
+
+Qx
+
+∂α ∂t
+
++
+
+∇x
+
+·
+
+(α
+
+⊗
+
+v
+
+−
+
+x ) − β d Qx = 0,
+
+(37)
+
+Qx
+
+and then change variables, using (10)–(13),
+
+∂ Jˆα ∂r +∇y ·
+
+Jˆα Fˆ −1(v −vˆ )− Jˆ Fˆ −1γ x
+
+− Jˆβ d Q y = 0
+
+Qy
+
+(38)
+
+∂ Jˆα ∂r
+
++
+
+∇y
+
+·
+
+Jˆ α ⊗ (v − vˆ)
+
+Fˆ −T
+
+Qy
+
+− Jˆ x Fˆ −T − Jˆβ d Q y = 0.
+
+(39)
+
+The advantage of these forms of the master balance law is that one is free to choose any referential domain that is convenient for a given problem.
+Particularly useful forms of (38) and (39) are obtained by choosing the reference domain to be the material domain. In
+
+123
+
+8
+
+Comput Mech (2008) 43:3–37
+
+this case, we set y = X, vˆ = v, Fˆ = F, and Jˆ = J , in (38) and (39), and obtain, respectively,
+
+∂Jα ∂s
+
+−
+
+∇X
+
+·
+
+J F−1γ x
+
+− Jβ dQX = 0
+
+(40)
+
+QX
+
+and
+
+∂Jα ∂s
+
+−
+
+∇X
+
+·
+
+J
+
+x F−T
+
+− J β d Q X = 0.
+
+(41)
+
+QX
+
+As may be noted, this results in a simpliﬁcation of the general case due to the fact that v − vˆ = 0. This is an advantage of the Lagrangian description.
+
+Remark 2.3 In order to obtain local forms of the balance laws, we assume the integrands of any of the previous integral balance laws are continuous and the domain may be taken arbitrarily small about any space-time point. In this case, using standard arguments (see [47]), it follows that the integrands must vanish pointwise. This is referred to as the localization argument.
+
+We can also state the mixed form of the master balance
+
+laws, where “mixed” refers to the fact that time and space
+
+derivatives are associated with different descriptions. This
+
+form is often used as a staring point of ALE formulations of
+
+balance laws. We ﬁrst recognize that both Qy = T
+
+and
+y
+
+y do not change in time. Furthermore, using time synchro-
+
+nization and a localization argument with respect to time in
+
+(38) and (39) leads to
+
+∂ Jˆα ∂r
+
++∇y
+
+·
+
+y
+
+Jˆα Fˆ −1(v −vˆ )− Jˆ Fˆ −1γ x
+
+− Jˆβ d
+
+y =0 (42)
+
+and
+
+∂ Jˆα ∂r
+
++
+
+∇y
+
+·
+
+Jˆ α ⊗ (v − vˆ)
+
+Fˆ −T
+
+y
+
+− Jˆ x Fˆ −T − Jˆβ d y = 0,
+
+(43)
+
+which hold at every time instant. Changing variables → y and using Eq. (10) and (13) yields x
+
+Jˆ−1
+
+∂ Jˆα ∂r
+
++
+
+∇x
+
+·
+
+(α(v
+
+−
+
+vˆ )
+
+−
+
+γ
+
+x)
+
+−
+
+β
+
+d
+
+x =0
+
+(44)
+
+x
+
+and
+
+Jˆ−1 ∂ Jˆα ∂r
+
++
+
+∇x
+
+·
+
+α ⊗ (v − vˆ) −
+
+x
+
+−β d
+
+x = 0. (45)
+
+x
+
+Note that in (44) and (45), partial time derivatives are left with respect to the referential time variable, while the spatial
+
+derivatives are taken with respect to spatial coordinates, leading to a mixed representation. These equations may be simpliﬁed further. Assuming sufﬁcient smoothness of the ﬁelds, we compute
+
+Jˆ−1
+
+∂ Jˆα ∂r
+
+=
+
+Jˆ−1
+
+α
+
+∂ Jˆ ∂r
+
++
+
+Jˆ
+
+∂α ∂r
+
+= Jˆ−1
+
+α
+
+Jˆ∇x
+
+·
+
+vˆ
+
++
+
+Jˆ
+
+∂α ∂r
+
+=
+
+α∇x · vˆ
+
++
+
+∂α ∂r
+
+,
+
+(46)
+
+where, going from the ﬁrst to the second line, we have used the key identity
+
+∂ Jˆ ∂r
+
+=
+
+Jˆ∇x
+
+· vˆ,
+
+(47)
+
+which we will discuss further in Sect. 4.3. Also note that
+
+∇x · α(v − vˆ) = (v − vˆ) · ∇x α + α∇x · v −α∇x · vˆ . (48)
+
+Similarly, for a vector quantity, we get
+
+Jˆ−1 ∂ Jˆα = ∂r
+
+α∇x · vˆ
+
++
+
+∂α ∂r
+
+,
+
+(49)
+
+and
+
+∇x · α ⊗ (v − vˆ) = (v − vˆ) · ∇x α + α∇x · v −α∇x · vˆ . (50)
+
+Substituting (46) and (48) in (44), and (49) and (50) in (45) leads to simpliﬁed forms of the integral balance statements in the vector and scalar cases,
+
+∂α ∂r
+
++
+
+(v
+
+−
+
+vˆ )
+
+·
+
+∇x α
+
++
+
+α∇x
+
+·
+
+v
+
+−
+
+∇x
+
+·
+
+γ
+
+x
+
+−
+
+β
+
+d
+
+x
+
+x =0 (51)
+
+and
+∂α ∂r + (v − vˆ ) · ∇x α + α∇x · v − ∇x ·
+x
+
+x −β d
+
+x =0 (52)
+
+respectively. It is important to note the disappearance in (51) and (52) of α∇x · vˆ and α∇x · vˆ [i.e., the boxed terms in (46), (48)–(50)]. This cancellation is due to (47). In the fullydiscrete case, (47) may not be satisﬁed identically, which has implications to the discrete conservation of momentum. We will return to this point in Sect. 4.3.
+
+2.3 Discussion of discretization choices for balance laws on moving domains
+
+In the previous section we have derived integral balance laws on the referential and spatial domains. At the continuous or
+
+123
+
+Comput Mech (2008) 43:3–37
+
+9
+
+inﬁnite-dimensional level, all the instantiations of these laws are completely equivalent. The situation changes when one tries to numerically approximate the equations emanating from the balance laws. In this section we discuss the suitability of the existing computational approaches for partial differential equations arising from different forms of the balance laws. We focus on ALE and space-time methods (see, e.g., [31, 34, 41, 64, 65, 69]).
+In the space-time ﬁnite element method the approximation space consists of basis functions that explicitly depend on space and time, denoted NA(x, t), where A spans the index set I of functions on a space-time mesh deﬁned on Qx . Letting u = u(x, t) denote a generic space-time ﬁeld, its partial time and spatial derivatives are expressed as follows:
+
+u(x, t) = UANA(x, t)
+
+(53)
+
+A∈ I
+
+∂u ∂t
+
+(x,
+
+t)
+
+=
+
+U
+
+A
+
+∂NA ∂t
+
+(x,
+
+t
+
+)
+
+(54)
+
+A∈ I
+
+and
+
+∂ ∂
+
+u x
+
+(x,
+
+t)
+
+=
+
+U
+
+A
+
+∂NA ∂x
+
+(
+
+x,
+
+t
+
+)
+
+(55)
+
+A∈ I
+
+where the UA’s are real coefﬁcients. Note that the partial time derivative in (54) is, by deﬁnition, taken with x ﬁxed. With this observation, the forms of the balance equations given by (36) and (37) are well-suited for space-time treatment.
+One may also employ the space-time technique for discretizing the balance equations on the referential domain, (38) and (39). Just as before, let Nˆ A( y, r ) be the basis functions associated with the space-time discretization of Q y. Now the solution ﬁeld and its partial time and space derivatives become
+
+uˆ( y, r ) = Uˆ A Nˆ A( y, r )
+
+(56)
+
+A∈ I
+
+∂ uˆ ∂r
+
+(
+
+y,
+
+r
+
+)
+
+=
+
+Uˆ
+
+A
+
+∂ Nˆ A ∂r
+
+(
+
+y,
+
+r
+
+)
+
+(57)
+
+A∈ I
+
+and
+
+∂ ∂
+
+uˆ y
+
+(
+
+y,
+
+r
+
+)
+
+=
+
+Uˆ
+
+A
+
+∂ Nˆ A ∂y
+
+(
+
+y,
+
+r
+
+).
+
+(58)
+
+A∈ I
+
+As before, the Uˆ A’s are real coefﬁcients, but the partial time derivative in (57) is now taken with the referential coordinate y held ﬁxed.
+The mixed form of the balance laws, as expressed by Eq. (44) and (45), is not amenable to space-time discretization because partial time and space derivatives employed in the formulation of the conservation equations are taken with respect to different descriptions, namely, the referential and spatial description, respectively. In this case, the
+
+following approach is taken. On the referential domain y one deﬁnes basis functions Nˆ A( y), A ∈ I, and assumes the following expansion for the solution variable as a function
+of the referential domain variables
+
+uˆ( y, r ) = Uˆ A(r )Nˆ A( y),
+
+(59)
+
+A∈ I
+
+which, in turn, results in the following expression for the referential time derivative
+
+∂uˆ( y, ∂r
+
+r)
+
+=
+
+∂
+
+Uˆ A(r ∂r
+
+)
+
+Nˆ
+
+A
+
+(
+
+y).
+
+(60)
+
+A∈ I
+
+The basis in the spatial conﬁguration x is the push forward of Nˆ A( y) deﬁned by
+
+NA(x, t) ≡ Nˆ A(φˆ −1(x, t)) = Nˆ A ◦ φˆ −1(x, t)
+
+(61)
+
+In the spatial conﬁguration, a solution ﬁeld is now deﬁned as
+
+u(x, t) = uˆ(φˆ −1(x, t), t) = Uˆ A(t)Nˆ A(φˆ −1(x, t))
+
+A∈ I
+
+= Uˆ A(t)NA(x, t),
+
+(62)
+
+A∈ I
+
+and its gradient with respect to the spatial coordinates is easily computed as
+
+∂u(x, t) = ∂x
+
+Uˆ
+
+A
+
+(t
+
+)
+
+∂
+
+N
+
+A(x, ∂x
+
+t
+
+)
+
+(63)
+
+A∈ I
+
+Finally, on the spatial domain, the referential time derivative of the solution ﬁeld becomes
+
+∂uˆ (φˆ −1(x, t), t) = ∂r
+
+∂Uˆ A(t) ∂r
+
+Nˆ A
+
+◦
+
+φˆ −1(x,
+
+t)
+
+A∈ I
+
+=
+
+∂
+
+Uˆ A(t ∂t
+
+)
+
+N
+
+A
+
+(x
+
+,
+
+t
+
+)
+
+(64)
+
+A∈ I
+
+In (44) and (45) the spatial gradient and the referential time derivative are evaluated according to (63) and (64), respectively. This is the essence of the discrete ALE approach. These particularly simple expressions explain in part the popularity of ALE methods for moving domain problems. Comparing expressions (62) and (64) we note that a referential time derivative of the solution in the spatial conﬁguration may be obtained by simply taking a time derivative of its coefﬁcients, thus rendering the semi-descrete equations amenable to ﬁnite-difference-in-time treatment. As a result, we may think of ALE as an extension of the classical semi-discrete approach to moving domain problems.
+The semi-discrete approach may also be applied to the equations emanating from the master balance law written with respect to the referential domain [see Eqs. (42) and (43)]. An expression of the form (59) may be employed in this case
+
+123
+
+10
+
+Comput Mech (2008) 43:3–37
+
+due to the orthogonality of space and time in the referential description.
+
+2.4 Speciﬁc forms of solid and ﬂuid equations
+Although we fully recognize the elegance and power of the space-time approaches, in this work we opt for a numerical implementation in the semi-discrete setting. This, in turn, dictates the forms of the balance laws at the continuous level that we take as a point of departure for designing discrete formulations. In what follows, we use the developments of the previous sections to derive strong forms of the solid and ﬂuid partial differential equations employed in this work.
+
+2.4.1 Formulation of the solid problem
+
+We adopt the material description for the solid and utilize Eqs. (40) and (41). Setting α = ρ, the mass density of the solid, and γ = 0 and β = 0 in (40), we arrive at
+
+∂ Jρ ∂s
+
+dQX
+
+=
+
+0.
+
+(65)
+
+QX
+
+By the localization argument,
+
+∂ Jρ ∂s
+
+=
+
+0,
+
+(66)
+
+implying that Jρ is a function of material particles alone, that is, Jρ(X, s) = Jρ(X). Assuming the initial conﬁguration is the material conﬁguration, that is φ(X, 0) = X, then F(X, 0) = I and J (X, 0) = 1. Denoting by ρ0 the mass density of the solid in the initial conﬁguration, we obtain the
+following point-wise statement of the conservation of mass
+
+Jρ = ρ0.
+
+(67)
+
+Balance of linear momentum follows from setting α = ρv, the linear momentum density, x = σ , the “true” or Cauchy stress tensor, and β = ρ f , the force density per unit volume,
+in (41):
+
+∂
+
+Jρv ∂s
+
+−
+
+∇X
+
+·
+
+J σ F−T
+
+− Jρ f d Q X = 0.
+
+(68)
+
+QX
+
+Localizing (68) to a point in space-time and substituting (67) we obtain a point-wise statement of balance of linear momentum
+
+∂v ρ0 ∂s − ∇X ·
+
+J σ F−T
+
+= ρ0 f .
+
+(69)
+
+Note that if f = 0, momentum is conserved. To complete the speciﬁcation of the solid problem we ﬁrst
+introduce the displacement u, such that v = ∂ u/∂s, and deﬁne P and S, the ﬁrst and second Piola–Kirchhoff stress
+
+tensors, respectively, as
+
+P = J σ F−T
+
+(70)
+
+and
+
+S = F−1 P = J F−1σ F−T
+
+(71)
+
+With these deﬁnitions, the solid problem takes a familiar form, namely
+
+∂2u
+
+ρ0 ∂s2 − ∇X · (F S) = ρ0 f
+
+(72)
+
+Note that in this Lagrangian setting, provided the initial distribution of mass density ρ0 is given, the mass density is determined by the displacement, that is, ρ = ρ0/J = ρ0/ det F = ρ0/ det(I + ∇X u).
+The details of the constitutive model used in this work are
+as follows. We use the generalized neo–Hookean model with
+penalty given in Simo and Hughes [55]. S derives from the gradient of an elastic potential ψ as
+
+S
+
+=
+
+2
+
+∂ ∂
+
+ψ C
+
+(73)
+
+where C is the Cauchy–Green deformation tensor, deﬁned as
+
+C = FT F
+
+(74)
+
+The elastic potential is given by a sum decomposition
+
+ψ = ψiso + ψdil
+
+(75)
+
+where ψiso is the energy associated with the volumepreserving or isochoric part of the motion, while ψdil is the energy of the volume-changing or dilatational part of the deformation. This decomposition expresses the fact that many materials respond differently in bulk and in shear. We perform the following multiplicative decomposition of the deformation gradient F (see [16] and references therein):
+
+F = J 1/3 F
+
+(76)
+
+where F = J −1/3 F. Note that detF = 1, hence F is asso-
+ciated with the volume-preserving part of the motion, while J 1/3 is the volume-changing part. Let
+
+C = FT F
+
+(77)
+
+in direct analogy with (74). Then,
+
+ψiso
+
+=
+
+1 µs(trC 2
+
+− 3)
+
+(78)
+
+and
+
+ψdil
+
+=
+
+1κs 2
+
+1 (J 2 − 1) − lnJ 2
+
+.
+
+(79)
+
+Note that this model fulﬁlls all the normalization conditions necessary for well-poseness (see Marsden and Hughes [47], Holzapfel [27]). In particular, the lnJ term in the deﬁnition
+
+123
+
+Comput Mech (2008) 43:3–37
+
+11
+
+of ψdil precludes material instabilities for states of strong compression. For this deﬁnition of the elastic potential, the second Piola-Kirchhoff stress tensor becomes
+
+S = µs J −2/3 I − 1 trC C−1 + 1 κs ( J 2 − 1)C−1, (80)
+
+3
+
+2
+
+and the fourth-order tensor of elastic moduli is
+
+C
+
+=
+
+∂2ψ 4
+∂C∂C
+
+=
+
+2 µs J −2/3trC + κs J 2 9
+
+C−1 ⊗ C−1
+
++ 2 µs J −2/3trC − κs ( J 2 − 1) C−1 C−1 3
+
+− 2 µs J −2/3( I ⊗ C−1 + C−1 ⊗ I ).
+
+(81)
+
+3
+
+In (81) the ⊗ symbol is used to denote the outer product of two second-rank tensors, that is,
+
+(C−1 ⊗ C−1)IJKL ≡ (C−1)IJ (C−1)KL ,
+
+(82)
+
+and (C −1
+
+C−1)IJKL≡(C−1)IK (C−1)JL
+
++ 2
+
+(C−1)IL (C−1)JK
+
+(83)
+
+Parameters µs and κs may be determined by the Lamé constants of the linear elastic model, denoted µl and λl , by considering the case when the current and the reference conﬁ-
+gurations coincide. Then, by inspection,
+
+µs = µl
+
+(84)
+
+κs = λl + 2 µl .
+
+(85)
+
+3
+
+Thus, µs and κs are the classical shear and bulk moduli, respectively.
+
+2.4.2 Formulation of the ﬂuid problem
+
+While the solid problem is written using a Lagrangian description, an ALE approach is adopted for the ﬂuid problem. Although ALE is widely used for ﬂuid ﬂow in moving domains, the authors wish to point out the recent works on the Particle Finite Element Method (PFEM, see, e.g., [35] and references therein), which makes use of a Lagrangian description of ﬂuid mechanics, enabling straight-forward solution of very complicated ﬂows and ﬂuid-structure interaction problems. To arrive at the formulation of the ﬂuid problem employed in this work, Eq. (51) and (52) are taken as a departure point. Note that we work with the so-called advective forms of the master balance laws rather than their conservative counterparts given by (44) and (45). We will show later in this paper that our ﬁnal semi-descrete formulation satisﬁes global conservation of mass and linear momentum. Furthermore, the advantage of the advective form is that, when
+
+discretized, it trivially satisﬁes the so-called Discrete Geometric Conservation Law (DGCL). The DGCL states that in the absence of body forces and surface tractions, the discrete scheme must preserve a constant velocity solution. For a discussion of the importance of conservation and satisfaction of the DGCL for moving domain problems see [17,22,46].
+Substituting α = ρ, γ = 0 and β = 0 in (50), we arrive at
+
+∂ρ ∂r
+
++ (v
+
+−
+
+vˆ )
+
+·
+
+∇x ρ
+
++
+
+ρ∇x
+
+·
+
+v
+
+d
+
+x = 0.
+
+(86)
+
+x
+
+Assuming that the ﬂuid has constant mass density (i.e., the ﬂow is incompressible) and localizing the above equation to a point in space and time, we obtain the following form of the mass conservaton equation,
+
+∇x · v = 0,
+
+(87)
+
+which manifests the incompressibility constraint. To arrive at the conservation of linear momentum we use (52) and set α = ρv, = σ , and β = ρ f
+
+∂ρv ∂r
+
++
+
+(v
+
+−
+
+vˆ) ·
+
+∇x ρv
+
+x
+
++ ρv∇x · v − ∇x · σ − ρ f d x = 0.
+
+(88)
+
+Using the assumption of constant mass density, (87) and localizing the result to a point in space and time, we obtain
+
+ρ
+
+∂v ∂r
+
++
+
+ρ (v
+
+−
+
+vˆ )
+
+·
+
+∇x v
+
+−
+
+∇x
+
+·
+
+σ
+
+=
+
+ρ
+
+f.
+
+(89)
+
+To complete the speciﬁcation of the ﬂuid problem, we assume that the ﬂow is Newtonian with the following deﬁnition of the Cauchy stress tensor
+
+σ = − p I + 2µ∇xs v,
+
+(90)
+
+where p is the pressure, µ is the dynamic viscosity, I is the second-rank identity tensor, and ∇xs = 1/2(∇x + ∇xT ) is the symmetric gradient.
+
+Remark 2.4 We note that if f = 0 and σ · n = 0 on ∂ x , then v = constant identically satisﬁes (88).
+
+3 Variational formulation of the coupled ﬂuid-structure interaction problem at the continuous level
+
+Let 0 ≡ y ⊂ Rd , d = 2, 3, represent the combined ﬂuid and solid domain in the initial conﬁguration, which
+serves simultaneously as the reference conﬁguration. Let φˆ : 0 → t ≡ x |t ⊂ Rd denote the motion of the ﬂuid-solid domain, as before.
+The domain 0 admits the decomposition
+
+0=
+
+f 0
+
+∪
+
+s0,
+
+(91)
+
+123
+
+12
+
+Comput Mech (2008) 43:3–37
+
+Fig. 2 Abstract setting for the ﬂuid-structure interaction problem. Depiction of the initial and the current conﬁgurations related through the ALE mapping. The initial conﬁguration also serves as the reference conﬁguration
+
+where
+
+f 0
+
+is the
+
+subset
+
+of
+
+0 occupied by the ﬂuid, and
+
+s 0
+
+is the subset of 0 occupied by the solid. The decomposition
+
+is non-overlapping, that is
+
+f 0
+
+∩
+
+s 0
+
+=
+
+∅.
+
+(92)
+
+Likewise,
+
+t=
+
+f t
+
+∪
+
+s t
+
+,
+
+(93)
+
+with
+
+f t
+
+∩
+
+s t
+
+=
+
+∅.
+
+(94)
+
+Let
+
+fs 0
+
+denote
+
+the
+
+interface
+
+between
+
+the
+
+ﬂuid
+
+and
+
+the
+
+solid regions in the initial conﬁguration, and, analogously,
+
+let
+
+fs t
+
+be
+
+its
+
+counterpart
+
+in
+
+the
+
+current
+
+conﬁguration.
+
+The
+
+setup is illustrated in Fig. 2. It is important to emphasize that
+
+the motion of the ﬂuid domain is not the particle motion of
+
+the ﬂuid. It does, however, conform to the particle motion of
+
+the solid at the ﬂuid-solid interface because the Lagrangian
+
+description is adopted for the solid.
+
+3.1 Solid problem
+
+This section gives a weak formulation of the solid in the
+
+Lagrangian description. Let Vs = Vs(
+
+s 0
+
+)
+
+denote
+
+the
+
+trial
+
+solution space for displacements and let Ws = Ws( s0)
+
+denote the trial weighting space for the linear momentum
+
+equations. Let u denote the displacement of the solid with
+
+respect to the initial conﬁguration and let ws be the weighting
+
+function for the momentum equation. We also assume that
+
+the displacement satisﬁes the boundary condition, u = gs on
+
+s, 0
+
+D
+
+,
+
+the
+
+Dirichlet
+
+part
+
+of
+
+the
+
+solid
+
+domain
+
+boundary.
+
+The
+
+variational formulation is stated as follows: Find u ∈ Vs such
+
+that ∀ws ∈ Ws,
+
+Bs (ws , u) = Fs (ws )
+
+(95)
+
+where
+
+Bs (ws , u) =
+
+ws
+
+,
+
+ρ0s
+
+∂2u ∂s2
+
++ ∇X ws, FS s ,
+
+s
+
+0
+
+(96)
+
+0
+
+and
+
+F s (ws ) = (ws , ρ0s f s )
+
+s + (ws , hs )
+0
+
+s,N ,
+0
+
+(97)
+
+where
+
+s,N 0
+
+is
+
+the
+
+Neumann
+
+part
+
+of
+
+the
+
+solid
+
+boundary,
+
+hs
+
+is
+
+the boundary traction vector, ρ0s is the density of the solid in
+
+the initial conﬁguration, f s is the body force per unit mass,
+
+and (·, ·)D is the L2 inner product with respect to domain D.
+
+The above relations are written over the initial conﬁguration
+
+s0, which is also the material conﬁguration. The subscript X on the partial derivative operators indicates that the deri-
+
+vatives are taken with respect to the material coordinates X.
+
+3.2 Motion of the ﬂuid subdomain
+
+This section gives a weak formulation of the motion of the ﬂuid subdomain. Partial differential equations of linear elastostatics subject to Dirichlet boundary conditions coming from the displacements of the solid region are employed to deﬁne the ALE mapping φˆ ( y, r ) of the ﬂuid domain. For precise conditions on the regularity of the ALE map, see Nobile [51]. In the discrete setting, the ﬂuid subdomain motion problem is referred to as “mesh moving.” The ﬂuid subdomain motion problem may be thought of as a succession of ﬁctitious linear elastic boundary-value problems designed simply to produce a smooth evolution of the ﬂuid mesh.
+We write φˆ r ( y) = φˆ ( y, r ). Consequently, φˆ r : 0 → r and φˆ r−1 : r → 0. Likewise, we deﬁne the displacement of the reference domain as
+
+uˆ ( y, r ) = φˆ ( y, r ) − y
+
+(98)
+
+and write uˆ r ( y) = uˆ ( y, r ). Note that uˆ r is deﬁned on 0 and
+
+represents the displacement of the reference conﬁguration at
+
+time r .
+
+Let t˜ be the conﬁguration of 0 at t˜ < t. We think of this as a conﬁguration “nearby” t that in numerical com-
+
+putations will typically represent the ﬁnal conﬁguration of
+
+the previous time step. We wish to push forward the functions deﬁned on 0 to t˜. We write φˆ t˜ : 0 → t˜ and φˆ −t˜ 1 : t˜ → 0. Then uˆ t ◦ φˆ t−˜ 1 and uˆ t˜ ◦ φˆ t−˜ 1 are the displacements of the reference domain at time t and t˜, respec-
+
+tively, but both are deﬁned with respect to the conﬁguration
+
+of the reference domain at time t˜, namely t˜. We write
+
+x˜ = φˆ t˜( y) ∈ t˜. To determine φˆ t we will construct a linear
+
+elastic
+
+boundary
+
+problem
+
+for
+
+uˆ t
+
+◦
+
+φˆ
+
+−1 t˜
+
+and
+
+utilize
+
+φˆ t ( y) = φˆ t˜( y) +
+
+uˆ t
+
+◦
+
+φˆ
+
+−1 t˜
+
+φˆ t˜( y)
+
+(99)
+
+123
+
+Comput Mech (2008) 43:3–37
+
+13
+
+We would like to remind the reader that φˆ t˜ and uˆ t˜ are consi-
+
+dered known when we solve for uˆ t ◦ φˆ t−˜ 1.
+
+Let Vm = Vm(
+
+f t˜
+
+)
+
+denote
+
+the
+
+trial
+
+solution
+
+space
+
+of
+
+dis-
+
+placements and let Wm = Wm(
+
+f t˜
+
+)
+
+denote
+
+the
+
+weighting
+
+space for the elastic equilibrium equations. As usual, kine-
+
+matic boundary conditions are built into the deﬁnitions of the
+
+spaces, namely,
+
+Vm =
+
+um | um ∈
+
+H1(
+
+f t˜
+
+)
+
+d
+,
+
+um = ut ◦ φˆ −t˜ 1 on
+
+fs t˜
+
+Wm =
+
+wm | wm ∈
+
+H1(
+
+f t˜
+
+)
+
+d
+,
+
+wm
+
+= 0 on
+
+fs t˜
+
+(100) (101)
+
+where ut is the particle displacement at time t. Note that in
+our formulation ut will be an unknown and will be solved for simultaneously along with uˆ t in a coupled fashion. The
+variational formulation of the problem is stated as follows: Find uˆ t ◦ φˆ t−˜ 1 ∈ Vm such that ∀wm ∈ Wm ,
+
+Bm (wm , uˆ t ◦ φˆ t−˜ 1) = F m (wm ),
+
+(102)
+
+where
+
+Bm (wm , um ) = (∇xs˜ wm , 2µm ∇xs˜ um )
+
+f t˜
+
++ (∇x˜ · wm , λm ∇x˜ · um ) f , t˜
+
+F m (wm ) = Bm (wm , uˆ t˜ ◦ φˆ t−˜ 1),
+
+(103) (104)
+
+and ∇x˜ is the gradient operator on t˜, ∇xs˜ is its symmetrization, and µm and λm are the Lamé parameters of the ﬁctitious linear elastic model characterizing the motion of the ﬂuid domain. In the discrete setting µm and λm should be selected (as it was demonstrated in [37]) such that the ﬂuid mesh quality is preserved for as long as possible. In particular, mesh quality can be preserved by dividing the elastic coefﬁcients by the Jacobian determinant of the element mapping, effectively increasing the stiffness of the smaller elements [37,48,70], which are typically placed at ﬂuidsolid interfaces. For advanced mesh moving techniques see [38,39,58,59]. Parts of the boundary of the ﬂuid region may also have motion prescribed independent of the motion of the solid region. This is handled in a standard way as a Dirichlet boundary condition. The remainder of the ﬂuid region boundary is typically subjected to a “zero stress” Neumann boundary condition.
+As a result of the above construction, the ALE mapping for the entire domain may be deﬁned in a piece-wise fashion. Recall that this means for the solid domain that we take y = X, r = s, φˆ = φ, and uˆ = u. We write
+
+φˆ ( y, r ) =
+
+X + u(X, s) ∀X ∈ s0, s ∈ (0, T )
+
+y + uˆ ( y, r ) ∀ y ∈
+
+f 0
+
+,r
+
+∈
+
+(0, T )
+
+(105)
+
+Note that due to (100), the ALE map φˆ in (105) is continuous at the ﬂuid-solid interface. Recall also that the velocity of the ﬂuid domain is obtained by taking a partial time derivative of uˆ with y held ﬁxed, that is, vˆ = ∂ uˆ /∂r .
+
+3.3 Fluid problem
+
+In this section we give a weak formulation of the incompres-
+
+sible Navier–Stokes ﬂuid on a moving domain in the ALE
+
+description. The motion of the ﬂuid domain was construc-
+
+ted in the previous section. Let V f
+
+= Vf(
+
+f t
+
+)
+
+denote
+
+the
+
+trial solution space of velocities and pressures and let W f =
+
+Wf(
+
+f t
+
+)
+
+denote
+
+the
+
+trial
+
+weighting
+
+space
+
+for
+
+the
+
+momen-
+
+tum and continuity equations. Let {v, p} denote the particle
+
+velocity-pressure pair and {w f , q f } the weighting functions
+
+for the momentum and continuity equations. We also assume
+
+that the ﬂuid particle velocity ﬁeld satisﬁes the boundary
+
+condition, v = g f on
+
+f, t
+
+D
+
+,
+
+the
+
+Dirichlet
+
+part
+
+of
+
+the
+
+ﬂuid
+
+boundary. The variational formulation is stated as follows:
+
+Find {v, p} ∈ V f such that ∀{w f , q f } ∈ W f ,
+
+B f ({w f , q f }, {v, p}; vˆ ) = F f ({w f , q f })
+
+(106)
+
+where
+
+B f ({w f , q f }, {v, p}; vˆ )
+
+= w f ,ρ f ∂v ∂r
+
++ w f , ρ f (v − vˆ ) · ∇x v
+f
+
+t
+
++(q f , ∇x · v) f − (∇x · w f , p) f
+
+t
+
+t
+
++ ∇xs w f , 2µ f ∇xs v f ,
+t
+
+and
+
+f t
+(107)
+
+F f ({w f , q f }) = (w f , ρ f f f ) f + (w f , h f ) f,N , (108)
+
+t
+
+t
+
+where
+
+f,N t
+
+is
+
+the
+
+Neumann
+
+part
+
+of
+
+the
+
+ﬂuid
+
+domain
+
+boun-
+
+dary, h f is the boundary traction vector, f f is the body force
+
+per unit mass, and ρ f and µ f are the density and the dyna-
+
+mic viscosity of the ﬂuid, respectively. The above equations
+
+are written with respect to the current conﬁguration t , ∇x is the gradient operator on t , and ∇xs is its symmetrization.
+
+3.4 Coupled problem
+
+In this section we present the coupled ﬂuid-structure interac-
+tion problem, which is based on the individual subproblems
+introduced previously. The variational formulation for the coupled problem is stated as: Find {v, p} ∈ V f , u ∈ Vs, and uˆ ∈ Vm such that ∀{w f , q f } ∈ W f , ∀ws ∈ Ws, and ∀wm ∈ Wm ,
+
+B f ({w f , q f }, {v, p}; vˆ ) − F f ({w f , q f }) + Bs (ws , u)
+
+− Fs (ws ) + Bm (wm, uˆ ) − Fm(wm) = 0.
+
+(109)
+
+123
+
+14
+
+Comput Mech (2008) 43:3–37
+
+with the following auxiliary relations holding in the sense of traces:
+
+v
+
+fs t
+
+=
+
+∂u ∂t
+
+◦ φˆ −1
+
+,
+fs
+
+t
+
+wf
+
+f s = ws ◦ φˆ −1
+t
+
+fs .
+t
+
+(110) (111)
+
+Relationship (110), the kinematic constraint, equates the ﬂuid particle velocity with that of the solid at the ﬂuid-solid boundary. Equation (111) leads to the compatibility of the Cauchy stress vector at the ﬂuid-solid interface. To demonstrate this fact, we ﬁrst set wm = 0 and focus on the ﬂuid and solid parts of the coupled problem (109). Integrating by parts in (109) and assuming sufﬁcient regularity of the solution ﬁelds gives
+
+0 = w f , L f (v, p; vˆ ) − ρ f f f f + q f , ∇x · v f
+
+t
+
+t
+
++ w f , σ f ntf − h f f,N + w f , σ f ntf f s
+
+t
+
+t
+
++ ws , Ls (u) − ρ0s f s
+
+s+
+0
+
+ws , P ns0 − hs
+
+s,N 0
+
++ ws , P ns0 f s , 0
+
+(112)
+
+where ntf and ns0 are the unit outward normal vectors to the ﬂuid and solid domains, in the current and reference conﬁ-
+gurations, respectively. In (112) the following deﬁnitions are
+used:
+
+L
+
+f
+
+(v,
+
+p;
+
+vˆ )=ρ
+
+f
+
+∂v ∂r
+
++ρ
+
+f
+
+(v
+
+−
+
+vˆ )
+
+·
+
+∇x v
+
+−
+
+∇x
+
+·
+
+σ
+
+f
+
+,
+
+σ f = −∇x p I + 2µ f ∇xs v,
+
+Ls (u)
+
+=
+
+ρ0s
+
+∂2u ∂s2
+
+−
+
+∇X
+
+·
+
+P.
+
+P = F S,
+
+(113) (114) (115) (116)
+
+Standard variational arguments imply that the ﬂuid and the solid momentum equations and the ﬂuid incompressibility constraint hold in the interior of the appropriate subdomains. The Neumann boundary conditions are also satisﬁed on the appropriate parts of the ﬂuid and solid domain boundaries. Selecting test functions that vanish everywhere in the domain, except at the ﬂuid-solid interface in (112), gives
+
+w f , σ f ntf f s + ws , P ns0 f s = 0.
+
+t
+
+0
+
+(117)
+
+Transforming the second term in (117) to the current conﬁguration, yields
+
+w f , σ f ntf f s + ws ◦ φˆ −1, σ s nst f s = 0.
+
+t
+
+t
+
+(118)
+
+Using (111) we arrive at the weak continuity of surface tractions at the ﬂuid-solid interface
+
+w f , σ f ntf + σ s nst f s = 0,
+t
+
+(119)
+
+123
+
+which, together with (110), produces proper ﬂuid-solid interface conditions.
+
+4 Formulation of the ﬂuid-structure interaction problem at the discrete level
+
+In this section we give a formulation of the ﬂuid-structure interaction Eq. (109) in the discrete setting. We begin by deﬁning the spatial discretization of the problem. It is exactly the same for ﬁnite elements and NURBS-based isogeometric analysis. Having deﬁned the semi-discrete forms, we present the time stepping algorithm, which is the generalizedα method of Chung and Hulbert [12].
+
+4.1 Approximation spaces and enforcement of kinematic compatibility conditions
+
+We begin by considering the discretization of the reference
+domain 0. Here, and in what follows, we will use the same notation for the discrete objects as for their continuous counterparts to simplify the presentation. Let Nˆ A denote a set of basis functions deﬁned on 0, as in Sect. 2.3, and let I denote the index set of all basis functions deﬁned on 0. These functions do not depend on time, they are “ﬁxed” in space on the reference domain. Consider a discrete ALE mapping φˆ ( y, r )
+which can be expressed as
+
+φˆ ( y, r ) = φˆ A(r )Nˆ A( y) = (Uˆ A(r )+ yA)Nˆ A( y) (120)
+
+A∈I
+
+A∈I
+
+The mapping pertains to the entire ﬂuid-structure domain. The motion of the ﬂuid subdomain is obtained from (120) by restricting the index set to the ﬂuid control variables (or nodal variables in the case of ﬁnite elements). We write I = I f ∪ Is, where I f and Is are the index sets of the ﬂuid and solid control variables, respectively. Note that I f ∩ Is = ∅ due to the kinematic continuity conditions imposed at the ﬂuid-solid interface.
+The displacement ﬁeld of the solid is written as
+
+u(X, s) = U A(s)Nˆ A(X),
+A∈Is
+
+(121)
+
+We assume that all basis functions in the reference conﬁguration are at least C0-continuous, which automatically makes
+
+them H 1-conforming. In this work, we also require that the
+
+discretization at the ﬂuid-solid interface is conforming, that
+
+is, Nˆ A’s are C0-continuous across
+
+f 0
+
+s
+
+.
+
+In contrast to the solid problem, the ﬂuid problem (106)
+
+is posed over the current conﬁguration with unknown ﬁelds
+
+expressed as functions of the spatial coordinates x. In order
+
+to approximate the unknown ﬁelds in the current domain,
+
+we
+
+employ
+
+{NA(x, t)
+
+=
+
+Nˆ A
+
+◦
+
+φˆ
+
+−1 t
+
+(
+
+x)}
+
+A∈I
+
+f
+
+,
+
+as
+
+deﬁned
+
+in
+
+Sect. 2.3, Eq. (61), to approximate the ﬂuid velocity and
+
+Comput Mech (2008) 43:3–37
+
+15
+
+pressure as
+
+v(x, t) = V A(t)NA(x, t),
+A∈I f
+p(x, t) = PA(t)NA(x, t)
+A∈I f
+
+(122) (123)
+
+The ﬂuid domain motion problem (106) is posed over a conﬁguration at time t˜. As a result, in order to approxi-
+
+mate the ﬂuid mesh displacement, we make use of the basis
+
+deﬁned on that conﬁguration, namely, {N˜ A(x˜ , t˜) = Nˆ A ◦
+
+φˆ
+
+−1 t˜
+
+(
+
+x˜
+
+)}
+
+A∈
+
+I
+
+f
+
+.
+
+The
+
+ﬂuid
+
+mesh
+
+displacement,
+
+as
+
+a
+
+function
+
+of
+
+the x˜ conﬁguration variables, becomes
+
+u˜ (x˜ , t˜) = Uˆ A(t˜)N˜ A(x˜ , t˜),
+A∈I f
+
+(124)
+
+and, as a function of the current conﬁguration variables,
+
+uˆ (x, t) = Uˆ A(t)NA(x, t).
+A∈I f
+
+(125)
+
+The ﬂuid mesh velocity in the current conﬁguration becomes [see (64)]:
+
+vˆ(x, t) =
+
+∂
+
+Uˆ ∂t
+
+A
+
+(t
+
+)
+
+N
+
+A
+
+(x
+
+,
+
+t
+
+).
+
+A∈I f
+
+(126)
+
+The kinematic compatibility conditions (100) and (110), as well as conditions on the weighting spaces, (101) and (111), are essential for the continuous ﬂuid-structure interaction problem (109) to ensure proper coupling. In the discrete setting there are a variety of ways of incorporating them into the formulation. For example, condition (110) may be imposed weakly (see, e.g., [6,7]) by constructing additional terms on the ﬂuid-solid interface using ideas emanating from discontinuous Galerkin methods. As a result, incompatible ﬂuid and solid discretizations may be employed. This approach is not adopted here. Instead, in our discrete formulation, we choose to satisfy the above mentioned conditions strongly as described in the following.
+Continuity of the discrete ALE mapping at the ﬂuid-solid interface is ensured as follows. Let I f s = I f ∩ Is denote the index set of basis functions (and the associated geometry and solution degrees of freedom) associated with the ﬂuid-solid interface. Then, setting Uˆ A = U A ∀ A ∈ I f s gives
+
+u| f s =
+
+U A Nˆ A| f s =
+
+Uˆ A(N˜ A ◦ φˆ t˜)| f s
+
+0
+
+A∈I f s
+
+0
+
+A∈I f s
+
+0
+
+= uˆ ◦ φˆ t˜| f s , 0
+
+(127)
+
+which is precisely the compatibility condition given in (100). Continuity of the ALE mapping, together with continuity of the basis in the reference conﬁguration, assures that the basis
+
+functions in the current conﬁguration are at least C0-continuous, and thus, H 1-conforming. The kinematic compatibility condition (110), which ensures that the ﬂuid particles adhere to the ﬂuid-solid boundary, is satisﬁed by setting V A = ∂U A/∂t ∀ A ∈ I f s and carrying out the same computation as in (127). The ﬂuid-solid interface condition in (101) is satisﬁed by setting to zero the weighting functions for the mesh motion problem supported on the ﬂuidsolid interface, while a unique set of basis functions at the ﬂuid-solid interface guarantees (111).
+Remark 4.1 In the theoretical developments and the computations reported in this paper, the same basis functions are used for the pressure as for the ﬂuid particle velocity and the displacement of the ﬂuid region. Unequal-order velocitypressure discretization may also be employed in order to satisfy the Babuška–Brezzi condition at the discrete level (see [9,56]). This will not be an issue in our formulation because our variational multiscale formulation attains stability, circumventing the Babuška–Brezzi condition.
+
+4.2 Semi-discrete problem
+Let Vhf , Vhs , Vhm and Whf , Whs , Whm be the ﬁnite dimensional subspaces corresponding to their inﬁnite dimensional counterparts. We approximate the coupled ﬂuid-structure interaction problem (109) as follows: Find {v, p} ∈ Vhf , u ∈ Vhs, and uˆ ∈ Vhm such that ∀{w f , q f } ∈ Whf , ∀ws ∈ Whs , and ∀wm ∈ Whm ,
+
+BMf S({w f , q f }, {v, p}; vˆ ) − FMf S({w f , q f }) + Bs (ws , u)
+
+− Fs (ws ) + Bm (wm , uˆ ) − Fm(wm) = 0,
+
+(128)
+
+where
+
+BMf S({w f , q f }, {v, p}; vˆ ) = B f ({w f , q f }, {v, p}; vˆ )
+
++ (v − vˆ ) · ∇x w f , v
+
+˜
+
+f t
+
++
+
+∇x q
+
+f
+
+,
+
+1 ρf
+
+v
+
+˜
+
+f t
+
++ (∇x · w f ρ f τC , ∇x
+
+·
+
+v)
+
+˜
+
+f t
+
+− (w f , v
+
+·
+
+∇x
+
+v)
+
+˜
+
+f t
+
+−
+
+∇x w
+
+f
+
+,
+
+1 ρf
+
+v
+
+⊗v
+
+˜
+
+f t
+
++ (v
+
+· ∇x w f τ , v
+
+·
+
+∇x
+
+v)
+
+˜
+
+f t
+
+(129)
+
+and FMf S({w f , q f }) = F f ({w f , q f }).
+
+(130)
+
+123
+
+16
+
+Comput Mech (2008) 43:3–37
+
+The following deﬁnitions are employed in (129):
+
+v = τM (L f (v, p; vˆ ) − ρ f f f )
+
+τM =
+
+Ct t2
+
++
+
+(v
+
+−
+
+vˆ )
+
+·
+
+G(v
+
+−
+
+vˆ )
+
++C I
+
+µf ρf
+
+2
+G : G )−1/2
+
+τC = (τM g · g)−1
+
+τ = (v · Gv )−1/2
+
+Gi j
+
+=
+
+d k=1
+
+∂ ξk ∂ xi
+
+∂ ξk ∂xj
+
+d
+
+G:G=
+
+Gij Gij
+
+i, j=1
+
+d
+(v − vˆ ) · G(v − vˆ ) = (vi − vˆi )Gi j (v j − vˆ j )
+i, j=1
+
+gi
+
+=
+
+d j =1
+
+∂ξj , ∂ xi
+
+g · g = gi gi .
+
+(131)
+(132) (133) (134) (135) (136)
+(137)
+(138) (139)
+
+In
+
+the
+
+above,
+
+∂ξ ∂x
+
+is
+
+the
+
+inverse
+
+Jacobian
+
+of
+
+the
+
+mapping
+
+bet-
+
+ween the isoparametric, or parent, and physical domains, t
+
+is the time step size, and CI is a positive constant, inde-
+
+pendent of the mesh size, derived from an element-wise
+
+inverse estimate (see, e.g., Johnson [40]). In (128) the sym-
+
+bol
+
+˜
+
+f t
+
+is used
+
+to
+
+denote
+
+the
+
+fact that integrals are
+
+taken over
+
+element interiors.
+
+Galerkin’s method is employed for the solid and mesh
+
+motion problems. The ﬂuid formulation (129) emanates from
+
+the variational multiscale residual-based turbulence mode-
+
+ling paradigm [2,4,7,11,29]. The residual-based formulation
+
+of ﬂuid ﬂow may be viewed as an extension of well-known
+
+stabilized methods, such as SUPG [10]. However, the last
+
+term of (129) is not motivated by multiscale arguments, but
+
+merely provides additional residual-based stabilization (see
+
+Taylor et al. [61]).
+
+4.3 Discussion of conservation
+In this section we focus on the semi-discrete formulation (128) restricted to the ﬂuid. We show that the formulation satisﬁes the discrete geometric conservation law and is globally mass-conservative. We also show that our formulation globally conserves momentum under semi-discretization.
+The discrete geometric conservation law is satisﬁed if the formulation preserves a constant ﬂuid velocity in space and time when there are no body forces and the stress tensor is self-equilibrating. Indeed, if a constant particle velocity ﬁeld is assumed, it is easily seen to satisfy (128) identically.
+
+123
+
+We note that selecting the advective form was an important constituent in obtaining this result. Furthermore, assuming that a time integrator is chosen such that it “respects” a constant solution, that is, if the velocity ﬁeld is constant in time, the discrete approximation to the time derivative is zero, then the formulation satisﬁes the geometric conservation law at a fully discrete level. Any consistent time integrator, including the one employed in this work and described in the following section, should satisfy this condition.
+To demonstrate global mass conservation, we set w f = 0, ws = 0, wm = 0, and q f = 1 in (128). This choice leaves us with
+
+(1, ∇x · v) f = (1, v · n f ) f = 0,
+
+t
+
+t
+
+(140)
+
+which is precisely the statement of global mass conservation
+on the ﬂuid domain. Note that in the solid region the mass-
+conservation is satisﬁed a priori due to the choice of the
+Lagrangian description. Let ei , i = 1, 2, 3, be the ith Cartesian basis vector.
+To show global momentum conservation, we set w f =ei , ws=ei , wm=0 in (128) and assume that there are no body or surface forces present. In this case (128) reduces to
+
+ei
+
+,
+
+ρ0s
+
+∂2u ∂s2
+
++
+s
+
+ei , ρ
+
+f
+
+∂v ∂r
+
+f
+
+0
+
+t
+
++ ei , ρ f (v − vˆ ) · ∇x v
+
+f +(ei , v
+t
+
+· ∇x v)
+
+f =0
+t
+
+(q f , ∇x · v) f + t
+
+∇x q
+
+f
+
+,
+
+1 ρf
+
+v
+
+=0
+f t
+
+(141) (142)
+
+Integration-by-parts in the third term of (141) gives
+
+ei
+
+,
+
+ρ0s
+
+∂2u ∂s2
+
++
+s
+
+ei , ρ
+
+f
+
+∂v ∂r
+
+f
+
+0
+
+t
+
++ ei , ρ f {(v − vˆ ) · n f }v f
+t
+
+− ei , ρ f {∇x · (v − vˆ )}v f
+t
+
++ (ei , v · ∇x v) f = 0 t
+
+(143)
+
+Using (142) with a speciﬁc choice of the test function q f = ρ f vi gives
+
+(ei , ρ f {∇x · v}v) f + (ei , v · ∇x v) f = 0
+
+t
+
+t
+
+which, in turn, simpliﬁes (143) to
+
+(144)
+
+ei
+
+,
+
+ρ0s
+
+∂2u ∂s2
+
++
+s
+
+ei , ρ
+
+f
+
+∂v ∂r
+
+f
+
+0
+
+t
+
++ ei , ρ f {(v − vˆ ) · n f }v f
+t
+
++ ei , ρ f {∇x · vˆ }v f = 0
+t
+
+(145)
+
+Comput Mech (2008) 43:3–37
+
+17
+
+Note that q f = ρ f vi is a valid choice because velocity and pressure are approximated by the same discrete spaces. This would not be the case if Vhp = Whp ⊃ Vhv component-wise. We proceed by changing variables in the second and fourth
+terms of Eq. (145) to the referential description as
+
+ei
+
+,
+
+ρ0s
+
+∂2u ∂s2
+
++
+s
+
+ei ,
+
+ρ
+
+f
+
+∂v ∂r
+
+Jˆ
+
+f
+
+0
+
+0
+
++ ei , ρ f {(v − vˆ ) · n f }v f
+t
+
++ ei , ρ f { Jˆ∇x · vˆ }v f = 0
+0
+
+(146)
+
+Recognizing that Jˆ∇x · vˆ = ∂ Jˆ/∂r [see also Eq. (47)] and combining the second and fourth terms in (146) gives
+
+ei
+
+,
+
+ρ0s
+
+∂2u ∂s2
+
++
+s
+
+ei
+
+,
+
+ρ
+
+f
+
+∂v Jˆ ∂r
+
+0
+
+f 0
+
++ ei , ρ f {(v − vˆ ) · n f }v f = 0
+t
+
+(147)
+
+Deﬁning u˙ = ∂ u/∂s to be the velocity of the solid, taking
+
+the partial time derivative outside of the inner product and
+
+changing variables back to the spatial domain in the ﬁrst two
+
+terms of (147) gives
+
+d dt
+
+ei , ρ0s J −1u˙
+
+s t
+
++
+
+d dt
+
+(ei , ρ
+
+f
+
+v)
+
+f t
+
++ ei , ρ f {(v − vˆ ) · n f }v f = 0
+t
+
+(148)
+
+By conservation of mass in the Lagrangian description,
+
+ρ0s J −1 = ρts [see also Eq. (67)]. Also note that v = vˆ on
+
+f t
+
+s
+
+.
+
+With
+
+these
+
+observations
+
+we
+
+arrive
+
+at
+
+d dt
+
+(ei , ρts u˙ )
+
+s t
+
++
+
+(ei , ρ
+
+f
+
+v)
+
+f t
+
++ ei , ρ f {(v − vˆ ) · n f }v
+
+f t
+
+−
+
+fs t
+
+=0
+
+(149)
+
+which precisely states that the rate of change of the glo-
+
+bal momentum of the coupled system is balanced by the
+
+momentum ﬂux through the boundary of the ﬂuid domain.
+
+The momentum ﬂux through the solid boundary is zero due
+
+to the choice of the Lagrangian description.
+
+Remark 4.2 The term (w f , v · ∇x v) f was ﬁrst present
+ted in [61]. For a stationary ﬂuid domain, the conservationrestoring property of this term was shown in [33], where it was pointed out that conservation can be obtained for stabilized methods, but not for Galerkin methods satisfying the Babuška–Brezzi condition [9,56].
+
+Remark 4.3 The identity ∂ Jˆ/∂r = Jˆ∇x · vˆ plays a critical role in proving momentum conservation. This identity holds true when a functional representation in space and time is simultaneously employed, for example, when space-time
+
+ﬁnite elements are employed. On the other hand, lack of satisfaction of the identity induced by a time-integration method will, in general, prevent us from obtaining (147) from (146) and in this case momentum may not be conserved in the fully-discrete case.
+
+4.4 Time integration of the ﬂuid-structure interaction system
+
+In this section, we present the time integration algorithm for semi-discrete Eq. (128). The method is the generalized-α algorithm proposed by Chung and Hulbert [12] for the equa-
+tions of structural dynamics, and extended to the equations of
+ﬂuid mechanics by Jansen et al. [36]. In the context of ﬂuidstructure interaction, the generalized-α method was used in [15,43]. In this section we give details of the method as it
+applies to the semi-discrete formulation (128). Let U, U˙ , U¨ , and P denote the vectors of nodal or control
+variable degrees of freedom of displacements, velocities,
+velocity time derivatives, and pressure, respectively, of the ﬂuid-structure system. Let V , V˙ , and V¨ denote the vectors of
+nodal or control variable degrees of freedom of mesh displa-
+cements, velocities, and accelerations, respectively. Note that there is no “ﬂuid displacement” in our formulation; U˙ and U¨ are simply labels that we chose for ﬂuid time derivative
+degrees of freedom. Also note that ﬂuid and solid degrees of
+freedom are combined in one solution vector. We deﬁne three
+residual vectors corresponding to the momentum, continuity,
+and mesh motion equations by substituting individual basis functions in place of w f , ws, q f , and wm in (128) as follows:
+
+Rmom = [RmA,oim]
+
+(150)
+
+RmA,oim = BMf S({NA ei , 0}, {v, p}; vˆ ) − FMf S({NA ei , 0})
+
++ Bs (Nˆ Aei , u) − Fs (Nˆ Aei )
+
+(151)
+
+Rcont = [RcAont]
+
+(152)
+
+R
+
+cont A
+
+=
+
+BMf S({0,
+
+NA}, {v,
+
+p}; vˆ)
+
+−
+
+FMf S({0,
+
+N A })
+
+(153)
+
+Rmesh = [RmA,eish]
+
+(154)
+
+RmA,eish = Bm (N˜ A ei , uˆ )
+
+(155)
+
+Note that in the above Rmom is the combined ﬂuid and solid
+residual of the linear momentum equations.
+The genealized-α time integration algorithm is stated as follows: given (Un, U˙ n, U¨ n, V n, V˙ n, V¨ n), ﬁnd (Un+1, U˙ n+1, U¨ n+1, P n+1, V n+1, V˙ n+1, V¨ n+1, U n+α f , U˙ n+α f , U¨ n+αm , V n+α f , V˙ n+α f , V¨ n+αm ), such that
+
+Rmom(U n+α f , U˙ n+α f , U¨ n+αm , P n+1,
+×V n+α f , V˙ n+α f , V¨ n+αm ) = 0,
+Rcont(U n+α f , U˙ n+α f , U¨ n+αm , P n+1, ×V n+α f , V˙ n+α f , V¨ n+αm ) = 0,
+
+(156) (157)
+
+123
+
+18
+
+Comput Mech (2008) 43:3–37
+
+Rmesh(U n+α f , U˙ n+α f , U¨ n+αm ,
+
+× P n+1, V n+α f , V˙ n+α f , V¨ n+αm ) = 0,
+
+U n+α f = U n + α f (U n+1 − U n),
+
+U˙ n+α f = U˙ n + α f (U˙ n+1 − U˙ n),
+
+U¨ n+αm = U¨ n + αm (U¨ n+1 − U¨ n),
+
+V n+α f = V n + α f (V n+1 − V n),
+
+V˙ n+α f = V˙ n + α f (V˙ n+1 − V˙ n),
+
+V¨ n+αm = V¨ n + αm (V¨ n+1 − V¨ n), U˙ n+1 = U˙ n + t ((1 − γ )U¨ n + γ U¨ n+1),
+
+U n+1 = U n+
+
+t U˙ n+
+
+t 2
+
+2
+
+((1−2β
+
+)U¨
+
+n
+
++2β
+
+U¨
+
+n+1),
+
+V˙ n+1 = V˙ n+ t ((1−γ )V¨ n+γ V¨ n+1),
+
+V n+1 = V n+
+
+t V˙ n+
+
+t 2
+
+2
+
+((1−2β
+
+)V¨
+
+n
+
++2β
+
+V¨
+
+n+1),
+
+(158) (159) (160) (161) (162) (163) (164) (165)
+(166)
+(167)
+(168)
+
+where t = tn+1 − tn is the time step, α f , αm, γ , and β are real-valued parameters that deﬁne the method and are selected to ensure second-order accuracy and unconditional stability. For a second-order linear ordinary differential equation system with constant coefﬁcients, which is related to the solid and the mesh parts of the ﬂuid-structure interaction problem, Chung and Hulbert [12] showed that second-order accuracy is attained if
+
+γ
+
+=
+
+1 2
+
+−
+
+αf
+
++ αm ,
+
+and
+
+β
+
+=
+
+1 (1 − 4
+
+αf
+
++
+
+αm )2,
+
+while unconditional stability requires
+
+(169) (170)
+
+αm
+
+≥ αf
+
+≥
+
+1. 2
+
+(171)
+
+Results (169) and (171) were also shown by Jansen et al. [36] to hold true for a ﬁrst order linear ordinary differential equation system with constant coefﬁcients, which is related to the ﬂuid part of the ﬂuid-structure interaction problem. Condition (170) is only applicable to the second-order case. In order to have strict control over high frequency damping, αm and α f are parameterized by ρ∞, the spectral radius of the ampliﬁcation matrix at inﬁnitely large time step. Optimal high frequency damping occurs when all the eigenvalues of the ampliﬁcation matrix take on the same value, namely, −ρ∞. In this case, for the second-order system, Chung and Hulbert [12] derive
+
+αmc
+
+=
+
+2 1
+
+− +
+
+ρ∞c ρ∞c
+
+,
+
+αcf
+
+=
+
+1 1 + ρ∞c ,
+
+(172)
+
+123
+
+while for the ﬁrst order system Jansen et al. [36] give
+
+αmj
+
+=
+
+1 2
+
+3 − ρ∞j 1 + ρ∞j
+
+,
+
+α
+
+j f
+
+=
+
+1
+
+1 + ρ∞j
+
+,
+
+(173)
+
+where superscripts distinguish the quantities coming from two different methods. The above equations show that for the same values of ρ∞ (that is, ρ∞c = ρ∞j ) there is a mismatch between αmc and αcj . This inconsistency may be eliminated by setting ρ∞c = ρ∞j = 1, the case of zero high frequency damping corresponding to the midpoint rule, but this is not sufﬁciently robust for practical calculations. In this work, we adopt expressions (173), making the ﬂuid part of the problem optimally damped, and determine the eigenvalues of the ampliﬁcation matrix for a second-order linear ordinary differential equation system at inﬁnitely large time step, given by an expression obtained in [12]:
+
+⎧
+
+⎫
+
+lim
+t →∞
+
+λ
+
+=
+
+⎨ ⎩
+
+−1+(αmj 1 + (αmj
+
+− −
+
+α
+
+j f
+
+)
+
+α
+
+j f
+
+)
+
+,
+
+−1 + (αmj − α
+
+1
+
++
+
+(αmj
+
+−
+
+α
+
+j f
+
+j f
+
+)
+
+)
+
+,
+
+1−
+
+1
+
+α
+
+j f
+
+⎬ ⎭.
+
+(174)
+
+Substituting (173) into (174), we obtain
+
+lim λ =
+t →∞
+
+−1 3
+
+− 3ρ∞j + ρ∞j
+
+,
+
+−1 − 3ρ∞j 3 + ρ∞j
+
+,
+
+−ρ∞j
+
+.
+
+(175)
+
+The ﬁrst two eigenvalues are different from −ρ∞j , but it is a simple matter to show that they are monotone decreasing functions of ρ∞j and
+
+1≤ 3
+
+−1 − 3ρ∞j 3 + ρ∞j
+
+≤1
+
+∀|ρ∞j | ≤ 1.
+
+(176)
+
+This, in turn, implies that the spectral radius of the ampliﬁcation matrix never exceeds unity in magnitude and no instabilities are incurred for a second-order system. Note that this choice of parameters maintains second-order accuracy and unconditional stability because conditions (169)–(171) still hold true.
+To solve the nonlinear system of Eqs. (156)–(168), we employ Newton’s method, which can be viewed as a twostage predictor–multicorrector algorithm.
+
+Comput Mech (2008) 43:3–37
+
+19
+
+Predictor stage. Set
+
+U˙ n+1,(0) = U˙ n,
+
+U¨ n+1,(0)
+
+=
+
+(γ
+
+− γ
+
+1)
+
+U¨
+
+n
+
+,
+
+U n+1,(0) = U n +
+
+t U˙ n +
+
+t 2
+
+2
+
+((1
+
+−
+
+2β
+
+)U¨
+
+n
+
++ 2βU¨ n+1,(0)),
+
+P n+1,(0) = P n ,
+
+V˙ n+1,(0) = V˙ n
+
+V¨ n+1,(0)
+
+=
+
+(γ
+
+− γ
+
+1)
+
+V¨
+
+n
+
+V n+1,(0) = V n + t V˙ n
+
++
+
+t2 2
+
+((1
+
+−
+
+2β)V¨ n
+
++
+
+2β V¨ n+1,(0)).
+
+(177) (178)
+(179) (180) (181) (182)
+(183)
+
+The subscript 0 on the left-hand side quantities is the iteration index. Note that the predictor is consistent with the generalized-α Eq. (165)–(168). Multi-corrector stage. Repeat the following steps for l = 1, 2, . . . , lmax.
+
+(1) Evaluate iterates at the intermediate time levels as
+
+U n+α f ,(l) = U n + α f (U n+1,(l−1) − U n ) U˙ n+α f ,(l) = U˙ n + α f (U˙ n+1,(l−1) − U˙ n) U¨ n+αm,(l) = U¨ n + αm (U¨ n+1,(l−1) − U¨ n) V n+α f ,(l) = V n + α f (V n+1,(l−1) − V n) V˙ n+α f ,(l) = V˙ n + α f (V˙ n+1,(l−1) − V˙ n) V¨ n+αm,(l) = V¨ n + αm (V¨ n+1,(l−1) − V¨ n) P n+1,(l) = P n+1,(l−1)
+
+(184) (185) (186) (187) (188) (189) (190)
+
+Solve this linear system using a preconditioned GMRES algorithm (see Saad and Schultz [54]) to a speciﬁed tolerance. (3) Having solved the linear system, update the iterates as
+
+U¨ n+1,(l) = U¨ n+1,(l−1) + U¨ n+1,(l) U˙ n+1,(l) = U˙ n+1,(l−1) + γ t U¨ n+1,(l) U n+1,(l) = U n+1,(l−1) + β( t )2 U¨ n+1,(l)
+P n+1,(l) = P n+1,(l−1) + P n+1,(l) V¨ n+1,(l) = V¨ n+1,(l−1) + V¨ n+1,(l) V˙ n+1,(l) = V˙ n+1,(l−1) + γ t V¨ n+1,(l) V n+1,(l) = V n+1,(l−1) + β( t )2 V¨ n+1,(l)
+
+(194) (195) (196) (197) (198) (199) (200)
+
+Remark 4.4 In the context of solution strategies employed to solve the coupled ﬂuid-structural equations, Tezduyar and co-workers (see, e.g., [71]) introduced the following terminology: the block-iterative solution strategy refers to the case when the solution for the three ﬁelds (i.e., the solid, ﬂuid and mesh) is obtained in a fully segregated manner; the quasidirect solution strategy refers to the case when the ﬂuid and solid equations are solved in a coupled fashion, while the mesh motion is solved for separately; ﬁnally, the direct strategy refers to the case when the three ﬁelds are solved for in a coupled fashion and all the inﬂuences of the ﬁelds on each other are reﬂected in the tangent matrix. Adopting the terminology of Tezduyar, the method outlined in this section may be classiﬁed as a direct solution strategy.
+
+5 Linearization of the ﬂuid-structure interaction equations: a methodology for computing shape derivatives
+
+(2) Use the intermediate solutions to assemble the residuals of the continuity and momentum equations and the corresponding matrices in the linear system
+
+∂ Rmom ∂ U¨ n+1
+
+U¨ n+1,(l)
+
++
+
+∂ Rmom ∂ P n+1
+
+P n+1,(l)
+
+∂ Rmom + ∂ V¨ n+1
+
+V¨ n+1,(l) = − Rm(l)om
+
+∂ Rcon ∂ U¨ n+1
+
+U¨ n+1,(l)
+
++
+
+∂ Rcon ∂ P n+1
+
+P n+1,(l)
+
++
+
+∂ Rcon ∂ V¨ n+1
+
+V¨ n+1,(l) = − Rc(lo)n
+
+∂ Rmesh ∂ U¨ n+1
+
+U¨ n+1,(l)
+
++
+
+∂ Rmesh ∂ P n+1
+
+P n+1,(l)
+
++
+
+∂ Rmesh ∂ V¨ n+1
+
+V¨ n+1,(l) = − Rm(l)esh
+
+(191) (192) (193)
+
+Derivatives of the momentum, continuity, and mesh motion
+
+residuals with respect to solution variables deﬁne the so-
+
+called tangent matrices. In particular, derivatives of the
+
+momentum and continuity residuals with respect to the mesh
+
+motion variables are referred to as shape derivatives. The
+
+computation of shape derivative matrices, required for a
+
+consistent linearization of the ﬂuid-structure system, has not
+
+been extensively studied in the ﬂuid-structure interaction lite-
+
+rature, although recently a few references have appeared on
+
+the subject (see, e.g., [15,19]). In this section, we present
+
+a detailed methodology for deriving shape derivatives and
+
+provide their explicit expressions. Although presented in the
+
+ALE context, this methodology is applicable to other ﬂuid-
+
+structure formulations.
+
+We begin by introducing notation. Let x = x(ξ ) denote
+
+the
+
+isoparametric
+
+mapping
+
+at
+
+a
+
+particular
+
+time
+
+instant.
+
+Let
+
+∂x ∂ξ
+
+be
+
+the Jacobian
+
+of
+
+this mapping,
+
+let
+
+∂ξ ∂x
+
+=
+
+∂ x −1 ∂ξ
+
+denote its
+
+123
+
+20
+
+Comput Mech (2008) 43:3–37
+
+inverse,
+
+and
+
+let
+
+Jξ
+
+=
+
+det
+
+∂ ∂
+
+x ξ
+
+be
+
+its
+
+determinant.
+
+A
+
+Cartesian
+
+basis will be used throughout and operations on vectors and
+
+tensors will be expressed through operations on their com-
+
+ponents in the Cartesian basis. Let xi and ξi denote the ith
+
+component
+
+of
+
+x
+
+and
+
+ξ , respectively,
+
+and
+
+[
+
+∂x ∂ξ
+
+]i
+
+j
+
+=
+
+∂ xi ∂ξj
+
+,
+
+and
+
+[
+
+∂ ∂
+
+ξ x
+
+]i
+
+j
+
+=
+
+∂ ξi ∂xj
+
+be the components of the Jacobian and its
+
+inverse, respectively. The following identities are standard in
+
+nonlinear continuum mechanics (see, e.g., Holzapfel [27]),
+
+and will be used in the sequel:
+
+D
+
+∂ ξi ∂xj
+
+=
+
+−
+
+∂ ∂
+
+ξi xl
+
+D
+
+∂ xl ∂ ξk
+
+∂ ∂
+
+ξk xj
+
+,
+
+(201)
+
+and
+
+D Jξ
+
+=
+
+Jξ
+
+∂ξj ∂ xi
+
+D
+
+∂ xi ∂ξj
+
+,
+
+(202)
+
+where D denotes a general derivative operator. Summation convention on repeated indices is used throughout. Making use of Eq. (201) and (202) and the chain rule, we obtain
+
+D
+
+Jξ
+
+∂ ξi ∂xj
+
+= Jξ
+
+∂ξl D ∂ xk ∂ xk ∂ξl
+
+∂ ξi ∂xj
+
+−
+
+∂ ∂
+
+ξi xl
+
+D
+
+∂ xl ∂ ξk
+
+∂ ξk ∂xj
+
+,
+
+(203)
+
+and, furthermore,
+
+D
+
+Jξ
+
+∂ ξi ∂xj
+
+∂ ξm ∂ xn
+
+= Jξ
+
+∂ξl D ∂ xk ∂ xk ∂ξl
+
+∂ξi − ∂ξi D ∂ xl ∂ x j ∂ xl ∂ξk
+
+∂ ξk ∂xj
+
+∂ ξm ∂ xn
+
+−
+
+Jξ
+
+∂ ξi ∂xj
+
+∂ξm D ∂ xl
+
+∂ xl ∂ ξk
+
+∂ξk . ∂ xn
+
+(204)
+
+Our task is to derive expressions for shape derivatives in a term-by-term fashion. We will treat several terms in detail so as to make the underlying procedures clear. Results for the rest of the terms will be stated without derivation. We ﬁrst consider a derivative of the discrete residual of the momentum equation with respect to mesh acceleration degrees of freedom,
+
+∂ Rmom ∂ V¨ ,
+
+(205)
+
+which we re-express in component form for convenience as
+
+∂ RmA,oim ∂ V¨B, j
+
+.
+
+(206)
+
+In (205), time step and iteration superscripts are omitted in the interest of a concise exposition. This derivative is active in the ﬂuid region only, so we consider just the Navier–Stokes contributions to the discrete residual.
+
+Acceleration term We begin with the acceleration contribution to the shape
+derivative matrix, that is
+
+∂
+
+Nel e=1
+
+e NA ρ f
+
+∂ vi ∂t
+
+d
+
+∂ V¨B, j
+
+e.
+
+(207)
+
+In (207) Nel is the number of elements in the ﬂuid mesh and e is the domain of the spatial element. Taking the partial derivative operator inside the sum over
+the elements, for a given element e we obtain
+
+∂
+
+e
+
+NAρ f
+
+∂ vi ∂t
+
+d
+
+∂ V¨B, j
+
+e.
+
+(208)
+
+In (208) we cannot take the partial derivative operator inside
+
+the integral, as the region of integration directly depends on the mesh motion, that is, e = e(V¨ ). In order to circumvent
+this difﬁculty, we change variables, x → ξ . With this, (208)
+
+becomes
+
+NA ρ f
+
+∂ vi ∂t
+
+∂ Jξ ∂ V¨B, j
+
+d ˆ e,
+
+ˆe
+
+(209)
+
+where ˆ e is the parent domain of the element. Note that the basis functions, and particle density and
+acceleration in the parent domain are independent of the mesh motion variables, hence the partial derivative only affects the Jacobian determinant. Using expression (202) in (209) gives
+
+NA
+
+ρ
+
+f
+
+∂ vi ∂t
+
+∂
+
+∂ xk ∂ ξl
+
+∂ V¨B, j
+
+ˆe
+
+∂ ξl ∂ xk
+
+Jξ
+
+d
+
+ˆ
+
+e
+
+(210)
+
+The term
+
+∂(
+
+∂ xk ∂ ξl
+
+)
+
+∂ V¨B, j
+
+∂ ξl ∂ xk
+
+is analyzed as follows. Recall the deﬁ-
+
+nition of xk,
+
+xk = uˆk + yk ,
+
+(211)
+
+where yk are the reference conﬁguration coordinates of and uˆk are the mesh displacements. Then,
+
+∂ xk = ∂uˆk + ∂ yk , ∂ξl ∂ξl ∂ξl
+
+(212)
+
+and
+
+∂
+
+∂ xk ∂ ξl
+
+∂ V¨B, j
+
+=
+
+∂
+
+∂ uˆ k ∂ ξl
+
+∂ V¨B, j
+
+,
+
+(213)
+
+as the second term on the right-hand side of (212) is independent of the mesh motion. The mesh displacement uˆk is deﬁned as a linear combination of mesh displacement coefﬁcients and basis functions, that is
+
+Ndof
+uˆk = VA,k N A,
+A=1
+
+(214)
+
+123
+
+Comput Mech (2008) 43:3–37
+
+21
+
+where Ndof is the number of element degrees of freedom. The above implies
+
+∂
+
+∂ xk ∂ ξl
+
+∂ V¨B, j
+
+∂ ξl ∂ xk
+
+= αfβ
+
+t2
+
+∂ NB ∂ ξl
+
+∂ ξl ∂xj
+
+.
+
+(215)
+
+In (215) we made use of Newmark update formulas (164) and (168). Inserting (215) into (210), changing variables back to the physical domain, and summing over the elements of the ﬂuid mesh, we ﬁnally get
+
+Nel
+αf β t2
+e=1
+
+NAρ f
+
+∂ vi ∂t
+
+∂ NB ∂xj
+
+d
+
+e.
+
+e
+
+(216)
+
+Matrix (216) is the contribution to the shape derivative matrix (205) from the acceleration term present in the discrete momentum equations of the incompressible Navier–Stokes system. It is form-identical to and has the same sparsity structure of the matrices that contribute to the tangents in the analysis of ﬂuids and solids, and its implementation in ﬁnite element and isogeometric codes is standard. Advection term
+In the acceleration term the coupling between the momentum residual and mesh motion variables occurs through Jξ . Other terms of the discrete incompressible Navier–Stokes system exhibit more complex coupling. For example, consider the advective contribution to the momentum residual
+
+Nel e=1
+
+N A ρ f (vk
+
+−
+
+vˆk
+
+)
+
+∂ vi ∂ xk
+
+d
+
+e
+
+e
+
+Nel
+=
+e=1
+
+NA
+
+ρ
+
+f
+
+vk
+
+∂ vi ∂ xk
+
+d
+
+Nel
+e−
+e=1
+
+NA
+
+ρ
+
+f
+
+vˆk
+
+∂ vi ∂ xk
+
+d
+
+e.
+
+e
+
+e
+
+(217)
+
+Restricting the sum to a single element, changing variables to the parent domain, and taking the derivative with respect to the mesh acceleration degrees of freedom gives
+
+NA
+
+ρ f (vk
+
+−
+
+vˆk
+
+)
+
+∂ vi ∂ ξl
+
+∂
+
+∂ ξl ∂ xk
+
+Jξ
+
+∂ V¨B, j
+
+d ˆe
+
+ˆe
+
+−
+
+NA
+
+ρ
+
+f
+
+∂ vi ∂ ξl
+
+∂ ξl ∂ xk
+
+∂ vˆk ∂ V¨B, j
+
+Jξ
+
+d
+
+ˆ
+
+e
+
+ˆe
+
+Using relation (203) in the ﬁrst term of (218) gives
+
+NA
+
+ρ f (vk
+
+−
+
+vˆk
+
+)
+
+∂ vi ∂ ξl
+
+⎛ ⎝ ∂ξm
+∂ xn
+
+∂
+
+∂ xn ∂ ξm
+
+∂ V¨B, j
+
+∂ ξl ∂ xk
+
+ˆe
+
+−
+
+∂ ξl ∂ xn
+
+∂
+
+∂ xn ∂ ξm
+
+∂ V¨B, j
+
+⎞
+
+∂ξm ⎠ ∂ xk
+
+Jξ
+
+d
+
+ˆe
+
+(218) (219)
+
+Changing variables back to the physical domain, taking the sum over the elements in the ﬂuid mesh, and accounting for the second term of (218), we get
+
+Nel
+αf β t2
+e=1
+
+NA
+
+ρ f (vk
+
+− vˆk )
+
+∂ vi ∂ xk
+
+∂ NB ∂xj
+
+d
+
+e
+
+e
+
+Nel
+− αfβ
+e=1
+
+t2
+
+NA
+
+ρ f (vk
+
+− vˆk )
+
+∂ vi ∂xj
+
+∂ NB ∂ xk
+
+d
+
+e
+
+Nel
+− αfγ t
+e=1
+
+NA
+
+ρ
+
+f
+
+∂ vi ∂xj
+
+NB
+
+d
+
+e.
+
+e
+
+e
+(220)
+
+Pressure stabilization term As a ﬁnal example we present the derivation of the shape
+derivative contribution from the discrete continuity equation, that is
+
+∂ RcAont ∂ V¨B, j
+
+.
+
+(221)
+
+Consider the pressure contribution from the stabilizing terms, that is
+
+Nel e=1
+
+∂ NA τM ∂xi ρ f
+
+∂p ∂ xi
+
+d
+
+e.
+
+e
+
+(222)
+
+As in previous developments, restricting to a single element and changing variables in (222) gives
+
+∂NA ∂ ξk
+
+∂ ξk ∂ xi
+
+τM ρf
+
+∂p ∂ ξl
+
+∂ ξl ∂ xi
+
+Jξ
+
+d
+
+ˆ
+
+e.
+
+ˆe
+
+(223)
+
+Taking the derivative with respect to the acceleration degrees of freedom and isolating terms that are independent of the mesh motion in (223) we get
+
+∂NA 1 ∂p ∂
+∂ξk ρ f ∂ξl
+ˆe
+
+τM
+
+∂ ξk ∂ xi
+
+∂ ξl ∂ xi
+
+Jξ
+
+∂ V¨B, j
+
+d ˆe
+
+=
+
+∂ NA τM ∂p ∂ ∂ξk ρ f ∂ξl
+
+ˆe
+
+∂ ξk ∂ xi
+
+∂ ξl ∂ xi
+
+Jξ
+
+∂ V¨B, j
+
+d ˆe
+
++
+
+∂NA ∂ ξk
+
+1 ρf
+
+∂p ∂ ξl
+
+∂ ξk ∂ xi
+
+∂ ξl ∂ xi
+
+Jξ
+
+∂τM ∂ V¨B, j
+
+d ˆ e.
+
+ˆe
+
+(224)
+
+The last term on the right-hand side of the above expression involves the derivative of τM with respect to the mesh acceleration degrees of freedom. It is, in principle, present in the tangent matrix and is computable, but in this work it is omitted. In order to handle the ﬁrst term on the right-hand side of
+
+123
+
+22
+
+Comput Mech (2008) 43:3–37
+
+(224) we employ relation (204) to obtain
+
+⎛ ∂ NA τM ∂ p ⎝ ∂ξm ∂
+
+∂ xn ∂ ξm
+
+∂ξk ∂ξl
+
+∂ξk ρ f ∂ξl ∂ xn ∂ V¨B, j ∂ xi ∂ xi
+
+ˆe
+
+−
+
+∂ ξl ∂ xn
+
+∂
+
+∂ xn ∂ ξm
+
+∂ V¨B, j
+
+∂ξm ∂ξk ∂xi ∂xi
+
+−
+
+∂ ξk ∂ xn
+
+∂
+
+∂ xn ∂ ξm
+
+∂ V¨B, j
+
+⎞
+
+∂ ξm ∂ xi
+
+∂ ξl ∂ xi
+
+⎠
+
+Jξ
+
+d
+
+ˆ
+
+e.
+
+(225)
+
+Changing variables back to the physical domain and summing over the ﬂuid domain elements gives the following contribution to the shape derivative
+
+Nel
+αf β t2
+e=1
+
+∂NA ∂ xi
+
+τM ρf
+
+∂p ∂ xi
+
+∂ NB ∂xj
+
+d
+
+e
+
+e
+
+Nel
+− αf β t2
+e=1
+
+∂NA ∂ xi
+
+τM ρf
+
+∂p ∂xj
+
+∂ NB ∂ xi
+
+d
+
+e
+
+e
+
+Nel
+− αf β t2
+e=1
+
+∂NA ∂xj
+
+τM ρf
+
+∂p ∂ xi
+
+∂ NB ∂ xi
+
+d
+
+e.
+
+e
+
+(226)
+
+As before, these matrices and their implementation in a ﬁnite element/isogeometric FSI solver are standard. In what follows, we give, without derivation, expressions for shape derivative contributions from some of the remaining terms in the formulation. Pressure gradient term
+
+∂ −
+
+Nel e=1
+
+e
+
+∂NA ∂ xi
+
+p
+
+d
+
+e
+
+∂ V¨B, j
+
+Nel
+= − αf β t2
+e=1
+
+∂NA p∂NB − ∂NA p∂NB d ∂xi ∂x j ∂x j ∂xi
+
+e.
+
+e
+
+(227)
+
+Viscous stress term
+
+∂
+
+Nel e=1
+
+e
+
+∂NA ∂ xk
+
+µ
+
+f
+
+∂ vi ∂ xk
+
++
+
+∂ vk ∂ xi
+
+de
+
+∂ V¨B, j
+
+Nel
+= αfβ
+e=1
+
+t2 ∂NA µf ∂ xk
+e
+
+∂vi + ∂vk ∂xk ∂xi
+
+∂ NB ∂xj
+
+−
+
+∂NA ∂xj
+
+µf
+
+∂ vi ∂ xk
+
++
+
+∂ vk ∂ xi
+
+∂ NB ∂ xk
+
+−
+
+∂NA ∂ xk
+
+µ
+
+f
+
+∂ vi ∂xj
+
+∂ NB ∂ xk
+
+−
+
+∂NA ∂ xk
+
+µ
+
+f
+
+∂ vk ∂xj
+
+∂ NB ∂ xi
+
+d
+
+e. (228)
+
+Body force term
+
+∂
+
+Nel e=1
+
+e NAρ f fi f d e
+
+∂ V¨B, j
+
+Nel
+=
+e=1
+
+NAρ f
+
+∂ fi f ∂ V¨B, j
+
++αfβ
+
+e
+
+t2NAρ f
+
+fi f
+
+∂ NB ∂xj
+
+d
+
+e.
+
+(229)
+
+Continuity constraint term
+
+∂
+
+Nel e=1
+
+e
+
+N
+
+A
+
+∂ ∂
+
+vi xi
+
+d
+
+e
+
+∂ V¨B, j
+
+Nel
+= αfβ
+e=1
+
+t2 NA
+e
+
+∂vi ∂ NB − ∂vi ∂ NB ∂xi ∂x j ∂x j ∂xi
+
+d e. (230)
+
+Continuity least-squares term
+
+∂
+
+Nel e=1
+
+e
+
+∂NA ∂ xi
+
+τC
+
+∂ vk ∂ xk
+
+d
+
+e
+
+∂ V¨B, j
+
+Nel
+= αfβ
+e=1
+
+t2
+
+∂NA ∂ xi
+
+τC
+
+∂ vk ∂ xk
+
+∂ NB ∂xj
+
+e
+
+−
+
+∂NA ∂xj
+
+τC
+
+∂ vk ∂ xk
+
+∂ NB ∂ xi
+
+−
+
+∂NA ∂ xi
+
+τC
+
+∂ ∂
+
+vk xj
+
+∂ NB ∂ xk
+
+d
+
+e.
+
+(231)
+
+Streamline diffusion stabilization term
+
+∂
+
+Nel e=1
+
+e (vk
+
+−
+
+vˆk
+
+)
+
+∂NA ∂ xk
+
+τM
+
+(vl
+
+−
+
+vˆl
+
+)
+
+∂ vi ∂ xl
+
+d
+
+e
+
+∂ V¨B, j
+
+Nel
+= − αfγ
+e=1
+
+t
+
+∂N ∂x
+
+A j
+
+τM
+
+(vk
+
+−
+
+vˆk
+
+)
+
+∂ vi ∂ xk
+
+NB
+
+e
+
++
+
+∂NA ∂ xk
+
+τM (vk
+
+−
+
+vˆk
+
+)
+
+∂ vi ∂xj
+
+NB
+
+d
+
+e
+
+Nel
++ αf β t2
+e=1
+
+(vl
+
+−
+
+vˆl
+
+)
+
+∂NA ∂ xl
+
+τM (vk
+
+−
+
+vˆk
+
+)
+
+∂ ∂
+
+vi xk
+
+∂ NB ∂xj
+
+e
+
+−
+
+∂NA ∂xj
+
+τM (vl
+
+−
+
+vˆl
+
+)
+
+∂ ∂
+
+vi xl
+
+(vk
+
+−
+
+vˆk
+
+)
+
+∂ NB ∂ xk
+
+− (vl
+
+−
+
+vˆl
+
+)
+
+∂NA ∂ xl
+
+τM
+
+∂ vi ∂xj
+
+(vk
+
+−
+
+vˆk
+
+)
+
+∂ NB ∂ xk
+
+d
+
+e
+
+(232)
+
+Contributions to the shape derivative matrix given in this section are implemented in our software. With these contributions to the tangent matrix we observed satisfactory nonlinear convergence of the FSI system within the time step. Including additional terms in the tangent matrix may possibly lead to a better performance of the nonlinear solver for other problem classes of interest.
+
+123
+
+Comput Mech (2008) 43:3–37
+
+23
+
+6 NURBS-based isogeometric analysis
+
+In NURBS-based isogeometric analysis, a physical domain in Rd , d = 2, 3, is deﬁned as a union of subdomains, also
+referred to as patches. A patch, denoted by , is an image under a NURBS mapping of a parametric domain (0, 1)d ,
+that is
+
+= {x ∈ Rd | x = F(ξ ), ∀ξ ∈ (0, 1)d }.
+
+(233)
+
+The geometrical mapping F(ξ ) is deﬁned as a linear combination of rational basis functions and real coefﬁcients as
+
+F(ξ ) = Ri (ξ )Ci . i∈I
+
+(234)
+
+In (234), Ci ∈ Rd are the control points, I is the index set of control points, and their multi-linear interpolation is referred to as the control mesh. The basis functions Ri (ξ ) have the following structure:
+
+Ri (ξ )
+
+=
+
+Bi (ξ ) , w(ξ )
+
+(235)
+
+where the Bi (ξ )’s are tensor-product B-spline basis functions deﬁned on (0, 1)d ,
+
+w(ξ ) = wi Bi (ξ ) i∈I
+
+(236)
+
+is the so-called weighting function, and the wi ’s are the strictly positive weights. Due to the point-wise non-negativity of the B-spline functions and the strict positivity of the weights, w(ξ ) is strictly positive.
+In isogeometric analysis the geometry generation step entails constructing the initial control mesh, which, in conjunction with the underlying basis functions, deﬁnes the “exact geometry” parametrically. For purposes of analysis, the isoparametric concept is invoked (see [28]). The basis for the solution space in the physical domain, denoted by φi (x), is deﬁned through a “push-forward” of the rational basis functions in (235) to the physical domain, namely
+
+Ni (x) = Ri (F−1(x)) = Ri ◦ F−1(x).
+
+(237)
+
+This construction guarantees that all rigid body modes and constant strain states are represented exactly in the discrete space, which, in turn, is critical for structural analysis. Coefﬁcients of the basis functions in (237), deﬁning the solution ﬁelds in question (e.g., displacement, velocity, etc.), are called control variables.
+There are NURBS analogues of ﬁnite element h- and preﬁnement, and there is also a variant of p-reﬁnement, which is termed k-reﬁnement, in which the continuity of functions is systematically increased. This seems to have no analogue in traditional ﬁnite element analysis but is a feature shared by some meshless methods. As a consequence of the parametric deﬁnition of the “exact” geometry at the coarsest level of
+
+discretization, mesh reﬁnement can be performed automatically without changing the geometry and its parameterization, and without further communication with an external description of the geometry (e.g., CAD). From the standpoint of analysis, these are signiﬁcant beneﬁts. For the details of the analysis framework based on NURBS, the corresponding mathematical theory, and mesh reﬁnement and degree elevation algorithms, the reader is referred to [5,30].
+7 Numerical examples: selected benchmark computations
+In this section we present two numerical examples, computed using the NURBS-based discretization. In these cases we use relatively thin structures for which we employ solid elements with four C1-continuous quadratic basis functions in the through-thickness direction. For modeling shell-like structures with solid NURBS elements, see [30].
+7.1 Flow over an elastic beam attached to a ﬁxed square block
+Our ﬁrst example is a two-dimensional ﬂow over a thin elastic beam attached to a rigid and ﬁxed square block. This benchmark was proposed by Wall [73] in order to test accuracy and robustness of newly emerging ﬂuid-structure interaction procedures. The problem setup is illustrated in Fig. 3. The ﬂow is driven by a uniform velocity of magnitude 51.3 cm/s prescribed at the inﬂow. Lateral boundaries are assigned zero normal velocity and zero tangential traction. A zero traction boundary condition is applied at the outﬂow. The ﬂuid density and viscosity are set to 1.18 × 10−3 g/cm3 and 1.82 × 10−4 g/(cm s), respectively, resulting in a ﬂow at Reynolds number Re = 100 based on the edge length of the square block. The density of the elastic beam is 0.1 g/cm3, and the Young’s modulus and Poisson’s ratio are 2.5 × 106 g/(cm s2) and 0.35, respectively. Problem
+Fig. 3 Flow over an elastic beam attached to a ﬁxed square block. Problem setup
+
+123
+
+24
+Fig. 4 Flow over an elastic beam attached to a ﬁxed square block. Fluid domain mesh employed in the computations
+
+Comput Mech (2008) 43:3–37
+
+Fig. 5 Flow over an elastic beam attached to a ﬁxed square block. Through-thickness discretization of the beam
+
+dimensions, material, and boundary data are taken from the original reference.
+The mesh for this example is comprised of 6936 quadratic NURBS elements and is shown in Fig. 4. The throughthickness discretization of the beam is shown in Fig. 5. The mesh is allowed to move everywhere in the ﬂow domain except at the inﬂow and around the square block, where it is held ﬁxed, and also at the lateral boundaries and the outﬂow boundary where the mesh is constrained not to move in the normal direction.
+Figure 6 shows velocity vectors and pressure contours of the solution at various times. The ﬂow features are characteristic of Re = 100 ﬂow. Vortices that are being shed from the square block are impinging on the bar eventually forcing it into an oscillating motion. The bar experiences large deformations necessitating careful mesh movement. The ﬁctitious elastic Lamé parameters for the mesh motion problem are deﬁned as
+
+µm
+
+=
+
+Em 2(1 + νm)
+
+λm
+
+=
+
+(1
+
++
+
+νm Em νm )(1 −
+
+2νm
+
+)
+
+,
+
+(238) (239)
+
+where Em and νm are the mesh Young’s modulus and Poisson’s ratio, respectively. For this computation we take νm =
+
+0.3 and deﬁne the mesh Young’s modulus to be
+
+E m = E0m Jξ−1,
+
+(240)
+
+where, as in the previous section, Jξ is the Jacobian determinant of the isoparametric element mapping and E0m is set to unity. Expression (240) represents the so-called Jacobian stiffening procedure (see, e.g., [48,70]), which preserves good mesh quality throughout the entire simulation (see the smaller frames in Fig. 6).
+The onset of vortex shedding in a numerical calculation depends on many factors, such as convergence tolerances, round-off, etc., some of which are very difﬁcult or even impossible to conrol. As a result, meaningful comparisons with other computations are only possible when the ﬂow reaches a stable periodic state. Comparison with the results of Wall [73] for a periodic ﬂow regime is shown in Fig. 7. As may be inferred from the ﬁgure, the amplitude of the tip displacement is between 1 and 1.5 cm, and the period is approximately 0.33 s. These results are in agreement with those of Wall [73], despite the differences in discretizations and solid modeling. Wall used bilinear ﬁnite elements for the ﬂuid discretization, biquadratic ﬁnite elements with one element through the thickness for the solid discretization, and incompatible meshes at the ﬂuid-solid interface. In our computations, a compatible quadratic NURBS mesh is employed with a similar number of degrees of freedom as that of Wall. The St. Venant–Kirchhoff model for the elastic beam was used in [73], in contrast to a neo-Hookean with penalty formulation employed here.
+
+7.2 Inﬂation of a balloon
+
+This three-dimensional benchmark example, proposed by Tezduyar and Sathe [66], belongs to a class of problems known as ﬂows in enclosed domains. In this case, the boundary of the ﬂuid subdomain is composed of two parts: an inﬂow and a ﬂuid-solid interface. For incompressible ﬂuids this imposes the following condition: the inﬂow ﬂow rate must equal the rate of change of the ﬂuid domain volume
+
+123
+
+Comput Mech (2008) 43:3–37
+
+25
+
+Fig. 7 Flow over an elastic beam attached to a ﬁxed square block. Displacement of the tip of the mid-plane of the bar as a function of time. Results of Wall [73] are plotted for comparison using a dashed line
+
+Fig. 8 Inﬂation of a balloon. Problem setup
+
+Fig. 6 Flow over an elastic beam attached to a ﬁxed square block. Larger frames: ﬂuid velocity vectors superposed on top of the pressure plotted on a moving domain. Smaller frames: deformed ﬂuid mesh
+(see, e.g., [42]). In loosely coupled approaches, where the solution of the ﬂuid and the solid subproblems are obtained in a staggered fashion, this condition is lost during subiteration
+
+often leading to divergence of the calculations. In the context of loosely-coupled methods, special procedures were devised that led to convergent behavior for this class of problems (see [42]). In this section we show that the strongly-coupled procedures advocated in this work have no difﬁculty dealing with this situation.
+The problem setup is illustrated in Fig. 8. An initially spherical balloon is inﬂated, as shown in the ﬁgure. The inﬂow velocity is governed by a cosine function with a period of 2 s and amplitude ranging from 0 to 2 m/s. The problem geometry, boundary conditions and material parameters are taken from [66]. In the initial conﬁguration the diameter of the balloon is 2 m, the diameter of the circular hole is 0.6245 m, and the thickness of the balloon is 0.002 m. The density, Young’s modulus, and Poisson’s ratio for the balloon are 100 kg/m3, 1,000 N/m2, and 0.4, respectively. The density and viscosity of the ﬂuid correspond to that of air at room temperature and are taken to be 1 kg/m3 and 1.5 × 10−5 kg/(m s). The mesh
+
+123
+
+26
+
+Comput Mech (2008) 43:3–37
+
+Fig. 9 Inﬂation of a balloon. NURBS mesh of the balloon in both top and bottom views
+
+of the initial conﬁguration, comprised of 10,336 quadratic NURBS elements, is shown in Fig. 9. Note that, because NURBS are used to deﬁne the analysis-suitable geometry, the spherical balloon is represented exactly.
+For the purposes of mesh motion, we take advantage of the parametric deﬁnition of the geometry. We take Em [i.e., the elastic modulus of the mesh motion problem; see Eq. (238)– (239)] to be an exponentially increasing function of the parameter deﬁning the radial direction, thus effectively “stiffening” the ﬂuid elements near the ﬂuid-solid boundary.
+The computation is advanced for 14 inﬂow cycles, during which the volume of the balloon grows by a factor of approximately ﬁve with respect to its initial value. Figures 10–12 show snapshots of ﬂuid velocity vectors superposed on the pressure contours at a planar cut through the diameter of the sphere. The ﬂow starts out as being radially symmetric, although it is apparent that the symmetry of the solution breaks down towards the end of the computation. This is not surprizing as the Reynolds number of the ﬂow, based on the initial diameter of the balloon and the maximum inﬂow speed, is 4 × 105, which is quite high. For the purposes of plotting the results, the geometry and solution variables are interpolated with linear hexahedral ﬁnite elements at knots and midpoints of knot intervals. The meshes displayed in Figs. 10, 11 and 12 correspond to the linear hexahedral representation.
+Figure 13a shows the inﬂow ﬂowrate versus the rate of change of the ﬂuid domain volume, which are expected to be the same. On the scale of the plot they are indistinguishable. A closer examination of the error between the inﬂow ﬂowrate and the rate of change of the ﬂuid domain volume reveals that the relative error in the quantities is on the order of 10−4 − 10−3, which is attributable to the fact that the nonlinear equations are solved to a tolerance (see Fig. 13b). Note that the results are, on average, slightly less accurate during the last few periods of the simulation, which is attributable to the loss of radial symmetry in the solution. Also note that the error has the same sign, that is, the rate of change of the ﬂuid domain volume is always greater than
+
+Fig. 10 Inﬂation of a balloon. Mesh deformation and ﬂuid velocity vectors superposed on the pressure plotted on a planar cut through the diameter of the balloon
+the inﬂow ﬂow rate. This suggests that in the discrete setting there is a tendency of the balloon to expand slightly faster (i.e., overcompensate) than dictated by the inﬂow ﬂowrate.
+8 Computation of vascular ﬂows
+In this section we describe the construction of arterial geometries. We then make an assessment of the solid model [presented in (75)–(80)] in describing the behavior of arterial wall tissue. Finally, we present results of the ﬂuid-structure interaction calculation of a patient-speciﬁc abdominal aortic aneurysm.
+8.1 Construction of the arterial geometry
+Blood vessels are tubular objects and so we employ a sweeping method to construct meshes for isogeometric analysis.
+
+123
+
+Comput Mech (2008) 43:3–37
+
+27
+
+Fig. 11 Inﬂation of a balloon. Mesh deformation and ﬂuid velocity vectors superposed on the pressure plotted on a planar cut through the diameter of the balloon
+A solid NURBS description of a single arterial branch is obtained by extrusion of a circular curve along the vessel path and ﬁlling the volume radially inward. Arterial systems engender various branchings and intersections, which are handled with a template-based approach described in detail in [74]. Application of these procedures generate multi-patch, trivariate descriptions of patient-speciﬁc arterial geometries that are also analysis suitable.
+A central feature of our approach is a construction of an arterial cross-section template that is based on the NURBS deﬁnition of the circular surface. Here we focus on the construction of the cross-section template as it relates to ﬂuidstructure interaction analysis of arterial blood ﬂow. We identify the area occupied by the blood, or the ﬂuid region, and the arterial wall, or the solid region. Fluid and solid regions are separated by the luminal surface, or the ﬂuid-solid boundary. Figure 14 shows an example of a NURBS mesh of a circular cross-section with both ﬂuid and solid regions present. NURBS elements are deﬁned as areas enclosed between
+
+Fig. 12 Inﬂation of a balloon. Mesh deformation and ﬂuid velocity vectors superposed on the pressure plotted on a planar cut through the diameter of the balloon
+isoparametric lines. Note that the isoparametric lines correspond to radial and circumferential directions. For purposes of analysis we separate the ﬂuid and the solid region by a C0 line as the solution is not expected to have regularity beyond C0 at the interface.
+Human arteries are not exactly circular, hence projection of the template onto the true surface is necessary. Only control points that govern the cross-section geometry are involved in the projection process, while the underlying parametric description of the cross-section stays unchanged. The end result of this construction is shown in Fig. 14, which illustrates the mapping of the template cross-section onto the patient-speciﬁc geometry. Here the isoparametric lines are somewhat distorted so as to conform to the true geometry, while the topology of the ﬂuid and solid subdomains is preserved along with their interface. It is worth noting that cross-sections of healthy arteries are nearly circular, so in this
+
+123
+
+28
+Fig. 13 Inﬂation of a balloon. (a) Plot of the volumetric inﬂow rate (solid line) versus the rate of change of the ﬂuid domain volume (circles). (b) Plot of the relative error in the ﬂow rates that is attributable to convergence tolerances employed in the calculations
+
+Flowrate (cm3/s)
+
+(a)
+0.6
+
+0.4
+
+0.2
+
+0
+
+0
+
+4
+
+(b) 10 x 10−4
+
+(dVf /dt−Oin)/max(Qin)
+
+8
+
+6
+
+4
+
+2
+
+0
+
+0
+
+4
+
+Comput Mech (2008) 43:3–37
+
+8
+
+12
+
+16
+
+20
+
+24
+
+28
+
+Time (s)
+
+8
+
+12
+
+16
+
+20
+
+24
+
+28
+
+Time(s)
+
+pipe that is driven by a constant pressure gradient develops a parabolic proﬁle in the radial direction and has no dependence on the circumferential or axial directions. NURBS discretizations proposed in this paper, in contrast to standard ﬁnite element discretizations, are capable of exactly representing this solution proﬁle.
+Parametric deﬁnition of the geometry is not only attractive from the mesh reﬁnement point of view, is also beneﬁcial in arterial blood ﬂow applications for the following reasons:
+
+Fig. 14 Arterial cross-section template based on a NURBS mesh of a circle that is subsequently mapped onto a subject-speciﬁc geometry. Fluid and solid regions are identiﬁed and separated by an interface. For analysis purposes, basis functions are made C0-continuous at the ﬂuid-solid boundary. Note that the topology of the ﬂuid and the solid subdomains remains unchanged
+case little distortion of the template is required to accurately capture the true geometry.
+Compared to the standard ﬁnite element method, the described method has signiﬁcant beneﬁts for analysis of blood ﬂow in arteries, both in terms of accuracy and implementational convenience. It is well known in ﬂuid mechanics that steady, laminar, incompressible ﬂow in a straight circular
+
+(1) In the ﬂuid region structured boundary layer meshes near arterial walls may be constructed. This is crucial for overall accuracy of the ﬂuid-structural simulation as well as for obtaining accurate wall quantities, such as shear stress, which plays an important role in predicting the onset and development of vascular disease.
+(2) In the solid region it allows for a natural representation of material anisotropy of the arterial wall because the parametric coordinates are aligned with the axial, circumferential and wall-normal directions. See [26] for arterial wall material modeling which accounts for anisotropic behavior.
+(3) Fluid-structure interaction applications involve motion of the ﬂuid domain. As described previously, this is typically done by solving an auxiliary ﬁctitious elastic boundary value problem for mesh movement (see, e.g., [37,3]). Parametric mesh deﬁnition in the ﬂuid region
+
+123
+
+Comput Mech (2008) 43:3–37
+
+Fig. 15 Setup for a uniaxial stress state
+allows for a straightforward speciﬁcation of these elastic mesh parameters. For example, for problems of this type we “stiffen” the mesh in the radial direction so as to preserve boundary layer elements during mesh motion.
+
+8.2 Investigation of the solid model for a range of physiological stresses
+
+We begin by examining the behavior of the material model
+
+presented in (75)–(80) on a simple state of uniaxial stress. We
+
+ﬁrst consider a bar with an applied stress in the x-direction,
+
+denoted by σ , and zero stress in the the orthogonal directions,
+
+as illustrated in Fig. 15. We will then relate this situation to
+
+that of a pre-stressed artery in the physiologically relevant
+
+range. For this type of loading, the deformation tensors F
+
+and C are constant and diagonal, that is
+
+⎡ F11 0
+F= ⎣ 0 F22
+
+⎤⎡
+
+0
+
+lx /l0x 0
+
+0 ⎦ = ⎣ 0 ly/l0y
+
+⎤ 0 0 ⎦ (241)
+
+0 0 F33
+
+0
+
+0 lz/l0z
+
+and ⎡ C11 0
+C = FT F = ⎣ 0 C22 00
+⎡ (lx /l0x )2 =⎣ 0
+0
+
+⎤ 0 0⎦ C33
+0 (l y / l0 y )2
+0
+
+⎤ 0 0⎦
+(lz / l0z )2
+
+(242)
+
+where lx , ly, lz are the current lengths of the bar and l0x , l0y, l0z are the original lengths of the bar in the x,y and z-directions, respectively. We assume that l0y = l0z and ly = lz due to symmetry, and use this assumption in the upcoming developments.
+From considerations of equilibrium, the Cauchy stress ten-
+sor becomes
+
+⎡
+
+⎤
+
+σ 00
+
+σ = ⎣0 0 0⎦
+
+0 00
+
+29
+(243)
+
+and, by the transformation of stress formula (71),
+
+S=
+
+J F−1σ F−T
+
+=
+
+⎡ ⎣
+
+J σ F1−12 0
+
+0 0
+
+⎤ 0 0⎦
+
+0 00
+
+=
+
+⎡ ⎣
+
+J σ C1−11 0
+
+0 0
+
+⎤ 0 0⎦,
+
+0 00
+
+(244)
+
+with J = F11 F22 F33 = F11 F222 = (C11C222)1/2, where we used the assumption of symmetry in the second equality.
+Substituting (244) into (80) and rearranging terms, we arrive at the following 2 × 2 system of nonlinear equations
+
+σ = µs C111/6C2−25/3(1 − 1/3(C11 + 2C22)C1−11) + 1/2κs (C11C222 − 1)C1−11/2C2−21
+0 = µs C1−11/3C2−22/3(1 − 1/3(C11 + 2C22)C2−21) + 1/2κs (C11C222 − 1)C2−21.
+
+(245) (246)
+
+The shear and bulk moduli µs and κs are computed from Eq. (84) as
+
+µs = µl κs = λl + 2 µl ,
+3
+
+where
+
+µl
+
+=
+
+E 2(1 +
+
+ν)
+
+λl
+
+=
+
+(1 +
+
+νE ν)(1 −
+
+2ν)
+
+(247) (248)
+(249) (250)
+
+are the Lamé coefﬁcients: E is Young’s modulus, and ν is Poisson’s ratio. We set E = 4.144 × 106 dyn/cm 2 = 3.11 × 103 mmHg and ν = 0.45.
+The relevant values of σ corresponding to the physiologically-realistic range of intramural pressure are obtained using
+the following analysis. We approximate the arterial cross-
+section as a hollow cylinder. Let Ri and Ro denote its inner and outer radii. We also assume that a pressure of magni-
+tude p0 is applied at the inner wall of the cylinder, as shown in Fig. 16. We assume an approximately constant state of
+stress through the thickness, as shown in Fig. 16. From force
+equilibrium considerations it follows that
+
+2Ri p0 = 2σ t
+
+(251)
+
+where t = Ro − Ri is the thickness of the arterial wall. Solving for σ , we get
+
+σ = p0 Ri /t.
+
+(252)
+
+123
+
+30
+
+Comput Mech (2008) 43:3–37
+
+However, the present model is both qualitatively and quantitatively reasonable for the following application.
+
+8.3 Flow in a patient-speciﬁc abdominal aortic aneurysm
+
+Fig. 16 Equilibrium on a cylinder with imposed internal pressure
+
+Assuming a thickness-to-radius ratio of 15% and p0 varying from 80 mmHg to 120 mmHg, we get the physiologicallyrealistic stress ranging from approximately 530 mmHg to 800 mmHg.
+As a part of this analysis we also extract effective tangent moduli at different levels of deformation as follows. The tangent modulus is deﬁned as
+
+C = ∂σ , ∂
+
+(253)
+
+with deﬁned as
+
+=
+
+lx
+
+− l0x lx
+
+= 1 − F1−11
+
+= 1 − C1−11/2.
+
+(254)
+
+We solve (245) and (246) numerically for C11 and C22 for σ ranging from 0 mmHg to 2500 mmHg, and compute the strain according to (254). The plot of stress σ versus strain is shown in Fig. 17. Physiological ranges of stresses and strains due to intramural pressure are indicated in the ﬁgure by dashed lines. Note that the stress-strain curve exhibits convex behavior throughout the range of loadings considered, showing stiffening with deformation. Also note that for the physiological range of stresses the deviation from a linearized stress-strain relationship is not signiﬁcant. We also compute a numerical derivative of σ with respect to in order to evaluate the effective tangent modulus. Note that the equivalent tangent stiffness is higher at the level of deformation caused by the physiological stress as compared to the tangent stiffness in the undeformed conﬁguration. Also note that, as expected, the value of the tangent stiffness in the undeformed conﬁguration is exactly the value of Young’s modulus used to deﬁne the solid model parameters. Figure 18 shows the plot of elastic energy ψ versus strain . We believe that this analysis justiﬁes using the model in ﬂuid-structure interaction analysis of arteries. We also feel that it supports the hypotheses behind the coupled momentum method of Figueroa et al. [20]. Obviously, signiﬁcant improvements are possible.
+
+Patient-speciﬁc geometry is obtained from 64-slice CT angiography courtesy of T. Kvamsdal and J.H. Kaspersen of SINTEF, Norway. The geometrical model, which contains most major branches of a typical abdominal aorta, is shown in Fig. 19a . Note that one of the renal arteries is missing in the model indicating that the patient has only one kidney. The ﬂuid properties are: ρ f = 1.06 g/cm3, µ f = 0.04 g/cm s. The solid has the density ρs = 1 g/cm3, Young’s modulus, E = 4.144 × 106 dyn/cm2, and Poisson’s ratio, ν = 0.45. The model coefﬁcients µs and κs are obtained using relationships from the previous section. The computational mesh, consisting of 44892 quadratic NURBS elements, is shown in Fig. 19c. Two quadratic NURBS elements and four C1-
+2500
+
+2000 1500
+
+Tangent modulus at zero stress: 4.14x106 dyn/cm2 or 3.11x103 mmHg
+Tangent modulus at physiological stress: 6.00x106 dyn/cm2 or 4.50x103 mmHg
+
+Cauchy stress (mmHg)
+
+1000 800 533
+
+Physiological stress range due to intramural pressure
+
+0 0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45
+Strain: (lx−l0x)/lx
+
+Fig. 17 Cauchy stress plotted against strain for the material model used in the abdominal aorta simulation. Physiological range of stresses and strains due to intramural pressure are indicated by dashed lines
+
+600
+
+500
+
+400
+
+Elastic energy at
+
+300
+
+physiological stress due
+
+to intramural pressure
+
+200
+
+Elastic energy (mmHg)
+
+91.3 42.3
+0 0
+
+0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 Strain: (lx−l0x)/lx
+
+Fig. 18 Elastic energy plotted against strain for the material model used in the abdominal aorta simulation. Physiological range of energies and strains due to intramural pressure are indicated by dashed lines
+
+123
+
+Comput Mech (2008) 43:3–37
+
+31
+
+Fig. 19 Flow in a patient-speciﬁc abdominal aorta with aneurysm. a Patient-speciﬁc imaging data; b Skeleton of the NURBS mesh; c Smoothed and truncated NURBS model and mesh. In c, every NURBS patch is assigned a different color. For more details of geometrical modeling for isogeometric analysis of blood ﬂow the reader is referred to [74]
+
+continuous basis functions are used for through-thickness resolution of the arterial wall. For the purposes of mesh motion, parametric stiffening in the radial direction is employed as for the inﬂation of a balloon problem.
+
+8.3.1 Imposition of initial and boundary conditions
+
+A periodic ﬂow waveform, with period T = 1.05 s, is applied at the inlet of the aorta, while resistance boundary conditions are applied at all outlets. The solid is ﬁxed at the inlet and at all outlets. Material and ﬂow rate data, as well as resistance values are taken from Figueroa et al. [20]. Wall thickness for this model is taken to be 15% of the nominal radius of each cross-section of the ﬂuid domain model.
+In order to ensure medically-realistic response, resistance boundary conditions must be applied in such a way that physiological pressure levels are present in the system at all times. This is accomplished by making use of the following variant of the resistance boundary condition (see also Figueroa et al. [20], Vignon-Clementel et al. [72], and Heywood et al. [25]). At every outlet face a we set
+
+nT σ n = Ca v · nd a + p0,
+
+a
+
+τ
+
+T 1
+
+σ
+
+n
+
+=
+
+0,
+
+(255) (256)
+
+τ
+
+T 2
+
+σn
+
+=
+
+0
+
+(257)
+
+where n is the outward unit normal, and τ 1 and τ 2 are mutually orthogonal unit tangent vectors on the outlet face. The above boundary conditions state that normal stress on the outlet face is a linear function of the ﬂowrate through the face, while both tangential stresses are zero. The Ca’s are the so-called resistance constants. They are positive, and are, in principle, different from outlet to outlet, reﬂecting the resistance of different blood vessels. p0 in (255) is responsible for imposing physiologically realistic pressure level in the vessels, even at zero ﬂow through the outlet faces. For the computations reported in this section p0 is set to 85 mmHg, as in [20]. We impose boundary conditions (255) weakly by adding the following terms to the variational formulation (109)
+
++
+a
+
+w f · nd a
+a
+
+Ca v · nd a + p0
+a
+
+where the sum is taken over all the outlet faces with prescribed resistance conditions.
+We initialize our computations as follows. We start with an un-pressurized conﬁguration, set and maintain the inﬂow
+
+123
+
+32
+velocity consistent with the inﬂow ﬂowrate at t = 0, and gradually increase the pressure level in the system by raising p0 in (255) from zero to the physiologically realistic value of 85 mmHg. This is done for one or two cycles. Once the physiological pressure level is attained, we begin computing with the time-varying inﬂow boundary condition until periodicin-time response is attained. This usually takes four or ﬁve cycles.
+Remark 8.1 Recent efforts to increase the efﬁciency of arterial FSI computations by performing a series of so-called “pre-FSI” computations were reported in [67].
+Remark 8.2 In reference [68] the authors propose a strategy to compute the so-called “estimated zero-pressure arterial geometry.” This is done in an effort to reconcile the fact that the patient-speciﬁc arterial geometry, often times taken as the reference geometry, corresponds to to the pressurized conﬁguration, while in the majority of the proposed material models the reference conﬁguration is assumed to be stressfree.
+
+Comput Mech (2008) 43:3–37
+
+8.3.2 Numerical results
+
+After a nearly periodic-in-time solution was attained, simulation data was collected for postprocessing. Figures 20 and 21 show snapshots of the velocity ﬁeld plotted on the moving domain at various times during the heart cycle. The ﬂow ﬁeld is quite complex and fully three-dimensional, especially in diastole. Velocity magnitude is largest near the inﬂow and is signiﬁcantly lower in the aneurysm region. This occurs in part due to the fact that a signiﬁcant percentage of the ﬂow goes to the upper branches of the abdominal aorta. There is also an increase in the cross-sectional area of the vessel associated with the aneurysm, resulting in a decreased ﬂow velocity in this region.
+Figure 22 shows the magnitude of the wall shear stress (i.e., the tangential component of the ﬂuid or solid traction vector) averaged over a cycle. Note that the wall shear stress is signiﬁcantly lower in the aneurysm region than in the upper portion of the aorta and at branches. Also note the smoothness of the stress contours due to the NURBS representation of the geometry and solution ﬁelds.
+Figure 23 shows the oscillatory shear index (OSI) at the luminal surface. OSI is deﬁned as (see, e.g., [62,63]),
+
+OSI = 1 1 − τmean ,
+
+2
+
+τabs
+
+where, denoting by τ s the wall shear stress vector,
+
+(258)
+
+T
+
+τmean =
+
+1 T
+
+τsdt ,
+
+0
+
+(259)
+
+Fig. 20 Flow in a patient-speciﬁc abdominal aorta with aneurysm. Large frame: ﬂuid velocity vectors colored by their magnitude in the vicinity of the celiac and superior mesenteric arteries. Left small frame: volume rendering of the velocity magnitude. Right small frame: ﬂuid velocity isosurfaces
+
+and
+
+T
+1 τabs = T |τ s |dt.
+0
+
+(260)
+
+Note that, in contrast to the wall shear stress, OSI is largest in the aneurysm region, especially along the posterior wall, suggesting that wall shear stress is highly oscillatory there due to the recirculating ﬂow. Low time-averaged wall shear stress, in combination with high shear stress temporal oscillations, as measured by the OSI, are indicators of the regions of high probability of occurrence of atherosclerotic disease. Figure 24 shows the distribution of ﬂow among the branches. The outﬂow lags the inﬂow due to the distensibility of the arterial wall. The overall ﬂow distribution and the time lag are in qualitative agreement with results in [3,20].
+
+9 Conclusions
+We have presented a monolithic isogeometric ﬂuidstructure interaction formulation. The ﬂuid subdomain was assumed to be governed by the incompressible Navier–Stokes equations and the solid subdomain was assumed to be
+
+123
+
+Comput Mech (2008) 43:3–37
+
+33
+acknowledged. Y. Bazilevs and Y. Zhang were also partially supported by the J.T. Oden ICES Postdoctoral Fellowship at the Institute for Computational Engineering and Sciences. This support is gratefully acknowledged. We would also like to thank Karla Vega of the Texas Advanced Computing Center (TACC) [60] for her help with visualization and Dr. Samrat Goswami of ICES for his help with building the aneurysm geometry.
+
+Appendix A: A note on exterior calculus
+
+Fig. 21 Flow in a patient-speciﬁc abdominal aorta with aneurysm. Large frame: ﬂuid velocity vectors colored by their magnitude in the vicinity of the celiac and superior mesenteric arteries. Left small frame: volume rendering of the velocity magnitude. Right small frame: ﬂuid velocity isosurfaces
+
+The fact that clocks are synchronized in the space-time map-
+
+ping does engender simpliﬁcations over the general asyn-
+
+chronous case. This may be inferred from the structure of Fˆ (4) and it inverse. See (2) and (5). Time synchronization
+
+means, roughly speaking, that space-like hypersurfaces, that
+
+is constant in t and r slices of Qx and Q y are orthogonal to
+
+the t and r coordinate axes, respectively. In the general case,
+
+one must rely on exterior calculus and differential forms, as
+
+noted in [1].
+
+A coordinate-free exterior calculus version of the proof
+
+of (9) is given by the following calculations. To understand
+
+these, one needs to be familiar with the exterior derivative d;
+
+the interior product of a differential form α with a (contra-
+
+variant) vector ﬁeld v, denoted ivα; the Lie derivative of
+
+a differential form, back by a mapping
+
+Lvα = d i φ, denoted,
+
+vφα∗.+Diifdfevrαen; taianldfothrme spualrle-
+
+skew-symmetric covariant tensor ﬁelds. The Piola transform
+
+is expressed as follows:
+
+governed by a fully-nonlinear hyperelastic constitutive equation. The arbitrary Lagrangian–Eulerian description was utilized for the ﬂuid subdomain and the Lagrangian description was employed in the solid subdomain. We derived various basic forms of the equations for the solid and ﬂuid from fundamental continuum mechanics relations written with respect to domains in arbitrary motion. We investigated the conservation properties of the formulation and concluded that mass conservation and the geometric conservation law are satisﬁed in the fully-discrete case, whereas momentum conservation is only satisﬁed up to truncation errors in a certain key relation introduced by the time integration method. Details of the implementation are described including the calculation of shape derivatives appearing in the tangent operator. NURBSbased isogeometric analysis models were employed in the numerical calculation of three test cases: ﬂow over an elastic beam, the inﬂation of a balloon, and blood ﬂow in a patientspeciﬁc model of an abdominal aortic aneurysm. The formulation behaved robustly in all cases.
+Acknowledgments Support of the Ofﬁce of Naval Research Contract N00014-03-0263, Dr. Luise Couchman, contract monitor, is gratefully
+
+γ
+
+(4) y
+
+=
+
+Jˆ(4)φˆ (4)
+
+∗γ (x4).
+
+(A.1)
+
+By comparing this form of the Piola transform with (8), we
+recognize that the pull-back of a vector ﬁeld is simply multiplication by Fˆ (4) −1.
+With these preliminaries we can establish the following
+result which is the basis of the change of variables formula:
+
+φˆ (4)
+
+∗
+
+i
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+=
+
+i
+
+φˆ (4)
+
+∗γ
+
+(4) x
+
+φˆ (4)
+
+∗
+
+d
+
+Qx
+
+=
+
+i φˆ (4)
+
+∗γ
+
+(4) x
+
+Jˆ(4)d Q y
+
+=
+
+i
+
+Jˆ(4)φˆ (4)
+
+∗γ
+
+(4) d Q y
+x
+
+=
+
+iγ
+
+(4) d Q y
+y
+
+(A.2)
+
+Note that d Qx and d Q y are space-time volume forms, that
+
+is
+
+4-forms,
+
+and
+
+iγ
+
+(4) d Qx
+x
+
+and
+
+iγ
+
+(4) d Q y
+y
+
+are
+
+3-forms.
+
+Vector
+
+ﬁelds in 4-dimensions are isomorphic to 3-forms, as given by
+
+the
+
+preceding
+
+expressions.
+
+This
+
+is
+
+written
+
+as
+
+γ
+
+(4) x
+
+→
+
+∗γ
+
+(4) x
+
+=
+
+i
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+and
+
+γ
+
+(4) y
+
+→
+
+∗γ
+
+(4) y
+
+=
+
+i
+
+γ
+
+(4) y
+
+d
+
+Q
+
+y
+
+.
+
+123
+
+34 Fig. 22 Flow in a patient-speciﬁc abdominal aorta with aneurysm. Magnitude of wall shear stress averaged over a cycle plotted in three different views
+Fig. 23 Flow in a patient-speciﬁc abdominal aorta with aneurysm. Oscillatory shear index (OSI) plotted in three different views
+
+Comput Mech (2008) 43:3–37
+
+With these preliminaries we have
+
+∇y(4)
+
+·
+
+γ
+
+(4) y
+
+d
+
+Q
+
+y
+
+=
+
+Lγ
+
+(4) y
+
+d
+
+Q
+
+y
+
+=
+
+d
+
+(
+
+i
+
+γ
+
+(4) y
+
+d
+
+Q
+
+y
+
+)
+
+=
+
+d(φˆ (4)
+
+∗ iγ
+
+(4) d Qx )
+x
+
+=
+
+φˆ (4)
+
+∗d(iγ
+
+(4) d
+x
+
+Qx)
+
+= =
+
+φˆ (4) φˆ (4)
+
+∗∗L(∇γx(4(x4))
+
+dQx
+
+·
+
+γ
+
+(4) x
+
+d
+
+Qx)
+
+=
+
+∇x(4)
+
+·
+
+γ
+
+(4) x
+
+◦
+
+φˆ (4)φˆ (4)
+
+∗ dQx
+
+=
+
+∇x(4)
+
+·
+
+γ
+
+(4) x
+
+◦
+
+φˆ (4)
+
+Jˆ(4)d Q y.
+
+(A.3)
+
+This results and the change of variables formula yields (9).
+
+In the above we have utilized the commutativity of pull-
+
+back and exterior differentiation, and the fact that the exte-
+
+rior derivative of a 4-form, closed in four dimensions, is
+
+zero.
+
+That
+
+Lγ
+
+(4) y
+
+d
+
+Q
+
+y
+
+=
+
+∇y(4)
+
+·
+
+γ
+
+(4) y
+
+d
+
+Q
+
+y
+
+can
+
+be
+
+proved
+
+by
+
+assuming cartesian coordinates on R4 ⊃ Q y and d Q y =
+
+d y0 ∧ d y1 ∧ d y2 ∧ d y3, where ∧ is the wedge product. Like-
+
+wise,
+
+the
+
+same
+
+construct
+
+can
+
+be
+
+used
+
+to
+
+prove
+
+Lγ
+
+(4) x
+
+d
+
+Q
+
+x
+
+=
+
+∇x(4)
+
+·γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+.
+
+Curvilinear
+
+spatial
+
+coordinates
+
+can
+
+be
+
+accom-
+
+modated by using the usual tensor transformation formulas
+
+on these coordinates (see Marsden and Hughes [47]). The
+
+time coordinate is unaffected in this case.
+
+Remark A.1 With differential forms, correct boundary integral expressions can be obtained without the necessity of unit normal vectors by using Stokes theorem and the change of
+
+123
+
+Comput Mech (2008) 43:3–37
+
+35
+
+Fig. 24 Flow in a patient-speciﬁc abdominal aorta with aneurysm. Flow rate distribution among the arterial branches during a heart cycle
+
+variables formula. For example,
+
+i
+
+γ
+
+(4) y
+
+d
+
+Q
+
+y
+
+=
+
+d
+
+(i
+
+γ
+
+(4) y
+
+d
+
+Q
+
+y
+
+)
+
+∂Qy
+
+Qy
+
+=
+
+φˆ (4)
+
+∗
+
+d(i
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+)
+
+Qy
+
+=
+
+d
+
+(i
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+)
+
+φˆ
+
+(4)
+(Q
+
+y
+
+)
+
+=
+
+d
+
+(i
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+)
+
+Qx
+
+=
+
+i
+
+γ
+
+(4) x
+
+d
+
+Q
+
+x
+
+.
+
+∂ Qx
+
+(A.4)
+
+Remark A.2 The notations d Qx and d Q y are used under the integration sign in the main body of the paper, in contrast with the differential form notations to represent volume elements,
+
+d Qx and d Q y, respectively, in keeping with the standard usage.
+References
+1. Abedi P, Patracovici B, Haber RB (2006) A spacetime discontinuous Galerkin method for linearized elastodynamics with element-wise momentum balance. Comput Methods Appl Mech Eng 195:3247–3273
+2. Akkerman I, Bazilevs Y, Calo VM, Hughes TJR, Hulshoff S (2008) The role of continuity in residual-based variational multiscale modeling of turbulence. Comput Mech 41:371–378
+3. Bazilevs Y, Calo VM, Zhang Y, Hughes TJR (2006) Isogeometric ﬂuid-structure interaction analysis with applications to arterial blood ﬂow. Comput Mech 38:310–322
+4. Bazilevs Y, Calo VM, Cottrell JA, Hughes TJR, Reali A, Scovazzi G (2007) Variational multiscale residual-based turbulence modeling for large eddy simulation of incompressible ﬂows. Comput Methods Appl Mech Eng 197:173–201
+5. Bazilevs Y, Beiraoda Veiga L, Cottrell JA, Hughes TJR, Sangalli G (2006) Isogeometric analysis: approximation, stability and error estimates for h-reﬁned meshes. Math Models Methods Appl Sci 16:1031–1090
+
+123
+
+36
+
+Comput Mech (2008) 43:3–37
+
+6. Bazilevs Y, Hughes TJR (2007) Weak imposition of Dirichlet boundary conditions in ﬂuid mechanics. Comput Fluids 36:12–26
+7. Bazilevs Y, Michler C, Calo VM, Hughes TJR (2007) Weak Dirichlet boundary conditions for wall-bounded turbulent ﬂows. Comput Methods Appl Mech Eng 196:4853–4862
+8. Bishop R, Goldberg S (1980) Tensor analysis on manifolds. Dover, New York
+9. Brezzi F, Fortin M (1991) Mixed and hybrid ﬁnite element methods. Springer, Berlin
+10. Brooks AN, Hughes TJR (1982) Streamline upwind/PetrovGalerkin formulations for convection dominated ﬂows with particular emphasis on the incompressible Navier–Stokes equations. Comput Methods Appl Mech Eng 32:199–259
+11. Calo VM (2004) Residual-based multiscale turbulence modeling: ﬁnite volume simulation of bypass transistion. Ph.D. Thesis, Department of Civil and Environmental Engineering, Stanford University
+12. Chung J, Hulbert GM (1993) A time integration algorithm for structural dynamics with improved numerical dissipation: The generalized-α method. J Appl Mech 60:371–75
+13. Cottrell JA, Reali A, Bazilevs Y, Hughes TJR (2006) Isogeometric analysis of structural vibrations. Comput Methods Appl Mech Eng 195:5257–5297
+14. Cottrell JA, Reali A, Hughes TJR (2007) Studies of reﬁnement and continuity in isogeometric structural analysis. Comput Methods Appl Mech Eng 196:4160–4183
+15. Dettmer W, Peric´ D (2006) A computational framework for ﬂuidstructure interaction: ﬁnite element formulation and applications. Comput Methods Appl Mech Eng 195:5754–5779
+16. Elguedj T, Bazilevs Y, Calo VM, Hughes TJR (2008) B-bar and F-bar projection methods for nearly incompressible linear and nonlinear elasticity and plasticity using higher-order NURBS elements. Comput Methods Appl Mech Eng 197:2732–2762
+17. Farhat C, Geuzaine P, Grandmont C (2001) The discrete geometric conservation law and the nonlinear stability of ALE schemes for the solution of ﬂow problems on moving grids. J Comput Phys 174(2):669–694
+18. Farhat C, van der Zee K, Geuzaine P (2006) Provably second-order time-accurate loosely-coupled solution algorithms for transient nonlinear computational aeroelasticity. Comput Methods Appl Mech Eng 195:1973–2001
+19. Fernandez MA, Moubachir M (2005) A Newton method using exact jacobians for solving ﬂuid-structure coupling. Comput Struct 83:127–142
+20. Figueroa A, Vignon-Clementel IE, Jansen KE, Hughes TJR, Taylor CA (2006) A coupled momentum method for modeling blood ﬂow in three-dimensional deformable arteries. Comput Methods Appl Mech Eng 195:5685–5706
+21. Flanders H (1963) Differential forms with applications to the physical sciences. Academic Press, London
+22. Formaggia L, Nobile F (2005) Stability analysis of second-order time accurate schemes for ALE-FEM. Comput Methods Appl Mech Eng 193:4097–4116
+23. Guillermin V, Pollack A (1974) Differential topology. PrenticeHall, Englewood Cliffs
+24. Heil M, Hazel A, Boyle J (2008) Solvers for large-displacement ﬂuid-structure interaction problems: segregated vs. monolithic approaches. Comput Mech. doi:10.1007/s00466-008-0270-6
+25. Heywood JG, Rannacher R, Turek S (1996) Artiﬁcial boundaries and ﬂux and pressure conditions for the incompressible NavierStokes equations. Int J Numer Methods Fluids 22:325–352
+26. Holzapfel GA (2004) Computational biomechanics of soft biological tissue. In: Stein E, De Borst R, Hughes TJR (eds) Encyclopedia of computational mechanics, Solids and structures, chap 18, vol 2. Wiley, London
+
+27. Holzapfel GA (2000) Nonlinear solid mechanics, a continuum approach for engineering. Wiley, Chichester
+28. Hughes TJR (2000) The ﬁnite element method: linear static and dynamic ﬁnite element analysis. Dover Publications, Mineola
+29. Hughes TJR, Calo VM, Scovazzi G (2004) Variational and multiscale methods in turbulence. In: Gutkowski W, Kowalewski TA (eds) In Proceedings of the XXI International Congress of Theoretical and Applied Mechanics (IUTAM), Kluwer, pp 153–163
+30. Hughes TJR, Cottrell JA, Bazilevs Y (2005) Isogeometric analysis: CAD, ﬁnite elements, NURBS, exact geometry, and mesh reﬁnement. Comput. Methods Appl Mech Eng 194:4135–4195
+31. Hughes TJR, Hulbert GM (1988) Space-time ﬁnite element methods for elastodynamics: formulations and error estimates. Comput Methods Appl Mech Eng 66:339–363
+32. Hughes TJR, Liu WK, Zimmermann TK (1981) Lagrangian– Eulerian ﬁnite element formulation for incompressible viscous ﬂows. Comput Methods Appl Mech Eng 29:329–349
+33. Hughes TJR, Wells GN (2005) Conservation properties for the Galerkin and stabilised forms of the advection-diffusion and incompressible Navier-Stokes equations. Comput Methods Appl Mech Eng 194:1141–1159
+34. Hulbert GM, Hughes TJR (1990) Space-time ﬁnite element methods for second order hyperbolic equations. Comput Methods Appl Mech Eng 84:327–348
+35. Idelsohn SR, Oñate E, Del Pin F, Calvo N (2006) Fluid-structure interaction using the particle ﬁnite element method. Comput Methods Appl Mech Eng 195:2100–2123
+36. Jansen KE, Whiting CH, Hulbert GM (1999) A generalized-α method for integrating the ﬁltered Navier-Stokes equations with a stabilized ﬁnite element method. Comput Methods Appl Mech Eng 190:305–319
+37. Johnson AA, Tezduyar TE (1994) Mesh update strategies in parallel ﬁnite element computations of ﬂow problems with moving boundaries and interfaces. Comput Methods Appl Mech Eng 119:73–94
+38. Johnson AA, Tezduyar TE (1997) Parallel computation of incompressible ﬂows with complex geometries. Int J Numer Methods Fluids 24:1321–1340
+39. Johnson AA, Tezduyar TE (1999) Advanced mesh generation and update methods for 3D ﬂow simulations. Comput Mech 23:130– 141
+40. Johnson C (1987) Numerical solution of partial differential equations by the ﬁnite element method. Cambridge University Press, Sweden
+41. Johnson C, Nävert U, Pitkäranta J (1984) Finite element methods for linear hyperbolic problems. Comput Methods Appl Mech Eng 45:285–312
+42. Küttler U, Förster C, Wall WA (2006) A solution for the incompressibility dilemma in partitioned ﬂuid-structure interaction with pure Dirichlet ﬂuid domains. Comput Mech 38:417–429
+43. Kuhl E, Hulshoff S, de Borst R (2003) An arbitrary Lagrangian Eulerian ﬁnite element approach for ﬂuid-structure interaction phenomena. Int J Numer Methods Eng 57:117–142
+44. Lang S (1972) Differential manifolds. Addison-Wesley, Reading 45. Lang S (1995) Differential and riemannian manifolds (graduate
+texts in mathematics, vol. 160). Springer, Heidelberg 46. Le Tallec P, Mouro J (2001) Fluid structure interaction with
+large structural displacements. Comput Methods Appl Mech Eng 190:3039–3068 47. Marsden JE, Hughes TJR (1993) Mathematical foundations of elasticity. Dover Publications Inc., New York 48. Masud A, Hughes TJR (1997) A space-time Galerkin/leastsquares ﬁnite element formulation of the Navier-Stokes equations for moving domain problems. Comput Methods Appl Mech Eng 148:91–126
+
+123
+
+Comput Mech (2008) 43:3–37
+
+37
+
+49. Michler C, van Brummelen EH, de Borst R (2006) Errorampliﬁcation analysis of subiteration-preconditioned GMRES for ﬂuid-structure interaction. Comput Methods Appl Mech Eng 195:2124–2148
+50. Michler C, van Brummelen EH, Hulshoff SJ, de Borst R (2003) The relevance of conservation for stability and accuracy of numerical methods for ﬂuid-structure interaction. Comput Methods Appl Mech Eng 192:4195–4215
+51. Nobile F (2001) Numerical Approximation of Fluid-Structure Interaction Problems with Application to Haemodynamics. Ph.D. Thesis, EPFL
+52. Piperno S, Farhat C (2001) Partitined procedures for the transient solution of coupled aeroelastic problems. Part II: Energy transfer analysis and three-dimensional applications. Comput Methods Appl Mech Eng 190:3147–3170
+53. Piperno S, Farhat C, Larrouturou B (1995) Partitined procedures for the transient solution of coupled aeroelastic problems. Part I: Model problem, theory and two-dimensional application. Comput Methods Appl Mech Eng 124:79–112
+54. Saad Y, Schultz MH (1986) GMRES: A generalized minimal residual algorithm for solving nonsymmetric linear systems. SIAM J Sci Stat Comput 7:856–869
+55. Simo JC, Hughes TJR (1998) Computational inelasticity. Springer, New York
+56. Babus˘ka I (1973) The ﬁnite element method with Lagrange multipliers. Numer Math 20:179–192
+57. Spivak M (1965) Calculus on manifolds. Benjamin, New York 58. Stein K, Tezduyar T, Benney R (2003) Mesh moving techniques
+for ﬂuid-structure interactions with large displacements. J Appl Mech 70:58–63 59. Stein K, Tezduyar TE, Benney R (2004) Automatic mesh update with the solid-extension mesh moving technique. Comput Methods Appl Mech Eng 193:2019–2032 60. Texas Advanced Computing Center (TACC). http://www.tacc. utexas.edu 61. Taylor CA, Hughes TJR, Zarins CK (1998) Finite element modeling of blood ﬂow in arteries. Comput Methods Appl Mech Eng 158:155–196 62. Taylor CA, Hughes TJR, Zarins CK (1998) Finite element modeling of three-dimensional pulsatile ﬂow in the abdominal aorta: relevance to atherosclerosis. Ann Biomed Eng 26:975–987 63. Taylor CA, Hughes TJR, Zarins CK (1999) Effect of exercise on hemodynamic conditions in the abdominal aorta. J Vasc Surg 29:1077–1089
+
+64. Tezduyar TE, Behr M, Liou J (1992) A new strategy for ﬁnite element computations involving moving boundaries and interfaces. The deforming-spatial-domain/space-time procedure. I. The concept and the preliminary numerical tests. Comput Methods Appl Mech Eng 94:339–351
+65. Tezduyar TE, Behr M, Mittal S, Liou J (1992) A new strategy for ﬁnite element computations involving moving boundaries and interfaces. The deforming-spatial-domain/space-time procedure. II. Computation of free-surface ﬂows, two-liquid ﬂows, and ﬂows with drifting cylinders. Comput Methods Appl Mech Eng 94:353– 371
+66. Tezduyar TE, Sathe S (2007) Modelling of ﬂuid-structure interactions with the space-time ﬁnite elements: solution techniques. Int J Numer Methods Fluids 54:855–900
+67. Tezduyar TE, Sathe S, Cragin T, Nanna B, Conklin BS, Pausewang J, Schwaab M (2007) Modelling of ﬂuid-structure interactions with the space-time ﬁnite elements: Arterial ﬂuid mechanics. Int J Numer Methods Fluids 54:901–922
+68. Tezduyar TE, Sathe S, Schwaab M, Conklin BS (2008) Arterial ﬂuid mechanics modeling with the stabilized space-time ﬂuidstructure interaction technique. Int J Numer Methods Fluids 57:601–629
+69. Tezduyar TE (2003) Computation of moving boundaries and interfaces and stabilization parameters. Int J Numer Methods Fluids 43:555–575
+70. Tezduyar TE, Behr M, Mittal S, Johnson AA (1992) Computation of unsteady incompressible ﬂows with the stabilized ﬁnite element methods—space–time formulations, iterative strategies and massively parallel implementations. In: New methods in transient analysis, pVP, vol 246/AMD, vol 143. ASME, New York, pp 7–24
+71. Tezduyar TE, Sathe S, Keedy R, Stein K (2006) Space-time ﬁnite element techniques for computation of ﬂuid-structure interactions. Comput Methods Appl Mech Eng 195:2002–2027
+72. Vignon-Clementel IE, Figueroa CA, Jansen KE, Taylor CA (2006) Outﬂow boundary conditions for three-dimensional ﬁnite element modeling of blood ﬂow and pressure in arteries. Comput Methods Appl Mech Eng 195:3776–3796
+73. Wall W (1999) Fluid-Struktur-Interaktion mit stabilisierten Finiten Elementen. Ph.D. Thesis, Institut für Baustatik, Universität Stuttgart
+74. Zhang Y, Bazilevs Y, Goswami S, Bajaj C, Hughes TJR (2007) Patient-speciﬁc vascular NURBS modeling for isogeometric analysis of blood ﬂow. Comput Methods Appl Mech Eng 196:2943–2959
+
+123
+

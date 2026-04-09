@@ -1,0 +1,1780 @@
+Computational Mechanics (2021) 67:583–600 https://doi.org/10.1007/s00466-020-01950-x
+ORIGINAL PAPER
+
+Mesh moving techniques in ﬂuid-structure interaction: robustness, accumulated distortion and computational efﬁciency
+Alexander Shamanskiy1 · Bernd Simeon1
+Received: 19 June 2020 / Accepted: 16 November 2020 / Published online: 12 December 2020 © The Author(s) 2020
+Abstract An important ingredient of any moving-mesh method for ﬂuid-structure interaction (FSI) problems is the mesh moving technique (MMT) used to adapt the computational mesh in the moving ﬂuid domain. An ideal MMT is computationally inexpensive, can handle large mesh motions without inverting mesh elements and can sustain an FSI simulation for extensive periods of time without irreversibly distorting the mesh. Here we compare several commonly used MMTs which are based on the solution of elliptic partial differential equations, including harmonic extension, bi-harmonic extension and techniques based on the equations of linear elasticity. Moreover, we propose a novel MMT which utilizes ideas from continuation methods to efﬁciently solve the equations of nonlinear elasticity and proves to be robust even when the mesh undergoes extreme motions. In addition to that, we study how each MMT behaves when combined with the mesh-Jacobian-based stiffening. Finally, we evaluate the performance of different MMTs on a popular two-dimensional FSI benchmark reproduced by using an isogeometric partitioned solver with strong coupling.
+Keywords Isogeometric analysis · Arbitrary Lagrangian–Eulerian methods · Mesh-Jacobian-based stiffening · Nonlinear elasticity · Continuation methods
+
+1 Introduction
+Fluid-structure interaction (FSI) constitutes a class of problems involving two-way dependence between structural objects and a ﬂuid. As such, FSI is a vast topic with applications spanning a spectrum from aerospace and civil engineering [1] to biomechanical and cardiovascular simulations [9]. In FSI problems, the ﬂuid exerts a force on the structure which deforms in response. As the structure moves, it changes the shape of the domain occupied by the ﬂuid together with the ﬂuid motion and, as a result, the force that the ﬂuid exerts on the structure. This two-way coupling between the ﬂuid and structure behavior as well as the necessity to accommodate the ﬂuid domain motion in both the continuous and discrete formulations of the problem is what makes FSI so notoriously complex.
+B Alexander Shamanskiy
+shamansk@mathematik.uni-kl.de
+1 TU Kaiserslautern, Department of Mathematics, Felix-Klein-Zentrum, Paul-Ehrlich-Str. 31, 67663 Kaiserslautern, Germany
+
+Since FSI problems rarely admit analytical solutions, computational methods are widely adopted in FSI research. Here, one can distinguish between the static-mesh and moving-mesh methods. While the former attempt to resolve the motion of the ﬂuid domain implicitly, for example by means of a stationary background Cartesian mesh [21], the latter deal with the motion of the ﬂuid domain by tracking its boundary and adapting the computational mesh correspondingly. In this work, we study and compare various mesh moving techniques (MMTs) which can be used to adapt the ﬂuid mesh if the moving-mesh methods are used. The main focus here lies on the robustness of a given MMT, that is, how much mesh distortion it introduces and how much mesh motion it can handle without entangling or inverting mesh elements. Additionally, we pay attention to computational complexity of MMTs, which can signiﬁcantly increase the overall FSI simulation time if left unchecked.
+To study performance of MMTs in their natural habitat, we employ a popular two-dimensional FSI benchmark from [33]. In the benchmark, an unstable ﬂow of a viscous ﬂuid leads to development of the vortex shedding phenomenon which results in oscillations of a ﬂexible beam structure. The oscillations grow in magnitude until they reach a stable
+
+123
+
+584
+
+Computational Mechanics (2021) 67:583–600
+
+periodic regime which lends itself well to studying possible long-term effects of MMTs on the ﬂuid mesh. One of such long-term effects is accumulated mesh distortion where mesh elements increasingly become permanently distorted, deteriorating the simulation accuracy. In addition to the original benchmark, we employ its simpliﬁed version with no ﬂuid mechanics involved to perform a large number of computationally inexpensive tests. In this way, we can concentrate on mesh motion and conduct a detailed analysis of the behavior of MMTs.
+To reproduce the FSI benchmark, we use a partitioned solver with strong coupling and Aitken relaxation [17]. Although modern space-time (ST) methods are becoming increasingly common in FSI [1,25,32], we resort to classical arbitrary Lagrangian–Eulerian (ALE) methods [1,12,20] which are more straightforward in implementation. Our choice in favor of a basic partitioned ALE solver is justiﬁed since both ST and ALE methods make use of the same MMTs, so we can focus on mesh motion in this paper.
+All MMTs we consider here are based on solution of elliptic partial differential equations. These include existing techniques such as harmonic extension [8,35], bi-harmonic extension [19] and a widely adopted technique based on linear elasticity theory [14,31]. Moreover, we propose an efﬁcient MMT based on the equations of nonlinear elasticity and a logarithmic neo-Hookean material law which we refer to as tangential incremental nonlinear elasticity (TINE). Although techniques based on the equations of nonlinear elasticity have been proposed before [24,26,27], TINE is novel in that it uses the idea of a tangential continuation method [7,22] to efﬁciently solve the corresponding nonlinear equations. As a result, TINE is only slightly more computationally expensive than the linear-elasticity-based techniques which are linear in nature. On the other hand, it can handle as much mesh motion but does not suffer from the accumulated distortion effect.
+Robustness of any MMT can be increased by additional augmentations. Probably the most popular one is the mesh-
+
+Jacobian-based stiffening (MJBS) [14,23,30,31] which turns individual mesh elements stiffer or softer depending on their size and shape. In this work, we study how different MMTs react to the MJBS. Although not considered here, further possible MMT augmentations include solid layer extension [29] and element relaxation [26,27].
+The research we present in this work has been conducted in the framework of isogeometric analysis (IGA) [6,11]. Despite that, the results are applicable to classical ﬁnite elements methods or any other mesh-based method for solving partial differential equations.
+The rest of this paper is structured as follows. Section 2 outlines geometry and settings of the FSI benchmark and ﬁxes the necessary notation. In Sect. 3, we describe various MMTs considered in this work as well as the MJBS. In Sect. 4, we consider the simpliﬁed benchmark and conduct a detailed analysis of the short-term and long-term behavior of different MMTs in artiﬁcial FSI-like conditions. After that, we proceed to performing a full FSI simulation of the benchmark in Sect. 5. We study the performance of the MMTs and check if the choice of a particular technique affects the simulation results. Finally, we discuss the results of the MMT analysis and FSI simulations, draw conclusion and outline further research directions in Sect. 6.
+2 Benchmark description
+In this section, we describe the geometry and mathematical model of the FSI benchmark from [33]. It studies the ﬂow of an incompressible Newtonian ﬂuid through a 2D channel as the ﬂuid interacts with a submerged structure. The channel is a rectangle [0, 2.2] × [0, 0.41]. The structure consists of a rigid disk B0.05(0.2, 0.2) and a ﬂexible beam [0.2, 0.6] × [0.19, 0.21]\B0.05(0.2, 0.2) which is attached at its left end to the boundary of the disk. Figure 1 illustrates the setting; note that the geometry is intentionally non-symmetric.
+
+Fig. 1 Top: the ﬂow channel and the submerged structure in the initial conﬁguration. Bottom: close-up on the structure
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+585
+
+The top and bottom walls of the channel are impermeable
+
+to the ﬂuid. The ﬂuid enters the channel through the left wall
+
+with a prescribed velocity and exits through the right wall
+
+freely. The presence of the submerged structure changes the
+
+ﬂow of the ﬂuid and, in response, the ﬂuid exerts a certain
+
+force on the structure. Thus, this is an FSI problem. Depend-
+
+ing on the prescribed material parameters of the ﬂuid and
+
+beam as well as on the inﬂow ﬂuid velocity, this ﬂuid force
+
+can result in a noticeable deformation of the beam. The beam
+
+deformation alters the shape of the ﬂow channel, the ﬂow
+
+itself and, as a consequence, the force exerted on the struc-
+
+ture by the ﬂuid. Such systems with a two-way interaction
+
+between components are called coupled systems.
+
+In what follows, when we use the word “structure”, we
+
+refer to the ﬂexible beam only. If the rigid disk is also
+
+considered, we explicitly mention it. Throughout this work,
+
+we use subscripts s and f to distinguish between objects
+
+related to the structure and ﬂuid respectively. Moreover,
+
+we use subscript a when dealing with ALE mappings and related objects. Let f (t) ⊂ R2 and s(t) ⊂ R2 denote
+
+domains occupied by the ﬂuid and structure respectively at
+
+time t ∈ [0, T ]. Additionally, we use
+
+0 f
+
+=
+
+f (0) and
+
+0 s
+
+=
+
+s(0) to denote the ﬂuid and structure domains at time
+
+t = 0. Furthermore, we use (t) to denote the FSI interface
+
+∂ f (t) ∩ ∂ s(t) where the interaction between the ﬂuid and structure takes place. Correspondingly, 0 = (0) denotes
+
+the FSI interface at time t = 0. In the rest of this section,
+
+we brieﬂy formulate the equations that we use to describe
+
+the motion of the beam and the ﬂuid as well as their interac-
+
+tion. The main goal here is to ﬁx the notation necessary for
+
+the ensuing description of MMTs. We encourage the reader
+
+to consult the following references for more information on:
+
+ﬁnite element discretization for the Navier–Stokes equations
+
+for incompressible ﬂows [13]; ﬁnite element discretization
+
+for nonlinear elasticity problems [2,34]; ALE formulation of
+
+FSI problems [1,19]; partitioned solution approach to FSI
+
+problems [17].
+
+2.1 Structure motion
+
+We assume that the structure behavior can be characterized
+
+as elastic and compressible. Let the structure in its initial (undeformed) conﬁguration occupy the domain 0s . We can describe the structure motion in terms of a displacement ﬁeld
+
+us :
+
+0 s
+
+×
+
+[0, T ]
+
+→
+
+R2.
+
+Note
+
+that
+
+displacement
+
+us
+
+can
+
+describe a rigid body motion with no deformation involved.
+
+Information on whether actual deformation of
+
+0 s
+
+takes
+
+place
+
+is contained in the deformation gradient Fs = I + ∇us. Two
+
+important objects derived from the deformation gradient are
+
+the Green–Lagrange strain tensor Es = (FsT Fs − I)/2 and the Jacobian determinant Js = det Fs.
+
+For the material behavior, we use the St. Venant–Kirchhoff constitutive law which links the second Piola–Kirchhoff stress tensor Ss to the Green–Lagrange strain tensor Es:
+
+Ss = λs tr(Es )I + 2μs Es .
+
+(1)
+
+The material law (1) includes the Lamé parameters λs and μs, which are constitutive parameters describing physical properties of the material. They can be computed from Young’s modulus Es and Poisson’s ration νs as
+
+λs
+
+=
+
+(1
+
+νs Es + νs)(1 −
+
+2νs )
+
+and
+
+μs
+
+=
+
+Es 2(1 +
+
+νs
+
+)
+
+.
+
+(2)
+
+Second Piola–Kirchhoff stress tensor Ss measures forces
+appearing in the deformed structure with respect to its initial conﬁguration 0s . In FSI applications, it is important to have an ability to express these forces with respect to the deformed
+conﬁguration s(t). This can be achieved by means of the Cauchy stress tensor σ s, which is related to Ss by
+
+σs
+
+=
+
+1 Js
+
+Fs
+
+Ss
+
+FsT
+
+.
+
+(3)
+
+In the presence of a given external acceleration g :
+
+0 s
+
+×
+
+[0, T ] → R2, the displacement us should satisfy the local
+
+conservation equations of linear momentum
+
+ρs u¨ s = div Ps + ρs g in
+
+0 s
+
+.
+
+(4)
+
+Here, ρs is the structure density which we assume to be con-
+
+stant in 0s , and Ps = FsSs is the ﬁrst Piola–Kirchhoff stress
+
+tensor. Note that Eq. (4) are formulated in the stationary
+
+domain
+
+0 s
+
+.
+
+2.2 Fluid motion
+
+To describe the ﬂuid motion, we use the Navier–Stokes equations for incompressible ﬂows. If a computational domain
+f does not change with time, the Navier–Stokes equations have the following form:
+
+ρ f v˙ f + ρ f ∇v f · v f = div σ f + ρ f g,
+
+(5)
+
+div v f = 0 in f .
+
+(6)
+
+Here, v f : f × [0, T ] → R2 is a vector ﬁeld describing the ﬂuid velocity at a given point in , ρ f is a constant ﬂuid density, and σ f denotes a Cauchy stress tensor. Behavior of an incompressible Newtonian ﬂuid is characterized by the
+following constitutive law:
+
+σ f = − p f I + ρ f ν f (∇v f + ∇vTf ),
+
+(7)
+
+123
+
+586
+
+Computational Mechanics (2021) 67:583–600
+
+where p f : f × [0, T ] → R is a pressure ﬁeld, and ν f
+
+denotes the kinematic viscosity of the ﬂuid.
+
+In FSI applications, one has to account for the motion
+
+of the ﬂuid domain. In this work, we consider a common
+
+strategy based on ALE mappings. Put simply, an ALE map-
+
+ping is nothing else but a motion of the computational
+
+mesh in the ﬂuid domain described in terms of an auxil-
+
+iary displacement ﬁeld ua :
+
+0 f
+
+× [0, T ]
+
+→
+
+R2
+
+such
+
+that
+
+f (t) =
+
+0 f
+
++ ua(·, t).
+
+With
+
+an
+
+ALE
+
+mapping,
+
+the
+
+Navier–
+
+Stokes equations can be formulated in the moving domain
+
+f (t):
+
+ρ f v˙ f + ρ f ∇v f · (v f − u˙ a) = div σ f + ρ f g,
+
+(8)
+
+div v f = 0 in f (t).
+
+(9)
+
+2.4 Initial and boundary conditions
+
+To complete the deﬁnition of the benchmark, we provide suitable initial and boundary conditions. The system is initialized with zero initial conditions for the ﬂuid velocity, structure displacement and structure velocity:
+
+v f (·, 0) = 0 in
+
+0 f
+
+,
+
+us (·, 0) = 0 in 0s , u˙ s (·, 0) = 0 in 0s .
+
+(14)
+
+The main energy source of the system is an inﬂow boundary
+condition on the ﬂuid velocity prescribed on the left end of the channel ∂ ifn. The condition prescribes a parabolic velocity proﬁle
+
+Since the ﬂuid domain motion is driven by the structure deformation, the ALE displacement ua has to comply with the structure displacement us on the FSI interface:
+
+ua = us on (t).
+
+(10)
+
+Inside the ﬂuid domain, ua can be chosen arbitrary, hence the term ALE. The only condition is that the ALE displacement should deﬁne an invertible deformation of the ﬂuid domain. This means that the following condition has to hold:
+
+Ja = det Fa = det(I + ∇ua) > 0.
+
+(11)
+
+The scope of this work is to compare different options for deﬁning the ALE displacement in the ﬂuid domain provided the structure displacement on the FSI interface.
+
+2.3 Interaction conditions
+Physical interaction between the ﬂuid and structure takes place on the FSI interface (t). It is characterized by the following two coupling conditions: the kinematic continuity
+
+v f = u˙ s on (t),
+
+(12)
+
+which assures that the ﬂuid stays attached to the structure; and the dynamic continuity
+
+σ s · n = σ f · n on (t) ⇔
+
+Ps · n = Jaσ f Fa−T · n on 0,
+
+(13)
+
+which maintains the balance of forces on the FSI interface. If a partitioned approach to FSI is used, one has to enforce the coupling conditions by exchanging information between the ﬂuid and structure solvers.
+
+vpar =
+
+vmax
+
+2 0.41
+
+2 y(0.41 − y)
+
+0
+
+(15)
+
+with the maximum inﬂow velocity vmax serving as an adjustable parameter. In order to comply with the initial conditions, vpar is made time-dependent by scaling it with time:
+
+vin(t) =
+
+vpar
+
+1−cos(π 2
+
+t
+
+/2)
+
+vpar
+
+if t < 2s, if t 2s.
+
+(16)
+
+The resulting time-dependent inﬂow boundary condition
+
+v f = vin provides a smooth warm-up phase for the simu-
+lation. On the right wall of the channel ∂ ofut, a do-nothing condition σ f · n = 0 is prescribed. Additionally, a no-slip
+
+boundary condition v f = 0 is set on the rest of the channel
+
+wall ∂
+
+ns f
+
+=
+
+∂
+
+0 f
+
+\∂
+
+ifn\∂
+
+ofut\ 0. Finally, the structure is
+
+ﬁxed (us = 0) on its left end ∂ 0s \ 0.
+
+2.5 Geometry parametrization
+
+In the spirit of IGA, we model computational domains as
+
+collections of tensor-product NURBS patches [18]. For the
+
+structure, we use a single quadratic NURBS patch, whereas
+
+the ﬂuid domain is modeled with seven patches. Figure 2
+
+illustrates the isoparametric mesh in the ﬂuid domain after
+
+several applications of uniform h-reﬁnement. For simplic-
+
+ity, we use matching parametrizations for neighboring ﬂuid
+
+patches as well as for the structure patch and the surrounding
+
+ﬂuid patches. This choice does not restrict the applicabil-
+
+ity of our results; however, it signiﬁcantly simpliﬁes the
+
+exchange of coupling information between the ﬂuid and
+
+structure solvers.
+
+Let us consider one of the NURBS patches forming the
+
+initial conﬁguration of the ﬂuid domain. Its parametrization
+
+G0f : [0, 1]2 →
+
+0 f
+
+can be written in
+
+terms of
+
+control
+
+points ck ∈ R2 and tensor-product NURBS basis functions
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+587
+
+Fig. 2 Computational mesh in the ﬂuid domain. Three patches adjacent to the beam are allowed to move
+
+Nk : [0, 1]2 → R as
+
+n
+
+G0f (ξ, η) = ck Nk (ξ, η).
+
+(17)
+
+k=1
+
+In IGA, we use the same NURBS basis functions to approx-
+imate solutions to PDEs. In our case, we use Nk to discretize the ALE displacement ua in space. Assuming that we use time moments t0 = 0, . . . , ti , . . . , tN = T for the time discretization, we denote the ALE displacement at time ti by uai . Its NURBS representation can be written as
+
+n
+
+uai (ξ, η) = dki Nk (ξ, η),
+
+(18)
+
+k=1
+
+where dki are the corresponding control points. Given uai , we
+
+can easily construct a NURBS parametrization Gif of the
+
+deformed ﬂuid domain
+
+i f
+
+=
+
+f (ti ) =
+
+0 f
+
++ uai
+
+as
+
+n
+
+Gif (ξ, η) = (ck + dki )Nk (ξ, η).
+
+(19)
+
+k=1
+
+Now Gif can be used to discretize the Navier–Stokes Eqs. (8– 9) in the deformed conﬁguration of the ﬂuid domain.
+As a ﬁnal comment, let us mention that it is possible to let only a portion of the ﬂuid domain move while keeping the rest ﬁxed. An obvious advantage of this approach is a considerable reduction in computational cost associated with construction of ALE mappings. In this work, only three patches of the ﬂuid domain that are directly adjacent to the FSI interface are allowed to move. In Fig. 2, they are highlighted in red. In our experience, these three patches are more than capable of absorbing deformation of the structure that appears in this benchmark.
+
+3 Mesh moving techniques
+In this section, we introduce several commonly used MMTs as well as propose certain variations to them. All considered MMTs achieve the same goal: provided a displacement of the FSI interface at a given time, they extend it into the ﬂuid domain. Note that although we present these techniques in
+
+a 2D setting, one can readily apply them in 3D. When comparing different MMTs, we largely pay our attention to the maximum amount of mesh motion a particular technique can handle. That is, how much the mesh can move before the bijectivity condition (11) is violated. A secondary measure is of course the overall computational cost associated with computing ALE mappings using a given MMT.
+After MMTs, we describe the MJBS which we use to augment each of the considered techniques. Finally, we discuss practical ways to check whether the bijectivity condition (11) is satisﬁed.
+
+3.1 Harmonic extension (HE/IHE)
+
+Probably the simplest way to extend displacement of the FSI
+
+interface into the ﬂuid domain is by means of harmonic exten-
+
+sion (HE) [8,19,35]. Given the interface displacement usi at time ti , the ALE displacement uai is computed by solving
+
+Laplace’s equation in the initial conﬁguration of the ﬂuid
+
+domain
+
+0 f
+
+for every displacement
+
+component:
+
+uai = 0 in
+
+0 f
+
+,
+
+(20)
+
+uai = usi on 0,
+
+(21)
+
+uai = 0
+
+on
+
+∂
+
+0 f
+
+\
+
+0.
+
+(22)
+
+The interface displacement usi serves as a Dirichlet boundary condition on the FSI interface 0. At the rest of the boundary, the prescribed displacement is zero. Note that the method does not take into account information about the interface or ALE displacement from the previous time step.
+The HE technique is the least computationally expensive way to construct ALE mappings. Let N be the number of inner control points in the ﬂuid domain. Since all displacement components satisfy the same equation, they can be computed by solving a single linear system with an N × N matrix and an N × d right-hand side. Here, d is the problem dimension; in our case, d = 2. Moreover, once the matrix is assembled, it can be reused for all time steps, which drastically reduces the computational cost associated with matrix assembly in IGA. At each time step, one only has to update the right-hand side to take the current FSI interface displacement into account. This can be performed efﬁciently by storing a Dirichlet elimination matrix when assembling the main matrix.
+
+123
+
+588
+
+Computational Mechanics (2021) 67:583–600
+
+Despite its computational efﬁciency, the HE technique has
+
+serious disadvantages. First of all, it treats displacement com-
+
+ponents as completely independent variables and does not
+
+promote bijectivity of the ALE mapping in any way. Sec-
+
+ond, solutions of Laplace’s equation in the vicinity of corners behave like r π/ω, where r is the distance to the corner and ω
+
+is the corner angle. For reentrant corners, that is for ω > π ,
+
+solutions do not belong to H 1(
+
+0 f
+
+)
+
+since
+
+their
+
+derivatives
+
+tend to inﬁnity. As a consequence, the corresponding ALE
+
+mapping may lose its bijectivity. Due to these two problems,
+
+the HE technique usually is only able to handle rather small
+
+mesh motions.
+
+We propose a slight improvement to the HE technique
+
+achieved by turning it into an incremental algorithm. Assume
+
+that the ALE displacement uai at time ti is known. We can
+
+use it to deform the initial conﬁguration of the ﬂuid domain
+
+0 f
+
+and
+
+obtain
+
+the
+
+deformed
+
+conﬁguration
+
+i f
+
+=
+
+0 f
+
++ uai
+
+as
+
+Eq. (19) describes. We can then compute an ALE displace-
+
+ment increment δuai+1 by solving Laplace’s equation in the
+
+deformed conﬁguration:
+
+δuai+1 = 0 in
+
+i f
+
+,
+
+(23)
+
+δuai+1 = usi+1 − usi on i ,
+
+(24)
+
+δuai+1 = 0
+
+on
+
+∂
+
+i f
+
+\
+
+i.
+
+(25)
+
+And ﬁnally, we deﬁne the ALE displacement uai+1 at time ti+1 as uai + δuai+1. Note that the resulting incremental harmonic extension (IHE) technique is not equivalent to the HE technique since ALE increments are computed in deformed conﬁgurations of the ﬂuid domain.
+One advantage of the IHE technique is that it uses the ALE displacement from the previous time step. Therefore, IHE can be expected to perform slightly better than the HE technique, meaning that it can handle larger mesh motions. On the other hand, each step of the IHE technique is formulated in a different conﬁguration of the ﬂuid domain than the previous one. As a result, the technique requires matrix assembly at every time step, which makes it more computationally expensive than HE.
+In what follows, we apply the same ideas to other MMTs and consider both their non-incremental and incremental versions, which often share the same advantages and disadvantages as the HE and IHE techniques.
+
+3.2 Bi-harmonic extension (BE/IBE)
+
+The HE technique is weak when it comes to large mesh motions. To overcome this problem, one can search for the ALE displacement as a solution to the bi-harmonic equation:
+
+2ua = 0 in f .
+
+(26)
+
+Solutions of the bi-harmonic equation are known to be more regular in comparison to Laplace’s equation and do not have problems at reentrant corners [19].
+However, this bi-harmonic extension (BE) technique is often dismissed as too computationally expensive. Indeed, in order to solve the bi-harmonic equation, one has two options: either use C1-conforming elements, which in IGA requires G1-continuity between patches [3,5]; or use mixed elements with an auxiliary variable q to replace the bi-harmonic equation with two Laplace’s equations [4]:
+
+ua = q, q = 0 in f .
+
+(27)
+
+In this work, we consider only the latter option since it is
+
+easier to implement for multi-patch geometries.
+
+In our interpretation, the BE technique has the following
+
+form: given the interface displacement usi at time ti , the ALE
+
+displacement uai is computed by solving the following linear
+
+system in the initial conﬁguration of the ﬂuid domain
+
+0 f
+
+:
+
+uai = q,
+
+q = 0 in
+
+0 f
+
+,
+
+(28)
+
+uai = usi on 0,
+
+(29)
+
+uai = 0
+
+on
+
+∂
+
+0 f
+
+\
+
+0,
+
+(30)
+
+∇q · n = 0
+
+on
+
+∂
+
+0 f
+
+.
+
+(31)
+
+The BE technique shares many similarities with HE which
+
+make both techniques very efﬁcient: it does not use infor-
+
+mation from previous time steps; the linear system has to be
+
+assembled only once; the multiple-right-hand-sides approach
+
+can be used to compute all displacement components at once.
+
+However, the resulting linear system is twice the size of the
+
+HE linear system: the matrix is of size 2N × 2N , and the
+
+right-hand size is of size 2N × d. Moreover, the linear sys-
+
+tem has a saddle-point structure, so specialized linear solvers
+
+are necessary to solve it efﬁciently.
+
+Just like with the HE technique, we propose an incre-
+
+mental variation of the bi-harmonic extension (IBE). An
+
+increment δuai+1 is computed by solving the following sys-
+
+tem in the deformed conﬁguration
+
+i f
+
+:
+
+(δuai+1) = q,
+
+q = 0 in
+
+i f
+
+,
+
+(32)
+
+δuai+1 = usi+1 − usi on i ,
+
+(33)
+
+δuai+1 = 0
+
+on
+
+∂
+
+i f
+
+\
+
+i,
+
+(34)
+
+∇q · n = 0
+
+on
+
+∂
+
+i f
+
+.
+
+(35)
+
+After that, the ALE displacement uai+1 at time ti+1 is deﬁned as uai + δuai+1.
+The IBE technique requires matrix assembly at each time step but can potentially handle larger mesh motions than the BE technique.
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+589
+
+3.3 Linear elasticity (LE/ILE)
+The next MMT we consider is based on structural mechanics. It is widely used in FSI applications and belongs to the state-of-the-art in the ﬁeld [1,23,32]. The core idea is to treat the ﬂuid domain as an elastic body and to construct ALE displacement as a solution to the equations of linear elasticity:
+
+div σ a(ua) = 0 in f .
+
+(36)
+
+Here, σ a is the Cauchy stress tensor related to the linearized strain tensor εa = (∇ua + ∇uaT )/2 by the Hooke’s law:
+
+σ a = λa tr(εa)I + 2μaεa.
+
+(37)
+
+The Lamé parameters λa and μa depend on Young’s modulus Ea and Poisson’s ratio νa. Since we do not apply volumetric
+
+or surface force to the ﬂuid domain, Young’s modulus does
+
+not affect the resulting ALE displacement. On the other hand,
+
+Poisson’s ratio is important because it regulates resistance of
+
+the ﬂuid mesh to volumetric changes. A too high value (close
+
+to 0.5) would result in an almost incompressible behavior,
+
+which could lead to excessive distortion of the mesh elements
+
+and numerical instabilities. In contrast to that, a too low value
+
+(close to 0 or even negative) can reduce resistance of the
+
+ﬂuid mesh to bijectivity violation. Therefore, we recommend
+
+choosing a value between 0.3 and 0.45. We refer to [22] for
+
+a more thorough analysis of the effects of Poisson’s ratio on
+
+the mesh motion.
+
+Unlike the techniques based on harmonic and bi-harmonic
+
+extension, the linear-elasticity-based MMT is best known in
+
+its incremental version. That is, given the ALE displacement
+
+uai at time ti , an increment δuai+1 is computed by solving the
+
+linear elasticity equations in the deformed conﬁguration of
+
+the ﬂuid domain
+
+i f
+
+:
+
+div σ a(δuai+1) = 0 in
+
+i f
+
+,
+
+(38)
+
+δuai+1 = usi+1 − usi on i ,
+
+(39)
+
+δuai+1 = 0
+
+on
+
+∂
+
+i f
+
+\
+
+i.
+
+(40)
+
+After that, the ALE displacement uai+1 at time ti+1 is deﬁned as uai + δuai+1. We refer to this technique as incremental linear elasticity (ILE). The ILE technique is known for its robustness and an ability to withstand large mesh motions. However, little to no research has been conducted to explain its superior behavior.
+With respect to computational cost, the ILE technique involves solving a linear system with a matrix of size d N × d N and a right-hand size of size d N × 1. The linear system has to be reassembled at each time step. Note that the size of the linear system depends on a dimension of the
+
+problem. Therefore, it scales worse from 2D to 3D than the
+
+IHE and IBE techniques.
+
+For the sake of completeness, let us also study a non-
+
+incremental version of the ILE technique. The ALE displace-
+
+ment uai at time ti is computed by solving the equations of
+
+linear elasticity in the initial conﬁguration of the ﬂuid domain
+
+0 f
+
+:
+
+div σ a(uai ) = 0 in
+
+0 f
+
+,
+
+(41)
+
+uai = usi on 0,
+
+(42)
+
+uai = 0
+
+on
+
+∂
+
+0 f
+
+\
+
+0.
+
+(43)
+
+We call this the linear elasticity (LE) technique. Although one can only expect it to perform well for small deformations, it is rather computationally inexpensive. Similarly to the HE and BE techniques, the LE technique requires matrix assembly only once and lets one reuse the matrix for every time step.
+
+3.4 Nonlinear elasticity (TINE)
+
+The last MMT we present in this paper is based on the equations of nonlinear elasticity. The idea is to construct the ALE displacement at each time step as an approximate solution to the local balance equations of linear momentum
+
+div Pa(uai ) = 0 in
+
+0 f
+
+,
+
+(44)
+
+where Pa = FaSa. To ensure bijectivity of the ALE mapping, we use a logarithmic variation of the neo-Hookean material law
+
+Sa = λa ln JaCa−1 + μa(I − Ca−1),
+
+(45)
+
+where Ca = FaT Fa is the right Cauchy–Green strain tensor. Similarly to the LE and ILE techniques, the Lamé parameters λa and μa can be computed from Young’s modulus Ea and Poisson’s ratio νa, of which only Poisson’s ratio affects the solution of Eq. (44).
+Due to the term ln Ja in the neo-Hookean law (45), any solution of Eq. (44) satisﬁes the bijectivity condition (11). This fact makes any MMT based on Eqs. (44–45) uniquely powerful since it explicitly enforces the bijectivity condition. Unfortunately, Eq. (44) are nonlinear, and an MMT attempting to fully solve them at each time step would be rather computationally expensive. However, since the ALE mapping should possess certain regularity in time, it is possible to use a solution of Eq. (44) at time ti to efﬁciently construct an approximate solution at time ti+1 [22]. We refer to this technique as tangential incremental nonlinear elasticity (TINE). The TINE technique can be seen as pseudo time-stepping or an example of the continuation methods for nonlinear problems [7].
+
+123
+
+590
+
+Computational Mechanics (2021) 67:583–600
+
+Let us look under the hood of TINE. It is based on a
+
+Newton-like linearization of Eq. (44). To deﬁne it, we need to
+
+transform Eq. (44) into a weak form, also known as variation
+
+formulation. To that end, let us deﬁne a solution space V =
+
+(H1(
+
+0 f
+
+))d
+
+and
+
+a
+
+test
+
+space
+
+V0
+
+=
+
+{w
+
+∈
+
+(H1(
+
+0 f
+
+))d
+
+|w
+
+=
+
+0 on ∂
+
+0 f
+
+}.
+
+We
+
+can
+
+then
+
+write
+
+the
+
+weak
+
+form
+
+of
+
+Eq.
+
+(44)
+
+as
+
+ﬁnd ua ∈ V such that ∀w ∈ V0
+
+R(ua, w) = Sa : δEa[w]dx = 0.
+
+(46)
+
+Here, δEa[w]
+
+=
+
+1 2
+
+FaT ∇w + ∇wT Fa
+
+is the variation of the
+
+Green–Lagrange strain tensor. The Taylor expansion at point
+
+(ua, w) with an increment δua yields
+
+R(ua + δua, w) = R(ua, w) + D R(ua, w) · δua + o(||δua||), (47)
+
+where D R(ua, w) · δua is a directional derivative. We refer to [22,34] for details on computing D R(ua, w) · δua.
+The idea of the TINE technique is to use one Newton-like
+step
+
+ﬁnd δua ∈ V such that ∀w ∈ V0
+
+D R(ua, w) · δua = −R(ua, w)
+
+(48)
+
+Let us also brieﬂy compare TINE and the technique introduced in [26] which is based on ﬁber-reinforced hyperelasticity (nonlinear elasticity) and optimized zero-stress state (FRHE-OZSS). Although both rely on the equations of nonlinear elasticity to construct ALE displacement ﬁelds, FRHE-OZSS uses a smart anisotropic hyperelastic material law to achieve an optimal behavior of mesh elements. In comparison to FRHE-OZSS, TINE is rather basis and relies solely on a well-known logarithmic neo-Hookean material law (45). To the best of our understanding, however, the FRHE-OZSS technique solves the nonlinear Eq. (44) at every time step, which may be computationally expensive. Moreover, FRHEOZSS requires a good initial guess for the nonlinear solver to converge, and in [26] this initial guess is constructed with a (slightly ad-hoc) ramp-up extrapolation approach. Here, TINE takes an alternative approach: it uses one Newton-like step to update the ALE displacement ﬁeld accordingly to the motion of the FSI interface. The result is a good-quality initial guess for the ALE displacement at the next time step. What is more, this initial guess is so close to the true solution of Eq. (44) that it makes ensuing iterations of the nonlinear solver unnecessary. It would be interesting to apply the same ideas borrowed from the continuation methods in the context of FRHE-OZSS. In this work, however, we do not deal with the FRHE-OZSS technique any further.
+3.5 Local stiffening
+
+per time step to compute an ALE increment and update the
+ALE displacement. Concretely, given the ALE displacement uai at time ti , we ﬁnd an ALE increment δuai+1 as a solution of the linear problem
+
+D R(uai , w) · δuai+1 = −R(uai , w) ∀w ∈ V0,
+
+(49)
+
+δuai+1 = usi+1 − usi on 0,
+
+(50)
+
+δuai+1 = 0
+
+on
+
+∂
+
+0 f
+
+\
+
+0.
+
+(51)
+
+After that, we deﬁne the ALE displacement uai+1 at time ti+1 as uai + δuai+1.
+It is natural to compare the TINE and ILE techniques which are very similar at ﬁrst glance. Both are incremental techniques based on the structural mechanics theory; both require solution of a linear system with a matrix of size d N × d N and a right-hand side of size d N × 1; both require matrix assembly at each time step. In general, one can expect both techniques to be roughly equal in computational cost. Unlike ILE, however, the TINE technique explicitly enforces the bijectivity condition (11). Moreover, the TINE technique is based in the initial conﬁguration of the ﬂuid domain. As we show in Sects. 4 and 5, this last observation results in crucial differences in behavior of the ILE and TINE techniques when it comes to the accumulated distortion effect.
+
+Most of the ﬂuid mesh motion happens along the FSI interface, where the structure displacement is applied as a Dirichlet boundary conditions to the ALE displacement. On the other hand, mesh elements in the vicinity of the stationary boundary of the ﬂuid domain remain largely intact. Therefore, their contribution into processing of the applied interface displacement is negligible. If the mesh motion could be redistributed away from the FSI interface towards the stationary boundary, the mesh could undergo larger motions without becoming invalid. This is the idea behind local stiffening, which changes the way different elements react to the motion-induced deformation.
+Let G : [0, 1]d → be a parametrization of the computational domain . Imagine that we have to compute integrals corresponding to matrix entries of the discretized linear system. One of the simplest ways to implement local stiffening is to drop the Jacobian determinant det ∇G when transforming the integrals from domain to parametric domain [0, 1]d :
+
+(· · · )dx = (· · · ) det ∇Gdξ → (· · · )dξ . (52)
+
+[0,1]d
+
+[0,1]d
+
+This local stiffening method, initially called Jacobian-based stiffening (JBS) and later renamed to mesh-Jacobian-based
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+591
+
+stiffening (MJBS), was ﬁrst proposed in [31]. For elasticity problems, the MJBS can be interpreted as a local change of Young’s modulus
+
+E
+
+→
+
+det
+
+E ∇ξ
+
+G
+
+,
+
+(53)
+
+which makes elements with small values of det ∇G stiffer and elements with large values softer. Therefore, the former elements undergo less motion and are less likely to become invalid.
+A more advanced version of the MJBS introduced in [23] does not simply drop the Jacobian determinant but changes the degree with which it enters the integrals:
+
+(· · · )dx = (· · · ) det ∇Gdξ
+
+[0,1]d
+
+→ (· · · )(det ∇G)1−χ dξ .
+
+(54)
+
+[0,1]d
+
+Here, χ 0 is called the stiffening degree. The higher the stiffening degree is, the more local stiffening is achieved. χ = 0 corresponds to no local stiffening, and χ = 1 corresponds to Jacobian dropping (52). Too high stiffening degrees, however, may result in excessive mesh distortion.
+Note that in its original form described in [31], the MJBS relies not on the Jacobian determinant of the mapping between the parametric space and the physical domain. Instead, it works with the mapping between the element domain and the physical domain [6]. That is, for each element
+k in the physical domain, consider an element-speciﬁc mapping Gk : e → k, where e = [−1, 1]d is the element domain, also known as the parent element. Mapping Gk and the domain parametrization G are related via Gk = G ◦ Sk, where Sk is a scaling mapping between the element domain and the image of the element k in the parametric space. Then the MJBS is deﬁned in the following element-wise way:
+
+(55) are equivalent. Since the IGA code that we use performs
+
+integration in the parametric space, the formulation (54) is
+
+easier to implement and we resort to it in this work.
+
+The MJBS acts differently depending on whether a par-
+
+ticular MMT is formulated in the initial or in the deformed
+
+conﬁguration of the ﬂuid domain. Namely, if the integrals
+
+for matrix entries are computed in the initial conﬁguration
+
+0 f
+
+,
+
+the
+
+MJBS
+
+is
+
+based
+
+only
+
+on
+
+the
+
+initial
+
+parametrization
+
+G0f . However, in the case of the deformed conﬁguration
+
+i f
+
+,
+
+the
+
+MJBS
+
+takes
+
+into
+
+account
+
+already
+
+applied
+
+motion
+
+since the parametrization Gif of the deformed conﬁguration
+
+is deﬁned as (I + uai ) ◦ G0f , see Eq. (19). This effect has
+
+both advantages and disadvantages. From one point of view,
+
+if a particular mesh element becomes ill-shaped after the motion, its value of det ∇Gif decreases. As a result, this element receives more stiffening, which prevents it from
+
+becoming even more ill-shaped or invalid. On the other
+
+hand, in case of the ILE technique, this motion-aware stiff-
+
+ening essentially makes material properties of the mesh
+
+deformation-dependent, which can cause irreversible plastic
+
+deformation. For other MMTs based in the deformed con-
+
+ﬁguration, namely IHE and IBE, the effect is similar. As we
+
+show in Sects. 4 and 5, this irreversible deformation accu-
+
+mulates over time and can signiﬁcantly affect results of FSI
+
+simulations. We refer to this effect as accumulated distortion.
+
+Regardless if the MJBS is motion-aware or not, the initial parametrization G0f of the ﬂuid domain provides a major contribution to how much stiffening each element receives. Let
+
+us consider the moving part of the ﬂuid domain, see Fig. 3.
+
+The top and bottom patches are perfect parallelograms, and det ∇G0f is constant. Therefore, elements of these patches receive no local stiffening with respect to each other. How-
+
+ever, the right patch has a distinct tapered left side, where
+
+det ∇G0f becomes very small in comparison to the surrounding elements of the top and bottom patches. As a result,
+
+element on the left side of the right patch become much stiffer
+
+and maintain their shape. Consequently, angles of all three
+
+(· · · )dx = (· · · ) det ∇Gkdξ e
+
+k
+
+e
+
+→ (· · · )(det ∇Gk )1−χ dξ e.
+
+(55)
+
+e
+
+In this formulation, the MJBS takes into account not only the size and shape of elements in the physical domain but also the size of the elements in the parametric space. As a result, it produces expected local stiffening when local reﬁnement or non-uniform knot vectors are used, and formulation (55) is widely adopted in the IGA community [26]. However, if neither local reﬁnement nor non-uniform knot vectors are used (like in this work), the MJBS formulations (54) and
+
+Fig. 3 MJBS potential of the motion ﬂuid mesh part
+
+123
+
+592
+mesh patches that are adjacent to the beam right end do not change much during the mesh motion. In particular, they do not exceed π , which would lead to det ∇Gif becoming negative, which means that the bijectivity condition (11) is not violated.
+3.6 Bijectivity check
+Let us brieﬂy discuss ways to check the bijectivity condition (11) in practice. A solution which takes the NURBS nature of the ALE displacement ua into account is to express Ja as a NURBS function [10]. If all coefﬁcients in a NURBS representation of Ja are positive, then the displacement ua satisﬁes the bijectivity condition. Unfortunately, this condition is only sufﬁcient and not a necessary one. Therefore, it may often lead to false detection of bijectivity violation. In practice, we resort to a less elegant solution of sampling Ja at the Gaussian quadrature points associated with the NURBS basis of ua.
+Note that whichever method is chosen, it introduces a certain computational overhead to construction of ALE mappings. Nevertheless, we recommend doing some bijectivity check at every time step, or at least with regular intervals. An ALE mapping that does not satisfy the bijectivity condition (11) quickly makes all ensuing computation results meaningless.
+
+Computational Mechanics (2021) 67:583–600
+
+4 Benchmark ALE: mesh motion
+
+In order to test and compare all MMTs, we ﬁrst consider a simpliﬁed FSI-like test based on the benchmark introduced in Sect. 2. Instead of solving a fully coupled FSI problem, we ignore the ﬂuid component and let the ﬂexible beam oscillate freely in the presence of external acceleration g = (0, l). We use the beam motion to drive motion of the three ﬂuid domain patches adjacent to the beam. By varying the parameter l, we can regulate magnitude of the mesh motion. Although this mesh motion test is artiﬁcial, it mimics real motion occurring in the original benchmark well enough. Moreover, it is signiﬁcantly less computationally expensive, which allows us to conduct more tests and better assess properties of each MMT.
+For this test, we reﬁne the ﬂuid domain parametrization by applying uniform h-reﬁnement thrice. Figure 4 shows the corresponding computational mesh in the state of maximum beam deﬂection for loading levels l = 1, 2, 3. We use the following parameters for the structure motion: Young’s modulus Es = 1.4×106 kg m−1 s−2, Poisson’s ratio νs = 0.4, density ρs = 103 kg m−3. For the elasticity-based MMTs, we use Poisson’s ratio νa = 0.3. At each time step, we check whether the bijectivity condition (11) holds. We have implemented this test and the original FSI benchmark within G+Smo—an
+
+Fig. 4 Computational mesh with TINE in the state of maximum beam deﬂection for loading levels l = 1, 2, 3 (top to bottom)
+open-source C++ library for isogeometric analysis [15]— using the gsElasticity submodule. As a linear system solver, we use Pardiso—an efﬁcient parallel direct linear solver [16]. For reference, all simulations have been performed on a laptop with a 7th generation Intel Core i7 CPU using eight hyper-threads.
+4.1 Single period test
+First, we consider mesh motion over one period of beam oscillations. The goal is to study how much motion each
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+593 2 1.5 1 0.5 0
+Fig. 7 Single oscillation period test: computational time for each MMT split into the assembly, solving and bijectivity check parts
+
+Fig. 5 Top: mesh motion with TINE for loading level l = 0.5 with stiffening degree χ = 0. Bottom: mesh motion with TINE for l = 0.5 and χ = 2
+
+3
+
+2.5
+
+2
+
+1.5
+
+1
+
+0.5
+
+0
+
+0
+
+1
+
+2
+
+3
+
+4
+
+Fig. 6 Single oscillation period test: maximal achievable loading level lmax vs the stiffening degree χ for different MMTs
+MMT can handle. Here, the MJBS stiffening is of crucial importance. Without it, most MMTs can handle only small loading levels l. Usually, one of the patch corners adjacent to the right end of the beam becomes larger than π , which violates the bijectivity conditions (11). With the MJBS, all MMTs can keep these angles below π at least for moderate loading levels l, see Fig. 5.
+Figure 6 shows a plot of the maximum achievable loading level lmax versus the stiffening degree χ for each MMT.
+
+Immediately, we can split all MMTs into two groups, with BE and IBE forming one group, and all other techniques belonging to the second group. The main difference between the two groups is that MMTs from the second group can handle almost no deformation without the MJBS. However, as the stiffening degree χ grows, these MMTs can handle increasingly larger loading levels with maximum loading levels achieved with χ ∈ [2, 3]. With χ > 3, we can observe some form of performance deterioration for all MMTs, which is likely caused by too much mesh distortion introduced by the MJBS.
+For the BE and IBE techniques, the behavior is radically different. Already without the MJBS, they can handle larger loading levels than some MMTs from the second group can achieve even with high values of the stiffening degrees χ . However, as we increase the stiffening degree, BE and IBE show almost no response for χ < 1 and start to slowly perform worse for χ > 1.
+Overall, MMTs can be ranged with respect to their capability to handle large mesh motion in the following way: IBE, ILE and TINE are the most powerful and can handle loading levels up of to 2.8–3; BE occupies the second place with the maximum loading level of 2.2; and HE, IHE and LE are the least powerful with maximum loading levels of 1.6–1.9.
+Figure 7 presents an analysis of computational complexity of each MMT. We have measured time required for linear system assembly, linear system solution and an ensuing check of the bijectivity condition (11). Note that this is real time and not CPU time. Although not a perfect measure of algorithm performance, real time still allows us to compare relative efﬁciency of different MMTs since we have implemented them in the same framework of G+Smo.
+The time analysis shows that the HE, BE and LE techniques are signiﬁcantly faster than their incremental versions. This result is not surprising because non-incremental techniques do not require matrix assembly at each time step. The BE and IBE techniques take the largest amount of time to solve the linear system due to the saddle-point structure
+
+123
+
+594 0.018
+
+Computational Mechanics (2021) 67:583–600
+
+0.012
+
+0.006
+
+0 0
+0.018
+
+5
+
+10
+
+15
+
+20
+
+0.012
+
+0.006
+
+0 0
+0.018
+
+5
+
+10
+
+15
+
+20
+
+0.012
+
+0.006
+
+0 0
+0.018
+
+5
+
+10
+
+15
+
+20
+
+0.012
+
+0.006
+
+0
+
+0
+
+5
+
+10
+
+15
+
+20
+
+Fig. 8 Long-term behavior test. L2-norm of ALE displacement over time
+
+of the system. At the same time, relative complexity of the elasticity equations makes the assembly time of the ILE and TINE techniques signiﬁcantly larger than for other techniques. Overall, the HE, IHE and LE techniques are the most efﬁcient. The ILE and TINE are the most computationally expensive, and the BE and IBE techniques fall in between. All techniques include a small overhead associated with the bijectivity check. This overhead can be reduced by not performing the check at every time step.
+
+Fig. 9 Long-term behavior test. Accumulated mesh distortion with ILE and χ = 2 after 20 oscillation periods with l = 2
+
+4.2 Long-term behavior test
+
+In the second test, we study the long-term behavior of dif-
+
+ferent MMTs and their effect on the ﬂuid mesh. To that
+
+end, we perform the simulation over a time period of 20s,
+
+which includes roughly 22 periods of beam oscillations. A quantity of interest is the L2-norm of the ALE displacement
+
+measured in the initial conﬁguration of the ﬂuid domain. A
+
+perfect MMT should return the ﬂuid mesh to its initial state
+
+once the beam is not deformed. Therefore, the ALE norm
+
+||ua (t )||L 2 (
+
+0 f
+
+)
+
+should be close to zero at the end of each
+
+oscillation period. Figure 8 shows behavior of the ALE norm
+
+over time for each MMT with the loading level l = 1.5. We
+
+have used the MJBS with χ = 2 for all MMTs with the
+
+exception of the BE and IBE techniques. These techniques
+
+are able to handle the loading level l = 1.5 without local
+
+stiffening.
+
+As Fig. 8 shows, the ALE norm behaves periodically and
+
+returns to zero at the end of each oscillation period with the
+
+HE, BE, LE and TINE techniques. On the other hand, with the
+
+IHE, IBE and ILE techniques the ALE norm at the end of each
+
+oscillation period grows in a monotonous fashion. This effect
+
+has been previously reported in [28], and we refer to it as
+
+accumulated distortion. It appears only for MMTs which are
+
+based in the deformed conﬁguration of the ﬂuid domain. As a
+
+result, mesh motion becomes path-dependent, the ﬂuid mesh
+
+does not return to its initial state, and its quality deteriorates
+
+over time. Figure 9 illustrates the state of the mesh at the end
+
+of the simulation with the ILE technique.
+
+The accumulated distortion effect becomes even more
+
+prominent as the magnitude of mesh motion grows. To study
+
+it in more details, we perform the long-term behavior test for
+
+the IHE, IBE and ILE techniques with varying values of the
+
+loading level and stiffening degree. In Fig. 10, we plot values
+
+of the ALE norm at the end of each oscillation period. We
+
+can observe that both parameters seem to increase the rate of
+
+accumulated distortion.
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+595
+
+5 10 -3
+
+4
+
+3
+
+2
+
+1
+
+0
+
+0
+
+5
+
+5 10 -3
+
+4
+
+3
+
+2
+
+1
+
+0
+
+0
+
+5
+
+10
+
+15
+
+20
+
+10
+
+15
+
+20
+
+Fig. 10 Long-term behavior test. Accumulated distortion for incremental MMTs. Top: ﬁxed loading level l = 1.5 and varying stiffening degree χ. Bottom: ﬁxed stiffening degree χ = 2 and varying loading level l
+
+5 Benchmark FSI2: ﬂow-induced vibrations
+In this section, we perform the FSI simulation described in Sect. 2. From several simulation scenarios proposed in
+
+[33], we choose a scenario titled FSI2 since it corresponds
+to the largest magnitude of beam displacement and mesh
+motion. Using this FSI simulation, we test and compare dif-
+ferent MMTs introduced in Sect. 3. We use stiffening degree χ = 2.5 for all MMTs but BE and IBE. To them, we apply no local stiffening.
+For the analysis, we reﬁne the geometry parametrization
+ﬁve times using uniform h-reﬁnement and perform the simulation for 15 s with a time step t = 0.0025 s. For time integration, we use the Newmark method [34] with β = 0.5 and γ = 1 for the structure and the IMEX scheme [13] with θ = 0.5 and no stabilization for the ﬂuid. We achieve the coupling of ﬂuid and structure by means of the partitioned
+Fluid–Dirichlet–Structure–Neumann algorithm [8].
+The FSI2 scenario is characterized by the following parameters: ﬂuid density ρ f = 103 kg · m−3, ﬂuid kinetic viscosity ν f = 10−3 m2 · s−1, maximum inﬂow velocity vmax = 1.5 m · s−1, structure density ρs = 104 kg · m−3, structure Young’s modulus E = 1.4 × 106 kg · m−1 · s−2, structure Poisson’s ratio νs = 0.4, gravitational acceleration g = (0, 0)T m · s−2 and mesh Poisson’s ratio νa = 0.3 (where applicable). The corresponding Reynolds number is Re = 100, which results in an unstable ﬂow and development of vortex shedding. Alternating downward and upward
+forces exerted on the structure by the ﬂuid lead to oscillations
+of the beam which grow in magnitude until they reach a fully
+periodic regime. Figure 11 illustrates typical ﬂuid velocity
+ﬁeld and beam deformation when the oscillations are fully
+developed.
+
+Fig. 11 Benchmark FSI2: fully developed oscillation regime. Fluid velocity ﬁeld for the maximal upward and downward beam deﬂection
+
+Table 1 Benchmark FSI2: simulation results with TINE ( t = 0.0025 s, 44122 DoFs) vs reference results ( t = 0.001 s, 304128 DoFs)
+
+Results Reference
+
+FD (N)
+203.19 ± 63.88 208.83 ± 73.75
+
+FL (N)
+1.22 ± 223.35 0.88 ± 234.2
+
+usx ( A) (10−3m)
+−12.75 ± 11.37 −14.58 ± 12.44
+
+usy ( A) (10−3m)
+1.24 ± 74.55 1.23 ± 80.6
+
+Fr (1/s)
+1.94 2.0
+
+123
+
+596 Fig. 12 Benchmark FSI2: drag and lift behavior with different MMTs
+Fig. 13 Benchmark FSI2: displacement of the middle point of the beam right end with different MMTs
+Fig. 14 Benchmark FSI2: portion of simulation completed by different MMTs before the ALE mapping becomes invalid
+
+Computational Mechanics (2021) 67:583–600
+300 250 200 150
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+200 100
+0 -100 -200
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+0
+-0.01
+-0.02
+-0.03 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+0.1 0.05
+0 -0.05
+-0.1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+Fig. 15 Benchmark FSI2: ALE displacement norm with different MMTs
+
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+0.03 0.02 0.01
+0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+597
+
+Fig. 16 Benchmark FSI2: accumulated distortion of the ﬂuid mesh during the last oscillation period with the ILE technique
+
+Fig. 17 Benchmark FSI2: ﬂuid mesh with during the last oscillation period with the TINE technique
+
+To assess the simulation accuracy, we study the following
+
+quantities of interest when the beam oscillations are fully
+
+developed : x- and y-displacement components
+
+u
+
+y s
+
+(
+
+A)
+
+of
+
+the
+
+point
+
+A
+
+located
+
+in
+
+the
+
+middle
+
+of
+
+the
+
+usx ( A) and beam right
+
+end; and drag and lift forces FD and FN exerted on the struc-
+
+ture by the ﬂuid which are deﬁned as
+
+(FD, FN ) = σ f (v f , p f ) · nds.
+
+(56)
+
+(t )
+
+Here, (t) is the entire boundary of the submerged solid, including the rigid disk and the ﬂexible beam, at time t. Since we expect the quantities of interest to behave periodically, we report them in terms of their mean (∗)max + (∗)min /2, amplitude (∗)max − (∗)min /2 and frequency. In Table 1, we compare the simulation results obtained with the TINE technique against the reference results from [33]. Overall, our results seem to undershoot the reference values by about 5%, which can be expected since we use much fewer degrees of freedom and a larger time step than the reference simulation. Despite this discrepancy, we are more than capable of reproducing a qualitatively correct behavior of the system and can use it to study the MMTs. Figures 12 and 13 illustrate behavior of the lift, drag and beam displacement.
+
+Let us now focus on the ﬂuid mesh motion. When performing the FSI simulation, we apply each of the seven MMTs (HE, IHE, BE, IBE, LE, ILE and TINE) and study how a particular MMT handles the mesh motion occurring during the simulation. Figure 14 illustrates what portion of the simulation can be completed using different MMTs. As we can observe, simulations with the HE, IHE and IBE techniques had to be terminated before they could reach the end. All three techniques have failed to maintain bijectivity of the ALE mapping; however, different reasons have led to the failure. In the case of HE and IHE, the simulations have stopped at the 9th second—when the oscillations in the system start to develop. As the applied mesh motion grows, the HE and IHE techniques fail due to their intrinsic inability to handle large motions.
+On the other hand, the IBE technique is able to handle mesh motions occurring in the simulation but suffers from the accumulated deformation effect described in Sect. 4. As a result, the simulation fails at the 14th second. Figure 15 depicts behavior of the ALE norm for all MMTs. We can observe that the ILE technique suffers from even stronger accumulated deformation than IBE but still manages to maintain a bijective ALE mapping until the simulation end. Unfortunately, the highly distorted mesh produced by the ILE technique (see Fig. 16) affects the simulation results,
+
+123
+
+598
+
+Computational Mechanics (2021) 67:583–600
+
+Table 2 Benchmark FSI2: computational time comparison for MMTs which successfully completed the simulation
+
+ALE time
+
+Total time
+
+BE LE ILE TINE
+
+2 h 10 m (−48%) 1 h 39 m (−60%) 4 h 7 m (+0%) 4 h 52 m (+18%)
+
+23 h 55 m (−7.3%) 23 h 20 m (−9.6%) 25 h 48 m (+0.0%) 26 h 27 m (+2.5%)
+
+The ILE technique time is used as a reference point for comparison
+
+see Figs. 12 and 13. Instead of a stable periodic behavior in the fully developed oscillation regime, we observe signs of damping. We observe a similar effect when using the IBE technique: the accumulated mesh distortion results in spurious ampliﬁcation of the oscillations.
+Of the seven MMTs considered in this work, only three— BE, LE and TINE—were able to handle mesh motions occurring in the simulation and maintain high mesh quality until the simulation end. Most importantly, the BE, LE and TINE techniques have demonstrated no signs of accumulated distortion. Using these techniques, we were able to reproduce a stable periodic behavior of the system and correct simulation results. Figure 17 depicts the ﬂuid mesh at the end of the simulation deformed using the TINE technique. Of course, the BE, LE and TINE techniques differ a lot in terms of their computational cost. However, since construction of the ALE mapping corresponds only to a small portion of a total computational effort required to perform an FSI simulation, the choice of MMT does not affect the total computational cost too much. Table 2 compares computational cost of BE, LE and TINE against the ILE technique which is often considered a default option in the FSI community.
+
+6 Discussion and conclusion
+In this work, we have described and compared several MMTs which can be used within moving-mesh methods for FSI problems. To evaluate each MMT, we have used a 2D FSI benchmark and its simpliﬁed version where the focus lies on mesh motion. Based on the tests performed in Sects. 4 and 5, we can make the following conclusions:
+
+BE technique as the ﬁrst method to try in many FSI applications. – The TINE technique is the most computationally expensive of all considered MMTs. However, it can also handle the largest magnitude of mesh motion when combined with the MJBS. Given its high computational cost and implementation complexity, we recommend TINE for FSI applications where extreme mesh motions are expected. – The IBE and ILE techniques can handle as much mesh motion as TINE and are slightly less computational expensive. Unfortunately, both techniques suffer from the accumulated distortion effect which can affect the simulation results over long periods of time. We urge the reader to exercise caution when applying this techniques. Detrimental effects of accumulated distortion can be reset by a costly remeshing operation. – Although not suitable for large mesh motions, the HE and LE techniques can be applied if only small mesh motions are expected. The exceptional implementation simplicity and low computational cost make HE and LE viable options in certain situations. – Finally, the IHE technique can handle only small motions and suffers from accumulated distortion. We do not recommend using this technique.
+We would like to emphasize that the performance of all MMTs is dependent on the chosen parametrization of the ﬂuid domain. However, it is unlikely that the MMT behavior will be qualitatively different if a different geometry parametrization is used.
+With respect to the further research directions, we see the following possibilities. One could study the effect of different geometry parametrizations on the MMT behavior. Moreover, isogeometric methods in FSI could beneﬁt from alternative local stiffening approaches. The commonly used MJBS has no effect if a uniform geometry parametrization is used. It would also be interesting to combine BE and TINE with additional augmentation techniques such as the solid layer extension and mesh element relaxation. Finally, one could try to apply the continuation ideas used in the TINE technique to improve the efﬁciency of the FRHE-OZSS technique.
+
+– Out of seven MMTs that we have considered, two most robust are the BE and TINE techniques. Both MMTs can handle large mesh motions and do not suffer from the accumulated distortion effect.
+– BE is easier to implement, performs well even without the MJBS and is about two times less computationally expensive than TINE. Provided that the saddle-point structure of the linear system is accounted for, we recommend the
+
+Acknowledgements We would like to express our gratitude to Dr. Michael Helmut Gfrerer and Dr. Matthias Möller for extensive and fruitful discussions about ﬂuid-structure interaction. The support of this research by the German Research Council (DFG) under Grant No. SI 765/5-1 (project YASON) and by the German Federal Ministry of Education and Research (BMBF) under Grant No. 05M16UKD (project DYMARA) is greatly acknowledged.
+Funding Open Access funding enabled and organized by Projekt DEAL.
+
+123
+
+Computational Mechanics (2021) 67:583–600
+
+599
+
+Compliance with ethical standards
+Conﬂict of interest The authors declare that they have no conﬂict of interest.
+Open Access This article is licensed under a Creative Commons Attribution 4.0 International License, which permits use, sharing, adaptation, distribution and reproduction in any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide a link to the Creative Commons licence, and indicate if changes were made. The images or other third party material in this article are included in the article’s Creative Commons licence, unless indicated otherwise in a credit line to the material. If material is not included in the article’s Creative Commons licence and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to obtain permission directly from the copyright holder. To view a copy of this licence, visit http://creativecomm ons.org/licenses/by/4.0/.
+References
+1. Bazilevs Y, Takizawa K, Tezduyar TE (2013) Computational ﬂuidstructure interaction: methods and applications. Wiley, Hoboken. https://doi.org/10.1002/9781118483565
+2. Bernal LM, Calo VM, Collier N, Espinosa GA, Fuentes F, Mahecha JC (2013) Isogeometric analysis of hyperelastic materials using PetIGA. Proc Comput Sci 18:1604–1613. https://doi.org/10.1016/ j.procs.2013.05.328
+3. Birner K, Jüttler B, Mantzaﬂaris A (2018) Approximation power of G1-smooth isogeometric splines on volumetric two-patch domains. https://hal.inria.fr/hal-02275654/document. Accessed 19 June 2020
+4. Bofﬁ D, Brezzi F, Fortin M et al (2013) Mixed ﬁnite element methods and applications, vol 44. Springer, Berlin. https://doi.org/10. 1007/978-3-642-36519-5
+5. Collin A, Sangalli G, Takacs T (2016) Analysis-suitable G1 multipatch parametrizations for C1 isogeometric spaces. Comput Aided Geom Des 47:93–113. https://doi.org/10.1016/j.cagd.2016.05.009
+6. Cottrell JA, Hughes TJR, Bazilevs Y (2009) Isogeometric analysis: toward integration of CAD and FEA. Wiley, Hoboken
+7. Deuﬂhard P (2011) Newton methods for nonlinear problems: afﬁne invariance and adaptive algorithms. Springer, Berlin
+8. Dörfel MR (2011) Fluid-structure interaction: a differentialalgebraic approach and acceleration techniques for strong coupling. VDI Verlag, Düsseldorf
+9. Formaggia L, Quarteroni A, Veneziani A (2010) Cardiovascular Mathematics: Modeling and simulation of the circulatory system. Springer, Berlin. https://doi.org/10.1007/978-88-470-1152-6
+10. Gravesen J, Evgrafov A, Nguyen DM, Nørtoft P (2014) Planar parametrization in isogeometric analysis. In: International conference on mathematical methods for curves and surfaces 2012. Springer, pp 189–212. https://doi.org/10.1007/978-3-642-543821-11
+11. Hughes TJR, Cottrell JA, Bazilevs Y (2005) Isogeometric analysis: CAD, ﬁnite elements, NURBS, exact geometry and mesh reﬁnement. Comput Methods Appl Mech Eng 194:4135–4195. https:// doi.org/10.1016/j.cma.2004.10.008
+12. Hughes TJR, Liu WK, Zimmermann TK (1981) Lagrangian– Eulerian ﬁnite element formulation for incompressible viscous ﬂows. Comput Methods Appl Mech Eng 29(3):329–349. https:// doi.org/10.1016/0045-7825(81)90049-9
+
+13. John V (2016) Finite element methods for incompressible ﬂow problems. Springer, Berlin. https://doi.org/10.1007/978-3-31945750-5
+14. Johnson AA, Tezduyar TE (1994) Mesh update strategies in parallel ﬁnite element computations of ﬂow problems with moving boundaries and interfaces. Comput Methods Appl Mech Eng 119(1–2):73–94. https://doi.org/10.1016/0045-7825(94)00077-8
+15. Jüttler B, Langer U, Mantzaﬂaris A, Moore S, Zulehner W (2014) Geometry + simulation modules: implementing isogeometric analysis. In: Proceedings in applied mathematics and mechanics. Wiley, pp 961–962. https://doi.org/10.1002/pamm.201410461
+16. Kourounis D, Fuchs A, Schenk O (2018) Towards the next generation of multiperiod optimal power ﬂow solvers. IEEE Trans Power Syst 33:4005–4014. https://doi.org/10.1109/TPWRS.2017. 2789187
+17. Küttler U, Wall WA (2008) Fixed-point ﬂuid-structure interaction solvers with dynamic relaxation. Comput Mech 43(1):61–72. https://doi.org/10.1007/s00466-008-0255-5
+18. Piegl L, Tiller W (1997) The NURBS book. Springer, Berlin. https://doi.org/10.1007/978-3-642-97385-7
+19. Richter T (2010) Numerical methods for ﬂuid-structure interaction problems. University of Heidelberg, Germany, Institute for Applied Mathematics
+20. Richter T, Wick T (2010) Finite elements for ﬂuid-structure interaction in ALE and fully Eulerian coordinates. Comput Methods Appl Mech Eng 199(41–44):2633–2642. https://doi.org/10.1016/ j.cma.2010.04.016
+21. Schillinger D, Dede L, Scott MA, Evans JA, Borden MJ, Rank E, Hughes TJR (2012) An isogeometric design-throughanalysis methodology based on adaptive hierarchical reﬁnement of NURBS, immersed boundary methods, and T-spline CAD surfaces. Comput Methods Appl Mech Eng 249:116–150. https://doi. org/10.1016/j.cma.2012.03.017
+22. Shamanskiy A, Gfrerer MH, Hinz J, Simeon B (2020) Isogeometric parametrization inspired by large elastic deformation. Comput Methods Appl Mech Eng 363:112920. https://doi.org/10.1016/j. cma.2020.112920
+23. Stein K, Tezduyar TE, Benney R (2003) Mesh moving techniques for ﬂuid-structure interactions with large displacements. J Appl Mech 70(1):58–63. https://doi.org/10.1115/1.1530635
+24. Suito H, Takizawa K, Huynh VQH, Sze D, Ueda T (2014) FSI analysis of the blood ﬂow and geometrical characteristics in the thoracic aorta. Comput Mech 54(4):1035–1045. https://doi.org/10. 1007/s00466-014-1017-1
+25. Takizawa K, Tezduyar TE (2012) Space-time ﬂuid-structure interaction methods. Math Models Methods Appl Sci 22:1230001. https://doi.org/10.1142/S0218202512300013
+26. Takizawa K, Tezduyar TE, Avsar R (2020) A low-distortion mesh moving method based on ﬁber-reinforced hyperelasticity and optimized zero-stress state. Comput Mech. https://doi.org/10.1007/ s00466-020-01835-z
+27. Takizawa K, Tezduyar TE, Boben J, Kostov N, Boswell C, Buscher A (2013) Fluid-structure interaction modeling of clusters of spacecraft parachutes with modiﬁed geometric porosity. Comput Mech 52(6):1351–1364. https://doi.org/10.1007/s00466-013-0880-5
+28. Terahara T, Takizawa K, Tezduyar TE, Tsushima A, Shiozaki K (2020) Ventricle-valve-aorta ﬂow analysis with the space-time isogeometric discretization and topology change. Comput Mech. https://doi.org/10.1007/s00466-020-01822-4
+29. Tezduyar T (2001) Finite element interface-tracking and interfacecapturing techniques for ﬂows with moving boundaries and interfaces. ASME Publ HTD 369:105–114
+30. Tezduyar TE, Aliabadi S, Behr M, Johnson AA, Mittal S (1993) Parallel ﬁnite-element computation of 3D ﬂows. Computer 26(10):27–36. https://doi.org/10.1109/2.237441
+
+123
+
+600
+
+Computational Mechanics (2021) 67:583–600
+
+31. Tezduyar TE, Behr M, Mittal S, Johnson AA (1992) Computation of unsteady incompressible ﬂows with the stabilized ﬁnite element methods: space-time formulations, iterative strategies and massively parallel implementations. In: ASME pressure vessels and piping conference 1992. American Society of Mechanical Engineers Digital Collection, pp 7–24
+32. Tezduyar TE, Sathe S (2007) Modelling of ﬂuid-structure interactions with the space-time ﬁnite elements: solution techniques. Int J Numer Methods Fluids 54(6–8):855–900. https://doi.org/10.1002/ ﬂd.1430
+33. Turek S, Hron J (2006) Proposal for numerical benchmarking of ﬂuid-structure interaction between an elastic object and laminar incompressible ﬂow. In: Fluid-structure interaction. Springer, pp 371–385. https://doi.org/10.1007/3-540-34596-5-15
+
+34. Wriggers P (2008) Nonlinear ﬁnite element methods. Springer, Berlin. https://doi.org/10.1007/978-3-540-71001-1
+35. Wu Y, Cai XC (2014) A fully implicit domain decomposition based ALE framework for three-dimensional ﬂuid-structure interaction with application in blood ﬂow computation. J Comput Phys 258:524–537. https://doi.org/10.1016/j.jcp.2013.10.046
+Publisher’s Note Springer Nature remains neutral with regard to jurisdictional claims in published maps and institutional afﬁliations.
+
+123
+

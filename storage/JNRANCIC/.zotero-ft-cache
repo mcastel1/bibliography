@@ -1,0 +1,628 @@
+Journal of Computational Physics 490 (2023) 112301
+Contents lists available at ScienceDirect
+Journal of Computational Physics
+journal homepage: www.elsevier.com/locate/jcp
+Consistent lattice Boltzmann methods for the volume averaged Navier–Stokes equations
+Fedor Bukreev a,b,∗, Stephan Simonis a,c, Adrian Kummerländer a,b,c, Julius Jeßberger a,b, Mathias J. Krause a,b,c
+a Lattice Boltzmann Research Group (LBRG), Germany b Institute of Mechanical Process Engineering and Mechanics (MVM), Germany c Institute for Applied and Numerical Mathematics (IANM), Karlsruhe Institute of Technology (KIT), 76131 Karlsruhe, Germany
+article info abstract
+Article history:
+Received 25 July 2022 Received in revised form 2 March 2023 Accepted 12 June 2023 Available online 16 June 2023
+Keywords:
+Volume averaged Navier–Stokes Lattice Boltzmann method Consistency Chapman–Enskog analysis
+We derive a novel lattice Boltzmann scheme, which uses a pressure correction forcing term for approximating the volume averaged Navier–Stokes equations (VANSE) in up to three dimensions. With a new definition of the zeroth moment of the Lattice Boltzmann equation, spatially and temporally varying local volume fractions are taken into account. A Chapman–Enskog analysis, respecting the variations in local volume, formally proves the consistency towards the VANSE limit up to higher order terms. The numerical validation of the scheme via steady state and non-stationary examples approves the second order convergence with respect to velocity and pressure. The here proposed lattice Boltzmann method is the first to correctly recover the pressure with second order for space-time varying volume fractions. © 2023 Elsevier Inc. All rights reserved.
+1. Introduction
+Multiphase simulations gain high demand in both industry and science, especially in the field of process technology, where complex reactions and phase transitions need to be calculated. Exemplary applications are liquid-solid, gas-solid and gas-liquid reactors [1], phase separators and transport units [2,3]. Today, computational fluid dynamics (CFD) eases the design and optimization of such processes. Three different strategies for the simulation of complex flows akin to the above have been established, namely volume of fluid (VOF) methods, discrete element methods (DEM), and Eulerian multiphase methods [4]. Whereas VOF methods track the phase interface in detail, the DEM approach calculates paths of discrete particles. The Eulerian multiphase simulation schemes typically consider each phase as continuous and solve mass and momentum conservation equations for each of them. The coupling between phases is realized via volume averaging of the phase flow variables. The resulting volume averaged Navier–Stokes equations (VANSE) [5] involve also the phase interaction forces in the momentum equation. Besides multiphase flows, the VANSE are suitable for the modeling of porous flows [6]. In comparison to VOF, the Eulerian methods require lower computational resources in general. Similarly, the latter outperforms the DEM if the amount of particles reaches billions or more.
+* Corresponding author at: Lattice Boltzmann Research Group (LBRG), Germany. E-mail address: fedor.bukreev@kit.edu (F. Bukreev).
+https://doi.org/10.1016/j.jcp.2023.112301 0021-9991/© 2023 Elsevier Inc. All rights reserved.
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+The Navier–Stokes equations (NSE) and VANSE can be solved numerically in the discretized form with the finite difference method (FDM) [7], finite element method (FEM) or finite volume method (FVM) [8] on the macroscopic level or with the lattice Boltzmann methods (LBM) [9], which are based on mesoscopic kinetic theory [10]. In LBM the fluid is considered as a quantity of colliding and streaming particles. The state of particles is described by a discretized particle distribution function (population) —the probability of the particle to be located at the regarded coordinates in the phase space. The equilibrium population is the Maxwellian distribution based on the equation of state. The collision and streaming of populations is described by a simplified version of the Boltzmann equation. Taking moments of one lattice cell leads to the macroscopic quantities density, velocity and pressure, respectively. Through the Chapman–Enskog (CE) expansion [11] or limit consistency [12,13], the lattice Boltzmann equation can be linked to the NSE. The most prolific feature of LBM is the suitability for parallelization due to explicitly local calculation of populations. Meanwhile, LBM has been found to provide advanced capabilities for the parallel simulation of turbulent flows [14–17], advection–diffusion transport [18–20], binary fluid flows [21], and in particular, photobioreactors [22], Flettner rotors [23] or Coriolis mass flow meters [24]. As a paragon of effectiveness of the LBM, the comparison between the open-source software packages OpenLB [25–27] and OpenFOAM shows 32 times faster computation time of the former by the in-cylinder flow test [25,28]. Particular LBM for the solution of VANSE were developed by several authors. Ansatz of Guo et al. [29] for flows through porous media is a discretization of the Darcy–Lapwood–Brinkman equation. Unfortunately, this realization is only valid for temporally and spatially constant void fractions. Blais et al. [30] proposed a scheme, which is based on the method of moments, where first the population moments necessary for the VANSE are chosen and after that the equilibrium distribution is composed. The volume fraction is implemented only into the zeroth population, what makes the pressure calculation more stable, but allows application of this model only by volume fractions above 0.5. This model fits the majority of porous flows, but is not universally applicable for all multiphase flows. Although Höcker et al. [31] and Maier et al. [32] correct the zeroth moment on the lattice Boltzmann level, the CE expansion of this method in case of strongly varying local volume fractions is not fulfilled. The simplest and most uniform VANSE LBM is suggested by Zhang et al. [33]. The method fits cases with temporally and spatially varying volume fractions except for the pressure distribution. To the knowledge of the present authors, the pressure discrepancy in [33] due to an inconsistent zeroth moment interpretation in the there performed CE expansion. This in turn leads to a density calculation which changes pressure correction forces and the pressure itself. Based on the preceding approaches, the present work proposes a consistent way of the numerical VANSE solution with lattice Boltzmann methods for one, two, and three dimensions. The paper is structured as follows. First, the principles of VANSE and the corresponding LBM scheme are derived in Section 2. In particular, the novel population moments are presented and locally varying void fractions are taken into account. In Section 3, the validation of the new correction is performed on stationary and transient examples with spatially changing volume fractions between 0.1 and 0.9. The numerical results suggest a second order convergence of flow velocity and pressure. Section 4 draws conclusions and suggests future research. At last, the CE expansion, formally proving the approximation of the VANSE with the present LBM up to higher order terms, is detailed in Appendix A.
+2. Methodology
+2.1. Volume averaged Navier–Stokes equations
+If subgrid particles are contained in the regarded control volume, any quantity of a fluid phase can be adjusted to the whole volume, which also includes these particles. Below, this adjustment is called volume averaging, denoted with 〈·〉, and can be written as follows for any fluid quantity q , where indicates the corresponding phase. Let V denote the whole cell volume and V the volume which is occupied by phase , hence
+∑
+V = V . (1)
+The ratio of these volumes is defined via the respective void fraction
+φ =V
+V . (2)
+In the following, volume averaged scalars are denoted with · ̃ and volume averaged vectors with ·. Thus, for scalars q and vectors s we define
+φ q ̃ = 〈q 〉 ≡ 1
+V
+∫
+V
+q dV , (3)
+φ ρ ̃ s = 〈ρ s 〉. (4)
+By volume averaging all terms of the NSE, the VANSE are deduced [4,5]
+2
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Table 1
+Lattice discretization parameters of D2Q 9.
+Directions i Normalized lattice velocity ξ i Lattice weights wi
+0 (0, 0) 4/9 1, 2, 3, 4 (±1, 0), (0, ±1) 1/9 5, 6, 7, 8 (±1, ±1) 1/36
+∂t(φ ρ ̃ ) + ∇ · (φ ρ ̃ u ) = 0, (5)
+∂t(φ ρ ̃ u ) + ∇ · (φ ρ ̃ u u ) + φ ∇ ̃p = ν∇ · (φ ρ ̃ (∇u + u ∇)) + φ F , (6)
+where ρ ̃ and u denote the volume averaged versions of the fluid density and the velocity, respectively. The pressure  ̃p is common for all phases in the system.
+2.2. Lattice Boltzmann scheme for volume averaged Navier–Stokes equations
+In the following, equations (5) and (6) are approximated with an LBM based on Bhatnagar–Gross–Krook (BGK) collision [34] and Guo et al. forcing [35] on two- and three-dimensional D2Q 9 and D3Q 27 lattices. One-dimensional stencils are also discussed but not focused here. The discrete velocity sets are visualized in Figs. 1 and 2. The corresponding discretization parameters are given in Tables 1 and 2, respectively.
+y
+x
+Fig. 1. Schematic view of the D2Q 9 discrete velocity set.
+Unless stated otherwise, i = 0, 1, . . . , 26 denotes the population index. The space-time discrete lattice Boltzmann equation (LBE) reads
+fi(x + ξ i t, t + t) = fi(x, t) + t
+τ ( f eq
+i (x, t) − fi(x, t)) + F
+i . (7)
+y
+x z
+Fig. 2. Schematic view of the D3Q 27 discrete velocity set.
+3
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Table 2
+Lattice discretization parameters of D3Q 27.
+Directions i Normalized lattice velocity ξ i Lattice weights wi
+0 (0, 0) 8/27 1, 2, . . . , 6 (±1, 0, 0), (0, ±1, 0), (0, 0, ±1) 2/27 7, 8, . . . , 18 (±1, ±1, 0), (±1, 0, ±1), (0, ±1, ±1) 1/54 19, 20, . . . , 26 (±1, ±1, ±1) 1/216
+The equilibrium particle distribution function used by Zhang et al. [33] as well as by Höcker et al. [31] and Maier [32] is simple, universal for all populations from 0 to 26, and stable for all possible volume fraction values. It is the common, second order truncated Maxwell equilibrium, multiplied with the local volume fraction.
+f eq
+i (x, t) = wiρ ̃ φ
+(
+1 + ξiαuα
+cs2
++ (ξiαξiβ − cs2δαβ )uα uβ
+2cs4
+)
+(8)
+After the first time step, ρ ̃ φ is replaced by the zeroth population moment ∑
+i fi . The standard LBM presupposes the constant density of the fluid, which is typically fulfilled e.g. in multiphase or porous flows. In contrast, if the constant density is multiplied with the spatially and temporally varying volume fraction, the result is not constant anymore. The density in lattice units takes usually the value of 1, whereas the volume fraction can vary between 0 and 1, such that the effective density considered here in turn is varying also between 0 and 1. Taking into account the streaming of effective densities along the lattice directions, the new form of the equilibrium distribution function is then after the first collision
+f eq
+i (x, t) = wi
+⎛
+⎝
+∫
+V
+ρ ̃ (x, t)φ (x, t)dV
+⎞
+⎠
+⎛
+⎝1 + ξiα uα
+cs2
++ (ξiαξiβ − cs2δαβ )uα uβ
+2cs4
+⎞
+⎠ . (9)
+In equation (8), the first term in brackets is the zeroth moment of the populations which includes both, the pressure as density fluctuations and the void fraction through streaming. Two different cases can be distinguished, namely
+∇φ < ∇ρ ̃ or ∇φ ≥ ∇ρ ̃ . (10)
+In the first case (∇φ < ∇ρ ̃ ) the method of Zhang et al. [33] is suitable without any modifications. Thus, the expression
+ρ ̃ =
+∑
+i fi
+φ (x, t) (11)
+for the effective density is sufficient for second order pressure convergence. In the second case of (10) (∇φ ≥ ∇ρ ̃ ) the change of void fraction over the cell can not be neglected and hence should be considered by the density moment. Based on that, we define the new effective density and velocity as
+ρ ̃ =
+∑
+i fi
+∫
+V φ (x, t)dV , (12)
+u=
+∑
+i ξi fi
+∑
+i fi
++t
+2
+∑
+k Fk
+∑
+i fi
+, (13)
+respectively. The density definition uses for the volume fraction integration the neighboring cell data, which is considered
+further below. Due to Guo et al. forcing scheme [35], the velocity u contains the sum of forces used in the example ∑
+k Fk. Further, the forcing term is defined as
+F
+i=
+(
+1− t
+2τ
+)
+wi
+( ξiα
+cs2
++ (ξiαξiβ − cs2δαβ )uβ
+cs4
+)∑
+k
+Fkα. (14)
+The sum ∑
+k Fkα includes the phase interaction forces and the pressure correction force proposed by Zhang et al. [33]
+F PC =  ̃p∇φ = ρ ̃ c2
+s ∇φ . (15)
+This correction force adjusts the pressure term in the momentum equation, which is ∇(φ  ̃p) according to the CE expansion of Zhang et al. equilibrium particle distribution and should be φ ∇ ̃p as in VANSE. The phase interaction forces are for example in the case of a particle-laden flow given by the drag, lift, gravity, virtual mass and turbulence interaction forces. These interaction forces are not considered in the present work due to the focus on model validation. Note that the consistent incorporation of the neglected forces can be done with Guo et al. forcing scheme alongside the pressure correction.
+4
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Table 3
+Quadrature weights for void fraction integration over a lattice cell.
+Dimensions 0 i=0
+d = 1 1/2 1/4 d = 2 1/3 1/6 d = 3 1/6 5/36
+Hence, without loss of generality we assume that ∑
+k F k = F PC. Further, the gradient of volume fraction appearing in (15) is discretized through central differences, thus for example in two dimensions
+∇φ ≈ 1
+2x
+(
+φx+1 − φx−1
+φy+1 − φy−1
+)
+. (16)
+Here, we choose central differences to match the overall second order accuracy of the numerical scheme. The above-mentioned effective density is part of the equilibrium distribution function, and hence propagates from and
+to the neighbor lattice cells (cf. (8) → cf. (9)), such that volume fraction becomes integrated over the cell volume ρ ̃ φ →
+ρ ̃ ∫
+V φ (x, t)dV . Each cell contains own distinct effective density and different density values at the interfaces, calculated by integration with the neighbor cells effective densities. For the discretized integral calculations we use quadrature rules
+∫
+V
+φ (x, t)dV =
+N ∑
+i
+i(N)φ (x − ξ i t, t) (17)
+which are rearranged to
+N ∑
+i
+i(N)φ (x − ξ i t, t) =
+(
+i=0(N)∇2φ + φ
+)
+(x, t) , (18)
+respectively. The number of quadrature points N is dependent on the void fraction variation directions number. Hereby the diagonal directions are not considered. In particular, the volume fraction integration is performed on the D1Q 3 lattice if the volume fraction changes only in one direction, on the D2Q 5 lattice if in two and on D3Q 7 if in all three directions. In (17) and (18) N is equal to Q . It is to be noted that the weighting factors, which are listed in Table 3, do not conform to the weights of a discrete velocity set. For x → 0, the term ∇2φ in equation (18) nulls out and the integration becomes equal to the local void fraction value, which leads back to the model of Zhang et al. [33]. For the second case of (10) the equilibrium moments with varying local volume fractions are thus computed via (9), (12), (13), and (18) in a separately regarded lattice cell in the pre-collision state to
+M eq
+0 =∑
+i
+f eq
+i = ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+)
+, (19)
+M eq
+1α = ∑ i
+ξiα f eq
+i = ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+)
+u , (20)
+M eq
+2αβ = ∑ i
+ξiα ξiβ f eq
+i = ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+)
+uαuβ
++ ρ ̃ c2
+s
+(
+φ (x, t) + i=0(N)∇2φ
+)
+, (21)
+M eq
+3αβγ = ∑ i
+ξiα ξiβ ξ jγ f eq
+i = ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+)
+u δαβγ . (22)
+Finally, using these moments, a CE expansion (see Appendix A) of the above proposed lattice Boltzmann scheme yields formal consistency towards the VANSE (5), (6).
+3. Numerical validation
+The numerical validation of the proposed LBM for VANSE is performed on a stationary and a transient example. Both examples are built with the method of manufactured solutions (MMS) [36]. Thereby, analytical functions for volume fraction, fluid velocity and pressure are chosen, s.t. they fulfill the mass conservation law of VANSE. For these fixed functions φ , u , p ̃i , the MMS force is calculated with central finite differences to
+5
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+F MMS = ∂t
+(
+φ ρ ̃ u
+)
++∇·
+(
+φ ρ ̃ u u
+)
++ φ ∇ p ̃i
+− ν∇ ·
+(
+φ ρ ̃
+(
+∇u + u ∇
+))
+, (23)
+including all terms of the momentum equation. This force is used as forcing term in the LBE (7) together with the pressure correction force ∑
+k
+F k = F MMS + F PC. (24)
+The examples are evaluated through several error measurements. The errors correspond to L1-, L2- and L∞-norms over nodal values of velocity and pressure deviations between the simulated and the prescribed data [37], i.e.
+rL1
+(q ) = 1
+Nnode
+Nnode
+∑
+c=1
+∣∣∣qc − q ,
+c
+∣∣∣ , (25)
+rL2
+(q ) =
+√√√√ 1
+Nnode
+Nnode
+∑
+c=1
+∣∣∣qc − q ,
+c
+∣∣∣
+2
+, (26)
+rL∞
+(q ) = max
+c=1,..,Nnode
+∣∣∣qc − q ,
+c
+∣∣∣ , (27)
+respectively, where q , denotes the corresponding analytical solution. The solutions of the VANSE are chosen for time independent and time dependent cases, constructed similarly to ones of Blais et al. [38] and Höcker et al. [31]. The here tested configurations are summarized as follows.
+1. Stationary two-dimensional example:
+φ = 0.5 + 0.4 sin (π x) sin (π y), (28)
+u =2
+( −(sin (π x))2 sin (π y) cos (π y) (sin (π y))2 sin (π x) cos (π x)
+)
+, (29)
+p ̃ = sin (π x) sin (π y). (30)
+2. Stationary three-dimensional example:
+φ = 0.5 + 0.4 sin (π x) sin (π y) sin (π z), (31)
+u=
+⎛
+⎝
+(sin (π x))2 sin (π y) cos (π y) sin (π z) cos (π z) (sin (π y))2 sin (π x) cos (π x) sin (π z) cos (π z) −2(sin (π z))2 sin (π x) cos (π x) sin (π y) cos (π y)
+⎞
+⎠ , (32)
+p ̃ = sin (π x) sin (π y) sin (π z). (33)
+3. Transient one-dimensional example:
+φ = 0.5 + 0.4 sin (π (x − 0.5t)), (34)
+u=
+(
+0.5 + 1
+φ 0
+)
+, (35)
+p ̃ = sin (π (x − 0.5t)). (36)
+4. Transient two-dimensional example:
+φ = 0.5 + 0.4 sin (π (x − 0.5t)) sin (π (y − 0.5t)), (37)
+u=
+( 0.5 + 1
+φ
+0.5 + 1
+φ
+)
+, (38)
+p ̃ = sin (π (x − 0.5t)) sin (π (y − 0.5t)). (39)
+6
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Fig. 3. Stationary three-dimensional velocity and porosity distribution of Example 2.
+Fig. 4. Transient three-dimensional velocity and porosity distribution of Example 5.
+5. Transient three-dimensional example:
+φ = 0.5 + 0.4 sin (π (x − 0.5t)) sin (π (y − 0.5t)) sin (π (z − 0.5t)), (40)
+u=
+⎛
+⎜⎝
+0.5 + 1
+φ
+0.5 + 1
+φ
+0.5 + 1
+φ
+⎞
+⎟⎠ , (41)
+p ̃ = sin (π (x − 0.5t)) sin (π (y − 0.5t)) sin (π (z − 0.5t)). (42)
+The spatial simulation domain comprises 2 m in each coordinate direction with periodic boundary conditions in every example. The fluid density is set to 1kg/m3 and the kinematic viscosity to 0.1m2/s. The relaxation time is held constant by all resolutions under diffusive scaling and is equal to 0.53 for the stationary and 0.5075 for the transient examples. Exemplary solutions are visualized in Fig. 3 for the stationary three-dimensional example 2 and in Fig. 4 for the transient three-dimensional example 5. The convergence plots for the examples in each error norm are shown in Figs. 5, 6, 7, 8, and 9, respectively. All examples are evaluated after the state stabilized and error norms remained asymptotically constant. It is to be noted that also the error norms reach a steady state after sufficiently long simulation time. This is due to the periodic boundary condition and constant maximal and minimal variable values that change only in position but not the amplitude. In Figs. 5, 6, 7, 8, and 9 we observe the same experimental convergence order of two in every norm type for the velocity as well as the pressure error. The absolute pressure deviation is not scaling by an increase of the target pressure values, so that the relative pressure can be made small enough. The results above clarify that the proposed LBM model for approximating VANSE converges with second order and thus is validly consistent in the present numerical tests.
+7
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Fig. 5. Error measurements for (a) velocity and (b) pressure of the stationary two-dimensional Example 1.
+Fig. 6. Error measurements for (a) velocity and (b) pressure of the stationary three-dimensional Example 2.
+Fig. 7. Error measurements for (a) velocity and (b) pressure of the transient one-dimensional Example 3.
+Fig. 8. Error measurements for (a) velocity and (b) pressure of the transient two-dimensional Example 4.
+8
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Fig. 9. Error measurements for (a) velocity and (b) pressure of the transient three-dimensional Example 5.
+4. Conclusion
+We establish a novel LBM for approximating the VANSE. The present LBM is formulated with an appropriate equilibrium distribution and pressure correction forcing term. The new moments of these equilibria function and forcing terms, which take into account the local and temporal varying void fractions, are provided and justified. This unconventional point of view is based on considering streaming of the effective density from cell to cell. In particular, the population moments taken at one lattice cell include the effective density streamed from the neighbor cell in the chosen direction, so that a finite differences scheme is applicable. The numerical validation of the proposed LBM is performed on steady and transient examples, which are composed with MMS. Under the premise of diffusive scaling by refinement of the lattice resolution, the second order convergence of the fluid velocity and the pressure is approved. Finally, the presented CE expansion formally validates the pressure correction forcing term via cancellation of moments with corresponding terms. Based on that, the expansion recovers the VANSE. In future studies the proposed LBM is to be extended to a full multiphase Eulerian model with phase interaction forces. Due to the intrinsic computing efficiency and optimal parallelizability of LBM, large eddy simulations [39] of complex entire reactor geometries with Eulerian multiphase LBM will become feasible. A second necessary extension of the model is the accounting for mass transfer between phases. At last, in combination with stabilization techniques [40], the proposed method could also be applied to turbulent flow regimes. Conclusively, the planned future research might render the multiphase LBM to an equal competitor of common FVM which is typically used in industrial solvers.
+CRediT authorship contribution statement
+Fedor Bukreev: Conceptualization, Data curation, Formal analysis, Investigation, Resources, Validation, Writing – original draft. Stephan Simonis: Data curation, Formal analysis, Investigation, Methodology, Project administration, Supervision, Validation, Writing – review & editing. Adrian Kummerländer: Software, Supervision. Julius Jeßberger: Writing – review & editing. Mathias J. Krause: Formal analysis, Project administration, Resources, Software.
+Declaration of competing interest
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+Data availability
+Data will be made available on request.
+Acknowledgement
+This work was performed on the HoreKa supercomputer funded by the Ministry of Science, Research and the Arts BadenWürttemberg and by the Federal Ministry of Education and Research. The current research is a part of the DFG project number 436212129 “Increase of efficiency in phosphate recovery by understanding the interaction of flow and loading processes with modeling and simulation”.
+Appendix A. Chapman–Enskog analysis
+Below, we formally prove consistency of the above proposed LBE (7) w.r.t. the targeted VANSE (5) and (6) up to higher order terms. The following CE expansion is based on the classical results for the diffusion limit towards the incompressible NSE as summarized for example in [9] and references therein.
+9
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+Let > 0 denote a label parameter for the Knudsen number Kn, and all other quantities be defined as above. We make the expansion ansatz
+⎧⎪⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎪⎩
+fi =
+∞ ∑
+k=0
+k f (k)
+i,
+∂t = ∂(1)
+t + 2∂ (2)
+t, ∇ = ∇(1),
+F
+i = F ,(1)
+i.
+(A.1)
+Taylor expanding the LBE (7) yields
+t(∂t + ξ i · ∇) fi + t2
+2 (∂t + ξ i · ∇)2 fi = − t
+τ f neq
+i +tF
+i + O( t3), (A.2)
+where t and τ are fixed and f neq
+i = fi − f eq
+i . Subsequent to injecting (A.1), the resulting version of (A.2) can be separated into different -orders, respectively
+O( 0):
+f (0)
+i = f eq
+i , (A.3)
+O( 1):
+(∂ (1)
+t + ξ i · ∇(1)) f (0)
+i =−1
+τ f (1)
+i + F ,(1)
+i , (A.4)
+O( 2):
+∂ (2)
+t f (0)
+i+
+(
+1− t
+2τ
+)
+(∂ (1)
+t + ξ i · ∇(1))
+(
+f (1)
+i+t
+2
+F ,(1) i
+)
+=−1
+τ f (2)
+i . (A.5)
+Here and in the following, we neglect derivative terms of order k ≥ 3 due to the smallness argument tk(∂t + i · ∇)k fi ∼
+O(Knk), as explained in detail in [9]. The pressure forcing term moments, taken in one lattice cell, are
+M F ,(1)
+0 =∑
+i
+F PC
+i = 0, (A.6)
+M F ,(1)
+1α = ∑ i
+ξiα FPC
+i=
+(
+1− t
+2τ
+)
+FPC,α =
+(
+1− t
+2τ
+)
+p∇φ, (A.7)
+M F ,(1)
+2αβ = ∑ i
+ξiα ξiβ
+F PC
+i=
+(
+1− t
+2τ
+)
+(FPC,α uβ + uα FPC,β ). (A.8)
+Note that
+M (1)
+0 =− t
+2
+(
+1− t
+2τ
+) M F ,(1)
+0 = 0, (A.9)
+M (1)
+1α = − t
+2
+(
+1− t
+2τ
+) M F ,(1)
+1α = − t
+2 FPC,α , (A.10)
+and for k ≥ 2 is assumed
+M (k)
+0 =∑
+i
+f (k)
+i =0=∑
+i
+ξiα f (k)
+i = M(k)
+1α . (A.11)
+Taking the zeroth, first and second order moments of (A.4) and the zeroth and first ones of (A.5), and substituting the notation of (19)–(22) and (A.6)–(A.8), we obtain respectively
+O( 1):
+∂ (1)
+t M(0)
+0 + ∇(1) M(0)
+1α = 0, (A.12)
+∂ (1)
+t M(0)
+1α + ∇(1) M(0)
+2αβ = − 1
+τ M(1)
+1α + M F ,(1)
+1α , (A.13)
+∂ (1)
+t M(0)
+2αβ + ∇(1) M(0)
+3αβγ = − 1
+τ M(1)
+2αβ + M F ,(1)
+2αβ (A.14)
+10
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+O( 2):
+∂ (2)
+t M(0)
+0 = 0, (A.15)
+∂ (2)
+t M(0)
+1α +
+(
+1− t
+2τ
+)
+∇(1) M(1)
+2αβ = − t
+2 ∇(1)
+(
+1− t
+2τ
+)
+M F ,(1)
+2αβ . (A.16)
+Thus, the recombination (A.12) + (A.15) and (A.13) + (A.16) yields
+∂t M(0)
+0 + ∇(1) M(0)
+1α = 0 (A.17)
+and
+∂t M(0)
+1α + ∇(1) M(0)
+2αβ +
+(
+1− t
+2τ
+)
+∇(1) M(1)
+2αβ
+=−1
+τ M(1)
+1α + M F ,(1)
+1α − t
+2
+(
+1− t
+2τ
+)
+∇(1) M F ,(1)
+2αβ , (A.18)
+respectively. Under the diffusion limit assumption t ∼ x2 → 0 when refining the spatial mesh x → 0, we rewrite (A.17) and (A.18) as
+∂t M(0)
+0 + ∇(1) M(0)
+1α = 0, (A.19)
+∂t M(0)
+1α + ∇(1) M(0)
+2αβ = − 1
+τ M(1)
+1α + M F ,(1)
+1α −
+(
+1− t
+2τ
+)
+∇(1) M(1)
+2αβ . (A.20)
+We substitute the moment notation to recover
+∂t
+(ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+))
++∇·
+(ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+) u
+)
+= 0, (A.21)
+∂t
+(ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+) u
+)
++∇·
+(ρ ̃
+(
+φ (x, t) + i=0(N)∇2φ
+)
+uu
+)
++∇
+(ρ ̃ c2
+s
+(
+φ (x, t) + i=0(N)∇2φ
+))
+=−
+(
+1− t
+2τ
+)
+∇ M (1)
+2αβ + ρ ̃ c2
+s ∇φ . (A.22)
+Via reordering (A.14) and deletion of higher order terms, we unfold
+M (1)
+2αβ = c2
+s φ ρ ̃ (∇u + u ∇). (A.23)
+The derivatives of third order and higher are to be neglected [9]. The terms with t are also striving of zero by infinite refinement. After insertion of the stress tensor ∇M(1)
+2αβ the VANSE are recovered up to higher order terms
+∂t(φ ρ ̃ ) + ∇ · (φ ρ ̃ u ) = 0, (A.24)
+∂t(φ ρ ̃ u ) + ∇ · (φ ρ ̃ u u ) + φ ∇ ̃p = ν∇ · (φ ρ ̃ (∇u + u ∇)) (A.25)
+where the viscosity is regained as
+ν=
+(
+τ− t
+2
+)
+c2
+s , (A.26)
+from comparison to (6).
+Appendix B. Supplementary material
+Supplementary material related to this article can be found online at https://doi.org/10.1016/j.jcp.2023.112301.
+11
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+References
+[1] W. Reschetilowski, Handbuch Chemische Reaktoren Grundlagen und Anwendungen der Chemischen Reaktionstechnik: Grundlagen und Anwendungen der Chemischen Reaktionstechnik, Springer Spektrum, Berlin, Heidelberg, 2020, https://doi.org/10.1007/978-3-662-56444-8. [2] K. Sattler, Thermische Trennverfahren, John Wiley & Sons, Ltd., 2001, https://doi.org/10.1002/3527603328.ch1a. [3] M. Bohnet, Mechanische Verfahrenstechnik, John Wiley & Sons, Ltd, 2003, https://doi.org/10.1002/9783527663569.fmatter. [4] K. Hiltunen, A. Jäsberg, S. Kallio, H. Karema, M. Kataja, A. Koponen, M. Manninen, V. Taivassalo, Multiphase Flow Dynamics: Theory and Numerics, VTT Publications, vol. 722, VTT Technical Research Centre of Finland, 2009. [5] D. Gidaspow, Multiphase Flow and Fluidization, Academic Press, San Diego, 1994, https://doi.org/10.1016/C2009-0-21244-X. [6] T. Zhu, Unsteady porous–media flow, Ph.D. thesis, Technische Universität München, 2016, https://mediatum.ub.tum.de/doc/1279870/1279870.pdf. [7] P. Pepiot, O. Desjardins, Numerical analysis of the dynamics of two- and three-dimensional fluidized bed reactors using an Euler–Lagrange approach, Powder Technol. 220 (2012) 104–121, https://doi.org/10.1016/j.powtec.2011.09.021. [8] F. Moukalled, L. Mangani, M. Darwish, The Finite Volume Method in Computational Fluid Dynamics. An Advanced Introduction with OpenFOAM and Matlab, Springer International Publishing, Switzerland, 2016, https://doi.org/10.1007/978-3-319-16874-6. [9] T. Krüger, H. Kusumaatmaja, A. Kuzmin, O. Shardt, G. Silva, E.M. Viggen, The Lattice Boltzmann Method - Principles and Practice, Springer, Cham, 2016, https://doi.org/10.1007/978-3-319-44649-3. [10] D. Hänel, Molekulare Gasdynamik: Einführung in die kinetische Theorie der Gase und Lattice-Boltzmann-Methoden, Springer, Berlin, Heidelberg, 2004, https://doi.org/10.1007/3-540-35047-0. [11] J. Li, Appendix: Chapman-Enskog expansion in the lattice Boltzmann method, https://doi.org/10.48550/ARXIV.1512.02599, https://arxiv.org/abs/1512. 02599, 2015. [12] S. Simonis, M.J. Krause, Limit consistency of lattice Boltzmann equations, arXiv preprint, https://doi.org/10.48550/arXiv.2208.06867, https://arxiv.org/ abs/2208.06867, 2022. [13] S. Simonis, Lattice Boltzmann Methods for Partial Differential Equations, Ph.D. thesis, Karlsruhe Institute of Technology (KIT), 2023, to appear. [14] S. Simonis, D. Oberle, M. Gaedtke, P. Jenny, M.J. Krause, Temporal large eddy simulation with lattice Boltzmann methods, J. Comput. Phys. 454 (2022) 110991, https://doi.org/10.1016/j.jcp.2022.110991. [15] S. Simonis, M. Haussmann, L. Kronberg, W. Dörfler, M.J. Krause, Linear and brute force stability of orthogonal moment multiple-relaxation-time lattice Boltzmann methods applied to homogeneous isotropic turbulence, Philos. Trans. R. Soc. A 379 (2208) (2021) 20200405, https://doi.org/10.1098/rsta. 2020.0405. [16] M. Haussmann, S. Simonis, H. Nirschl, M.J. Krause, Direct numerical simulation of decaying homogeneous isotropic turbulence—numerical experiments on stability, consistency and accuracy of distinct lattice Boltzmann methods, Int. J. Mod. Phys. C 30 (09) (2019) 1950074, https://doi.org/10.1142/ S0129183119500748. [17] M. Siodlaczek, M. Gaedtke, S. Simonis, M. Schweiker, N. Homma, M.J. Krause, Numerical evaluation of thermal comfort using a large eddy lattice Boltzmann method, Build. Environ. 192 (2021) 107618, https://doi.org/10.1016/j.buildenv.2021.107618. [18] S. Simonis, M. Frank, M.J. Krause, On relaxation systems and their relation to discrete velocity Boltzmann models for scalar advection–diffusion equations, Philos. Trans. R. Soc. A 378 (2175) (2020) 20190400, https://doi.org/10.1098/rsta.2019.0400. [19] D. Dapelo, S. Simonis, M.J. Krause, J. Bridgeman, Lattice-Boltzmann coupled models for advection–diffusion flow on a wide range of Péclet numbers, J. Comput. Sci. 51 (2021) 101363, https://doi.org/10.1016/j.jocs.2021.101363. [20] S. Simonis, M. Frank, M.J. Krause, Constructing relaxation systems for lattice Boltzmann methods, Appl. Math. Lett. 137 (2023) 108484, https://doi.org/ 10.1016/j.aml.2022.108484. [21] S. Simonis, J. Nguyen, S.J. Avis, W. Dörfler, M.J. Krause, Binary fluid flow simulations with free energy lattice Boltzmann methods, Discrete Contin. Dyn. Syst., Ser. S (2023), https://doi.org/10.3934/dcdss.2023069. [22] A. Mink, K. Schediwy, C. Posten, H. Nirschl, S. Simonis, M.J. Krause, Comprehensive computational model for coupled fluid flow, mass transfer, and light supply in tubular photobioreactors equipped with glass sponges, Energies 15 (20) (2022), https://doi.org/10.3390/en15207671. [23] S. Simonis, M.J. Krause, Forschungsnahe Lehre unter Pandemiebedingungen, Mitt. Dtsch. Math.-Ver. 30 (1) (2022) 43–45, https://doi.org/10.1515/dmvm2022-0015. [24] M. Haussmann, P. Reinshaus, S. Simonis, H. Nirschl, M.J. Krause, Fluid–structure interaction simulation of a Coriolis mass flowmeter using a lattice Boltzmann method, Fluids 6 (4) (2021), https://doi.org/10.3390/fluids6040167. [25] M. Krause, A. Kummerländer, S. Avis, H. Kusumaatmaja, D. Dapelo, F. Klemens, M. Gaedtke, N. Hafen, A. Mink, R. Trunk, J. Marquardt, M.-L. Maier, M. Haussmann, S. Simonis, OpenLB—open source lattice Boltzmann code, Comput. Math. Appl. 81 (2020) 258–288, https://doi.org/10.1016/j.camwa.2020. 04.033. [26] A. Kummerländer, S. Avis, H. Kusumaatmaja, F. Bukreev, D. Dapelo, S. Großmann, N. Hafen, C. Holeksa, A. Husfeldt, J. Jeßberger, L. Kronberg, J. Marquardt, J. Mödl, J. Nguyen, T. Pertzel, S. Simonis, L. Springmann, N. Suntoyo, D. Teutscher, M. Zhong, M.J. Krause, OpenLB release 1.5: open source lattice Boltzmann code (2022), https://doi.org/10.5281/zenodo.6469606. [27] A. Kummerländer, S. Avis, H. Kusumaatmaja, F. Bukreev, M. Crocoll, D. Dapelo, N. Hafen, S. Ito, J. Jeßberger, J.E. Marquardt, J. Mödl, T. Pertzel, F. Prinz, F. Raichle, M. Schecher, S. Simonis, D. Teutscher, M.J. Krause, OpenLB release 1.6: open source lattice Boltzmann code (2023), https://doi.org/10.5281/ zenodo.7773497. [28] M. Haussmann, F. Ries, J.B. Jeppener-Haltenhoff, Y. Li, M. Schmidt, C. Welch, L. Illmann, B. Böhm, H. Nirschl, M.J. Krause, A. Sadiki, Evaluation of a near-wall-modeled large eddy lattice Boltzmann method for the analysis of complex flows relevant to IC engines, Computation 8 (2) (2020), https:// doi.org/10.25534/tuprints-00013372. [29] Z. Guo, T. Zhao, Lattice Boltzmann model for incompressible flows through porous media, Phys. Rev. E 66 (2002) 036304, https://doi.org/10.1103/ PhysRevE.66.036304. [30] B. Blais, J.-M. Tucny, D. Vidal, F. Bertrand, A conservative lattice Boltzmann model for the volume-averaged Navier–Stokes equations based on a novel collision operator, J. Comput. Phys. 294 (2015) 258–273, https://doi.org/10.1016/j.jcp.2015.03.036. [31] S. Höcker, R. Trunk, W. Dörfler, M. Krause, Towards the simulations of inertial dense particulate flows with a volume-averaged lattice Boltzmann method, Comput. Fluids 166 (2018) 152–162, https://doi.org/10.1016/j.compfluid.2018.02.011. [32] M.-L. Maier, Coupled lattice Boltzmann and discrete element method for reactive particle fluid flows with applications in process engineering, Ph.D. thesis, Karlsruher Institut für Technologie (KIT), 2021, https://doi.org/10.5445/IR/1000132643. [33] J. Zhang, L. Wang, J. Ouyang, Lattice Boltzmann model for the volume-averaged Navier-Stokes equations, Europhys. Lett. 107 (2014) 20001, https:// doi.org/10.1209/0295-5075/107/20001. [34] P.L. Bhatnagar, E.P. Gross, M. Krook, A model for collision processes in gases. I. Small amplitude processes in charged and neutral one-component systems, Phys. Rev. E 94 (1954) 511, https://doi.org/10.1103/PhysRev.94.511. [35] Z. Guo, C. Zheng, B. Shi, Discrete lattice effects on the forcing term in the lattice Boltzmann method, Phys. Rev. E 65 (2002) 046308, https://doi.org/10. 1103/PhysRevE.65.046308. [36] P. Roache, Code verification by the method of manufactured solutions, J. Fluids Eng. 124 (2002) 4, https://doi.org/10.1115/1.1436090.
+12
+
+
+F. Bukreev, S. Simonis, A. Kummerländer et al. Journal of Computational Physics 490 (2023) 112301
+[37] W. Oberkampf, C. Roy, Verification and Validation in Scientific Computing, Cambridge University Press, 2010, https://doi.org/10.1017/ CBO9780511760396. [38] B. Blais, F. Bertrand, On the use of the method of manufactured solutions for the verification of CFD codes for the volume-averaged Navier–Stokes equations, Comput. Fluids 114 (2015) 121–129, https://doi.org/10.1016/j.compfluid.2015.03.002. [39] J. Smagorinsky, General circulation experiments with the primitive equations: I. The basic experiment, Mon. Weather Rev. 91 (3) (1963) 99–164, https://doi.org/10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2. [40] D. Ricot, S. Marié, P. Sagaut, C. Bailly, Lattice Boltzmann method with selective viscosity filter, J. Comput. Phys. 228 (2009) 4478–4490.
+13

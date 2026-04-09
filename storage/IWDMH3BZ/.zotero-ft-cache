@@ -1,0 +1,2998 @@
+Springer Series in 8
+Computational
+Mathematics
+Editorial Board
+R. Bank R.L. Graham J. Stoer R. Varga H. Yserentant
+
+
+E. Hairer
+S. P. Nørsett
+G. Wanner
+Solving Ordinary Differential Equations I
+Nonstiff Problems
+Second Revised Edition With 135 Figures
+123
+
+
+Ernst Hairer Gerhard Wanner
+Université de Genève Section de Mathématiques 2–4 rue du Lièvre 1211 Genève 4 Switzerland Ernst.Hairer@math.unige.ch Gerhard.Wanner@math.unige.ch
+Syvert P. Nørsett
+Norwegian University of Science and Technology (NTNU) Department of Mathematical Sciences 7491 Trondheim Norway norsett@math.ntnu.no
+Corrected 3rd printing 2008
+ISBN 978-3-540-56670-0 e-ISBN 978-3-540-78862-1
+DOI 10.1007/978-3-540-78862-1
+Springer Series in Computational Mathematics ISSN 0179-3632
+Library of Congress Control Number: 93007847
+Mathematics Subject Classification (2000): 65Lxx, 34A50
+© 1993, 1987 Springer-Verlag Berlin Heidelberg
+This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, 1965, in its current version, and permission for use must always be obtained from Springer. Violations are liable to prosecution under the German Copyright Law.
+The use of general descriptive names, registered names, trademarks, etc. in this publication does not imply, even in the absence of a specific statement, that such names are exempt from the relevant protective laws and regulations and therefore free for general use.
+Cover design: WMX Design GmbH, Heidelberg Typesetting: by the authors Production: LE-TEX Jelonek, Schmidt & Vöckler GbR, Leipzig
+Printed on acid-free paper
+987654321
+springer.com
+
+
+This edition is dedicated to
+Professor John Butcher
+on the occasion of his 60th birthday
+His unforgettable lectures on Runge-Kutta methods, given in June 1970 at the University of Innsbruck, introduced us to this subject which, since then, we have never ceased to love and to develop with all our humble abilities.
+
+
+From the Preface to the First Edition
+So far as I remember, I have never seen an Author’s Preface which had any purpose but one — to furnish reasons for the publication of the Book. (Mark Twain)
+Gauss’ dictum, “when a building is completed no one should be able to see any trace of the scaffolding,” is often used by mathematicians as an excuse for neglecting the motivation behind their own work and the history of their field. Fortunately, the opposite sentiment is gaining strength, and numerous asides in this Essay show to which side go my sympathies. (B.B. Mandelbrot 1982)
+This gives us a good occasion to work out most of the book until the next year. (the Authors in a letter, dated Oct. 29, 1980, to Springer-Verlag)
+There are two volumes, one on non-stiff equations, . . ., the second on stiff equations, . . . . The first volume has three chapters, one on classical mathematical theory, one on Runge-Kutta and extrapolation methods, and one on multistep methods. There is an Appendix containing some Fortran codes which we have written for our numerical examples. Each chapter is divided into sections. Numbers of formulas, theorems, tables and figures are consecutive in each section and indicate, in addition, the section number, but not the chapter number. Cross references to other chapters are rare and are stated explicitly. . . . References to the Bibliography are by “Author” plus “year” in parentheses. The Bibliography makes no attempt at being complete; we have listed mainly the papers which are discussed in the text. Finally, we want to thank all those who have helped and encouraged us to prepare this book. The marvellous “Minisymposium” which G. Dahlquist organized in Stockholm in 1979 gave us the first impulse for writing this book. J. Steinig and Chr. Lubich have read the whole manuscript very carefully and have made extremely valuable mathematical and linguistical suggestions. We also thank J.P. Eckmann for his troff software with the help of which the whole manuscript has been printed. For preliminary versions we had used textprocessing programs written by R. Menk. Thanks also to the staff of the Geneva computing center for their help. All computer plots have been done on their beautiful HP plotter. Last but not least, we would like to acknowledge the agreable collaboration with the planning and production group of Springer-Verlag.
+October 29, 1986 The Authors
+
+
+VIII Preface
+Preface to the Second Edition
+The preparation of the second edition has presented a welcome opportunity to improve the first edition by rewriting many sections and by eliminating errors and misprints. In particular we have included new material on
+– Hamiltonian systems (I.14) and symplectic Runge-Kutta methods (II.16);
+– dense output for Runge-Kutta (II.6) and extrapolation methods (II.9);
+– a new Dormand & Prince method of order 8 with dense output (II.5);
+– parallel Runge-Kutta methods (II.11);
+– numerical tests for first- and second order systems (II.10 and III.7). Our sincere thanks go to many persons who have helped us with our work:
+– all readers who kindly drew our attention to several errors and misprints in the first edition;
+– those who read preliminary versions of the new parts of this edition for their invaluable suggestions: D.J. Higham, L. Jay, P. Kaps, Chr. Lubich, B. Moesli, A. Ostermann, D. Pfenniger, P.J. Prince, and J.M. Sanz-Serna.
+– our colleague J. Steinig, who read the entire manuscript, for his numerous mathematical suggestions and corrections of English (and Latin!) grammar;
+– our colleague J.P. Eckmann for his great skill in manipulating Apollo workstations, font tables, and the like;
+– the staff of the Geneva computing center and of the mathematics library for their constant help;
+– the planning and production group of Springer-Verlag for numerous suggestions on presentation and style. This second edition now also benefits, as did Volume II, from the marvels of TEXnology. All figures have been recomputed and printed, together with the text, in Postscript. Nearly all computations and text processings were done on the Apollo DN4000 workstation of the Mathematics Department of the University of Geneva; for some longtime and high-precision runs we used a VAX 8700 computer and a Sun IPX workstation.
+November 29, 1992 The Authors
+
+
+Contents
+Chapter I. Classical Mathematical Theory
+I.1 Terminology . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+I.2 The Oldest Differential Equations . . . . . . . . . . . . . . . . . . . . . . . . . 4 Newton . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4 Leibniz and the Bernoulli Brothers . . . . . . . . . . . . . . . . . . . . . . . . . 6 Variational Calculus . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7 Clairaut . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+I.3 Elementary Integration Methods . . . . . . . . . . . . . . . . . . . . . . . . . . 12 First Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12 Second Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+I.4 Linear Differential Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 Equations with Constant Coefficients . . . . . . . . . . . . . . . . . . . . . . . 16 Variation of Constants . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+I.5 Equations with Weak Singularities . . . . . . . . . . . . . . . . . . . . . . . . 20 Linear Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 Nonlinear Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+I.6 Systems of Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26 The Vibrating String and Propagation of Sound . . . . . . . . . . . . . . 26 Fourier . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29 Lagrangian Mechanics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30 Hamiltonian Mechanics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34
+I.7 A General Existence Theorem . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35 Convergence of Euler’s Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35 Existence Theorem of Peano . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+I.8 Existence Theory using Iteration Methods and Taylor Series 44 Picard-Lindel ̈of Iteration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45 Taylor Series . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46 Recursive Computation of Taylor Coefficients . . . . . . . . . . . . . . . 47 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+
+
+X Contents
+I.9 Existence Theory for Systems of Equations . . . . . . . . . . . . . . . . 51 Vector Notation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52 Subordinate Matrix Norms . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+I.10 Differential Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56 The Fundamental Theorems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57 Estimates Using One-Sided Lipschitz Conditions . . . . . . . . . . . . . 60 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62
+I.11 Systems of Linear Differential Equations . . . . . . . . . . . . . . . . . . 64 Resolvent and Wronskian . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 65 Inhomogeneous Linear Equations . . . . . . . . . . . . . . . . . . . . . . . . . . 66 The Abel-Liouville-Jacobi-Ostrogradskii Identity . . . . . . . . . . . . 66 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 67
+I.12 Systems with Constant Coefficients . . . . . . . . . . . . . . . . . . . . . . . . 69 Linearization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 69 Diagonalization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 69 The Schur Decomposition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 70 Numerical Computations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72 The Jordan Canonical Form . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73 Geometric Representation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78
+I.13 Stability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 80 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 80 The Routh-Hurwitz Criterion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 81 Computational Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85 Liapunov Functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 86 Stability of Nonlinear Systems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 87 Stability of Non-Autonomous Systems . . . . . . . . . . . . . . . . . . . . . . 88 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 89
+I.14 Derivatives with Respect to Parameters and Initial Values . . . 92 The Derivative with Respect to a Parameter . . . . . . . . . . . . . . . . . . 93 Derivatives with Respect to Initial Values . . . . . . . . . . . . . . . . . . . . 95 The Nonlinear Variation-of-Constants Formula . . . . . . . . . . . . . . . 96 Flows and Volume-Preserving Flows . . . . . . . . . . . . . . . . . . . . . . . . 97 Canonical Equations and Symplectic Mappings . . . . . . . . . . . . . . 100 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 104
+I.15 Boundary Value and Eigenvalue Problems . . . . . . . . . . . . . . . . . 105 Boundary Value Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 105 Sturm-Liouville Eigenvalue Problems . . . . . . . . . . . . . . . . . . . . . . . 107 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 110
+I.16 Periodic Solutions, Limit Cycles, Strange Attractors . . . . . . . . 111 Van der Pol’s Equation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 111 Chemical Reactions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 115 Limit Cycles in Higher Dimensions, Hopf Bifurcation . . . . . . . . 117 Strange Attractors . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 120 The Ups and Downs of the Lorenz Model . . . . . . . . . . . . . . . . . . . 123 Feigenbaum Cascades . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 124 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 126
+
+
+Contents XI
+Chapter II. Runge-Kutta and Extrapolation Methods
+II.1 The First Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . . . . . 132 General Formulation of Runge-Kutta Methods . . . . . . . . . . . . . . . 134 Discussion of Methods of Order 4 . . . . . . . . . . . . . . . . . . . . . . . . . . 135 “Optimal” Formulas . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 139 Numerical Example . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 140 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 141
+II.2 Order Conditions for Runge-Kutta Methods . . . . . . . . . . . . . . . 143 The Derivatives of the True Solution . . . . . . . . . . . . . . . . . . . . . . . . 145 Conditions for Order 3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 145 Trees and Elementary Differentials . . . . . . . . . . . . . . . . . . . . . . . . . 145 The Taylor Expansion of the True Solution . . . . . . . . . . . . . . . . . . 148 Faa` di Bruno’s Formula . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 149 The Derivatives of the Numerical Solution . . . . . . . . . . . . . . . . . . . 151 The Order Conditions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 153 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 154
+II.3 Error Estimation and Convergence for RK Methods . . . . . . . . 156 Rigorous Error Bounds . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 156 The Principal Error Term . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 158 Estimation of the Global Error . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 159 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 163
+II.4 Practical Error Estimation and Step Size Selection . . . . . . . . . 164 Richardson Extrapolation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 164 Embedded Runge-Kutta Formulas . . . . . . . . . . . . . . . . . . . . . . . . . . 165 Automatic Step Size Control . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 167 Starting Step Size . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 169 Numerical Experiments . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 170 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 172
+II.5 Explicit Runge-Kutta Methods of Higher Order . . . . . . . . . . . . 173 The Butcher Barriers . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 173 6-Stage, 5 th Order Processes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 175 Embedded Formulas of Order 5 . . . . . . . . . . . . . . . . . . . . . . . . . . . . 176 Higher Order Processes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 179 Embedded Formulas of High Order . . . . . . . . . . . . . . . . . . . . . . . . . 180 An 8 th Order Embedded Method . . . . . . . . . . . . . . . . . . . . . . . . . . 181 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 185
+II.6 Dense Output, Discontinuities, Derivatives . . . . . . . . . . . . . . . . . 188 Dense Output . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 188 Continuous Dormand & Prince Pairs . . . . . . . . . . . . . . . . . . . . . . . . 191 Dense Output for DOP853 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 194 Event Location . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 195 Discontinuous Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 196 Numerical Computation of Derivatives with Respect to Initial Values and Parameters . . . . . . . . . . . . . . . . . . . . . . . . 200 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 202
+II.7 Implicit Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . 204 Existence of a Numerical Solution . . . . . . . . . . . . . . . . . . . . . . . . . . 206 The Methods of Kuntzmann and Butcher of Order 2s . . . . . . . . . 208 IRK Methods Based on Lobatto Quadrature . . . . . . . . . . . . . . . . . 210
+
+
+XII Contents
+Collocation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 211 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 214
+II.8 Asymptotic Expansion of the Global Error. . . . . . . . . . . . . . . . . 216 The Global Error . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 216 Variable h . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 218 Negative h . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 219 Properties of the Adjoint Method . . . . . . . . . . . . . . . . . . . . . . . . . . . 220 Symmetric Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 221 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 223
+II.9 Extrapolation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 224 Definition of the Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 224 The Aitken - Neville Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . 226 The Gragg or GBS Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 228 Asymptotic Expansion for Odd Indices . . . . . . . . . . . . . . . . . . . . . 231 Existence of Explicit RK Methods of Arbitrary Order . . . . . . . . . 232 Order and Step Size Control . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 233 Dense Output for the GBS Method . . . . . . . . . . . . . . . . . . . . . . . . . 237 Control of the Interpolation Error . . . . . . . . . . . . . . . . . . . . . . . . . . 240 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 241
+II.10 Numerical Comparisons. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 244 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 244 Performance of the Codes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 249 A “Stretched” Error Estimator for DOP853 . . . . . . . . . . . . . . . . . . 254 Effect of Step-Number Sequence in ODEX . . . . . . . . . . . . . . . . . . 256 II.11 Parallel Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 257 Parallel Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 258 Parallel Iterated Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . 259 Extrapolation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 261 Increasing Reliability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 261 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 263
+II.12 Composition of B-Series . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 264 Composition of Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . 264 B-Series . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 266 Order Conditions for Runge-Kutta Methods . . . . . . . . . . . . . . . . . 269 Butcher’s “Effective Order” . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 270 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 272
+II.13 Higher Derivative Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 274 Collocation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 275 Hermite-Obreschkoff Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 277 Fehlberg Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 278 General Theory of Order Conditions . . . . . . . . . . . . . . . . . . . . . . . . 280 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 281
+II.14 Numerical Methods for Second Order Differential Equations 283 Nystr ̈om Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 284 The Derivatives of the Exact Solution . . . . . . . . . . . . . . . . . . . . . . . 286 The Derivatives of the Numerical Solution . . . . . . . . . . . . . . . . . . . 288 The Order Conditions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 290 On the Construction of Nystr ̈om Methods . . . . . . . . . . . . . . . . . . . 291
+An Extrapolation Method for y′′ = f (x, y) . . . . . . . . . . . . . . . . . . 294 Problems for Numerical Comparisons . . . . . . . . . . . . . . . . . . . . . . . 296
+
+
+Contents XIII
+Performance of the Codes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 298 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 300
+II.15 P-Series for Partitioned Differential Equations . . . . . . . . . . . . . 302 Derivatives of the Exact Solution, P-Trees . . . . . . . . . . . . . . . . . . . 303 P-Series . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 306 Order Conditions for Partitioned Runge-Kutta Methods . . . . . . . 307 Further Applications of P-Series . . . . . . . . . . . . . . . . . . . . . . . . . . . 308 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 311
+II.16 Symplectic Integration Methods . . . . . . . . . . . . . . . . . . . . . . . . . . 312 Symplectic Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . . . . . 315 An Example from Galactic Dynamics . . . . . . . . . . . . . . . . . . . . . . . 319 Partitioned Runge-Kutta Methods . . . . . . . . . . . . . . . . . . . . . . . . . . 326 Symplectic Nystr ̈om Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 330 Conservation of the Hamiltonian; Backward Analysis . . . . . . . . . 333 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 337
+II.17 Delay Differential Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 339 Existence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 339 Constant Step Size Methods for Constant Delay . . . . . . . . . . . . . . 341 Variable Step Size Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 342 Stability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 343 An Example from Population Dynamics . . . . . . . . . . . . . . . . . . . . . 345 Infectious Disease Modelling . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 347 An Example from Enzyme Kinetics . . . . . . . . . . . . . . . . . . . . . . . . 248 A Mathematical Model in Immunology . . . . . . . . . . . . . . . . . . . . . 349 Integro-Differential Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 351 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 352
+Chapter III. Multistep Methods and General Linear Methods
+III.1 Classical Linear Multistep Formulas . . . . . . . . . . . . . . . . . . . . . . 356 Explicit Adams Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 357 Implicit Adams Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 359 Numerical Experiment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 361 Explicit Nystr ̈om Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 362 Milne–Simpson Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 363 Methods Based on Differentiation (BDF) . . . . . . . . . . . . . . . . . . . . 364 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 366
+III.2 Local Error and Order Conditions . . . . . . . . . . . . . . . . . . . . . . . . 368 Local Error of a Multistep Method . . . . . . . . . . . . . . . . . . . . . . . . . 368 Order of a Multistep Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 370 Error Constant . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 372 Irreducible Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 374 The Peano Kernel of a Multistep Method . . . . . . . . . . . . . . . . . . . . 375 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 377
+III.3 Stability and the First Dahlquist Barrier . . . . . . . . . . . . . . . . . . . 378 Stability of the BDF-Formulas . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 380 Highest Attainable Order of Stable Multistep Methods . . . . . . . . 383 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 387
+
+
+XIV Contents
+III.4 Convergence of Multistep Methods . . . . . . . . . . . . . . . . . . . . . . . . 391 Formulation as One-Step Method . . . . . . . . . . . . . . . . . . . . . . . . . . 393 Proof of Convergence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 395 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 396
+III.5 Variable Step Size Multistep Methods . . . . . . . . . . . . . . . . . . . . . 397 Variable Step Size Adams Methods . . . . . . . . . . . . . . . . . . . . . . . . . 397
+Recurrence Relations for gj (n) , Φj (n) and Φj∗(n) . . . . . . . . . . 399
+Variable Step Size BDF . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 400 General Variable Step Size Methods and Their Orders . . . . . . . . . 401 Stability . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 402 Convergence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 407 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 409
+III.6 Nordsieck Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 410 Equivalence with Multistep Methods . . . . . . . . . . . . . . . . . . . . . . . 412 Implicit Adams Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 417 BDF-Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 419 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 420
+III.7 Implementation and Numerical Comparisons . . . . . . . . . . . . . . 421 Step Size and Order Selection . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 421 Some Available Codes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 423 Numerical Comparisons . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 427
+III.8 General Linear Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 430 A General Integration Procedure . . . . . . . . . . . . . . . . . . . . . . . . . . . 431 Stability and Order . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 436 Convergence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 438 Order Conditions for General Linear Methods . . . . . . . . . . . . . . . 441 Construction of General Linear Methods . . . . . . . . . . . . . . . . . . . . 443 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 445
+III.9 Asymptotic Expansion of the Global Error. . . . . . . . . . . . . . . . . 448 An Instructive Example . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 448 Asymptotic Expansion for Strictly Stable Methods (8.4) . . . . . . . 450 Weakly Stable Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 454 The Adjoint Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 457 Symmetric Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 459 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 460
+III.10 Multistep Methods for Second Order Differential Equations 461 Explicit St ̈ormer Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 462 Implicit St ̈ormer Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 464 Numerical Example . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 465 General Formulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 467 Convergence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 468 Asymptotic Formula for the Global Error . . . . . . . . . . . . . . . . . . . . 471 Rounding Errors . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 472 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 473
+Appendix. Fortran Codes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 475 Driver for the Code DOPRI5 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 475 Subroutine DOPRI5 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 477 Subroutine DOP853 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 481 Subroutine ODEX . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 482
+
+
+Contents XV
+Subroutine ODEX2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 484 Driver for the Code RETARD . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 486 Subroutine RETARD . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 488
+Bibliography . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 491
+Symbol Index . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 521
+Subject Index . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 523
+
+
+Chapter I. Classical Mathematical Theory
+. . . halte ich es immer f ̈ur besser, nicht mit dem Anfang anzufangen, der immer das Schwerste ist. (B. Riemann copied this from F. Schiller into his notebook)
+This first chapter contains the classical theory of differential equations, which we judge useful and important for a profound understanding of numerical processes and phenomena. It will also be the occasion of presenting interesting examples of differential equations and their properties. We first retrace in Sections I.2-I.6 the historical development of classical integration methods by series expansions, quadrature and elementary functions, from the beginning (Newton and Leibniz) to the era of Euler, Lagrange and Hamilton. The next part (Sections I.7-I.14) deals with theoretical properties of the solutions (existence, uniqueness, stability and differentiability with respect to initial values and parameters) and the corresponding flow (increase of volume, preservation of symplectic structure). This theory was initiated by Cauchy in 1824 and then brought to perfection mainly during the next 100 years. We close with a brief account of boundary value problems, periodic solutions, limit cycles and strange attractors (Sections I.15 and I.16).
+
+
+I.1 Terminology
+A differential equation of first order is an equation of the form
+y′ = f (x, y) (1.1)
+with a given function f (x, y) . A function y(x) is called a solution of this equation if for all x,
+y′(x) = f (x, y(x)). (1.2)
+It was observed very early by Newton, Leibniz and Euler that the solution usually contains a free parameter, so that it is uniquely determined only when an initial value
+y(x0) = y0 (1.3)
+is prescribed. Cauchy’s existence and uniqueness proof of this fact will be discussed in Section I.7. Differential equations arise in many applications. We shall see the first examples of such equations in Section I.2, and in Section I.3 how some of them can be solved explicitly.
+A differential equation of second order for y is of the form
+y′′ = f (x, y, y′). (1.4)
+Here, the solution usually contains two parameters and is only uniquely determined by two initial values
+y(x0) = y0, y′(x0) = y′0. (1.5)
+Equations of second order can rarely be solved explicitly (see I.3). For their numerical solution, as well as for theoretical investigations, one usually sets y1(x) :=
+y(x) , y2(x) := y′(x) , so that equation (1.4) becomes
+y′1 = y2
+y′2 = f (x, y1, y2)
+y1(x0) = y0
+y2(x0) = y′0. (1.4’)
+This is an example of a first order system of differential equations, of dimension n (see Sections I.6 and I.9),
+y′1 = f1(x, y1, . . . , yn)
+...
+y′
+n = fn(x, y1, . . . , yn)
+y1(x0) = y10
+...
+yn(x0) = yn0.
+(1.6)
+
+
+I.1 Terminology 3
+Most of the theory of this book is devoted to the solution of the initial value problem for the system (1.6). At the end of the 19th century (Peano 1890) it became customary to introduce the vector notation
+y = (y1, . . . , yn)T , f = (f1, . . . , fn)T
+so that (1.6) becomes y′ = f (x, y) , which is again the same as (1.1), but now with y and f interpreted as vectors. Another possibility for the second order equation (1.4), instead of transforming it into a system (1.4’), is to develop methods specially adapted to second order equations (Nystr ̈om methods). This will be done in special sections of this book (Sections II.13 and III.10). Nothing prevents us, of course, from considering (1.4) as a second order system of dimension n . If, however, the initial conditions (1.5) are replaced by something like y(x0) = a , y(x1) = b , i.e., if the conditions determining the particular solution are not all specified at the same point x0 , we speak of a boundary value problem. The theory of the existence of a solution and of its numerical computation is here much more complicated. We give some examples in Section I.15. Finally, a problem of the type
+∂u
+∂t = f
+(
+t, u, ∂u
+∂x, ∂2u
+∂x2
+)
+(1.7)
+for an unknown function u(t, x) of two independent variables will be called a partial differential equation. We can also deal with partial differential equations of higher order, with problems in three or four independent variables, or with systems of partial differential equations. Very often, initial value problems for partial differential equations can conveniently be transformed into a system of ordinary differential equations, for example with finite difference or finite element approximations in the variable x . In this way, the equation
+∂u
+∂t = a2 ∂2u
+∂x2
+would become dui
+dt = a2
+Δx2
+(
+ui+1 − 2ui + ui−1
+) ,
+where ui(t) ≈ u(t, xi) . This procedure is called the “method of lines” or “method of discretization in space” (Berezin & Zhidkov 1965). We shall see in Section I.6 that this connection, the other way round, was historically the origin of partial differential equations (d’Alembert, Lagrange, Fourier). A similar idea is the “method of discretization in time” (Rothe 1930).
+
+
+I.2 The Oldest Differential Equations
+. . . So zum Beispiel die Aufgabe der umgekehrten Tangentenmethode, von welcher auch Descartes eingestand, dass er sie nicht in seiner Gewalt habe. (Leibniz, 27. Aug 1676)
+. . . et on sait que les seconds Inventeurs n’ont pas de droit a` l’Invention. (Newton, 29 mai 1716)
+Il ne paroist point que M. Newton ait eu avant moy la characteristique & l’algorithme infinitesimal . . . (Leibniz)
+And by these words he acknowledged that he had not yet found the reduction of problems to differential equations. (Newton)
+Newton
+Differential equations are as old as differential calculus. Newton considered them in his treatise on differential calculus (Newton 1671) and discussed their solution by series expansion. One of the first examples of a first order equation treated by Newton (see Newton (1671), Problema II, Solutio Casus II, Ex. I) was
+y′ = 1 − 3x + y + x2 + xy. (2.1)
+For each value x and y , such an equation prescribes the derivative y′ of the solutions. We thus obtain a vector field, which, for this particular equation, is sketched in Fig. 2.1a. (So, contrary to the belief of many people, vector fields existed long before Van Gogh). The solutions are the curves which respect these prescribed directions everywhere (Fig. 2.1b). Newton discusses the solution of this equation by means of infinite series, whose terms he obtains recursively (“. . . & ils se jettent sur les series, ou ́ M. Newton m’a precede ́ sans difficulte ́; mais . . .”, Leibniz). The first term
+y = 0+...
+is the initial value for x = 0 . Inserting this into the differential equation (2.1) he obtains
+y′ = 1 + . . .
+which, integrated, gives
+y =x+....
+Again, from (2.1), we now have
+y′ = 1 − 3x + x + . . . = 1 − 2x + . . .
+and by integration
+y = x − x2 + . . . .
+
+
+I.2 The Oldest Differential Equations 5
+a: b:
+m
+correct
+m
+m
+m
+c:
+Fig. 2.1. a) vector field, b) various solution curves of equation (2.1), c) Correct solution vs. approximate solution
+The next round gives
+y′ = 1 − 2x + x2 + . . . , y = x − x2 + x3
+3 +....
+Continuing this process, he finally arrives at
+y = x − xx + 1
+3 x3 − 1
+6 x4 + 1
+30 x5 − 1
+45 x6; &c. (2.2)
+These approximations, term after term, are plotted in Fig. 2.1c together with the correct solution. It can be seen that these approximations are closer and closer to the true solution for small values of x . For more examples see Exercises 1-3. Convergence will be discussed in Section I.8.
+
+
+6 I. Classical Mathematical Theory
+Leibniz and the Bernoulli Brothers
+A second access to differential equations is the consideration of geometrical problems such as inverse tangent problems (Debeaune 1638 in a letter to Descartes). A particular example describes the path of a silver pocket watch (“horologio portabili suae thecae argentae”) and was proposed around 1674 by “Claudius Perraltus Medicus Parisinus” to Leibniz: a curve y(x) is required whose tangent AB is given, say everywhere of constant length a (Fig. 2.2). This leads to
+y′ = − y
+√a2 − y2 , (2.3)
+a first order differential equation. Despite the efforts of the “plus ce ́le`bres mathe ́maticiens de Paris et de Toulouse” (from a letter of Descartes 1645, “Toulouse” means “Fermat”) the solution of these problems had to wait until Leibniz (1684) and above all until the famous paper of Jacob Bernoulli (1690). Bernoulli’s idea applied to equation (2.3) is as follows: let the curve BM in Fig. 2.3 be such that
+LM is equal to √a2 − y2/y . Then (2.3), written as
+dx = −
+√a2 − y2
+y dy, (2.3’)
+shows that for all y the areas S1 and S2 (Fig. 2.3) are the same. Thus (“Ergo & horum integralia aequantur”) the areas BM LB and A1A2C2C1 must be equal too. Hence (2.3’) becomes (Leibniz 1693)
+x=
+∫a
+y
+√a2 − y2
+y dy = −√a2 − y2 − a · log a − √a2 − y2
+y . (2.3”)
+dy
+dx
+y
+x
+a
+S
+S
+Ba
+ML
+AA
+CC
+solution
+Fig. 2.2. Illustration from Fig. 2.3. Jac. Bernoulli’s Leibniz (1693) Solution of (2.3)
+
+
+I.2 The Oldest Differential Equations 7
+Variational Calculus
+In 1696 Johann Bernoulli invited the brightest mathematicians of the world (“Profundioris in primis Mathesos cultori, Salutem!”) to solve the brachystochrone (shortest time) problem, mainly in order to fault his brother Jacob, from whom he expected a wrong solution. The problem is to find a curve y(x) connecting two points P0, P1 , such that a point gliding on this curve under gravitation reaches P1 in the shortest time possible. In order to solve his problem, Joh. Bernoulli (1697b) imagined thin layers of homogeneous media and knew from optics (Fermat’s principle) that a light ray with speed v obeying the law of Snellius
+sin α = Kv
+passes through in the shortest time. Since the speed is known to be proportional to the square root of the fallen height, he obtains, by passing to thinner and thinner layers,
+sin α = 1
+√1 + y′2 = K√2g(y − h), (2.4)
+a differential equation of the first order.
+Fig. 2.4. Solutions of the variational problem (Joh. Bernoulli, Jac. Bernoulli, Euler)
+The solutions of (2.4) can be shown to be cycloids (see Exercise 6 of Section I.3). Jacob, in his reply, also furnished a solution, much less elegant but unfortunately correct. Jacob’s method (see Fig. 2.4) was something like today’s (inverse)
+
+
+8 I. Classical Mathematical Theory
+“finite element” method and more general than Johann’s and led to the famous work of Euler (1744), which gives the general solution of the problem
+∫ x1
+x0
+F (x, y, y′) dx = min (2.5)
+with the help of the differential equation of the second order
+Fy(x, y, y′) − d
+dx
+(Fy′ (x, y, y′)) = Fy − Fy′y′ y′′ − Fy′yy′ − Fy′x = 0, (2.6)
+and treated 100 variational problems in detail. Equation (2.6), in the special case where F does not depend on x , can be integrated to give
+F − Fy′ y′ = K. (2.6’)
+Euler’s original proof used polygons in order to establish equation (2.6). Only the ideas of Lagrange, in 1755 at the age of 19, led to the proof which is today the usual one (letter of Aug. 12, 1755; Oeuvres vol. 14, p. 138): add an arbitrary “variation” δy(x) to y(x) and linearize (2.5).
+∫ x1
+x0
+F (x, y + δy, y′ + (δy)′) dx (2.7)
+=
+∫ x1
+x0
+F (x, y, y′) dx +
+∫ x1
+x0
+(
+Fy(x, y, y′) δy + Fy′ (x, y, y′)(δy)′)
+dx + . . .
+The last integral in (2.7) represents the “derivative” of (2.5) with respect to δy . Therefore, if y(x) is the solution of (2.5), we must have
+∫ x1
+x0
+(
+Fy(x, y, y′) δy + Fy′ (x, y, y′)(δy)′)
+dx = 0 (2.8)
+or, after partial integration,
+∫ x1
+x0
+(
+Fy(x, y, y′) − d
+dx Fy′ (x, y, y′)
+)
+· δy(x) dx = 0. (2.8’)
+Since (2.8’) must be fulfilled by all δy , Lagrange “sees” that
+Fy(x, y, y′) − d
+dx Fy′(x, y, y′) = 0 (2.9)
+is necessary for (2.5). Euler, in his reply (Sept. 6, 1755) urged a more precise proof of this fact (which is now called the “fundamental Lemma of variational Calculus”). For several unknown functions
+∫
+F (x, y1, y′1, . . . , yn, y′
+n) dx = min (2.10)
+the same proof leads to the equations
+Fyi (x, y1, y′1, . . . , yn, y′
+n) − d
+dx Fyi′ (x, y1, y′1, . . . , yn, y′
+n) = 0 (2.11)
+
+
+I.2 The Oldest Differential Equations 9
+for i = 1, . . . , n. Euler (1756) then gave, in honour of Lagrange, the name “Variational calculus” to the whole subject (“. . . tamen gloria primae inventionis acutissimo Geometrae Taurinensi La Grange erat reservata”).
+Clairaut
+A class of equations with interesting properties was found by Clairaut (see Clairaut (1734), Proble`me III). He was motivated by the movement of a rectangular wedge (see Fig. 2.5), which led him to differential equations of the form
+y − xy′ + f (y′) = 0. (2.12)
+This was the first implicit differential equation and possesses the particularity that not only the lines y = Cx − f (C) are solutions, but also their enveloping curves (see Exercise 5). An example is shown in Fig. 2.6 with f (C) = 5(C3 − C)/2 .
+Fig. 2.5. Illustration from Clairaut (1734)
+Since the equation is of the third degree in y′ , a given initial value may allow up to three different solution lines. Furthermore, where a line touches an enveloping curve, the solution may be continued either along the line or along the curve. There is thus a huge variety of different possible solution curves. This phenomenon attracted much interest in the classical literature (see e.g., Exercises 4 and 6). Today we explain this curiosity by the fact that at these points no Lipschitz condition is satisfied (see also Ince (1944), p. 538–539).
+
+
+10 I. Classical Mathematical Theory
+Fig. 2.6. Solutions of a Clairaut differential equation
+Exercises
+1. (Newton). Solve equation (2.1) with another initial value y(0) = 1 .
+Newton’s result: y = 1 + 2x + x3 + 1
+4 x4 + 1
+4 x5, &c.
+2. (Newton 1671, “Problema II, Solutio particulare”). Solve the total differential equation
+3x2 − 2ax + ay − 3y2y′ + axy′ = 0.
+Solution given by Newton: x3 − ax2 + axy − y3 = 0 . Observe that he missed the arbitrary integration constant C .
+3. (Newton 1671). Solve the equations
+a) y′ = 1 + y
+a + xy
+a2 + x2y
+a3 + x3y
+a4 , &c.
+b) y′ = −3x + 3xy + y2 − xy2 + y3 − xy3 + y4 − xy4 + 6x2y
+− 6x2 + 8x3y − 8x3 + 10x4y − 10x4, &c.
+Results given by Newton:
+a) y = x + x2
+2a + x3
+2a2 + x4
+2a3 + x5
+2a4 + x6
+2a5 , &c.
+b) y = − 3
+2 x2 − 2x3 − 25
+8 x4 − 91
+20 x5 − 111
+16 x6 − 367
+35 x7, &c.
+
+
+I.2 The Oldest Differential Equations 11
+4. Show that the differential equation
+x + yy′ = y′√x2 + y2 − 1
+possesses the solutions 2ay = a2 + 1 − x2 for all a . Sketch these curves and find yet another solution of the equation (from Lagrange (1774), p. 7, which was written to explain the “Clairaut phenomenon”).
+5. Verify that the envelope of the solutions y = Cx − f (C) of the Clairaut equation (2.12) is given in parametric representation by
+x(p) = f ′(p)
+y(p) = pf ′(p) − f (p) .
+Show that this envelope is also a solution of (2.12) and calculate it for f (C) = 5(C3 − C)/2 (cf. Fig. 2.6).
+6. (Cauchy 1824). Show that the family y = C(x + C)2 satisfies the differential equation (y′)3 = 8y2 − 4xyy′ . Find yet another solution which is not included in this family (see Fig. 2.7).
+Answer: y = − 4
+27 x3 .
+Fig. 2.7. Solution family of Cauchy’s example in Exercise 6
+
+
+I.3 Elementary Integration Methods
+We now discuss some of the simplest types of equations, which can be solved by the computation of integrals.
+First Order Equations
+The equation with separable variables.
+y′ = f (x)g(y). (3.1)
+Extending the idea of Jacob Bernoulli (see (2.3’)), we divide by g(y) , integrate and obtain the solution (Leibniz 1691, in a letter to Huygens)
+∫ dy
+g(y) =
+∫
+f (x) dx + C.
+A special example of this is the linear equation y′ = f (x)y , which possesses the solution
+y(x) = CR(x), R(x) = exp
+(∫
+f (x) dx
+) .
+The inhomogeneous linear equation.
+y′ = f (x)y + g(x). (3.2)
+Here, the substitution y(x) = c(x)R(x) leads to c′(x) = g(x)/R(x) (Joh. Bernoulli 1697). One thus obtains the solution
+y(x) = R(x)
+(∫ x
+x0
+g(s)
+R(s) ds + C
+)
+. (3.3)
+Total differential equations. An equation of the form
+P (x, y) + Q(x, y)y′ = 0 (3.4)
+is found to be immediately solvable if
+∂P
+∂y = ∂Q
+∂x . (3.5)
+
+
+I.3 Elementary Integration Methods 13
+One can then find by integration a potential function U (x, y) such that
+∂U
+∂x = P, ∂U
+∂y = Q.
+Therefore (3.4) becomes d
+dx U (x, y(x)) = 0 , so that the solutions can be expressed
+by U (x, y(x)) = C . For the case when (3.5) is not satisfied, Clairaut and Euler investigated the possibility of multiplying (3.4) by a suitable factor M (x, y) , which sometimes allows the equation M P + M Qy′ = 0 to satisfy (3.5).
+Second Order Equations
+Even more than for first order equations, the solution of second order equations by integration is very seldom possible. Besides linear equations with constant coefficients, whose solutions for the second order case were already known to Newton, several tricks of reduction are possible, as for example the following: For a linear equation
+y′′ = a(x)y′ + b(x)y
+we make the substitution (Riccati 1723, Euler 1728)
+y = exp
+(∫
+p(x) dx
+)
+. (3.6)
+The derivatives of this function contain only derivatives of p of lower order
+y′ = p · exp
+(∫
+p(x) dx
+)
+, y′′ = (p2 + p′) · exp
+(∫
+p(x) dx
+)
+so that inserting this into the differential equation, after division by y , leads to a lower order equation
+p2 + p′ = a(x)p + b(x) (3.7)
+which, however, is nonlinear. If the equation is independent of y , y′′ = f (x, y′) , it is natural to put y′ = v which gives v′ = f (x, v) . An important case is that of equations independent of x:
+y′′ = f (y, y′).
+Here we consider y′ as function of y : y′ = p(y) . Then the chain rule gives y′′ = p′p = f (y, p) , which is a first order equation. When the function p(y) has been found, it remains to integrate y′ = p(y) , which is an equation of type (3.1) (Riccati (1712): “Per liberare la premessa formula dalle seconde differenze , . . . , chiamo p la sunnormale BF . . . ”, see also Euler (1769), Problema 96, p. 33). The investigation of all possible differential equations which can be integrated by analytical methods was begun by Euler. His results have been collected, in
+
+
+14 I. Classical Mathematical Theory
+more than 800 pages, in Volumes XXII and XXIII of Euler’s Opera Omnia. For a more recent discussion see Ince (1944), p. 16-61. An irreplaceable document on this subject is the book of Kamke (1942). It contains, besides a description of the solution methods and general properties of the solutions, a systematically ordered list of more than 1500 differential equations with their solutions and references to the literature. The computations, even for very simple looking equations, soon become very complicated and one quickly began to understand that elementary solutions would not always be possible. It was Liouville (1841) who gave the first proof of the fact that certain equations, such as y′ = x2 + y2 , cannot be solved in terms of elementary functions. Therefore, in the 19th century mathematicians became more and more interested in general existence theorems and in numerical methods for the computation of the solutions.
+Exercises
+1. Solve Newton’s equation (2.1) by quadrature.
+2. Solve Leibniz’ equation (2.3) in terms of elementary functions.
+Hint. The integral for y might cause trouble. Use the substitution a2 − y2 = u2 , −ydy = udu .
+3. Solve and draw the solutions of y′ = f (y) where f (y) = √|y|.
+4. Solve the master-and-dog problem: a dog runs with speed w in the direction of his master, who walks with speed v along the y -axis. This leads to the differential equation
+(xy′)′ = − v
+w
+√1 + (y′)2.
+5. Solve the equation my′′ = −k/y2 , which describes a body falling according to Newton’s law of gravitation.
+6. Verify that the cycloid
+x − x0 = R (τ − sin τ ), y − h = R (1 − cos τ ), R = 1
+4g K 2
+satisfies the differential equation (2.4) for the brachystochrone problem. Solving (2.4) in a forward manner, one arrives after some simplifications at the integral ∫ √ y
+1 − y dy,
+which is computed by the substitution y = (sin t)2 .
+
+
+I.3 Elementary Integration Methods 15
+7. Reduce the “Bernoulli equation” (Jac. Bernoulli 1695)
+y′ + f (x)y = g(x)yn
+with the help of the coordinate transformation z(x) = (y(x))q and a suitable choice of q , to a linear equation (Leibniz, Acta Erud. 1696, p. 145, Joh. Bernoulli, Acta Erud. 1697, p. 113).
+8. Compute the “Linea Catenaria” of the hanging rope. The solution was given by Joh. Bernoulli (1691) and Leibniz (1691) (see Fig. 3.2) without any hint.
+Hint. (Joh. Bernoulli, “Lectiones . . . in usum Ill. Marchionis Hospitalii” 1691/92). Let H resp. V be the horizontal resp. vertical component of the tension in the rope (Fig. 3.1). Then H = a is a constant and V = q · s is proportional to the arc length. This leads to Cp = s or Cdp = ds i.e., Cdp =
+√1 + p2dx , where p = y′ , a differential equation.
+Result. y = K + C cosh
+( x − x0 C
+) .
+H
+V
+x
+y
+s
+Fig. 3.1. Solution of the Fig. 3.2. “Linea Catenaria” Catenary problem drawn by Leibniz (1691)
+
+
+I.4 Linear Differential Equations
+Lisez Euler, lisez Euler, c’est notre maıˆtre a` tous. (Laplace)
+[Euler] . . . c’est un homme peu amusant, mais un tre`s-grand Ge ́ome`tre. (D’Alembert, letter to Voltaire, March 3, 1766)
+[Euler] . . . un Ge ́ome`tre borgne, dont les oreilles ne sont pas faites pour sentir les de ́licatesses de la poe ́sie. (Fre ́de ́ric II, in a letter to Voltaire)
+Following in the footsteps of Euler (1743), we want to understand the general solution of n th order linear differential equations. We say that the equation
+L(y) := an(x)y(n) + an−1(x)y(n−1) + . . . + a0(x)y = 0 (4.1)
+with given functions a0(x), . . . , an(x) is homogeneous. If n solutions u1(x) , . . . , un(x) of (4.1) are known, then any linear combination
+y(x) = C1u1(x) + . . . + Cnun(x) (4.2)
+with constant coefficients C1, . . . , Cn is also a solution of (4.1), since all derivatives of y appear only linearly in (4.1).
+Equations with Constant Coefficients
+Let us first consider the special case
+y(n)(x) = 0. (4.3)
+This can be integrated once to give y(n−1)(x) = C1 , then y(n−2)(x) = C1x + C2 , etc. Replacing at the end the arbitrary constants Ci by new ones, we finally obtain
+y(x) = C1xn−1 + C2xn−2 + . . . + Cn.
+Thus there are n “free parameters” in the “general solution” of (4.3). Euler’s intuition, after some more examples, also expected the same result for the general equation (4.1). This fact, however, only became completely clear many years later. We now treat the general equation with constant coefficients,
+y(n) + An−1y(n−1) + . . . + A0y = 0. (4.4)
+Our problem is to find a basis of n linearly independent solutions u1(x), . . ., un(x) . To this end, Euler’s inspiration was guided by the transformation (3.6), (3.7) above: if a(x) and b(x) are constants, we assume p constant in (3.7) so that p′ vanishes, and we obtain the quadratic equation p2 = ap + b . For any root of this
+
+
+I.4 Linear Differential Equations 17
+equation, (3.6) then becomes y = epx . In the general case we thus assume y = epx with an unknown constant p, so that (4.4) leads to the characteristic equation
+pn + An−1pn−1 + . . . + A0 = 0. (4.5)
+If the roots p1, . . . , pn of equation (4.5) are distinct, all solutions of (4.4) are given by
+y(x) = C1ep1x + . . . + Cnepnx. (4.6)
+It is curious to see that the “brightest mathematicians of the world” struggled for many decades to find this solution, which appears so trivial to today’s students. A difficulty arises with the solution (4.6) when (4.5) does not possess n distinct roots. Consider, with Euler, the example
+y′′ − 2qy′ + q2y = 0. (4.7)
+Here p = q is a double root of the corresponding characteristic equation. If we set
+y = eqxu, (4.8)
+(4.7) becomes u′′ = 0 , which brings us back to (4.3). So the general solution of (4.7) is given by y(x) = eqx(C1x + C2) (see also Exercise 5 below). After some more examples of this type, one sees that the transformation (4.8) effects a shift of the characteristic polynomial, so that if q is a root of multiplicity k , we obtain for u an equation ending with . . . + Bu(k+1) + Cu(k) = 0 . Therefore
+eqx(C1xk−1 + . . . + Ck)
+gives us k independent solutions. Finally, for a pair of complex roots p = α ± iβ the solutions e(α+iβ)x , e(α−iβ)x can be replaced by the real functions
+eαx(C1 cos βx + C2 sin βx).
+The study of the inhomogeneous equation
+L(y) = f (x) (4.9)
+was begun in Euler (1750), p. 13. We mention from this work the case where f (x) is a polynomial, say for example the equation
+Ay′′ + By′ + Cy = ax2 + bx + c. (4.10)
+Here Euler puts y(x) = Ex2 + F x + G + v(x) . Inserting this into (4.10) and eliminating all possible powers of x , one obtains
+CE = a, CF + 2BE = b, CG + BF + 2AE = c,
+Av′′ + Bv′ + Cv = 0.
+This allows us, when C is different from zero, to compute E, F and G and we observe that the general solution of the inhomogeneous equation is the sum of a
+
+
+18 I. Classical Mathematical Theory
+particular solution of it and of the general solution of the corresponding homogeneous equation. This is also true in the general case and can be verified by trivial linear algebra. The above method of searching for a particular solution with the help of unknown coefficients works similarly if f (x) is composed of exponential, sine, or cosine functions and is often called the “fast method”. We see with pleasure that it was historically the first method to be discovered.
+Variation of Constants
+The general treatment of the inhomogeneous equation
+an(x)y(n) + . . . + a0(x)y = f (x) (4.11)
+is due to Lagrange (1775) (“. . . par une nouvelle me ́thode aussi simple qu’on puisse le de ́sirer”, see also Lagrange (1788), seconde partie, Sec. V.) We assume known n independent solutions u1(x), . . . , un(x) of the homogeneous equation. We then set, in extension of the method employed for (3.2), instead of (4.2)
+y(x) = c1(x)u1(x) + . . . + cn(x)un(x) (4.12)
+with unknown functions ci(x) (“method of variation of constants”). We have to insert (4.12) into (4.11) and thus compute the first derivative
+y′ =
+n ∑
+i=1
+c′
+iui +
+∑n
+i=1
+ciu′
+i.
+If we continue blindly to differentiate in this way, we soon obtain complicated and useless formulas. Therefore Lagrange astutely requires the first term to vanish and puts
+n ∑
+i=1
+c′
+iu(j)
+i = 0 j = 0, then also for j = 1, . . . , n − 2. (4.13)
+Then repeated differentiation of y , with continued elimination of the undesired terms (4.13), gives
+y′ =
+n ∑
+i=1
+ciu′
+i , . . . y(n−1) =
+n ∑
+i=1
+ciu(n−1)
+i,
+y(n) =
+n ∑
+i=1
+c′
+i u(n−1)
+i+
+n ∑
+i=1
+ci u(n)
+i.
+If we insert this into (4.11), we observe wonderful cancellations due to the fact that the ui(x) satisfy the homogeneous equation, and finally obtain, together with (4.13),
+
+
+I.4 Linear Differential Equations 19
+⎛
+⎜⎜⎝
+u1 . . . un
+u′1 . . . u′n
+... ...
+u(n−1)
+1 . . . u(n−1)
+n
+⎞
+⎟⎟⎠
+⎛
+⎜⎜⎝
+c′1
+c...′2
+c′n
+⎞
+⎟⎟⎠ =
+⎛
+⎜⎜⎝
+0...
+0
+f (x)/an(x)
+⎞
+⎟⎟⎠ . (4.14)
+This is a linear system, whose determinant is called the “Wronskian” and whose solution yields c′1(x), . . . , c′n(x) and after integration c1(x), . . . , cn(x) . Much more insight into this formula will be possible in Section I.11.
+Exercises
+1. Find the solution “huius aequationis differentialis quarti gradus” a4y(4) + y = 0 , a4y(4) − y = 0 ; solve the equation “septimi gradus” y(7) + y(5) + y(4) + y(3) + y(2) + y = 0 . (Euler 1743, Ex. 4, 5, 6 ).
+2. Solve by Euler’s technique y′′ − 3y′ − 4y = cos x and y′′ + y = cos x .
+Hint. In the first case the particular solution can be searched for in the form E cos x + F sin x . In the second case (which corresponds to a resonance in the equation) one puts Ex cos x + F x sin x just as in the solution of (4.7).
+3. Find the solution of
+y′′ − 3y′ − 4y = g(x), g(x) =
+{ cos(x) 0 ≤ x ≤ π/2
+0 π/2 ≤ x
+such that y(0) = y′(0) = 0 ,
+a) by using the solution of Exercise 2,
+b) by the method of Lagrange (variation of constants).
+4. (Reduction of the order if one solution is known). Suppose that a nonzero solution u1(x) of y′′ + a1(x)y′ + a0(x)y = 0 is known. Show that a second independent solution can be found by putting u2(x) = c(x)u1(x) .
+5. Treat the case of multiple characteristic values (4.7) by considering them as a limiting case p2 → p1 and using the solutions
+u1(x) = ep1x, u2(x) = lim
+p2 →p1
+ep2x − ep1x
+p2 − p1
+= ∂ep1x
+∂p1
+, etc.
+(d’Alembert (1748), p. 284: “Enfin, si les valeurs de p & de p′ sont e ́gales, au lieu de les supposer telles, on supposera p = a + α , p′ = a − α , α  ́etant quantite ́ infiniment petite . . .”).
+
+
+I.5 Equations with Weak Singularities
+Der Mathematiker weiss sich ohnedies beim Auftreten von singula ̈ren Stellen gegebenenfalls leicht zu helfen. (K. Heun 1900)
+Many equations occurring in applications possess singularities, i.e., points at which the function f (x, y) of the differential equation becomes infinite. We study in some detail the classical treatment of such equations, since numerical methods, which will be discussed later in this book, often fail at the singular point, at least if they are not applied carefully.
+Linear Equations
+As a first example, consider the equation
+y′ = q + bx
+x y, q = 0 (5.1)
+with a singularity at x = 0 . Its solution, using the method of separation of variables (3.1), is
+y(x) = Cxqebx = C(xq + bxq+1 + . . .). (5.2)
+These solutions are plotted in Fig. 5.1 for different values of q and show the fundamental difference in the behaviour of the solutions in dependence of q .
+q qq
+Fig. 5.1. Solutions of (5.1) for b = 1
+
+
+I.5 Equations with Weak Singularities 21
+Euler started a systematic study of equations with singularities. He asked which type of equation of the second order can conveniently be solved by a series as in (5.2) (Euler 1769, Problema 122, p. 177, “ . . . quas commode per series resolvere licet . . .”). He found the equation
+Ly : = x2(a + bx)y′′ + x(c + ex)y′ + (f + gx)y = 0. (5.3)
+Let us put y = xq(A0 + A1x + A2x2 + . . .) with A0 = 0 and insert this into (5.3).
+We observe that the powers x2 and x which are multiplied by y′′ and y′ , respectively, just re-establish what has been lost by the differentiations and obtain by
+comparing equal powers of x (
+q(q−1)a + qc + f
+)
+A0 = 0 (5.4a)
+(
+(q+i)(q+i−1)a + (q+i)c + f
+)
+Ai (5.4b)
+=−
+(
+(q+i−1)(q+i−2)b + (q+i−1)e + g
+)
+Ai−1
+for i = 1, 2, 3, . . . . In order to get A0 = 0 , q has to be a root of the index equation
+χ(q) : = q(q − 1)a + qc + f = 0. (5.5)
+For a = 0 there are two characteristic roots q1 and q2 of (5.5). Since the left-hand side of (5.4b) is of the form χ(q + i)Ai = . . ., this relation allows us to compute
+A1, A2, A3, . . . at least for q1 (if the roots are ordered such that Re q1 ≥ Re q2 ). Thus we have obtained a first non-zero solution of (5.3). A second linearly independent solution for q = q2 is obtained in the same way if q1 − q2 is not an integer.
+Case of double roots. Euler found a second solution in this case with the inspiration of some acrobatic heuristics (Euler 1769, p. 150: “. . . quod x0
+0 aequivaleat
+ipsi x x . . .”). Fuchs (1866, 1868) then wrote a monumental paper on the form of all solutions for the general equation of order n , based on complicated calculations. A very elegant idea was then found by Frobenius (1873): fix A0 , say as A0(q) = 1 , completely ignore the index equation, choose q arbitrarily and consider the coefficients of the recursion (5.4b) as functions of q to obtain the series
+y(x, q) = xq
+∞ ∑
+i=0
+Ai(q)xi, (5.6)
+whose convergence is discussed in Exercise 8 below. Since all conditions (5.4b) are satisfied, with the exception of (5.4a), we have
+Ly(x, q) = χ(q)xq. (5.7)
+A second independent solution is now found simply by differentiating (5.7) with respect to q :
+L
+(∂y
+∂q (x, q)
+)
+= χ(q) · log x · xq + χ′(q) · xq. (5.8)
+
+
+22 I. Classical Mathematical Theory
+If we set q = q1
+∂y
+∂q (x, q1) = log x · y(x, q1) + xq1
+∞ ∑
+i=0
+A′
+i(q1)xi, (5.9)
+we obtain the desired second solution since χ(q1) = χ′(q1) = 0 (remember that q1 is a double root of χ).
+The case q1 − q2 = m ∈ Z, m ≥ 1 . In this case we define a function z(x) by satisfying A0(q) = 1 and the recursion (5.4b) for all i with the exception of i = m. Then
+Lz = χ(q)xq + Cxq+m (5.10)
+where C is some constant. For q = q2 the first term in (5.10) vanishes and a comparison with (5.8) shows that
+χ′(q1)z(x) − C ∂y
+∂q (x, q1) (5.11)
+is the required second solution of (5.3).
+Euler (1778) later remarked that the formulas obtained become particularly elegant, if one starts from the differential equation
+x(1 − x)y′′ + (c − (a + b + 1)x)y′ − aby = 0 (5.12)
+instead of from (5.3). Here, the above method leads to
+q(q − 1) + cq = 0, q1 = 0, q2 = 1 − c, (5.13)
+Ai+1 = (a + i)(b + i)
+(c + i)(1 + i) Ai for q1 = 0. (5.14)
+The resulting solutions, later named hypergeometric functions, became particularly famous throughout the 19th century with the work of Gauss (1812). More generally, the above method works in the case of a differential equation
+x2y′′ + xa(x)y′ + b(x)y = 0 (5.15)
+where a(x) and b(x) are regular analytic functions. One then says that 0 is a regular singular point. Similarly, we say that the equation (x − x0)2y′′ + (x −
+x0)a(x)y′ + b(x)y = 0 possesses the regular singular point x0 . In this case solu
+tions can be obtained by the use of algebraic singularities (x − x0)q . Finally, we also want to study the behaviour at infinity for an equation of the form
+a(x)y′′ + b(x)y′ + c(x)y = 0. (5.16a)
+For this, we use the coordinate transformation t = 1/x , z(t) = y(x) which yields
+t4a
+(1
+t
+)
+z′′ +
+(
+2t3a
+(1
+t
+)
+− t2b
+(1
+t
+))
+z′ + c
+(1
+t
+)
+z = 0. (5.16b)
+
+
+I.5 Equations with Weak Singularities 23
+∞ is called a regular singular point of (5.16a) if 0 is a regular singular point of (5.16b). For examples see Exercise 9.
+Nonlinear Equations
+For nonlinear equations also, the above method sometimes allows one to obtain, if not the complete series of the solution, at least a couple of terms.
+EXEMPLUM. Let us see what happens if we try to solve the classical brachystochrone problem (2.4) by a series. We suppose h = 0 and the initial value y(0) = 0 . We write the equation as
+(y′)2 = L
+y − 1 or y(y′)2 + y = L. (5.17)
+At the initial point y(0) = 0 , y′ becomes infinite and most numerical methods would fail. We search for a solution of the form y = A0xq . This gives in (5.17)
+q2A30x3q−2 + A0xq = L . Due to the initial value we have that y(x) becomes negligible for small values of x . We thus set the first term equal to L and obtain 3q − 2 = 0 and q2A30 = L . So
+u(x) =
+( 9Lx2 4
+)1/3
+(5.18)
+is a first approximate solution. The idea is now to use (5.18) just to escape from the initial point with a small x , and then to continue the solution with any numerical step-by-step procedure from the later chapters. A more refined approximation could be tried in the form y = A0xq + A1xq+r . This gives with (5.17)
+q2A30x3q−2 + q(3q + 2r)A20A1x3q+r−2 + A0xq + . . . = L.
+We use the second term to neutralize the third one, which gives 3q + r − 2 = q or r = q = 2/3 and 5q2A0A1 = −1 . Therefore
+v(x) =
+( 9Lx2 4
+)1/3 −
+( 92x4
+42L53
+)1/3
+(5.19)
+is a better approximation. The following numerical results illustrate the utility of the approximations (5.18) and (5.19) compared with the correct solution y(x) from I.3, Exercise 6, with L = 2 :
+x = 0.10 y(x) = 0.342839 u(x) = 0.355689 v(x) = 0.343038 x = 0.01 y(x) = 0.076042 u(x) = 0.076631 v(x) = 0.076044.
+
+
+24 I. Classical Mathematical Theory
+Exercises
+1. Compute the general solution of the equation x2y′′ + xy′ + gxny = 0 with g constant (Euler 1769, Problema 123, Exemplum 1).
+2. Apply the technique of Euler to the Bessel equation
+x2y′′ + xy′ + (x2 − g2)y = 0.
+Sketch the solutions obtained for g = 2/3 and g = 10/3 .
+3. Compute the solutions of the equations
+x2y′′ − 2xy′ + y = 0 and x2y′′ − 3xy′ + 4y = 0.
+Equations of this type are often called Euler’s or even Cauchy’s equation. Its solution, however, was already known to Joh. Bernoulli.
+4. (Euler 1769, Probl. 123, Exempl. 2). Let
+y(x) =
+∫ 2π
+0
+√
+sin2 s + x2 cos2 s ds
+be the perimeter of the ellipse with axes 1 and x < 1 .
+a) Verify that y(x) satisfies the differential equation
+x(1 − x2)y′′ − (1 + x2)y′ + xy = 0. (5.20)
+b) Compute the solutions of this equation.
+c) Show that the coordinate change x2 = t , y(x) = z(t) transforms (5.20) to a hypergeometric equation (5.12).
+Hint. The computations for a) lead to the integral
+∫ 2π
+0
+1 − 2 cos2 s + q2 cos4 s
+(1 − q2 cos2 s)3/2 ds, q2 = 1 − x2
+which must be shown to be zero. Develop this into a power series in q2 .
+5. Try to solve the equation
+x2y′′ + (3x − 1)y′ + y = 0
+with the help of a series (5.6) and study its convergence.
+6. Find a series of the type
+y = A0xq + A1xq+s + A2xq+2s + . . .
+which solves the nonlinear “Emden-Fowler equation” of astrophysics (x2y′)′ + y2x−1/2 = 0 in the neighbourhood of x = 0 .
+
+
+I.5 Equations with Weak Singularities 25
+7. Approximate the solution of Leibniz’s equation (2.3) in the neighbourhood of the singular initial value y(0) = a by a function of the type y(x) = a − Cxq . Compare the result with the correct solution of Exercise 2 of I.3.
+8. Show that the radius of convergence of series (5.6) is given by
+i) r = |a/b| ii) r = 1
+for the coefficients given by (5.4) and (5.14), respectively.
+9. Show that the point ∞ is a regular singular point for the hypergeometric equation (5.12), but not for the Bessel equation of Exercise 2.
+10. Consider the initial value problem
+y′ = λ
+x y + g(x), y(0) = 0. (5.21)
+a) Prove that if λ ≤ 0 , the problem (5.21) possesses a unique solution for x ≥ 0;
+b) If g(x) is k -times differentiable and λ ≤ 0 , then the solution y(x) is (k + 1) -times differentiable for x ≥ 0 and we have
+y(j)(0) =
+(
+1− λ
+j
+)−1
+g(j−1)(0), j = 1, 2, . . . .
+
+
+I.6 Systems of Equations
+En ge ́ne ́ral on peut supposer que l’Equation diffe ́rentio-diffe ́rentielle de la Courbe ADE est φdt2 = ±dde . . . (d’Alembert 1743, p. 16)
+Parmi tant de chefs-d’œuvre que l’on doit a` son ge ́nie [de Lagrange], sa Me ́canique est sans contredit le plus grand, le plus remarquable et le plus important. (M. Delambre, Oeuvres de Lagrange, vol. 1, p. XLIX)
+Newton (1687) distilled from the known solutions of planetary motion (the Kepler laws) his “Lex secunda” together with the universal law of gravitation. It was mainly the “Dynamique” of d’Alembert (1743) which introduced, the other way round, second order differential equations as a general tool for computing mechanical motion. Thus, Euler (1747) studied the movement of planets via the equations
+in 3-space
+m d2x
+dt2 = X, m d2y
+dt2 = Y, m d2z
+dt2 = Z, (6.1)
+where X, Y, Z are the forces in the three directions. (“. . . & par ce moyen j’evite quantite ́ de recherches penibles”).
+The Vibrating String and Propagation of Sound
+Suppose a string is represented by a sequence of identical and equidistant mass points and denote by y1(t) , y2(t), . . . the deviation of these mass points from the equilibrium position (Fig. 6.1a). If the deviations are supposed small (“fort petites”), the repelling force for the i-th mass point is proportional to −yi−1 +
+2yi − yi+1 (Brook Taylor 1715, Johann Bernoulli 1727). Therefore equations (6.1)
+become
+y′1′ = K2(−2y1 + y2)
+y′2′ = K2(y1 − 2y2 + y3)
+... y′′
+n = K2(yn−1 − 2yn).
+(6.2)
+This is a system of n linear differential equations. Since the finite differences yi−1 − 2yi + yi+1 ≈ c2 ∂2y
+∂x2 , equation (6.2) becomes, by the “inverse” method of lines, the famous partial differential equation (d’Alembert 1747)
+∂2u
+∂t2 = a2 ∂2u
+∂x2
+for the vibrating string.
+
+
+I.6 Systems of Equations 27
+The propagation of sound is modelled similarly (Lagrange 1759): we suppose the medium to be a sequence of mass points and denote by y1(t) , y2(t), . . . their longitudinal displacements from the equilibrium position (see Fig. 6.1b). Then by Hooke’s law of elasticity the repelling forces are proportional to the differences of displacements (yi−1 − yi) − (yi − yi+1) . This leads to equations (6.2) again (“En examinant les e ́quations, . . . je me suis bientˆot aperc ̧u qu’elles ne diffe ́raient nullement de celles qui appartiennent au proble`me de chordis vibrantibus . . . ”).
+b
+a
+c
+y1
+y2
+y3
+y4
+y1 y2 y3 y4
+y1
+y2
+y3
+y4
+Fig. 6.1. Model for sound propagation, vibrating and hanging string
+Another example, treated by Daniel Bernoulli (1732) and by Lagrange (1762, Nr. 36), is that of mass points attached to a hanging string (Fig. 6.1c). Here the tension in the string becomes greater in the upper part of the string and we have the following equations of movement
+y′1′ = K2(−y1 + y2)
+y′2′ = K2(y1 − 3y2 + 2y3)
+y′3′ = K2(2y2 − 5y3 + 3y4)
+... y′′
+n = K2((n − 1)yn−1 − (2n − 1)yn
+).
+(6.3)
+In all these examples, of course, the deviations yi are supposed to be “infinitely” small, so that linear models are realistic. Using a notation which came into use only a century later, we write these equations in the form
+y′′
+i=
+∑n
+j=1
+aijyj, i = 1, . . . , n, (6.4)
+which is a system of 2nd order linear equations with constant coefficients. La
+
+
+28 I. Classical Mathematical Theory
+grange solves system (6.4) by putting yi = ciept , which leads to
+p2ci =
+n ∑
+j=1
+aijcj, i = 1, . . . , n (6.5)
+so that p2 must be an eigenvalue of the matrix A = (aij) and c = (c1, . . . , cn)T a corresponding eigenvector. We see here the first appearance of an eigenvalue problem. Lagrange (1762, Nr. 30) then explains that the equations (6.5) are solved by computing c2/c1, . . . , cn/c1 as functions of p from n − 1 equations and by inserting these results into the last equation. This leads to a polynomial of degree n (in fact, the characteristic polynomial) to obtain n different roots for p2 . We thus get 2n solutions y(j)
+i = c(j)
+i exp(±pjt) and the general solution as linear combinations of these. A complication arises when the characteristic polynomial possesses multiple roots. In this case, Lagrange (in his famous “Me ́canique Analytique” of 1788, seconde partie, sect.VI, No.7) affirms the presence of “secular” terms similar to the formulas following (4.8). This, however, is not completely true, as became clear only a century later (see e.g., Weierstrass (1858), p.243: “. . . um bei dieser Gelegenheit einen Irrtum zu berichtigen, der sich in der Lagrange’schen Theorie der kleinen Schwingungen, sowie in allen spa ̈teren mir bekannten Darstellungen derselben, findet.”). We therefore postpone this subject to Section I.12. We solve equations (6.2) in detail, since the results obtained are of particular importance (Lagrange 1759). The corresponding eigenvalue problem (6.5) becomes in this case p2c1 = K2(−2c1 + c2) , p2ci = K2(ci−1 − 2ci + ci+1) for
+i = 2, . . . , n − 1 and p2cn = K2(cn−1 − 2cn) . We introduce p2/K2 + 2 = q , so that
+cj+1 − qcj + cj−1 = 0, c0 = 0, cn+1 = 0. (6.6)
+This means that the ci are the solutions of a difference equation and therefore
+cj = Aaj + Bbj where a and b are the roots of the corresponding characteristic
+equation z2 − qz + 1 = 0 , hence
+a + b = q, ab = 1.
+The condition c0 = 0 of (6.6), which means that A + B = 0 , shows that cj = A(aj −
+bj) with A = 0 . The second condition cn+1 = 0 , or equivalently (a/b)n+1 = 1 , implies together with ab = 1 that
+a = exp
+( kπi n+1
+)
+, b = exp
+( −kπi n+1
+)
+for some k = 1, . . . , n. Thus we obtain
+qk = 2 cos πk
+n + 1 , k = 1, . . . , n, (6.7a)
+
+
+I.6 Systems of Equations 29
+p2
+k = 2K2(
+cos πk
+n+1 −1
+)
+= −4K2(
+sin πk
+2n + 2
+)2
+. (6.7b)
+Finally, Euler’s formula from 1740, eix − e−ix = 2i sin x (“... si familie`re aujourd’hui aux Ge ́ome`tres”) gives for the eigenvectors (with A = −i/2 )
+c(k)
+j = sin jkπ
+n + 1 , j, k = 1, . . . , n. (6.8)
+Since the pk are purely imaginary, we also use for exp(±pkt) the “familie`re” formula and obtain the general solution
+yj(t) =
+n ∑
+k=1
+sin jkπ
+n + 1 (ak cos rkt + bk sin rkt), rk = 2K sin πk
+2n + 2 . (6.9)
+Lagrange then observed after some lengthy calculations, which are today seen by using the orthogonality relations
+n ∑
+=1
+sin jπ
+n + 1 sin kπ
+n+1 =
+{ 0 j=k
+n+1
+2 j = k j, k = 1, . . . , n
+that
+ak = 2
+n+1
+n ∑
+j=1
+sin kjπ
+n + 1 yj(0), bk = 1
+rk
+2 n+1
+n ∑
+j=1
+sin kjπ
+n + 1 y′
+j (0)
+are determined by the initial positions and velocities of the mass points. He also studied the case where n , the number of mass points, tends to infinity (so that, in the formula for rk , sin x can be replaced by x ) and stood, 50 years before Fourier, at the portal of Fourier series theory. “Mit welcher Gewandtheit, mit welchem Aufwande analytischer Kunstgriffe er auch den ersten Theil dieser Untersuchung durchf ̈uhrte, so liess der Uebergang vom Endlichen zum Unendlichen doch viel zu w ̈unschen u ̈brig . . .” (Riemann 1854).
+Fourier
+J’ajouterai que le livre de Fourier a une importance capitale dans l’histoire des mathe ́matiques. (H. Poincare ́ 1893)
+The first first order systems were motivated by the problem of heat conduction (Biot 1804, Fourier 1807). Fourier imagined a rod to be a sequence of molecules, whose temperatures we denote by yi , and deduced from a law of Newton that the energy which a particle passes to its neighbours is proportional to the difference of their temperatures, i.e., yi−1 − yi to the left and yi+1 − yi to the right (“Lorsque deux mole ́cules d’un meˆme solide sont extreˆmement voisines et ont des tempe ́ratures ine ́gales, la mole ́cule plus e ́chauffe ́e communique `a celle qui l’est moins une quantite ́ de chaleur exactement exprime ́e par le produit forme ́ de la dure ́e de l’instant,
+
+
+30 I. Classical Mathematical Theory
+de la diffe ́rence extreˆmement petite des tempe ́ratures, et d’une certaine fonction de la distance des mole ́cules”). This long sentence means, in formulas, that the total gain of energy of the ith molecule is expressed by
+y′
+i = K2(yi−1 − 2yi + yi+1), (6.10)
+or, in general by
+y′
+i=
+∑n
+j=1
+aijyi, i = 1, . . . , n, (6.11)
+a first order system with constant coefficients. By putting yi = ciept , we now obtain the eigenvalue problem
+pci =
+n ∑
+j=1
+aijcj, i = 1, . . . , n. (6.12)
+If we suppose the rod cooled to zero at both ends (y0 = yn+1 = 0 ), we can use Lagrange eigenvectors from above and obtain the solution
+yj(t) =
+∑n
+k=1
+ak sin jkπ
+n + 1 exp(−wkt), wk = 4K2(
+sin πk
+2n + 2
+)2
+. (6.13)
+By taking n larger and larger, Fourier arrived from (6.10) (again the inverse “method of lines”) at his famous heat equation
+∂u
+∂t = a2 ∂2u
+∂x2 (6.14)
+which was the origin of Fourier series theory.
+Lagrangian Mechanics
+Dies ist der k ̈uhne Weg, den Lagrange . . . , freilich ohne ihn geh ̈orig zu rechtfertigen, eingeschlagen hat. (Jacobi 1842/43, Vorl. Dynamik, p. 13)
+This combines d’Alembert’s dynamics, the “principle of least action” of LeibnizMaupertuis and the variational calculus; published in the monumental treatise “Me ́canique Analytique” (1788). It furnishes an excellent means for obtaining the differential equations of motion for complicated mechanical systems (arbitrary coordinate systems, constraints, etc.). If we define (with Poisson 1809) the “Lagrange function”
+L = T − U (6.15)
+where
+T = m x ̇ 2 + y ̇2 + z ̇2
+2 (kinetic energy) (6.16)
+
+
+I.6 Systems of Equations 31
+and U is the “potential energy” satisfying
+∂U
+∂x = −X, ∂U
+∂y = −Y, ∂U
+∂z = −Z (6.17)
+then the equations of motion (6.1) are identical to Euler’s equations (2.11) for the variational problem ∫ t1
+t0
+L dt = min (6.18)
+(this, mainly through a misunderstanding of Jacobi, is often called “Hamilton’s principle”). The important idea is now to forget (6.16) and (6.17) and to apply (6.15) and (6.18) to arbitrary mass points and arbitrary coordinate systems.
+Example. The spherical pendulum (Lagrange 1788, Seconde partie, Section VIII, Chap. II, §I). Let = 1 and
+x = sin θ cos φ
+y = sin θ sin φ
+z = − cos θ.
+We set m = g = 1 and have
+T=1
+2 (x ̇ 2 + y ̇2 + z ̇2) = 1
+2 (θ ̇2 + sin2 θ · φ ̇ 2)
+U = z = − cos θ
+(6.19)
+so that (2.11) becomes
+Lθ − d
+dt (Lθ ̇) = − sin θ + sin θ cos θ · φ ̇ 2 − θ ̈ = 0
+Lφ − d
+dt (Lφ ̇ ) = − sin2 θ · φ ̈ − 2 sin θ cos θ · φ ̇ · θ ̇ = 0.
+(6.20)
+We have thus obtained, by simple calculus, the equations of motion for the problem. These equations cannot be solved analytically. A solution, computed numerically by a Runge-Kutta method (see Chapter II) is shown in Fig. 6.2.
+In general, suppose that the mechanical system in question is described by n coordinates q1, q2, . . . , qn and that L = T − U depends on q1, q2, . . . , qn , q ̇1, q ̇2, . . . , q ̇n . Then the equations of motion are
+d
+dt Lq ̇i =
+n ∑
+k=1
+Lq ̇iq ̇k q ̈k +
+∑n
+k=1
+Lq ̇iqk q ̇k = Lqi , i = 1, . . . , n. (6.21)
+These equations allow several generalizations to time-dependent systems and nonconventional forces.
+
+
+32 I. Classical Mathematical Theory
+a) b)
+Fig. 6.2. Solution of the spherical pendulum, a) 0 ≤ x ≤ 20 , b) 0 ≤ x ≤ 100 ( φ0 = 0,  ̇φ0 = 0.17, θ0 = 1, θ ̇0 = 0 )
+Hamiltonian Mechanics
+Nach dem Erscheinen der ersten Ausgabe der Me ́canique analytique wurde der wichtigste Fortschritt in der Umformung der Differentialgleichungen der Bewegung von Poisson . . . gemacht . . .
+im 15ten Hefte des polytechnischen Journals . . . Hier f ̈uhrt Pois
+son die Gr ̈ossen p = ∂T /∂q′ . . . ein. (Jacobi 1842/43, Vorl. Dynamik, p. 67)
+Hamilton, having worked for many years with variational principles (Fermat’s principle) in his researches on optics, discovered at once that his ideas, after introducing a “principal function”, allowed very elegant solutions for Kepler’s motion of a planet (Hamilton 1833). He then undertook in several papers (Hamilton 1834, 1835) to revolutionize mechanics. After many pages of computation he thereby discovered that it was “more convenient in many respects” (Hamilton 1834, Math. Papers II, p. 161) to work with the momentum coordinates (idea of Poisson)
+pi = ∂L
+∂q ̇i
+(6.22)
+instead of q ̇i , and with the function
+H=
+n ∑
+k=1
+q ̇kpk − L (6.23)
+considered as function of q1, . . . , qn, p1, . . . , pn . This idea, to let derivatives
+∂L/∂q ̇i and independent variables pi interchange their parts in order to simplify differential equations, is due to Legendre (1787). Differentiating (6.23) by the
+
+
+I.6 Systems of Equations 33
+chain rule, we obtain
+∂H ∂pi
+=
+n ∑
+k=1
+∂q ̇k ∂pi
+· pk + q ̇i −
+n ∑
+k=1
+∂L ∂q ̇k
+∂q ̇k ∂pi
+and
+∂H ∂qi
+=
+n ∑
+k=1
+∂q ̇k ∂qi
+· pk − ∂L
+∂qi
+−
+∑n
+k=1
+∂L ∂q ̇k
+∂q ̇k ∂qi
+.
+By (6.22) and (6.21) both formulas simplify to
+q ̇i = ∂H
+∂pi
+, p ̇i = − ∂H
+∂qi
+, i = 1, . . . , n. (6.24)
+These equations are marvellously symmetric “. . . and to integrate these differential equations of motion. . . is the chief and perhaps ultimately the only problem of mathematical dynamics” (Hamilton 1835). Jacobi (1843) called them canonical differential equations.
+Remark. If the kinetic energy T is a quadratic function of the velocities q ̇i , Euler’s
+identity (Euler 1755, Caput VII, § 224, “. . . si V fuerit functio homogenea. . .”) states that
+2T =
+n ∑
+k=1
+q ̇k
+∂T ∂q ̇k
+. (6.25)
+If we further assume that the potential energy U is independent of q ̇i , we obtain
+H=
+∑n
+k=1
+q ̇kpk − L =
+n ∑
+k=1
+q ̇k
+∂T ∂q ̇k
+− L = 2T − L = T + U. (6.26)
+This is the total energy of the system.
+Example. The spherical pendulum again. From (6.19) we have
+pθ = ∂T
+∂θ ̇ = θ ̇, pφ = ∂T
+∂φ ̇ = sin2 θ · φ ̇ (6.27)
+and, by eliminating the undesired variables θ ̇ and φ ̇ ,
+H =T +U = 1
+2
+(
+p2
+θ + p2φ
+sin2 θ
+)
+− cos θ. (6.28)
+Therefore (6.26) becomes
+p ̇θ = p2
+φ · cos θ
+sin3 θ − sin θ p ̇φ = 0
+θ ̇ = pθ φ ̇ = pφ
+sin2 θ .
+(6.29)
+These equations appear to be a little simpler than Lagrange’s formulas (6.20). For example, we immediately see that pφ = Const (Kepler’s second law).
+
+
+34 I. Classical Mathematical Theory
+Exercises
+1. Verify that, if u(x) is sufficiently differentiable,
+u(x − δ) − 2u(x) + u(x + δ)
+δ2 = u′′(x) + δ2
+12 u(4)(x) + O(δ4).
+Hint. Use Taylor series expansions for u(x + δ) and u(x − δ) . This relation establishes the connection between (6.10) and (6.14) as well as between (6.2) and the wave equation.
+2. Solve equation (6.3) for n = 2 and n = 3 by using the device of Lagrange described above (1762) and discover naturally the characteristic polynomial of the matrix.
+3. Solve the first order system (6.11) with initial values yi(0) = (−1)i , where the matrix A is the same as in Exercise 2, and draw the solutions. Physically, this equation would represent a string with weights hanging, say, in honey.
+4. Find the first terms of the development at the singular point x = 0 of the solutions of the following system of nonlinear equations
+x2y′′ + 2xy′ = 2yz2 + λx2y(y2 − 1), y(0) = 0
+x2z′′ = z(z2 − 1) + x2y2z, z(0) = 1 (6.30)
+where λ is a constant parameter. Equations (6.30) are the Euler equations for the variational problem
+I=
+∫∞
+0
+(
+(z′)2 + x2(y′)2
+2 + (z2 − 1)2
+2x2 + y2z2 + λ
+4 x2(y2 − 1)2)
+dx,
+y(∞) = 1, z(∞) = 0
+which gives the mass of a “monopole” in nuclear physics (see ’t Hooft 1974).
+5. Prove that the Hamiltonian function H(q1, . . . , qn, p1, . . . , pn) is a first integral for the system (6.24), i.e., every solution satisfies
+H(q1(t), . . . , qn(t), p1(t), . . . , pn(t)) = Const.
+
+
+I.7 A General Existence Theorem
+M. Cauchy annonce, que, pour se conformer au voeu du Conseil, il ne s’attachera plus a` donner, comme il a fait jusqu’a` pre ́sent, des de ́monstrations parfaitement rigoureuses. (Conseil d’instruction de l’Ecole polytechnique, 24 nov. 1825)
+You have all professional deformation of your minds; convergence does not matter here ... (P. Henrici 1985)
+We now enter a new era for our subject, more theoretical than the preceding one. It was inaugurated by the work of Cauchy, who was not as fascinated by long numerical calculations as was, say, Euler, but merely a fanatic for perfect mathematical rigor and exactness. He criticized in the work of his predecessors the use of infinite series and other infinite processes without taking much account of error estimates or convergence results. He therefore established around 1820 a convergence theorem for the polygon method of Euler and, some 15 years later, for the power series method of Newton (see Section I.8). Beyond the estimation of errors, these results also allow the statement of general existence theorems for the solutions of arbitrary differential equations (“d’une e ́quation diffe ́rentielle quelconque”), whose solutions were only known before in a very few cases. A second important consequence is to provide results about the uniqueness of the solution, which allow one to conclude that the computed solution (numerically or analytically) is the only one with the same initial value and that there are no others. Only then we are allowed to speak of the solution of the problem. His very first proof has recently been discovered on fragmentary notes (Cauchy 1824), which were never published in Cauchy’s lifetime (did his notes not satisfy the Minister of education?: “. . . mais que le second professeur, M. Cauchy, n’a pre ́sente ́ que des feuilles qui n’ont pu satisfaire la commission, et qu’il a e ́te ́ jusqu’a` pre ́sent impossible de l’amener a` se rendre au voeu du Conseil et a` exe ́cuter la de ́cision du Ministre”).
+Convergence of Euler’s Method
+Let us now, with bared head and trembling knees, follow the ideas of this historical proof. We formulate it in a way which generalizes directly to higher dimensional systems. Starting with the one-dimensional differential equation
+y′ = f (x, y), y(x0) = y0, y(X) =? (7.1)
+we make use of the method explained by Euler (1768) in the last section of his “Institutiones Calculi Integralis I” (Caput VII, p. 424), i.e., we consider a subdivision
+
+
+36 I. Classical Mathematical Theory
+of the interval of integration
+x0, x1, . . . , xn−1, xn = X (7.2)
+and replace in each subinterval the solution by the first term of its Taylor series
+y1 − y0 = (x1 − x0)f (x0, y0)
+y2 − y1 = (x2 − x1)f (x1, y1)
+...
+yn − yn−1 = (xn − xn−1)f (xn−1, yn−1).
+(7.3)
+For the subdivision above we also use the notation
+h = (h0, h1, . . . , hn−1)
+where hi = xi+1 − xi . If we connect y0 and y1, y1 and y2, . . . etc by straight lines we obtain the Euler polygon
+yh(x) = yi + (x − xi)f (xi, yi) for xi ≤ x ≤ xi+1. (7.3a)
+Lemma 7.1. Assume that |f | is bounded by A on
+D=
+{
+(x, y) | x0 ≤ x ≤ X, |y − y0| ≤ b
+} .
+If X − x0 ≤ b/A then the numerical solution (xi, yi) given by (7.3), remains in D for every subdivision (7.2) and we have
+|yh(x) − y0| ≤ A · |x − x0|, (7.4)
+∣∣∣yh(x) −
+(
+y0 + (x − x0)f (x0, y0)
+)∣∣∣ ≤ ε · |x − x0| (7.5)
+if |f (x, y) − f (x0, y0)| ≤ ε on D.
+Proof. Both inequalities are obtained by adding up the lines of (7.3) and using the triangle inequality. Formula (7.4) then shows immediately that for A(x − x0) ≤ b the polygon remains in D .
+Our next problem is to obtain an estimate for the change of yh(x) , when the initial value y0 is changed: let z0 be another initial value and compute
+z1 − z0 = (x1 − x0)f (x0, z0). (7.6)
+We need an estimate for |z1 − y1| . Subtracting (7.6) from the first line of (7.3) we obtain
+z1 − y1 = z0 − y0 + (x1 − x0)
+(
+f (x0, z0) − f (x0, y0)
+) .
+This shows that we need an estimate for f (x0, z0) − f (x0, y0) . If we suppose
+|f (x, z) − f (x, y)| ≤ L|z − y| (7.7)
+
+
+I.7 A General Existence Theorem 37
+we obtain
+|z1 − y1| ≤ (1 + (x1 − x0)L)|z0 − y0|. (7.8)
+Lemma 7.2. For a fixed subdivision h let yh(x) and zh(x) be the Euler polygons corresponding to the initial values y0 and z0 , respectively. If
+∣∣∣ ∂f
+∂y (x, y)
+∣∣∣ ≤ L (7.9)
+in a convex region which contains (x, yh(x)) and (x, zh(x)) for all x0 ≤ x ≤ X , then
+|zh(x) − yh(x)| ≤ eL(x−x0)|z0 − y0|. (7.10)
+Proof. (7.9) implies (7.7), (7.7) implies (7.8), (7.8) implies
+|z1 − y1| ≤ eL(x1−x0)|z0 − y0|.
+If we repeat the same argument for z2 − y2 , z3 − y3 , and so on, we finally obtain (7.10).
+Remark. Condition (7.7) is called a “Lipschitz condition”. It was Lipschitz (1876) who rediscovered the theory (footnote in the paper of Lipschitz: “L’auteur ne connaˆıt pas e ́videmment les travaux de Cauchy . . .”) and advocated the use of (7.7) instead of the more stringent hypothesis (7.9). Lipschitz’s proof is also explained in the classical work of Picard (1891-96), Vol. II, Chap. XI, Sec. I.
+If the subdivision (7.2) is refined more and more, so that
+|h| := max
+i=0,...,n−1 hi → 0,
+we expect that the Euler polygons converge to a solution of (7.1). Indeed, we have
+Theorem 7.3. Let f (x, y) be continuous, and |f | be bounded by A and satisfy the Lipschitz condition (7.7) on
+D=
+{
+(x, y) | x0 ≤ x ≤ X, |y − y0| ≤ b
+} .
+If X − x0 ≤ b/A , then we have:
+a) For |h| → 0 the Euler polygons yh(x) converge uniformly to a continuous function φ(x) .
+b) φ(x) is continuously differentiable and solution of (7.1) on x0 ≤ x ≤ X .
+c) There exists no other solution of (7.1) on x0 ≤ x ≤ X .
+Proof. a) Take an ε > 0 . Since f is uniformly continuous on the compact set D , there exists a δ > 0 such that
+|u1 − u2| ≤ δ and |v1 − v2| ≤ A · δ
+
+
+38 I. Classical Mathematical Theory
+imply
+|f (u1, v1) − f (u2, v2)| ≤ ε. (7.11)
+Suppose now that the subdivision (7.2) satisfies
+|xi+1 − xi| ≤ δ, i.e., |h| ≤ δ. (7.12)
+We first study the effect of adding new mesh-points. In a first step, we consider a subdivision h(1) , which is obtained by adding new points only to the first subinterval (see Fig. 7.1). It follows from (7.5) (applied to this first subinterval) that for the new refined solution yh(1)(x1) we have the estimate |yh(1)(x1) − yh(x1)| ≤ ε|x1 − x0| . Since the subdivisions h and h(1) are identical on x1 ≤ x ≤ X we can apply Lemma 7.2 to obtain
+|yh(1)(x) − yh(x)| ≤ eL(x−x1)(x1 − x0)ε for x1 ≤ x ≤ X.
+We next add further points to the subinterval (x1, x2) and denote the new subdi
+vision by h(2) . In the same way as above this leads to |yh(2)(x2) − yh(1)(x2)| ≤ ε|x2 − x1| and
+|yh(2)(x) − yh(1)(x)| ≤ eL(x−x2)(x2 − x1)ε for x2 ≤ x ≤ X.
+The entire situation is sketched in Fig. 7.1. If we denote by ̂h the final refinement, we obtain for xi < x ≤ xi+1
+|ŷh(x) − yh(x)| (7.13)
+≤ε
+(
+eL(x−x1)(x1 − x0) + . . . + eL(x−xi)(xi − xi−1)
+)
++ ε(x − xi)
+≤ε
+∫x
+x0
+eL(x−s) ds = ε
+L
+(
+eL(x−x0) − 1
+) .
+If we now have two different subdivisions h and  ̃h, which both satisfy (7.12), we introduce a third subdivision ̂h which is a refinement of both subdivisions (just as is usually done in proving the existence of Riemann’s integral), and apply (7.13) twice. We then obtain from (7.13) by the triangle inequality
+|yh(x) − y ̃h(x)| ≤ 2 ε
+L
+(
+eL(x−x0) − 1
+) .
+For ε > 0 small enough, this becomes arbitrarily small and shows the uniform convergence of the Euler polygons to a continuous function φ(x) . b) Let
+ε(δ) := sup
+{∣∣f (u1, v1) − f (u2, v2)∣∣ ; |u1 − u2| ≤ δ, |v1 − v2| ≤ Aδ, (ui, vi) ∈ D
+}
+be the modulus of continuity. If x belongs to the subdivision h then we obtain from (7.5) (replace (x0, y0) by (x, yh(x)) and x by x + δ )
+|yh(x + δ) − yh(x) − δf (x, yh(x))| ≤ ε(δ)δ. (7.14)
+
+
+I.7 A General Existence Theorem 39
+y
+x x x x . . . xn = X
+yh(x
+yh x
+yh x
+yh x
+Fig. 7.1. Lady Windermere’s Fan (O. Wilde 1892)
+Taking the limit |h| → 0 we get
+|φ(x + δ) − φ(x) − δf (x, φ(x))| ≤ ε(δ)δ. (7.15)
+Since ε(δ) → 0 for δ → 0 , this proves the differentiability of φ(x) and φ′(x) = f (x, φ(x)) .
+c) Let ψ(x) be a second solution of (7.1) and suppose that the subdivision h
+satisfies (7.12). We then denote by y(i)
+h (x) the Euler polygon to the initial value
+(xi, ψ(xi)) (it is defined for xi ≤ x ≤ X ). It follows from
+ψ(x) = ψ(xi) +
+∫x
+xi
+f (s, ψ(s)) ds
+and (7.11) that
+|ψ(x) − y(i)
+h (x)| ≤ ε|x − xi| for xi ≤ x ≤ xi+1.
+Using Lemma 7.2 we deduce in the same way as in part a) that
+|ψ(x) − yh(x)| ≤ ε
+L
+(
+eL(x−x0) − 1
+)
+. (7.16)
+Taking the limits |h| → 0 and ε → 0 we obtain |ψ(x) − φ(x)| ≤ 0 , proving uniqueness.
+Theorem 7.3 is a local existence - and uniqueness - result. However, if we interpret the endpoint of the solution as a new initial value, we can apply Theorem 7.3 again and continue the solution. Repeating this procedure we obtain
+Theorem 7.4. Assume U to be an open set in R2 and let f and ∂f /∂y be continuous on U . Then, for every (x0, y0) ∈ U , there exists a unique solution of (7.1), which can be continued up to the boundary of U (in both directions).
+
+
+40 I. Classical Mathematical Theory
+Proof. Clearly, Theorem 7.3 can be rewritten to give a local existence - and uniqueness - result for an interval (X, x0) to the left of x0 . The rest follows from the fact that every point in U has a neighbourhood which satisfies the assumptions of Theorem 7.3.
+It is interesting to mention that formula (7.13) for |̂h| → 0 gives the following error estimate
+|y(x) − yh(x)| ≤ ε
+L
+(
+eL(x−x0) − 1
+)
+(7.17)
+for the Euler polygon (|h| ≤ δ) . Here y(x) stands for the exact solution of (7.1). The next theorem refines the above estimates for the case that f (x, y) is also differentiable with respect to x .
+Theorem 7.5. Suppose that in a neighbourhood of the solution
+|f | ≤ A,
+∣∣∣ ∂f
+∂y
+∣∣∣ ≤ L,
+∣∣∣ ∂f
+∂x
+∣∣∣ ≤ M.
+We then have the following error estimate for the Euler polygons:
+∣∣y(x) − yh(x)∣∣ ≤ M + AL
+L
+(
+eL(x−x0) − 1
+)
+· |h|, (7.18)
+provided that |h| is sufficiently small.
+Proof. For |u1 − u2| ≤ |h| and |v1 − v2| ≤ A|h| we obtain, due to the differentiability of f , the estimate
+|f (u1, v1) − f (u2, v2)| ≤ (M + AL)|h|
+instead of (7.11). When we insert this amount for ε into (7.16), we obtain the stated result.
+The estimate (7.18) shows that the global error of Euler’s method is proportional to the maximal step size |h| . Thus, for an accuracy of, say, three decimal digits, we would need about a thousand steps; a precision of six digits will normally require a million steps etc. We see thus that the present method is not recommended for computations of high precision. In fact, the main subject of Chapter II will be to find methods which converge faster.
+
+
+I.7 A General Existence Theorem 41
+Existence Theorem of Peano
+Si a est un complexe d’ordre n , et b un nombre re ́el, alors on peut
+de ́terminer b′ et f , o`u b′ est une quantite ́ plus grande que b , et f est un signe de fonction qui a` chaque nombre de l’intervalle de
+b a` b′ fait correspondre un complexe (en d’autres mots, f t est un complexe fonction de la variable re ́elle t , de ́finie pour toutes les
+valeurs de l’intervalle (b, b′) ); la valeur de f t pour t = b est a ; et
+dans tout l’intervalle (b, b′) cette fonction f t satisfait a` l’e ́quation diffe ́rentielle donn ́ee. (Original version of Peano’s Theorem)
+The Lipschitz condition (7.7) is a crucial tool in the proof of (7.10) and finally of the Convergence Theorem. If we completely abandon condition (7.7) and only require that f (x, y) be continuous, the convergence of the Euler polygons is no longer guaranteed. An example, plotted in Fig. 7.2, is given by the equation
+y′ = 4
+(
+sign (y)√|y| + max
+(
+0, x − |y|
+x
+)
+· cos
+( π log x log 2
+))
+(7.19)
+with y(0) = 0 . It has been constructed such that
+f (h, 0) = 4(−1)ih for h = 2−i,
+f (x, y) = 4 sign(y) · √|y| for |y| ≥ x2.
+h=1/2
+h=1/4
+h=1/8
+h=1/16
+h=1/32
+h=1/64
+Fig. 7.2. Solution curves and Euler polygons for equation (7.19)
+
+
+42 I. Classical Mathematical Theory
+There is an infinity of solutions for this initial value, some of which are plotted in Fig. 7.2. The Euler polygons converge for h = 2−i and even i to the maximal solution y = 4x2 , and for odd i to y = −4x2 . For other sequences of h all intermediate solutions can be obtained as well.
+Theorem 7.6 (Peano 1890). Let f (x, y) be continuous and |f | be bounded by A on
+D=
+{
+(x, y) | x0 ≤ x ≤ X, |y − y0| ≤ b
+} .
+If X − x0 ≤ b/A , then there is a subsequence of the sequence of the Euler polygons which converges to a solution of the differential equation.
+The original proof of Peano is, in its crucial part on the convergence result, very brief and not clear to unexperienced readers such as us. Arzela` (1895), who took up the subject again, explains his ideas in more detail and emphasizes the need for an equicontinuity of the sequence. The proof usually given nowadays (for what has become the theorem of Arzela`-Ascoli), was only introduced later (see e.g. Perron (1918), Hahn (1921), p. 303) and is sketched as follows:
+Proof. Let
+v1(x), v2(x), v3(x), . . . (7.20)
+be a sequence of Euler polygons for decreasing step sizes. It follows from (7.4) that for fixed x this sequence is bounded. We choose a sequence of numbers r1, r2, r3, . . . dense in the interval (x0, X) . There is now a subsequence of (7.20) which converges for x = r1 (Bolzano-Weierstrass), say
+v(1)
+1 (x), v(1)
+2 (x), v(1)
+3 (x), . . . (7.21)
+We next select a subsequence of (7.21) which converges for x = r2
+v(2)
+1 (x), v(2)
+2 (x), v(2)
+3 (x), . . . (7.22)
+and so on. Then take the “diagonal” sequence
+v(1)
+1 (x), v(2)
+2 (x), v(3)
+3 (x), . . . (7.23)
+which, apart from a finite number of terms, is a subsequence of each of these sequences, and thus converges for all ri . Finally, with the estimate
+|v(n)
+n (x) − v(n)
+n (rj)| ≤ A|x − rj|
+(see (7.4)), which expresses the equicontinuity of the sequence, we obtain
+|v(n)
+n (x) − v(m)
+m (x)|
+≤ |v(n)
+n (x) − v(n)
+n (rj )| + |v(n)
+n (rj ) − v(m)
+m (rj )| + |v(m)
+m (rj ) − v(m)
+m (x)|
+≤ 2A|x − rj| + |v(n)
+n (rj) − v(m)
+m (rj)|.
+
+
+I.7 A General Existence Theorem 43
+For fixed ε > 0 we then choose a finite subset R of {r1, r2, . . .} satisfying
+min{|x − rj| ; rj ∈ R, x0 ≤ x ≤ X} ≤ ε/A
+and secondly we choose N such that
+|v(n)
+n (rj) − v(m)
+m (rj)| ≤ ε for n, m ≥ N and rj ∈ R.
+This shows the uniform convergence of (7.23). In the same way as in part b) of the proof of Theorem 7.3 it follows that the limit function is a solution of (7.1). One only has to add an O(|h|) -term in (7.14), if x is not a subdivision point.
+Exercises
+1. Apply Euler’s method with constant step size xi+1 − xi = 1/n to the differ
+ential equation y′ = ky , y(0) = 1 and obtain a classical approximation for the solution y(1) = ek . Give an estimate of the error.
+2. Apply Euler’s method with constant step size to
+a) y′ = y2 , y(0) = 1 , y(1/2) =?
+b) y′ = x2 + y2 , y(0) = 0 , y(1/2) =?
+Make rigorous error estimates using Theorem 7.4 and compare these estimates with the actual errors. The main difficulty is to find a suitable region in which the estimates of Theorem 7.4 hold, without making the constants A, L, M too large and, at the same time, ensuring that the solution curves remain inside this region (see also I.8, Exercise 3).
+3. Prove the result: if the differential equation y′ = f (x, y) , y(x0) = y0 with f continuous, possesses a unique solution, then the Euler polygons converge to this solution.
+4. “There is an elementary proof of Peano’s existence theorem” (Walter 1971). Suppose that A is a bound for |f | . Then the sequence
+yi+1 = yi + h · max{f (x, y)|xi ≤ x ≤ xi+1, yi − 3Ah ≤ y ≤ yi + Ah}
+converges for all continuous f to a (the maximal) solution. Try to prove this. Unfortunately, this proof does not extend to systems of equations, unless they are “quasimonotone” (see Section I.10, Exercise 3).
+
+
+I.8 Existence Theory using Iteration Methods
+and Taylor Series
+A second approach to existence theory is possible with the help of an iterative refinement of approximate solutions. The first appearances of the idea are very old. For instance many examples of this type can be found in the work of Lagrange, above all in his astronomical calculations. Let us consider here the following illustrative example of a Riccati equation
+y′ = x2 + y + 0.1y2, y(0) = 0. (8.1)
+Because of the quadratic term, there is no elementary solution. A very natural idea is therefore to neglect this term, which is in fact very small at the beginning, and to solve for the moment
+y′1 = x2 + y1, y1(0) = 0. (8.2)
+This gives, with formula (3.3), a first approximation
+y1(x) = 2ex − (x2 + 2x + 2). (8.3)
+With the help of this solution, we now know more about the initially neglected term 0.1y2 ; it will be close to 0.1y12 . So the idea lies at hand to reintroduce this solution into (8.1) and solve now the differential equation
+y′2 = x2 + y2 + 0.1 · (y1(x))2, y2(0) = 0. (8.4)
+We can use formula (3.3) again and obtain after some calculations
+y2(x) = y1(x) + 2
+5 e2x − 2
+15 ex(x3 + 3x2 + 6x − 54)
+−1
+10 (x4 + 8x3 + 32x2 + 72x + 76).
+This is already much closer to the correct solution, as can be seen from the following comparison of the errors e1 = y(x) − y1(x) and e2 = y(x) − y2(x) :
+x = 0.2 e1 = 0.228 × 10−07 e2 = 0.233 × 10−12
+x = 0.4 e1 = 0.327 × 10−05 e2 = 0.566 × 10−09
+x = 0.8 e1 = 0.534 × 10−03 e2 = 0.165 × 10−05.
+
+
+I.8 Existence Theory using Iteration Methods and Taylor Series 45
+It looks promising to continue this process, but the computations soon become very tedious.
+Picard-Lindelo ̈f Iteration
+The general formulation of the method is the following: we try, if possible, to split up the function f (x, y) of the differential equation
+y′ = f (x, y) = f1(x, y) + f2(x, y), y(x0) = y0 (8.5)
+so that any differential equation of the form y′ = f1(x, y) + g(x) can be solved analytically and so that f2(x, y) is small. Then we start with a first approximation y0(x) and compute successively y1(x), y2(x), . . . by solving
+y′
+i+1 = f1(x, yi+1) + f2
+(x, yi(x)), yi+1(x0) = y0. (8.6)
+The most primitive form of this process is obtained by choosing f1 = 0, f2 = f , in which case (8.6) is immediately integrated and becomes
+yi+1(x) = y0 +
+∫x
+x0
+f (s, yi(s)) ds. (8.7)
+This is called the Picard-Lindel ̈of iteration method. It appeared several times in the literature, e.g., in Liouville (1838), Cauchy, Peano (1888), Lindel ̈of (1894), Bendixson (1893). Picard (1890) considered it merely as a by-product of a similar idea for partial differential equations and analyzed it thoroughly in his famous treatise Picard (1891-96), Vol. II, Chap. XI, Sect. III. The fast convergence of the method, for |x − x0| small, is readily seen: if we
+subtract formula (8.7) from the same with i replaced by i − 1 , we have
+yi+1(x) − yi(x) =
+∫x
+x0
+(
+f (s, yi(s)) − f (s, yi−1(s)))
+ds. (8.8)
+We now apply the Lipschitz condition (7.7) and the triangle inequality to obtain
+|yi+1(x) − yi(x)| ≤ L
+∫x
+x0
+|yi(s) − yi−1(s)| ds. (8.9)
+When we assume y0(x) ≡ y0 , the triangle inequality applied to (8.7) with i = 0 yields the estimate
+|y1(x) − y0(x)| ≤ A|x − x0|
+where A is a bound for |f | as in Section I.7. We next insert this into the right hand side of (8.9) repeatedly to obtain finally the estimate (Lindelo ̈f 1894)
+|yi(x) − yi−1(x)| ≤ ALi−1 |x − x0|i
+i! . (8.10)
+
+
+46 I. Classical Mathematical Theory
+The right-hand side is a term of the Taylor series for eL|x−x0| , which converges for all x ; we therefore conclude that |yi+k − yi| becomes arbitrarily small when i is large. The error is bounded by the remainder of the above exponential series. So the sequence yi(x) converges uniformly to the solution y(x) . For example, if
+L|x − x0| ≤ 1/10 and the constant A is moderate, 10 iterations would provide a numerical solution with about 17 correct digits. The main practical drawback of the method is the need for repeated computation of integrals, which is usually not very convenient, if at all analytically possible, and soon becomes very tedious. However, its fast convergence and new machine architectures (parallelism) coupled with numerical evaluations of the integrals have made the approach interesting for large problems (see Nevanlinna 1989).
+Taylor Series
+Apre`s avoir montre ́ l’insuffisance des me ́thodes d’inte ́gration fonde ́es sur le de ́veloppement en se ́ries, il me reste a` dire en peu de mots ce qu’on peut leur substituer. (Cauchy)
+A third existence proof can be based on a study of the convergence of the Taylor series of the solutions. This was mentioned in a footnote of Liouville (1836, p. 255), and brought to perfection by Cauchy (1839-42). We have already seen the recursive computation of the Taylor coefficients in the work of Newton (see Section I.2). Euler (1768) then formulated the general procedure for the higher derivatives of the solution of
+y′ = f (x, y), y(x0) = y0 (8.11)
+which, by successive differentiation, are obtained as
+y′′ = fx + fyy′ = fx + fyf
+y′′′ = fxx + 2fxyf + fyyf 2 + fy(fx + fyf ) (8.12)
+etc. Then the solution is
+y(x0 + h) = y(x0) + y′(x0)h + y′′(x0) h2
+2! + . . . . (8.13)
+The formulas (8.12) for higher derivatives soon become very complicated. Euler therefore proposed to use only a few terms of this series with h sufficiently small and to repeat the computations from the point x1 = x0 + h (“analytic continuation”). We shall now outline the main ideas of Cauchy’s convergence proof for the series (8.13). We suppose that f (x, y) is analytic in the neighbourhood of the initial value x0, y0 , which for simplicity of notation we assume located at the origin x0 = y0 = 0 :
+f (x, y) = ∑
+i,j≥0
+aijxiyj, (8.14)
+
+
+I.8 Existence Theory using Iteration Methods and Taylor Series 47
+where the aij are multiples of the partial derivatives occurring in (8.12). If the se
+ries (8.14) is assumed to converge for |x| ≤ r , |y| ≤ r , then the Cauchy inequalities from classical complex analysis give
+|aij| ≤ M
+ri+j , where M = max
+|x|≤r,|y|≤r |f (x, y)|. (8.15)
+The idea is now the following: since all signs in (8.12) are positive, we obtain the worst possible result if we replace in (8.14) all aij by the largest possible values (8.15) (“method of majorants”):
+f (x, y) → ∑
+i,j≥0
+M xiyj
+ri+j = M
+(1 − x/r)(1 − y/r).
+However, the majorizing differential equation
+y′ = M
+(1 − x/r)(1 − y/r), y(0) = 0
+is readily integrated by separation of variables (see Section I.3) and has the solution
+y=r
+(
+1−
+√
+1 + 2M log
+(
+1− x
+r
+))
+. (8.16)
+This solution has a power series expansion which converges for all x such that |2M log(1 − x/r)| < 1 . Therefore, the series (8.13) also converges at least for all
+|h| < r(1 − exp(−1/2M )).
+Recursive Computation of Taylor Coefficients
+. . . dieses Verfahren praktisch nicht in Frage kommen kann. (Runge & K ̈onig 1924)
+The exact opposite is true, if we use the right approach . . . (R.E. Moore 1979)
+The “right approach” is, in fact, an extension of Newton’s approach and has been rediscovered several times (e.g,. Steffensen 1956) and implemented into computer programs by Gibbons (1960) and Moore (1966). For a more extensive bibliography see the references in Wanner (1969), p. 10-20. The idea is the following: let
+Yi = 1
+i! y(i)(x0), Fi = 1
+i!
+(
+f (x, y(x)))(i)∣∣x=x0 (8.17)
+be the Taylor coefficients of y(x) and of f (x, y(x)), so that (8.13) becomes
+y(x0 + h) =
+∞ ∑
+i=0
+hiYi.
+
+
+48 I. Classical Mathematical Theory
+Then, from (8.11),
+Yi+1 = 1
+i + 1 Fi. (8.18)
+Now suppose that f (x, y) is the composition of a sequence of algebraic operations and elementary functions. This leads to a sequence of items,
+x, y, p, q, r, . . . , and finally f. (8.19)
+For each of these items we find formulas for generating the ith Taylor coefficient from the preceding ones as follows:
+a) r = p ± q :
+Ri = Pi ± Qi, i = 0, 1, . . . (8.20a)
+b) r = pq : the Cauchy product yields
+Ri =
+∑i
+j=0
+PjQi−j, i = 0, 1, . . . (8.20b)
+c) r = p/q : write p = rq , use formula b) and solve for Ri :
+Ri = 1
+Q0
+(
+Pi −
+i− ∑1
+j=0
+Rj Qi−j
+)
+, i = 0, 1, . . . (8.20c)
+There also exist formulas for many elementary functions (in fact, because these functions are themselves solutions of rational differential equations).
+d) r = exp(p) : use r′ = p′ · r and apply (8.20b). This gives for i = 1, 2, ...
+R0 = exp(P0), Ri = 1
+i
+i− ∑1
+j=0
+(i − j)RjPi−j. (8.20d)
+e) r = log(p) : use p = exp(r) and rearrange formula d). This gives
+R0 = log(P0), Ri = 1
+P0
+(
+Pi − 1
+i
+i− ∑1
+j=1
+(i − j)PjRi−j
+)
+. (8.20e)
+f) r = pc, c = 1 constant. Use pr′ = crp′ and apply (8.20b):
+R0 = P0c, Ri = 1
+iP0
+( i− ∑1
+j=0
+(ci − (c + 1)j)RjPi−j
+)
+. (8.20f)
+
+
+I.8 Existence Theory using Iteration Methods and Taylor Series 49
+g) r = cos(p) , s = sin(p) : as in d) we have
+R0 = cos P0, Ri = − 1
+i
+i− ∑1
+j=0
+(i − j)SjPi−j ,
+S0 = sin P0, Si = 1
+i
+i− ∑1
+j=0
+(i − j)RjPi−j .
+(8.20g)
+The alternating use of (8.20) and (8.18) then allows us to compute the Taylor coefficients for (8.17) to any wanted order in a very economical way. It is not difficult to write subroutines for the above formulas, which have to be called in the same order as the differential equation (8.11) is composed of elementary operations. There also exist computer programs which “compile” Fortran statements for f (x, y) into this list of subroutine calls. One has been written by T. Szymanski and J.H. Gray (see Knapp & Wanner 1969).
+Example. The differential equation y′ = x2 + y2 leads to the recursion
+Y0 = y(0), Yi+1 = 1
+i+1
+(
+Pi +
+∑i
+j=0
+Yj Yi−j
+)
+, i = 0, 1, . . .
+where Pi = 1 for i = 2 and Pi = 0 for i = 2 are the coefficients for x2 . One can imagine how much easier this is than formulas (8.12).
+An important property of this approach is that it can be executed in interval analysis and thus allows us to obtain reliable error bounds by the use of Lagrange’s error formula for Taylor series. We refer to the books by R.E. Moore (1966) and (1979) for more details.
+Exercises
+1. Obtain from (8.10) the estimate
+|yi(x) − y0| ≤ A
+L
+(
+eL(x−x0) − 1
+)
+and explain the similarity of this result with (7.16).
+2. Apply the method of Picard to the problem y′ = Ky , y(0) = 1 .
+3. Compute three Picard iterations for the problem y′ = x2 + y2 , y(0) = 0 , y(1/2) =? and make a rigorous error estimate. Compare the result with the correct solution y(1/2) = 0.041791146154681863220768806849179 .
+
+
+50 I. Classical Mathematical Theory
+4. Compute with an iteration method the solution of
+y′ = √x + √y, y(0) = 0
+and observe that the method can work well for equations which pose serious problems with other methods. An even greater difference occurs for the equations
+y′ = √x + y2, y(0) = 0 and y′ = √1x + y2, y(0) = 0.
+5. Define f (x, y) by
+f (x, y) =
+⎧⎪⎪⎨
+⎪⎪⎩
+0 for x ≤ 0
+2x for x > 0, y < 0
+2x − 4y
+x for 0 ≤ y ≤ x2
+−2x for x > 0, x2 < y.
+a) Show that f (x, y) is continuous, but not Lipschitz.
+b) Show that for the problem y′ = f (x, y) , y(0) = 0 the Picard iteration method does not converge.
+c) Show that there is a unique solution and that the Euler polygons converge.
+6. Use the method of Picard iteration to prove: if f (x, y) is continuous and satisfies a Lipschitz condition (7.7) on the infinite strip D = {(x, y) ; x0 ≤ x ≤ X} ,
+then the initial value problem y′ = f (x, y) , y(x0) = y0 possesses a unique
+solution on x0 ≤ x ≤ X .
+Compare this global result with Theorem 7.3.
+7. Define a function y(x) (the “inverse error function”) by the relation
+x = √2π
+∫y
+0
+e−t2 dt
+and show that it satisfies the differential equation
+y′ =
+√π
+2 ey2 , y(0) = 0.
+Obtain recursion formulas for its Taylor coefficients.
+
+
+I.9 Existence Theory for Systems of Equations
+The first treatment of an existence theory for simultaneous systems of differential equations was undertaken in the last existing pages (p. 123-136) of Cauchy (1824). We write the equations as
+y′1 = f1(x, y1, . . . , yn),
+...
+y′
+n = fn(x, y1, . . . , yn),
+y1(x0) = y10,
+...
+yn(x0) = yn0,
+y1(X) = ?
+...
+yn(X) = ?
+(9.1)
+and ask for the existence of the n solutions y1(x), . . . , yn(x) . It is again natural to consider, in analogy to (7.3), the method of Euler
+yk,i+1 = yki + (xi+1 − xi) · fk(xi, y1i, . . . , yni) (9.2)
+(for k = 1, . . . , n and i = 0, 1, 2, . . .). Here yki is intended to approximate yk(xi) , where x0 < x1 < x2 . . . is a subdivision of the interval of integration as in (7.2). We now try to carry over everything we have done in Section I.7 to the new situation. Although we have no problem in extending (7.4) to the estimate
+|yki − yk0| ≤ Ak|xi − x0| if |fk(x, y1, . . . , yn)| ≤ Ak, (9.3)
+things become a little more complicated for (7.7): we have to estimate
+fk(x, z1, . . . , zn) − fk(x, y1, . . . , yn) = ∂fk
+∂y1
+· (z1 − y1) + . . . + ∂fk
+∂yn
+· (zn − yn),
+(9.4) where the derivatives ∂fk/∂yi are taken at suitable intermediate points. Here Cauchy uses the inequality now called the “Cauchy-Schwarz inequality” (“Enfin, il re ́sulte de la formule (13) de la 11e le ̧con du calcul diffe ́rentiel . . .”) to obtain
+|fk(x,z1, . . . , zn) − fk(x, y1, . . . , yn)| (9.5)
+≤
+√( ∂fk ∂y1
+)2
++...+
+( ∂fk ∂yn
+)2 ·
+√
+(z1 − y1)2 + . . . + (zn − yn)2.
+At this stage, we begin to feel that further development is advisable only after the introduction of vector notation.
+
+
+52 I. Classical Mathematical Theory
+Vector Notation
+This was promoted in our subject by the papers of Peano, (1888) and (1890), who was influenced, as he says, by the famous “Ausdehnungslehre” of Grassmann and the work of Hamilton, Cayley, and Sylvester. We introduce the vectors (Peano called them “complexes”)
+y = (y1, . . . , yn)T , yi = (y1i, . . . , yni)T , z = (z1, . . . , zn)T etc,
+and hope that the reader will not confuse the components yi of a vector y with vectors with indices. We consider the “vector function”
+f (x, y) = (f1(x, y), . . . , fn(x, y))T ,
+so that equations (9.1) become
+y′ = f (x, y), y(x0) = y0, y(X) =?, (9.1’)
+Euler’s method (9.2) is
+yi+1 = yi + (xi+1 − xi)f (xi, yi), i = 0, 1, 2, . . . (9.2’)
+and the Euler polygon is given by
+yh(x) = yi + (x − xi)f (xi, yi) for xi ≤ x ≤ xi+1.
+There is no longer any difference in notation with the one-dimensional cases (7.1), (7.3) and (7.3a). In view of estimate (9.5), we introduce for a vector y = (y1, . . . , yn)T the norm (originally “modulus”)
+‖y‖ =
+√
+y12 + . . . + y2n (9.6)
+which satisfies all the usual properties of a norm, for example the triangle inequality
+‖y + z‖ ≤ ‖y‖ + ‖z‖,
+∥∥∥
+n ∑
+i=1
+yi
+∥∥∥ ≤
+n ∑
+i=1
+‖yi‖. (9.7)
+The Euclidean norm (9.6) is not the only one possible, we also use (“on pourrait aussi de ́finir par mx la plus grande des valeurs absolues des e ́lements de x ; alors les proprie ́tes des modules sont presqu’e ́videntes.”, Peano)
+‖y‖ = max(|y1|, . . . , |yn|), (9.6’)
+‖y‖ = |y1| + . . . + |yn|. (9.6”)
+We are now able to formulate estimate (9.3) as follows, in perfect analogy with (7.4): if for some norm ‖f (x, y)‖ ≤ A on D = {(x, y) | x0 ≤ x ≤ X, ‖y − y0‖ ≤ b}
+and if X − x0 ≤ b/A then the numerical solution (xi, yi) , given by (9.2’), remains in D and we have
+‖yh(x) − y0‖ ≤ A · |x − x0|. (9.8)
+The analogue of estimate (7.5) can be obtained similarly.
+
+
+I.9 Existence Theory for Systems of Equations 53
+In order to prove the implication “(7.9) ⇒ (7.7)” for vector-valued functions it is convenient to work with norms of matrices.
+Subordinate Matrix Norms
+The relation (9.4) shows that the difference f (x, z) − f (x, y) can be written as the product of a matrix with the vector z − y . It is therefore of interest to estimate ‖Qv‖ and to find the best possible estimate of the form ‖Qv‖ ≤ β‖v‖ .
+Definition 9.1. Let Q be a matrix (n columns, m rows) and ‖ . . . ‖ be one of the norms defined in (9.6), (9.6’) or (9.6”). The subordinate matrix norm of Q is then defined by
+‖Q‖ = sup
+v=0
+‖Qv‖
+‖v‖ = sup
+‖u‖=1
+‖Qu‖. (9.9)
+By definition, ‖Q‖ is the smallest number such that
+‖Qv‖ ≤ ‖Q‖ · ‖v‖ for all v (9.10)
+holds. The following theorem gives explicit formulas for the computation of (9.9).
+Theorem 9.2. The norm of a matrix Q is given by the following formulas: for the Euclidean norm (9.6),
+‖Q‖ = √
+largest eigenvalue of QT Q ; (9.11)
+for the max-norm (9.6’),
+‖Q‖ = max
+k=1,...,m
+(∑n
+i=1
+|qki|
+)
+; (9.11’)
+for the norm (9.6”),
+‖Q‖ = max
+i=1,...,n
+( m ∑
+k=1
+|qki|
+)
+. (9.11”)
+Proof. Formula (9.11) can be seen from ‖Qv‖2 = vT QT Qv with the help of an orthogonal transformation of QT Q to diagonal form. Formula (9.11’) is obtained as follows (we denote (9.6’) by ‖ . . . ‖∞ ):
+‖Qv‖∞ = max
+k=1,...,m
+∣∣∣
+n ∑
+i=1
+qki vi
+∣∣∣ ≤
+(
+max
+k=1,...,m
+∑n
+i=1
+|qki|
+)
+· ‖v‖∞ (9.12)
+shows that ‖Q‖ ≤ maxk
+∑
+i |qki| . The equality in (9.11’) is then seen by choosing
+a vector of the form v = (±1, ±1, . . . , ±1)T for which equality holds in (9.12). The formula (9.11”) is proved along the same lines.
+
+
+54 I. Classical Mathematical Theory
+All these formulas remain valid for complex matrices. QT has only to be replaced by Q∗ (transposed and complex conjugate). See e.g., Wilkinson (1965), p. 55-61, Bakhvalov (1976), Chap. VI, Par. 3. With these preparations it is possible to formulate the desired estimate.
+Theorem 9.3. If f (x, y) is differentiable with respect to y in an open convex region U and if
+∥∥∥ ∂f
+∂y (x, y)
+∥∥∥ ≤ L for (x, y) ∈ U (9.13)
+then
+‖f (x, z) − f (x, y)‖ ≤ L ‖z − y‖ for (x, y), (x, z) ∈ U. (9.14)
+(Obviously, the matrix norm in (9.13) is subordinate to the norm used in (9.14).)
+Proof. This is the “mean value theorem” and its proof can be found in every textbook on calculus. In the case where ∂f /∂y is continuous, the following simple
+proof is possible. We consider φ(t) = f (x, y + t(z − y)) and integrate its derivative (componentwise) from 0 to 1
+f (x, z) − f (x, y) = φ(1) − φ(0) =
+∫1
+0
+φ′(t) dt
+=
+∫1
+0
+∂f ∂y
+(x, y + t(z − y)) · (z − y) dt.
+(9.15)
+Taking the norm of (9.15), using
+∥∥∥
+∫1
+0
+g(t) dt
+∥∥∥ ≤
+∫1
+0
+‖g(t)‖ dt, (9.16)
+and applying (9.10) and (9.13) yields the estimate (9.14). The relation (9.16) is proved by applying the triangle inequality (9.7) to the finite Riemann sums which define the two integrals.
+We thus have obtained the analogue of (7.7). All that remains to do is, Da capo al fine, to read Sections I.7 and I.8 again: Lemma 7.2, Theorems 7.3, 7.4, 7.5, and 7.6 together with their proofs and the estimates (7.10), (7.13), (7.15), (7.16), (7.17), and (7.18) carry over to the more general case with the only changes that some absolute values are to be replaced by norms.
+The Picard-Lindel ̈of iteration also carries over to systems of equations when in (8.7) we interpret yi+1(x), y0 and f (s, yi(s)) as vectors, integrated componentwise. The convergence result with the estimate (8.10) also remains the same; for its proof we have to use, between (8.8) and (8.9), the inequality (9.16).
+
+
+I.9 Existence Theory for Systems of Equations 55
+The Taylor series method, its convergence proof, and the recursive generation of the Taylor coefficients also generalize in a straightforward manner to systems of equations.
+Exercises
+1. Solve the system
+y′1 = −y2,
+y′2 = +y1,
+y1(0) = 1
+y2(0) = 0
+by the methods of Euler and Picard, establish rigorous error estimates for all three norms mentioned. Verify the results using the correct solution y1(x) = cos x , y2(x) = sin x .
+2. Consider the differential equations
+y′1 = −100y1 + y2,
+y′2 = y1 − 100y2,
+y1(0) = 1,
+y2(0) = 0,
+y1(1) = ?
+y2(1) = ?
+a) Compute the exact solution y(x) by the method explained in Section I.6.
+b) Compute the error bound for ‖z(x) − y(x)‖ , where z(x) = 0 , obtained from (7.10).
+c) Apply the method of Euler to this equation with h = 1/10 .
+d) Apply Picard’s iteration method.
+3. Compute the Taylor series solution of the system with constant coefficients y′ = Ay , y(0) = y0 . Prove that this series converges for all x . Apply this series to the equation of Exercise 1.
+Result.
+y(x) =
+∞ ∑
+i=0
+xi
+i! Aiy0 =: eAxy0.
+
+
+I.10 Differential Inequalities
+Differential inequalities are an elegant instrument for gaining a better understanding of equations (7.10), (7.17) and much new insight. This subject was inaugurated in the paper, once again, Peano (1890) and further developed by Perron (1915), M ̈uller (1926), Kamke (1930). A classical treatise on the subject is the book of Walter (1970).
+Introduction
+The basic idea is the following: let v(x) denote the Euler polygon defined in (7.3) or (9.2), so that
+v′(x) = f (xi, yi) for xi < x < xi+1. (10.1)
+For any chosen norm, we investigate the error
+m(x) = ‖v(x) − y(x)‖ (10.2)
+as a function of x and we naturally try to estimate its growth. Unfortunately, m(x) is not necessarily differentiable, due firstly to the corners of the Euler polygons and secondly, to corners originating from the norms, especially the norms (9.6’) and (9.6”). Therefore we consider the so-called Dini derivatives defined by
+D+m(x) = lim sup
+h→0,h>0
+m(x + h) − m(x)
+h,
+D+m(x) = lim inf
+h→0,h>0
+m(x + h) − m(x)
+h,
+(see e.g., Scheeffer (1884), Hobson (1921), Chap. V, §260, §280). The property
+‖w(x + h)‖ − ‖w(x)‖ ≤ ‖w(x + h) − w(x)‖ (10.3)
+is a simple consequence of the triangle inequality (9.7). If we divide (10.3) by h > 0 , we obtain the estimates
+D+‖w(x)‖ ≤ ‖w′(x + 0)‖, D+‖w(x)‖ ≤ ‖w′(x + 0)‖, (10.4)
+
+
+I.10 Differential Inequalities 57
+where w′(x + 0) is the right derivative of the vector function w(x) . If we apply this to m(x) of (10.2), we obtain
+D+m(x) ≤ ‖v′(x + 0) − y′(x)‖
+= ‖v′(x + 0) − f (x, v(x)) + f (x, v(x)) − f (x, y(x))‖
+and, using the triangle inequality and the Lipschitz condition (9.14),
+D+m(x) ≤ δ(x) + L · m(x). (10.5)
+Here, we have introduced
+δ(x) = ‖v′(x + 0) − f (x, v(x))‖ (10.6)
+which is called the defect of the approximate solution v(x) . This fundamental quantity measures the extent to which the function v(x) does not satisfy the imposed differential equation. (7.11) together with (10.1) tell us that δ(x) ≤ ε, so that (10.5) can be further estimated to become
+D+m(x) ≤ L · m(x) + ε, m(x0) = 0. (10.7)
+Formula (10.7) (or (10.5)) is what one calls a differential inequality. The question is: are we allowed to replace “≤” by “=”, i.e., to solve instead of (10.7) the equation
+u′ = Lu + ε, u(x0) = 0 (10.8)
+and to conclude that m(x) ≤ u(x) ? This would mean, by the formulas of Section I.3 or I.5, that
+m(x) ≤ ε
+L
+(
+eL(x−x0) − 1
+)
+. (10.9)
+We would thus have obtained (7.17) in a natural way and have furthermore discovered an elegant and powerful tool for many kinds of new estimates.
+The Fundamental Theorems
+A general theorem of the type
+D+m(x) ≤ g(x, m(x))
+D+u(x) ≥ g(x, u(x))
+m(x0) ≤ u(x0)
+⎫⎬
+⎭ =⇒ m(x) ≤ u(x) for x0 ≤ x (10.10)
+cannot be true. Counter-examples are provided by any differential equation with non-unique solutions, such as
+g(x, y) = √y, m(x) = x2
+4 , u(x) = 0. (10.11)
+The important observation, due to Peano and Perron, which allows us to overcome this difficulty, is that one of the first two inequalities must be replaced by a strict inequality (see Peano (1890), §3, Lemme 1):
+
+
+58 I. Classical Mathematical Theory
+Theorem 10.1. Suppose that the functions m(x) and u(x) are continuous and satisfy for x0 ≤ x < X
+a) D+m(x) ≤ g(x, m(x))
+b) D+u(x) > g(x, u(x))
+c) m(x0) ≤ u(x0).
+(10.12)
+Then
+m(x) ≤ u(x) for x0 ≤ x ≤ X. (10.13)
+The same conclusion is true if both D+ are replaced by D+ .
+Proof. In order to be able to compare the derivatives D+m and D+u in (10.12), we consider points at which m(x) = u(x) . This is the main idea. If (10.13) were not true, we could choose a point x2 with m(x2) > u(x2) and look for the first point x1 to the left of x2 with m(x1) = u(x1) . Then for small h > 0 we would have
+m(x1 + h) − m(x1)
+h > u(x1 + h) − u(x1)
+h
+and, by taking limits, D+m(x1) ≥ D+u(x1) . This, however, contradicts (a) and (b), which give
+D+m(x1) ≤ g(x1, m(x1)) = g(x1, u(x1)) < D+u(x1).
+Many variant forms of this theorem are possible, for example by using left Dini derivates (Walter 1970, Chap. II, §8, Theorem V).
+Theorem 10.2 (The “fundamental lemma”). Suppose that y(x) is a solution of the system of differential equations y′ = f (x, y) , y(x0) = y0 , and that v(x) is an approximate solution. If
+a) ‖v(x0) − y(x0)‖ ≤
+b) ‖v′(x + 0) − f (x, v(x))‖ ≤ ε
+c) ‖f (x, v) − f (x, y)‖ ≤ L‖v − y‖,
+then, for x ≥ x0 , we have the error estimate
+‖y(x) − v(x)‖ ≤ eL(x−x0) + ε
+L
+(
+eL(x−x0) − 1
+)
+. (10.14)
+Remark. The two terms in (10.14) express, respectively, the influence of the error in the initial values and the influence of the defect ε to the error of the approximate solution. It implies that the error depends continuously on both, and that for = ε = 0 we have y(x) = v(x) , i.e., uniqueness of the solution.
+
+
+I.10 Differential Inequalities 59
+Proof. We put m(x) = ‖y(x) − v(x)‖ and obtain, as in (10.7),
+D+m(x) ≤ L · m(x) + ε, m(x0) ≤ .
+We shall try to compare this with the differential equation
+u′ = Lu + ε, u(x0) = . (10.15)
+Theorem 10.1 is not directly applicable. We therefore replace in (10.15) ε by ε + η, η > 0 and solve instead
+u′ = Lu + ε + η > Lu + ε, u(x0) = .
+Now Theorem 10.1 gives the estimate (10.14) with ε replaced by ε + η . Since this estimate is true for all η > 0 , it is also true for η = 0 .
+Variant form of Theorem 10.2. The conditions
+a) ‖v(x0) − y(x0)‖ ≤
+b) ‖v′(x + 0) − f (x, v(x))‖ ≤ δ(x)
+c) ‖f (x, v) − f (x, y)‖ ≤ (x)‖v − y‖
+imply for x ≥ x0
+‖y(x) − v(x)‖ ≤ eL(x)(
++
+∫x
+x0
+e−L(s)δ(s) ds
+)
+, L(x) =
+∫x
+x0
+(s) ds.
+Proof. This is simply formula (3.3).
+Theorem 10.3. If the function g(x, y) is continuous and satisfies a Lipschitz condition, then the implication (10.10) is true for continuous functions m(x) and u(x) .
+Proof. Define functions wn(x) , vn(x) by
+w′
+n(x) = g(x, wn(x)) + 1/n, wn(x0) = m(x0),
+v′
+n(x) = g(x, vn(x)) − 1/n, vn(x0) = u(x0),
+so that from Theorem 10.1
+m(x) ≤ wn(x), vn(x) ≤ u(x) for x0 ≤ x ≤ X. (10.16)
+It follows from Theorem 10.2 that the functions wn(x) and vn(x) converge for
+n → ∞ to the solutions of
+w′(x) = g(x, w(x)), w(x0) = m(x0),
+v′(x) = g(x, v(x)), v(x0) = u(x0),
+
+
+60 I. Classical Mathematical Theory
+since the defect is ±1/n . Finally, because of m(x0) ≤ u(x0) and uniqueness we
+have w(x) ≤ v(x). Taking the limit n → ∞ in (10.16) thus gives m(x) ≤ u(x) .
+A further generalization of Theorem 10.2 is possible if the Lipschitz condition (c) is replaced by something nonlinear such as
+‖f (x, v) − f (x, y)‖ ≤ ω(x, ‖v − y‖).
+Then the differential inequality for the error m(x) is to be compared with the solution of
+u′ = ω(x, u) + δ(x) + η, u(x0) = , η > 0.
+See Walter (1970), Chap. II, §11 for more details.
+Estimates Using One-Sided Lipschitz Conditions
+As we already observed in Exercise 2 of I.9, and as has been known for a long time, much information about the errors can be lost by the use of positive Lipschitz constants L (e.g (9.11), (9.11’), or (9.11”)) in the estimates (7.16), (7.17), or (7.18). The estimates all grow exponentially with x , even if the solutions and errors decay. Therefore many efforts have been made to obtain better error estimates, as for example the papers Eltermann (1955), Uhlmann (1957), Dahlquist (1959), and the references therein. We follow with great pleasure the particularly clear presentation of Dahlquist. Let us estimate the derivative of m(x) = ‖v(x) − y(x)‖ with more care than we did in (10.5): for h > 0 we have
+m(x + h) = ‖v(x + h) − y(x + h)‖
+= ‖v(x) − y(x) + h(v′(x + 0) − y′(x))‖ + O(h2) (10.17)
+≤
+∥∥∥v(x) − y(x) + h
+(
+f (x, v(x)) − f (x, y(x))
+)∥∥∥ + hδ(x) + O(h2)
+by the use of (10.6) and (9.7). Here, we apply the mean value theorem to the function y + hf (x, y) and obtain
+m(x + h) ≤
+(
+max
+η∈[y(x),v(x)]
+∥∥∥I + h ∂f
+∂y (x, η)
+∥∥∥
+)
+· m(x) + hδ(x) + O(h2)
+and finally for h > 0 ,
+m(x + h) − m(x)
+h ≤ max
+η∈[y(x),v(x)]
+‖I + h ∂f
+∂y (x, η)‖ − 1
+h m(x) + δ(x) + O(h).
+(10.18) The expression on the right hand side of (10.18) leads us to the following definition:
+
+
+I.10 Differential Inequalities 61
+Definition 10.4. Let Q be a square matrix, then we call
+μ(Q) = lim
+h→0,h>0
+‖I + hQ‖ − 1
+h (10.19)
+the logarithmic norm of Q .
+Here are formulas for its computation (Dahlquist (1959), p. 11, Eltermann (1955), p. 498, 499):
+Theorem 10.5. The logarithmic norm (10.19) is obtained by the following formulas: for the Euclidean norm (9.6),
+μ(Q) = λmax = largest eigenvalue of 1
+2 (QT + Q); (10.20)
+for the max-norm (9.6’),
+μ(Q) = max
+k=1,...,n
+(
+qkk + ∑
+i=k
+|qki|
+)
+; (10.20’)
+for the norm (9.6”),
+μ(Q) = max
+i=1,...,n
+(
+qii + ∑
+k=i
+|qki|
+)
+. (10.20”)
+Proofs. Formulas (10.20’) and (10.20”) follow quite trivially from (9.11’) and (9.11”) and the definition (10.19). The point is that the presence of I suppresses, for h sufficiently small, the absolute values for the diagonal elements. (10.20) is seen from the fact that the eigenvalues of
+(I + hQ)T (I + hQ) = I + h(QT + Q) + h2QT Q,
+for h → 0 , converge to 1 + hλi , where λi are the eigenvalues of QT + Q .
+Remark. For complex-valued matrices the above formulas remain valid if one replaces Q by Q∗ and qkk, qii by Reqkk, Reqii .
+We now obtain from (10.18) the following improvement of Theorem 10.3.
+Theorem 10.6. Suppose that we have the estimates
+μ
+(∂f
+∂y (x, η)
+)
+≤ (x) for η ∈ [y(x), v(x)] and (10.21)
+‖v′(x + 0) − f (x, v(x))‖ ≤ δ(x), ‖v(x0) − y(x0)‖ ≤ .
+Then for x > x0 we have
+‖y(x) − v(x)‖ ≤ eL(x)(
++
+∫x
+x0
+e−L(s)δ(s) ds
+)
+, (10.22)
+with L(x) = ∫ x
+x0 (s) ds .
+
+
+62 I. Classical Mathematical Theory
+Proof. Since, for a fixed x , the segment [v(x), y(x)] is compact,
+K = miax max
+[v(x),y(x)]
+∣∣∣ ∂fi
+∂yi
+∣∣∣
+is finite. Then (see the proof of Theorem 10.5)
+‖I + h ∂f
+∂y (x, η)‖ − 1
+h =μ
+(∂f
+∂y (x, η)
+)
++ O(h)
+where the O(h) -term is uniformly bounded in η . (For the norms (9.6’) and (9.6”) this term is in fact zero for h < 1/K ). Thus the condition (10.21) inserted into (10.18) gives
+D+m(x) ≤ (x)m(x) + δ(x).
+Now the estimate (10.22) follows in the same way as that of Theorem 10.3.
+Exercises
+1. Apply Theorem 10.6 to the example of Exercise 2 of I.9. Observe the substantial improvement of the estimates.
+2. Prove the following (a variant form of the famous “Gronwall lemma”, Gronwall 1919): suppose that a positive function m(x) satisfies
+m(x) ≤ + ε(x − x0) + L
+∫x
+x0
+m(s) ds =: w(x) (10.23)
+then
+m(x) ≤ eL(x−x0) + ε
+L
+(
+eL(x−x0) − 1
+)
+; (10.24)
+a) directly, by subtracting from (10.23)
+u(x) = + ε(x − x0) + L
+∫x
+x0
+u(s) ds;
+b) by differentiating w(x) in (10.23) and using Theorem 10.1.
+c) Prove Theorem 10.2 with the help of the above lemma of Gronwall. The same interrelations are, of course, also valid in more general situations.
+3. Consider the problem y′ = λy , y(0) = 1 with λ ≥ 0 and apply Euler’s method with constant step size h = 1/n . Prove that
+λ
+1 + λ/n yh(x) ≤ D+yh(x) ≤ λyh(x)
+
+
+I.10 Differential Inequalities 63
+and derive the estimate (
+1+ λ
+n
+)n ≤ eλ ≤
+(
+1+ λ
+n
+)n+λ
+for λ ≥ 0.
+4. Prove the following properties of the logarithmic norm:
+a) μ(αQ) = αμ(Q) for α ≥ 0
+b) − ‖Q‖ ≤ μ(Q) ≤ ‖Q‖
+c) μ(Q + P ) ≤ μ(Q) + μ(P ), μ
+(∫ Q(t) dt
+)
+≤ ∫ μ(Q(t)) dt
+d) |μ(Q) − μ(P )| ≤ ‖Q − P ‖.
+5. For the Euclidean norm (10.20), μ(Q) is the smallest number satisfying
+〈v, Qv〉 ≤ μ(Q)‖v‖2.
+This property is valid for all norms associated with a scalar product. Prove this.
+6. Show that for the Euclidean norm the condition (10.21) is equivalent to
+〈y − z, f (x, y) − f (x, z)〉 ≤ (x)‖y − z‖2.
+7. Observe, using an example of the form
+y′1 = y2, y′2 = −y1,
+that a generalization of Theorem 10.1 to systems of first order differential equations, with inequalities interpreted component-wise, is not true in general (M ̈uller 1926).
+However, it is possible to prove such a generalization of Theorem 10.1 under the additional hypothesis that the functions gi(x, y1, . . . , yn) are quasimonotone, i.e., that
+gi(x, y1, . . . , yj, . . . , yn) ≤ gi(x, y1, . . . , zj, . . . , yn)
+if yj < zj for all j = i.
+Try to prove this.
+An important fact is that many systems from parabolic differential equations, such as equation (6.10), are quasimonotone. This allows many interesting applications of the ideas of this section (see Walter (1970), Chap. IV).
+
+
+I.11 Systems of Linear Differential Equations
+[Wronski] . . . bescha ̈ftigte sich mit Mathematik, Mechanik und Physik, Himmelsmechanik und Astronomie, Statistik und politischer O ̈ konomie, mit Geschichte, Politik und Philosophie, . . . er versuchte seine Kra ̈fte in mehreren mechanischen und technischen Erfindungen. (S. Dickstein, III. Math. Kongr. 1904, p. 515)
+With more knowledge about existence and uniqueness, and with more skill in linear algebra, we shall now, as did the mathematicians of the 19th century, better understand many points which had been left somewhat obscure in Sections I.4 and I.6 about linear differential equations of higher order. Equation (4.9) divided by an(x) (which is = 0 away from singular points) becomes
+y(n) + bn−1(x)y(n−1) + . . . + b0(x)y = g(x), bi(x) = ai(x)/an(x). (11.1)
+with g(x) = f (x)/an(x) . Introducing y = y1 , y′ = y2, . . . , y(n−1) = yn we arrive at ⎛
+⎜⎜⎝
+y′1
+y...′2
+y′n
+⎞
+⎟⎟⎠ =
+⎛
+⎜⎜⎜⎝
+01
+0 0 ...
+... ... . . . 1
+−b0(x) −b1(x) . . . −bn−1(x)
+⎞
+⎟⎟⎟⎠
+⎛
+⎜⎜⎝
+y1
+y...2
+yn
+⎞
+⎟⎟⎠ +
+⎛
+⎜⎜⎝
+0...
+0 g(x)
+⎞
+⎟⎟⎠ . (11.1’)
+We again denote by y the vector (y1, . . . , yn)T and by f (x) the inhomogeneity, so that (11.1’) becomes a special case of the following system of linear differential equations
+y′ = A(x)y + f (x), (11.2)
+A(x) = (aij(x)), f (x) = (fi(x)), i, j = 1, . . . , n.
+Here, the theorems of Section I.9 and I.10 apply without difficulty. Since the partial derivatives of the right hand side of (11.2) with respect to yi are given by aki(x) , we have the Lipschitz estimate (see condition (c) of the variant form of Theorem 10.2), where (x) = ‖A(x)‖ in any subordinate matrix norm (9.11, 11’, 11”). We apply Theorem 7.4, and the variant form of Theorem 10.2 with v(x) = 0 as “approximate solution”. We may also take (x) = μ(A(x)) (see (10.20, 20’, 20”)) and apply Theorem 10.6.
+Theorem 11.1. Suppose that A(x) is continuous on an interval [x0, X] . Then for
+any initial values y0 = (y10, . . . , yn0)T there exists for all x0 ≤ x ≤ X a unique
+
+
+I.11 Systems of Linear Differential Equations 65
+solution of (11.2) satisfying
+‖y(x)‖ ≤ eL(x)(
+‖y0‖ +
+∫x
+x0
+e−L(s)‖f (s)‖ ds
+)
+(11.3)
+L(x) =
+∫x
+x0
+(s) ds, (x) = ‖A(x)‖ or (x) = μ(A(x)).
+For f (x) ≡ 0 , y(x) depends linearly on the initial values, i.e., there is a matrix R(x, x0) (the “resolvent”), such that
+y(x) = R(x, x0) y0. (11.4)
+Proof. Since (x) is continuous and therefore bounded on any compact interval [x0, X] , the estimate (11.3) shows that the solutions can be continued until the end.
+The linear dependence follows from the fact that, for f ≡ 0 , linear combinations of solutions are again solutions, and from uniqueness.
+Resolvent and Wronskian
+From uniqueness we have that the solutions with initial values y0 at x0 and y1 = R(x1, x0) y0 at x1 (see (11.4)) must be the same. Hence we have
+R(x2, x0) = R(x2, x1)R(x1, x0) (11.5)
+for x0 ≤ x1 ≤ x2 . Finally by integrating backward from x1, y1 , i.e., by the co
+ordinate transformation x = x1 − t , 0 ≤ t ≤ x1 − x0 , we must arrive, again by uniqueness, at the starting values. Hence
+R(x0, x1) =
+(
+R(x1, x0)
+)−1
+(11.6)
+and (11.5) is true without any restriction on x0, x1, x2 . Let yi(x) = (y1i(x), . . . , yni(x))T (for i = 1, . . . , n ) be a set of n solutions of the homogeneous differential equation
+y′ = A(x) y (11.7)
+which are linearly independent at x = x0 (i.e., they form a fundamental system). We form the Wronskian matrix (Wronski 1810)
+W (x) =
+⎛
+⎜⎝
+y11(x) . . . y1n(x)
+... ...
+yn1(x) . . . ynn(x)
+⎞
+⎟⎠ ,
+
+
+66 I. Classical Mathematical Theory
+so that
+W ′(x) = A(x)W (x)
+and all solutions can be written as
+c1y1(x) + . . . + cnyn(x) = W (x) c where c = (c1, . . . , cn)T . (11.8)
+If this solution must satisfy the initial conditions y(x0) = y0 , we obtain
+c = W −1(x0)y0 and we have the formula
+R(x, x0) = W (x)W −1(x0). (11.9)
+Therefore all solutions are known if one has found n linearly independent solutions.
+Inhomogeneous Linear Equations
+Extending the idea of Joh. Bernoulli for (3.2) and Lagrange for (4.9), we now compute the solutions of the inhomogeneous equation (11.2) by letting c be “variable” in the “general solution” (11.8): y(x) = W (x)c(x) (Liouville 1838). Exactly as in Section I.3 for (3.2) we obtain from (11.2) and (11.7) by differentiation
+y′ = W ′c + W c′ = AW c + W c′ = AW c + f.
+Hence c′ = W −1f . If we integrate this with integration constants c , we obtain
+y(x) = W (x)
+∫x
+x0
+W −1(s)f (s) ds + W (x) c.
+The initial conditions y(x0) = y0 imply c = W −1(x0)y0 and we obtain:
+Theorem 11.2 (“Variation of constants formula”). Let A(x) and f (x) be continuous. Then the solution of the inhomogeneous equation y′ = A(x)y + f (x) satisfying the initial conditions y(x0) = y0 is given by
+y(x) = W (x)
+(
+W −1(x0) y0 +
+∫x
+x0
+W −1(s)f (s) ds
+)
+= R(x, x0) y0 +
+∫x
+x0
+R(x, s)f (s) ds.
+(11.10)
+The Abel-Liouville-Jacobi-Ostrogradskii Identity
+We already know from (11.6) that W (x) remains regular for all x . We now show that the determinant of W (x) can be given explicitly as follows (Abel 1827, Liouville 1838, Jacobi 1845, §17):
+
+
+I.11 Systems of Linear Differential Equations 67
+det(W (x)) = det(W (x0)) · exp
+(∫ x
+x0
+tr (A(s)) ds
+)
+, (11.11)
+tr (A(x)) = a11(x) + a22(x) + . . . + ann(x)
+which connects the determinant of W (x) to the trace of A(x) .
+For the proof of (11.11) (see also Exercise 2) we compute the derivative
+d
+dx det(W (x)). Since det(W (x)) is multilinear, this derivative (by the Leibniz
+rule) is a sum of n terms, whose first is
+T1 = det
+⎛
+⎜⎜⎝
+y′11 y′12 . . . y′1n
+y21 y22 . . . y2n
+... ... ...
+yn1 yn2 . . . ynn
+⎞
+⎟⎟⎠ .
+We insert y′1i = a11(x)y1i + . . . + a1n(x)yni from (11.7). All terms a12(x)y2i , . . . , a1n(x)yni disappear by subtracting multiples of lines 2 to n , so that T1 =
+a11(x) det(W (x)). Summing all these terms we obtain finally
+d
+dx det(W (x)) = (a11(x) + . . . + ann(x)) · det(W (x)) (11.12)
+and (11.11) follows by integration.
+Exercises
+1. Compute the resolvent matrix R(x, x0) for the two systems
+y′1 = y1
+y′2 = 3y2
+y′1 = y2
+y′2 = −y1
+and check the validity of (11.5), (11.6) as well as (11.11).
+2. Reconstruct Abel’s original proof for (11.11), which was for the case
+y′1′ + py′1 + qy1 = 0, y′2′ + py′2 + qy2 = 0.
+Multiply the equations by y2 and y1 respectively and subtract to eliminate q . Then integrate.
+Use the result to obtain an identity for the two integrals
+y1(a) =
+∫∞
+0
+eax−x2 xα−1dx, y2(a) =
+∫∞
+0
+e−ax−x2 xα−1dx,
+which both satisfy
+d2yi
+da2 − a
+2 · dyi
+da − α
+2 yi = 0. (11.13)
+
+
+68 I. Classical Mathematical Theory
+Hint. To verify (11.13), integrate from 0 to infinity the expression for
+d
+dx (exp(ax − x2)xα) (Abel 1827, case IV).
+3. (Kummer 1839). Show that the general solution of the equation
+y(n)(x) = xmy(x) (11.14)
+can be obtained by quadrature.
+Hint. Differentiate (11.14) to obtain
+y(n+1) = xmy′ + mxm−1y. (11.15)
+Suppose by recursion that the general solution of
+ψ(n+1) = xm−1ψ, i.e., dn+1
+dxn+1 ψ(xu) = xm−1um+nψ(xu) (11.16)
+is already known. Show that then
+y(x) =
+∫∞
+0
+um−1 exp
+(
+− um+n
+m+n
+)
+ψ(xu) dx
+is the general solution of (11.15), and, under some conditions on the parameters, also of (11.14). To simplify the computations, consider the function
+g(u) = um exp
+(
+− um+n
+m+n
+)
+ψ(xu),
+compute its derivative with respect to u , multiply by xm−1 , and integrate from 0 to infinity.
+4. (Weak singularities for systems). Show that the linear system
+y′ = 1
+x
+(
+A0 + A1x + A2x2 + . . .
+)
+y (11.17)
+possesses solutions of the form
+y(x) = xq(
+v0 + v1x + v2x2 + . . .
+)
+(11.18)
+where v0, v1, . . . are vectors. Determine first q and v0 , then recursively v1, v2 , etc. Observe that there exist n independent solutions of the form (11.18) if the eigenvalues of A0 satisfy λi = λj mod (Z) (Fuchs 1866).
+5. Find the general solution of the weakly singular systems
+y′ = 1
+x
+(3
+41
+1
+4 −1
+4
+)
+y and y′ = 1
+x
+(3
+41
+−1
+4 −1
+4
+)
+y. (11.19)
+Hint. While the first is easy from Exercise 4, the second needs an additional idea (see formula (5.9)). A second possibility is to use the transformation x = et , y(x) = z(t) , and apply the methods of Section I.12.
+
+
+I.12 Systems with Constant Coefficients
+Die Technik der Integration der linearen Differentialgleichungen mit constanten Coeffizienten wird hier auf das H ̈ochste entwickelt. (F. Klein in Routh 1898)
+Linearization
+Systems of linear differential equations with constant coefficients form a class of equations for which the resolvent R(x, x0) can be computed explicitly. They generally occur by linearization of time-independent (i.e., autonomous or permanent) nonlinear differential equations
+y′
+i = fi(y1, . . . , yn) or y′′
+i = fi(y1, . . . , yn) (12.1)
+in the neighbourhood of a stationary point (Lagrange (1788), see also Routh (1860), Chap. IX, Thomson & Tait 1879). We choose the coordinates so that the stationary point under consideration is the origin, i.e., fi(0, . . . , 0) = 0 . We then expand fi in its Taylor series and neglect all nonlinear terms:
+y′
+i=
+∑n
+k=1
+∂fi ∂yk
+(0)yk or y′′
+i=
+n ∑
+k=1
+∂fi ∂yk
+(0)yk. (12.1’)
+This is a system of equations with constant coefficients, as introduced in Section I.6 (see (6.4), (6.11)),
+y′ = Ay or y′′ = Ay. (12.1”)
+Autonomous systems are invariant under a shift x → x + C . We may therefore always assume that x0 = 0 . For arbitrary x0 the resolvent is given by
+R(x, x0) = R(x − x0, 0). (12.2)
+Diagonalization
+We have seen in Section I.6 that the assumption y(x) = v · eλx leads to
+Av = λv or Av = λ2v, (12.3)
+hence v = 0 must be an eigenvector of A and λ the corresponding eigenvalue (in the first case; a square root of the eigenvalue in the second case, which we do not
+
+
+70 I. Classical Mathematical Theory
+consider any longer). From (12.3) we obtain by subtraction that there exists such a v = 0 if and only if the determinant
+χA(λ) := det(λI − A) = (λ − λ1)(λ − λ2) . . . (λ − λn) = 0. (12.4)
+This determinant is called the characteristic polynomial of A . Suppose now that for the n eigenvalues λi the n eigenvectors vi can be chosen linearly independent. We then have from (12.3)
+A
+(
+v1, v2, . . . , vn
+) =
+(
+v1, v2, . . . , vn
+)
+diag
+(
+λ1, λ2, . . . , λn
+) ,
+or, if T is the matrix whose columns are the eigenvectors of A ,
+T −1AT = diag
+(
+λ1, λ2, . . . , λn
+)
+. (12.5)
+On comparing (12.5) with (12.1”), we see that the differential equation simplifies considerably if we use the coordinate transformation
+y(x) = T z(x), y′(x) = T z′(x) (12.6)
+which leads to
+z′(x) = diag
+(
+λ1, λ2, . . . , λn
+)
+z(x). (12.7)
+Thus the original system of differential equations decomposes into n single equations which are readily integrated to give
+z(x) = diag
+(
+exp(λ1x), exp(λ2x), . . . , exp(λnx)
+)
+z0,
+from which (12.6), yields
+y(x) = T diag
+(
+exp(λ1x), exp(λ2x), . . . , exp(λnx)
+)
+T −1y0. (12.8)
+The Schur Decomposition
+Der Beweis ist leicht zu erbringen. (Schur 1909)
+The foregoing theory, beautiful as it may appear, has several drawbacks: a) Not all n × n matrices have a set of n linearly independent eigenvectors; b) Even if it is invertible, the matrix T can behave very badly (see Exercise 1). However, for symmetric matrices a classical theory tells that A can always be diagonalized by orthogonal transformations. Let us therefore, with Schur (1909), extend this classical theory to non-symmetric matrices. A real matrix Q is called orthogonal if its column vectors are mutually orthogonal and of norm 1 , i.e., if QT Q = I or QT = Q−1 . A complex matrix Q is called unitary if Q∗Q = I or Q∗ = Q−1 , where Q∗ is the adjoint matrix of Q , i.e., transposed and complex conjugate.
+
+
+I.12 Systems with Constant Coefficients 71
+Theorem 12.1. a) (Schur 1909). For each complex matrix A there exists a unitary matrix Q such that
+Q∗AQ =
+⎛
+⎜⎜⎝
+λ1 × × . . . ×
+λ2 × . . . ×
+. . . ...
+λn
+⎞
+⎟⎟⎠ ; (12.9)
+b) (Wintner & Murnaghan 1931). For a real matrix A the matrix Q can be chosen real and orthogonal, if for each pair of conjugate eigenvalues λ, λ = α ± iβ one allows the block
+(λ × λ
+)
+to be replaced by
+(× × ××
+) .
+Proof. a) The matrix A has at least one eigenvector with eigenvalue λ1 . We use this (normalized) vector as the first column of a matrix Q1 . Its other columns are then chosen by arbitrarily completing the first one to an orthonormal basis. Then
+AQ1 = Q1
+( λ1 × . . . ×
+0 A2
+)
+. (12.10)
+We then apply the same argument to the (n − 1) -dimensional matrix A2 . This leads to
+A2Q ̃2 = Q ̃2
+( λ2 × . . . ×
+0 A3
+) .
+With the unitary matrix
+Q2 =
+(1 0
+0 Q ̃2
+)
+we obtain
+Q1∗AQ1Q2 = Q2
+⎛
+⎝
+λ1 × λ2
+× ... × × ... ×
+0 A3
+⎞
+⎠.
+A continuation of this process leads finally to a triangular matrix as in (12.9) with Q = Q1Q2 . . . Qn−1 .
+b) Suppose A to be a real matrix. If λ1 is real, Q1 can be chosen real and orthogonal. Now let λ1 = α + iβ (β = 0) be a non-real eigenvalue with a corresponding eigenvector u + iv , i.e.,
+A(u ± iv) = (α ± iβ)(u ± iv) (12.11)
+or
+Au = αu − βv, Av = βu + αv. (12.11’)
+
+
+72 I. Classical Mathematical Theory
+Since β = 0 , u and v are linearly independent. We choose an orthogonal basis ̂u , ̂v of the subspace spanned by u and v and take ̂u , ̂v as the first two columns of the orthogonal matrix Q1 . We then have from (12.11’)
+AQ1 = Q1
+⎛
+⎝
+×× ××
+× ... × × ... ×
+0 A3
+⎞
+⎠.
+Schur himself was not very proud of “his” decomposition, he just derived it as a tool for proving interesting properties of eigenvalues (see e.g., Exercise 2). Clearly, if A is real and symmetric, QT AQ will also be symmetric, and therefore diagonal (see also Exercise 3).
+Numerical Computations
+The above theoretical proof is still not of much practical use. It requires that one know the eigenvalues, but the computation of eigenvalues from the characteristic polynomial is one of the best-known stupidities of numerical analysis. Good numerical analysis turns it the other way round: the real matrix A is directly reduced, first to Hessenberg form, and then by a sequence of orthogonal transformations to the real Schur form of Wintner & Murnaghan (“QR-algorithm” of Francis, coded by Martin, Peters & Wilkinson, contribution II/14 in Wilkinson & Reinsch 1970). The eigenvalues then drop out. However, the produced code, called “HQR2”, does not give the Schur form of A , since it continues for the eigenvectors of A . Some manipulations must therefore be done to interrupt the code at the right moment (in the FORTRAN translation HQR2 of Eispack (1974), for example, the “340” of statement labelled “60” has to be replaced by “1001”). Happy “Matlab”-users just call “SCHUR”. Whenever the Schur form has been obtained, the transformation y(x) = Qz(x) , y′(x) = Qz′(x) (see (12.6)) leads to ⎛
+⎜⎜⎝
+z...′1
+z′n−1
+z′n
+⎞
+⎟⎟⎠ =
+⎛
+⎜⎜⎜⎝
+λ1 b12 . . . b1,n−1 b1n
+. . . ... ...
+λn−1 bn−1,n λn
+⎞
+⎟⎟⎟⎠
+⎛
+⎜⎜⎝
+z...1
+zn−1 zn
+⎞
+⎟⎟⎠ . (12.12)
+The last equation of this system is z′n = λnzn , and it can be integrated to give zn = exp(λnx)zn0 . Next, the equation for zn−1 is
+z′
+n−1 = λn−1zn−1 + bn−1,nzn (12.12’)
+with zn known. This is a linear equation (inhomogeneous, if bn−1,n = 0 ) which can be solved by Euler’s technique (Section I.4). Two different cases arise:
+
+
+I.12 Systems with Constant Coefficients 73
+a) If λn−1 = λn we put zn−1 = E exp(λn−1x) + F exp(λnx) , insert into
+(12.12’) and compare coefficients. This gives F = bn−1,nzn0/(λn − λn−1)
+and E = zn−1,0 − F .
+b) If λn−1 = λn we set zn−1 = (E + F x) exp(λnx) and obtain F = bn−1,nzn0 and E = zn−1,0 . The next stage, following the same ideas, gives zn−2 , etc. Simple recursive formulas for the elements of the resolvent, which work in the case λi = λj , are obtained as follows (Parlett 1976): we assume
+zi(x) =
+n ∑
+j=i
+Eij exp(λjx) (12.13)
+and insert this into (12.12). After comparing coefficients, we obtain for i = n , n − 1 , n − 2 , etc.
+Eik = 1
+λk − λi
+( k ∑
+j=i+1
+bij Ejk
+)
+, k = i + 1, i + 2, . . .
+Eii = zi0 −
+∑n
+j=i+1
+Eij .
+(12.13’)
+The Jordan Canonical Form
+Simpler Than You Thought (Amer. Math. Monthly 87 (1980) Nr. 9)
+Whenever one is not afraid of badly conditioned matrices (see Exercise 1), and many mathematicians are not, the Schur form obtained above can be further transformed into the famous Jordan canonical form:
+Theorem 12.2 (Jordan 1870, Livre deuxie`me, §5 and 6). For every matrix A there exists a non-singular matrix T such that
+T −1AT = diag
+⎧⎪⎨
+⎪⎩
+⎛
+⎜⎝
+λ1 1
+... 1
+λ1
+⎞
+⎟⎠ ,
+⎛
+⎜⎝
+λ2 1
+... 1
+λ2
+⎞
+⎟⎠ , . . .
+⎫⎪⎬
+⎪⎭
+. (12.14)
+(The dimensions (≥ 1 ) of the blocks may vary and the λi are not necessarily distinct).
+Proof. We may suppose that the matrix is already in the Schur form. This is of course possible in such a way that identical eigenvalues are grouped together on the principal diagonal.
+
+
+74 I. Classical Mathematical Theory
+The next step (see Fletcher & Sorensen 1983) is to remove all nonzero elements outside the upper-triangular blocks containing identical eigenvalues. We let
+A=
+(B C 0D
+)
+where B and D are upper-triangular. The diagonal elements of B are all equal to λ1 , whereas those of D are λ2, λ3, . . . and all different from λ1 . We search for a matrix S such that( B C
+0D
+)(I S
+0I
+) =
+(I S 0I
+)(B 0
+0D
+)
+or, equivalently,
+BS + C = SD. (12.15)
+From this relation the matrix S can be computed column-wise as follows: the first column of (12.15) is BS1 + C1 = λ2S1 (here Sj and Cj denote the j th column of S and C , respectively) which yields S1 because λ2 is not an eigenvalue of B . The second column of (12.15) yields BS2 + C2 = λ3S2 + d12S1 and allows us to compute S2 , etc. In the following steps we treat each of the remaining blocks separately: we thus assume that all diagonal elements are equal to λ and transform the block recursively to the form stated in the theorem. Since (A − λI)n = 0 (n is the dimension of the matrix A ) there exists an integer k (1 ≤ k ≤ n ) such that
+(A − λI)k = 0, (A − λI)k−1 = 0. (12.16)
+We fix a vector v such that (A − λI)k−1v = 0 and put
+vj = (A − λI)k−jv, j = 1, . . . , k
+so that
+Av1 = λv1, Avj = λvj + vj−1 for j = 2, . . . , k.
+The vectors v1, . . . , vk are linearly independent, because a multiplication of the
+expression ∑k
+j=1 cjvj = 0 with (A − λI)k−1 yields ck = 0 , then a multiplication with (A − λI)k−2 yields ck−1 = 0 , etc. As in the proof of the Schur decomposition
+(Theorem 12.1) we complete v1, . . . , vk to a basis of Cn in such a way that (with V = (v1, . . . , vn) )
+AV = V
+(J C 0D
+)
+, J=
+⎛
+⎝
+λ1
+... 1
+λ
+⎞
+⎠
+⎫⎬
+⎭ k (12.17)
+where D is upper-triangular with λ on its diagonal. Our next aim is to eliminate the nonzero elements of C in (12.17). In analogy to (12.15) it is natural to search for a matrix S such that JS + C = SD . Unfortunately, such an S does not always exist because the eigenvalues of J and of D are
+
+
+I.12 Systems with Constant Coefficients 75
+the same. However, it is possible to find S such that all elements of C are removed with the exception of its last line, i.e.,
+(J C 0D
+)(I S
+0I
+) =
+(I S 0I
+) ( J ekcT 0D
+)
+(12.18)
+or equivalently
+J S + C = ekcT + SD,
+where ek = (0, . . . , 0, 1)T and cT = (c1, . . . , cn−k) . This can be seen as follows:
+the first column of this relation becomes (J − λI)S1 + C1 = c1ek . Its last component yields c1 and the other components determine the 2 nd to k th elements of S1 . The first element of S1 can arbitrarily be put equal to zero. Then we compute
+S2 from (J − λI)S2 + C2 = c2ek + d12S1 , etc. We thus obtain a matrix S (with vanishing first line) such that (12.18) holds. We finally show that the assumption (A − λI)k = 0 implies c = 0 in (12.18). Indeed, a simple calculation yields
+( J − λI ekcT
+0 D − λI
+)k
+=
+( 0 ̂C 00
+)
+where the first row of ̂C is equal to the row-vector cT . We have thus transformed A to block-diagonal form with blocks J of (12.17) and D . The procedure can now be repeated with the lower-dimensional matrix D . The product of all the occurring transformation matrices is then the matrix T in (12.14).
+Corollary 12.3. For every matrix A and for every number ε = 0 there exists a non-singular matrix T (depending on ε) such that
+T −1AT = diag
+⎧⎪⎨
+⎪⎩
+⎛
+⎜⎝
+λ1 ε
+... ε
+λ1
+⎞
+⎟⎠ ,
+⎛
+⎜⎝
+λ2 ε
+... ε
+λ2
+⎞
+⎟⎠ , . . .
+⎫⎪⎬
+⎪⎭
+. (12.14’)
+Proof. Multiply equation (12.14) from the right by D = diag (1, ε, ε2, ε3, . . .) and from the left by D−1 .
+Numerical difficulties in determining the Jordan canonical form are described in Golub & Wilkinson (1976). There exist also several computer programs, for example the one described in Ka ̊gstr ̈om & Ruhe (1980). When the matrix A has been transformed to Jordan canonical form (12.14), the solutions of the differential equation y′ = Ay can be calculated by the method explained in (12.12’), case b):
+y(x) = T DT −1y0 (12.19)
+
+
+76 I. Classical Mathematical Theory
+where D is a block-diagonal matrix with blocks of the form ⎛
+⎜⎜⎜⎜⎜⎝
+eλx xeλx . . . xk
+k! eλx
+eλx ...
+. . . xeλx
+eλx
+⎞
+⎟⎟⎟⎟⎟⎠
+This is an extension of formula (12.8).
+a) b) c)
+d) e) f)
+a)
+( −1 1 0 −2
+)
+d)
+(1 0 01
+) b)
+(1 1 01
+)
+e)
+( 1/3 1/3 10
+) c)
+( 1/3 −1/3 20
+)
+f)
+( 1/6 −1/3 2 −1/6
+)
+Fig. 12.1. Solutions of linear two dimensional systems
+
+
+I.12 Systems with Constant Coefficients 77
+Geometric Representation
+The geometric shapes of the solution curves of y′ = Ay are presented in Fig. 12.1 for dimension n = 2 . They are plotted as paths in the phase-space (y1, y2) . The cases a), b), c) and e) are the linearized equations of (12.20) at the four critical points (see Fig. 12.2). Much of this structure remains valid also for nonlinear systems (12.1) in the neighbourhood of equilibrium points. Exceptions may be “structurally unstable” cases such as complex eigenvalues with α = Re (λ) = 0 . This has been the subject of many papers discussing “critical points” or “singularities” (see e.g., the famous treatise of Poincare ́ (1881, 82, 85)). In Fig. 12.2 we show solutions of the quadratic system
+y′1 = 1
+3 (y1 − y2)(1 − y1 − y2)
+y′2 = y1(2 − y2)
+(12.20)
+which possesses four critical points of all four possible structurally stable types (Exercise 4).
+Fig. 12.2. Solution flow of System (12.20)
+
+
+78 I. Classical Mathematical Theory
+Exercises
+1. a) Compute the eigenvectors of the matrix
+A=
+⎛
+⎜⎜⎜⎜⎜⎜⎝
+−1 20 −2 20 −3 20
+... ...
+−19 20 −20
+⎞
+⎟⎟⎟⎟⎟⎟⎠
+(12.21)
+by solving (A − λiI)vi = 0 .
+Result. v1 = (1, 0, . . .)T, v2 = (1, −1/20, 0, . . .)T, v3 = (1, −2/20, 2/400,
+0, . . .)T , v4 = (1, −3/20, 6/400, −6/8000, 0, . . .)T , etc.
+b) Compute numerically the inverse of T = (v1, v2, . . . , vn) and determine
+its largest element (answer: 4.5 × 1012 ). The matrix T is thus very badly conditioned.
+c) Compute numerically or analytically from (12.13) the solutions of
+y′ = Ay, yi(0) = 1, i = 1, . . . , 20. (12.22)
+Observe the “hump” (Moler & Van Loan 1978): although all eigenvalues of A are negative, the solutions first grow enormously before decaying to zero. This is typical of non-symmetric matrices and is connected with the bad condition of T (see Fig. 12.3).
+Result.
+y1 = − 2019
+19! e−20x + (1 + 20)2018
+18! e−19x − (1 + 20 + 202/2!)2017
+17! e−18x ± . . .
+y
+y
+y
+y
+y
+y
+Fig. 12.3. Solutions of equation (12.22) with matrix (12.21)
+
+
+I.12 Systems with Constant Coefficients 79
+2. (Schur). Prove that the eigenvalues of a matrix A satisfy the estimate
+n ∑
+i=1
+|λi|2 ≤
+n ∑
+i,j=1
+|aij |2
+and that equality holds iff A is orthogonally diagonalizable (see also Exercise 3).
+Hint. ∑
+i,j |aij|2 is the trace of A∗A and thus invariant under unitary trans
+formations Q∗AQ .
+3. Show that the Schur decomposition S = Q∗AQ is diagonal iff A∗A = AA∗ . Such matrices are called normal. Examples are symmetric and skew-symmetric matrices.
+Hint. The condition is equivalent to S∗S = SS∗ .
+4. Compute the four critical points of System (12.20), and for each of these points the eigenvalues and eigenvectors of the matrix ∂f /∂y . Compare the results with Figs. 12.2 and 12.1.
+5. Compute a Schur decomposition and the Jordan canonical form of the matrix
+A= 1
+9
+⎛
+⎝
+14 4 2 −2 20 1 −4 4 20
+⎞
+⎠.
+Result. The Jordan canonical form is
+⎛
+⎝
+21 2 2
+⎞
+⎠.
+6. Reduce the matrices
+A=
+⎛
+⎜⎝
+λ1b c λ1d λ1 λ
+⎞
+⎟⎠ , A =
+⎛
+⎜⎝
+λ1b c λ0d λ1 λ
+⎞
+⎟⎠
+to Jordan canonical form. In the second case distinguish the possibilities b + d = 0 and b + d = 0 .
+
+
+I.13 Stability
+The Examiners give notice that the following is the subject of the Prize to be adjudged in 1877: The Criterion of Dynamical Stability. (S.G. Phear (Vice-Chancellor), J. Challis, G.G. Stokes, J. Clerk Maxwell)
+Introduction
+“To illustrate the meaning of the question imagine a particle to slide down inside a smooth inclined cylinder along the lowest generating line, or to slide down outside along the highest generating line. In the former case a slight derangement of the motion would merely cause the particle to oscillate about the generating line, while in the latter case the particle would depart from the generating line altogether. The motion in the former case would be, in the sense of the question, stable, in the latter unstable . . . what is desired is, a corresponding condition enabling us to decide when a dynamically possible motion of a system is such, that if slightly deranged the motion shall continue to be only slightly departed from.” (“The Examiners” in Routh 1877). Whenever no analytical solution of a problem is known, numerical solutions can only be obtained for specified initial values. But often one needs information about the stability behaviour of the solutions for all initial values in the neighbourhood of a certain equilibrium point. We again transfer the equilibrium point to the origin and define:
+Definition 13.1. Let
+y′
+i = fi(y1, . . . , yn), i = 1, . . . , n (13.1)
+be a system with fi(0, . . . , 0) = 0 , i = 1, . . . , n. Then the origin is called stable in the sense of Liapunov if for any ε > 0 there is a δ > 0 such that for the solutions, ‖y(x0)‖ < δ implies ‖y(x)‖ < ε for all x > x0 .
+The first step, taken by Routh in his famous Adams Prize essay (Routh 1877), was to study the linearized equation
+y′
+i=
+∑n
+j=1
+aij yj , aij = ∂fi
+∂yj
+(0). (13.2)
+(“The quantities x, y, z, . . . etc are said to be small when their squares can be neglected.”) From the general solution of (13.2) obtained in Section I.12, we immediately have
+
+
+I.13 Stability 81
+Theorem 13.1. The linearized equation (13.2) is stable (in the sense of Liapunov) iff all roots of the characteristic equation
+det(λI − A) = a0λn + a1λn−1 + . . . + an−1λ + an = 0 (13.3)
+satisfy Re (λ) ≤ 0 , and the multiple roots, which give rise to Jordan chains, satisfy the strict inequality Re (λ) < 0 .
+Proof. See (12.12) and (12.19). For Jordan chains the “secular” term (e.g., E + F x in the solution of (12.12), case (b)) which tends to infinity for increasing x , must be “killed” by an exponential with strictly negative exponent.
+The Routh-Hurwitz Criterion
+The next task, which leads to the famous Routh-Hurwitz criterion, was the verification of the conditions Re (λ) < 0 directly from the coefficients of (13.3), without computing the roots. To solve this problem, Routh combined two known ideas: the first was Cauchy’s argument principle, saying that the number of roots of a polynomial p(z) = u(z) + iv(z) inside a closed contour is equal to the number of (positive) rotations of the vector (u(z), v(z)) , as z travels along the boundary in the positive sense (see e.g., Henrici (1974), p. 276). An example is presented in Fig. 13.1 for the polynomial
+z6 + 6z5 + 16z4 + 25z3 + 24z2 + 14z + 4
+= (z + 1)(z + 2)(z2 + z + 1)(z2 + 2z + 2). (13.4)
+On the half-circle z = Reiθ (π/2 ≤ θ ≤ 3π/2 , R very large) the argument of p(z) , due to the dominant term zn , makes n/2 positive rotations. In order to have all zeros of p in the negative half plane, we therefore need an additional n/2 positive rotations along the imaginary axis:
+Lemma 13.2. Let p(z) be a polynomial of degree n and suppose that p(iy) = 0 for y ∈ R . Then all roots of p(z) are in the negative half-plane iff, along the imaginary axis, arg(p(iy)) makes n/2 positive rotations for y from −∞ to +∞ .
+The second idea was the use of Sturm’s theorem (Sturm 1829) which had its origin in Euclid’s algorithm for polynomials. Sturm made the discovery that in the division of the polynomial pi−1(y) by pi(y) it is better to take the remainder pi+1(y) with negative sign
+pi−1(y) = pi(y)qi(y) − pi+1(y). (13.5)
+Then, due to the “Sturm sequence property”
+sign (pi+1(y)) = sign (pi−1(y)) if pi(y) = 0, (13.6)
+
+
+82 I. Classical Mathematical Theory
+Fig. 13.1. Vector field of arg (p(z)) for the polynomial p(z) of (13.4)
+the number of sign changes
+w(y) = No. of sign changes of
+(
+p0(y), p1(y), . . . , pm(y)
+)
+(13.7)
+does not vary at the zeros of p1(y), . . . , pm−1(y) . A consequence is the following
+Lemma 13.3. Suppose that a sequence p0(y), p1(y), . . . , pm(y) of real polynomials satisfies
+i) deg(p0) > deg(p1) ,
+ii) p0(y) and p1(y) not simultaneously zero,
+iii) pm(y) = 0 for all y ∈ R ,
+iv) and the Sturm sequence property (13.6).
+Then w(∞) − w(−∞)
+2 (13.8)
+is equal to the number of rotations, measured in the positive direction, of the vector (p0(y), p1(y)) as y tends from −∞ to +∞ .
+Proof. Due to the Sturm sequence property, w(y) does not change at zeros of p1(y), . . . , pm−1(y) . By assumption (iii) also pm(y) has no influence. There
+fore w(y) can change only at zeros of p0(y) . If w(y) increases by one at ̂y ,
+
+
+I.13 Stability 83
+either p0(y) changes from + to − and p1(̂y) > 0 or it changes from − to +
+and p1(̂y) < 0 (p1(̂y) = 0 is impossible by (ii)). In both situations the vector (p0(y), p1(y)) crosses the imaginary axis in the positive direction (see Fig. 13.2). If w(y) decreases by one, (p0(y), p1(y)) crosses the imaginary axis in the negative direction. The result now follows from (i), since the vector (p0(y), p1(y)) is
+horizontal for y → −∞ and for y → +∞ .
+p
+p
+p
+p
+p
+p
+p
+p
+p p
+Fig. 13.2. Rotations of (p0(y), p1(y)) compared to w(y)
+The two preceding lemmas together give us the desired criterion for stability: let the characteristic polynomial (13.3)
+p(z) = a0zn + a1zn−1 + . . . + an = 0, a0 > 0
+be given. We divide p(iy) by in and separate real and imaginary parts,
+p0(y) = Re p(iy)
+in = a0yn − a2yn−2 + a4yn−4 ± . . .
+p1(y) = −Im p(iy)
+in = a1yn−1 − a3yn−3 + a5yn−5 ± . . . .
+(13.9)
+Due to the special structure of these polynomials, the Euclidean algorithm (13.5) is here particularly simple: we write
+pi(y) = ci0yn−i + ci1yn−i−2 + ci2yn−i−4 + . . . , (13.10)
+and have for the quotient in (13.5) qi(y) = (ci−1,0/ci0)y , provided that ci0 = 0 . Now (13.10) inserted into (13.5) gives the following recursive formulas for the computation of the coefficients cij :
+ci+1,j = ci,j+1 · ci−1,0
+ci0
+− ci−1,j+1 = 1
+ci0
+det
+( ci−1,0 ci−1,j+1 ci,0 ci,j+1
+)
+. (13.11)
+If ci0 = 0 for some i, the quotient qi(y) is a higher degree polynomial and the Euclidean algorithm stops at pm(y) with m < n . The sequence (pi(y)) obtained in this way obviously satisfies conditions (i)
+and (iv) of Lemma 13.3. Condition (ii) is equivalent to p(iy) = 0 for y ∈ R , and (iii) is a consequence of (ii) since pm(y) is the greatest common divisor of p0(y) and p1(y) .
+
+
+84 I. Classical Mathematical Theory
+Theorem 13.4 (Routh 1877). All roots of the real polynomial (13.3) with a0 > 0 lie in the negative half plane Re λ < 0 if and only if
+ci0 > 0 for i = 0, 1, 2, . . . , n. (13.12)
+Remark. Due to the condition ci0 > 0 , the division by ci0 in formula (13.11) can be omitted (common positive factor of pi+1(y) ), which leads to the same theorem (Routh (1877), p. 27: “. . . so that by remembering this simple cross-multiplication we may write down . . .”). This, however, is not advisable for n large because of possible overflow.
+Proof. The coordinate systems (p0, p1) and (Re (p), Im (p)) are of opposite orientation. Therefore, n/2 positive rotations of p(iy) correspond to n/2 negative rotations of (p0(y), p1(y)) . If all roots of p(λ) lie in the negative half plane Re λ < 0 ,
+it follows from Lemmas 13.2 and 13.3 that w(∞) − w(−∞) = −n , which is only possible if w(∞) = 0 , w(−∞) = n . This implies the positivity of all leading coefficients of pi(y) . On the other hand, if (13.12) is satisfied, we see that pn(y) ≡ cn0 . Hence the polynomials p0(y) and p1(y) cannot have a common factor and p(λ) = 0 on the imaginary axis. We can now apply Lemmas 13.2 and 13.3 again to obtain the result.
+Table 13.1.
+Routh tableau for (13.4)
+j=0 j=1 j=2 j=3
+i = 0 1 −16 24 −4
+i = 1 6 −25 14
+i = 2 11.83 −21.67 4
+i = 3 14.01 −11.97
+i = 4 11.56 −4
+i = 5 7.12 i=6 4
+Table 13.2.
+Routh tableau for (13.13)
+j=0 j=1 j=2
+i = 0 1 −q s i = 1 p −r i = 2 pq − r −ps i = 3 (pq − r)r − p2s i = 4 ((pq − r)r − p2s)ps
+Example 1. The Routh tableau (13.11) for equation (13.4) is given in Table 13.1. It clearly satisfies the conditions for stability.
+Example 2 (Routh 1877, p. 27). Express the stability conditions for the biquadratic z4 + pz3 + qz2 + rz + s = 0. (13.13)
+The cij values (without division) are given in Table 13.2. We have stability iff p > 0, pq − r > 0, (pq − r)r − p2s > 0, s > 0.
+
+
+I.13 Stability 85
+Computational Considerations
+The actual computational use of Routh’s criterion, in spite of its high historical importance and mathematical elegance, has two drawbacks for higher dimensions:
+1) It is not easy to compute the characteristic polynomial for higher order matrices;
+2) The use of the characteristic polynomial is very dangerous in the presence of rounding errors. So, whenever one is not working with exact algebra or high precision, it is advisable to avoid the characteristic polynomial and use numerically stable algorithms for the eigenvalue problem (e.g., Eispack 1974).
+Numerical experiments. 1. The 2n × 2n dimensional matrix
+A=
+⎛
+⎜⎜⎜⎜⎜⎜⎜⎝
+−.05
+...
+−.05
+−1
+...
+−n
+1
+...
+n
+−.05
+...
+−.05
+⎞
+⎟⎟⎟⎟⎟⎟⎟⎠
+has the characteristic polynomial
+p(z) =
+n ∏
+j=1
+(z2 + 0.1z + j2 + 0.0025).
+We computed the coefficients of p using double precision, and then applied the Routh algorithm in single precision (machine precision = 6 × 10−8 ). The results indicated stability for n ≤ 15 , but not for n ≥ 16 , although the matrix always has its eigenvalues −0.05 ± ki in the negative half plane. On the other hand, a direct computation of the eigenvalues of A with the use of Eispack subroutines gave no problem for any n . 2. We also tested the Routh algorithm at the (scaled) numerators of the diagonal Pad ́e approximations to exp(z)
+1+ n
+2n (nz) + n(n−1)
+(2n)(2n−1)
+(nz)2
+2! + n(n−1)(n−2)
+(2n)(2n−1)(2n−2)
+(nz)3
+3! + . . . , (13.14)
+which are also known to possess all zeros in C− . Here, the results were correct only for n ≤ 21 , and wrong for larger n due to rounding errors.
+
+
+86 I. Classical Mathematical Theory
+Liapunov Functions
+We now consider the question whether the stability of the nonlinear system (13.1) “can really be determined by examination of the terms of the first order only” (Routh 1877, Chapt. VII). This theory, initiated by Routh and Poincare ́, was brought to perfection in the famous work of Liapunov (1892). As a general reference to the enormous theory that has developed in the meantime we mention Rouche, Habets & Laloy (1977) and W. Hahn (1967). Liapunov’s (and Routh’s) main tools are the so-called Liapunov functions V (y1, . . . , yn) , which should satisfy
+V (y1, . . . , yn) ≥ 0,
+V (y1, . . . , yn) = 0 iff y1 = . . . = yn = 0 (13.15)
+and along the solutions of (13.1)
+d
+dx V (y1(x), . . . , yn(x)) ≤ 0. (13.16)
+Usually V (y) behaves quadratically for small y and condition (13.15) means that
+c‖y‖2 ≤ V (y) ≤ C‖y‖2, C ≥ c > 0. (13.17)
+The existence of such a Liapunov function is then a sufficient condition for stability of the origin.
+We start with the construction of a Liapunov function for the linear case
+y′ = Ay. (13.18)
+This is best done in the basis which is naturally given by the eigenvectors (or Jordan chains) of A . We therefore introduce y = T z , z = T −1y , so that A is transformed to Jordan canonical form (12.14’) J = T −1AT and (13.18) becomes
+z′ = J z. (13.19)
+If we put
+V0(z) = ‖z‖2 and V (y) = V0(T −1y) = V0(z), (13.20)
+the derivative of V (y(x)) becomes
+d
+dx V (y(x)) = d
+dx V0
+(z(x)) = 2Re 〈z(x), z′(x)〉
+= 2Re 〈z(x), Jz(x)〉 ≤ 2μ(J)V (y(x)).
+(13.21)
+By (10.20) the logarithmic norm is given by
+2μ(J) = largest eigenvalue of (J + J∗).

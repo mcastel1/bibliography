@@ -1,0 +1,2588 @@
+BULLETIN DE LA S. M. F.
+R. TEMAM
+Une méthode d’approximation de la solution des équations de Navier-Stokes
+Bulletin de la S. M. F., tome 96 (1968), p. 115-152
+<http://www.numdam.org/item?id=BSMF_1968__96__115_0>
+© Bulletin de la S. M. F., 1968, tous droits réservés. L’accès aux archives de la revue « Bulletin de la S. M. F. » (http: //smf.emath.fr/Publications/Bulletin/Presentation.html) implique l’accord avec les conditions générales d’utilisation (http://www.numdam.org/ conditions). Toute utilisation commerciale ou impression systématique est constitutive d’une infraction pénale. Toute copie ou impression de ce ﬁchier doit contenir la présente mention de copyright.
+Article numérisé dans le cadre du programme Numérisation de documents anciens mathématiques
+http://www.numdam.org/
+
+Bull. Soc. math. France, 96, 1968, p. i i 5 à i52.
+
+UNE MÉTHODE D'APPROXIMATION DE LA SOLUTION DES ÉQUATIONS DE NAVIER-STOKES
+
+ROGER TEMAM
+[Paris] (*).
+
+Introduction.
+
+L'objet de ce travail est l'étude de l'approximation par une méthode de différences finies du système de Navier-Stokes :
+
+/
+
+n
+
+o^u_,A.u+, v^^^.+augr, ad,p=//;.
+
+/=ï
+
+/^\ ^ tç[o,T), xç^î, ^î ouvert de R", n = = 2 o u 3 , u=(iii, . . . , i i n ) ,
+
+I
+
+divu = o, u(x,t)=o si xçT=àP.,
+
+\
+
+u(x, o) = Uo(x) donné.
+
+L'approximation du problème (r) fait déjà l'objet de nombreux travaux
+(dont seulement quelques-uns sont rappelés ci-après). KRZIVICKI et LADYZENSKAJA étudient dans [6] l'approximation du problème (i) par des méthodes de différences finies, et démontrent, par des méthodes d'énergie, la stabilité et la convergence des schémas proposés; dans ces schémas, la condition discrétisée divu == o est vérifiée à chaque pas, ce qui rend assez difficile la résolution effective des problèmes approchés.
+D'autres méthodes d'approximation, évitant les difficultés dues à la contrainte divu = o, ont été étudiées et utilisées : FROMM [2] évite ces difficultés en introduisant (en dimension 2) la fonction de courant;
+
+(*) Ce travail a été achevé pendant un séjour de l'auteur à l'Université de Sherbrooke, P. Q. (Canada).
+
+116
+
+R. TEMAM.
+
+HARLOW [3] et JANENKO [5] proposent aussi des méthodes de différences
+finies totalement différentes mais pour lesquelles la condition discrétisée divu = o n'est pas vérifiée exactement.
+
+La méthode étudiée ici se rattache à ce point de vue. Le principe de cette méthode est le suivant.
+
+i° On approche le problème (i) par une famille à un paramètre s (s > o)
+de problèmes similaires mais pour lesquels la contrainte divu = o est supprimée
+
+/
+
+n
+
+^_,Au,+^^^ +^(divu,)^+gradp^/,
+
+==i
+
+(2)
+
+<
+
+^ e ( o , T ) , xç^ï,
+
+divUe = — £ ? £ ,
+Us ( ^ , 0 = o si xçl\ Ue(x, O)=UQ(X)
+
+Le système (2) se réduit évidemment à une seule équation en Us,
+obtenue en éliminant ps. Le terme ^(divu^Us a été ajouté dans la 2
+première des équations pour que le problème (2) soit « bien posé ».
+On démontre (en dimension d'espace égale à 2; cf. ci-après) que le problème (2) possède une solution unique et que, pour s -> o, u^ u, P£->P, u e t p étant les solutions de (i); ces résultats font l'objet du paragraphe I.
+2° Les problèmes (2) sont approchés ensuite par des méthodes classiques de différences finies. On étudie, par des méthodes d'énergie, la stabilité des solutions des problèmes aux différences finies et l'on démontre la convergence vers u et p de ces solutions, lorsque s et le pas tendent vers zéro; ces résultats font l'objet du paragraphe II.
+Il est évident qu'on peut envisager d'approximer les problèmes (2) par d'autres méthodes de différences finies que celles proposées ici. De même, on peut envisager d'autres problèmes perturbés que (2) (cf. ceux de JANENKO [5]).
+Dans ce travail, nous supposons, pour simplifier, que l'ouvert ^ est borné et que n == 2. Toutefois, nos résultats s'étendent au cas où Î2 n'est pas borné et, dans une certaine mesure, au cas n = 3 (cf. I, Remarque 2.1). La méthode étudiée ici fait l'objet d'essais numériques dont il sera rendu compte ultérieurement.
+Je tiens à remercier ici M. LIONS qui m'a suggéré l'idée de ce travail et s'est intéressé à sa mise au point.
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+117
+
+Le plan est le suivant :
+
+I. Approximation par des fonctions à divergence non nulle.
+1. Notations. 2. Énoncé des résultats essentiels du paragraphe I. 3. Démonstration de l'existence dans le théorème 1.1. 4. Démonstration de l'unicité dans le théorème 1.1. 5. Démonstration du théorème 1.2. 6. Approximation de la pression.
+
+II. Approximation par des différences finies.
+1. Notations. 2. Les schémas de différences finies. 3. Estimations a priori, 4. Théorèmes de stabilité. 5. Théorèmes de convergence. 6. Approximation de la pression.
+
+I. — Approximation par des fonctions à divergence non nulle.
+1. Notations.
+Soit ^2 un ouvert borné de R2 de frontière T régulière. On ne considère ici que des fonctions à valeurs réelles et l'on appelle H1^) l'espace de Sobolev d'ordre i, et H^^), le sous-espace de H^^) des fonctions nulles sur la frontière T de ^2. On pose
+G=L,(^)\ W=Hi,(^)2;
+G et W sont des espaces de Hilbert pour les produits scalaires et les normes respectifs :
+
+^ ^ "^2JQ f f1^^ dx;
+
+1 f\ = (^ ^
+
+^'^iW-^"-: i "ii -«"."»•'•• î , / = l ""
+
+L'espace W est inclus dans G et dense dans G; l'injection de W dans G est continue (en raison de l'inégalité de Poincaré).
+
+II 8
+
+R. TEMAM.
+
+Soit V= {u\ ueW, divu == 0} et soit H l'adhérence de V dans G. Pour u, v e W, on pose
+
+(I; 1. i)
+
+d(u, u) == f (divu) (divu) dx;
+^Q
+
+d est une forme bilinéaire symétrique continue, sur WxW.
+
+Pour u, u, w e W, on peut définir
+
+(/TI;1-. .2)\
+
+bi-/(u,v,w\ )=i^>V F Ui({^—i w,—u,—àw—,)\d.,x,
+
+2 ^^ jQ \ U^i
+
+^^i /
+
+i,/=l
+
+et b(u, u, w) est une forme trilinéaire continue sur W x W x W . Plus précisément, soit
+
+(I; 1.3)
+
+b (u, v, w) = bi (u, v, w) + bî(u, u, w),
+
+b,(u,v,w)=I^f^^w,dx,
+
+2
+b» ,f(u,v^,w)i=v-^juC .v,^àvdû, x,.
+i,/=l
+
+En raison de l'inégalité de Hôlder, bi (u, y, w) est une forme trilinéaire continue sur L^ (Î2)2 x ïi\(^)2 X 1/4 (Î2)2, ^2 (u, y, w) est une forme trilinéaire continue sur Lu, (^)2 x Lu, (Î2)2 x H^ (^)2. En raison des inégalités de Sobolev,
+la dimension d'espace étant égale à 2, H^ (Î2) c 1/4 (^).
+
+Notons que
+
+2
+
+2
+
+(I; 1.4)
+
+b(u,u,w)=^ f u^ w, dx + ^ ^ y (divu) y,w; da1.
+
+Cette égalité est évidente si u, y, w sont des vecteurs continûment difîérentiables à support compact dans ^2; elle est donc vraie par continuité quels que soient u, u, w dans W. Si u, u, wçV (ou si seulement u e V), on retrouve l'expression usuelle de b :
+b(u,u,w)=^ f^^w.dx.
+i, 7=1
+2. Énoncé des résultats essentiels du paragraphe I. Soit T> o fixé; si X est un espace de Banach, on appelle e(o, T; X) l'espace des fonctions continues sur (o, F) à valeurs dans X, et Lp(o, T;X)(p^i) l'espace des (classes de) fonctions Lp sur (o, T) à valeurs dans X.
+
+EQUATIONS DE NAVIER-STOKES.
+
+II 9
+
+Le problème exact, recherche des solutions turbulentes des équations de Navier-Stokes, est le suivant (cf. J. LERAY [7], [8]) :
+
+PROBLÈME 1.1. — Pour Uo^H et feLî(o, T; H) donnés, trouver une fonction u
+
+(I;2.i)
+
+ueL,(o, T; V)nL,(o, F; H),
+
+et vérifiant
+
+(I; 2.2)
+
+^{-(^(0, ^(0)+.((u(f), ^(t)))+b(u(t), u(t), ^(t))}dt
+J Q
+=f\f(f),v({))dt+(u,,<f(o)),
+•^o
+
+pour toute fonction cp telle que
+
+(I;2.3) cpee(o, T; V), cp'eL.(o, T; H), ?(r)=o.
+
+On sait (c/'. HOPF [4], LIONS [9], LIONS et PRODI [13]) que ce problème possède une solution unique; la fonction u est continue de (o, T) \^H, et vérifie u(o) == Uo. Nous nous proposons d'approcher cette fonction u.
+Pour tout s > o fixé, on associe au problème 1.1, le problème « approché » suivant :
+PROBLÈME 1.2. — Trouver une fonction Ug
+
+(I; 2.4) et vérifiant
+
+Ue€L,(o, T; W)nL,(o, T; G),
+
+(I ; 2. 5)
+
+f ( - (Ue(0, ?' (0)) + ^ (("s(0, ? (0))
+
+^0
+
+'V
+
++ld(u,(f), q>(0)+ &("e(0> ".(0. ?(0)1^ E
+
+,T
+
+==
+
+^f
+^0
+
+(/•(0,9(0)^+(".,<p(o))
+
+pour ^ou^e fonction 9 /eZZe gué
+
+(I;2.6) cpee(o, T; W), ^eL,(o, T; G), ?(T)=o.
+
+On démontre dans les n^ 3 à 5, les deux théorèmes suivants :
+THÉORÈME 1.1. — Pour s > o fixé, le problème 1.2 possède une solution Us, unique. Cette solution Ug, vérifie, en outre,
+
+(I;2.7) | U £ k ( o , r ; G ) + | | " £ [ k ( o , r ; ^ ) + ^ divUe !^(Qxro,r])^L,
+
+où L ne dépend pas de s (mais dépend de v, T, Uo ef /').
+
+120
+
+R. TEMAM.
+
+THÉORÈME 1.2. — Lorsque s^o, u^ tend vers la solution u du problème 1.1, dans L,(o, T; W) fort et dans L,(o, T; G) faible (1).
+
+REMARQUE 2.1. — Les théorèmes 1.1 et 1.2 redonnent l'existence d'une solution du problème 1.2, mais cela n'est pas important car la démonstration du théorème 1.1 est assez voisine de la démonstration de l'existence et l'unicité de solution du problème 1.1 [9] [13].
+
+REMARQUE 2.2.— Les résultats précédents se généralisent en dimension d'espace égale à 3 mais, pour les problèmes approchés, de même que pour
+les équations de Navier-Stokes, on ignore s'il y a unicité de la solution. De manière précise, on pose dans ce cas G =La (i2)3, W == H^ (Î2)3 ; pour tout s > o, le problème 1.2 possède une solution u^ (non nécessai-
+rement unique) qui vérifie (I; 2.7), et il existe une sous-suite s'-^o,
+telle que u,,->u dans L,(o, T; V) faible et L,(o, T; G) faible, u étant une solution du problème 1.1.
+
+3. Démonstration de l'existence dans le théorème 1.1 (2).
+
+L'espace (Q(Q) des fonctions, indéfiniment difïérentia.bles à support compact dans Î2, est dense dans H^ (^2). Il existe donc une base de W formée d'éléments w;e^(^)2.
+
+/a
+
+Pour m donné, soit u^m-=^gjmWj la solution du système différentiel
+
+/=1
+
+(I; 3-I)
+
+it(u£m(oî wj) +v((u^(t), w,))
+
++ ^ d(u^(t), W,) + b (ll^n (t), U,,n (t), Wj)
+
+(I; 3.2)
+
+=(f(f), w,) (j===i, ...,m);
+Usm(o)== projection, dans G, de Uo sur l'espace engendré par Wi, .... w,n.
+
+Ce système possède une solution u^n définie sur un certain intervalle Q^t^^rn pouvant dépendre, a priori, de m; en raison des estimations a priori ci-après, la solution est définie en fait sur tout l'intervalle (o, T).
+On multiplie (I;3.i) par g^n, et l'on ajoute ces égalités pour j == i, ..., m; il en résulte, puisque b(u^n(t), u^n(t), u,m(t)) == o,
+
+(1) Topologie de dual faible de L, (o, T; G). (2) La lecture des n08 3 à 5 n'est pas indispensable pour la compréhension de la suite.
+
+d'après (I; 1.2) :
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+^ ^ |1 U "e^m(Q (0 |22 + 2 ^ II U,»(() ||2 + ^ d(U^(Q, Us,»(0) = 2(/-(f), "e-(0);
+
+(I; 3.3) | Ue,»(s) ]2 + 2 f v II Ue,»(0 ||2 + l- d(u,m(t), u^(O) i dt
+
+./o
+
+e
+
+)
+
+= | "^(0)2 + 2 f (/'(O, Ue».(0) d(. «^o
+Le second membre de (I; 3.3) est majoré par
+
+I U o p + 2 F f(0|.|U„„(0|d^|U,|2+^ f |/'(012<"+-î f l"e»,(012^
+
+1/0
+
+^
+
+"o
+
+?+cl
+
+J»
+r'
+
+i
+
+/'(Q
+
+^t
+
++
+
+~1
+^
+
+^o
+ru
+
+"^(o
+
+n2^
+
+^o
+
+^o
+
+où Ci désigne la norme de l'injection de W dans G (les Cy désigneront plus généralement des constantes positives diverses).
+D'où
+
+1 Uern(s) ]2 + f \V\\ U^(t) [|2 + 2 d(U^(t), U^(t)) \ dt
+
+Jo {
+
+^
+
+"0 ^^J* \f(f)\2dt, V s e ( o , T ) ;
+
+2 , ,.
+(I; 3.4) U£m|i,(o,r;^)+^ II "£m[|i,(o,r;F) -t7.-|divu^|i,(Qx[o,r])
+
+^|"o|2+cl
+
+i^.
+
+Soit à présent u^z (resp. f) la fonction égale à u^n (resp. /*) sur (o, T), et à o en dehors de cet intervalle; on a, au sens des distributions sur R , l'égalité
+
+(I; 3. 5)
+
+^(Ue,n, Wj) + V ((Q,^, Wj)) + ^ d(Uem, Wj) + b(u^n, "sm, W j )
+
+= (f, Wj) + (U£,n(o), W j ) Ô(o)——(U£/n(T), W/) â(r),
+
+où ô(a) désigne la distribution de Dirac au point a.
+Pour tout /, la forme linéaire v h> b(u^m(t), u^n(t), v) est continue sur V, et il existe donc ^(f) e V tel que
+
+(I; 3.6)
+
+6(^(0, u^(t), v) = (OMO, v)), V ye V.
+
+R. TEMAM.
+La fonction ^h>^(0 est mesurable dans Y, et puisque
+[|^(0f|^c,[[^(0[p,
+^eLi(—oo, +oo; V). On peut alors écrire (I; 3.5) sous la forme
+
+^ (a./., w,) +v ((u^, w,)) + ^ d(^,,, w,) + ((^,,, y;,))
+
+= (^ ^/) + ("£m(o), Wy) Ô(O)——(U£^(T), Wy) ^,
+et, par transformation de Fourier, on obtient (û^, .... désigne la transformée de Fourier en t de u^, ...) :
+IT(Û^(T), w,) + v((ù^(r), w,)) + ^ d(ù^\ w,) +(($^(T), w,))
+
+= (fO")» W/) + ("5m(o), Wy) —— (U£^(T), Wy) eXp(——?TT).
+On multiplie ces égalités par ^(r), et l'on somme enj. Prenant ensuite les modules des parties imaginaires du résultat, on obtient :
+
+| T | . | Û^(T) [^ | f(T) | . [ Û^(T) [ + | U^(0) | . | Û^(T) |
+
+Mais
+
++ | U^ (T) | . | 0,,, (T) | + [| ^ (T) [[ . [[ ^ (^ [[.
+
+Ûem (T) | ^ C, [| Us/, (ï) [[,
+et, avec (I; 3.4) et (I; 3.6)
+
+[ U^ (o) | ^ | Uo |,
+
+d'où
+
+II ?£m (T) II ^ C2,
+
+| U£^ (T) 1 ^ C3 ;
+
+N. [^(T)!2^!^)!. Û^(T) + C , [ [ û ^ ( ï ) [ [ .
+
+On en déduit alors, comme dans LIONS [10] (chap. IV, n° 2) :
+
+(I;3-7)
+
+/,+oc
+/ ^['^^(T)!2^^^ •^—oo
+
+pour o < y < 1 , 4
+
+où la constante c, ne dépend pas de s ni de m (mais dépend de ^ v T, Uo et /•).
+Le paramètre s est actuellement fixé. D'après (I; 3.4), on peut extraire de u^m une suite (encore notée u^m) telle que
+
+(I; 3.8)
+
+u,m -> Us dans L, (o, T; W) faible et L, (o, T; G) faible, Us vérifiant (I; 2.7). -
+
+Puisque i2 est borné, l'injection de H^Ç^) dans La(^) est compacte et donc aussi l'injection de W dans G. Avec (I; 3.7) et un théorème de compacité de LIONS [10] (chap. IV, prop. 4.2), on peut donc choisir la sous-suite de manière que
+
+(I ; 3.9)
+
+u^n -> u. dans L^ (o, T; G) fort.
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+123
+
+On va montrer que Us est solution du problème 1.2. Pour cela, on multiplie (I; 3.i) par ^(f), où ^ est une fonction réelle continûment
+difîérentiable sur (o, T), avec ^(T) = o; on intègre de o à T, et l'on en déduit :
+
+(I; 3.io)
+
+f \—(u^(t), ^(t)w,)+v((u^(t), ^(t)w,))
+J» \
++ ^ d(u^(t), ^(0 Wj) + b(u^(t), u^(t), ^(0 tv,) j dt
+
+= f (f(f), ^ (0 w/) dt + (u^(o), + (o) w,).
+«A)
+Grâce à (I; 3.8), on peut passer à la limite dans les termes linéaires; grâce à (I; 3.8) et (I; 3.9), on peut passer à la limite dans le terme non linéaire (cf. lemme 3.1 ci-après); par ailleurs, u^m(o)—Uo dans G fort. On obtient à la limite :
+^^-(^(o.cp^o+.ausw^w))
+
++ ^(Us(0, cp(0)+6(Us(0, Us(0, ?(0)}^
+
+=f m?(0)^+("o,?(o)), ^o
+
+où cp = = ^ W y , j ^ i , est quelconque. Cette égalité est donc aussi valable pour toute fonction 9 combinaison linéaire finie de ^w;, et, par continuité, pour toute fonction cp vérifiant (I; 2.6).
+Cela montre que u est une solution du problème 1.2.
+Dans ce qui précède, on a utilisé le lemme suivant :
+
+LEMME 3.1. — Soit Vm une suite de fonctions de La (o, T; W), avec Vrn —^ v dans La(o, T; G) fort et 2-.'22V(-0'», T;•*• 9 W) faible. Alors,
+
+T
+
+T
+
+f 6(^(0, v,n(t), »(t))dt^ f b(u(t), v(t), cp(0)d(
+
+v0
+
+^O
+
+quel que soit le vecteur 9 = (îpi, 92), ^e^1^ X (o, T)). La vérification de ce lemme est immédiate.
+
+REMARQUE 3.1. — En raison de (I; 3.7), on a
+
+(I;3.n)
+
+f l'rriWI^T^c,,
+»/_ aç
+
+la constante Cg étant indépendante de s.
+
+124
+
+R. TEMAM.
+
+4. Démonstration de l'unicité dans le théorème 1.1.
+
+4.1. Un résultat de régularité. — Nous introduisons tout d'abord
+quelques nouvelles notations. On appelle W172 l'espace d'interpolation (W, 6)1/2 (cf. LIONS [12]);
+on a WcW^c G et, pour tout uçW,
+
+(I;4.i)
+
+| u 1^1/2 ^ c, [ u |V2 II u[[1/2.
+
+Puisque Wc^^)2, on voit, par interpolation, que (W, G)i/2C (^W, L^h/.^JÎvW,
+
+où H^2^) désigne l'espace de Sobolev d'ordre fractionnaire 1/2. En dimension d'espace 2, H1/2 (^) c U (Î2) et ainsi W^cL,^)2, l'injection étant continue.
+La forme trilinéaire 61 (u, y, w) étant continue sur
+L4(^)2x2f;(^)2xL4(i2)2,
+
+est aussi continue sur W172 X W X W172 et, d'après (I; 4. i),
+
+(I; 4.2)
+
+6i (u, y, w) [ ^ €7 [ u [^1/2 II y II |w |^i/,.
+
+De même, b^{u, u, w) est une forme trilinéaire continue sur W1/2 X W1/2 x W et
+
+(I; 4.3)
+
+| h(u, u, w) | ^ Cs | u 1^1/21 y |^/.21| w ||.
+
+On peut identifier G à son dual; (W^2)' (resp. W7) désignant le dual de W172 (resp. W), on a
+W c W1/2 c G c (W1/2)' c W\
+
+les injections étant continues, et chaque espace étant dense dans le suivant.
+Pour ueW, on appelle respectivement Au, Du, BiUçW, les formes linéaires u \-> ((u, u)), v \-> d(u, u), v \-> bi(u, u, u) (i = i, 2). D'après ce qui précède, on a même filU^W172/ et
+
+(I;4.4)
+
+I B, u l(^i/2)^ C7 u|^i/,[|u||, ( \BïU\p^ ^Cg u |^i/2.
+
+Si u € 1/2(0, T; W), on vérifie que Au et Duç.L^(o, T; W) et que &u€Li(o, F'; W7) (au moins).
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+125
+
+LEMME 4.1. — Toute solution Us du problème 1.2 vérifie aussi
+
+(I;4.5)
+
+UeeL,(o, F; W)nL4(o, T; W1/2), Us€L,(o, F; W^+L^o, T; (W1/-2)')';
+
+(I; 4.6)
+
+Us (0 +^Aus(Q + -^ Dus(0 +BUs(Q = f(t), p. p. tç (o, T) ;
+
+Us est p. p. e^aZe a une fonction continue de (o, T) \-> G et
+
+(I;4.7)
+
+u^(o)=Uo.
+
+Démonstration. — D'après (I; 2.4)» et par interpolation,
+Ue€ (L,(o, T; W), L,(o, T; G)),/,=L,(o, T; WV2).
+
+Écrivons (I; 2.5) avec cpe^()o, r(; W), espace des fonctions indéfiniment difîérentiables à support compact de )o, T(\-> W; on en dédnit que u^ vérifie l'égalité
+u'^+vAue+ ^-Du^+Bu^f
+
+au sens des distributions vectorielles sur )o, T[ à valeurs dans W (cf. SCHWARTZ [15]). Mais
+Au,(=L,(o, r; W), Du,eL,(o, r; W»;
+
+d'après (I; 4.4),
+
+B, ^ e L,/3(o, r; (W1/2)'), ^ Us e L^ (o, T; W7)
+
+et ainsi
+
+Us €L,/3(o, T; (W1/2)') +^(o, T; W7);
+
+(I; 4.5) est établie.
+Il résulte de LIONS [11] que toute fonction vérifiant (I; 4.5) est p. p. égale à une fonction continue de (o, T) h> G. Il ne reste donc à montrer que (I; 4.7).
+Multiplions (!'; 4.6) par cp(f), cp vérifiant (I; 2.6), et intégrons de o à T; il vient :
+r[<u,{t)^(t)y+v((u,(t)^(t)))
+^o \
++ ^(MO, ?(0) + b(u,(t), u,(0, cp(0)ld(
+
+^m?^)^ ^o
+
+126
+
+R. TEMAM.
+
+<( , y désignant la dualité entre W et W. On peut intégrer par parties le premier terme :
+
+T
+
+T
+
+f < u'e(0, 9(0 > dt = -(»e(o), T(o))- f (^(Q, cp'(O) dt.
+
+^0
+
+^0
+
+Par comparaison avec (I; 2.5), on a alors
+
+(u^o)—Uo, cp(o))=o,
+
+et, puisque cp(o) est quelconque dans W, u&(o) = Uo.
+4.2. Démonstration de U unicité. — Soient Ue et v^ deux solutions du problème 1.2, et soit w = 14—^s. D'après le lemme 4.1, w(o) == o et
+
+M/(Q + ^ A w ( 0 + ^Div^t) +Bu^(t)—Bve(t)=o p. p.
+
+On multiplie scalairement cette égalité par w(t) :
+
+(I; 4.8)
+
+< w'{t\ w(f) > + . [[ w(f) ^ + ^ d{w(t\ w(t))
+
++ < B u,(t) — B ys(0, w(f) > = o.
+
+D'après LIONS [11], et pour toute fonction vérifiant (I; 4.5),
+
+<^(0,^(0>=^ w(t)\\
+
+Puisque b(u, u, v) == o, V y e W , on a ^Bu,(t)—Bv,(t\ w(t)y=b(w(t), Us(0, w(0),
+et (I; 4.8) devient
+^ | w(0 |2 4- ^ |] w(0 ||2 = — 2 6(w(Q, ^(0, w(Q).
+
+A Faide de (I; 4.i), (I; 4.2) et (I; 4.3), on peut majorer le second membre de cette inégalité par
+
+Cs [ W(t) |V2 II W(t) [|3/2 1 Us(0 |V2 II Us(0 ||V2 + Cs | W(t) \. [| w(t) [|. || Us(0 [] ^ . Il W(0 [p + C,o(l + I ".(0 |2) II Us(0 ||2 [ W(t) 2.
+
+D'où
+
+-d dt
+
+w(t)\^c^(i+\u,(t)^[\u,(t)^\w(t) 2
+
+p. p.;
+
+puisque F ( t ) == Cio(i + | Us(t) \2) [( ^(Q (|2 est une fonction sommable sur (o, T), il résulte du lemme de Gronwall que w(t) = o p. p.
+
+Cela termine la démonstration du théorème 1.1.
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+127
+
+5. Démonstration du théorème 1.2.
+
+5.1. Un lemme. — ^P(^) désigne comme précédemment l'espace des fonctions indéfiniment difîérentiables à support compact dans Î2.
+LEMME 5.1. V =^(^n V= {cp/cp --= (9,, c^), ^e^(^), divcp ==0}
+est un sous-espace dense de V,
+
+y= { u\ u =(ui, «2), u^H^^l), divu ==o}.
+
+Ce résultat est classique.
+5.2. Première partie de la démonstration. — La solution u^ du problème 1.2 vérifie les majorations (I; 2.7) et ( I ; 3 . n ) indépendantes de s. Il existe donc, pour s->o, une sous-suite extraite de Ug (encore notée u^) telle que
+
+/.. .
+
+( u^w dans 2.2(0, T; W) faible et I^(o, T; G) faible, ( u^->w dans L2(o, T; G) fort..
+
+(On a utilisé LIONS [10], comme pour (I; 3.9).)
+D'après (I; 2.7), divue->o dans L^x^, T)) fort; mais il résulte de ( I ; 5 . i ) que divus-^divw dans L^x[o,T}} faible, et ainsi d i v w = o ; puisque divw(/) = o pour presque tout /, w(t)çV p. p. et alors
+weL,(o, T; V)nL,(o, T; H).
+Soit y € ^ (^)2 n V, et soit ^ une fonction scalaire continûment difîérentiable sur (o, T), ^ ( T ) = o ; 9 = = ^ y vérifie (I; 2.6), et l'on peut donc écrire (I;2.5) avec cette fonction cp; on a divy = o et donc d(u^(t), v) = o et il reste :
+<r77{—(u^t), ?'(0)+^("s(0, cp(0))+^("s(0, "s(0. ?(0)}^
+t/O
+= f m?(0)^+(«.,?(o)). *-' 0
+
+On peut passer à la limite dans cette égalité en utilisant (I; 5. i) et, pour le terme non linéaire, le lemme 3.1; on obtient
+
+(I; 5.2^)
+
+f1 {\—({ww((tt)\, <^(ft'(}t))+)+vv((((ww((t), ^cp(t()Q)))++bb((ww((t), w(it), ^9(t0)))}\dt
+^U T
+= f (f(t),(f(t))dt+(ll„<f(o)),
+^0
+
+où c p = ^ y , yç^^nV, ^^^((o, F)), ^(T) = o.
+
+128
+
+R. TEMAM.
+
+L'espace ^(^n V étant dense dans Y (lemme 5.1), l'égalité (I; 5.2) est encore vraie par continuité pour pe V quelconque. L'égalité (I; 5.2) est aussi valable pour cp combinaison linéaire finie de fonctions ^u et, par continuité pour toute fonction 9 vérifiant (I; 2.3).
+Il en résulte que w est solution du problème 1.1. Puisque ce problème possède une solution unique, w = u et c'est la suite u^ toute entière (et non une suite extraite) qui donne lieu aux convergences (I; 5.i).
+
+5.3. Deuxième partie de la démonstration; résultat de convergence forte. — Considérons l'expression
+
+» T
+
+T
+
+XC^,I=^C|uO,(r—)-uuC(TT)|^^++a2v. /f [|\|uu,,((t0)—-uu((t))[^[^d4t+-^2 fC d(u,(f),u,(f))dt.
+
+^' o»
+
+. E •-JJ««
+
+On peut écrire Xe = X* + X| + X!, avec
+
+Xl=\u(T)^+^ f (|u(0[|2^,
+^O
+
+Xj=—2(us(r),u(r))—4^ f ((u,(0,u(0))d(,
+
+^0 T
+X3=\u,(T)\9—2 f jvllu^+'d^œ,^))}^.
+
+•^o \
+
+~
+
+)
+
+On vérifie dans le lemme 5.2 ci-après que (Ue(T), u)->(u(T), u), \ / u ç H , et donc (u,(T), u(T))-> u(T)|2; avec ( I ; 5 . i ) (où w = u),
+on obtient limX|=—2X1.
+
+La fonction u^ vérifie une égalité d'énergie qu'on obtient en multipliant scalairement (I; 4.6) par u^(t) et en intégrant de o à T. D'après LIONS [11] et en raison de (I; 4.5),
+
+»y 2 f! <<UUssW(,0U ,U^st)(^0(Ï>t= ^=\U |"^s{(T) ^lu^o)!2;
+t/0
+
+on obtient alors
+
+Xi ==2a /\/r-77''(/•(0,us(0)d(+l"o|2,
+
+*^^on
+
+et ainsi
+limXXi!===XX33===2 ^frT (/-(O, u(Q) ^ + | Uo |2,
+
+£>0
+
+JJQ
+
+limXs^X3—^
+
+£^0
+
+77
+
+T7
+
+= ] U o | 2 + 2 f (f(t),U(t))dt- U(r)|^-2. f IIU^II2^.
+
+^0
+
+^0
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+129
+
+L'expression X3—X1 est nulle en raison de l'égalité d'énergie vérifiée par u (cf. LIONS [10]). Il en résulte que X e — o et donc u-.->u dans La(o, T; W) fort.
+
+REMARQUE 5.1. — II en résulte aussi que
+
+(I;5.3)
+
+-^divi^-^o dansL.,(^x(o, T)) fort.
+V/£
+
+II reste à démontrer le lemme suivant :
+
+LEMME 5.2.
+
+(^(T),y)^(u(T),y>, \fuçH.
+
+Démonstration. — D'après le lemme 3.1, la fonction i^ est continue de (o, T) \-> G et avec (I; 2.7), u,(T) ^L.
+Il suffît donc de démontrer le lemme pour des v € (^ (^2)2 n V, sous-espace dense de V, donc de H (lemme 5.1). Pour v ainsi choisi, on multiplie scalairement (I; 4.6) par y, et l'on intègre de o à T; il vient
+r7
+(Us (T), u) = (uo, u) + \ {(f(t), v) — v ((u, (0, v)) — b (Us (0, u, (0, v)} dt.
+•^o
+D'après (I; 5.i) (où w == ù) et le lemme 3.1, le second membre de cette égalité converge, pour £ ->- o, vers
+
+("o, u) + f {(f(t), u)—v((u(t), u))—b(u(t), u(t), v)} dt,
+Jo
+et le lemme 5.2 est démontré.
+
+6. Approximation de la pression.
+
+On sait que si u est solution du problème 1.1, alors il existe pe^^Ç)? espace des distributions scalaires sur Q = î2 x)o, T(, tel que
+
+' .
+
+'
+
+'
+
+2
+
+(I;6.i)
+
+^-,Au+^u,^,+gradp=/-,
+
+;=1
+au sens de dY (Ç).
+
+De manière analogue, si l'on écrit (I; 2.5) avec 9€^(Ç)2 [^(0), espace des fonctions scalaires indéfiniment difîérentiables à support compact dans Q], on voit que u^, vérifie
+
+(I; 6-2)
+
+^^~v Au£ +^u^~^ + ^ (divu3)"£— ^ grad divus- f,
+i=i
+
+BULL. SOC. MATH. — T. 96, FASO. 2.
+
+^0
+
+R. TEMAM.
+
+au sens de ^(Q). En posant
+
+(I; 6.3)
+
+?£==— ^divue,
+
+(I; 6.2) devient
+2
+(I;6.4) ^-vAu,+^u,,^ +^(divue) ue+grad ?,=/-.
+i=l
+
+Les résultats de convergence du théorème 1.2 s'interprètent ainsi
+
+(I; 6-5)
+
+Us^ Uz dans L, (o, T; La (^2)) faible et L^ (Q) fort,
+
+<^ ^ , r /.n\ -p .. • •
+
+~àx'^ -> ~àx
+
+- ans 2 ((3) foTtî lî J=Iî 2
+
+On peut donner aussi maintenant, un résultat d'approximation de p (la pression). D'après (I; 6.5),
+
+-ÔUW ^i ^^ÔUt.7i
+
+AA n^AA u,
+
+2
+
+-2
+
+^ V^,^à,Uç^,i ^vu ^ ,^ ÔUi,
+
+/•=!
+
+/=1
+
+(div Ue) Ue; -^ o,
+
+dans ^'(Q) et même dans H-^Q), espace dual de H^Q). Par comparaison avec (I; 6.1) et (I; 6.4), il vient
+
+^^•^ i^•(-—) ^- ^. - œ) ( ' )- == > daIlsJ?î l /T ^ ^\ ( ô (
+
+dlV"£\
+
+^P£
+
+^P ,.
+
+rr i / ^ \
+
+/ •l=I 2 \
+
+II. — Approximation par des différences finies.
+
+1. Notations.
+
+Soit h== (hi, hï), h;> o, le pas en les variables d'espace. Nous intro-
+
+duisons les notations suivantes :
+
+— Rk, l'ensemble des points de -R2 de coordonnées (ji/ii,j 2/1.2)» ji entiers de signe quelconque;
+
+— TA(-M, o), M =: (p.i, ^.2),
+
+,
+
+,1
+
+h,
+
+h, f 1
+
+/?,
+
+h. f
+
+le pave J ^i—2 -^i+^- IX J ^ —2- ^ 2 +^- l ;
+
+— T/,(X i) = \^J Tk(M+(j,h,,j,h,), o);
+
+7i = °> 1
+/2 =0,1
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l3l
+
+— Whm, la fonction caractéristique du pavé T/,(M, o); — V;, V;, 1=1, 2, les opérateurs de différences finies
+
+v^^^i^-^î^),
+
+fii
+
+->
+
+->
+
+où Tii == (Ai, o), Aa = (o, T^).
+
+v.^)^)-^-^),
+Ri
+
+On associe à l'ouvert î2, l'ensemble de points ^/, :
+
+^ = j M M(=:J?,,TA(M, i)cl2j.
+
+Soit à présent V/, l'espace des fonctions étagées il/, :
+
+Uh(x)= ^ Uh(M)WhM(x), Uh(M)ç.R^
+Mç.ilh
+L'espace Y/, est de dimension finie, mais sa dimension N(h)->+oo lorsque h -> o. On définit sur V/z deux produits scalaires
+
+("A, Vh)h = \ Uk(x) Vh(x) dX; ^Q
+
+U/i [/, = («/„ U/02 ;
+
+2
+
+((u/,,
+
+yA))/.
+
+==
+
+y- ,.
+
+f ^û
+
+(V,
+
+UA
+
+(^))
+
+(V,
+
+y/,
+
+(^))
+
+d.r;
+
+|| UA \\h = ((u//, u/,))2.
+
+Ces produits scalaires sont hilbertiens, le second en raison de l'inégalité de Poincaré discrète qui donne ici
+
+(II'; l . l )
+
+| Uh\h^CQ\\ V.k\\h, V UkÇ Vk,
+
+où Co est égal au diamètre de ^ (cf. J. CEA [1]).
+
+Puisque Vh est de dimension finie, les normes | u/, IA et |] Uh\\h sont équivalentes; plus précisément, on a les inégalités (II; l . i ) et
+j_
+
+(II; 1 . 2 )
+
+\\Uk\\h^S(h)\u,,\h,
+
+S(/i)=2(- +-X-
+
+\ tl^
+
+tl.^ 1
+
+On définit encore, pour chaque h, — pA, opérateur linéaire de H dans Vh; PA u == u/z avec
+
+Uk(M) = —— f u(x) dx, V Mç ^.
+^^^(^0)
+On vérifie aisément que
+
+(II; 1.3)
+
+| P / < A = SUp p A U | / ^ l ;
+MG H
+
+l32
+
+R. TEMAM.
+
+— dh(Uh, u/i), forme bilinéaire symétrique sur V/iXV/i :
+
+On a (II; 1.4)
+
+( e>
+
+\ / 2
+
+\
+
+dk (Uh, v,,) ==f ^V,u^ (x) ) ( ^V; V j k (x) ) dx.
+
+Q ^'=1
+
+/ \7=1
+
+/
+
+dh(un, u,) \ ^ (d,(Uh, u/,))1/2 (d,(^, ^))i/2;
+
+(n; 1-5)
+
+d//,(u/,, U/,) ^2||^[|^;
+
+— hk{Uh, Vk, Wk), forme trilinéaire continue sur VhXVkXVk :
+
+bh(Uk, v,,, Wh) == î V f u^ {(V.yy/0 (w^ — (u^ (V,Wy,)} dx. ^Jiî
+Évidemment
+
+(II? 1 •ô)
+
+b/,(Uh, Uh, Vh) =o, V UA, yA€ V/,.
+
+2. Les schémas de différences finies.
+
+Soit N un entier destiné à tendre vers l'infini et k == T I N ; on pose
+
+(II; 2.i)
+
+fî=- f 1 ^f{s)ds
+^(n-l)k
+
+(n=i, ...,N).
+
+On associe au problème 1.2, les schémas aux différences finies suivants :
+
+On pose
+
+(II; 2.2)
+
+^=p^o,
+
+puis on définit de proche en proche, u\, .... u^; u^ . . . , u^-1 étant supposés déterminés, on définit u^ de la manière suivante :
+
+SCHÉMA (I). u^ est la solution dans Vk de
+(II; 2 . 3 ) ^ (^— "rS Vh)k + ^ ((u2, y/O)/. + ^ d/,(^, ^) + ^(ur1, "?, ^) =(^,^)/. V^eV,.
+
+SCHÉMA (II). u^ fô^ Za solution dans Vh de (II; 2.4) ^(uî—uî-1, Vk)h+^((uî, vk))k+^dh(uî, u^)+b,(uî 1, u^ 1,^)
+=(fî,Vh)h, V^eV/..
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l33
+
+SCHÉMA (III).
+
+UA' est la solution dans VA de
+
+(II; 2.5)
+
+^ (u,- u^, „,), + , (^r\ I^))A
+
++ ^ rfA(ur\ vh) + &A("r1, ur\ »/,)
+
+=(fî,Vh)k, V^eV/,.
+
+L'existence et l'unicité de 0% vérifiant (II; 2.5) est évidente
+Pour les deux premiers schémas, la détermination de u," se ramène a la resolution d'un problème linéaire du type :
+
+(IL 2 •6)
+
+"A (UA, VA) = L,,(p/,), V VH e V/,,
+
+où ÛA(UA, y/.) est une forme bilinéaire sur VA X VA et où LA€ VA est connu. bn raison de (II; 1.6) on a, dans les deux cas,
+
+ÛA(UA, "A)=::j||UA]A;
+
+l'existence et l'unicité de u',\ vérifiant (II; 2.6) [c'est-à-dire (II; 2.3) ou (II; 2.4)], résulte alors du lemme classique de Lax-Milgram.
+REMARQUE 2.1. — Le schéma (III) est explicite. Les schémas (I) et (II) sont implicites; la détermination de u," nécessite l'inversion d'un certain opérateur linéaire AÏ, symétrique dans le cas du schéma (II), non symétrique dans le cas du schéma (I).
+
+3. Estimations a priori. 3.1. Étude du schéma (I).
+
+LEMME 3.1. — Les UA' définis par (II; 2.2) et (II; 2.3) vérifient les majorations suivantes :
+
+(11,3. i)
+
+I " A [ A : = C (n=o, . . . , N ) , ^ ^ ^ ^ ^ ^ ^ ^ ^ ^. ^ ^
+
+n=l '
+
+/
+
+où C est indépendant de s, k et h.
+
+Démonstration. on obtient
+
+—
+
+On
+
+écrit
+
+(îï; 2.3)
+
+avec
+
+^= i^
+
+et,
+
+avec
+
+(II'
+
+1 '
+
+6/)9
+
+(^-ur\ ^+k.[\uî[\i+^dM uî)=k(n, uî\.
+
+i34
+
+R. TEMAM.
+
+D'où
+
+uî IA— 1 ur1 I? + 1 uî— ur ! + ïkv [| UA [|! +2Â-^- d/.(^, u^)
+
+== 2/C(^, U/")A^ 2/C ] /•Z |, 1 U," |,^ 2/CCo 1 fi h 11 "A HA
+^k\}uî\\l+k^\ni et (II; 3.2) ] ^ 1 ^ — ] ur1 1/.+ I ^—ur1 l/.+Ai. Il U-'A l|||A!+-r — ^2A^:ti(h"WA,, "2)
+^A^I^H.
+
+Ajoutant ces inégalités pour n = i, ..., m, on obtient
+
+"rA^"I|2A^^ \ "vi/0 .1I2AJ_ +1- ^_0^. V I/-1 /^ " I^IU/.I/.+A^^I/-/»]/,, ^ ^-J 7Î==1
+
+puis, ajoutant ces inégalités pour n =i, . . . , N :
+
+N
+
+N
+
+K[I+^j.||^|]I+^,(^,^)}^|n;J^+^^ ^|;,
+
+ra=i
+
+«=i
+
+II nous suffit, à présent, de démontrer que le second membre de ces inégalités est majoré indépendamment de s, k et A.
+Or, d'après (II; 1.3), (II; 2 . i ) et (II; 2.2),
+
+(II; 3.3)
+
+^l!^l"o 2,
+
+^21 n\i = ^ 2 f
+
+P* /'(s)ds
+
+' ^S
+
+^nk
+f
+
+p/. f^ \^ds''
+
+n=l
+
+„=! •"("-lU
+
+A n=lJI' (»n--lï)}Ak
+
+(II; 3.4)
+
+A-
+
+y
+
+k^\fî\l^f \f(s)îds.
+
+^ o
+
+D'où
+
+,,0 |2 "À IA À ' +^^l/•^l^|".|2+^ /^/•(^(fo,
+^o
+
+et le lemme est établi.
+
+3.2. Étude du schéma (II).
+
+LEMME 3.2. — Supposons que k et h vérifient
+
+(II; 3.5)
+
+^(/O^y?,
+
+où YÎ est une constante dépendant des données (v, T, Uo, f) et définie d'après.
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l35
+
+Alors, les u^, définis par (II; 2.2) et (II; 2.4), ym/îenf
+
+/ \uî\^c (n==o, . . . , N ) ,
+
+(II;3.6)
+
+p^c^S||l^W l^+,+^^,((^",^^))^c, \ n7i===ïi
+
+où c esf une constante indépendante de z, k et h.
+Démonstration. — On écrit (II; 2.4) avec Uk= i^i : (II; 3.7) \uî\^—\ur'\l+\uî—uri\l+^k\uî,\l+i^kd,(uî,uï)
+=_2jc^(ur\ "r1, "z)+2Â:(fz, u^.
+
+On a, avec (II; 1.1), Z/Y»'2 •ik(fl, uf^ 2/c c. | n |/. Il u^ ||/.^ k v II ^ 11^, + -^ \ fl \l.
+
+On peut écrire, d'après (II; 1.6) :
+îkbhWr\ u',[-1, uî) = 2kb,,(ur1, "r1, uî—ur1),
+et avec (II; l.a) et le lemme 3.4 ci-après :
+a/ci^ursur'^—ur1)! ^k^{\ ur1 T il "r1 lir i u'i— "r1 lî/2 il ^— "r1 lir +]"^llA|l"rlllAll"^—"rlll/J ^ 2 y/a k s(h) i ur1 IA il "r1 il/, l "z— "r1 IA ^ ^ i u'/î— u/"-11^ +4^3 ^(A) i ur11! il "r1 lu..
+2
+Reportant ces majorations dans (II; 8.7), on obtient
+(ii; 3.8) uî i^—|ur1 IÂ+ ^ l ^—"r1 ll+^^ H "z \\l+ -iYk ^("^ ^) ^ ^ l n11+4^ s2(h) i ur1 il il "r1 ni.
+
+Ajoutons ces inégalités pour n = i, ..., m; il vient
+
+(ii; 3.9)
+
+u;"
+
+ix+
+
+771
+A^
+
+ii
+
+^
+
+il!—
+
+4A2
+
+^
+^(A)^]
+
+ur1
+
+ii
+
+il
+
+ur1
+
+ll^
+
+71=1
+
+^=='2
+
+?n
+
++2AVdA(u^,uZ)^L„„
+
+où L», = | ul \l + ^ ^ | fZ 1^. + 4A2 S2 (A) | u?. |2. [| uX (I;,
+
+i36
+Supposons qu'on ait
+
+R. TEMAM.
+
+(II; 3. zo) 4Â•S2(A)L^^ —ô, ô fixé, o < ô < v.
+
+Il est alors facile de montrer, par récurrence sur m, que
+
+(II; 3.n)
+
+2^'
+^l+^[\^[\l+^^d,(u'k î,(u uî,îU )Î^)^LL,.n £
+
+n=i
+
+n=l
+
+(m=i, ...,N).
+
+(II; 3. n) est en effet évident pour m = i [considérer (II; 3.8)
+avec n==i, et noter que Li^L.v]; si (II;3.n) est vrai pour les entiers i, . . . , m—i, alors on a
+
+\uî\l^Ln(^L^) (n=i, . . . . m — i),
+
+d'où, avec (II; 3.io) :
+m
+4A2s•2(/o^|ur1lÂll"rll|?
+
+7"
+
+m
+
+^ 4A2 ^(/OL^ || u/"-1 11!^ 4A2 ^(A)^^; 11 u/" m
+
+^=2
+
+71=1
+
+/7t
+
+^(.-ô)A^||u/"||2..
+
+71=1
+
+Portant cette majoration dans (II; 3.9), on obtient précisément (II; 3. n) pour l'entier m.
+
+D'après (II; 1.2), (II; 3.3) et (II; 3.4),
+
+LN^= 1
+
+Uo
+
+|2
+
++
+
+r2
+^
+
+r71
+/
+
+f(f) |2 dt + 4/c2 ^(A) | uo |4
+
+^o
+
+et pour que la condition (II; 3.10) soit réalisée, il suffit donc qu'on ait
+
+4^S2(A){[Uo[2+^ f |/X012^+4^4(A)|Uo|4i^—^
+
+(
+
+^o
+
+)
+
+Cela a lieu si k S2 (h) est assez petit, c'est-à-dire kS2^)^^, où y? ne dépend que de ô et des données (3).
+
+(3) r\ est la plus petite racine positive de l'équation
+
+(
+
+c2 /^T
+
+}
+
+I 6 | u J 4 X 3 + 4 |"o '+ -0- / [ / " ( O I ^ O X + ô — ^ = o.
+
+(
+
+^ «^o
+
+)
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+187
+
+Cette condition étant réalisée, les L,n sont majorés indépendamment de s, k et h et le lemme résulte de (II; 3. n).
+
+3.3. Étude du schéma (III).
+
+LEMME 3.3. — S'il existe un à > o fixé (arbitrairement petit) tel que
+
+(II; 3.i.)
+et si
+
+AS2(A)^I_,,
+
+s
+
+4
+
+(II;3.i3) ^ 9 - ( ^ ) ^ ^ ^ + | u o - - + ^ + 4 T ^ ^ ( 0 | 2 ^ p (.),
+
+aZor5, Zes u^ définis par (II; 2.2) et (II; 2.5) vérifient
+
+(II;3.i4)
+
+l \uî\h-=c (n==o, ...,N),
+^ ^^2\illu2^+^i À(^^) ) ^
+\ n=:o
+
+c, constante indépendante de £, /c ^ h.
+
+Démonstration. — On remplace y/, par u^-1 dans (II; 2.5); cela donne
+
+/ T T . ^ y ^\ ^ll,û.IO;
+
+| iin |-2
+
+[
+
+\U-h\h——1
+
+Ti^—l "A
+
+|2 IA
+
+—
+
+| —
+
+\
+
+,v,-/hi
+
+—
+
+ïi/^— —"A
+
+1
+
+12 IA
+
++
+
+a^v
+
+ii
+
+u/r1 ^-1
+'•A
+
+ii!+ -^d/.(ur', oA-
+[ [ • 2 l_ ^J": .
+
+II A "T
+
+^A V^A »
+
+^"-/ir')
+
+=
+
+2/c(n,
+
+ur1)/,.
+
+Il nous faut majorer le terme | u'/[—u'/[~1 \f,, qui apparaît ici précédé du signe négatif. Pour cela, on remplace v,, par uf,—u^-1 dans (II; 2.5) :
+(II;3.i6) 2 | u ^ — u r 1 ^
+=—2Av((ur1, ^—ur1))/.—o k^-^^-1, "^—"r') —27c&/.(ur1, ur1, u/^—ur^+aA^, u^—ur')/,,
+et l'on écrit :
+av/c| ((ur1, u^—ur1))/. ^ 2^11 ur1 n& [l "2—"r1 HA ^a^s^nuru/, "z—ur1!/. ^ ^ l u^— ur1 IÀ +4^-A2 s2^) i ur1 ii^
+
+(') La condition (II; 3. i3) est une conséquence de (II; 3.12) si E est assez petit.
+
+i38
+[on a utilisé (II; l.-a)];
+
+R. TEMAM.
+
+^id^ur^^-ur^i^^i^^r^r1)^^^^-^1,^
+
+i V / 2 ^ ,n ( /7 / ï t ^ — l TI^'"'1^ ^l/'^ 1 1 ï ï ^
+
+1ï 1ï ^^1— —1
+
+£
+
+i "AV^A » "A ; ) ' H " A — — " A
+
+, 2 \/ïk 5(/o ( d,(ur\ "r1) j1721 "A—"r1IA
+
+^ uî-ur1 l+-8^kS2 ^2(_K)d, ,/(u.'.i-\u.r.l)
+
+[on a utilisé (II; 1.2) et (II; 1.5)];
+
+o2 /ICr |1 O7i n({Un^ln~l , UTfl^n~A , UT/l^n— __—TUI^^—I)\
+
+-4
+
+"/'— "r1
+
+!
+
++
+
+8^-
+
+^(A)
+
+i
+
+ur \ 1 2 ]| h II
+
+il "r il! 1
+,,^-1 [ | 2 "A ||A
+
+(même majoration que dans le lemme 8.2);
+2^ i (/•/', ^—ur^A ^wv uï—ur1^
+
+,jn î ï " — l 2 _1_ / ^.-2 f/î 1-2
+
+-4 "A——"A
+
+A+4"' //i IA-
+
+Dans ces conditions, (II; 3 . i 6 ) devient
+(ii; 3.17) \u'f—urï /^^•^(/oi^+alur'i/jllyrilA
++ sl^l(h)d,(url, ur1) + 4 ^ i /•A i^
+
+et pour (II; 3.i5), on a alors
+1 "A l/,—]"r1 IÀ+A { a v — 4A s2 (A) (v^ 2 1 u'/r1 \l) j il ur1 II! +^(,_^^)),,,(^,^)
+
+^2/C(/•Z,^rl)A+4^|/•Al/2.
+Le second membre de cette inégalité est inférieur ou égal à
+^l/'AlAlUA-^^^l/'Al/.
+^ 2Ac. | f,]/, II ur1 HA + 4A21 /•2 1!^ Av II u;;-1 II/. + ^(^ + 4 T ) /•A /.
+[on a écrit k^ T et l'on a utilisé (II; 1. i) (8)].
+
+(5) II est possible en améliorant cette dernière majoration, d'améliorer (II; 3 . i 3 ) . Toutefois, cela n'est pas essentiel puisque pour e assez petit, la condition (II; 3 . 1 2 ) est beaucoup plus restrictive que (II; 3. i3) [cf. note (')].
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+13g
+
+II vient ainsi
+
+(ii; 3.18) i ui \i-\izr1 IÂ +k{ v-^ks^h)^ +21 ur10} il "r [i/.
+
++^(.-^^}w1^- +
+
+—2—/ C( 1/—
+
+—
+
+4A ——
+
+-—^—( A—)—\
+
+)
+
+a
+
+h
+
+\
+
+u
+
+h
+
+7^-l^A/^ 4-/TW|9»"A ^^^ —-t-4-t 1 / A l A *
+
+Ajoutons ces inégalités pour n = i, . . . , m; cela donne
+
+(II; 3. ig)
+
+7?^
+
+uï
+
+I!
+
++^{
+
+.-^S2^2
+
++ a
+
+| u,hf^r-11 \||h22.)\)})i
+
+|fI|I|
+
+uF ,7^-11
+uh
+
+\[f\||h22.
+
+n=l
+
+m
+
+ikf ^k^(h)\ ^
+
++ — — l I——-——:———
+
+^"AWî
+
+^-i^^f'
+? "A ;^^/«?
+
+où
+
+L;,= | ^ 11
+
++
+
+^
+
+ccoo
+^
+
++ 4T)
+
+Vl H
+
+!.
+
+Supposons à présent que les conditions (II; 3.12) et (II; 3;i3) soient réalisées; nous allons démontrer, par récurrence sur m, que
+
+(II; 3.20)
+
+u,,l/l»
+
+2 h
+
+l nly + ——
+
+\^ f| ,,/z-l Zj|| "A
+
+f|2 ||A
+
+\ Q + -^-
+
+^ô^^ ^ r"ï/i/(Ï."TA^
+
+-
+
+I
+
+»
+
+nn-l\ "A ^
+
+^ T' ^ ^m
+
+n = 1
+
+/z ^ 1
+
+(m=i, ...,N).
+
+Notons que
+
+( I I ; 3 . 2 i ) L',^L',.=|u,"|!+A(^ +4T)^|/';;A|?l/i
+
+-= "« I2 + (c; + 4ï) f 1 /'(O î dt
+
+\
+
+/ JQ
+
+(m = i, . . . , N),
+
+en raison de (II; 3.3) et (II; 3.4).
+L'inégalité (II; 3.20) est immédiate pour m == i [on écrit (II; 3.19) avec n== i]. Si elle est vraie pour les entiers i, . . . , m—i, alors on a
+
+\uï\l^L, (^L;v) (n==i, . . . , m — i ) ,
+
+d'où, avec (II; 3.12), (II; 3.i3) et (II; 3.21) : ^—^kS^K) ^- + 2 | uF1 ID^ —^kS^K) (^ + 2^)^ ^
+
+;-A^^; avec ces inégalités, (II; 3.19) donne exactement (II; 3.20).
+
+i4o
+
+R. TEMAM.
+
+L'inégalité (II; 3.20) est ainsi démontrée pour m = i , . . . , N . Les majorations (II; 3.i4) s'en déduisent immédiatement puisque, d'après (II; 3.2i), les L'jn sont majorés indépendamment de s, k et h.
+
+3.4. Lemmes. — On a utilisé pour la démonstration des lemmes 3.2 et 3.3, le lemme suivant :
+
+LEMME 3.4. — Pour u/,, v/i, vu h € VA :
+
+(II; 3.22) ] b,(u^ vu, w,,)\^-l=\Uh\y II Uk \\y V2
+X { II VH [|, | W, \y 11 W, Hf- + [ V, [f II V, r [1 WH II, }.
+
+Démonstration. — Cela résulte, par un calcul facile, des inégalités de Schwarz et de Hôlder, et du lemme 3.5 ci-après.
+Le lemme 3.5 donne la version discrète d'une inégalité de Cagliardo et Niremberg.
+LEMME 3.5. — Soit g : R2 H^ R, une fonction étagée à support compact, de la forme
+
+Alors
+(II; 3.28)
+
+g=-- ^ g(M)w/,M,
+MfERh
+
+g(M)çK
+
+S2
+
+)
+
+Jf^ ( ^ ) g(x)\^dx^\t/f2 { g ^ ^ d x } iV^^Rf |î V ^ ( r r ) 2.^).
+
+Démonstration, — Soit x== (:Ci, ^2); x appartient à un pavé T/,(P, o), où P== (pihi, pïh.î)çRh. On vérifie que
+
+(..-l)<, /^-D*.
+
+g(rc.^+-l.x^^,g^,x^d^\ |y(P)|2-
+
+\
+
+2
+
+)
+
+2i \
+
+g[P—iY'
+
+\
+
+A
+
+et, par addition
+
+,(--i)\
+
+g(x) |^= | g(P) l2^ 2^
+
+j ff(Ei + ^, a;.,) j S V^(;,, a;,) j d^;
+
+d'où
+(il; 3.24)
+
+/l + 00
+
+/
+
+1
+
+\
+
+^(a;)|^2/ ^ ( ^ + ^ , ^ )
+
+^-» \
+
+"
+
+•/
+
+1 g(x) ^^ç I ff&> ^) I2
+
+.|Viff(;,,a;2)[dSi,
+
+-I ? Çi+-'.l;J .|Vi?€i>^)l^r
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l4l
+
+On a évidemment une inégalité analogue pour la variable x^ :
+
+(II; 3.25) g(x)\2^sup\g(x^h)\2
+^efî
+
+-= 2 f
+— —— 00
+On peut alors écrire
+
+g(x,, ^ + ^) | . V^(rr,, y | d^
+
+\
+
+/I
+
+f \ g(x) |4 dx^ f j' sup g^,, x,) | 2 1 ( sup | ^, ^) 2 ) fc ^
+
+t/fi2
+
+.7^2 ( Ç l € ^
+
+' ' C^ÇR
+
+}
+
+^ ( /r4"00 sup 1 g(^, x.^ 2 fe ) ( //'+ao sup 1 g(x,, h) 2 ^i ).
+
+(J^^^fElî
+
+J_^ ^çli
+
+Avec (II; 3.24) et (II; 3.25), on obtient :
+
+fr\,g^{x,).\-^dx^^{^ ^r\|^j(.^'+, A^1,^^ .iv^ai,^)i^:i^4
+
+^ T7 Îî 2
+
+(^^l \
+
+2
+
+/
+
+)
+
+x
+
+^ (
+
+^f/î2
+
+^
+
+|a \
+
+'
+
+j
+
+^
+
+2
+
++2^/)
+
+.|V^(rCi,^)[fc&L )
+
+/ 2
+
+\
+
+f\g(x)\^dx^^ ^g^dx}. V f | V ^ ( r c ) 2 ^ .
+
+^
+
+(J^
+
+) (^•^
+
+)
+
+4. Théorèmes de stabilité.
+
+On appelle Uh la fonction étagée définie sur (o, T(, à valeurs dans Y/,, et dont les valeurs sont les suivantes :
+
+(11-4 i) v î */ (11-42)
+
+[uh(t)=u^ {
+[uh^=uï 1
+
+pour te (nk, (n+i)k( (n== o, . . . , N — i ) , dans le cas des schémas (I) et (II),
+pourtç(nk, (n+ï)k( (n = o, . . . , N — i ) , dans le cas du schéma (III).
+
+Soit F l'espace de Hilbert L,(^y\ et soit ^e^(W, F) (W== iï;(^)2),
+
+l'application linéaire
+
+/ ^
+
+/
+
+uàuu.i\ cô/u^9 oàuiii aàuu'')>\\
+
+U== (vUi, U27 )h^^U== \ U^j^, Uàax, -n'5^'— r.à5 xn-3^T—.àî x^-.'— 'y^?à^-x»/— r,,)/^7;
+
+on définit, de manière analogue, ph^^(Vh, F) :
+
+UA==(UIA, U^h)^>PhUh == (Uïh lu, Uîh Q, Vi UIÀ |Q, Vi UaA Q, Va Uik |C, Va U2A [û)
+
+(G),
+
+(6) Une fonction u^eï^ est une application de R2 dans 7? ; toutefois, son support et celui des fonctions V^/» sont inclus dans î2.
+
+l42
+
+R. TEMAM.
+
+où g [Q désigne la restriction à ^ d'une fonction définie sur -R2. Soit enfin ^€^(VÀ, G) (G=L.2(^)2), l'application linéaire
+
+Uh^>qhUh== U/JQ.
+
+D'après le lemme 3.1, les uf, définis par le schéma (I), vérifient
+
+on a donc aussi
+
+i4\^c, ^H^H^c;
+^ "X Ï^kNc^Tc^c^
+
+Avec les notations qui précèdent, il est possible d'interpréter ce résultat comme suit :
+Dans le cas du schéma (I),
+la fonction q/.u^ est majorée dans L^ (o, T; G), indépendamment de e, k et h;
+la fonction phUh est majorée dans 1^(0, T; G),
+indépendamment de z, k et h.
+
+Dans le cas des schémas (II) et (III), les lemmes 3.2 ^ 3.3 donnent des résultats analogues, lorsque la condition (II; 3.5) est réalisée [ou respectivement lorsque les conditions (II; 3.12) et (II; 3.i3) sont réalisées].
+On a ainsi démontré les théorèmes de stabilité suivants :
+
+THÉORÈME 11.1. — Dans le cas du schéma (I),
+
+^, 4 ^
+
+( 9
+
+/
+
+( qhUh est L,(o, T; G) stable, {phUh est L, (o, T; F) stable,
+
+THÉORÈME 11.2. —Dans le cas du schéma (II), il existe une constante ri, dépendant uniquement des données (y, T, Uo, f), telle que si
+
+(II; 4.4)
+
+kS^h)^^- +-)^,
+
+Vil
+
+^2 /
+
+alors (II; 4.3) a lieu.
+
+THÉORÈME 1 1 . 3 . — Dans le cas du schéma (II), si s, k et h vérifient
+
+(II; 4.5)
+
+(^(/0^/^/_r_ , J ^ ^
+
+{ s
+
+s^'^/-^'
+
+à > o /?*ré arbitrairement petit,
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l43
+
+et
+
+\ m p d t ' (II; 4.6)
+
+/
+
+c
+
+S
+
+2
+
+(
+
+/
+
+l
+
+)
+
+^
+
+-
+
+2
+^
+
++
+
+U
+
+o
+
+|
+
+2
+
+/^2 +(^
+
++
+
+4
+
+\ ^
+
+)
+
+r /'
+
+1
+
+}~Y f^dt [ ,
+
+10 ( 2
+
+\
+
+/ t^O0
+
+)
+
+a/ors (II; 4.3) a lieu.
+
+5. Théorèmes de convergence.
+
+Nous allons étudier dans ce numéro, la convergence de la fonction Uh
+définie précédemment vers la solution u du problème 1.1, lorsque s, k et h
+tendent vers zéro. Nous utiliserons sans les rappeler, les notations des n08 1 et 2 du paragraphe I.
+
+5.1. Énoncé des théorèmes de convergence.
+
+THÉORÈME 11.4. — Dans le cas du schéma (I), lorsque e, k et h tendent vers zéro,
+{ qnUk ->u dans L,(o, T; G) faible et L,(o, T; G) fort, ( ; ) ) pkUh-^ u dans L, (o, F; F) faible,
+u, solution du problème 1.1 (7).
+
+THÉORÈME 11.5. — Dans le cas du schéma (II), si s, k et h tendent vers zéro en vérifiant (II; 4.4), alors (II; 5. i) a lieu.
+
+THÉORÈME 11.6. — Dans le cas du schéma (III), si s, k et h tendent vers zéro en vérifiant (II; 4.5) et (II; 4.6), alors (II; 5.i) a lieu.
+Les démonstrations de ces trois théorèmes sont évidemment très voisines; nous nous contenterons de donner, par exemple, la démonstration du théorème 11.6 [c'est-à-dire d'établir la convergence du schéma (III)].
+
+REMARQUE 5.1. — Nous pourrions montrer également certains résultats de convergence dans 1.2(0, T; F) fort.
+
+5.2. — D'après le théorème 11.3, il existe une sous-suite s', k ' , h' tendant vers zéro, telle que
+
+(II; 5.2)
+
+( qh'Uk, -^w dans L,(o, T; G) faible, ^ p^u^-^cp dans L, (o, T; F) faible.
+
+Pour simplifier l'écriture, on notera cette suite s, k, h au lieu de s', k\ h'.
+
+(7) Pour la signification de p/,, q^ CT et -F, cf. les notations du n° 4.
+
+l44
+
+R. TEMAM.
+
+LEMME 5.1.
+
+(II; 5.3)
+(II; 5.4)
+
+wçL,(o, T; V)nL,(o, T; H);
+? = ^w.
+
+Démonstration. — Explicitons les composantes de Uh, w et 9 :
+
+U/,== (UjA, Ua/O,
+
+W == (Wi, Wa),
+
+9 = (cpi, . . ., Cp«).
+
+Soit Ç = = ^ 2 x ) o , T ( ; on peut interpréter (II; 5.2) ainsi :
+( Uih\Q->Wi dans L^(o, T; La^)) faible,
+(II; 5. 2) ^ u,^ |ç-^ CP,, Vi U^ |ç-^ îp2+;, VaU.A |ç-^ ^4+.
+( dans L,(o, r; L, (^)) -Lo, (Ç) faible (i = i, 2).
+Il est clair que Wi== cpi et 1^2== cpa. D'autre part, puisque les fonctions Uih et V/u^ sont à support compact dans ^ x ( o , T), les convergences précédentes impliquent aussi
+
+(II; 5.5)
+
+Uih->- Wi,
+
+Vi Uik-> ^.+i.
+
+Va Uih-> Cp4+z,
+
+dans L-a^x (o, T)) faible,
+
+où i? désigne la fonction égale à ^ dans 1^ et à o dans(.i2.
+
+On vérifie aisément que V^Uik—^— dans l'espace des distributions CfXij
+scalaires sur R^x )o, T(, et, par comparaison avec (II; 5.5),
+
+àx,^^çL^X(o, T)), àWi ^^eL.^x (o, T)).
+àXî
+
+II en résulte que w,€ 1.2(0, T; H^R2)); pour presque tout /, Wi^çH^R2) et est nulle p. p. dans 1.^2, donc sa restriction à i2, c'est-
+
+à-dire Wi{t) appartient à H^ (^) ; ainsi vo, € L, (o, T; H^ (^)), w € L, (o, T; W)
+
+et, en outre,
+
+,
+
+»
+
+/
+
+6ty^K1/j (i^^n2/2 àL'WU/iI ài^wi^t-/aî \
+
+) = (cp,, . . ., cpo) = Wi, w,, à^X i î, ^^rriî, ^^2î, ^.2- = ^ .
+
+Il reste à montrer que w(f)ç. V p. p., c'est-à-dire que divw==o p. p.
+
+On utilise pour cela une des majorations (II; 3. i4)
+N—l
+^ V V ^.( ^ , ^ ) ^ c ,
+s —
+n=0
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l45
+
+qui s'interprète ainsi
+rT r \
+^ ^(ïtï ) / / \y,^iUih(x,f) dxdt^ce.
+
+Alors, lorsque s, k et h tendent vers zéro,
+
+2
+^, Vï u,/, \Q-> o dans La (Ç) fort,
+/=!
+
+mais, d'après (II; 5.2') et (II; 5.4),
+
+2
+
+2
+
+^ V, U,A | Q -^ ^ ( == div w) dans La (Ç) faible ;
+
+;=i
+
+;=i
+
+par comparaison, on a bien divz^= o.
+
+LEMME 5.2. — Un résultat de convergence forte
+
+(II; 5.6)
+
+qhiik-^w dans 2.2(0, T; G) fort.
+
+La démonstration de ce lemme est donnée dans la suite (n° 5.4).
+5.3. — Nous allons maintenant démontrer que la fonction w, apparue en (II; 5.2), n'est autre que la solution u du problème 1.1.
+Introduisons avec J. CÉA [1| l'opérateur linéaire r/i qui applique (en particulier) V = d9 (i^)2 n V, dans V/, :
+
+r/tU =Uk=(Uih, v^h)'.
+
+(IL; 5.7)
+
+(^+|)A,
+
+^(M) = -, f ^
+
+v,(m,hi,x^dx^
+
+( ÎJ ^îJ /
+
+^\. \
+
+^ " 3 - ^ J ^2
+
+^
+
+(—————l)^
+
+v^(M) = j-
+
+^2(^1, 7712/12) dx^
+
+^^l-^ ^f
+
+- ^ 7h,i
+
+On a
+
+VM=(7ni7ii, m^ç^k;
+
+(II; 5.8) ^V,^=o si Vk=ThV et c e ^ ^ n V (8).
+1=1
+
+Soit ^ec^d^o, T)), avec ^(T) == o; posons ^^== ^(nk) (n = o, ..., N).
+
+(8) Autrement dit, cet opérateur T\ associe, à un vecteur u à divergence nulle, une fonction étagée v^ dont la « divergence discrète » est nulle.
+
+BULL. SOC. MATH. — T. 96, FASC. 2.
+
+10
+
+ï^
+
+R. TEMAM.
+
+Soit v choisi dans V ^ ^ ^ n V ; on écrit (II; 2.5) avec y/,= r^u, on multiplie (II; 2.5) par ^-1, et l'on ajoute toutes ces égalités pour
+n =i, . . . , N. Il en résulte (^= ^(T) == o) :
+
+A-
+
+N
+
+— 2 ("^(^—^-o^+^^Sj^"1'^"1^))7-
+
+^=1
+
+71=1
+
+N
++A^(url,url,'K-l^)
+
+71=1
+^V
+
+= W. ^° ^ + k ^ (/^, ^y,)/, /î=i
+
+Les termes en d/^u^, v/,) sont nuls en raison de (II; 5.8). Soit ^k (resp. /*/,) la fonction étagée égale à ^(resp. f'^1) sur l'intervalle (nk, (n + i)7c(. L'égalité précédente s'interprète ainsi :
+
+(H; 5.9) n-(u,(<+,^)(,f+^k± )—^^M t(t))^^
+
+•'/«o {V \\
+
+'
+
+K k
+
+1j h
+
++ V((UA((), ^(t)rhV))h + 6/.(u/.(0, u/,(0'^(0^») }^
+= W, ^ (o) r,.v)h + \r7' (f,.(t), ^(0 r/,v),,dt.
+^0
+On vérifiera par la suite (cf. n° 5.5) le lemme suivant :
+LEMME 5.3. — Lorsque s, k et h tendent vers zéro,
+
+f\a,(t+k), ^+^-(Q,\ ^ r7^ ^^
+
+^O
+
+\
+
+••'•
+
+/h
+
+JQ
+
+1 ((u/,(0, ^*(0r/^))/,d<-^ f ((ro(Q, 4'(0")) dt,
+
+^U
+
+«^0
+
+r7^
+
+r77
+
+ï h (u/,(0, u/,(0, ^(0 r/,u)dt-> b(w (/), w (/), ^ (t) v) dt,
+
+J o
+
+«YO
+
+(^, ^(o)r/^)/,-^(uo, ^(0)^),
+
+77
+
+T
+
+f (fk(t~),^(t)w),dt^ f(f(t),^(t)v)dt.
+
+•^O
+
+«^O
+
+Ces résultats étant admis provisoirement, on passe à la limite dans
+
+(II; 5.9), et l'on obtient ceci :
+
+(IF; 5.io)
+
+rT(
+
+}
+
+\ —(w(0, ^(/)) + v((w(t), CP(O) + b(w(t), w(t\ 9(0) dt
+
+^o (
+
+\
+
+= fm?(o)^+("o,9(o)),
+
+«^0
+où 9=^v, 4'ee'((o, ^)),^(77)==o, ye-v=^(^nV.
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l47
+
+On en déduit, par un raisonnement de continuité déjà utilisé, que (II; 5.10) est encore vérifiée pour toute fonction cp qui satisfait à (I; 2.3), et w est donc solution du problème 1.1.
+Puisque ce problème possède une solution unique, w == u, et les convergences (II; 5.2) et (II; 5.6) ont lieu pour la suite s, k, h elle-même (et non pour une suite extraite).
+Il ne reste plus à présent qu'à démontrer les lemmes 5.2 et 5.3.
+
+5.4. Démonstration du lemme 5.2. — Le principe de cette démonstration est dû à RAVIART [14].
+Soit ^(t) la fonction égale à i/A: sur (— k, o(, et à o ailleurs ; de même, soit ^ la fonction égale à i//c sur ( T — k , T(, et à o ailleurs.
+Toutes les fonctions étant prolongées par o en dehors de l'intervalle (o, T(, les égalités (II; 2.5) s'interprètent ainsi :
+
+(II; 5. n) ^(u^(t +/c)—u/,(0, v^+v((Uh(t), Vh))îz
+
++ ^ dk(Uh(t\ u,) + bh(Uk{t), u,(Q, y/.)
+
+= (A(0, u^+W, ^)^(o—(^, u^î(t), ^Ukç.Vh, VfeJ?.
+
+Soit gh la fonction définie par
+
+g fi (0 e Uh, ((g h (0, Vh))h ---= bh (Uh (Q, Uh (t), Vh), V VH € V/,.
+
+Il résulte en particulier de (II; 8.22) que
+
+(H; 5.12)
+
+|[ ^(011^^11^(0 ||^ \ft,
+
+^fa.*^'""-^-"'0 Ci, constante convenable. On vérifie aisément que
+
+et alors (II; 5.n) devient (II ; 5.13) ^ (X* * Uh(t), Vh)h + v ((UA (0, v/,))h
+
++^d,,(UA(0,^)+((^(0,^))/.
+= (M), v^+w, y/.)^(o—(u,y, î^xKO.
+Soit à présent û/,, ..., la transformée de Fourier en t de UA, .... Par transformation de Fourier de (II; 5.i3), on obtient (II; 5. i4) iTOte(7) ÛA(T), Vh)k + v (.(W, Vh))h
++ ^dkW), Vh) +(((MT), Vh))k
+= {h(^, v,)h+W, v,^-W—(uï, V,),^(T).
+
+l48
+
+R. TEMAM.
+
+Nous remplaçons, pour presque tout T, y/, par ^(T) ^(T)» e^ nous prenons les modules de l'égalité obtenue :
+
+N.IX^)"^) 2^[\u^m+ \d,(u^\ Û,(T))
+
++ \\9^) [ 1 . 1 1 Û^)||A+|A(T)|. ^(T)|,+{[^|,+K|,}.|Û,(T)|,.
+Nous avons utilisé les inégalités
+\W ^ \îW ^ VT.
+Nous divisons les deux membres de cette inégalité par i + l ^ ' ^ P ^ ' i / ' î et intégrons en T; nous en déduisons
+
+f^('7+^^^ ) f"W 00 iW ^^\ili1dd.T +s1 r^dh^h^9ùh^^
+
+\
+
+1 ^ ^ —— 00
+
+•-/—— 00
+
++î,f_+ lA(^li^+J^+ û/.(^l!^
+
++^i(l^l.+l^l^+(sup 11^(^11!) j..jT^^^^-
+
+Avec (II; 5.12) et les majorations a priori du lemme 3.3 on obtient
+
+J^ ^ ^ . p l ^ ^ ^ ^ l ^ T ^ C , ,
+
+où c^ ne dépend pas de £, /c et /i. On a aussi
+/l+ \W^)\ld^j+ \W\ldr=J^
+
+u,(0|^^Cte,
+
+et il en résulte (II;5.i5) f (i+^|^)lx,(T)^(T)[^T^C3
+
+pour o < y < ^ .
+
+D'après un théorème de compacité de RAVIART [14] (théor.9.1, chap. I) (9), on en déduit que (II; 5. i6) q^k *u/,|î -^w dans L.,(o, T; G) fort (10),
+où g^ désigne la restriction à (o, T) d'une fonction g définie sur jR.
+(9) Ce théorème de compacité utilise le fait également démontré dans RAVIART [14] que la boule B == {q^u^ \ u/,e V^, | h\ ^ hy, || p^ u^ 1)? ^ i } est relativement compacte dans G.
+(10) Plus précisément, on peut choisir la suite s', k ' , h' extraite de s, A-, A, de manière à avoir (II; 5.i6).
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+l49
+
+On démontre ensuite comme dans RAVIART [14] que
+
+f-T \{nq.^^,^^n^.(t-\— q.nu. n^. W ff\\^d/îft^^i i///^-k l{
+
+|
+
+N
+u2 |^+ | <| l +^ | ^-ur 0 1-2 i 1 ,,7V] 2 _ l V 1 | ,,7l__ ,,//-11
+
+[12^
+
+170
+
+r (
+
+n=i
+
+II résulte de (II;3.i4) et de (II; 3.17) que l'expression comprise entre les accolades est majorée indépendamment de £, k et h; donc
+
+\^ {qh^kiçUh^—qhUi^^dt-.o,
+^0
+ce qui montre avec (II; 5.i6) que qhUh->w dans 1.2(0, T; G) fort.
+
+5.5. Démonstration du lemme 5.3. — Nous allons démontrer que
+
+T
+
+T
+
+(II; 5.17) f b,(u,(t),u,.(t),^t(t)r,v)dt^ f b(w(t),w(t),^(f)v)dt,
+
+JQ
+
+J 0
+
+les autres résultats de convergence étant immédiats.
+
+Notons, pour simplifier, cpiA, 92^ les composantes de ^(0^; soient Uik, u.îk celles de u/,, Wi, w.î, celles de w, 91, 92, celles de 9 == ^u. Nous devons montrer essentiellement ceci :
+
+(II; 5 . 1 8 ) (II;5.i9)
+
+T
+f f nu,(x, 0 V,Ujk (x, t) 9^(x, t) dx dt
+^0 ^û
+
+-> ( T f w,(x, 0 àw- (x, 0 9/(^ 0 & df;
+
+•>'o ^Q
+
+î
+
+y -*77
+f /Ç Uui^k((rxr, t) Ujk (x, t) V,9//,(^ 0 dx dt «^A0 ^^ûû
+
+-^ ff fl l Vwi i((Xx,,t0) W^^ (^, 0 ^ (x, 0 & df.
+
+^^o ^ ^Q 0
+
+(/:rï
+
+Puisque 9 e e l ( ^ x (o, Tj) (et même plus), on vérifie facilement que 9/A est essentiellement bornée sur ^ 2 x ( o , T ) indépendamment de (s) À: et h, et que
+9y/, (^, 0-^9 (^ 0 P- P- dans ^ X ( o, T) (À-, h ^ o).
+
+D'après (II; 5.6), Uik-^Wi dans L 2 ( ^ x ( o , T ) ) fort, et, utilisant le théorème de Lebesgue et ce qui précède, on voit que Ui/^jk-^w^j
+
+i5o
+
+R. TEMAM.
+
+dans L^x (o, T)) fort D-après (II; 5.2) et le lemme 5.2, V.i^-. ^
+
+dans L,(I2 x (o, T)) faible et (II; 5.18) en résulte.
+
+ààwvo/,
+
+La vérification de (II; 5.19) est plus simple; la fonction V,cp^ est essentiellement bornée sur ^ x ( o , T) indépendamment de (s)/c et h et
+
+V.?/^, 0-^ ^(^ 0 p. p. dans ^x (o, T) (^ A^o);
+
+(II; 5.19) résulte alors de (II; 5.6) et du théorème de Lebesgue.
+
+6. Approximation de la pression. Soient Vo et Vo, les opérateurs de différences finies
+Vo^(0 = ^±^(0, vo^) == ^-^-^\
+
+Les fonctions Un = (u^, u,h) définies au no 4 sont solutions des équations suivantes :
+SCHÉMA (I).
+
+(II; 6.1) Vo^(0--^V;V,^(0-Iv^^Vy^(0^
+
+^ ^
+
+^
+
+\7=1
+
+/
+
++^"^a-A)v;^(o
+
+7=1
+
++ { 2 v,(u^(^—/c) ^(Q)== ^(o,
+7=1
+
+i == i, 2, tç (o, T( (en convenant que Uk(t) == u^, ^e (-Â-, o().
+
+SCHÉMA (II).
+
+(II; 6.2)
+
+Vo^(0--^V,V,^(0-^V^^V,^^
+
+, ^1
+
+' \/=1 /
+
+1
++ ^u,k(t—k)V,u^t—k) 2
+
+7=1
+
++ 2I 2v/(U7Â ^— ^uih(t—7C)) =^(o, /=1
+
+i = i, 2, /e (o, T( (en convenant que (iik(t) = u^, tç. (—A-, o()).
+
+ÉQUATIONS DE NAVIER-STOKES.
+
+ÏF)Ï
+
+SCHÉMA (III).
+
+(II; 6 . 3 )
+
+-/ 2
+
+\
+
+VolMQ——^ ^ V y V y U ^ O — — ^ V , ( ^VyU,A(0 ) £
+
+/=!
+
+\/=1
+
++I^^(ov;^(0
+
+7=1
+
+2
+
++ SI V ^ ^"™
+
+^
+
+(
+
+o
+
+•"
+
+'A
+
+(
+
+0
+
+)=
+
+^(
+
+o
+
+'
+
+i = i, 2, f e (o, T[ (en convenant que Uk{t) =u^,tç[T,T +k(). Les théorèmes 11.4, 11.5 et 11.6 donnent, pour chacun de ces schémas,
+les résultats de convergence suivants :
+Uik ->Ui dans L,(o, T; 1^(12)) faible et L,(Q) fort
+(II; 6•4) ^"^1^ dans ^-œ)faible (^j-1'2)-
+
+D'après (II; 6.4),
+
+Vo^-1ài1 iih.5
+
+^/ V , V;yVV;;U^^^-^A-A^";,,
+
+7=i
+1 y {u^a-^c) v,^(o -v,(i^-/c) ^,(0) l -> ^ "/ ^. ^i
+
+dans Jï-^Ç) faible [espace dual de H^Q)]. Par comparaison avec (I; 6.4) et (II; 6.1), on en déduit que, dans le cas du schéma (I) :
+
+(2
+
+\
+
+(II; 6.5) - ^ V , 2 ^ " ^ ) ^ ^ dans Jî-1 (6) faible
+
+7=1
+
+/
+
+On a un résultat semblable pour les schémas (II) et (III).
+
+(1=1,2).
+
+BIBLIOGRAPHIE.
+[1] CEA (J.). — Approximation variationnelle des problèmes aux limites, Ann, Inst. Fourier, Grenoble, t. 14, 1964, fasc. 2, p. 345-444 (Thèse Se. math., Paris.
+1964). [2] FROMM (J. E.). — A method for computing nonsteady incompressible viscous
+fluidflows. Report La 2910, Los Alamos scientific Laboratory of thé University of California. — Los Alamos (N. M.), 1963. [3] HARLOW (F. H.). — Thé Mac method. Report La 3425, Los Alamos scientific Laboratory of thé University of California. — Los Alamos (N. M.), 1965. [4] HOPF (E.). — Ueber die Anfangswertaufgabe fur die hydrodynamischen Grundgleichungen. Math. Nachr., t. 4, 1950-1951, p. 2i3-23i.
+
+i5?
+
+R. TEMAM.
+
+[5] JANENKO (N. M.). — Méthode des pas fractionnaires pour la résolution numérique
+
+des problèmes de la physique mathématique [en russe]. — Novosibirsk, 1966.
+
+[6] KimviCKi (A.) et LADYZENSKAJA (0. A.). — Méthode des mailles pour les
+
+équations de Navier-Stokes [en russe], Doklady Akad. Nauk S. S. S. R., t. 167 1966, p. 3o9-3n.
+
+[7] LERAY (J.). — Études de diverses équations intégrales non linéaires et de quelques
+
+problèmes que pose l'hydrodynamique, J . Math. pures et appl., y série, t. 12, i933, p. 1-82.
+
+[8] LERAY (J.). — Essai sur les mouvements plans d'un liquide visqueux que limitent
+
+des parois, J . Math. pures et appl., 90 série, t. 13, 1934, p. 33i-4i8.
+
+[9] LIONS (J.-L.). — Quelques résultats d'existence dans des équations aux déri-
+
+vées partielles non linéaires, Bull. Soc. math. France, t. 87, 1959, p. 245-273.
+
+[10] LIONS (J.-L.). — Équations différentielles, opérationnelles et problèmes aux limites.
+
+— Berlin, Gôttingen, Heidelberg, Springer-Verlag, 1961 (Die Grundiehren der mathematischen Wissenschaften, 111).
+
+[11] LIONS (J.-L.). — Quelques remarques sur les équations différentielles opérationnelles du Ier ordre. Rend. Semin. math. Padoua, t. 33, 1963, p. 213-225.
+
+[12] LIONS (J.-L.). — Une construction d'espaces d'interpolation, C. R. Acad. Se.,
+t. 251, 1960, p. i853-i855.
+
+[13] LIONS (J.-L.) et PRODI (G.). — Un théorème d'existence et unicité dans les
+
+équations de Navier-Stokes en dimension 2, C. R. Acad Se t 242 iû5û
+
+p. 35i9-352i.
+
+'f '
+
+9
+
+vf
+
+[14] RAVIART (P. A.). — Sur l'approximation de certaines équations d'évolution
+
+linéaires et non linéaires, J . Math. pures et appl., 96 série, t. 46, 1967, p 11-107 (Thèse Se. math., Paris).
+
+[15] SCHWARTZ (L.). — Théorie des distributions à valeurs vectorielles, Ann. Inst.
+
+Fourier, Grenoble, t. 7, 1957, p. 1-139 et t. 8, 1958, p. 1-209.
+
+[16] TEMAM (R.). — Sur l'approximation des solutions des équations de NavierStokes, C. R. Acad. Se., t. 262, série A, 1966, p. 219-221.
+
+Roger TEMAM, 9, boulevard Malleret-Joinville,
+9 2-Chatillon-sous-Bagneux (Hauts-de-Seine).
+
+(Manuscrit reçu le 2 décembre 1967.)
+

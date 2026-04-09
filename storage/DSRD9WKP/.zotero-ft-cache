@@ -1,0 +1,586 @@
+Search
+
+    Courses
+    Blog
+    Services
+    Resources
+    About
+    Login
+
+September 5, 2024
+How to Track File Downloads with Google Analytics 4 (including PDF)
+
+Updated: September 5th, 2024
+
+If you’re running a website where people can click and open/download files (like PDF or Excel Spreadsheets), you would probably want to know which links are clicked the most and whether your visitors/users care about those resources.
+
+Maybe that document you spent countless hours on last year was clicked just 10 times in total? By measuring file downloads, you will be able to understand which content is more engaging and where you should focus more effort.
+
+In this tutorial, I will show you how to track file downloads with Google Analytics 4.
+
+You have two options:
+
+    use the built-in tracking of GA4 (but there are some caveats)
+    configure file tracking with Google Tag Manager and GA4
+
+And I will explain both of them.
+Free e-book:
+Getting Started with
+Google Analytics 4
+
+Learn how to properly install GA4, track events, key events, build reports
+
+SUBSCRIBE TO NEWSLETTER. GET THE E-BOOK.
+
+Unsubscribe at any time.
+
+ 
+
+ 
+Table of Contents
+
+Here’s what you will learn in this tutorial
+
+    Tracking file downloads with GA4 (built-in feature)
+    file_download event
+    Caveats of a built-in file download tracking in Google Analytics 4
+    How to track file downloads with Google Tag Manager
+        #1. Create a variable: File Name
+        #2. Create a variable: File Extension
+        #3. Create a Link Click trigger
+        #4. Create a GA4 event tag
+        #5. Test the setup
+        #6. Publish GTM and disable file download tracking in GA4
+    Where to find file download data in Google Analytics 4 standard reports?
+        #1. Standard GA4 reports
+        #2. Free form exploration
+    Can I track file opens if a visitor directly opens a PDF?
+    Final Words
+
+ 
+Tracking file downloads with GA4 (built-in feature)
+
+Google Analytics 4 has a suite of automatic event-tracking features called Enhanced Measurement .
+
+We had only page views in the previous version of GA (Universal Analytics). If you wanted to track some events, you had to customize your setup.
+
+With Enhanced Measurement, you can have more events without configuring Google Tag Manager or editing your website’s code.
+
+When you create a web data stream in Google Analytics 4, you can use Enhanced Measurement. It is designed to help marketers get as many events in the reports as possible without cooperating with developers or configuring them in Google Tag Manager.
+
+If you go to  Admin > Data Streams >  Select the web data stream, the following window will open, where you will see a section called  Enhanced Measurement .
+
+By default, this feature is enabled and will automatically track events such as:
+
+    Page view (event name:  page_view )
+    Scroll (event name:  scroll )
+    File Download (event name:  file_download )
+    Outbound link click (event name:  click  with the parameter  outbound: true )
+    Site search (event name:  view_search_results )
+    Video Engagement (events:  video_start, video_progress, video_complete )
+    and so on.
+
+If you want, you can disable/enable events individually by clicking the gear icon in the  Enhanced Measurement  section and then clicking the toggle buttons.
+
+One of the options there will be File Downloads.
+
+file download in enhanced measurement file download in enhanced measurement
+
+Let’s focus on it.
+
+ 
+file_download event
+
+Every time Google Analytics 4 tracks a file download event ( file_download ) is sent to GA4 when a link is clicked, and that link contains one of the following file extensions:  .pdf, .xls, .xlsx, .doc, .docx, .txt, .rtf, .csv, .exe, .key, .pps, .ppt, .pptx, .7z, .pkg, .rar, .gz, .zip, .avi, .mov, .mp4, .mpe, .mpeg, .wmv, .mid, .midi, .mp3, .wav, .wma . In other words, if the link opens/downloads a file. It is currently impossible to update the list with other extensions in the GA4 interface.
+
+So, if you want to extend the list, you must implement it via Google Tag Manager (I will explain that later in this article).
+
+Once you install Google Analytics 4 , you can test whether this feature works. First, install this Chrome Extension  and then click its icon in Chrome (to enable). Then (in GA4), go to Admin > Debugview .
+
+Finally, open your website (or refresh the browser tab with it) and the link that opens/downloads a file (e.g., a PDF).
+
+Come back to the Debugview  and wait until you see the  file_download event there. If Debugview is not working for you, take a look here .
+
+file download event in debugview file download event in debugview
+
+Click the file_download event, and you will see parameters that were also tracked. In addition to all page-related parameters (like page_location), it will also track the following:
+
+    file_extension.  The extension of the file, e.g. “pdf”, “docx”, etc.
+    file_name . The name of the file. If the clicked URL is  example.com/filename.pdf , the parameter’s value will be “filename”).
+    link_text . The link’s text (that was clicked) to open/download the file.
+    link_url . The URL of the file link that was clicked, e.g.,  https://www.example.com/filename.pdf
+
+Note: If the file URL is longer than 100 characters, the value of link_url will be trimmed (meaning that the end of the URL will not be visible in reports).
+
+So if you see the event in the debugview and real-time reports, file download tracking in Google Analytics 4 works. Now, where can you find that data in regular GA4 reports? If you don’t care about the alternative setup with Google Tag Manager,  jump to this chapter to learn more .
+Subscribe and Get the Ebook - Mastering GA4 event tracking Subscribe and Get the Ebook - Mastering GA4 event tracking
+Caveats of a built-in file download tracking in Google Analytics 4
+
+Even though built-in file download tracking in Google Analytics 4 is a welcome addition, you need to be aware of some drawbacks.
+
+If they are dealbreakers for you, you should implement this with Google Tag Manager instead (I will soon explain that too).
+
+ 
+#1. The max length of link_url is 100 characters
+
+When GA4 tracks the links of file downloads, it captures the full URL. So if it looks like this https://www.examples.com/download/very_long_value[….] , GA4 will cut off the end of the value. And usually, the end of the URL contains the actual file name and file extension ( pdf, xls , etc.)
+
+Instead, I would prefer tracking the file name (e.g.,  some-ebook.pdf ) or the path or Click URL (e.g., /download/something/some-ebook.pdf ). This would reduce the impact of the character limit.
+
+Luckily, this can be solved if you implement file download tracking with Google Tag Manager .
+
+ 
+#2. Cannot customize the list of supported file extensions
+
+Google Analytics 4 file download tracking supports the following file extensions: .pdf, .xls, .xlsx, .doc, .docx, .txt, .rtf, .csv, .exe, .key, .pps, .ppt, .pptx, .7z, .pkg, .rar, .gz, .zip, .avi, .mov, .mp4, .mpe, .mpeg, .wmv, .mid, .midi, .mp3, .wav, .wma .
+
+Even though these are the most popular ones, there is a slight chance that a particular extension that your business uses is not here. When I write this blog post, you cannot customize the list of extensions. Solution? Again, Google Tag Manager and a custom setup (read the next chapter).
+Free e-book:
+Getting Started with
+Google Analytics 4
+
+Learn how to properly install GA4, track events, key events, build reports
+
+SUBSCRIBE TO NEWSLETTER. GET THE E-BOOK.
+
+Unsubscribe at any time.
+
+ 
+How to track file downloads with Google Tag Manager
+
+This is an alternative to a built-in file download tracking within GA4. It’s more flexible but requires more knowledge and configuration.
+
+In this chapter, I presume that you already know at least the basics of Google Tag Manager and have already installed it on your website. If not, read this tutorial .
+
+The process of configuration will look like this:
+
+    We will create a variable that returns the file name (e.g., if the Click URL is htttps://example.com/file.pdf, it will return file.pdf )
+    We’ll create a variable that returns the file extension (e.g.,  pdf ). This is optional.
+    Then we will create a link click trigger that will be looking for specific file extensions
+    Finally, we will create a GA4 event tag and will test this
+
+Note: this solution will work only if file links contain file extensions (e.g., .pdf, .xlsx , etc.).
+
+ 
+#1. Create a variable: File Name
+
+Go to your Google Tag Manager container > Variables and make sure that the  Click URL variable is enabled. If you cannot see it in the list, click Customize and enable Click URL .
+
+Then click New (in the same Variables section) > Variable Configuration > Custom JavaScript Variable . Paste the following code:
+
+ function() {
+ var filepath = {{Click URL}}.split("/");
+ var filename = filepath.pop();
+ var decodedFilename = decodeURI(filename);
+ return decodedFilename.indexOf(".") > -1?decodedFilename:'n/a';
+}
+
+Name this variable cjs – filename and hit save.
+
+ 
+#2. Create a variable: File extension
+
+While you are in the Variables section, click New > Variable configuration > Auto-event variable . Then enter the following settings:
+
+This variable will return the file extension of a click link. Give it a name File extension and hit save.
+
+ 
+#3. Create a Link Click trigger
+
+In Google Tag Manager, go to Triggers > New > Trigger Configuration > Just links . Enter the following configuration:
+
+The condition in the trigger is cjs – filename matches RegEx (ignore case)  \.(pdf|xlsx?|docx?|txt|rtf|csv|exe|key|pps|pptx?|7z|pkg|rar|gz|zip|avi|mov|mp4|mpe?g|wmv|midi?|mp3|wav|wma)
+
+This is the list of file extensions that GA4 enhanced measurement supports. If you want to add additional file extensions, edit the regular expression by adding | (this means OR) and then add the actual file extension (e.g., dll ).
+
+Name this trigger Link click – file download and hit save.
+Subscribe and Get the Ebook - working with reports in ga4 Subscribe and Get the Ebook - working with reports in ga4
+#4. Create a GA4 event tag
+
+If you haven’t installed GA4 with Google Tag Manager yet, go to Tags > New > Tag Configuration > Google Analytics > Google Tag and enter the following settings. The first step is to create a Google Tag.
+
+Now, let’s create the GA4 event tag, which will send the event details to GA4 when a file download occurs. Go to Tags > New > Tag Configuration > Google Analytics > Google Analytics: GA4 Event . Enter the following settings:
+
+In the “Measurement ID” field, I used a constant variable that contains the actual ID. If you want to learn why, take a look here .
+
+Ensure that event parameter names are exactly as I show in the screenshot: file_extension, file_name, link_text, link_url .
+
+Ensure that two built-in variables in GTM are enabled: Click Text and Click URL . If you don’t see them, go to Variables > Customize and enable them.
+
+Then click the Triggering and add the Link click trigger we created in the previous chapter. Save the tag.
+
+ 
+#5. Test the setup
+
+Final step. Let’s check if everything is working as expected. Click the Preview button in the top-right corner of the GTM interface.
+
+This will open a new browser tab/window. Enter the URL of the page where you want to test this.
+
+Click Connect .
+
+Now, go to your website and click the file link. Then, go back to the GTM preview mode and see if the Link click event is displayed. If yes, click it and check if your GA4 event tag has fired. If you see multiple Link click events, read this article .
+
+Did the tag fire? If yes, go to Google Analytics > Admin > Debugview and see if the  file_download event is visible there (if you haven’t disabled file download tracking in GA4 enhanced measurement, you will see two events. Don’t worry, we’ll fix that soon).
+
+Also, click the event and check if event parameters and their values are tracked correctly.
+
+ 
+#6. Publish GTM and disable file download tracking in GA4
+
+Once everything is tested, you need to do two things:
+
+    Publish a GTM container (so that these changes would go live for your website visitors). You can do that by click the Submit button in the top-right corner of the GTM interface.
+    Go to Google Analytics > Admin > Data Streams > Select your web data stream . Click the gear icon, disable File download tracking, and click Save . This way, you will avoid duplicate data (when GTM and GA4 Enhanced Measurement track the same thing).
+    disable file download in google analytics 4 disable file download in google analytics 4
+
+ 
+Where to find file download data in Google Analytics 4 standard reports?
+
+After you start collecting file download data, wait for at least 24-48 hours. Google Analytics 4 is pretty slow in processing data, so it needs more time.
+
+The steps of finding the data differ based on what kind of reports you want to use.
+
+ 
+#1. Find file download data in standard GA4 reports
+
+In standard reports, it’s easy to find events. They are called  file_download; you can find them by going to  Reports > Engagement > Events .
+
+However, the problem with this is the granularity of the data. If you click the file_download  event, it will open a report where you  won’t see what kind of links were clicked .
+
+There are two options here:
+
+    You can customize the report  to use the Link URL as a primary dimension
+    Add a custom dimension ( like explained here )
+    Or you can build a Free Form exploration report. Let me show you how that can be done.
+
+ 
+#2. Find file download data in GA4 Free form exploration
+
+Another place where you can find the file download data are custom reports. On the left sidebar of your GA4 interface, click  Explore . Then select  Blank .
+
+We’ll need to import two dimensions into that report. Click the  Plus  icon.
+
+Then select  Event name  and  Link URL  dimensions (or if you want to see shorter values, select File name )and click  Import .
+
+In the metrics section, click the  Plus  icon and add the metrics you want to use, such as  Event count and Total Users.
+
+Double-click the  Link URL  dimension and all metrics you have imported to the exploration. Or just drag and drop them.
+
+Now you see the list of all file links that were clicked. But it’s very likely, that the first row in the table will be empty. Why?
+
+That’s because your current report shows the data of ALL events in your property, not just outbound link clicks. Thus you need to narrow it down. In the  Filters  section, click  Drop or select dimension or metric  and then choose  Event name . Enter the following condition:
+
+    The event name  exactly matches   file_download
+
+Save the filter.
+
+Now you will see the report only of  file_download  events, and the first column of the table will show the list of file links that were clicked.
+
+file download report in google analytics 4 file download report in google analytics 4
+
+ 
+Can I track file opens if a visitor directly opens a PDF?
+
+This is another reasonably popular question I get. “Directly opens” means that someone has a direct link to a PDF file and opens it in a browser (without clicking any link on your website).
+
+The answer is “conveniently track? No”. You cannot put JavaScript in PDF files, meaning that Google Analytics 4 or Google Tag Manager cannot be installed.
+
+Sure, your developers could try to send  file-opened data to GA4 via measurement protocol , but it is problematic and might not provide a lot of value. However, you could still cooperate with a developer and ask him/her to check the server logs and tell you how many times a particular PDF file was opened. He/she should have that data. But GA4 is not part of this process.
+
+ 
+Track File Downloads with Google Analytics 4: Final Words
+
+Even though Google Analytics 4 can track file downloads automatically, there are situations when this is not enough, and you might want to have a more customized setup. That’s where Google Tag Manager becomes useful (once again).
+
+Nevertheless, in this blog post, I explained both options, and you are the one who should make the right choice.
+
+When it comes to finding the data and using the reports, GA4 is still lacking, and it takes a bunch of clicks to find out which files were downloaded the most.
+Subscribe and Get the Ebook - conversion tracking handbook Subscribe and Get the Ebook - conversion tracking handbook
+Julius Fedorovicius
+In Google Analytics Tips
+29 COMMENTS
+
+    Kenneth
+
+        Mar 15 2023
+        Reply
+
+    Hi there this is great but what about documents on a website that doesn't have file extensions? how do you track the download event and not just the view event of a PDF? for example: https://www.mpi.govt.nz/dmsdocument/10784-Brown-marmorated-stink-bug-fact-sheet
+
+        Julius Fedorovicius
+            Mar 16 2023
+            Reply
+
+        How about Click URL contains /dmsdocument/ ?
+
+    Christian
+
+        Mar 22 2023
+        Reply
+
+    Hi Juius, thank you for all the great articles!
+
+    I was just testing out the GTM tracking for file_download events, and I'm wondering... in the "CJS - Filename" variable, should we really be using "Click Element" to split?
+
+    I've tried but it's returning "undefined", I think because the value of the "Click Element" variable in GTM is multiple concatenated strings? However, I can see that the "Click URL" variable is showing a nice URL string. Should we be using that instead?
+
+        Christian
+            Mar 22 2023
+            Reply
+
+        Hey, I just read your other article on the Click Element variable, and I can see that it was an Object... whereas for me it is showing as a String ? I wonder if maybe Google have changed the data type and that's why this isn't working?
+
+            Julius Fedorovicius
+                Mar 22 2023
+                Reply
+
+            Hi, thanks for contacting me. I updated the code and that part of the article.
+
+    Renee
+
+        Apr 11 2023
+        Reply
+
+    hi- thanks for the article!
+    I followed all of your steps and the event isn't being triggered when I click on the files. I was wondering if this could be because its not actually being downloaded on my computer, it just opens the document in another tab? That or because the file extension isnt at the end of our links? example: https://XYZ.com/documents/13759/x+x+y+x.pdf/147e5e89-8fe9-743e-1234-123hfq324
+
+        Renee
+            Apr 11 2023
+            Reply
+
+        just want to update that it is working for links with ".pdf" at the end. any recommendation for it to look in the entire URL for the link extension?
+
+            Renee
+                Apr 13 2023
+                Reply
+
+            if you use the following code instead of his code for the cjs variable, it will find the filename anywhere in the url rather than just at the end :)
+
+            function() {
+            var url = {{Click URL}};
+            var pattern = /([^/]+)\.(\w+)(?=[^/]*$|\/[^/]*$)/;
+            var match = url.match(pattern);
+            if (match) {
+            var fileNameWithExtension = match[0];
+            return fileNameWithExtension;
+            }
+            }
+
+    Casper Voogt
+
+        Apr 12 2023
+        Reply
+
+    This looks very useful, but I tried it out and it worked on clicks, yet ignored right-clicks (e.g. right click and save as).
+
+        Julius Fedorovicius
+            Apr 13 2023
+            Reply
+
+        That's how JavaScript works. It cannot track right-click>save as
+
+    John
+
+        Apr 13 2023
+        Reply
+
+    Hello Julius,
+
+    Nice explanation and I was able to set it up easily. One question - How can we know the URL of the page WHERE these PDF links were placed.
+
+    Thanks
+
+        Julius Fedorovicius
+            Apr 13 2023
+            Reply
+
+        By adding a secondary dimension - page location
+
+    Stu
+
+        May 5 2023
+        Reply
+
+    If i was sending these as conversions to Google Ads and wanted to track multiple forms as separate conversions, does it make sense to use this feature or create individual events?
+
+    Mary Grace
+
+        May 11 2023
+        Reply
+
+    Hello, may I ask if there is really no views count for file download? Because whet I check it in GA4 there are numbers for Sessions and Users but no Views
+
+        Julius Fedorovicius
+            May 11 2023
+            Reply
+
+        Views are for pageviews, not PDF files. PDF is not a page (in the context of websites)
+
+    Hanna
+
+        May 22 2023
+        Reply
+
+    This works great. Thank you Julius.
+
+    Jon
+
+        May 23 2023
+        Reply
+
+    Thanks for this. With the built-in tracking, I can only see the last two months and can't extend the timeframe any further back. Is there a way to go back further in time? Does the Tag Manager option allow for longer time periods?
+
+        Julius Fedorovicius
+            Aug 3 2023
+            Reply
+
+        Yes, extend data retention period in GA4 to 14 months
+
+    Troy
+
+        May 24 2023
+        Reply
+
+    This is great but is there a way to display the file_size for file_downloads?
+
+    Does that exist? I can find nothing, please help.
+
+        Julius Fedorovicius
+            May 25 2023
+            Reply
+
+        it does not exist. Standard analytics tools cannot access that kind of information. You would need to ask the developer to decorate all file links on the website and include the file size as one of the parameters there (e.g. data-filesize) and then build a custom file tracking setup. This gets complicated quickly.
+
+    Diego Meneghetti
+
+        Jun 3 2023
+        Reply
+
+    Thanks for all tutorials, and this article!
+
+    I followed you tutorial and it is working perfectly in GA4. But, is it possibile to build this list (file downloads events, with links) in Looker Studio report?
+
+        Hanna
+            Jun 4 2023
+            Reply
+
+        You should be able to show the data in Looker if you refresh your data source.
+
+    Shaun Opp
+
+        Jun 23 2023
+        Reply
+
+    I found what I think may be another caveat. I don't see the file_download event firing with default href targeting (ie. _self). Works fine for me however with with href set to _blank.
+
+    Marcus
+
+        Dec 7 2023
+        Reply
+
+    THIS is absolutely great and you saved my day. I spend already hours to find out how to manage this in GA4, because it shows it in real time but not in any event.
+
+    I think you saved me from some more hours, an angry boss and a mad client.
+
+    Reegan
+
+        Jan 5 2024
+        Reply
+
+    Dear Julius,
+
+    Thanks for the article,
+
+    I would like to track the file uploaded on my website.
+
+    May I know, How to proceed that?
+
+    Thanks in advance.
+
+        Julius Fedorovicius
+            Jan 5 2024
+            Reply
+
+        Ask the developer if he/she can push the event to the data layer after the file is uploaded.
+
+    Alida Hight
+
+        Jan 31 2024
+        Reply
+
+    Thanks for the great article that saved my time.
+
+    My ecommerce site provides the spec and user manual pdf of the product. I want to track the download and pdf that returns 404 response code.
+
+    As I setup the direct link that opens to chrome and user can download by clicking the download button.
+
+    I can't track as you suggest, Tag are not installed on the pdf page.
+
+    Still, I'm looking for the solution.
+
+    Marine
+
+        Mar 14 2024
+        Reply
+
+    Hey Julius,
+    I now see the number of pdf downloaded but wich second metric should I add to see the file name?
+
+    Kieran
+
+        Sep 18 2024
+        Reply
+
+    Hi Julius,
+
+    Thanks very much for the tutorial. My only issue is that when I try to view the past 12 months of data I see this message: "A date range in this exploration has been adjusted in order to continue providing valid data. Date ranges of this exploration must contain dates between December 26, 2023 and yesterday. If one of your segments contains user data, your date range is automatically limited to 93 days from your start date."
+
+    Is there a way to see more than the past 93 days? Thanks
+
+    Regards
+
+Leave a comment Cancel reply
+
+Your email address will not be published. Required fields are marked *
+
+Comment
+
+Name *
+
+Email *
+
+Website
+
+Save my name, email, and website in this browser for the next time I comment.
+
+
+  Notify me when new comments are added.
+Search
+Hi, I'm Julius Fedorovicius and I'm here to help you learn Google Tag Manager and Google Analytics. Join thousands of other digital marketers and digital analysts in this exciting journey. Read more
+Free ebook
+​
+​ Get started with GA4
+
+Start learning Google Analytics 4 today: event tracking, key events, reports, etc.
+
+SUBSCRIBE & GET THE E-BOOK
+Analytics Mania
+
+    Google Tag Manager Courses
+    Google Tag Manager Recipes
+    Google Tag Manager Resources
+    Google Tag Manager Community
+    Login to courses
+
+Follow Analytics Mania
+
+    Subscribe to newsletter
+
+Recent Posts
+
+    Custom JavaScript variable in Google Tag Manager
+    Google Ads Conversion Tracking with Google Tag Manager
+    Track email campaigns in Google Analytics 4
+
+Analytics Mania - Google Tag Manager and Google Analytics Blog | Privacy Policy
+Manage Cookie Settings

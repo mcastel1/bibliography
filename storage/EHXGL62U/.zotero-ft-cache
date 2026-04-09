@@ -1,0 +1,3061 @@
+FEAT2D
+Finite Element Analysis Tools User Manual Release 1.3
+H. Blum J. Harig S. Mu¨ller P. Schreiber S. Turek Universit¨at Heidelberg, Institut fu¨r Angewandte Mathematik
+Im Neuenheimer Feld 293, D–69120 Heidelberg
+Heidelberg, 1995
+
+Contents
+
+Short description
+
+2
+
+1 General Concepts and Notation
+
+3
+
+1.1 Groups of subprograms . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+
+1.2 Symbolic names and reserved starting letters . . . . . . . . . . . . . . . . . 5
+
+1.3 Pseudodynamic memory management . . . . . . . . . . . . . . . . . . . . . 6
+
+1.4 Description of the domain Ω . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+
+1.5 Description of the subdivision . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+
+1.6 Storage techniques for matrices . . . . . . . . . . . . . . . . . . . . . . . . . 22
+
+1.7 Messages, error handling and consistency checks . . . . . . . . . . . . . . . 25
+
+1.8 Blas routines . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+
+2 Common Program Segments
+
+28
+
+2.1 Type declarations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+
+2.2 PARAMETER statements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+
+2.3 EQUIVALENCE statement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+
+2.4 COMMON blocks . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+
+2.5 SAVE statement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+
+3 Description of the Subprograms
+
+32
+
+3.1 The groups X, Y, and Z . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+
+3.2 The groups A-W . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+
+Bibliography
+
+88
+
+A List of FEAT2D subprograms
+
+89
+
+B List of COMMON blocks
+
+100
+
+C List of error message ﬁle FEAT.MSG
+
+101
+
+D Sample Programs
+
+104
+
+1
+
+Short description
+The progam package FEAT2D is a general purpose subroutine system for the numerical solution of partial diﬀerential equations by the ﬁnite element method. FEAT2D is designed to handle problems in two space dimensions, namely
+– Scalar elliptic boundary value problems, – Elliptic systems of equations, – Time dependent problems.
+FEAT2D is not a user oriented system, it only provides subroutines for several main steps in a ﬁnite element program. The user should be familiar with the mathematical formulation of the discrete problems. The data structure of FEAT2D is transparent so that modiﬁcations or augmentations of the program package are very easy, for instance the implementation of new elements. For details in the design and data structures of ﬁnite element codes the reader is referred to the books of Axelsson/Barker [1] and Schwarz [3], [4]. There are several main groups of subroutines in the system:
+– Generation of subdivisions of the domain Ω – Assembly of global matrices related to a bilinear form a(φi, φj) – Assembly of right hand side vectors related to a linear form l(φi) – Implementation of standard boundary conditions – Solution of the resulting linear systems of equations by iterative solvers – Error analysis for test problems where the exact solution is known
+Moreover sample programs for standard applications are included. These can be used as starting programs which can be modiﬁed for the actual application. Most FEAT2D subroutines can be used outside FEAT2D as well since the special memory management is separated from the working program units.
+2
+
+1. General Concepts and Notation
+1.1. Groups of subprograms
+The subprograms of FEAT2D are grouped with respect to their tasks. The names of all programs in one group start with the same key letter. Here, we give a short overview of the diﬀerent tasks.
+A Calculation of matrices corresponding to bilinear forms for triangular and quadrilateral elements Support of several storage techniques and calculation of the corresponding pointer vectors
+B Unused C Cubature formulas
+Deﬁned on 1- and 2-d reference elements D Reserved for ﬁnite diﬀerence applications E Element library F Unused G Normalized Input/Output for use of graphic packages H Unused I Iterative solvers of linear systems of equations
+Versions for solution, smoothing iterations and preconditioning J Reserved for eigenvalue problems K Unused L Basic linear algebra applications
+Matrix-vector and vector-vector operations M Multigrid components
+Prolongations and restrictions N Auxiliary routines
+Correspondence of local and global quantities O Input/Output
+3
+
+4
+
+General Concepts and Notation
+
+P Reserved for postprocessing routines Comparison to exact solutions etc.
+Q Unused
+R Reorganization Compression of zero entries in stiﬀness matrices Reordering of matrices with respect to diﬀerent storage techniques
+S Generation of subdivisions
+T Unused
+U Unused
+V Calculation of vectors corresponding to linear forms
+W Error handling Selective dump of contents of COMMON blocks and arrays allocated on the workspace
+X Direct communication with Z-routines Preparation of parameter lists for routines A-W Check of size and data type of arrays allocated on the workspace
+Y External subroutines Preparation of parameter lists for routines A-W
+Z Handling of the pseudodynamic memory management Machine dependent system routines
+
+1.2 Symbolic names and reserved starting letters
+
+5
+
+1.2. Symbolic names and reserved starting letters
+
+All routines are written in standard FORTRAN 77. Correspondingly, the names of variables and arrays are restricted to 6 alphanumeric characters. According to the standard FORTRAN convention, names starting with characters I-N are of type INTEGER. All other starting letters, except V and B, implicitly denote DOUBLE PRECISION quantities. Variables starting with one of the following letters have a specialized meaning.
+
+N. . . Number of . . . Global or local constants or eﬀective dimension of arrays
+NN. . . Maximum dimension of arrays (usually deﬁned in PARAMETER statements) K. . . INTEGER arrays, usually of problem dependent dimension, mainly used as pointer vectors, for description of triangulations, etc. I. . . Local variables and subscripts of arrays frequently used as DO loop variables L. . . Array descriptors in pseudodynamic memory management M. . . Input/Output parameters, unit numbers J. . . Left for free use as auxiliary variables V. . . Single precision array D. . . Double precision array B. . . Logical (boolean) variables and arrays
+
+Example
+
+Array name:
+
+DAUX (DOUBLE PRECISION) or KAUX (INTEGER)
+
+Maximum dimension:
+
+NNAUX
+
+Eﬀective dimension:
+
+NAUX
+
+Reference to a single element: IAUX (JAUX may be used in inner DO-loops)
+
+6
+
+General Concepts and Notation
+
+1.3. Pseudodynamic memory management
+FEAT2D makes use of a pseudodynamic memory management for most of the arrays in use. It provides a workspace vector containing in particular those arrays whose dimension depends on the problem and, moreover, local auxiliary vectors. The workspace vector DWORK is allocated on the BLANK COMMON and is of type DOUBLE PRECISION.
+
+The BLANK COMMON
+
+PARAMETER (NNARR=299) COMMON NWORK,IWORK,IWMAX,L(NNARR),DWORK(1)
+
+Explanation
+
+NWORK IWORK IWMAX
+L
+NNARR DWORK
+
+Eﬀective dimension of DWORK Pointer to the last element of DWORK in use Maximum number of (DOUBLE PRECISION) elements of DWORK used during the program INTEGER array containing the starting address of the arrays allocated on DWORK, corresponding to data type (see below) Maximum number of arrays on DWORK (set to 299 in the present version) Workspace vector
+
+In the main program the dimension of DWORK must be set to NNWORK, the overall maximum:
+
+PARAMETER (NNARR=299,NNWORK=......)
+COMMON NWORK,IWORK,IWMAX,L(NNARR),DWORK(NNWORK)
+The value of NNWORK is deﬁned by the user.
+It is possible to allocate arrays of diﬀerent data type on DWORK. In the present version, the following types are supported:
+Datatype 1 DOUBLE PRECISION Datatype 2 REAL Datatype 3 INTEGER
+The arrays on DWORK are addressed via their number (token) which ranges between 1 and NNARR. The auxiliary routines which manage those arrays write messages or notes to the units MSYS or MPROT and error messages to unit MERR. Besides the number of the array the user may provide array names of the type CHARACTER*6 for these messages. In the following, we describe the usage of the auxiliary routines which are placed in group Z.
+
+1.3 Pseudodynamic memory management
+
+7
+
+1. Allocation of a new array on DWORK SUBROUTINE ZNEW(ILONG,ITYPE,LNR,ARR)
+
+Parameters Input
+
+ILONG I*4 ITYPE I*4
+ARR C*6
+
+Length of the array For ILONG=0 the whole free space on DWORK is allocated. Data type of the array For ITYPE>0 the data type (1,2, or 3) is chosen as above and the array is initialized by 0. For ITYPE<0 the data type -ITYPE is chosen but the array is not initialized. Array name, used for messages only.
+
+Output
+
+LNR I*4 New number of the array.
+
+2. Shortening or deletion of an array on DWORK SUBROUTINE ZDISP(ILONG,LNR,ARR)
+
+Parameters Input
+
+ILONG I*4
+LNR I*4 ARR C*6
+
+Number of elements to be left ILONG=0 removes the whole array and releases the number LNR. Number of array Array name (for messages only)
+
+Output
+
+LNR I*4 Set to 0 if ILONG=0
+
+3. Further service routines Fill array with number LNR (name ARR) with 0 (corresponding to data type).
+SUBROUTINE ZCLEAR(LNR,ARR) Copy array with number LNR1 (name ARR1) onto array with number LNR2 (name ARR2).
+SUBROUTINE ZCPY(LNR1,ARR1,LNR2,ARR2)
+
+8
+
+General Concepts and Notation
+
+Change data type of array with number LNR (name ARR) to type ITYPE. SUBROUTINE ZCTYPE(ITYPE,LNR,ARR)
+Return free space on DWORK with respect to data type ITYPE on variable IFREE. SUBROUTINE ZFREE(ITYPE,IFREE)
+Return number of elements of array with number LNR on variable LENGTH. SUBROUTINE ZLEN(LNR,LENGTH)
+Return number of DOUBLE PRECISION elements used for array with number LNR on variable LENGTH.
+SUBROUTINE ZLEN8(LNR,LENGTH) Return data type (1,2, or 3) of array with number LNR on variable LTYPE.
+SUBROUTINE ZTYPE(LNR,LTYPE)
+
+4. Reference to an array on DWORK
+In order to pass the eﬀective starting address of an array to a subprogram one has to include the following DIMENSION and EQUIVALENCE statement into the calling routine.
+DIMENSION VWORK(1),KWORK(1) EQUIVALENCE (DWORK(1),VWORK(1),KWORK(1))
+Moreover, the BLANK COMMON must be available. Then, an array with number LARRAY is addressed as follows:
+Datatype 1 DWORK(L(LARRAY)) Datatype 2 VWORK(L(LARRAY)) Datatype 3 KWORK(L(LARRAY))
+
+1.3 Pseudodynamic memory management
+
+9
+
+5. Examples
+In this section, we discuss a sample program in order to demonstrate the usage of the above mentioned routines.
+
+IMPLICIT DOUBLE PRECISION(A,C-H,O-U,W-Z),LOGICAL(B)
+
+PARAMETER (NNARR=299,NNWORK=10000)
+
+DIMENSION VWORK(1),KWORK(1)
+
+COMMON NWORK,IWORK,IWMAX,L(NNARR),DWORK(NNWORK)
+
+EQUIVALENCE (DWORK(1),VWORK(1),KWORK(1))
+
+C
+
+CALL ZNEW(10,1,LX,’DX ’)
+
+1
+
+CALL ZNEW(20,-3,LI,’KI ’)
+
+2
+
+CALL FILL1(DWORK(L(LX)),10)
+
+3
+
+CALL FILL2(KWORK(L(LI)),20)
+
+4
+
+CALL ZCPY(LI,’KI ’,LI1,’KI1 ’)
+
+5
+
+CALL ZTYPE(LI1,ITYPE)
+
+6
+
+CALL ZCTYPE(LX,2,’DX ’)
+
+7
+
+CALL ZDISP(3,LX,’VX ’)
+
+8
+
+CALL ZDISP(0,LI,’KI ’)
+
+9
+
+CALL ZLEN(LX,ILEN)
+
+10
+
+CALL ZLEN8(LX,ILEN8)
+
+11
+
+CALL ZCLEAR(LI1)
+
+12
+
+WRITE(*,*) (VWORK(L(LX)+IX),IX=0,2)
+
+13
+
+Explanation
+
+Line 1: A new array is allocated, data type DOUBLE PRECISION, length 10. The array is initialized by 0D0. ZNEW returns the number of the array on LX. If the routine ZNEW is called the ﬁrst time, this number equals 1.
+Line 2: A new array is allocated, data type INTEGER, length 20. The array is not initialized. ZNEW returns the number 2 on LI.
+Line 3: A user provided routine FILL1 is called to assign values to the (DOUBLE PRECISION) array LX (DX).
+Line 4: A user provided routine FILL2 is called to assign values to INTEGER array LI (KI).
+Line 5: A new array of type INTEGER is allocated with the same length (20) as LI1 and LI is copied onto the new array. ZCPY returns the value 3 on LI1 for the new array.
+Line 6: The data type of the array LI1 is checked. ITYPE returns the value 3.
+Line 7: The data type of the array LX (DX) is changed from DOUBLE PRECISION to REAL. This may be used to save storage locations or to provide output for graphic packages which usually work with single precision data.
+
+10
+
+General Concepts and Notation
+
+Line 8: The length of the array LX is reduced to 3. The remaining space on the workspace vector is released.
+Line 9: Array LI is completely removed from DWORK.
+Line 10: The length of array LX is checked. ILEN returns the value 3.
+Line 11: The number of DOUBLE PRECISION storage locations used for array LX is checked. ILEN8 returns the value 2.
+Line 12: The array LI1 is ﬁlled with (INTEGER) zeroes.
+Line 13: The 3 components of array LX (VX) are printed. The starting address of the array would be DWORK(L(LX)) if the data type were 1 and KWORK(L(LX)) for data type equal to 3.
+
+1.4 Description of the domain Ω
+
+11
+
+1.4. Description of the domain Ω
+
+In this subsection, we explain how a two-dimensional bounded domain must be described. FEAT2D only needs information on the boundary ∂Ω. It is assumed that the boundary consists of ﬁnitely many simply closed curves which are given in parametrized form. The orientation should be chosen such that the interior of the domain is locally on the left of the boundary curves. The parameter for each boundary component starts from 0.
+The user provided subprograms to describe the parametrization are the following:
+
+DOUBLE PRECISION FUNCTION PARX(T,IBCT) DOUBLE PRECISION FUNCTION PARY(T,IBCT) DOUBLE PRECISION FUNCTION TMAX(IBCT)
+
+Parameters Input
+
+T
+
+Parameter of boundary point
+
+IBCT Number of boundary component, boundary components are enumerated from 1 to NBCT.
+
+Explanation
+
+PARX X- and Y-coordinates of boundary point with parameter T on boundary PARY component IBCT
+
+TMAX
+
+Maximum parameter for each boundary component, ﬁrst positive value for which PARX(0D0,IBCT).EQ.PARX(TMAX(IBCT),IBCT).AND.
+PARY(0D0,IBCT).EQ.PARY(TMAX(IBCT),IBCT) for IBCT=1 to NBCT
+
+Example Circular annulus, outer radius equals 1, inner radius equals 0.5
+
+DOUBLE PRECISION FUNCTION ANNX(T,IBCT) DOUBLE PRECISION T,R1,R2,PI2 PARAMETER (R1=1D0,R2=.5D0,PI2=6.28...D0) C IF (IBCT.EQ.1) ANNX=R1*COS(T) IF (IBCT.EQ.2) ANNX=R2*COS(PI2-T) END
+
+12
+
+General Concepts and Notation
+
+✻ ✬✩ ✒ ✫✪
+
+Figure 1.1: Circular annulus
+DOUBLE PRECISION FUNCTION ANNY(T,IBCT) DOUBLE PRECISION T,R1,R2,PI2 PARAMETER (R1=1D0,R2=.5D0,PI2=6.28...D0) C IF (IBCT.EQ.1) ANNY=R1*SIN(T) IF (IBCT.EQ.2) ANNY=R2*SIN(PI2-T) END
+DOUBLE PRECISION FUNCTION ANNMAX(IBCT) DOUBLE PRECISION PI2 PARAMETER (PI2=6.28...D0) C IF (IBCT.EQ.1) ANNMAX=PI2 IF (IBCT.EQ.2) ANNMAX=PI2 END
+
+1.5 Description of the subdivision
+
+13
+
+1.5. Description of the subdivision
+Subdivisions in FEAT2D can be described in diﬀerent ways. The ﬁrst one provides information on subdivisions that are globally, not necessarily uniform, reﬁned. A second possibility, especially with regard to parallelized applications, is the administration of piecewise uniform macro-triangulations.
+
+Global subdivisions
+
+The variables and arrays described in this section contain all the information needed for the generation of the ﬁnite element stiﬀness matrices and right hand side vectors and for the implementation of boundary conditions. The information on the subdivision is passed to subprograms by the following two COMMON blocks, the ﬁrst containing scalar information (dimensions) and the second containing numbers of arrays describing the subdivision.
+
+COMMON /TRIAD/ NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD
+
+COMMON /TRIAA/ LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM,
+
+*
+
+LVBD,LEBD,LBCT,LVBDP,LMBDP
+
+Explanation
+
+a) Contents of /TRIAD/ – Dimensions
+
+NEL NVT NMT
+NVE
+NVEL NBCT NVBD
+
+Total number of elements
+Total number of vertices
+Total number of edges (midpoints) NMT is set to 0 if no information about edges is generated, e.g., numbers and/or coordinates of the midpoints. Information on midpoints is generated by the routines XS2M/S2M.
+Number of vertices per element NVE is set to 3 for purely triangular meshes and is set to 4 for quadrilateral meshes and meshes formed by triangles and quadrilaterals. In the present version no meshes of mixed type are supported.
+Maximum number of elements meeting at one vertex NVEL is set to 0 if this information is not available. NVEL is set by the routines XS2V/S2V.
+Total number of boundary components, i.e., the number of simply closed curves describing the boundary of the domain (see Section 1.4).
+Total number of vertices on the boundary (sum over all boundary components). NVBD is calculated by routine SIVBD.
+
+b) Contents of /TRIAA/ – Array descriptors
+
+We give a list of the array descriptors and the corresponding arrays together with their eﬀective dimension.
+
+14
+
+General Concepts and Notation
+
+LCORVG
+LCORMG LVERT LMID LADJ LVEL LMEL
+
+DIMENSION DCORVG(2,NVT) Array containing information about the coordinates of the vertices a) Interior vertices DCORVG(1,IVT) – X-coordinate of vertex IVT DCORVG(2,IVT) – Y-coordinate of vertex IVT b) Boundary vertex during grid generation DCORVG(1,IVT) – Parameter of boundary vertex. The cartesian coordinates can be obtained using the routines PARX, PARY, described in the preceding section. DCORVG(2,IVT) – Parameter of the edge midpoint following the boundary vertex IVT. This information is provided if NMT=0. After the generation of the grid DCORVG(.,IVT) is overwritten by the cartesian coordinates of vertex IVT. The parametrization information can be saved on arrays KVBDP and KMBDP.
+DIMENSION DCORMG(2,NMT) Array containing the cartesian coordinates of the midpoints of edges. This information is needed only for isoparametric meshes using quadratic transformation onto the reference element. In the present version of FEAT2D LCORMG is set to 0.
+DIMENSION KVERT(NNVE,NEL) Array containing the numbers of vertices for each element in counterclockwise sense. Convention: For triangular elements, the last component KVERT(NNVE,.) is set to 0.
+DIMENSION KMID(NNVE,NEL) Array containing the numbers of midpoints of edges for each element in counterclockwise sense; the midpoints are given numbers ranging from NVT+1 to NVT+NMT. Convention: For triangular elements, the last component KMID(NNVE,.) is set to 0. If ﬁnite elements possessing degrees of freedom on edges are employed, the array KMID must be generated. This is done by the routines XS2M/S2M.
+DIMENSION KADJ(NNVE,NEL) Array containing the numbers of the neighboring elements for each element of the subdivision. Same convention for enumeration as for midpoints of edges. For triangular elements, the last component KADJ(NNVE,.) is set to 0. The array KADJ is needed for the generation of subdivisions and, e.g., for the implementation of routines for multigrid prolongation and restriction.
+DIMENSION KVEL(NVEL,NVT) Array containing the numbers of the elements meeting at a vertex. Remember that NVEL is the maximum number of elements meeting at one of the vertices. If the number of elements at a vertex IVT is smaller than NVEL, in particular at the boundary, the remaining entries of KVEL are ﬁlled with 0. The array KVEL is generated by routine S2V.
+DIMENSION KMEL(2,NEL) Array containing the numbers of the elements meeting at an edge.
+
+1.5 Description of the subdivision
+
+15
+
+LNPR
+LMM LVBD LEBD LBCT LVBDP LMBDP
+
+This number is 2 for interior edges and 1 on the boundary. The array KMEL is generated by routine S2M.
+DIMENSION KNPR(NVT+NMT) Array containing information about the location of vertices and edges (nodal properties)
+
+KNPR(IP) = 0 = IBCT = IV
+= -IEL
+
+if IP is the number of an interior vertex or an interior edge and the adjacent elements are regularly reﬁned (see below).
+if IP is the number of a vertex on boundary component IBCT.
+if IP is the number of an edge on the boundary; in this case, IV denotes the number of the boundary vertex preceding IV in the mathematically positive sense.
+if IP is the number of an interior vertex or edge, which is an irregular node for the adjacent element IEL.
+
+For triangular elements, IEL is obtained by ”green” subdivision, for quadrilaterals, IP is a ”blind” node of element IEL.
+
+DIMENSION KMM(2,NBCT)
+Array containing the numbers of the vertices with minimum and maximum parameter for each boundary component. KMM is used during reﬁnements of the mesh only.
+
+DIMENSION KVBD(NVBD)
+Array containing the numbers of the vertices on the boundary. The numbers are sorted, ﬁrst, with respect to the boundary component, and then, within a boundary component, with respect to the parameter. All numbers are stored on a one-dimensional array. KVBD is generated by the routines XSVEB/SVEB.
+
+DIMENSION KEBD(NVBD)
+Same as KVBD, but for the elements adjacent to the boundary. To each element IVT in KVBD, there corresponds an entry in KEBD which is just the number of that element containing the boundary edge following the vertex IVT. KEBD is generated by the routines XSVEB/SVEB.
+
+DIMENSION KBCT(NBCT+1)
+Pointer vector for the arrays KVBD and KEBD. KBCT(IBCT) points to the position of the ﬁrst entry in these arrays belonging to boundary component IBCT and KBCT(NBCT+1) is set to NVBD+1. KBCT is generated by the routines XSVEB/SVEB.
+
+DIMENSION DVBDP(NVBD) Array containing the parameter values of boundary vertices. DVBDP is generated by the call of routine S.D03 in XS.0X (see Section 3.2).
+
+DIMENSION DMBDP(NVBD) Array containing the parameter values of boundary midpoints. DMBDP is generated by the call of routine S.D03 in XS.0X (see Section 3.2).
+
+16
+
+General Concepts and Notation
+
+Classiﬁcation of the above quantities
+
+a) Essential descriptors for a subdivision (always to be provided) Scalars: NEL, NVT, NVE, NBCT Arrays: DCORVG, KVERT, KNPR(NVT)
+b) Optionally, for treatment of elements using information on midpoints of edges Scalars: NMT Arrays: KMID, KNPR(NVT+NMT)
+c) Optionally, for generation of subdivision Scalars: – Arrays: KADJ, KMM
+d) Optionally, for (simple) treatment of boundary conditions Scalars: NVBD Arrays: KVBD, (KEBD), KBCT
+e) Optionally, for evaluation of boundary integrals Scalars: NVBD Arrays: KVBD, (KEBD), KBCT, KVBDP
+f) Optionally, for several postprocessing algorithms Scalars: NVEL Arrays: KVEL, (KMEL)
+g) Optionally, for treatment of isoparametric elements Scalars: NMT Arrays: DCORMG
+
+Further, note that usually all entries of KNPR are greater or equal 0, unless special care is taken to deal with irregular meshes, in particular in the case of quadrilateral elements (”blind nodes”).
+
+Example Domain: Unit square Ω = (0, 1)2 – Parametrization of the boundary from 0D0 to 4D0.
+
+Contents of variables and arrays described above.
+
+Scalars
+
+NEL 4 NVT 5 NMT 8 NVE 3 NVEL 4 NBCT 1 NVBD 4
+
+Arrays
+
+DCORVG 0.0D0 1.0D0 2.0D0 3.0D0 .5D0
+
+.5D0 1.5D0 2.5D0 3.5D0
+.5D0
+
+DCORVG(1,IVT) DCORVG(2,IVT)
+
+1.5 Description of the subdivision
+
+17
+
+If no information on midpoints is generated the second components in the ﬁrst four lines are set to 0D0.
+
+DCORMG (only generated for isoparametric elements)
+
+0.50D0 0.75D0 0.25D0 1.00D0 0.75D0 0.50D0 0.25D0 0.00D0
+
+0.00D0 0.25D0 0.25D0 0.50D0 0.75D0 1.00D0 0.75D0 0.50D0
+
+DCORMG(1,IVT) DCORMG(2,IVT)
+
+KVERT 1250 2350 3450 4150
+
+KVERT(IVE,IEL), IVE=1,...,NNVE
+
+KMID 6 7 80 9 10 7 0
+11 12 10 0 13 8 12 0
+
+KMID(IVE,IEL), IVE=1,...,NNVE
+
+KADJ 0240 0310 0420 0130
+
+KADJ(IVE,IEL), IVE=1,...,NNVE
+
+KVEL 1400 2100 3200 4300 1234
+
+KVEL(NVEL,IVT), IVT=1,...,NVT
+
+KMEL
+10 21 14 20 23 30 34 40
+
+KMEL(2,IMT), IMT=1,...,NMT
+
+18
+
+General Concepts and Notation
+
+KNPR 11110 10020 304
+KMM 14
+KVBD 1234
+
+KNPR(IVMT), IVMT=1,...,NVT+NMT KMM(IMM,NBCT), IMM=1,2 KVBD(IVBD), IVBD=1,...,NVBD
+
+KEBD 1234
+
+KEBD(IVBD), IVBD=1,...,NVBD
+
+KBCT 15
+
+KBCT(IBCT), IBCT=1,...,NBCT+1
+
+The numbers of the midpoints and the contents of the optional arrays coincide with that generated by the routines S2M, S2V, and SVEB on the basis of the essential arrays DCORVG, KVERT, and KMM.
+
+Macro–triangulations
+The variables and arrays described in this section contain all the information needed for the administation of macro-triangulations. The ﬁnal grid results from a uniform subdivision of the macro-elements in, for example, NFINE**2 elements. The structure of the two COMMON blocks belonging to that task is very similar to the already described COMMON blocks /TRIAA/ and /TRIAD/.
+
+COMMON /MACROD/ NMAEL,NMAVT,NMAEDG,NMAVE,NMAVEL,NMABCT,NMAVBD
+
+COMMON /MACROA/ LMACVG,LMACMG,LMAVT,LMAMID,LMAADJ,LMAVEL,LMAMEL,
+
+*
+
+LMANPR,LMAMM,LMAVBD,LMAEBD,LMABCT,LMAVBP,LMAMBP,
+
+*
+
+LMAVE
+
+Explanation a) Contents of /MACROD/ – Dimensions
+
+NMAEL NMAVT NMAEDG
+
+Total number of macro-elements Total number vertices of the macro-elements Total number of macro-edges
+
+1.5 Description of the subdivision
+
+19
+
+NMAVE NMAVEL NMABCT NMAVBD
+
+Number of vertices per macro-element NMAVE is set to 3 for purely triangular meshes and is set to 4 for quadrilateral meshes and meshes formed by triangles and quadrilaterals. In the present version no meshes of mixed type are supported.
+Maximum number of macro-elements meeting at one vertex NMAVEL is set to 0 if this information is not available. NMAVEL is set by the routines XSMA2V/SMA2V.
+Total number of boundary components, i.e., the number of simply closed curves describing the boundary of the domain (see Section 1.4). NMAVBD is calculated by routine XSMAS.
+Total number of macro-vertices on the boundary (sum over all boundary components). NMAVBD is calculated by routine XSMAS.
+
+b) Contents of /MACROA/ – Array descriptors
+
+We give a list of the array descriptors and the corresponding arrays together with their eﬀective dimension.
+
+LMACVG LMACMG LMAVT LMAMID LMAADJ LMAVEL
+
+DIMENSION DMACVG(2,NMAVT) Array containing information about the coordinates of the macro-vertices DMACVG(1,IVT) – X-coordinate of vertex IVT DMACVG(2,IVT) – Y-coordinate of vertex IVT
+DIMENSION DMACMG(2,NMAEDG) Array containing the cartesian coordinates of the midpoints of macroedges This information is needed only for isoparametric meshes using quadratic transformation onto the reference element. In the present version of FEAT2D LMACMG is set to 0.
+DIMENSION KMAVT(NNVE,NMAEL) Array containing the numbers of vertices for each element in counterclockwise sense Convention: For triangular elements, the last component KMAVT(NNVE,.) is set to 0.
+DIMENSION KMAMID(NNVE,NMAEL) Array containing the numbers of midpoints of macro-edges for each element in counterclockwise sense; the midpoints are given numbers ranging from 1 to NMAEDG. Convention: For triangular elements, the last component KMAMID(NNVE,.) is set to 0.
+DIMENSION KMAADJ(NNVE,NMAEL) Array containing the numbers of the neighboring elements for each macroelement of the triangulation. Same convention for enumberation as for midpoints of edges. For triangular elements, the last component KMAADJ(NNVE,.) is set to 0.
+DIMENSION KMAVEL(NMAVEL,NMAVT) Array containing the numbers of the macro-elements meeting at a macrovertex.
+
+20
+
+General Concepts and Notation
+
+LMAMEL
+LMANPR LMAMM LMAVBD LMAEBD
+LMABCT
+LMAVBP LMAMBP LMAVE
+
+Remember that NMAVEL is the maximum number of elements meeting at one of the vertices. If the number of elements at a vertex IVT is smaller than NVEL, in particular at the boundary, the remaining entries of KMAVEL are ﬁlled with 0. The array KMAVEL is generated by routine S2V.
+DIMENSION KMAMEL(2,NMAEL) Array containing the numbers of the macro-elements meeting at a macroedge This number is 2 for interior edges and 1 on the boundary. The array KMAMEL is generated by routine S2M.
+DIMENSION KMANPR(NMAVT+NMAEDG) Array containing information about the location of macro-vertices and macro-edges (nodal properties, see description of KNPR)
+DIMENSION KMAMM(2,NMABCT) Array containing the numbers of the macro-vertices with minimum and maximum parameter for each boundary component.
+DIMENSION KMAVBD(NMAVBD) Array containing the numbers of the macro-vertices on the boundary. KMAVBD is generated by the routines XSVEB/SVEB.
+DIMENSION KMAEBD(NMAVBD) Same as KMAVBD, but for the elements adjacent to the boundary. To each element IVT in KMAVBD, there corresponds an entry in KMAEBD which is just the number of that element containing the boundary edge following the vertex IVT. KMAEBD is generated by the routines XSVEB/SVEB.
+DIMENSION KMABCT(NMABCT+1) Pointer vector for the arrays KMAVBD and KMAEBD. KMABCT(IBCT) points to the position of the ﬁrst entry in these arrays belonging to boundary component IBCT and KMABCT(NMABCT+1) is set to NMAVBD+1. KMABCT is generated by the routines XSVEB/SVEB.
+DIMENSION DMAVBP(NMAVBD) Array containing the parameter values of boundary vertices. DMAVBP is generated by the call of routine S.D13 in XS.1X (see Section 3.2).
+DIMENSION DMAMBP(NMAVBD) Array containing the parameter values of boundary midpoints. DMAMBP is generated by the call of routine S.D13 in XS.1X (see Section 3.2).
+DIMENSION KMAVE(2,NMAEDG) KMAVE(1,IEDGE) and KMAVE(2,IEDGE) are the numbers of the two macrovertices of macro-edge IEDGE, where the entry KMAVE(1,IEDGE) is smaller than KMAVE(2,IEDGE).
+
+Multigrid data
+In this last subsection we present two COMMON blocks that are needed in multigrid applications. They contain the grid information of /TRIAA/ and /TRIAD/ for at most NNLEV reﬁnement levels. The meaning of the variables can be deduced straightforward from the contents of /TRIAA/ and /TRIAD/ (for further information see Section 3.2).
+
+1.5 Description of the subdivision
+
+21
+
+PARAMETER (NNLEV=9)
+
+COMMON /MGTRD/ *
+COMMON /MGTRA/ * * * *
+
+KNEL(NNLEV),KNVT(NNLEV),KNMT(NNLEV), KNVEL(NNLEV),KNVBD(NNLEV) KLCVG(NNLEV),KLCMG(NNLEV),KLVERT(NNLEV), KLMID(NNLEV),KLADJ(NNLEV),KLVEL(NNLEV), KLMEL(NNLEV),KLNPR(NNLEV),KLMM(NNLEV), KLVBD(NNLEV),KLEBD(NNLEV),KLBCT(NNLEV), KLVBDP(NNLEV),KLMBDP(NNLEV)
+
+22
+1.6. Storage techniques for matrices
+
+General Concepts and Notation
+
+FEAT2D provides routines for the evaluation of ﬁnite element matrices and for basic linear algebra operations with respect to several storage techniques, in particular taking care for the sparse structure. Not all techniques described below are supported in the present version. The diﬀerent storage methods are indicated by a reference character 0...9, A...Z which again occurs in the name of the corresponding subprograms, for example for calculating stiﬀness matrices or for forming matrix-vector products.
+
+The array containing the entries of the matrix is denoted by DA or VA, depending on the accuracy. Further, we use the notation NA for the number of entries stored in DA (VA) and NEQ for the number of equations. For rectangular matrices (storage techniques 1 and 9), NEQ denotes the number of rows.
+
+Storage technique
+
+Array descriptors Explanation
+
+0 Matrix not stored
+1 Full matrix
+2 Full matrix symmetric
+
+None
+
+All matrix operations are performed by means of EXTERNAL subroutines
+
+DA(NEQ,NEQ1)
+
+Usual full storage, DA(I,J) Elements are stored columnwise
+
+DA(NEQ*(NEQ+1)/2) Only upper triangular matrix is stored on a vector, columnwise
+
+3 Sparse band matrix DA(NEQ*NDIA) KDIA(NDIA) KDIAS(NDIA+1) NDIA
+
+Elements of NDIA nonzero subdiagonals are stored onto a matrix, each subdiagonal is stored with length NEQ, KDIA contains the distance to the main diagonal, the main diagonal is stored ﬁrst (KDIA(1)=0), followed by the lower triangular part (KDIA(.)<0)
+
+4 Sparse band matrix DA(NEQ*(NDIA+1)/2) Same as technique 3, but only upper tri-
+
+symmetric
+
+KDIA(NDIA)
+
+angular part is stored
+
+KDIAS(NDIA+1)
+
+NDIA
+
+5 Skyline technique DA(NA)
+
+6 Skyline technique symmetric
+
+DA(NA)
+
+7 Compact storage DA(NA) Standard technique KCOL(NA) for quadratic matrices KLD(NEQ+1)
+
+The (nonzero) elements of the matrix are stored, row by row, on the vector DA. For each row, the diagonal entry is stored ﬁrst. KCOL contains the column index for each element in DA. KLD(IEQ) contains the position of the IEQ-th diagonal element, i.e. KLD points to the start of row IEQ in DA, KLD(NEQ+1)=NA+1
+
+1.6 Storage techniques for matrices
+
+23
+
+Storage technique
+
+Array descriptors Explanation
+
+8 Compact storage symmetric
+
+DA(NA) KCOL(NA) KLD(NEQ+1)
+
+9 Compact storage sparse rectangular matrix
+A Operator technique
+
+DA(NA) KCOL(NA) KLD(NEQ+1)
+DA(NA) KCOL(NA) KLD(NOP+1) KOP(NEQ)
+
+Example
+
+Same as technique 7 Only upper triangular matrix stored. For each row, the diagonal entry is stored ﬁrst.
+Same as technique 7, but ”diagonal” entry is not stored ﬁrst for each row, NEQ denotes number of rows
+Matrix rows with the same elements at the same position with respect to the main diagonal are only stored once (typical for ﬁnite diﬀerence matrices, constant coeﬃcients). NOP denotes the number of rows stored in DA. DA contains the entries, in each row the diagonal entry is stored ﬁrst. KCOL contains the distance of an element to the diagonal, KLD points to the start of a new row. KOP(IEQ) contains the number of the row in DA which forms the row IEQ of the real matrix.
+
+As an example, for the diﬀerent techniques, above, the matrix elements and pointer vectors
+
+of the following symmetric ”sparse” and ”banded” 4 × 4-matrix A1 in DOUBLE PRECISION
+
+are presented.
+
+1 2 0 7
+
+A1
+
+ =
+
+
+
+2 0
+
+4 3
+
+3 6
+
+0
+
+
+
+5
+
+ 
+
+7058
+
+Technique 1 Technique 2 Technique 3
+Technique 4
+
+DA: 1D0 2D0 0D0 7D0 2D0 4D0 3D0 0D0 0D0 3D0 6D0 5D0 7D0 0D0 5D0 8D0
+Pointer vectors not needed
+DA: 1D0 2D0 4D0 0D0 3D0 6D0 7D0 0D0 5D0 8D0 Pointer vectors not needed
+DA: 1D0 4D0 6D0 8D0 7D0 2D0 3D0 5D0 2D0 3D0 5D0 7D0 KDIA: 0 -3 -1 1 3 KDIAS: 1 5 6 9 12 13 NDIA: 5 NA: 12
+DA: 1D0 4D0 6D0 8D0 2D0 3D0 5D0 7D0 KDIA: 0 1 3 KDIAS: 1 5 8 9 NDIA: 3 NA: 8
+
+24
+
+General Concepts and Notation
+
+Technique 5 and 6 not yet available
+
+Technique 7 Technique 8
+
+DA: 1D0 2D0 7D0 4D0 2D0 3D0 6D0 3D0 5D0 8D0 7D0 5D0 KCOL: 1 2 4 2 1 3 3 2 4 4 1 3 KLD: 1 4 7 10 13 NA: 12 Underlined numbers indicate new row
+DA: 1D0 2D0 7D0 4D0 3D0 6D0 5D0 8D0 KCOL: 1 2 4 2 3 3 4 4 KLD: 1 4 6 8 9 NA: 8 Underlined numbers indicate new row
+
+Modiﬁed example for storage technique 9 – rectangular matrix
+
+1 2 0 7 9
+
+A2
+
+=
+
+  
+
+2 0
+
+4 3
+
+3 6
+
+0 5
+
+9 
+9
+
+
+
+
+
+70589
+
+Technique 9
+
+DA: 1D0 2D0 7D0 9D0 2D0 4D0 3D0 9D0 3D0 6D0 5D0 9D0 7D0 5D0 8D0 9D0 KCOL: 1 2 4 5 1 2 3 5 23451345 KLD: 1 5 9 13 9 NA: 16
+
+Modiﬁed example for technique A – Operator technique
+
+Row 2 and 3 of the matrix A3 have the same structure and are stored only once.
+
+2 1 0 0
+
+A3
+
+ =
+
+
+
+1 0
+
+4 1
+
+1 4
+
+0
+
+
+
+1
+
+ 
+
+0021
+
+Technique A
+
+DA: 2D0 1D0 4D0 1D0 1D0 1D0 2D0 KCOL: 0 1 0 -1 1 0 -1 KLD: 1 3 6 8 KOP: 1 2 2 3 NA: 7 NOP: 3
+
+1.7 Messages, error handling and consistency checks
+
+25
+
+1.7. Messages, error handling and consistency checks
+The COMMON blocks described below contain the necessary information to display protocol and error messages. The DATA statements are part of the BLOCK DATA subprogram ZVALUE and indicate the default values (see Section 3.1 for more information on ZVALUE).
+CHARACTER SUB*6,FMT*15,CPARAM*120
+COMMON /OUTPUT/ M,MT,MKEYB,MTERM,MERR,MPROT,MSYS,MTRC,IRECL8 COMMON /ERRCTL/ IER,ICHECK COMMON /CHAR/ SUB,FMT(3),CPARAM
+DATA M/2/,MT/2/,MKEYB/5/,MTERM/6/,IER/0/,ICHECK/1/ DATA MERR/11/,MPROT/12/,MSYS/13/,MTRC/14/,IRECL8/128/
+
+1. Messages
+The FORMAT statements for all messages displayed by FEAT2D are contained in the ﬁle FEAT.MSG. The messages are divided in three groups.
+– Protocol messages of informative character (.PROT),
+– System messages, e.g.messages about allocation, deletion, and resizing of arrays on DWORK (.SYS),
+– Error messages, usually leading to termination of the program (.ERR).
+Corresponding to the diﬀerent groups, the messages are sent to the output ﬁles connected with the actual unit numbers MPROT, MSYS, and MERR. These ﬁles are opened and linked to the correct unit numbers by the system initialization routine ZINIT. The user may decide not to split the information onto several ﬁles and overwrite the default values for the output units. In addition, the messages can appear on the screen.
+The user can control the amount of output by choosing the values for the output levels M and MT in the COMMON block /OUTPUT/. The level M refers to the output to ﬁle and MT refers to the output to the standard output device MTERM. The message ﬁle FEAT.MSG contains two level numbers, separately for each message. The corresponding message is sent only if M resp. MT are greater than or equal these values.
+For example, system messages are displayed on the screen only if MT is at least 3, but they are sent to MSYS already for M>1. Error messages are sent to MERR even for M=0. In most cases, it is suﬃcient to choose M=MT=1 or even 0.
+
+26
+
+General Concepts and Notation
+
+2. Error handling
+If an internal error occurs in a FEAT2D subprogram the error routine WERR is invoked. WERR calls the subprogram OERR for error messages and sets the error indicator in the COMMON block /ERRCTL/ to the (negative) number of the error. If any FEAT2D routine returns a negative error indicator one should immediately stop the program. In some programs, IER may also be set to some positive value. For example, the value IER=1 in an iterative solution algorithm indicates that the desired accuracy has not been achieved. In this case, the user may decide to continue the program. Before it starts working, each subprogram overwrites the variable SUB in the COMMON block /CHAR/ by its own name.
+
+SUB=’nnnnnn’
+
+Therefore the user can decide in which subprogram the error occurred even if no messages have been displayed. For the next release of FEAT2D it is planned to improve the error handling. For example, it will be possible to dump the names and size of all arrays on the workspace at the moment when the error occurred.
+
+3. Subprogram tracing and consistency checks
+The second parameter ICHECK in the error control block /ERRCTL/ is used to decide which levels of checks are performed during the program. For ICHECK=1, only elementary consistency checks take place. For example, the data type of arrays passed to a subprogram is checked or the area and orientation of each element is controlled during the calculation of a ﬁnite element matrix. Moreover, ICHECK controls the optional tracing of the FEAT2D subprograms. The name and the date of their version is written to the ﬁle connected with the unit MTRC.
+The user may want his own subprograms to be traced in the same manner as it is done for the FEAT2D routines. Then, the ﬁrst executable statements of a program unit should look as follows:
+SUB=’nnnnnn’ IF (ICHECK.GE.997) CALL OTRC(’nnnnnn’,’date’) IER=0
+Here, nnnnnn stands for the name of the routine and date is a string containing the date of the last update in the form mm/dd/yy. Clearly the COMMON blocks /ERRCTL/ and /CHAR/ must also be deﬁned. FEAT2D routines are traced in this way for values ICHECK=997, 998, or 999. For the value 997, only the most important subprograms are traced, for the value 999 even elementary auxiliary subroutines. If the user decides to trace only his own subprograms he has to use values for ICHECK smaller than 997. For fully tested programs one should choose ICHECK=0.
+
+1.8 Blas routines
+
+27
+
+1.8. Blas routines
+Many of the subprograms of the subgroup L deal with elementary linear algebra like forming the dot product or calculating linear combinations of two vectors. In order to speed up execution time on many of the larger machines, in particular on vector computers, these tasks are realized by calling the Basic Linear Algebra Subprograms (Blas). Since most of the matrix operations in the package are for extremely sparse matrices, here we only use the Blas routines of level 1 (vector operations).
+Here, we give a short list of the subprograms needed in the package which should be replaced by coded routines if they are available.
+
+DOUBLE PRECISION
+DCOPY DSCAL DAXPY DNRM2 IDAMAX DDOT
+REAL
+SCOPY SSCAL SAXPY SNRM2 ISAMAX SDOT
+
+Copies a vector Scales a vector by a constant Forms linear combination y := y + ax Calculates the mean square norm of a vector Finds the index of the (ﬁrst) element with maximum modulus Forms the inner product of two vectors
+Same tasks as above
+
+For the remaining basic linear algebra tasks which are not directly supported by the Blas like clearing a vector (ﬁlling with zeroes, see Section 1.3) we use unrolled loops unless we work on vector machines. For adapting FEAT2D to a new machine typically only the L-routines have to be optimized.
+
+2. Common Program Segments
+
+In this section we give an example for standard declarations and give an explanation of the internally used COMMON blocks.
+
+2.1. Type declarations
+IMPLICIT DOUBLE PRECISION (A,C-H,O-U,W-Z),LOGICAL(B) CHARACTER SUB*6,FMT*15,CPARAM*120
+The quantities of type CHARACTER are used in COMMON /CHAR/, described below.
+
+2.2. PARAMETER statements
+PARAMETER (NNWORK=300000) PARAMETER (NNARR=299,NNLEV=9) PARAMETER (NNVE=4,NNBAS=21,NNCUBP=36,NNAB=21,NNDER=6)
+
+Explanation
+
+NNWORK
+NNARR
+NNLEV NNVE NNBAS
+NNCUBP NNAB
+NNDER
+
+Maximum number of DOUBLE PRECISION elements on the workspace Only used in the main program for dimensioning and initialization Maximum number of arrays allocated on the workspace (see description of pseudodynamic memory management, Section 1.3) Maximum number of multigrid levels – Set to 9 Maximum number of vertices per element – Set to 4 Maximum number of local degrees of freedom Set to 21 for the quintic Argyris element Maximum number of cubature points in numerical integration formulas – Set to 36 Maximum number of additive terms in integrands of bilinear forms or linear forms (see description of routines AB.. and VB., Sections 3.2 and 3.2) Maximum number of combinations of derivatives applied to basis functions, NNDER=6 means derivatives up to the order 2 (see description of element routines E..., Section 3.2)
+
+28
+
+2.3 EQUIVALENCE statement
+
+29
+
+2.3. EQUIVALENCE statement
+DIMENSION VWORK(1),KWORK(1) EQUIVALENCE (DWORK(1),VWORK(1),KWORK(1))
+
+Used only in X-, Y-, and Z-routines, and possibly in the main program to keep arrays of type DOUBLE PRECISION, REAL, and INTEGER on the same workspace vector (see the description of the pseudodynamic memory management in Section 1.3).
+
+2.4. COMMON blocks
+Here, we give a complete list and explanation of all the COMMON blocks used for internal communication of the FEAT2D routines. Not all of the blocks are deﬁned in each subprogram.
+In particular, the block /TABLE/ containing the essential information about the workspace is only known to the subroutines of the group Z, described in Section 1.3. It should never be deﬁned in user subprograms.
+
+List of COMMON blocks
+
+IMPLICIT DOUBLE PRECISION (A,C-H,O-U,W-Z),LOGICAL(B)
+
+CHARACTER SUB*6,FMT*15,CPARAM*120
+
+C
+
+PARAMETER (NNARR=299,NNLEV=9)
+
+PARAMETER (NNVE=4,NNBAS=21,NNCUBP=36,NNAB=21,NNDER=6)
+
+C
+
+COMMON
+
+NWORK,IWORK,IWMAX,L(NNARR),DWORK(1)
+
+COMMON /TRIAD/ NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD
+
+COMMON /TRIAA/ LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM,
+
+*
+
+LVBD,LEBD,LBCT,LVBDP,LMBDP
+
+COMMON /MACROD/ NMAEL,NMAVT,NMAEDG,NMAVE,NMAVEL,NMABCT,NMAVBD
+
+COMMON /MACROA/ LMACVG,LMACMG,LMAVT,LMAMID,LMAADJ,LMAVEL,LMAMEL,
+
+*
+
+LMANPR,LMAMM,LMAVBD,LMAEBD,LMABCT,LMAVBP,LMAMBP,
+
+*
+
+LMAVE
+
+COMMON /MGTRD/ KNEL(NNLEV),KNVT(NNLEV),KNMT(NNLEV),
+
+*
+
+KNVEL(NNLEV),KNVBD(NNLEV)
+
+COMMON /MGTRA/ KLCVG(NNLEV),KLCMG(NNLEV),KLVERT(NNLEV),
+
+*
+
+KLMID(NNLEV),KLADJ(NNLEV),KLVEL(NNLEV),
+
+*
+
+KLMEL(NNLEV),KLNPR(NNLEV),KLMM(NNLEV),
+
+*
+
+KLVBD(NNLEV),KLEBD(NNLEV),KLBCT(NNLEV),
+
+*
+
+KLVBDP(NNLEV),KLMBDP(NNLEV)
+
+COMMON /OUTPUT/ M,MT,MKEYB,MTERM,MERR,MPROT,MSYS,MTRC,IRECL8
+
+COMMON /ERRCTL/ IER,ICHECK
+
+30
+
+Common Program Segments
+
+COMMON /CHAR/ SUB,FMT(3),CPARAM
+
+COMMON /ELEM/ DX(NNVE),DY(NNVE),DJAC(2,2),DETJ,
+
+*
+
+DBAS(NNBAS,NNDER),BDER(NNDER),KVE(NNVE),IEL
+
+COMMON /CUB/ DXI(NNCUBP,3),DOMEGA(NNCUBP),NCUBP,ICUBP
+
+COMMON /COAUX1/ KDFG(NNBAS),KDFL(NNBAS),IDFL
+
+COMMON /COAUX2/ DBAS1(NNBAS,NNDER,3),KDFG1(NNBAS,3),
+
+*
+
+KDFL1(NNBAS,3),IDFL1(3)
+
+COMMON /TABLE/ KTYPE(NNARR),KLEN(NNARR),KLEN8(NNARR),IFLAG
+
+Explanation
+The blank COMMON contains workspace information and is described in detail in Section 1.3 of this manual.
+/TRIAA/ contains the numbers of all arrays, describing the (current) triangulation.
+/TRIAD/ contains all information about dimensions of the (current) triangulation. For more details see Sections 1.4 and 1.5.
+The same kind of information for macro-triangulations is contained in the COMMON blocks /MACROD/ and /MACROA/ (see detailed description in Section 1.5).
+For multigrid applications the data of the COMMON blocks /TRIAA/ and /TRIAD/ is contained in the COMMON blocks /MGTRA/ and /MGTRD/, respectively, for each of the at most NNLEV levels (see Section 3.2).
+/OUTPUT/ contains information on output level and I/O units, see Section 1.7.
+/ERRCTL/ The variable IER contains the current error indicator, ICHECK is used to control consistency checks and tracing of the subprograms, see Section 1.7.
+/CHAR/ contains common quantities of type CHARACTER: SUB is the name of the last routine called (used for error tracing), FMT contains formats for normalized output of arrays and subdivisions (routines XORA and XOWA), and CPARAM is used to pass arguments to the message routines OMSG and OERR.
+Note: Only quantities in the COMMON blocks /OUTPUT/, /ERRCTL/ or /CHAR/ should be changed in user provided programs.
+/ELEM/ contains information of the geometry of the current element and other information needed for the evaluation of the ﬁnite element basis functions, group E. The cartesian coordinates of the vertices of the element in process, IEL, are contained in DX and DY. DJAC denotes the Jacobian of transformation to the reference element and DETJ its determinant at the evaluation point. BDER(I)=.TRUE. means that the derivative I has to be calculated. The convention is
+
+2.5 SAVE statement
+
+31
+
+I=1 Function value I=2 First x-derivative I=3 First y-derivative I=4 Second x-derivative I=5 Mixed xy-derivative I=6 Second y-derivative
+KVE contains the numbers of the vertices, used for determination of the direction of normal vectors on interelement boundaries. ICUBP is the number of current cubature point and DBAS contains the values of the basis functions and derivatives.
+/CUB/ contains information about rules for numerical cubature or quadrature. The cartesian coordinates of the integration points on the reference elements [−1, 1] and [−1, 1]2 and the barycenric coordinates on the reference triangle are available in DXI. DOMEGA contains the corresponding weights and NCUBP denotes the total number of cubature points. All these values are determined in the subroutines of the group C and are needed for assembling ﬁnite element matrices and vectors. These latter routines (groups A and V) also set the ﬁnal value, ICUBP, to the number of the current cubature point when communicating with the element library (group E). This information is also useful for the treatment of nonlinear problems.
+/COAUX1/ or /COAUX2/ are deﬁned during the assembly of ﬁnite element matrices of vectors (groups A and V) for the evaluation of the coeﬃcient functions in the nonlinear case. The arrays KDFG (KDFG1) contain the global degrees of freedom and KDFL (KDFL1) the corresponding local d.o.f. on the current element. IDFL (IDFL1) denotes the total number of the d.o.f. per element. The block /COAUX1/ is used in the subroutines for the calculation of quadratic matrices and vectors where only one type of ﬁnite elements is needed. In the routine AB09 up to three ﬁnite elements are needed to evaluate the coeﬃcient function in the nonlinear case. Here, we use the COMMON block /COAUX2/ which then also contains the values of the desired function values and derivatives for all basis functions in the array DBAS.
+/TABLE/ is needed for the communication of those Z-routines that control allocation of arrays on the workspace vector. For each of the arrays (maximum number NNARR), KTYPE contains the data type (1, 2 or 3), KLEN the length, and KLEN8 the number of DOUBLE PRECISION locations needed on DWORK. IFLAG is used for internal communication between ZNEW and ZDISP. The COMMON block /TABLE/ should never be deﬁned in another subprogram.
+
+2.5. SAVE statement
+At least the names of all COMMON blocks occurring in a program unit must be saved. The same holds true for local variables which shall keep their value until the next call of the routine. Example
+SAVE /TRIAA/,/TRIAD/,/OUTPUT/,/ERRCTL/,/CHAR/
+
+3. Description of the Subprograms
+In the following sections, we shall describe in detail the parameter lists and the tasks of most of the subprograms of FEAT2D. We shall begin with the most important groups, the routines with starting letters X, Y, and Z. These are the only subprograms which are used for the administration of the workspace vector. In most of the applications, only the subprograms of the groups X and Z are directly called by the user.
+3.1. The groups X, Y, and Z
+Group X – Communication between user programs and ”working” routines Preparation of parameter lists for programs A-W
+As already indicated in the section on the pseudodynamic memory management, most or all of the larger arrays are placed on the workspace vector. In the main program and/or in the higher user provided subprograms all of these arrays are known only by their number which is provided by the subroutine ZNEW (see Section 1.3). For example, the DOUBLE PRECISION array DNAME cannot be addressed directly but only by its number contained in the corresponding L-variable LNAME.
+Dealing directly with the administration of the workspace on all levels makes user provided programs more or less unreadable. For instance, it is much more convenient to use the number LNAME in a CALL to a subroutine than the eﬀective address DWORK(L(LNAME)), or even DWORK(L(LNAME(1))) in the case that LNAME itself is an array of tokens for several matrices. In FEAT2D, the working subroutines usually are not called directly but via an intermediate subprogram which handles the pseudodynamic memory management. The name of these intermediate programs starts with the letter X, followed by an indicative name characterizing the ”working” routine called. Therefore, the second character in the subprogram name characterizes the group of tasks, see Section 1.1. For example, the subprogram LSP1 forms the dot product of two vectors (group linear algebra). In the higher level programs the user will usually invoke this program by calling XLSP1 which only requires the numbers of the two vectors as an argument.
+SUBROUTINE XLSP1(LX,LY,NXY,SP) ... CALL LSP1(DWORK(L(LX)),DWORK(L(LY)),NXY,SP) END
+SUBROUTINE LSP1(DX,DY,NXY,SP)
+32
+
+3.1 FEAT2D Subprograms – Group Y
+
+33
+
+END
+Frequently, the structure of the X-routines is much more complex. Typical additional tasks of this group of routines are the following
+– Determination of problem dependent array dimensions and allocation of arrays on the workspace,
+– Check the size and the datatype of arrays, enlargement of arrays if required,
+– Allocation and deletion of temporary auxiliary vectors (e.g. for CG-algorithms),
+– Normalized I/O of arrays depending on the datatype.
+For example, consider the subroutines XAP7 and XAA07 (XAB07) which are used to calculate ﬁnite element matrices for a given triangulation. First, one invokes XAP7 to determine the pointer vectors KCOL and KLD which are needed to describe the structure of the matrix in storage technique 7. XAP7 calculates the global number of degrees of freedom and allocates the vector KLD on DWORK in the correct length NEQ+1. Since the number of nonzero entries in the matrix is not known at that stage, XAP7 reserves the remaining free space of the workspace for the calculation of the pointer vector KCOL. Then, the two pointer vectors are ﬁlled by the subprogram AP7 which as a by-product calculates the total number of nonzero entries in the matrix.
+Finally, XAP7 releases the space on DWORK that is not needed for KCOL for the subsequent programs. Only the numbers of the two pointer vectors, LCOL and LLD, and the dimensions NEQ and NA are returned to the calling routine.
+In a second step one calculates the entries of the matrix by invoking XAA07, in the case of triangular elements, or XAB07, in the case of quadrilaterals. XAA07 (XAB07) allocates the matrix (which may consist of several blocks with the same pointer structure) on DWORK in the correct length NA each and then calls the routine AA07 (AB07). The latter routine calculates the element matrices and assembles the global matrix (for each block). Only the numbers LA(IBLOC) for each block matrix are returned to the routine that has invoked XAA07 (XAB07).
+Since the function of the X-routines is closely related to the ”working” routines, we shall describe the parameter lists in more detail together with the corresponding groups A-W.
+
+Group Y – Handling of direct communicaton for lower level subroutines Preparation of parameter lists for routines A-W
+All subprograms of FEAT2D use direct communication to exchange information. The routines of the Y-group are used to handle the diﬃculties usually occurring whenever low level subprograms need information on parameters which are not available in the calling routines.
+As an example consider the implementation of the preconditioned conjugate gradient algorithm. The subprogram IE010 only knows the solution vector and the right hand side
+
+34
+
+Description of the Subprograms
+
+but not the system matrix. Subprograms forming the necessary matrix vector product and performing the preconditioning step are passed to IE010 as EXTERNAL routines.
+Assume that the system matrix is stored in technique 7. The linear algebra routine performing the matrix vector multiplication has the name LAX17. However, this function cannot be used as an EXTERNAL routine in IE010, since it needs as its arguments the system matrix and the corresponding pointer vectors which are not known to IE010. This diﬃculty is handled by passing the subprogram YLAX17 to IE010 instead of LAX17 itself. YLAX17 takes the L-numbers LA, for the matrix, and LCOL, LLD, for the pointer vectors, from a standard COMMON block. Then, it invokes LAX17 with the correct arguments DWORK(L(LA)), KWORK(L(LCOL)), and KWORK(L(LLD)). The standard COMMON block for YLAX17 is usually prepared by a user called X-routine.
+In simple applications the user will not deal with Y-routines directly since they can completely be handled by the FEAT2D subprograms. In more complex algorithms, however, it will be necessary to modify routines to match the needs of the current application. For example, if one works with a block structured matrix one has to write his own routine for matrix vector multiplication, of course by combining the standard FEAT2D programs. We shall, therefore, sketch the interaction between X-routines, Y-routines, and the working programs again for the above mentioned example by the following abbreviated program segments.
+Notice that the only subprogram which is directly called by the user is XIE017. (The parameter OMEGA in the following example is used in connection with SSOR-preconditioning only.)
+
+SUBROUTINE XIE017(LA,LCOL,LLD,LX,LB,NEQ,...) ... EXTERNAL YLAX17,... ... COMMON /XYPAR/ DXYPAR(NNARR),KXYPAR(NNARR) ... KXYPAR(1)=L(LA) KXYPAR(2)=L(LCOL) KXYPAR(3)=L(LLD) DXYPAR(1)=OMEGA ... CALL IE010(DWORK(L(LX)),DWORK(L(LB)),NEQ,...,YLAX17,...) ... END
+SUBROUTINE IE010(DX,DB,NEQ,...,DAX0,...) ... CALL DAX0(DX,DAX,NEQ,...) ... END
+SUBROUTINE YLAX17(DX,DAX,NEQ,...) ...
+
+3.1 FEAT2D Subprograms – Group Z
+
+35
+
+COMMON /XYPAR/ DXYPAR(NNARR),KXYPAR(NNARR)
+
+...
+
+CALL LAX17(DWORK(KXYPAR(1)),KWORK(KXYPAR(2)),
+
+*
+
+KWORK(KXYPAR(3)),NEQ,DX,DAX,...)
+
+...
+
+END
+
+Because of the close relationship of Y-routines and the lower level routines we shall describe the parameter lists in more detail together with the groups A-W in Section 3.2.
+
+Group Z – Handling of the pseudodynamic memory management Machine dependent system routines
+1. Pseudodynamic memory management
+The ﬁrst subgroup of subprograms has been described in detail in the section on the pseudodynamic memory management. For completeness, we list again the subprogram names and the parameter lists.
+SUBROUTINE ZCLEAR(LNR,ARR) SUBROUTINE ZCPY(LNR1,ARR1,LNR2,ARR2) SUBROUTINE ZCTYPE(ITYPE,LNR,ARR) SUBROUTINE ZDISP(ILONG,LNR,ARR) SUBROUTINE ZFREE(ITYPE,IFREE) SUBROUTINE ZLEN(LNR,LENGTH) SUBROUTINE ZLEN8(LNR,LENGTH) SUBROUTINE ZNEW(ILONG,ITYPE,LNR,ARR) SUBROUTINE ZTYPE(LNR,LTYPE)
+
+2. Initialization of the BLANK COMMON and of I/O devices
+
+SUBROUTINE ZINIT(NNWORK,CMSG,CERR,CPRT,CSYS,CTRC)
+
+CHARACTER*(*) CMSG,CERR,CPRT,CSYS,CTRC
+
+COMMON
+
+NWORK,IWORK,IWMAX,L(NNARR),DWORK(1)
+
+COMMON /OUTPUT/ M,MT,MKEYB,MTERM,MERR,MPROT,MSYS,MTRC,IRECL8
+
+3. BLOCK DATA subprogram
+The following BLOCK DATA subprogram ZVALUE initializes the most important named COMMON blocks. For a complete list of all COMMON blocks see Appendix B.
+BLOCK DATA ZVALUE C
+IMPLICIT DOUBLE PRECISION (A,C-H,O-U,W-Z),LOGICAL(B)
+
+36
+
+Description of the Subprograms
+
+CHARACTER SUB*6,FMT*15,CPARAM*1
+
+PARAMETER (NNARR=299,NNLEV=9)
+
+COMMON /OUTPUT/ M,MT,MKEYB,MTERM,MERR,MPROT,MSYS,MTRC,IRECL8
+
+COMMON /ERRCTL/ IER,ICHECK
+
+COMMON /CHAR/ SUB,FMT(3),CPARAM(120)
+
+COMMON /TRIAD/ NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD
+
+COMMON /TRIAA/ LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM,
+
+*
+
+LVBD,LEBD,LBCT,LVBDP,LMBDP
+
+COMMON /TABLE/ KTYPE(NNARR),KLEN(NNARR),KLEN8(NNARR),IFLAG
+
+COMMON /MACROD/ NMAEL,NMAVT,NMAEDG,NMAVE,NMAVEL,NMABCT,NMAVBD
+
+COMMON /MACROA/ LMACVG,LMACMG,LMAVT,LMAMID,LMAADJ,LMAVEL,LMAMEL,
+
+*
+
+LMANPR,LMAMM,LMAVBD,LMAEBD,LMABCT,LMAVBP,LMAMBP,
+
+*
+
+LMAVE
+
+COMMON /MGTRD/ KNEL(NNLEV),KNVT(NNLEV),KNMT(NNLEV),
+
+*
+
+KNVEL(NNLEV),KNVBD(NNLEV)
+
+COMMON /MGTRA/ KLCVG(NNLEV),KLCMG(NNLEV),KLVERT(NNLEV),
+
+*
+
+KLMID(NNLEV),KLADJ(NNLEV),KLVEL(NNLEV),
+
+*
+
+KLMEL(NNLEV),KLNPR(NNLEV),KLMM(NNLEV),
+
+*
+
+KLVBD(NNLEV),KLEBD(NNLEV),KLBCT(NNLEV),
+
+*
+
+KLVBDP(NNLEV),KLMBDP(NNLEV)
+
+C
+
+DATA M/2/,MT/2/,MKEYB/5/,MTERM/6/,IER/0/,ICHECK/1/
+
+DATA MERR/11/,MPROT/12/,MSYS/13/,MTRC/14/,IRECL8/512/
+
+DATA SUB/’MAIN ’/
+
+DATA FMT/’(3D25.16)’,’(5E16.7)’,’(6I12)’/
+
+DATA CPARAM/120*’ ’/
+
+DATA NEL/0/,NVT/0/,NMT/0/,NVE/0/,NBCT/0/,NVEL/0/,NVBD/0/
+
+DATA LCORVG/0/,LCORMG/0/,LVERT/0/,LMID/0/,LADJ/0/,LVEL/0/,LMEL/0/,
+
+* LNPR/0/,LMM/0/,LVBD/0/,LEBD/0/,LBCT/0/,LVBDP/0/,LMBDP/0/
+
+DATA KTYPE/NNARR*0/,KLEN/NNARR*0/,KLEN8/NNARR*0/,IFLAG/0/
+
+DATA NMAEL/0/,NMAVT/0/,NMAEDG/0/,NMAVE/0/,NMAVEL/0/,NMABCT/0/,
+
+* NMAVBD/0/
+
+DATA LMACVG/0/,LMACMG/0/,LMAVT/0/,LMAMID/0/,LMAADJ/0/,LMAVEL/0/,
+
+* LMAMEL/0/,LMANPR/0/,LMAMM/0/,LMAVBD/0/,LMAEBD/0/,LMABCT/0/,
+
+* LMAVBP/0/,LMAMBP/0/,LMAVE/0/
+
+DATA KNEL/NNLEV*0/,KNVT/NNLEV*0/,KNMT/NNLEV*0/,
+
+* KNVEL/NNLEV*0/,KNVBD/NNLEV*0/
+
+DATA KLCVG/NNLEV*0/,KLCMG/NNLEV*0/,KLVERT/NNLEV*0/,
+
+* KLMID/NNLEV*0/,KLADJ/NNLEV*0/,KLVEL/NNLEV*0/,
+
+* KLMEL/NNLEV*0/,KLNPR/NNLEV*0/,KLMM/NNLEV*0/,
+
+* KLVBD/NNLEV*0/,KLEBD/NNLEV*0/,KLBCT/NNLEV*0/,
+
+* KLVBDP/NNLEV*0/,KLMBDP/NNLEV*0/
+
+C
+
+END
+
+Explanation
+M and MT are set to 2, producing relatively much output on MPRT, MSYS, and on the screen. MKEYB is set to the machine dependent value for standard input unit, e.g. 5 for IBM
+
+3.1 FEAT2D Subprograms – Group Z
+
+37
+
+systems. MTERM is set to the machine dependent value for the standard output unit, e.g. 6 for IBM systems. The value ICHECK in the error control block is set to 1, i.e. as a default only elementary consistency checks are performed but no subprogram tracing.
+The values 11-14 are used as default values for the I/O ﬁles for FEAT2D. IRECL8 denotes the maximum record length for format-free I/O (machine dependent, set to 512 by default).
+
+4. Machine dependent system routines
+The group Z of FEAT2D routines is also intended for system dependent subprograms. In the present version, only a routine for measuring CPU time is included.
+SUBROUTINE ZTIME(T)
+The parameter T returns the system time since the last call of ZTIME. At program start, time synchronization is performed by ZINIT.
+
+38
+
+Description of the Subprograms
+
+3.2. The groups A-W
+
+Group A – Bilinear forms and matrices
+
+The subprograms of group A are used to calculate the pointer structure and the entries of global ﬁnite element matrices for a given triangulation and for a particular choice of elements. The entries aij of the matrices are of the form
+
+aij =
+
+cαβ(x)∂αφi∂βψj dx
+
+Ω α,β
+
+or, for boundary integrals,
+
+aij =
+
+cαβ(s)∂αφi∂βψj ds .
+
+∂Ω α,β
+
+Here, φi and ψj denote the basis functions of the test space and the trial space (in this order!) which naturally may also coincide. The coeﬃcients cαβ for multiindices α and β are given as EXTERNAL functions and, of course, are allowed to depend on the solution or its derivatives.
+
+In the present version of FEAT2D matrices in the storage techniques 3 (or 4 in the symmetric case), 7 (or 8 in the symmetric case) and 9 (general rectangular matrices) are supported. The routines of this group, ﬁrst, calculate the pointer vectors, see Section 1.6, and, then, assemble the global matrices, of course using a loop over all elements. In most applications the user will only need the X-routines which also allocate the necessary arrays on the workspace vector.
+
+Names of the subprograms
+
+The names of the programs which calculate the pointer vectors are of the form APs, where P stands for pointer and s for the storage technique of the matrix.
+
+On the basis of this pointer structure, the routines AAvs and ABvs assemble the entries of the global matrices, where AA.. is used for triangular elements and AB.. for quadrilaterals. The character v denotes the version,
+
+v=0 for area integrals v=1 for boundary integrals.
+
+The ﬁnal character s is used to reference the storage technique for the matrix, see Section 1.6.
+
+3.2 FEAT2D Subprograms – Group A
+
+39
+
+Subgroup AP – Pointer vectors
+
+The programs AP3, AP7 and AP9 determine the pointer vectors for matrices in storage technique 3, 7 or 9. For storage techniques 3 and 7 it is assumed that the test and the trial space coincide and only one element subprogram is passed as an argument. Storage technique 9 is reserved for general rectangular matrices where the test and trial space may be diﬀerent.
+
+The program XAP3, ﬁrst, determines the number of equations, NEQ, and then allocates three INTEGER vectors (KDIA, KDIAS and a help vector) of length 2*NEQ-1. After determination of the number of diagonal rows, NDIA, these arrays are compressed. The corresponding routines XAP7 and XAP9, ﬁrst, determine the number of equations, NEQ, and allocate KLD on the workspace in the correct length, NEQ+1. Then, they determine the remaining free space of DWORK with the routine ZFREE to calculate the column pointer KCOL. After completion, the free space of DWORK is released.
+
+Parameters Input
+
+ELE SUB ELEn SUB ISYMM I*4 KVERT I*4 KMID I*4
+
+Name of the element subprogram (in AP3 and AP7) n=1,2, names of the element subprograms for the test and trial space (in this order) (in AP9) =1 symmetry of matrix assumed, only pointers for upper triangular part generated (storage techniques 4 and 8) DIMENSION KVERT(NNVE,NEL) Vertices of elements DIMENSION KMID(NNVE,NEL) Numbers of midpoints (edges) of elements, if necessary
+
+Output
+
+KDIA I*4
+KDIAS I*4
+NDIA I*4 KCOL I*4
+KLD I*4
+NA I*4 NEQ I*4
+
+DIMENSION KDIA(NDIA) Diagonal oﬀset pointer (in AP3) DIMENSION KDIA(NDIA+1) Pointer to start of new diagonal row (in AP3) Number of diagonal rows in matrix (in AP3) DIMENSION KCOL(NA) Column pointer (in AP7 and AP9) DIMENSION KLD(NEQ+1) Pointer to start of new row (in AP7 and AP9) Number of entries in matrix Number of equations
+
+Parameters in COMMON blocks
+
+COMMON /TRIAD/ NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD
+
+COMMON /TRIAA/ LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM,
+
+*
+
+LVBD,LEBD,LBCT,LVBDP,LMBDP
+
+Information about the subdivision. /TRIAA/ is only needed in XAP7 and XAP9.
+
+40
+
+Description of the Subprograms
+
+List of available subprograms
+SUBROUTINE XAP3(LDIA,LDIAS,NDIA,NA,NEQ,ELE,ISYMM) SUBROUTINE AP3(KDIA,KDIAS,NDIA,NA,NEQ,ELE,ISYMM,KVERT,KMID,KDIAH)
+SUBROUTINE XAP7(LCOL,LLD,NA,NEQ,ELE,ISYMM) SUBROUTINE AP7(KCOL,KLD,NA,NEQ,ELE,ISYMM,KVERT,KMID)
+SUBROUTINE XAP9(LCOL,LLD,NA,NEQ,ELE1,ELE2) SUBROUTINE AP9(KCOL,KLD,NA,NEQ,ELE1,ELE2,KVERT,KMID)
+
+Subgroups AA and AB – Assembly of matrices
+The subprograms AAvs (ABvs) assemble global matrices for meshes consisting of triangles (quadrilaterals). The matrices may consist of several blocks which are assumed to possess the same structure of pointer vectors, i.e. the vectors KCOL and KLD (in storage technique 7) are considered to be the same for all blocks. The number of blocks is NBLOC. The diﬀerent blocks, each of length NA need not be stored sequentially, i.e. in a matrix DA(NA,NBLOC) or VA(NA,NBLOC). Only one starting address is passed as an argument in DA(1) or VA(1) and, additionally, a vector KOFF(NBLOC) containing the oﬀset of the starting address of block matrix IBLOC relative to DA(1).
+This is automatically handled by the provided X-routines which simply require the numbers LA(IBLOC) of each block matrix to be allocated on the workspace vector. If one or several block matrices do not exist, i.e. if LA(IBLOC)=0, the matrices are allocated by the X-routines. If the user prefers to directly invoke an A-routine like AB07 instead of the correponding X-routine XAB07, he should deﬁne a block matrix, DA(NA,NBLOC) and set KOFF(IBLOC)=(IBLOC-1)*NA.
+The A-routines do not overwrite the elements of the matrices but add the new entries to the old ones. However, the corresponding X-routines have a parameter ICLEAR which may be set to 1 for deletion of the old entries.
+Structure of the bilinear form
+For each of the NBLOC bilinear forms to be evaluated for all basis functions there is passed the number of additive terms in the array KABN(NBLOC) and an abbreviation for the partial derivatives applied to the test (φi) and trial functions (φj) in the array KAB(2,NNAB,NBLOC). Consider, for example, the bilinear form
+(∂xφi∂xφj + ∂yφi∂yφj + β1φi∂xφj + β2φi∂yφj) dx
+Ω
+Here, β1 and β2 are some coeﬃcients. The correponding value for the array KABN is 4 since four additive terms form the integrand.
+
+3.2 FEAT2D Subprograms – Group A
+
+41
+
+For the multiindices denoting the partial derivatives in the array KAB(2,NNAB,NBLOC) we choose the abbreviations
+
+KAB(.,.,.)
+1 2 3 4 5 6
+
+Comment Function value First x-derivative First y-derivative Second x-derivative Mixed xy-derivative Second y-derivative
+
+Therefore, the array KAB(2,NNAB,NBLOC) must contain the values
+22 33 12 13
+for the four terms in the above example. Notice that the ﬁrst number denotes the derivative applied to the test function (!).
+Coeﬃcients
+For the evaluation of the coeﬃcients cαβ, an EXTERNAL function COEFF is passed as an argument
+
+DOUBLE PRECISION FUNCTION COEFF(X,Y,IA,IB,IBLOC,BFIRST).
+
+Parameters
+
+X,Y R*8 Coordinates of evaluation point
+IA,IB I*4 Abbreviation for partial derivatives applied to test and trial functions, see above
+IBLOC I*4 Number of block matrix
+BFIRST L*4 .TRUE. means that the coeﬃcient function is evaluated for the ﬁrst time at the particular cubature point. This can be used to save arithmetic operations for further calls of COEFF, in particular in nonlinear problems
+
+COEFF returns the value of the coeﬃcient at the given evaluation point (X,Y). In case of nonlinear problems, COEFF may use information about the current element, the values of basis functions and its derivatives at the cubature point, etc. This information is available in the COMMON blocks /ELEM/, /CUB/, /COAUX1/, and /COAUX2/. Moreover, when called with IA=IB=-1 the coeﬃcient function has to set the values of BDER(IDER) if it needs information about the IDER-th derivative of the basis functions.
+
+42
+
+Description of the Subprograms
+
+Parameters Input
+
+LA I*4 LDIA I*4 LDIAS I*4 NDIA I*4 LCOL I*4 LLD I*4 NA I*4 NEQ I*4 NBLOC I*4 ICLEAR I*4 KOFF I*4
+KVERT I*4 KMID I*4 DCORVG R*8 KNPR I*4 IBCT I*4 KBCT I*4
+KVBD I*4
+
+DIMENSION LA(NBLOC) Handles of block matrices (for X-routines only) DIMENSION KDIA(NDIA) Diagonal oﬀset pointer, generated by AP3 DIMENSION KDIAS(NDIA+1) Pointer to start of new diagonal rows, generated by AP3 Number of diagonal rows in each block matrix, generated by AP3 DIMENSION KCOL(NA) Column pointer, generated by AP7 and AP9 DIMENSION KLD(NEQ+1) Pointer to start of new rows, generated by AP7 and AP9 Number of nonzero entries in each block matrix Number of rows in each block matrix Number of block matrices =1 Old entries are set to zero =0 New elements are added to old ones DIMENSION KOFF(NBLOC) Oﬀsets of starting address of matrix block IBLOC relative to starting address of ﬁrst block DIMENSION KVERT(NNVE,NEL) Vertices of elements DIMENSION KMID(NNVE,NEL) Numbers of midpoints (edges) of elements, if needed DIMENSION DCORVG(2,NVT) Coordinates of vertices DIMENSION KNPR(NVT+NMT) Nodal properties, see Section 1.5 Boundary component (for routines AA1s and AB1s only) DIMENSION KBCT(NBCT+1) Additional arrays describing the triangulation, see Section 1.5 (for routines AA1s and AB1s only) DIMENSION KVBD(NVBD)
+
+KEBD I*4 DIMENSION KEBD(NVBD)
+
+IVBDn I*4
+TMAX FUN DPARn R*8 ELE SUB ELEn SUB
+ELE3 SUB
+
+n=1,2
+Minimum and maximum index on KVBD as calculated by routine SIVB (for routines AA1s and AB1s only) Maximum parameter of boundary curves (for routines XAA1s and AB1s only) n=1,2
+Description of the boundary part (for routines XAA1s and XAB1s only) Name of the element subprogram (storage techniques 3 and 7) n=1,2
+Names of the element subprograms for the test and trial space (in this order, storage technique 9) Additional element eventually needed for nonlinear problems (storage technique 9)
+
+3.2 FEAT2D Subprograms – Group A
+
+43
+
+COEFF FUN BCON L*4
+COECON R*8 KAB I*4 KABN I*4 ICUB I*4 ISYMM I*4
+ARR C*6 BSNGL B*4
+
+Coeﬃcient function, as described above DIMENSION BCON(NBLOC) BCON(IBLOC).EQ..TRUE. means that block IBLOC has constant coeﬃcients DIMENSION COECON(NNDER,NNDER,NBLOC) Auxiliary vector (for the constant coeﬃcient case) DIMENSION KAB(2,NNAB,NBLOC) Abbreviations of partial derivatives applied to basis functions DIMENSION KABN(NBLOC) Numbers of additive terms in each bilinear form Number of cubature formula, see group C = 0 No symmetry assumed, full matrix calculated = 1 Only upper triangular part calculated = 2 Symmetry assumed but full matrix calculated, lower triangular part obtained by reﬂection DIMENSION ARR(NBLOC) Names of block matrices, for messages only =.TRUE. Change matrix type to SINGLE PRECISION
+
+Output
+
+DA R*8 DIMENSION DA(NA) Resulting block matrix, DOUBLE PRECISION
+VA R*4 DIMENSION VA(NA) Resulting block matrix, REAL
+
+Parameters in COMMON blocks
+
+PARAMETER (NNCUBP=36)
+
+COMMON /TRIAD/ COMMON /TRIAA/ * COMMON /CUB/
+
+NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM, LVBD,LEBD,LBCT,LVBDP,LMBDP DXI(NNCUBP,3),DOMEGA(NNCUBP),NCUBP,ICUBP
+
+Exchange of information with COEFF
+
+PARAMETER (NNBAS=21,NNDER=6)
+
+COMMON /COAUX1/ KDFG(NNBAS),KDFL(NNBAS),IDFL
+
+COMMON /COAUX2/ DBAS1(NNBAS,NNDER,3),KDFG1(NNBAS,3),
+
+*
+
+KDFL1(NNBAS,3),IDFL1(3),BDER1(NNDER,3)
+
+44
+
+Description of the Subprograms
+
+List of available subprograms – Triangular elements
+
+SUBROUTINE XAA03(LA,LDIA,LDIAS,NDIA,NA,NEQ,NBLOC,ICLEAR,
+
+*
+
+ELE,COEFF,BCON,KAB,KABN,ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AA03(DA,KDIA,KDIAS,NDIA,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KNPR,ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,
+
+*
+
+ISYMM)
+
+SUBROUTINE XAA07(LA,LCOL,LLD,NA,NEQ,NBLOC,ICLEAR,ELE,COEFF,BCON,
+
+*
+
+KAB,KABN,ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AA07(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,KVERT,KMID,DCORVG,
+
+*
+
+KNPR,ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,ISYMM)
+
+SUBROUTINE XAA09(LA,LCOL,LLD,NA,NBLOC,ICLEAR,ELE1,ELE2,ELE3,COEFF,
+
+*
+
+BCON,KAB,KABN,ICUB,ARR,BSNGL)
+
+SUBROUTINE AA09(DA,KCOL,KLD,NA,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KNPR,ELE1,ELE2,ELE3,COEFF,
+
+*
+
+BCON,COECON,KAB,KABN,ICUB)
+
+SUBROUTINE XAA13(LA,LDIA,LDIAS,NDIA,NA,NEQ,NBLOC,ICLEAR,TMAX,
+
+*
+
+DPAR1,DPAR2,IBCT,ELE,COEFF,BCON,KAB,KABN,
+
+*
+
+ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AA13(DA,KDIA,KDIAS,NDIA,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,ISYMM)
+
+SUBROUTINE XAA17(LA,LCOL,LLD,NA,NEQ,NBLOC,ICLEAR,TMAX,
+
+*
+
+DPAR1,DPAR2,IBCT,ELE,COEFF,BCON,KAB,KABN,
+
+*
+
+ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AA17(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,ISYMM)
+
+SUBROUTINE XAA19(LA,LCOL,LLD,NA,NEQ,NBLOC,ICLEAR,TMAX,
+
+*
+
+DPAR1,DPAR2,IBCT,ELE1,ELE2,ELE3,COEFF,BCON,
+
+*
+
+KAB,KABN,ICUB,ARR,BSNGL)
+
+SUBROUTINE AA19(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE1,ELE2,ELE3,COEFF,BCON,COECON,KAB,KABN,ICUB)
+
+3.2 FEAT2D Subprograms – Group A
+
+45
+
+List of available subprograms – Quadrilateral elements
+
+SUBROUTINE XAB03(LA,LDIA,LDIAS,NDIA,NA,NEQ,NBLOC,ICLEAR,
+
+*
+
+ELE,COEFF,BCON,KAB,KABN,ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AB03(DA,KDIA,KDIAS,NDIA,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KNPR,ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,
+
+*
+
+ISYMM)
+
+SUBROUTINE XAB07(LA,LCOL,LLD,NA,NEQ,NBLOC,ICLEAR,ELE,COEFF,BCON,
+
+*
+
+KAB,KABN,ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AB07(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,KVERT,KMID,DCORVG,
+
+*
+
+KNPR,ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,ISYMM)
+
+SUBROUTINE XAB09(LA,LCOL,LLD,NA,NBLOC,ICLEAR,ELE1,ELE2,ELE3,COEFF,
+
+*
+
+BCON,KAB,KABN,ICUB,ARR,BSNGL)
+
+SUBROUTINE AB09(DA,KCOL,KLD,NA,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KNPR,ELE1,ELE2,ELE3,COEFF,
+
+*
+
+BCON,COECON,KAB,KABN,ICUB)
+
+SUBROUTINE XAB13(LA,LDIA,LDIAS,NDIA,NA,NEQ,NBLOC,ICLEAR,TMAX,
+
+*
+
+DPAR1,DPAR2,IBCT,ELE,COEFF,BCON,KAB,KABN,
+
+*
+
+ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AB13(DA,KDIA,KDIAS,NDIA,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,ISYMM)
+
+SUBROUTINE XAB17(LA,LCOL,LLD,NA,NEQ,NBLOC,ICLEAR,TMAX,
+
+*
+
+DPAR1,DPAR2,IBCT,ELE,COEFF,BCON,KAB,KABN,
+
+*
+
+ICUB,ISYMM,ARR,BSNGL)
+
+SUBROUTINE AB17(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE,COEFF,BCON,COECON,KAB,KABN,ICUB,ISYMM)
+
+SUBROUTINE XAB19(LA,LCOL,LLD,NA,NEQ,NBLOC,ICLEAR,TMAX,
+
+*
+
+DPAR1,DPAR2,IBCT,ELE1,ELE2,ELE3,COEFF,BCON,
+
+*
+
+KAB,KABN,ICUB,ARR,BSNGL)
+
+SUBROUTINE AB19(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,KVERT,KMID,
+
+*
+
+DCORVG,KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE1,ELE2,ELE3,COEFF,BCON,COECON,KAB,KABN,ICUB)
+
+46
+
+Description of the Subprograms
+
+Group C – Numerical integration
+The subprograms of this group return information on numerical integration rules in one and two space dimensions. The only argument is ICUB, the number of the integration rule. The number and position of the cubature or quadrature points as well as the weights are returned in the corresponding arrays in COMMON /CUB/.
+Parameters in COMMON blocks
+
+PARAMETER (NNCUBP=36)
+
+COMMON /CUB/
+
+DXI(NNCUBP,3),DOMEGA(NNCUBP),NCUBP,ICUBP
+
+List of available subprograms
+
+SUBROUTINE CB1 (ICUB) SUBROUTINE CB2Q(ICUB) SUBROUTINE CB2T(ICUB)
+
+1. Subroutine CB1
+
+Integration formulas for the reference interval [−1, 1] DXI(ICUBP,1), ICUBP=1,NCUBP returns the position of the integration points in the interval [−1, 1].
+List of available cubature formulas
+
+ICUB
+1 2 3 4 5 6
+
+NCUBP
+1 2 2 3 3 4
+
+Degree 2 2 4 4 6 8
+
+Comment Gaussian formula Trapezoidal rule Gaussian formula Simpson rule Gaussian formula Gaussian formula
+
+2. Subroutine CB2Q
+Integration formulas for the reference square [−1, 1] × [−1, 1] DXI(ICUBP,I), I=1,2, ICUBP=1,NCUBP returns the position of the cubature points in cartesian coordinates.
+
+3.2 FEAT2D Subprograms – Group C
+
+47
+
+List of available cubature formulas
+
+ICUB
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+NCUBP
+1 3 4 4 4 6 7 9 12 16 25 4 9 16 36
+
+Degree 2 2 2 4 4 5 6 6 7 8 10 2 2 4 6
+
+Comment 1 × 1 Gaussian formula Trapezoidal rule Midpoints of edges 2 × 2 Gaussian formula Not symmetric Not symmetric Not symmetric 3 × 3 Gaussian formula Gaussian formula 4x4 Gaussian formula 5 × 5 Gaussian formula Piecewise 1 × 1 Gauss formula Piecewise trapezoidal rule Piecewise 2 × 2 Gauss formula Piecewise 3 × 3 Gauss formula
+
+The piecewise deﬁned formulas 12, 13, 14, and 15 are used in connection with the piecewise deﬁned elements, e.g. 4Q1 and 4Q0.
+
+3. Subroutine CB2T
+
+Integration formulas for the reference triangle DXI(ICUBP,I), I=1,2,3, ICUBP=1,NCUBP returns the position of the cubature points in barycentric coordinates.
+List of available cubature formulas
+
+ICUB
+1 2 3 4 5 6 7 8 9 10 11 12 13
+
+NCUBP 1 3 3 3 6 7
+7 12
+4 6 9
+
+Degree 2 2 3 3 4 4
+6 7
+2 2 3
+
+Comment 1x1 Gauss formula Trapezoidal rule 3-point Gauss formula Collatz formula As 4 plus midpoints of edge vertices, midpoints, center Not yet implemented
+Not yet implemented Piecewise 1 × 1 Gauss formula Piecewise trapezoidal rule Piecewise 3-point Gauss
+
+The piecewise deﬁned formulas 11, 12, and 13 are used in connection with the piecewise deﬁned elements, e.g. 4P1.
+
+48
+
+Description of the Subprograms
+
+Group E – Element library
+
+The routines of group E serve for evaluation of function values and/or derivatives of the basis functions on the current element at a given point. The name of the subprograms consists of the letter E followed by the number of the element (3 digits). The names of the subprograms in use must be declared EXTERNAL by the user in the main program.
+All information needed for the evaluation except possibly the evaluation point is passed to the element subprograms in the COMMON blocks /ELEM/ and /CUB/. The calculated values are returned to the calling routines in the array DBAS in /ELEM/.
+In the present version, FEAT2D supports triangular and quadrilateral elements. For triangular elements the transformation to the reference triangle is assumed to be aﬃne linear, for quadrilaterals the transformation is bilinear. The parameter list depends on the shape of the element,
+
+SUBROUTINE Ennn(XI1,XI2,XI3,IPAR) for triangular elements,
+
+SUBROUTINE Ennn(XI1,XI2,IPAR)
+
+for quadrilaterals.
+
+Parameters Input
+
+XIn IPAR
+
+R*8 n=1,2(,3)
+Coordinates of the evaluation point quadrilateral elements – XI1, XI2 are the cartesian coordinates in the reference element [−1, 1]×[−1, 1] triangular elements – XI1, XI2, XI3 are the barycentric coordiates I*4 Switch IPAR= 0: Evaluate at the given point IPAR=-1: Return number of element on IPAR IPAR=-2: The routine may save arithmetic operations for further evaluations. For example, the function values of the basis functions on the reference element may be calculated in all cubature points and saved on a local array. Then, in later calls one only performs the transformation to the actual element using the elements of the Jacobian in /ELEM/ and the number ICUBP of the current cubature point in /CUB/. A second application of this mechanism is used in piecewise deﬁned elements. Here, the decision which cubature point is located in which of the subelements is stored. The calling routine must set ICUBP to the number of the cubature formula when calling with IPAR=-2! For IPAR=-2, no information is returned. IPAR=-3: Evaluate at given point assuming that the routine has been called using IPAR=-2, before.
+
+3.2 FEAT2D Subprograms – Group E
+
+49
+
+Parameters in COMMON blocks
+
+PARAMETER (NNBAS=21,NNDER=6,NNVE=4,NNCUBP=36)
+
+COMMON /ELEM/ DX(NNVE),DY(NNVE),DJAC(2,2),DETJ,
+
+*
+
+DBAS(NNBAS,NNDER),BDER(NNDER),KVE(NNVE),IEL
+
+COMMON /CUB/ DXI(NNCUBP,3),DOMEGA(NNCUBP),NCUBP,ICUBP
+
+List of available elements
+
+Name E000 E001 E002 E003 E004 E010 E011 E012 E013 E014 E020
+E021 E022
+E023 E030
+E031
+E032
+E033
+E034
+E040 E050 E060
+E061
+
+IELTYP 0 1 2 3 4 10 11 12 13 14 20
+21 22
+23 30
+31
+32
+33
+34
+40 50 60
+61
+
+# d.o.f. 1 3 6 10 10 1 4 8 9 16 3
+4 6
+7 4
+4
+5
+9
+4
+1 6 3
+3
+
+Comment constant, triangle linear, continuous, triangle quadratic, continuous, triangle cubic, Hermite, continuous, triangle cubic, Lagrange, continuous, triangle
+constant, quadrilateral bilinear, continuous, quadrilateral reduced biquadratic (Serendipity), quadrilateral biquadratic, continuous, quadrilateral bicubic, continuous, quadrilateral
+linear nonconforming, discontinuous triangle nodal values in midpoints of edges augmented linear (MINI, P1+bulb), triangle piecewise linear (4P1), triangle triangle divided into 4 subtriangles augmented quadratic (P2+bulb), triangle
+rotated bilinear, discontinuous, quadrilateral mean values on edges as nodal values rotated bilinear, discontinuous, quadrilateral function values at midpoints of edges as nodal values ﬁve node (Han), discontinuous, quadrilateral Q1 plus two special cubic functions piecewise bilinear (4Q1), quadrilateral quadrilateral divided into 4 subelements piecewise constant (4Q0), quadrilateral quadrilateral divided into 4 subelements
+cubic bulb, single bulb function only, triangle
+quadratic Morley, triangle
+linear, discontinuous, triangle no continuity constraints linear, discontinuous, quadrilateral no continuity constraints
+
+50
+
+Description of the Subprograms
+
+Group G – Normalized output for graphic packages
+This group contains subroutines writing grid information or user supplied data in the special format that is needed by certain graphic packages. Up to now only the Movie.byu graphic package is supported. The subroutine XGOWSM writes FEAT2D grid data in Movie.byu format onto ﬁle CFILE and the subroutine XGOWFM writes a Movie.byu function ﬁle.
+SUBROUTINE XGOWFM(LNR,MFILE,CFILE) SUBROUTINE XGOWSM(MFILE,CFILE)
+Parameters Input
+LNR I*4 Function array handle (XGOWFM only) MFILE I*4 Unit number CFILE C** File name
+Output
+CFILE C** File containing grid or function data in Movie.byu format
+
+3.2 FEAT2D Subprograms – Group I
+
+51
+
+Group I – Iterative methods for linear equations
+The subprograms of group I deal with iterative methods for linear systems of equations. Several versions for each algorithm are provided diﬀering in the data type of the matrix and the vector and in the assumed storage technique for the matrix. Further, we distinguish whether an algorithm is used for
+0 Solution of a linear system up to a certain accuracy 1 Preconditioning (e.g., scaling, SSOR-preconditioning) 2 Smoothing (i.e. performing a ﬁxed number of iteration steps independent of the
+accuracy as used in multigrid algorithms) 3 Approximate solution of a linear system (i.e. reducing the starting residual by a
+certain number of digits)
+The numbers 0, 1, 2 and 3 again occur in the names of the subprograms, below. Names of the subprograms The names of the programs in this subgroup have the form Iatns. Here, a denotes the iterative algorithm, namely
+A Jacobi method, B Gauss-Seidel method, C Successive overrelaxation (SOR), D Symmetric successive overrelaxation (SSOR), E (Preconditioned) Conjugate gradient algorithm (PCG), F Incomplete Cholesky decomposition (ILU), G (Preconditioned) Squared conjugate gradient algorithm (CGS), M Multigrid algorithm.
+t stands for the numbers 0, 1, 2 or 3 characterizing the speciﬁc task (solution, preconditioning, smoothing), as described above. The number n refers to the data type of the arguments, namely
+1 DOUBLE PRECISION matrix, DOUBLE PRECISION vectors, 2 REAL matrix, REAL vectors, 3 REAL matrix, DOUBLE PRECISION vectors.
+
+52
+
+Description of the Subprograms
+
+Finally, the character s stands for the storage technique (0,...,A), see Section 1.6.
+
+If an algorithm is suited for the solution of a linear system the corresponding X-routines are provided. The name of the program is preceded by the letter X and only the numbers (handles) of the vectors are given as an argument. For algorithms that are only used as smoothers or preconditioners only the corresponding Y-routines exist in the present version of FEAT2D, see below.
+
+Parameters Input
+
+DA,VA R*8
+
+KDIA I*4
+
+KDIAS I*4
+
+NDIA I*4
+
+KCOL I*4
+
+KLD I*4
+
+KOP I*4
+
+NA
+
+I*4
+
+DX,VX R*8
+
+DB,VB R*8
+
+NEQ I*4 ITE I*4 NIT I*4 EPS R*8
+
+OMEGA R*8 DD,VD R*8 DR,VR R*8 DD1,VD1 R*8 DG,VG R*8 IREL I*4
+
+DIMENSION DA(NA),VA(NA) Double/single precision matrix DIMENSION KDIA(NDIA) Pointer vectors (see Section 1.6) DIMENSION KDIA(NDIA+1)
+DIMENSION KCOL(NA) DIMENSION KLD(NEQ+1) DIMENSION KOP(NEQ)
+DIMENSION DX(NEQ),VX(NEQ) Starting vector, double/single precision DIMENSION DB(NEQ),VB(NEQ) Right hand side vector, double/single precision Number of equations Minimum number of iterations, used for IREL=1 (Maximum) number of iterations Desired accuracy for residual or iterative correction IREL=0: Stop if !!RES!! < EPS IREL=1: Stop if !!RES!!/!!RES0!! < EPS and a minimum of ITE iterations is performed Relaxation or damping parameter DIMENSION DD(NEQ),VD(NEQ) Auxiliary vectors, double/single precision
+relative or absolute accuracy desired
+
+Output
+
+DX,VX R*8 Resulting vector, double/single precision
+
+ITE
+
+I*4 Number of iterations needed
+
+SUBROUTINE I000 This routine performs no operation and is used as EXTERNAL dummy routine only.
+
+3.2 FEAT2D Subprograms – Group I
+
+53
+
+Subgroup IA – Jacobi method
+Solution of linear system by Jacobi’s method A maximum of NIT iterations is performed. The procedure stops if the maximum of the correction between two steps is less than EPS. DD serves as auxiliary vector.
+SUBROUTINE IA013(DA,KDIA,KDIAS,NDIA,DX,DB,DD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA017(DA,KCOL,KLD,DX,DB,DD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA01A(DA,KCOL,KLD,KOP,DX,DB,DD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA023(VA,KDIA,KDIAS,NDIA,VX,VB,VD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA027(VA,KCOL,KLD,VX,VB,VD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA02A(VA,KCOL,KLD,KOP,VX,VB,VD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA033(VA,KDIA,KDIAS,NDIA,DX,DB,DD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA037(VA,KCOL,KLD,DX,DB,DD,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IA03A(VA,KCOL,KLD,KOP,DX,DB,DD,NEQ,NIT,ITE,EPS,OMEGA)
+Preconditioning by Jacobi’s method, i.e. scaling by the diagonal of the matrix
+SUBROUTINE IA113(DA,DX,NEQ) SUBROUTINE IA117(DA,KLD,DX,NEQ) SUBROUTINE IA11A(DA,KLD,KOP,DX,NEQ) SUBROUTINE IA123(VA,VX,NEQ) SUBROUTINE IA127(VA,KLD,VX,NEQ) SUBROUTINE IA12A(VA,KLD,KOP,VX,NEQ) SUBROUTINE IA133(VA,DX,NEQ) SUBROUTINE IA137(VA,KLD,DX,NEQ) SUBROUTINE IA13A(VA,KLD,KOP,DX,NEQ)
+Smoothing by the damped Jacobi method NIT damped Jacobi iterations with damping parameter OMEGA are performed, DD serves as auxiliary vector.
+SUBROUTINE IA213(DA,KDIA,KDIAS,NDIA,DX,DB,DD,NEQ,NIT,OMEGA) SUBROUTINE IA217(DA,KCOL,KLD,DX,DB,DD,NEQ,NIT,OMEGA) SUBROUTINE IA21A(DA,KCOL,KLD,KOP,DX,DB,DD,NEQ,NIT,OMEGA) SUBROUTINE IA223(VA,KDIA,KDIAS,NDIA,VX,VB,VD,NEQ,NIT,OMEGA) SUBROUTINE IA227(VA,KCOL,KLD,VX,VB,VD,NEQ,NIT,OMEGA) SUBROUTINE IA22A(VA,KCOL,KLD,KOP,VX,VB,VD,NEQ,NIT,OMEGA) SUBROUTINE IA233(VA,KDIA,KDIAS,NDIA,DX,DB,DD,NEQ,NIT,OMEGA) SUBROUTINE IA237(VA,KCOL,KLD,DX,DB,DD,NEQ,NIT,OMEGA) SUBROUTINE IA23A(VA,KCOL,KLD,KOP,DX,DB,DD,NEQ,NIT,OMEGA)
+
+54
+
+Description of the Subprograms
+
+Subgroup IB – Gauss-Seidel method
+Solution of linear system by Gauss-Seidel method A maximum of NIT iterations is performed. The procedure stops if the maximum of the correction between two steps is less than EPS.
+SUBROUTINE IB017(DA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS) SUBROUTINE IB01A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,ITE,EPS) SUBROUTINE IB027(VA,KCOL,KLD,VX,VB,NEQ,NIT,ITE,EPS) SUBROUTINE IB02A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT,ITE,EPS) SUBROUTINE IB037(VA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS) SUBROUTINE IB03A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,ITE,EPS)
+Smoothing by Gauss-Seidel method NIT iterations are performed.
+SUBROUTINE IB217(DA,KCOL,KLD,DX,DB,NEQ,NIT) SUBROUTINE IB21A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT) SUBROUTINE IB227(VA,KCOL,KLD,VX,VB,NEQ,NIT) SUBROUTINE IB22A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT) SUBROUTINE IB237(VA,KCOL,KLD,DX,DB,NEQ,NIT) SUBROUTINE IB23A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT)
+
+Subgroup IC – SOR method
+Solution of linear system by SOR-method A maximum of NIT SOR iterations with relaxation parameter OMEGA is performed. The procedure stops if the maximum of the correction between two steps is less than EPS. The X-routines check the data type of array and vectors before calling the corresponding I-routines.
+SUBROUTINE XIC017(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IC017(DA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE XIC01A(LA,LCOL,LLD,LOP,LX,LB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IC01A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE XIC027(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IC027(VA,KCOL,KLD,VX,VB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE XIC02A(LA,LCOL,LLD,LOP,LX,LB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IC02A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE XIC037(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IC037(VA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE XIC03A(LA,LCOL,LLD,LOP,LX,LB,NEQ,NIT,ITE,EPS,OMEGA) SUBROUTINE IC03A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,ITE,EPS,OMEGA)
+
+3.2 FEAT2D Subprograms – Group I
+
+55
+
+Smoothing by SOR method NIT iterations are performed.
+SUBROUTINE IC217(DA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE IC21A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE IC227(VA,KCOL,KLD,VX,VB,NEQ,NIT,OMEGA) SUBROUTINE IC22A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT,OMEGA) SUBROUTINE IC237(VA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE IC23A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,OMEGA)
+
+Subgroup ID – SSOR method
+Preconditioning by the S(ymmetric)SOR method with relaxation parameter OMEGA
+SUBROUTINE ID117(DA,KCOL,KLD,DX,NEQ,OMEGA) SUBROUTINE ID118(DA,KCOL,KLD,DX,NEQ,OMEGA) SUBROUTINE ID11A(DA,KCOL,KLD,KOP,DX,NEQ,OMEGA) SUBROUTINE ID127(VA,KCOL,KLD,VX,NEQ,OMEGA) SUBROUTINE ID128(VA,KCOL,KLD,VX,NEQ,OMEGA) SUBROUTINE ID12A(VA,KCOL,KLD,KOP,VX,NEQ,OMEGA) SUBROUTINE ID137(VA,KCOL,KLD,DX,NEQ,OMEGA) SUBROUTINE ID138(VA,KCOL,KLD,DX,NEQ,OMEGA) SUBROUTINE ID13A(VA,KCOL,KLD,KOP,DX,NEQ,OMEGA)
+Smoothing by SSOR method NIT iterations are performed.
+SUBROUTINE ID217(DA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE ID218(DA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE ID21A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE ID227(VA,KCOL,KLD,VX,VB,NEQ,NIT,OMEGA) SUBROUTINE ID228(VA,KCOL,KLD,VX,VB,NEQ,NIT,OMEGA) SUBROUTINE ID22A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT,OMEGA) SUBROUTINE ID237(VA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE ID238(VA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA) SUBROUTINE ID23A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,OMEGA)
+
+56
+
+Description of the Subprograms
+
+Subgroup IE – Conjugate gradient method
+Solution of linear system by the Conjugate gradient method A maximum of NIT preconditioned CG-iterations are performed. The procedure stops if the residual is less than EPS(routines XIE0ns, IE0ns and IE0n0) or if the relative residual is less than EPS (routines XIE3ns, IE3ns and IE3n0).
+The CG-algorithm is implemented using an EXTERNAL subroutine for the matrix-vector product (DAX0, VAX0) and a second one for the preconditioning step (DCG0C, CG0C). No information about the matrix is passed directly to the I-routines. This is indicated by the character 0 for the storage technique (IE010, IE020, IE310, IE320). The X-routines check the data type of array and vectors before calling the corresponding I-routines. They allocate the auxiliary vectors DR, DD, DD1, DG or VR, VD, VD1, VG on the workspace vector. For the matrix-vector multiplication they pass the routines YLAXns as arguments, where n denotes the data type and s stands for the storage technique. They also prepare the COMMON block /MAT1/ for this purpose (see Sections 3.1 and 3.2). The preconditioning is controlled by the parameter OMEGA, namely
+
+OMEGA<0
+
+No preconditioning It is assumed that the vectors DR (VR) and DG (VG) coincide.
+
+OMEGA=0
+
+Scaling by the diagonal of the matrix The X-routines choose YIA1ns for preconditioning, see below.
+
+0<OMEGA<2 SSOR preconditioning with relaxation parameter OMEGA The X-routines choose YID1ns for preconditioning, see below.
+
+OMEGA>2
+
+User deﬁned preconditioning The X-routines choose their arguments DCG0C or CG0C for preconditioning.
+
+In the case OMEGA<0 one may choose the dummy routine I000 as EXTERNAL argument when calling XIE0ns or XIE3ns. In the following lists, the letters v and n stand for v=0,3 and n=1,3. Triple dots, ..., indicate the set of auxiliary vectors DR,DD,DD1,DG, and VR,VD,VD1,VG, respectively.
+
+SUBROUTINE XIEvn3(LA,LDIA,LDIAS,NDIA,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE XIEvn4(LA,LDIA,LDIAS,NDIA,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE XIEvn7(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE XIEvn8(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE XIEvnA(LA,LCOL,LLD,LOP,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE IE010(DX,DB,NEQ,NIT,ITE,EPS,DAX0,DCG0C,BNOCON,
+DR,DD,DD1,DG,IREL)
+SUBROUTINE XIEv23(LA,LDIA,LDIAS,NDIA,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE XIEv24(LA,LDIA,LDIAS,NDIA,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,DCG0C) SUBROUTINE XIEv27(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,CG0C) SUBROUTINE XIEv28(LA,LCOL,LLD,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,CG0C) SUBROUTINE XIEv2A(LA,LCOL,LLD,LOP,LX,LB,NEQ,NIT,ITE,EPS,OMEGA,CG0C)
+
+3.2 FEAT2D Subprograms – Group I
+
+57
+
+SUBROUTINE IE020(VX,VB,NEQ,NIT,ITE,EPS,VAX0,CG0C,BNOCON, VR,VD,VD1,VG,IREL)
+
+SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE
+
+IEv13(DA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv14(DA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv17(DA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv18(DA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv1A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...)
+
+SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE
+
+IEv23(VA,KDIA,KDIAS,NDIA,VX,VB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv24(VA,KDIA,KDIAS,NDIA,VX,VB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv27(VA,KCOL,KLD,VX,VB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv28(VA,KCOL,KLD,VX,VB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv2A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT,ITE,EPS,OMEGA,...)
+
+SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE
+
+IEv33(VA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv34(VA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv37(VA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv38(VA,KCOL,KLD,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...) IEv3A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,ITE,EPS,OMEGA,...)
+
+Smoothing by (preconditioned) conjugate gradient method, NIT iterations are performed
+
+SUBROUTINE IE213(DA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE214(DA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE217(DA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE218(DA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE21A(DA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG)
+SUBROUTINE IE223(VA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,OMEGA,VR,VD,VD1,VG) SUBROUTINE IE224(VA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,OMEGA,VR,VD,VD1,VG) SUBROUTINE IE227(VA,KCOL,KLD,VX,VB,NEQ,NIT,OMEGA,VR,VD,VD1,VG) SUBROUTINE IE228(VA,KCOL,KLD,VX,VB,NEQ,NIT,OMEGA,VR,VD,VD1,VG) SUBROUTINE IE22A(VA,KCOL,KLD,KOP,VX,VB,NEQ,NIT,OMEGA,VR,VD,VD1,VG)
+SUBROUTINE IE233(VA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE234(VA,KDIA,KDIAS,NDIA,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE237(VA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE238(VA,KCOL,KLD,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG) SUBROUTINE IE23A(VA,KCOL,KLD,KOP,DX,DB,NEQ,NIT,OMEGA,DR,DD,DD1,DG)
+
+Subgroup IF – ILU Decomposition
+Calculation of (shifted, modiﬁed) ILU-decomposition, resulting triangular factors stored on input matrix. ILU controls whether standard or modiﬁed ILU-decompositions are calculated. ALPHA serves as a shift parameter. If pivot elements become smaller that TOL they are increased to modulus TOL.
+
+58
+
+Description of the Subprograms
+
+SUBROUTINE IFD17(DA,KCOL,KLD,NEQ,ILU,ALPHA,TOL) SUBROUTINE IFD27(VA,KCOL,KLD,NEQ,ILU,ALPHA,TOL)
+Preconditioning by ILU Input matrix contains incomplete factorization
+SUBROUTINE IF117(DA,KCOL,KLD,DX,NEQ) SUBROUTINE IF127(VA,KCOL,KLD,VX,NEQ) SUBROUTINE IF137(VA,KCOL,KLD,DX,NEQ)
+
+Y-routines
+The subroutines for preconditioning and smoothing are frequently used in subprograms which have no information about the matrix and its pointer vectors. Therefore, the corresponding I-routines cannot be called directly but an intermediate program preparing the correct parameter list must be used. They are denoted by the letter Y followed by the name of the correponding subprogram. The information about the matrix and its pointer vectors is passed to these Y-routines in a COMMON block
+
+PARAMETER (NNARR=299) COMMON /XYPAR/ DXYPAR(NNARR),KXYPAR(NNARR)
+
+It is assumed that KXYPAR contains the numbers of the array and of the pointer vectors which are allocated on the workspace vector, namely
+
+KXYPAR(1)=L(LA)
+
+KXYPAR(1)=L(LA)
+
+KXYPAR(1)=L(LA)
+
+KXYPAR(2)=L(LDIA) or KXYPAR(2)=L(LCOL) or KXYPAR(2)=L(LCOL) .
+
+KXYPAR(3)=L(LDIAS)
+
+KXYPAR(3)=L(LLD)
+
+KXYPAR(3)=L(LLD)
+
+KXYPAR(4)=NDIA
+
+KXYPAR(4)=L(LOP)
+
+In multigrid routines this information is stored for all levels at the positions starting from 100, see XM017. Moreover, double precision information is stored on DXYPAR. For example DXYPAR(1)=OMEGA is used for iterative solvers to pass the value of OMEGA to the preconditioner. The positions starting from 200 are left for free use.
+Further, the BLANK COMMON is known to the Y-routines. This information then is used to create the full parameter in the call of the correponding L-routines as described above.
+Names and parameter lists of the Y-routines available in the present version of FEAT2D
+
+SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE
+
+YIA1n3(DX,NEQ) YIA1n7(DX,NEQ) YIA1nA(DX,NEQ) YIA123(VX,NEQ)
+
+3.2 FEAT2D Subprograms – Group I
+
+59
+
+SUBROUTINE YIA127(VX,NEQ) SUBROUTINE YIA12A(VX,NEQ)
+
+SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE SUBROUTINE
+
+YID1n3(DX,NEQ) YID1n7(DX,NEQ) YID1nA(DX,NEQ) YID123(VX,NEQ) YID127(VX,NEQ) YID12A(VX,NEQ)
+
+60
+
+Description of the Subprograms
+
+Group L – Elementary linear algebra
+This group is devoted to the basic linear algebra tasks. We distinguish between two subgroups, namely vector operations and matrix-vector operations. The routines of the ﬁrst subgroup internally use Blas routines (see Section 1.8) or, at least, loop unrolling, adapted to the particular machine. The second subgroup contains routines for forming matrix-vector products and, similarly, products using the transposed matrix. Routines corresponding to storage techniques 3 and 4 make use of the Blas routines DAXPY/SAXPY which allow for vectorization. The X- or Y-routines are discussed together with the corresponding L-programs.
+
+1. Vector operations
+Names of the subprograms
+The names of the programs in this subgroup have the form Lttn. Here, the two characters tt characterize the task. For example, LC stands for linear combination. n stands for the data type of the arguments, namely
+
+1 DOUBLE PRECISION , 2 REAL , 3 INTEGER .
+
+The name of the program is preceded by the letter X if only the numbers (handles) of the vectors are given as an argument.
+
+Parameters Input
+
+DX,DY VX,VY KX,KY NX A,An
+
+R*8 DIMENSION DX(NX),DY(NX) Double precision input vectors
+R*4 DIMENSION VX(NX),VY(NX) Single precision input vectors
+I*4 DIMENSION KX(NX),KY(NX) Integer input vectors (routines LCLn)
+I*4 Length of the vectors R*8 Scalars
+
+Output
+
+XNORM R*8 As described below IND I*4
+
+3.2 FEAT2D Subprograms – Group L
+
+61
+
+Clearing a vector (ﬁll with zeroes)
+SUBROUTINE XLCL1(LX,NX) SUBROUTINE LCL1(DX,NX) SUBROUTINE XLCL2(LX,NX) SUBROUTINE LCL2(VX,NX) SUBROUTINE XLCL3(LX,NX) SUBROUTINE LCL3(KX,NX)
+Explanation DX:=0, VX:=0, or KX:=0.
+Copy of a vector
+SUBROUTINE XLCP1(LX,LY,NX) SUBROUTINE LCP1(DX,DY,NX) SUBROUTINE XLCP2(LX,LY,NX) SUBROUTINE LCP2(VX,VY,NX) SUBROUTINE XLCP3(LX,LY,NX) SUBROUTINE LCP3(KX,KY,NX)
+Explanation DY:=DX, VY:=VX, or KY:=KX. Implemented using the Blas routines DCOPY and SCOPY for the DOUBLE PRECISION and REAL version. l2-norm of a vector
+SUBROUTINE XLL21(LX,NX,XNORM) SUBROUTINE LL21(DX,NX,XNORM) SUBROUTINE XLL22(LX,NX,XNORM) SUBROUTINE LL22(VX,NX,XNORM)
+Explanation XNORM := DX , or XNORM:= VX , where . denotes the l2-norm. Implemented using the routines LSP1 and LSP2, respectively.
+Linear combination of two vectors
+SUBROUTINE XLLC1(LX,LY,NX,A1,A2) SUBROUTINE LLC1(DX,DY,NX,A1,A2) SUBROUTINE XLLC2(LX,LY,NX,A1,A2) SUBROUTINE LLC2(VX,VY,NX,A1,A2)
+Explanation DY:=A1*DX+A2*DY, or VY:=A1*VX+A2*VY. Implemented using the Blas routines DAXPY and DSCAL for the DOUBLE PRECISION version and SAXPY and SSCAL for the REAL version.
+
+62
+
+Description of the Subprograms
+
+Maximum-norm of a vector
+SUBROUTINE XLLI1(LX,NX,XNORM,IND) SUBROUTINE LLI1(DX,NX,XNORM,IND) SUBROUTINE XLLI2(LX,NX,XNORM,IND) SUBROUTINE LLI2(VX,NX,XNORM,IND)
+Explanation XNORM:= DX , or XNORM:= VX , where . denotes the maximum-norm. IND returns the (ﬁrst) index where the (absolute) maximum occurs. Implemented using the Blas routines IDAMAX and ISAMAX, respectively.
+Scaling of a vector
+SUBROUTINE XLSC1(LX,NX,A) SUBROUTINE LSC1(DX,NX,A) SUBROUTINE XLSC2(LX,NX,A) SUBROUTINE LSC2(VX,NX,A)
+Explanation DX:=A*DX, or VX:=A*VX. Implemented using the Blas routines DSCAL and SSCAL, respectively.
+Scalar product of two vectors
+SUBROUTINE XLSP1(LX,LY,NX,SP) SUBROUTINE LSP1(DX,DY,NX,SP) SUBROUTINE XLSP2(LX,LY,NX,SP) SUBROUTINE LSP2(VX,VY,NX,SP)
+Explanation SP:=(DX,DY), or SP:=(VX,VY), where (., .) denotes the scalar product. Implemented using the Blas routines DDOT and SDOT, respectively.
+Vector multiply and add
+SUBROUTINE XLVM1(LX1,LX2,LX,NX,A1,A2) SUBROUTINE LVM1(DX1,DX2,DX,NX,A1,A2) SUBROUTINE XLVM2(LX1,LX2,LX,NX,A1,A2) SUBROUTINE LVM2(VX1,VX2,VX,NX,A1,A2) SUBROUTINE XLVM3(LX1,LX2,LX,NX,A1,A2) SUBROUTINE LVM3(DX1,VX2,DX,NX,A1,A2)
+Explanation DX(IX):=A2*DX(IX)+A1*DX1(IX)*DX2(IX), VX(IX):=A2*VX(IX)+A1*VX1(IX)*VX2(IX), or DX(IX):=A2*DX(IX)+A1*DX1(IX)*VX2(IX), respectively. Implemented using the Blas routines DAXPY and SAXPY, respectively.
+
+3.2 FEAT2D Subprograms – Group L
+
+63
+
+2. Matrix-vector operations
+
+The subroutines of this subgroup form matrix-vector products of a given matrix or its transpose and a given vector. A linear combination of the result of this operation and the preceding contents of the output vector is returned to the calling routine. Versions for DOUBLE and SINGLE precision are provided and also the mixed type, DOUBLE PRECISION vectors, REAL matrix, is supported.
+Names of the subprograms
+The names of the programs in this subgroup have the form LcXns or LWSns. Here, the character c stands for A in subprograms forming the matrix-vector product A*X, and for T if the transpose of the matrix A is used. n characterizes the data type of the arguments, namely
+
+1 DOUBLE PRECISION matrix, DOUBLE PRECISION vectors, 2 REAL matrix, REAL vectors, 3 REAL matrix, DOUBLE PRECISION vectors.
+
+The ﬁnal character s is used to reference the storage technique for the matrix, see Section 1.6. For all subprograms in this subgroup there exist corresponding Y-routines, described below.
+
+Parameters Input
+
+DA VA KCOL KLD
+
+R*8 DIMENSION DA(NA) Double precision matrix
+R*4 DIMENSION VA(NA) Single precision matrix
+I*4 DIMENSION KCOL(NA) Pointer vectors (see Section 1.6)
+I*4 DIMENSION KLD(NEQ+1)
+
+KOP I*4 DIMENSION KOP(NEQ)
+
+DX VX NEQ NEQn An
+
+R*8 DIMENSION DX(NX) Double precision input vector
+R*4 DIMENSION VX(NX) Single precision input vector
+I*4 Number of equations = number of rows in the matrix A I*4 n=1,2
+Length of DX (VX) and DTX (VTX) resp. (for routines LcXn9 only) R*8 n=1,2
+Scalars for linear combination, see below
+
+Output
+
+DAX R*8 DAX:=A1*DA*DX+A2*DAX (Double precision version) DAX:=A1*VA*DX+A2*DAX (Mixed precision version)
+
+64
+
+Description of the Subprograms
+
+VAX R*4 VAX:=A1*VA*VX+A2*VAX (Single precision version) DTX R*8 DTX:=A1*DA(T)*DX+A2*DTX (Double precision version)
+DTX:=A1*VA(T)*DX+A2*DTX (Mixed precision version) VTX R*4 VTX:=A1*VA(T)*VX+A2*VTX (Single precision version)
+Here, DA(T) and VA(T) denote the transpose of the matrix.
+Subroutines forming the matrix vector product A · x
+SUBROUTINE LAX13(DA,KDIA,KDIAS,NDIA,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX14(DA,KDIA,KDIAS,NDIA,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX17(DA,KCOL,KLD,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX18(DA,KCOL,KLD,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX19(DA,KCOL,KLD,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX1A(DA,KCOL,KLD,KOP,NEQ,DX,DAX,A1,A2)
+SUBROUTINE LAX23(VA,KDIA,KDIAS,NDIA,NEQ,VX,VAX,A1,A2) SUBROUTINE LAX24(VA,KDIA,KDIAS,NDIA,NEQ,VX,VAX,A1,A2) SUBROUTINE LAX27(VA,KCOL,KLD,NEQ,VX,VAX,A1,A2) SUBROUTINE LAX28(VA,KCOL,KLD,NEQ,VX,VAX,A1,A2) SUBROUTINE LAX29(VA,KCOL,KLD,NEQ,VX,VAX,A1,A2) SUBROUTINE LAX2A(VA,KCOL,KLD,KOP,NEQ,VX,VAX,A1,A2)
+SUBROUTINE LAX33(VA,KDIA,KDIAS,NDIA,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX34(VA,KDIA,KDIAS,NDIA,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX37(VA,KCOL,KLD,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX38(VA,KCOL,KLD,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX39(VA,KCOL,KLD,NEQ,DX,DAX,A1,A2) SUBROUTINE LAX3A(VA,KCOL,KLD,KOP,NEQ,DX,DAX,A1,A2)
+Subroutines forming the matrix vector product AT · x
+SUBROUTINE LTX13(DA,KDIA,KDIAS,NDIA,NEQ,DX,DTX,A1,A2) SUBROUTINE LTX17(DA,KCOL,KLD,NEQ,DX,DTX,A1,A2) SUBROUTINE LTX19(DA,KCOL,KLD,NEQ1,NEQ2,DX,DTX,A1,A2) SUBROUTINE LTX1A(DA,KCOL,KLD,KOP,NEQ,DX,DTX,A1,A2)
+SUBROUTINE LTX23(VA,KDIA,KDIAS,NDIA,NEQ,VX,VTX,A1,A2) SUBROUTINE LTX27(VA,KCOL,KLD,NEQ,VX,VTX,A1,A2) SUBROUTINE LTX29(VA,KCOL,KLD,NEQ1,NEQ2,VX,VTX,A1,A2) SUBROUTINE LTX2A(VA,KCOL,KLD,KOP,NEQ,VX,VTX,A1,A2)
+SUBROUTINE LTX33(VA,KDIA,KDIAS,NDIA,NEQ,DX,DTX,A1,A2) SUBROUTINE LTX37(VA,KCOL,KLD,NEQ,DX,DTX,A1,A2) SUBROUTINE LTX39(VA,KCOL,KLD,NEQ1,NEQ2,DX,DTX,A1,A2) SUBROUTINE LTX3A(VA,KCOL,KLD,KOP,NEQ,DX,DTX,A1,A2)
+Subroutines forming the weighted scalar product of two vectors (A · x, y)
+
+3.2 FEAT2D Subprograms – Group L
+
+65
+
+SUBROUTINE LWS13(DA,KDIA,KDIAS,NDIA,DX,DY,NX,SP) SUBROUTINE LWS14(DA,KDIA,KDIAS,NDIA,DX,DY,NX,SP) SUBROUTINE LWS17(DA,KCOL,KLD,DX,DY,NX,SP) SUBROUTINE LWS18(DA,KCOL,KLD,DX,DY,NX,SP) SUBROUTINE LWS1A(DA,KCOL,KLD,KOP,DX,DY,NX,SP)
+SUBROUTINE LWS23(VA,KDIA,KDIAS,NDIA,VX,VY,NX,SP) SUBROUTINE LWS24(VA,KDIA,KDIAS,NDIA,VX,VY,NX,SP) SUBROUTINE LWS27(VA,KCOL,KLD,VX,VY,NX,SP) SUBROUTINE LWS28(VA,KCOL,KLD,VX,VY,NX,SP) SUBROUTINE LWS2A(VA,KCOL,KLD,KOP,VX,VY,NX,SP)
+SUBROUTINE LWS33(VA,KDIA,KDIAS,NDIA,DX,DY,NX,SP) SUBROUTINE LWS34(VA,KDIA,KDIAS,NDIA,DX,DY,NX,SP) SUBROUTINE LWS37(VA,KCOL,KLD,DX,DY,NX,SP) SUBROUTINE LWS38(VA,KCOL,KLD,DX,DY,NX,SP) SUBROUTINE LWS3A(VA,KCOL,KLD,KOP,DX,DY,NX,SP)
+
+Y-routines
+Y-routines
+The subprograms of this subgroup are mainly used during the iterative solution of linear systems of equations in eigenvalue problems. Frequently one writes these algorithms in an abstract form which requires a routine that returns the result of the matrix vector product whereas the matrix itself is not explicitly needed, e.g. in the conjugate gradient algorithm and in the Lanczos procedure.
+For this purpose, subprograms with a normalized parameter list are provided which result in the vector DAX or VAX in the form described above (see Section 3.2 for calling conventions and the use of COMMON /XYPAR/). The letter n, again, stands for n=1,3.
+Names and parameter lists of the Y-routines
+SUBROUTINE YLAXn3(DX,DAX,NEQ,A1,A2) SUBROUTINE YLAXn4(DX,DAX,NEQ,A1,A2) SUBROUTINE YLAXn7(DX,DAX,NEQ,A1,A2) SUBROUTINE YLAXn8(DX,DAX,NEQ,A1,A2) SUBROUTINE YLAXn9(DX,DAX,NEQ,A1,A2) SUBROUTINE YLAXnA(DX,DAX,NEQ,A1,A2)
+SUBROUTINE YLAX23(VX,VAX,NEQ,A1,A2) SUBROUTINE YLAX24(VX,VAX,NEQ,A1,A2) SUBROUTINE YLAX27(VX,VAX,NEQ,A1,A2) SUBROUTINE YLAX28(VX,VAX,NEQ,A1,A2) SUBROUTINE YLAX29(VX,VAX,NEQ,A1,A2) SUBROUTINE YLAX2A(VX,VAX,NEQ,A1,A2)
+
+66
+
+Description of the Subprograms
+
+SUBROUTINE YLTXn3(DX,DAX,NEQ,A1,A2) SUBROUTINE YLTXn7(DX,DAX,NEQ,A1,A2) SUBROUTINE YLTXn9(DX,DAX,NEQ,A1,A2) SUBROUTINE YLTXnA(DX,DAX,NEQ,A1,A2)
+SUBROUTINE YLTX23(VX,VAX,NEQ,A1,A2) SUBROUTINE YLTX27(VX,VAX,NEQ,A1,A2) SUBROUTINE YLTX29(VX,VAX,NEQ,A1,A2) SUBROUTINE YLTX2A(VX,VAX,NEQ,A1,A2)
+
+3.2 FEAT2D Subprograms – Group M
+
+67
+
+Group M – Multigrid components
+In this subsection we describe subprograms intended to speed up the solution procedure of the linear or nonlinear systems resulting from the discretization by multigrid techniques. The reader is assumed to be familiar with the basic multigrid notation such as smoothing iterations, prolongation, restriction, etc. In the present release only subprograms to handle standard coarsening are contained. Also only a driver for standard V-, W-, and F-cycles is provided. Drivers for nested iteration, additional step length control, nonlinear multigrid methods, etc. will be provided in the forthcoming release.
+We not only give a description of the subprograms in group M but also the relatedX- and Y- routines, as well as the multigrid related COMMON-blocks. Several additional Y-routines have to be provided by the user for implementing a multigrid algorithm which are not part of the FEAT2D-package.
+First, we recall the list of the multigrid related COMMON-blocks, see also section (1.5). The ﬁrst two of them contain the mesh information for all levels in full correspondence with the blocks /TRIAD/ and /TRIAA/. The parameters in the remaining blocks are described below.
+Parameters in COMMON blocks (see Section 1.5)
+
+PARAMETER (NNLEV=9)
+
+COMMON /MGTRD/ KNEL(NNLEV),KNVT(NNLEV),KNMT(NNLEV),
+
+*
+
+KNVEL(NNLEV),KNVBD(NNLEV)
+
+COMMON /MGTRA/ KLCVG(NNLEV),KLCMG(NNLEV),KLVERT(NNLEV),
+
+*
+
+KLMID(NNLEV),KLADJ(NNLEV),KLVEL(NNLEV),
+
+*
+
+KLMEL(NNLEV),KLNPR(NNLEV),KLMM(NNLEV),
+
+*
+
+KLVBD(NNLEV),KLEBD(NNLEV),KLBCT(NNLEV),
+
+*
+
+KLVBDP(NNLEV),KLMBDP(NNLEV)
+
+COMMON /MGPAR/ ILEV,NLEV,NLMIN,NLMAX,
+
+*
+
+ICYCLE,KPRSM(NNLEV),KPOSM(NNLEV)
+
+COMMON /MGTIME/ TTMG,TTS,TTE,TTD,TTP,TTR,IMTIME
+
+Input
+
+ILEV NLEV NLMIN NLMAX NLMAX
+
+Number of currently active level
+Total number of mesh levels
+Minimum and maximum level used for the
+multigrid iteration, NLMIN need not be 1.
+Cycle type 0 F-Cycle 1 V-Cycle 2 W-Cycle 3 higher order (rarely used)
+
+68
+
+Description of the Subprograms
+
+KPRSM Number of presmoothing steps for all levels
+KPOSM Number of postsmoothing steps for all levels
+IMTIME >0 CPU-time measured (separately for all multigrid components) =1 CPU-time reset at start of multigrid iteration
+
+Output
+
+TTMG TTS TTE TTD TTP TTR
+
+Total time for multigrid iterations Time for smoothing iterations Time for ”exact” coarse grid solver Time for defect evaluation Time for prolongation Time for restriction
+
+Multilevel mesh generation
+The standard hierarchy of meshes (standard reﬁnement h′ = h/2) is generated by successive calls of the mesh reﬁnement routines SA0, SB0, etc.
+
+SUBROUTINE XMSA0(IMID,IADJ,IVEL,IDISP,IBDP,
+
+*
+
+S2DI,S2DB,PARX,PARY,TMAX)
+
+SUBROUTINE XMSB0(IMID,IADJ,IVEL,IDISP,IBDP,
+
+*
+
+S2DI,S2DB,PARX,PARY,TMAX)
+
+SUBROUTINE XMSB1(NFINE,IMID,IADJ,IVEL,IDISP,IBDP,
+
+*
+
+MFILE,CFILE,IFMT,PARX,PARY,TMAX)
+
+SUBROUTINE XMSCL
+
+Explanation The routines XMSA0,XMSB0,XMSB1 generate a sequence of NLEV meshes by successive standard reﬁnement. The arguments are as described in section S.
+The routine XMSCL (without arguments) resets the COMMON-blocks /MGTRA/ and /MGTRD/ (analogue of XSCL).
+
+Multilevel problem generation
+The following routines are used to generate the ﬁnite element matrices and right hand sides used during the multigrid iteration for all levels NLMIN to NLMAX, i.e. for the levels employed during the iteration. Usually, the matrix and right side in the ﬁnest level correspond to the original discretization scheme. The names of the subprograms are self-explaining as XMxxxx
+
+3.2 FEAT2D Subprograms – Group M
+
+69
+
+means multiple call of Xxxxx. The parameters KLA, KLCOL, etc., contain the numbers of the arrays and the corresponding pointer vectors for all levels. For all remaining parameters see section A and section V, respectively. Notice that the routines XMVxx usually are needed for nonlinear multigrid iterations and are provided in the current release for compatibility with future versions only, see also the multigrid example in the Appendix.
+
+SUBROUTINE XMAP3 (KLDIA,KLDIAS,KNDIA,KNA,KNEQ,ELE,ISYMM)
+
+SUBROUTINE XMAP7 (KLCOL,KLLD,KNA,KNEQ,ELE,ISYMM)
+
+SUBROUTINE XMAA03(KLA,KLDIA,KLDIAS,KNDIA,KNA,KNEQ,NBLOC,ICLEAR,
+
+*
+
+ELE,COEFF,BCON,KAB,KABN,ICUB,ISYMM,CARR,BSNGL)
+
+SUBROUTINE XMAA07(KLA,KLCOL,KLLD,KNA,KNEQ,NBLOC,ICLEAR,ELE,
+
+*
+
+COEFF,BCON,KAB,KABN,ICUB,ISYMM,CARR,BSNGL)
+
+SUBROUTINE XMAB03(KLA,KLDIA,KLDIAS,KNDIA,KNA,KNEQ,NBLOC,ICLEAR,
+
+*
+
+ELE,COEFF,BCON,KAB,KABN,ICUB,ISYMM,CARR,BSNGL)
+
+SUBROUTINE XMAB07(KLA,KLCOL,KLLD,KNA,KNEQ,NBLOC,ICLEAR,ELE,
+
+*
+
+COEFF,BCON,KAB,KABN,ICUB,ISYMM,CARR,BSNGL)
+
+SUBROUTINE XMVA0 (KLB,KNEQ,NBLOC,ICLEAR,ELE,
+
+*
+
+COEFF,BCON,KB,KBN,ICUB,CARR,BSNGL)
+
+SUBROUTINE XMVA1 (KLB,KNEQ,NBLOC,ICLEAR,TMAX,DPAR1,DPAR2,IBCT,
+
+*
+
+ELE,COEFF,BCON,KB,KBN,ICUB,CARR,BSNGL)
+
+SUBROUTINE XMVB0 (KLB,KNEQ,NBLOC,ICLEAR,ELE,
+
+*
+
+COEFF,BCON,KB,KBN,ICUB,CARR,BSNGL)
+
+SUBROUTINE XMVB1 (KLB,KNEQ,NBLOC,ICLEAR,TMAX,DPAR1,DPAR2,IBCT,
+
+*
+
+ELE,COEFF,BCON,KB,KBN,ICUB,CARR,BSNGL)
+
+Multilevel drivers
+The standard multigrid driver for the F-, V-, and W-cycle is provided by the subprogram M010, and is invoked by the X- routines XM010 or XM017. The functionality of the control parameters (e.g. the stopping criterion) is kept compatible with that for the iterative solvers described in section I. For the description of the parameters let NEQM denote the sum of all numbers of unknowns for the levels NLMIN through NLMAX.
+
+SUBROUTINE M010 (DX,DB,DD,KOFFX,KOFFB,KOFFD,KNEQ,NIT,ITE,EPS,
+
+*
+
+DAX,DPROL,DREST,DPRSM,DPOSM,DEX,DBC,KIT0,KIT,IREL)
+
+Parameters Input
+
+DX R*8 DB R*8 DD R*8
+KOFFX I*4 KOFFB I*4 KOFFD I*4
+
+DIMENSION DX(*) DIMENSION DB(*) DIMENSION DD(*) Starting addresses of vectors containing the solution and the right hand side, DD is used as auxiliary vector only DIMENSION KOFFX(NLEV) DIMENSION KOFFB(NLEV) DIMENSION KOFFD(NLEV)
+
+70
+
+Description of the Subprograms
+
+KOFFD I*4
+KNEQ I*4 NLMAX I*4 NLMIN I*4 NIT I*4
+EPS R*8
+KPRSM I*4 KPOSM I*4 ICYCLE I*4
+DAX SUBR DPROL SUBR DREST SUBR DPRSM SUBR
+DPOSM SUBR DEX SUBR DBC SUBR KIT0 I*4 KIT I*4
+
+The actual starting address of DX on level ILEV is DX(1+KOFFX(ILEV)) (analogously for DB and DD) Total space required for all vectors is NEQM DX(1+KOFFX(NLMAX)) contains initial solution, DB(1+KOFFB(NLMAX)) contains right hand side Number of equations for all levels Iteration uses levels NLMIN through NLMAX NLMAX is the ﬁnest level Maximum number of iterations One iteration is considered as completed after reaching the ﬁnest level again Desired precision IREL=0: Stop if !!RES!! < EPS IREL=1: Stop if !!RES!!/!!RES0!! < EPS and a minimum of ITE iterations is performed Number of pre-smoothing steps for all levels Number of post-smoothing steps for all levels <0: special cycle types (not yet implemented) =0: F-Cycle =1: V-Cycle =2: W-Cycle >2: Cycle of higher order
+DAX(DX,DAX,NEQ,A1,A2)
+Returns DAX := A1*A*DX+A2*DAX
+DPROL(DX1,DX2)
+Returns DX2 := Prolongation(DX1) to higher level
+DREST(DD1,DD2)
+Returns DD2 := Restriction(DD1) to lower level
+DPRSM(DX,DB,DD,NEQ,NPRSM)
+Returns DX after NPRSM:=KPRSM(ILEV) pre-smoothing steps DD can be used as auxiliary vector Same as above, used for post-smoothing DEX(DX,DB,DD,NEQ) Returns ”exact” solution DBC(DX,NEQ) Copies boundary data onto components of DX auxiliary vectors of length NLMAX
+
+Output
+
+DX
+
+R*8 Solution vector on DX(1+KOFFX(NLMAX))
+
+ITE I*4 Number of iterations
+
+IER I*4 Error indicator
+
+SUBROUTINE XM017(KLA,KLCOL,KLLD,LX,LB,KNEQ,NIT,ITE,
+
+*
+
+EPS,YAX,YPROL,YREST,YPRSM,YPOSM,YEX,YBC,IDISP)
+
+SUBROUTINE XM010(LX,LB,KNEQ,NIT,ITE,EPS,
+
+*
+
+YAX,YPROL,YREST,YPRSM,YPOSM,YEX,YBC,IDISP,IREL)
+
+Parameters Input
+
+3.2 FEAT2D Subprograms – Group M
+
+71
+
+KLA I*4 KLCOL I*4 KLLD I*4 LX I*4 LB I*4
+
+Numbers of arrays for all levels Numbers pointer vectors for all levels see description of storage technique 7 Number of solution vector (ﬁnest level) Number of right hand side (ﬁnest level)
+
+Output
+
+IER I*4 Error indicator
+
+The Y-routines in the parameter lists are dummy names for the EXTERNAL-routines realizing DAX, DPROL, DREST, DPRSM, DPOSM, DEX, and DBC, described above.
+
+Explanation
+XM017 stores the numbers for the arrays and pointer vectors in KLA and the other array descriptors onto KXYPAR(100+I), I>=0) in order to cooperate with the standard Y-routines, described below. Then XM010 is called. XM010 provides the workspace vectors for all lower levels, and stores the oﬀsets with respect to the starting address on DWORK(1) onto the oﬀset vectors KOFFX, etc. Then the standard driver M010 is invoked.
+
+Prolongations - restrictions
+In the present version only standard prolongations and restrictions for the simplest ﬁnite elements are provided, namely piecewise linear and piecewise bilinear elements (E001 and E011). The names of the routines in group M are MPsnn and MRsnn, respectively. Here, P stands for prologation and R stands for restriction. The number s refers to the reﬁnement procedure, e.g. SA0 or SA1, and, thus, to the numbering scheme for vertices and midpoints of edges. Finally, nn is the number of the element.
+SUBROUTINE MP001(DU1,DU2,KVERT1,KVERT2,KADJ1,NVT1,NEL1) SUBROUTINE MP011(DU1,DU2,KVERT1,KVERT2,KADJ1,KADJ2,NVT1,NEL1) SUBROUTINE MP111(DU1,DU2,NEL1,KVERT1,KVERT2,KMAVT,KMAADJ,KMAVE) SUBROUTINE MR001(DU2,DU1,KVERT2,KADJ2,NVT1,NEL2,NEL1) SUBROUTINE MR011(DU2,DU1,KVERT2,KADJ2,NVT1,NEL2) SUBROUTINE MR111(DU2,DU1,NEL1,KVERT2,KVERT1,KMAVT,KMAADJ,KMAVE)
+Explanation The routines assume standard coarsening or standard reﬁnement, respectively. The prolongation programs return a ﬁne grid vector DU2 from a coarse grid vector DU1. Analogously, the restriction routines calculate a coarse grid vector DU1. Also in the names of the remaining parameters, 1 stands for coarse grid information and 2 stands for ﬁne grid information. All other characters in the remaining parameter names correspond to the mesh information as described in section S.
+
+Y-routines for prolongations and restrictions The subprograms MPsnn and MRsnn are invoked via the Y-routines listed below.
+
+72
+
+Description of the Subprograms
+
+SUBROUTINE YMP001(DX1,DX2) SUBROUTINE YMP011(DX1,DX2) SUBROUTINE YMP111(DX1,DX2) SUBROUTINE YMR001(DX2,DX1) SUBROUTINE YMR011(DX2,DX1) SUBROUTINE YMR111(DX2,DX1)
+Explanation These subprogram names are passed as EXTERNAL arguments to the driver routines XM017 or XM010. Again, DX2 denotes a ﬁne grid vector and DX1 is a coarse grid vector. The Y-routines obtain the information about the current level ILEV on COMMON /MGPAR/ and the mesh information on /MGTRD/ and MGTRA.
+
+Multilevel I/O
+The routines listed in this subsection are the multilevel analogues of the I/O-subprograms XOWS, XORS, and XGOWSM.
+
+SUBROUTINE XMOWS (MFILE,CCFILE,IFMT) SUBROUTINE XMORS (MFILE,CCFILE,IFMT) SUBROUTINE XGMOWS(MFILE,CCFILE)
+
+Parameters Input
+
+MFILE I*4 CCFILE C** IFMT I*4
+
+Output unit DIMENSION CCFILE(NLEV) Output ﬁle names for all levels = 1 Formatted I/O = 0 Unformatted I/O
+
+Explanation
+The routines XMOWS, XMORS write or read mesh information for all levels to/ from ﬁles in FEAT2D-format. XGMOWS writes the (restricted) mesh information needed for graphical representation in MOVIE.BYU-format.
+
+3.2 FEAT2D Subprograms – Group N
+
+73
+
+Group N – Auxiliary routines for global and local numbers of d.o.f.
+The functions and subroutines are used as auxiliary routines, e.g., during the assembly of element and global stiﬀness matrices. They return information about the local and global size of the problem depending on the data of the triangulation and on the type of element in use. The dimensions of the arrays describing the subdivision are passed in COMMON /TRIAD/.
+Parameters in COMMON blocks
+
+COMMON /TRIAD/ NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD
+
+List of available subprograms
+
+INTEGER FUNCTION NDFL(IELTYP) INTEGER FUNCTION NDFG(IELTYP) SUBROUTINE NDFGL(IEL,IPAR,IELTYP,KVERT,KMID,KDFG,KDFL)
+
+The ﬁrst two routines return the number of d.o.f. on each element (Local) and on the whole domain (Global), depending on the element number IELTYP. The correspondence of local and global d.o.f.s on element IEL of the triangulation is calculated by NDFGL.
+
+Parameters Input
+
+IEL I*4 IPAR I*4 IELTYP I*4 KVERT I*4
+KMID I*4
+
+Number of current element of the triangulation Switch - controls output on KDFG and KDFL (see below) Number of element DIMENSION KVERT(NNVE,NEL) Numbers of vertices of each element DIMENSION KMID(NNVE,NEL) Numbers of midpoints of edges, if necessary
+
+Output
+
+KDFG KDFL
+
+I*4 DIMENSION KDFG(NNBAS) Global degrees of freedom on element IEL KDFG is sorted if IPAR >= 0
+I*4 DIMENSION KDFL(NNBAS) Local degrees of freedom corresponding to KDFG, KDFL is determined only if IPAR = 1
+
+74
+
+Description of the Subprograms
+
+Group O – Input/Output
+The programs of group O are used for Input/Output. The ﬁrst subgroup contains routines that are used for protocol and error messages and for subprogram tracing. These subprograms are only active if the I/O ﬁles MERR, MPRT, MSYS, and MTRC, as well as the message ﬁle FEAT.MSG have been successively opened by the program ZINIT. The second subgroup deals with normalized I/O for single arrays. The subroutines in subgroup 3 use the I/O routines in subgroup 2 to read and write the information of a whole subdivision of the domain in normalized form.
+
+Subgroup 1 – Messages
+
+Parameters Input
+
+IER I*4 IMSG I*4 SUB C*6 VER C*8
+
+Number of error message (routine OERR) Number of protocol message (routine OMSG) Number of calling routine Date of version of calling routine mm/dd/yy (routine OTRC)
+
+SUBROUTINE OERR(IER,SUB)
+Invoked by WERR to write error messages to unit MERR. Formats for messages are contained in the message ﬁle FEAT.MSG , parameters are passed in CPARAM in COMMON block /CHAR/ .
+SUBROUTINE OMSG(IMSG,SUB)
+Used to display protocol or system messages on unit MPRT and MSYS, respectively. Formats for messages are contained in the message ﬁle FEAT.MSG, parameters are passed in CPARAM in COMMON block /CHAR/ .
+SUBROUTINE OTRC(SUB,VER)
+Writes the name and the date of the version of subprograms to unit MTRC. Tracing occurs only if ICHECK in COMMON block /ERRCTL/ is set to the values 997, 998, or 999. For ICHECK=999 even elementary auxiliary subroutines are traced, for ICHECK=997 only higher level subprograms.
+
+Subgroup 2 – Input/Output of arrays This subgroup is used to save or read single arrays of diﬀerent data types.
+
+3.2 FEAT2D Subprograms – Group O
+
+75
+
+Names of the subprograms
+The subprogram names are of the form XOaA and XOaS, for routines performing I/O for arrays on the workspace and OaAt for programs that directly obtain the address of the array as input. Here, t denotes the data type
+1 DOUBLE PRECISION , 2 REAL , 3 INTEGER ,
+and a stands for the desired action,
+W for writing, R for reading.
+Further, the program OF0 is used to open an I/O ﬁle, either directly by the user or implicitly by the programs XORA and XOWA. The O-routines assume that the I/O ﬁle is already open. The ﬁles may either be written FORMATTED or UNFORMATTED, depending on the parameter IFMT. For formatted writing the current FORMAT in FMT(t) is used, for input the FORMAT stored on the input ﬁle is used. The array FMT of type CHARACTER is contained in COMMON /CHAR/. An array is written to or read from a ﬁle in the following form.
+
+1. Formatted I/O
+Record 1
+ARR, CFORM, ITYPE, ILEN
+written in FORMAT (2A10,2I10), where ARR is the array name (see above), CFORM is the FORMAT for the subsequent data, ITYPE=1, 2, or 3 is the data type, and ILEN is the number of elements of array ARR. The following records contain the elements of the array in FORMAT CFORM.
+
+2. Unformatted I/O
+Record 1
+ARR, ITYPE, ILEN, ILEN8, IRECL8
+written FORMAT free, where ARR is the array name (see above), ITYPE=1,2, or 3 is the data type, ILEN is the number of elements of array ARR, and ILEN8 is the number of DOUBLE PRECISION storage locations needed for array ARR.
+
+76
+
+Description of the Subprograms
+
+The maximum record length is determined by the value IRECL8 in COMMON /OUTPUT/ which is set during initialization to a machine dependent value (IRECL8=512 by default). With this information arrays can be read in exactly as they were written. The following records contain the elements of the array FORMAT free.
+
+Parameters Input
+
+MFILE I*4 CFILE C**
+IFMT I*4
+ARR C*6
+
+Number of I/O unit Name of I/O ﬁle For CFILE.EQ.’SCRATCH’ an unnamed scratch ﬁle is used =1 Formatted I/O =0 Unformatted I/O Name of array read from or written to unit MFILE
+
+Output
+
+LNR I*4 ARR C*6 DX R*8 VX R*4 KX I*4 CFILE C** IFMT I*4
+
+Number of array (for X-routines) Name of array, for messages only
+Arrays to be read from or written to unit MFILE
+Name of I/O ﬁle =1 Formatted I/O
+
+List of available subprograms
+
+Open I/O ﬁle
+
+SUBROUTINE OF0(MFILE,CFILE,IFMT)
+
+Read array from ﬁle
+
+SUBROUTINE XORA(LNR,ARR,MFILE,CFILE,IFMT) SUBROUTINE ORA1(DX,ARR,MFILE,IFMT) SUBROUTINE ORA2(VX,ARR,MFILE,IFMT) SUBROUTINE ORA3(KX,ARR,MFILE,IFMT)
+
+Write array onto ﬁle
+
+SUBROUTINE XOWA(LNR,ARR,MFILE,CFILE,IFMT) SUBROUTINE OWA1(DX,ARR,MFILE,IFMT) SUBROUTINE OWA2(VX,ARR,MFILE,IFMT) SUBROUTINE OWA3(KX,ARR,MFILE,IFMT)
+
+Notice that no routines of this subgroup rewind the I/O ﬁle.
+
+3.2 FEAT2D Subprograms – Group O
+
+77
+
+3. Input/Output of subdivisions
+This third subgroup serves for storing and reading of whole subdivisions of the domain. The information about dimensions of the arrays describing the triangulation and the numbers for the arrays on DWORK are contained on COMMON /TRIAD/ and /TRIAA/, see Section 1.5. The parameters MFILE, CFILE, and IFMT are used as above.
+Triangulations are usually generated automatically, frequently starting from a coarse initial subdivision. To read coarse mesh information form a ﬁle, the subprogram XORSC is used. The input ﬁle only contains information necessary for the application of the subprograms of group S. For the description of the arrays and parameters see Section 1.5.
+SUBROUTINE XORSC(MFILE,CFILE)
+Contents of the input ﬁle for XORSC:
+* - FORMAT used for input NMT usually is 0.
+Comment line Comment line NEL NVT NMT NVE NBCT Comment line ((DCORVG(IDIM,IVT),IDIM=1,2),IVT=1,NVT) Comment line ((KVERT(IVE,IEL),IVE=1,NVE),IEL=1,NEL) Comment line (KNPR(IVMT),IVMT=1,NVT+NMT) Comment line ((KMM(I,IBCT),I=1,2),IBCT=1,NBCT)
+Example
+Unit cube with a hole – Ω = (0, 1)2 \ [0.3, 0.7]2
+The following programs are used to read and write complete subvisions generated by one or more of the subprograms of group S. XOWS checks which of the arrays describing a triangulation are really generated and, of course, only these ﬁles are stored. Similarly, XORS reads the information about dimensions, allocates all necessary arrays on the workspace and reads the contents of the arrays from the I/O ﬁle. Again, formatted or format-free I/O may be used.
+Notice that XORS and XOWS do not rewind the ﬁle.
+SUBROUTINE XORS(MFILE,CFILE,IFMT) SUBROUTINE XOWS(MFILE,CFILE,IFMT)
+
+78
+
+Description of the Subprograms
+
+Group R – Reorganization
+The subprograms of group R are intended to rearrange a given data structure. For example, the storage technique may be changed or the vertices of a subvision may be ordered with respect to certain criteria. A particular application is the compression (=deletion of zero entries) of matrices after the implementation of boundary conditions.
+
+Subgroup RC – compression of matrices
+
+Names of the subprograms The subprogram names are of the form RCns, where n stands for the data type,
+
+1 DOUBLE PRECISION , 2 REAL ,
+
+and s refers to the storage technique.
+
+All of the subprograms deal with block matrices. In the X-routines the numbers of all NBLOC matrices are passed in LA(NBLOC), in the R-routines only one starting address is given, DA(1) or VA(1), and the oﬀsets relative to the starting address in KOFF(NBLOC). If at a certain position the entries of all block matrices possess a modulus below a given tolerance TOL, the entries are removed and the common pointer vectors are updated.
+
+Parameters Input
+
+LA I*4
+KLD I*4
+KDIAS I*4
+NEQ I*4 NBLOC I*4 TOL R*8 IDISP I*4
+ARR1 C*6
+ARR2 C*6
+
+DIMENSION LA(NBLOC) Numbers of block matrices DIMENSION KLD(NEQ+1) Pointer to start of rows DIMENSION KDIAS(NDIA+1) Pointer to start of diagonal rows Number of equations Number of block matrices Entries are deleted if modulus is less than TOL in all blocks IDISP=1: Free space on DWORK is released after compression (used in X-routines only) DIMENSION ARR1(NBLOC) Names for block matrices in DA (VA) Name for column pointer matrix (KCOL) ARR1 and ARR2 used for messages only
+
+Output
+
+DA R*8 DIMENSION DA(NA) Double precision matrix
+VA R*4 DIMENSION VA(NA) Single precision matrix
+
+3.2 FEAT2D Subprograms – Group R
+
+79
+
+KCOL I*4 KDIA I*4 KDIAS I*4 NDIA I*4 NA I*4
+
+DIMENSION KCOL(NA) Column pointer DIMENSION KDIA(NDIA) Diagonal oﬀset pointer DIMENSION KDIAS(NDIA+1) Pointer to start of diagonal rows Number of diagonal rows Number of entries in matrix
+
+List of available subprograms
+
+SUBROUTINE XRC13(LA,LDIA,LDIAS,NDIA,NA,NEQ,NBLOC,TOL,IDISP,ARR) SUBROUTINE RC13(DA,KDIA,KDIAS,NDIA,NA,NEQ,NBLOC,KOFF,TOL) SUBROUTINE XRC23(LA,LDIA,LDIAS,NDIA,NA,NEQ,NBLOC,TOL,IDISP,ARR) SUBROUTINE RC23(VA,KDIA,KDIAS,NDIA,NA,NEQ,NBLOC,KOFF,TOL)
+SUBROUTINE XRC17(LA,LCOL,LLD,NA,NEQ,NBLOC,TOL,IDISP,ARR1,ARR2) SUBROUTINE RC17(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,TOL) SUBROUTINE XRC27(LA,LCOL,LLD,NA,NEQ,NBLOC,TOL,IDISP,ARR1,ARR2) SUBROUTINE RC27(VA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,TOL)
+SUBROUTINE XRC19(LA,LCOL,LLD,NA,NEQ,NBLOC,TOL,IDISP,ARR1,ARR2) SUBROUTINE RC19(DA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,TOL) SUBROUTINE XRC29(LA,LCOL,LLD,NA,NEQ,NBLOC,TOL,IDISP,ARR1,ARR2) SUBROUTINE RC29(VA,KCOL,KLD,NA,NEQ,NBLOC,KOFF,TOL)
+
+80
+
+Description of the Subprograms
+
+Group S – Generation of subdivisions
+
+The programs of this group are devoted to the generation and modiﬁcation of subdivisions. Meshes usually are constructed from coarse grids through regular or adaptive mesh reﬁnements. Information about coarse meshes can be read from a data ﬁle using XORSC.
+
+In many applications only the coordinates of the vertices, the numbers of vertices forming each element and the information whether or not a vertex is situated on the boundary is needed. For regular reﬁnement, this information is generated by the central routines SA0 (XSA0), for triangular meshes, and SB0 (XSB0), for quadrilateral meshes. Further information on numbers of midpoints of edges or on the numbers of elements meeting at a vertex is generated (for already reﬁned meshes) by the programs S2M (XS2M) and S2V (XS2V). Finally, the routines SVEB (XSVEB) extract information on the boundary vertices and elements needed for easy handling of boundary conditions.
+
+For a detailed description of the following parameters see Sections 1.4 and 1.5.
+
+Parameters Input
+
+PARX PARY TMAX
+
+FUNC FUNC Parametrization of the domain FUNC
+
+Input/Output
+
+DCORVG R*8 DCORMG R*8 KVERT I*4 KADJ I*4 KMID I*4 KNPR I*4 KMM I*4
+
+DIMENSION DCORVG(2,NVT) Coordinates of vertices DIMENSION DCORMG(2,NVT) Coordinates of midpoints of edges DIMENSION KVERT(NNVE,NEL) Numbers of vertices DIMENSION KADJ(NNVE,NEL) Numbers of adjacent elements DIMENSION KMID(NNVE,NEL) Numbers of edges (midponts) DIMENSION KNPR(NVT+NMT) Nodal properties DIMENSION KMM(2,NBCT) Boundary points with maximum and minimum parameter
+
+Output
+
+KVEL KMEL KVBD KEBD
+
+I*4 DIMENSION KVEL(NVEL,NVT) Numbers of elements meeting at a vertex
+I*4 DIMENSION KMEL(2,NMT) Numbers of elements meeting at an edge
+I*4 DIMENSION KVBD(NVBD) Vertices on the boundary
+I*4 DIMENSION KEBD(NVBD) Elements at the boundary
+
+3.2 FEAT2D Subprograms – Group S
+
+81
+
+KBCT I*4 DIMENSION KBCT(NBCT+1) Pointer vector for KVBD and KEBD
+Parameters in COMMON blocks (see Section 1.5)
+Input/Output
+
+COMMON /TRIAD/ NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD
+
+COMMON /TRIAA/ LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM,
+
+*
+
+LVBD,LEBD,LBCT,LVBDP,LMBDP
+
+Further parameters will be explained together with the speciﬁc routines.
+The central routines XSA0X and XSB0X
+For creating a regularly reﬁned mesh and allocating all arrays on the workspace vector the user may invoke the subprograms XSA0X, for triangular meshes and XSB0X for quadrilaterals. The second letter X denotes that these routines again only invoke the X-routines XSA0, XSB0, XS2M, and XS2V.
+All elements are subdivided into four subelements. For triangular elements, for each edge an interior point is determined by the subdivision programs S2DI, for interior edges, and S2DB, on the boundary. This new point, frequently the midpoint of the edge becomes a new vertex in the reﬁned mesh. The three new points are connnected by lines what divides the triangle into four subelements. The interior element is given the former number of the element, the other three elements obtain the new numbers NEL+1, NEL+2, and NEL+3. Then NEL is increased by 3. New vertices obtain new numbers, starting at NVT+1, old vertices keep their numbers.
+Similarly, for quadrilaterals, all four edges are subdivided and connected. The subelement containing the ”ﬁrst” vertex of the original element keeps the old number, the other three subelements are enumerated as described above. The old vertices keep their number, then the new vertices on edges of the old subdivision and, ﬁnally, the new interior vertices are enumerated. In order to modify the mesh the user may provide subprograms S2DI and S2DB by himself.
+
+S2DI S2DB
+
+SUB S2DI(X1,Y1,X2,Y2,XT,YT) gives the coordinates of the new vertex on the line (X1,Y1)-(X2,Y2)
+SUB S2DB(X1,X2,XT,BMM,IBCT,PARX,PARY,TMAX(IBCT)) gives the parameter of the new boundary vertex on the boundary segment joining the vertices with parameter X1 and X2 BMM=.TRUE. means that X1,X2 are the minimum and maximum parameter on boundary component IBCT
+
+If one chooses the standard EXTERNAL programs
+SUBROUTINE S2DB0(X1,X2,XT,BMM,IBCT,PARX,PARY,TMAX(IBCT)) SUBROUTINE S2DI0(X1,Y1,X2,Y2,XT,YT)
+
+82
+
+Description of the Subprograms
+
+a uniform subdivision using midpoints of edges is constructed.
+
+Parameters Input
+
+NFINE I*4 IMID I*4
+IADJ I*4 IVEL I*4 IDISP I*4 IBDP I*4
+S2DI SUB S2DB SUB
+
+Desired number of regular subdivisions of the given mesh > 0: Determine numbers of midpoints (array KMID) > 1: Determine coordinates of midpoints (array DCORMG) = 1: Determine adjacent elements (KADJ) on ﬁnest mesh = 1: Determine numbers of elements meeting at each vertex (array KVEL) = 1: Release all unused arrays on DWORK on return =-1: Adjust only NVBD and KBCT after completion >=0: Store numbers of boundary vertices on KVBD >=1: Calculate sorted arrays KVBD and KEBD >=2: Store parameter values for boundary vertices (and midpoints) on DVBDP and DMBDP Determination of intermediate points on edges (see above)
+
+SUBROUTINE XSA0X(NFINE,IMID,IADJ,IVEL,IDISP,IBDP,S2DI,S2DB,
+
+*
+
+PARX,PARY,TMAX)
+
+SUBROUTINE XSB0X(NFINE,IMID,IADJ,IVEL,IDISP,IBDP,S2DI,S2DB,
+
+*
+
+PARX,PARY,TMAX)
+
+The following programs are invoked by XSA0X and XSB0X and are not discussed in detail here.
+Generation of uniform subdivision
+
+SUBROUTINE XSA0(NFINE,IDISP,S2DI,S2DB,PARX,PARY,TMAX)
+
+SUBROUTINE SA0 (DCORVG,KVERT,KADJ,KNPR,KMM,
+
+*
+
+NFINE,NNEL,NNVT,S2DI,S2DB,PARX,PARY,TMAX)
+
+SUBROUTINE XSB0(NFINE,IDISP,S2DI,S2DB,PARX,PARY,TMAX)
+
+SUBROUTINE SB0 (DCORVG,KVERT,KADJ,KNPR,KMM,
+
+*
+
+NFINE,NNEL,NNVT,S2DI,S2DB,PARX,PARY,TMAX)
+
+Generation of midpoint information (KMID, DCORMG)
+
+SUBROUTINE XS2M(IMID,IADJ,IDISP,S2DI,S2DB,PARX,PARY,TMAX)
+
+SUBROUTINE S2M (DCORVG,DCORMG,KVERT,KMID,KADJ,KNPR,KMM,
+
+*
+
+IMID,S2DI,S2DB,PARX,PARY,TMAX)
+
+Generation of vertex element connectivity (KVEL)
+
+SUBROUTINE XS2V SUBROUTINE S2V (KVERT,KADJ,KVEL,ICHK)
+
+Generation of adjacent element information (KADJ)
+
+3.2 FEAT2D Subprograms – Group S
+
+83
+
+SUBROUTINE XS2A SUBROUTINE S2A (KVERT,KADJ,KAUX1,KAUX2)
+
+Check of a subdivision
+The programs XS2C and S2C perform elementary consistency checks for a given subdivision. For a list of possible errors see error messages 150 to 163.
+
+SUBROUTINE XS2C(PARX,PARY,TMAX) SUBROUTINE S2C (DCORVG,KVERT,KADJ,KNPR,BADJ,PARX,PARY,TMAX)
+
+Parameters Input
+
+BADJ L*4 .FALSE. means that array KADJ is not available, skip all consistency checks concerning adjacent elements
+
+Information on boundary vertices and elements
+
+The program XSVEB and the invoked subprograms SVEB and SIVB extract information about the vertices on the boundary and, additionally, about the elements adjacent to the boundary of the domain. The information is returned in the arrays KVBD, KEBD, and KBCT (COMMON /TRIAA/), the number of boundary vertices (and elements) in NVBD (COMMON /TRIAD/). For details see Section 1.5. This information can be used to implement boundary conditions very easily.
+
+Parameters Input
+
+IPAR TMAX
+
+I*4 FUNC
+
+-1: Determine number NVBD only 0: Determine vertices at the boundary (KVBD) 1: Sort vertices in KVBD with respect to the parameter in increasing order (within each boundary component) and determine KEBD as above
+
+SUBROUTINE XSVEB(IPAR,TMAX)
+
+84
+
+Description of the Subprograms
+
+Group V – Linear forms
+
+The programs of group V deal with the calculation of linear forms corresponding to integrals
+
+of the form
+
+bi =
+
+cα(x)∂αφi dx ,
+
+Ωα
+
+or
+
+bi =
+
+cα(s)∂αφi ds .
+
+∂Ω α
+
+The notation φi stands for the basis functions of the space of test functions. The conventions in the notation and parameter lists are similar to those of group A for bilinear forms. The structure of the linear form, number of additive terms and abbreviations for the partial derivatives applied to the basis functions is contained in the arrays KB(.,IBLOC) and KBN(IBLOC), for each of the NBLOC block vector separately. The coeﬃcient function is of the form
+
+DOUBLE PRECISION FUNCTION COEFF(X,Y,IA,IBLOC,BFIRST)
+
+cf. group A. Clearly, for linear forms, only one multiindex of derivatives abbreviated by the number IA is passed.
+Names of the subprograms
+The names of the programs are of the form VAv and VBv, where VA. is used for triangular elements and VB. for quadrilaterals. The character v denotes the version,
+
+v=0 for area integrals, v=1 for boundary integrals.
+
+Parameters Input
+
+LB I*4 NEQ I*4 NBLOC I*4 ICLEAR I*4 KOFF I*4
+KVERT I*4 KMID I*4 DCORVG R*8
+
+DIMENSION LB(NBLOC) Handles of block vectors (for X-routines only) Dimension of each block vector Number of block vectors =1 Old entries are set to zero =0 New elements are added to old ones DIMENSION KOFF(NBLOC) Oﬀsets of starting address of vector block IBLOC relative to starting address of ﬁrst block DIMENSION KVERT(NNVE,NEL) Vertices of elements DIMENSION KMID(NNVE,NEL) Numbers of midpoints (edges) of elements, if necessary DIMENSION DCORVG(2,NVT) Coordinates of vertices
+
+3.2 FEAT2D Subprograms – Group V
+
+85
+
+KNPR IBCT KBCT
+KVBD
+
+I*4 DIMENSION KNPR(NVT+NMT) Nodal properties, see Section 1.5
+I*4 Boundary component (for routines VA1 and VB1 only) I*4 DIMENSION KBCT(NBCT+1)
+Additional arrays describing the triangulation, see Section 1.5 (for routines VA1 and VB1 only) I*4 DIMENSION KVBD(NVBD)
+
+KEBD I*4 DIMENSION KEBD(NVBD)
+
+IVBDn I*4
+TMAX FUN DPARn R*8 ELE SUB COEFF FUN BCON L*4
+COECON I*4 KB I*4 KBN I*4 ICUB I*4 ARR C*6 BSNGL B*4
+
+n=1,2 Minimum and maximum index on KVBD as calculated by routine SIVB (for routines VA1 and VB1 only) Maximum parameter of boundary curves (for routines VA1 and VB1 only) n=1,2 Description of the boundary part (for routines XVA1 and XVB1 only) Name of the element subprogram Coeﬃcient function, as described above DIMENSION BCON(NBLOC) BCON(IBLOC).EQ..TRUE. means that block IBLOC has constant coeﬃcients DIMENSION COECON(NNDER,NBLOC) Auxiliary array (for constant coeﬃcients) DIMENSION KB(NNAB,NBLOC) Abbreviations of partial derivatives applied to basis functions DIMENSION KBN(NBLOC) Numbers of additive terms in each linear form Number of cubature formula, see group C DIMENSION ARR(NBLOC) Names of block vectors, for messages only =.TRUE. Change vector type to SINGLE PRECISION
+
+Output
+
+DB R*8 DIMENSION DB(NEQ) Resulting block vector, DOUBLE PRECISION
+VB R*4 DIMENSION VB(NEQ) Resulting block vector, REAL
+
+Parameters in COMMON blocks
+
+PARAMETER (NNCUBP=36)
+
+COMMON /TRIAD/ COMMON /TRIAA/ * COMMON /CUB/
+
+NEL,NVT,NMT,NVE,NVEL,NBCT,NVBD LCORVG,LCORMG,LVERT,LMID,LADJ,LVEL,LMEL,LNPR,LMM, LVBD,LEBD,LBCT,LVBDP,LMBDP DXI(NNCUBP,3),DOMEGA(NNCUBP),NCUBP,ICUBP
+
+Exchange of information with COEFF
+
+86
+
+Description of the Subprograms
+
+COMMON /COAUX1/ KDFG(NNBAS),KDFL(NNBAS),IDFL
+
+List of available subprograms – Triangular elements
+
+SUBROUTINE XVA0(LB,NEQ,NBLOC,ICLEAR,ELE,
+
+*
+
+COEFF,BCON,KB,KBN,ICUB,ARR,BSNGL)
+
+SUBROUTINE VA0(DB,NBLOC,KOFF,KVERT,KMID,DCORVG,KNPR,
+
+*
+
+ELE,COEFF,BCON,COECON,KB,KBN,ICUB)
+
+SUBROUTINE XVA1(LF,NEQ,NBLOC,ICLEAR,TMAX,DPAR1,DPAR2,IBCT,
+
+*
+
+ELE,COEFF,BCON,KB,KBN,ICUB,ARR,BSNGL)
+
+SUBROUTINE VA1(DB,NBLOC,KOFF,KVERT,KMID,DCORVG,KNPR,
+
+*
+
+KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE,COEFF,BCON,COECON,KB,KBN,ICUB)
+
+List of available subprograms – Quadrilateral elements
+
+SUBROUTINE XVB0(LB,NEQ,NBLOC,ICLEAR,ELE,
+
+*
+
+COEFF,BCON,KB,KBN,ICUB,ARR,BSNGL)
+
+SUBROUTINE VB0(DB,NBLOC,KOFF,KVERT,KMID,DCORVG,KNPR,
+
+*
+
+ELE,COEFF,BCON,COECON,KB,KBN,ICUB)
+
+SUBROUTINE XVB1(LF,NEQ,NBLOC,ICLEAR,TMAX,DPAR1,DPAR2,IBCT,
+
+*
+
+ELE,COEFF,BCON,KB,KBN,ICUB,ARR,BSNGL)
+
+SUBROUTINE VB1(DB,NBLOC,KOFF,KVERT,KMID,DCORVG,KNPR,
+
+*
+
+KBCT,IBCT,KVBD,KEBD,IVBD1,IVBD2,
+
+*
+
+ELE,COEFF,BCON,COECON,KB,KBN,ICUB)
+
+3.2 FEAT2D Subprograms – Group W
+
+87
+
+Group W – Error handling
+The programs of group W are intended for handling of errors occurring in FEAT2D subprograms. In particular, they are used to display error messages, to dump the contents of the COMMON block /TABLE/ (see group Z) containing information on the arrays currently allocated on the workspace, or to selectively list the contents of variables and arrays in COMMON blocks. In the present version of FEAT2D only an elementary standard routine is provided.
+SUBROUTINE WERR(IER0,SUB0)
+Parameters Input
+IER0 I*4 Number of error (see ﬁle FEAT.MSG) SUB0 C*6 Name of calling routine
+Explanation
+The error indicator IER0 is copied to IER in COMMON /ERRCTL/ and the error message routine OERR is invoked to display the corresponding error message on unit MERR and/or MTERM. Arguments for the message are passed via CPARAM in COMMON /CHAR/.
+
+Bibliography
+[1] Axelsson, O., Barker, V.A.: Finite Element Solution of Boundary Value Problems, Academic Press, 1984
+[2] Blum, H., Harig, J., Mu¨ller, S.: FEAT, Finite Element Analysis Tools, User Manual, SFB 123 Report 554, Univ. Heidelberg (1990)
+[3] Schwarz, H.R.: Methode der ﬁniten Elemente, Teubner, Stuttgart 1984 [4] Schwarz, H.R.: FORTRAN-Programme zur Methode der ﬁniten Elemente, Teubner,
+Stuttgart 1984
+88
+
+A. List of FEAT2D subprograms
+
+Routine
+AA03 AA07 AA09 AA13 AA17 AA19 AB03 AB07 AB09 AB13 AB17 AB19 AP3 AP7 AP9 CB1 CB2Q CB2T E000 E001 E002 E002A E003 E003A E004 E004A E010 E011 E012 E012A E013 E013A E014 E014A E020
+
+Filename
+AA03.F AA07.F AA09.F AA13.F AA17.F AA19.F AB03.F AB07.F AB09.F AB13.F AB17.F AB19.F AP3.F AP7.F AP9.F CB1.F CB2Q.F CB2T.F E000.F E001.F E002.F E002.F E003.F E003.F E004.F E004.F E010.F E011.F E012.F E012.F E013.F E013.F E014.F E014.F E020.F
+
+Short description
+Bilinear form, dbl./sgl. precision, triangle Bilinear form, dbl./sgl. precision, triangle Bilinear form, dbl./sgl. precision, triangle Bilinear form (bound. int.), dbl./sgl. prec., triangle Bilinear form (bound. int.), dbl./sgl. prec., triangle Bilinear form (bound. int.), dbl./sgl. prec., triangle Bilinear form, double and single precision, quadrilateral Bilinear form, double and single prec., quadrilateral Bilinear form, double and single prec.,quadrilateral Bilinear form (bound. int.), dbl./sgl. prec., quadrilat. Bilinear form (bound. int.), dbl./sgl. prec., quadrilat. Bilinear form (bound. int.), dbl./sgl. prec., quadrilat. Pointer vectors for bilinear forms, stor. techn. 3 Pointer vectors for bilinear forms, stor. techn. 7 Pointer vectors for bilinear forms, stor. techn. 9 1-dimensional quadrature formulas 2-dimensional cubature formulas, quadrilaterals 2-dimensional cubature formulas, triangles Element, constant, triangle Element, linear, triangle Element, quadratic, triangle Auxiliary routine for E002 Element, cubic, Hermite, triangle Auxiliary routine for E003 Element, cubic, Lagrange, triangle Auxiliary routine for E004 Element, constant, quadrilateral Element, bilinear, quadrilateral Element, biquadratic, quadrilateral Auxiliary routine for E012 Element, reduced biquadratic (Serendipity), quadrilateral Auxiliary routine for E013 Element, bicubic, quadrilateral Auxiliary routine for E014 Element, linear nonconforming, triangle
+
+Page
+38 38 38 38 38 38 38 38 38 38 38 38 39 39 39 46 46 46 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48
+
+89
+
+90
+
+List of FEAT2D subprograms
+
+Routine
+E021 E022 E022A E023 E023A E030 E031 E032 E033 E033A E034 E034A E040 E050 E050A E060 E061 EA00 GOWFM GORSM GOWSM I000 IA013 IA017 IA01A IA023 IA027 IA02A IA033 IA037 IA03A IA113 IA117 IA11A IA123 IA127 IA12A IA133 IA137 IA13A IA213 IA217 IA21A
+
+Filename
+E021.F E022.F E022.F E023.F E023.F E030.F E031.F E032.F E033.F E033.F E034.F E034.F E040.F E050.F E050.F E060.F E061.F EA00.F GOWFM.F GORSM.F GOWSM.F I000.F IA01.F IA01.F IA01.F IA02.F IA02.F IA02.F IA03.F IA03.F IA03.F IA11.F IA11.F IA11.F IA12.F IA12.F IA12.F IA13.F IA13.F IA13.F IA21.F IA21.F IA21.F
+
+Short description
+Element, augmented linear (Mini), triangle Element, piecewise linear, triangle Auxiliary routine for E022 Element, augmented quadratic (P2+bulb), triangle Auxiliary routine for E023 Element, rotated bilinear, quadrilateral Element, rotated bilinear, quadrilateral Element, ﬁve node (Han), quadrilateral Element, piecewise bilinear, quadrilateral Auxiliary routine for E033 Element, piecewise constant, quadrilateral Auxiliary routine for E034 Element, cubic bulb, triangle Element, quadratic Morley, triangle Auxiliary routine for E050 Element, linear discontinuous, triangle Element, linear discontinuous, quadrilateral Internal use Write array as Movie.byu function ﬁle Read subdivision in Movie.byu format Write subdivision in Movie.byu format NOP (Dummy subroutine) Jacobi-method, solver, prec. (D/D), stor. techn. 3 Jacobi-method, solver, prec. (D/D), stor. techn. 7 Jacobi-method, solver, prec. (D/D), stor. techn. A Jacobi-method, solver, prec. (S/S), stor. techn. 3 Jacobi-method, solver, prec. (S/S), stor. techn. 7 Jacobi-method, solver, prec. (S/S), stor. techn. A Jacobi-method, solver, prec. (S/D), stor. techn. 3 Jacobi-method, solver, prec. (S/D), stor. techn. 7 Jacobi-method, solver, prec. (S/D), stor. techn. A Jacobi-method, precond., prec. (D/D), stor. techn. 3 Jacobi-method, precond., prec. (D/D), stor. techn. 7 Jacobi-method, precond., prec. (D/D), stor. techn. A Jacobi-method, precond., prec. (S/S), stor. techn. 3 Jacobi-method, precond., prec. (S/S), stor. techn. 7 Jacobi-method, precond., prec. (S/S), stor. techn. A Jacobi-method, precond., prec. (S/D), stor. techn. 3 Jacobi-method, precond., prec. (S/D), stor. techn. 7 Jacobi-method, precond., prec. (S/D), stor. techn. A Jacobi-method, smooth., prec. (D/D), stor. techn. 3 Jacobi-method, smooth., prec. (D/D), stor. techn. 7 Jacobi-method, smooth., prec. (D/D), stor. techn. A
+
+Page
+48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 48 50 50 50 51 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53 53
+
+List of FEAT2D subprograms
+
+91
+
+Routine
+IA223 IA227 IA22A IA233 IA237 IA23A IB017 IB01A IB027 IB02A IB037 IB03A IB217 IB21A IB227 IB22A IB237 IB23A IC017 IC01A IC027 IC02A IC037 IC03A IC217 IC21A IC227 IC22A IC237 IC23A ID117 ID118 ID11A ID127 ID128 ID12A ID137 ID138 ID13A ID217 ID218 ID21A ID227
+
+Filename
+IA22.F IA22.F IA22.F IA23.F IA23.F IA23.F IB01.F IB01.F IB02.F IB02.F IB03.F IB03.F IB21.F IB21.F IB22.F IB22.F IB23.F IB23.F IC01.F IC01.F IC02.F IC02.F IC03.F IC03.F IC21.F IC21.F IC22.F IC22.F IC23.F IC23.F ID11.F ID11.F ID11.F ID12.F ID12.F ID12.F ID13.F ID13.F ID13.F ID21.F ID21.F ID21.F ID22.F
+
+Short description
+Jacobi-method, smooth., prec. (S/S), stor. techn. 3 Jacobi-method, smooth., prec. (S/S), stor. techn. 7 Jacobi-method, smooth., prec. (S/S), stor. techn. A Jacobi-method, smooth., prec. (S/D), stor. techn. 3 Jacobi-method, smooth., prec. (S/D), stor. techn. 7 Jacobi-method, smooth., prec. (S/D), stor. techn. A G-S-method, solver, prec. (D/D), stor. techn. 7 G-S-method, solver, prec. (D/D), stor. techn. A G-S-method, solver, prec. (S/S), stor. techn. 7 G-S-method, solver, prec. (S/S), stor. techn. A G-S-method, solver, prec. (S/D), stor. techn. 7 G-S-method, solver, prec. (S/D), stor. techn. A G-S-method, smooth., prec. (D/D), stor. techn. 7 G-S-method, smooth., prec. (D/D), stor. techn. A G-S-method, smooth., prec. (S/S), stor. techn. 7 G-S-method, smooth., prec. (S/S), stor. techn. A G-S-method, smooth., prec. (S/D), stor. techn. 7 G-S-method, smooth., prec. (S/D), stor. techn. A SOR-method, solver, prec. (D/D), stor. techn. 7 SOR-method, solver, prec. (D/D), stor. techn. A SOR-method, solver, prec. (S/S), stor. techn. 7 SOR-method, solver, prec. (S/S), stor. techn. A SOR-method, solver, prec. (S/D), stor. techn. 7 SOR-method, solver, prec. (S/D), stor. techn. A SOR-method, smooth., prec. (D/D), stor. techn. 7 SOR-method, smooth., prec. (D/D), stor. techn. A SOR-method, smooth., prec. (S/S), stor. techn. 7 SOR-method, smooth., prec. (S/S), stor. techn. A SOR-method, smooth., prec. (S/D), stor. techn. 7 SOR-method, smooth., prec. (S/D), stor. techn. A SSOR-method, precond., prec. (D/D), stor. techn. 7 SSOR-method, precond., prec. (D/D), stor. techn. 8 SSOR-method, precond., prec. (D/D), stor. techn. A SSOR-method, precond., prec. (S/S), stor. techn. 7 SSOR-method, precond., prec. (S/S), stor. techn. 8 SSOR-method, precond., prec. (S/S), stor. techn. A SSOR-method, precond., prec. (S/D), stor. techn. 7 SSOR-method, precond., prec. (S/D), stor. techn. 8 SSOR-method, precond., prec. (S/D), stor. techn. A SSOR-method, smooth., prec. (D/D), stor. techn. 7 SSOR-method, smooth., prec. (D/D), stor. techn. 8 SSOR-method, smooth., prec. (D/D), stor. techn. A SSOR-method, smooth., prec. (S/S), stor. techn. 7
+
+Page
+53 53 53 53 53 53 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 54 55 55 55 55 55 55 55 55 55 55 55 55 55
+
+92
+
+List of FEAT2D subprograms
+
+Routine
+ID228 ID22A ID237 ID238 ID23A IE010 IE013 IE014 IE017 IE018 IE01A IE020 IE023 IE024 IE027 IE028 IE02A IE033 IE034 IE037 IE038 IE03A IE210 IE217 IE218 IE21A IE220 IE227 IE228 IE22A IE237 IE238 IE23A IE310 IE313 IE314 IE317 IE318 IE31A IE320 IE323 IE324 IE327
+
+Filename
+ID22.F ID22.F ID23.F ID23.F ID23.F IE010.F IE01.F IE01.F IE01.F IE01.F IE01.F IE020.F IE02.F IE02.F IE02.F IE02.F IE02.F IE03.F IE03.F IE03.F IE03.F IE03.F IE210.F IE217.F IE218.F IE21A.F IE220.F IE227.F IE228.F IE22A.F IE237.F IE238.F IE23A.F IE010.F IE01.F IE01.F IE01.F IE01.F IE01.F IE020.F IE02.F IE02.F IE02.F
+
+Short description
+SSOR-method, smooth., prec. (S/S), stor. techn. 8 SSOR-method, smooth., prec. (S/S), stor. techn. A SSOR-method, smooth., prec. (S/D), stor. techn. 7 SSOR-method, smooth., prec. (S/D), stor. techn. 8 SSOR-method, smooth., prec. (S/D), stor. techn. A (preconditioned) CG-method, solver, prec. (D/D) (prec.) CG-method, solver, prec. (D/D), stor. techn. 3 (prec.) CG-method, solver, prec. (D/D), stor. techn. 4 (prec.) CG-method, solver, prec. (D/D), stor. techn. 7 (prec.) CG-method, solver, prec. (D/D), stor. techn. 8 (prec.) CG-method, solver, prec. (D/D), stor. techn. A (preconditioned) CG-method, solver, single prec. (prec.) CG-method, solver, prec. (S/S), stor. techn. 3 (prec.) CG-method, solver, prec. (S/S), stor. techn. 4 (prec.) CG-method, solver, prec. (S/S), stor. techn. 7 (prec.) CG-method, solver, prec. (S/S), stor. techn. 8 (prec.) CG-method, solver, prec. (S/S), stor. techn. A (prec.) CG-method, solver, prec. (S/D), stor. techn. 3 (prec.) CG-method, solver, prec. (S/D), stor. techn. 4 (prec.) CG-method, solver, prec. (S/D), stor. techn. 7 (prec.) CG-method, solver, prec. (S/D), stor. techn. 8 (prec.) CG-method, solver, prec. (S/D), stor. techn. A CG-method, smooth., prec. (D/D) CG-method, smooth., prec. (D/D), stor. techn. 7 CG-method, smooth., prec. (D/D), stor. techn. 8 CG-method, smooth., prec. (D/D), stor. techn. A CG-method, smooth., prec. (S/S) CG-method, smooth., prec. (S/S), stor. techn. 7 CG-method, smooth., prec. (S/S), stor. techn. 8 CG-method, smooth., prec. (S/S), stor. techn. A CG-method, smooth., prec. (S/D), stor. techn. 7 CG-method, smooth., prec. (S/D), stor. techn. 8 CG-method, smooth., prec. (S/D), stor. techn. A (preconditioned) CG-method, solver, prec. (D/D) (prec.) CG-method, solver, prec. (D/D), stor. techn. 3 (prec.) CG-method, solver, prec. (D/D), stor. techn. 4 (prec.) CG-method, solver, prec. (D/D), stor. techn. 7 (prec.) CG-method, solver, prec. (D/D), stor. techn. 8 (prec.) CG-method, solver, prec. (D/D), stor. techn. A (preconditioned) CG-method, solver, single prec. (prec.) CG-method, solver, prec. (S/S), stor. techn. 3 (prec.) CG-method, solver, prec. (S/S), stor. techn. 4 (prec.) CG-method, solver, prec. (S/S), stor. techn. 7
+
+Page
+55 55 55 55 55 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56
+
+List of FEAT2D subprograms
+
+93
+
+Routine
+IE328 IE32A IE333 IE334 IE337 IE338 IE33A IF117 IF127 IF137 IFD17 IFD27 LAX13 LAX14 LAX17 LAX18 LAX19 LAX1A LAX23 LAX24 LAX27 LAX28 LAX29 LAX2A LAX33 LAX34 LAX37 LAX38 LAX39 LAX3A LCL1 LCL2 LCL3 LCP1 LCP2 LCP3 LL21 LL22 LLC1 LLC2 LLI1 LLI2 LSC1
+
+Filename
+IE02.F IE02.F IE03.F IE03.F IE03.F IE03.F IE03.F IF117.F IF127.F IF137.F IFD17.F IFD27.F LAX1.F LAX1.F LAX1.F LAX1.F LAX1.F LAX1.F LAX2.F LAX2.F LAX2.F LAX2.F LAX2.F LAX2.F LAX3.F LAX3.F LAX3.F LAX3.F LAX3.F LAX3.F LCL1.F LCL2.F LCL3.F LCP1.F LCP2.F LCP3.F LL21.F LL22.F LLC1.F LLC2.F LLI1.F LLI2.F LSC1.F
+
+Short description
+(prec.) CG-method, solver, prec. (S/S), stor. techn. 8 (prec.) CG-method, solver, prec. (S/S), stor. techn. A (prec.) CG-method, solver, prec. (S/D), stor. techn. 3 (prec.) CG-method, solver, prec. (S/D), stor. techn. 4 (prec.) CG-method, solver, prec. (S/D), stor. techn. 7 (prec.) CG-method, solver, prec. (S/D), stor. techn. 8 (prec.) CG-method, solver, prec. (S/D), stor. techn. A Prec. by ILU decomp., prec. (D/D), stor. techn. 7 Prec. by ILU decomp., prec. (S/S), stor. techn. 7 Prec. by ILU decomp., prec. (S/D), stor. techn. 7 Calculate ILU decomp., double prec., stor. techn. 7 Calculate ILU decomp., single prec., stor. techn. 7 Matrix-vector-mult., prec. (D/D), stor. techn. 3 Matrix-vector-mult., prec. (D/D), stor. techn. 4 Matrix-vector-mult., prec. (D/D), stor. techn. 7 Matrix-vector-mult., prec. (D/D), stor. techn. 8 Matrix-vector-mult., prec. (D/D), stor. techn. 9 Matrix-vector-mult., prec. (D/D), stor. techn. A Matrix-vector-mult., prec. (S/S), stor. techn. 3 Matrix-vector-mult., prec. (S/S), stor. techn. 4 Matrix-vector-mult., prec. (S/S), stor. techn. 7 Matrix-vector-mult., prec. (S/S), stor. techn. 8 Matrix-vector-mult., prec. (S/S), stor. techn. 9 Matrix-vector-mult., prec. (S/S), stor. techn. A Matrix-vector-mult., prec. (S/D), stor. techn. 3 Matrix-vector-mult., prec. (S/D), stor. techn. 4 Matrix-vector-mult., prec. (S/D), stor. techn. 7 Matrix-vector-mult., prec. (S/D), stor. techn. 8 Matrix-vector-mult., prec. (S/D), stor. techn. 9 Matrix-vector-mult., prec. (S/D), stor. techn. A Clear vector, double precision Clear vector, single precision Clear vector, integer Copy vector, double precision Copy vector, single precision Copy vector, integer l2-norm of vector, double precision l2-norm of vector, single precision Linear combination of two vectors, double precision Linear combination of two vectors, single precision Maximum norm of vector, double precision Maximum norm of vector, single precision Scaling of vector, double precision
+
+Page
+56 56 56 56 56 56 56 57 57 57 57 57 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60
+
+94
+
+List of FEAT2D subprograms
+
+Routine
+LSC2 LSP1 LSP2 LTX13 LTX17 LTX19 LTX1A LTX23 LTX27 LTX29 LTX2A LTX33 LTX37 LTX39 LTX3A LVM1 LVM2 LVM3 LWS13 LWS14 LWS17 LWS18 LWS19 LWS1A LWS23 LWS24 LWS27 LWS28 LWS29 LWS2A LWS33 LWS34 LWS37 LWS38 LWS39 LWS3A M010 MPO01 MPO11 MP111 MRO01 MRO11 MR111
+
+Filename
+LSC2.F LSP1.F LSP2.F LTX1.F LTX1.F LTX1.F LTX1.F LTX2.F LTX2.F LTX2.F LTX2.F LTX3.F LTX3.F LTX3.F LTX3.F LVM.F LVM.F LVM.F LWS1.F LWS1.F LWS1.F LWS1.F LWS1.F LWS1.F LWS2.F LWS2.F LWS2.F LWS2.F LWS2.F LWS2.F LWS3.F LWS3.F LWS3.F LWS3.F LWS3.F LWS3.F MO1O.F MPO.F MPO.F MP1.F MRO.F MRO.F MR1.F
+
+Short description
+Scaling of vector, single precision Scalar product of two vectors, double precision Scalar product of two vectors, single precision Transp. matrix-vector-mult., prec. (D/D), stor. techn. 3 Transp. matrix-vector-mult., prec. (D/D), stor. techn. 7 Transp. matrix-vector-mult., prec. (D/D), stor. techn. 9 Transp. matrix-vector-mult., prec. (D/D), stor. techn. A Transp. matrix-vector-mult., prec. (S/S), stor. techn. 3 Transp. matrix-vector-mult., prec. (S/S), stor. techn. 7 Transp. matrix-vector-mult., prec. (S/S), stor. techn. 9 Transp. matrix-vector-mult., prec. (S/S), stor. techn. A Transp. matrix-vector-mult., prec. (S/D), stor. techn. 3 Transp. matrix-vector-mult., prec. (S/D), stor. techn. 7 Transp. matrix-vector-mult., prec. (S/D), stor. techn. 9 Transp. matrix-vector-mult., prec. (S/D), stor. techn. A Vector multiply and add, double precision Vector multiply and add, single precision Vector multiply and add, mixed precision Weighted scalar product, prec. (D/D), stor. techn. 3 Weighted scalar product, prec. (D/D), stor. techn. 4 Weighted scalar product, prec. (D/D), stor. techn. 7 Weighted scalar product, prec. (D/D), stor. techn. 8 Weighted scalar product, prec. (D/D), stor. techn. 9 Weighted scalar product, prec. (D/D), stor. techn. A Weighted scalar product, prec. (S/S), stor. techn. 3 Weighted scalar product, prec. (S/S), stor. techn. 4 Weighted scalar product, prec. (S/S), stor. techn. 7 Weighted scalar product, prec. (S/S), stor. techn. 8 Weighted scalar product, prec. (S/S), stor. techn. 9 Weighted scalar product, prec. (S/S), stor. techn. A Weighted scalar product, prec. (S/D), stor. techn. 3 Weighted scalar product, prec. (S/D), stor. techn. 4 Weighted scalar product, prec. (S/D), stor. techn. 7 Weighted scalar product, prec. (S/D), stor. techn. 8 Weighted scalar product, prec. (S/D), stor. techn. 9 Weighted scalar product, prec. (S/D), stor. techn. A Multigrid solver, double precision Multigrid prolongation (version 0) Multigrid prolongation (version 0) Multigrid prolongation (version 1) Multigrid restriction (version 0) Multigrid restriction (version 0) Multigrid restriction (version 1)
+
+Page
+60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 67 67 67 67 67 67 67
+
+List of FEAT2D subprograms
+
+95
+
+Routine
+NDFG NDFGL NDFL NGLS OERR OF0 OMSG ORA0 ORA1 ORA2 ORA3 ORSC OTRC OWA0 OWA1 OWA2 OWA3 RC13 RC17 RC19 RC23 RC27 RC29 S2A S2C S2DB0 S2DI0 S2M S2V SA0 SA1
+SB0 SB1
+SBD01 SBD02 SBD03 SBD04 SIVB SMAS SVEB SVEBS
+
+Filename
+NDFG.F NDFGL.F NDFL.F NDFGL.F OERR.F OF0.F OMSG.F XORA.F ORA.F ORA.F ORA.F ORSC.F OTRC.F XOWA.F OWA.F OWA.F OWA.F RC13.F RC17.F RC19.F RC23.F RC27.F RC29.F S2A.F S2C.F S2DB.F S2DI.F S2M.F S2V.F SA0.F SA1.F
+SB0.F SB1.F
+SBD01.F SBD02.F SBD03.F SBD04.F SIVB.F SMAS.F SVEB.F SVEB.F
+
+Short description
+Global number of d.o.f. Relation global-local number of d.o.f. Local numer of d.o.f. Auxiliary routine for NDFGL Write error messages Open ﬁle Write messsages and notes Auxiliary routine for ORAn, XORA Read array (normalized), double precision Read array (normalized), single precision Read array (normalized), integer Read coarse grid Trace programs Auxiliary routine for OWAn, XOWA Write array (normalized), double precision Write array (normalized), single precision Write array (normalized), integer Compress (block) matrices, stor. techn. 3, double prec. Compress (block) matrices, stor. techn. 7, double prec. Compress (block) matrices, stor. techn. 9, double prec. Compress (block) matrices, stor. techn. 3, single prec. Compress (block) matrices, stor. techn. 7, single prec. Compress (block) matrices, stor. techn. 9, single prec. Determination of neighbouring elements Check of subdivision Divide boundary edge Divide interior edge Determination of numbers of midpoints (edges) Determination of relation vertex-element Regular subdivision, triangles Regular subdivision, triangles Each macro subdivided into nﬁne2 triangles Regular subdivision, quadrilaterals Regular subdivision, quadrilaterals Each macro subdivided into nﬁne2 quadrilaterals Auxiliary routines to exchange information on boundary vertices between DCORVG and DVBDP (DMBDP) Replace param. values for bound. vert. by cart. coord. Determination of extremal vertices on the boundary Save information about macrotriangulation Determination of vertices and edges on the boundary Auxiliary routine of SVEB
+
+Page
+73 73 73 73 74 74 74 74 74 74 74 74 74 74 74 74 74 78 78 78 78 78 78 38 80 80 80 80 80 80 80
+80 80
+80 80 80 80 80 80 80 80
+
+96
+
+List of FEAT2D subprograms
+
+Routine
+VA0 VA1 VB0 VB1 WERR XGOWSM XIC017 XIC01A XIC027 XIC02A XIE013 XIE014 XIE017 XIE018 XIE01A XIE023 XIE024 XIE027 XIE028 XIE02A XIE033 XIE034 XIE037 XIE038 XIE03A XIE313 XIE314 XIE317 XIE318 XIE31A XIE323 XIE324 XIE327 XIE328 XIE32A XIE333 XIE334 XIE337 XIE338 XIE33A XM010 XM017 XMAA03
+
+Filename
+VA0.F VA1.F VB0.F VB1.F WERR.F GOWSM.F XIC01.F XIC01.F XIC02.F XIC02.F XIE01.F XIE01.F XIE01.F XIE01.F XIE01.F XIE02.F XIE02.F XIE02.F XIE02.F XIE02.F XIE03.F XIE03.F XIE03.F XIE03.F XIE03.F XIE31.F XIE31.F XIE31.F XIE31.F XIE31.F XIE32.F XIE32.F XIE32.F XIE32.F XIE32.F XIE33.F XIE33.F XIE33.F XIE33.F XIE33.F XM010.F XM017.F XMAA03.F
+
+Short description
+Linear form, dbl./sgl. prec., triangle Linear form (bound. int.), dbl./sgl. prec., triangle Linear form, dbl./sgl. prec., quadrilat. Linear form (bound. int.), dbl./sgl. prec., quadrilat. Basic error handling Write multigrid triang. in Movie.byu format Call IC017 Call IC01A Call IC027 Call IC02A CALL IE010, stor. techn. 3, double prec. CALL IE010, stor. techn. 4, double prec. CALL IE010, stor. techn. 7, double prec. CALL IE010, stor. techn. 8, double prec. CALL IE010, stor. techn. A, double prec. CALL IE020, stor. techn. 3, single prec. CALL IE020, stor. techn. 4, double prec. CALL IE020, stor. techn. 7, double prec. CALL IE020, stor. techn. 8, double prec. CALL IE020, stor. techn. A, double prec. CALL IE010, stor. techn. 3, sgl./dbl. prec. CALL IE010, stor. techn. 4, sgl./dbl. prec. CALL IE010, stor. techn. 7, sgl./dbl. prec. CALL IE010, stor. techn. 8, sgl./dbl. prec. CALL IE010, stor. techn. A, sgl./dbl. prec. CALL IE010, stor. techn. 3, double prec. CALL IE010, stor. techn. 4, double prec. CALL IE010, stor. techn. 7, double prec. CALL IE010, stor. techn. 8, double prec. CALL IE010, stor. techn. A, double prec. CALL IE020, stor. techn. 3, single prec. CALL IE020, stor. techn. 4, double prec. CALL IE020, stor. techn. 7, double prec. CALL IE020, stor. techn. 8, double prec. CALL IE020, stor. techn. A, double prec. CALL IE010, stor. techn. 3, sgl./dbl. prec. CALL IE010, stor. techn. 4, sgl./dbl. prec. CALL IE010, stor. techn. 7, sgl./dbl. prec. CALL IE010, stor. techn. 8, sgl./dbl. prec. CALL IE010, stor. techn. A, sgl./dbl. prec. Call of M010 Call of M017 Successive call of XAA03
+
+Page
+84 84 84 84 87 50 54 54 54 54 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 56 67 67 67
+
+List of FEAT2D subprograms
+
+97
+
+Routine
+XMAA07 XMAB03 XMAB07 XMAP3 XMAP7 XMORA3 XMORA7 XMORS XMOWA3 XMOWA7 XMOWS XMSA0 XMSB0 XMSB1 XMSCL XMVA0 XMVA1 XMVB0 XMVB1 XORA XORS XOWA XOWS XSA0X XSA1X XSB0X XSB1X XSCL XSMA2V XSMACL YIA113 YIA117 YIA11A YIA123 YIA127 YIA12A YIA133 YIA137 YIA13A YID117 YID118 YID11A YID127
+
+Filename
+XMAA07.F XMAB03.F XMAB07.F XMAP.F XMAP.F XMORA.F XMORA.F XMORS.F XMOWA.F XMOWA.F XMOWS.F XMSA0.F XMSB0.F XMSB1.F XMSCL.F XMVA0.F XMVA1.F XMVB0.F XMVB1.F XORA.F XORS.F XOWA.F XOWS.F XSA0X.F XSA1X.F XSB0X.F XSB1X.F XSCL.F XSMA2V.F XSMACL.F YIA11.F YIA11.F YIA11.F YIA12.F YIA12.F YIA12.F YIA13.F YIA13.F YIA13.F YID11.F YID11.F YID11.F YID12.F
+
+Short description
+Successive call of XAA07 Successive call of XAB03 Successive call of XAB07 Successive call of XAP3 Successive call of XAP7 Read multiple matrices, stor. techn. 3 Read multiple matrices, stor. techn. 7 Read multiple triangulations Write multiple matrices, stor. techn. 3 Write multiple matrices, stor. techn. 7 Write multiple triangulations Successive call of XSA0X Successive call of XSB0X Successive call of XSB1X Make Clean multiple triangulations Successive call of XVA0 Successive call of XVA1 Successive call of XVB0 Successive call of XVB1 Get arrays, prev. stored by XOWA, back on DWORK Read subdivision from unit MFILE Store array Write subdivision onto unit MFILE Call of XSAC, XSA0, XS2M, XS2V, XSVEB Call of XSAMS, XS2C, XSA1, XS2M, XS2V, XSVEB Call of XSBC, XSB0, XS2M, XS2V, XSVEB Call of XSAMS, XS2C, XSB1, XS2M, XS2V, XSVEB Make Clean subdivision Call of S2V Make clean information on macro-elements Precond. by scaling, stor. techn. 3, double prec. Precond. by scaling, stor. techn. 7, double prec. Precond. by scaling, stor. techn. A, double prec. Precond. by scaling, stor. techn. 3, single prec. Precond. by scaling, stor. techn. 7, single prec. Precond. by scaling, stor. techn. A, single prec. Precond. by scaling, stor. techn. 3, sgl./dbl. prec. Precond. by scaling, stor. techn. 7, sgl./dbl. prec. Precond. by scaling, stor. techn. A, sgl./dbl. prec. SSOR Precond., stor. techn. 7, double prec. SSOR Precond., stor. techn. 8, double prec. SSOR Precond., stor. techn. A, double prec. SSOR Precond., stor. techn. 7, single prec.
+
+Page
+67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 74 74 74 74 80 80 80 80 80 80 80 53 53 53 53 53 53 53 53 53 55 55 55 55
+
+98
+
+List of FEAT2D subprograms
+
+Routine
+YID128 YID12A YID137 YID138 YID13A YIF117 YIF127 YIF137 YLAX13 YLAX14 YLAX17 YLAX18 YLAX19 YLAX1A YLAX23 YLAX24 YLAX27 YLAX28 YLAX29 YLAX2A YLAX33 YLAX34 YLAX37 YLAX38 YLAX39 YLAX3A YLTX13 YLTX17 YLTX19 YLTX1A YLTX23 YLTX27 YLTX29 YLTX2A YLTX33 YLTX37 YLTX39 YLTX3A YMP001 YMP011 YMP111 YMR001 YMR011
+
+Filename
+YID12.F YID12.F YID13.F YID13.F YID13.F YIF11.F YIF12.F YIF13.F YLAX1.F YLAX1.F YLAX1.F YLAX1.F YLAX1.F YLAX1.F YLAX2.F YLAX2.F YLAX2.F YLAX2.F YLAX2.F YLAX2.F YLAX3.F YLAX3.F YLAX3.F YLAX3.F YLAX3.F YLAX3.F YLTX1.F YLTX1.F YLTX1.F YLTX1.F YLTX2.F YLTX2.F YLTX2.F YLTX2.F YLTX3.F YLTX3.F YLTX3.F YLTX3.F YMP0.F YMP0.F YMP1.F YMR0.F YMR0.F
+
+Short description
+SSOR Precond., stor. techn. 8, single prec. SSOR Precond., stor. techn. A, single prec. SSOR Precond., stor. techn. 7, sgl./dbl. prec. SSOR Precond., stor. techn. 8, sgl./dbl. prec. SSOR Precond., stor. techn. A, sgl./dbl. prec. Prec. by ILU decomp., stor. techn. 7, double prec. Prec. by ILU decomp., stor. techn. 7, single prec. Prec. by ILU decomp., stor. techn. 7, sgl./dbl. prec. Matrix vector product, stor. techn. 3, double prec. Matrix vector product, stor. techn. 4, double prec. Matrix vector product, stor. techn. 7, double prec. Matrix vector product, stor. techn. 8, double prec. Matrix vector product, stor. techn. 9, double prec. Matrix vector product, stor. techn. A, double prec. Matrix vector product, stor. techn. 3, single prec. Matrix vector product, stor. techn. 4, single prec. Matrix vector product, stor. techn. 7, single prec. Matrix vector product, stor. techn. 8, single prec. Matrix vector product, stor. techn. 9, single prec. Matrix vector product, stor. techn. A, single prec. Matrix vector product, stor. techn. 3, sgl./dbl. prec. Matrix vector product, stor. techn. 4, sgl./dbl. prec. Matrix vector product, stor. techn. 7, sgl./dbl. prec. Matrix vector product, stor. techn. 8, sgl./dbl. prec. Matrix vector product, stor. techn. 9, sgl./dbl. prec. Matrix vector product, stor. techn. A, sgl./dbl. prec. Matrix vector product, stor. techn. 3, double prec. Matrix vector product, stor. techn. 7, double prec. Matrix vector product, stor. techn. 9, double prec. Matrix vector product, stor. techn. A, double prec. Matrix vector product, stor. techn. 3, single prec. Matrix vector product, stor. techn. 7, single prec. Matrix vector product, stor. techn. 9, single prec. Matrix vector product, stor. techn. A, single prec. Matrix vector product, stor. techn. 3, sgl./dbl. prec. Matrix vector product, stor. techn. 7, sgl./dbl. prec. Matrix vector product, stor. techn. 9, sgl./dbl. prec. Matrix vector product, stor. techn. A, sgl./dbl. prec. Call of MP001, Multigrid prolongation routines (Vers. 0) Call of MP011, Multigrid prolongation routines (Vers. 0) Call of MP111, Multigrid prolongation routines (Vers. 1) Call of MR001, Multigrid restriction routines (Vers. 0) Call of MR011, Multigrid restriction routines (Vers. 0)
+
+Page
+55 55 55 55 55 57 57 57 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 60 67 67 67 67 67
+
+List of FEAT2D subprograms
+
+99
+
+Routine
+YMR111 ZCLEAR ZCPY ZCTYPE ZDISP ZFREE ZINIT ZLEN ZLEN8 ZNEW ZTIME ZTYPE ZVALUE
+
+Filename
+YMR1.F ZCLEAR.F ZCPY.F ZCTYPE.F ZDISP.F ZFREE.F ZINIT.F ZLEN.F ZLEN8.F ZNEW.F ZTIME.F ZTYPE.F ZVALUE.F
+
+Short description
+Call of MR111, Multigrid restriction routines (Vers. 1) Clear vector on workspace Copy vector on workspace Change data type of vector on workspace Shorten or delete vector on workspace Calculate free space on workspace DWORK General initialization Return length of vector on workspace Return length of vector on workspace in double words Allocate vector on workspace Return absolute system time in seconds Return data type of vector on workspace BLOCK DATA - Initialization of COMMON blocks
+
+Page
+67 35 35 35 35 35 35 35 35 35 35 35 35
+

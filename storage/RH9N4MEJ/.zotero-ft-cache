@@ -1,0 +1,1181 @@
+arXiv:2312.04836v1 [cs.ET] 8 Dec 2023
+
+Thermodynamic Computing System for AI Applications
+Denis Melanson, Mohammad Abu Khater, Maxwell Aifer, Kaelan Donatella, Max Hunter Gordon, Thomas Ahle, Gavin Crooks, Antonio J. Martinez, Faris Sbahi, Patrick J. Coles Normal Computing Corporation, New York, New York, USA
+Recent breakthroughs in artificial intelligence (AI) algorithms have highlighted the need for novel computing hardware in order to truly unlock the potential for AI. Physics-based hardware, such as thermodynamic computing, has the potential to provide a fast, low-power means to accelerate AI primitives, especially generative AI and probabilistic AI. In this work, we present the first continuous-variable thermodynamic computer, which we call the stochastic processing unit (SPU). Our SPU is composed of RLC circuits, as unit cells, on a printed circuit board, with 8 unit cells that are all-to-all coupled via switched capacitances. It can be used for either sampling or linear algebra primitives, and we demonstrate Gaussian sampling and matrix inversion on our hardware. The latter represents the first thermodynamic linear algebra experiment. We also illustrate the applicability of the SPU to uncertainty quantification for neural network classification. We envision that this hardware, when scaled up in size, will have significant impact on accelerating various probabilistic AI applications.
+I. Introduction
+The AI revolution has highlighted the shortcomings of today’s computing hardware. AI leaders have argued [1] that machine learning is currently stuck in a local optimum, and if the field could move away from current digital hardware, then a global optimum could be reached. Probabilistic AI, in particular, which is a branch of AI dealing with Bayesian inference, uncertainty quantification, and sampling tasks and has led to recent breakthroughs in generative AI like diffusion models, has been noted to struggle with computational difficulty on current digital hardware [2, 3]. This has spawned calls for mortal computation [4], where software and hardware are inseparable and the hardware is variable and stochastic.
+Analog computing offers an appealing alternative to today’s digital computers, both in terms of energy efficiency, and also potentially in terms of processing speed, if one can match the physics of the analog hardware to the mathematics of the AI algorithms. Optimization has been a focus of several analog, physicsbased computing demonstrations [5–12]. We argue that a more natural match between the physics of the analog hardware and the mathematical application may come from considering probabilistic AI. For this application, the mathematics happens to match that of thermodynamics [13], which is the branch of classical physics that involves stochastic dynamics.
+The relevance of thermodynamics to solving mathematical problems has recently spawned the field of thermodynamic computing [14], leading to several hardware proposals [13, 15–24] including some with application to accelerating probabilistic AI, such as discrete-variable hardware based on probabilistic bits [20–24] and continuous-variable hardware based on analog circuits [13, 15, 16]. Thermodynamic computers may have inherent robustness to noise since noise is actually a desirable feature of the hardware [13].
+Continuous-variable (CV) thermodynamic computers are especially well suited for probabilistic AI, since Bayesian inference typically involves continuous probability distributions, such as Gaussians or the exponential family [25]. Moreover, generative AI methods such as diffusion models involve continuous-variable Brownian motion, which is once again natural to simulate on CV thermodynamic computers. CV thermodynamic computers also have application to the central mathematical primitives in AI, namely, linear algebra [15, 16], such as solving linear systems, inverting matrices, and computing matrix determinants and matrix exponentials. Hence, it is natural to consider the CV version of thermodynamic computers for AI applications.
+In this work, we present the first CV thermodynamic computer. Our device is fabricated as a printed circuit board, with 8 fully-connected unit cells. We experimentally demonstrate that this computer can be used either as a sampling device, to sample from user-specified Gaussian distributions, or as a linear algebra device, to invert user-specified matrices. The latter represents the first experimental implementation of a thermodynamic linear algebra experiment. We also perform demonstrations on our hardware of important primitives in Probabilistic AI [25], including Gaussian Process Regression (GPR) [26] and Spectral Normalized Neural Gaussian Processes (SNGP) [27] for uncertainty quantification in neural networks.
+Our proof-of-principle demonstration highlights a future where thermodynamic advantage may be a reality, i.e., where thermodynamic computers outperform digital ones in either speed or energy efficiency. Indeed, asymptotic speedups have been been theoretically predicted [15, 16], implying that there exists a threshold scale (or problem size) beyond which thermodynamic computers will outperform competition. Numerical
+
+2
+simulations furthermore suggest that this threshold scale is practically achievable [15], and we provide further evidence to this claim herein. Finally, we note that, while one path to thermodynamic advantage is to directly scale up the hardware design presented here (for Gaussian sampling and linear algebra), small perturbations to our hardware design could unlock other applications, such as non-Gaussian sampling or generative diffusion models [13], with additional opportunities for thermodynamic advantage.
+
+II. Results
+
+A. The Computing System
+
+1. Fundamentals of thermodynamic computing
+
+We begin by reviewing thermodynamic computing, which is a relatively young field, and hence the theoretical concepts are still being worked out. We focus here on the paradigm of CV thermodynamic computing from Refs. [13, 15, 16], which is based on the stochastic dynamics of a physical system acted on by a combination of conservative, dissipative, and fluctuating forces. These dynamics can be modeled by the underdamped Langevin (UDL) stochastic differential equations (SDEs)
+
+dx = M −1p dt
+
+(1)
+
+dp = −∇U − γM −1p dt + N [0, 2γβ−1I dt],
+
+(2)
+
+where γ and β are positive real constants and M may be either a positive real scalar or a positive definite matrix. The vectors x and p represent (respectively) generalized coordinates describing the system’s state and their canonically conjugate momenta, and the function U (x) is the potential energy, which is responsible for conservative forces. In our work, the quantities x and p will be mapped to (respectively) the currents and voltages in a circuit. Also, the noise term here is assumed to have a covariance matrix proportional to identity (i.e., the noise is uncorrelated), but in general we may also replace the identity matrix by another positive definite matrix to model a system coupled to a correlated noise source. Note that Eqs. (1) and (2) can be combined to yield dx = −γ−1∇U − γ−1dp + N [0, 2γ−1β−1I dt]; in the overdamped limit (where M is small and γ is large) the second term on the right can be dropped, leading to the overdamped Langevin (ODL) equation
+
+dx = −γ−1∇U + N [0, 2γ−1β−1I dt].
+
+(3)
+
+Langevin equations (overdamped or underdamped) are examples of SDEs, which describe a system on the level of a single trajectory. In general, the SDE that governs the stochastic trajectories of a system can be recast as a partial differential equation (PDE) that governs the time-evolution of the probability density function of the system’s state. The PDEs corresponding to the overdamped and underdamped Langevin equations are called Fokker-Planck equations, and the stationary distribution for x (which is the same for the ODL and UDL equations) is called the Gibbs distribution
+
+f (x)
+
+=
+
+1 Z
+
+e−βU
+
+(x)
+
+,
+
+(4)
+
+where the partition function Z is determined by normalization [28]. Clearly when U (x) is a quadratic function U (x) = xT Ax + bT x, the Gibbs distribution is Gaussian; specifically, it is the distribution
+
+x ∼ N [A−1b, β−1A−1],
+
+(5)
+
+which suggests thermodynamic algorithms for solving linear systems of equations and inverting matrices [15]. This also allows for drawing samples from a Gaussian distribution by preparing the appropriate Gibbs state. However, these methods rely on the properties of the stationary distribution of a system, meaning the system must be allowed to come to equilibrium before useful samples can be read from the device. This time period is called the equilibration (or burn-in) time. Also, if two samples are drawn of the system’s state with a very small interval of time in between, the values will be very similar, which is due to the time-correlation of the system. If uncorrelated samples are desired (which would be the case for i.i.d. Gaussian sampling tasks, for example), the timescale one must wait is approximately set by the correlation time of the system. The equilibration time and correlation time place important constraints on the performance of thermodynamic algorithms.
+
+3
+
+FIG. 1: The Stochastic Processing Unit (SPU). (Left panel) The Printed Circuit Board for our 8-cell SPU. (Right panel) Illustration of eight unit cells that are all-to-all coupled to each other, as in our SPU. Each cell contains an LC resonator and a Gaussian current noise source, as shown in the circuit diagram on the top right. The circuit diagram on the bottom depicts two capacitively coupled unit cells.
+
+2. The Stochastic Processing Unit
+
+We now introduce our stochastic processing unit (SPU), which is depicted in the left panel of Fig. 1. The SPU is constructed on a Printed Circuit Board (PCB). From the lower left corner to the upper right corner, one can see the line of components corresponding to 8 unit cells (LC circuits), while the components arranged in the triangle on the upper left correspond to the controllable couplings that couple the unit cells. We remark that we constructed three nominally identical copies of our SPU circuit, to test the scientific reproducibility of our experimental results.
+The SPU can be mathematically modeled as a set of capacitively-coupled ideal LC circuits with noisy current driving. The diagram for this model is shown in the right panel of Fig. 1. Doing a simple circuit analysis reveals that the equations of motion for this circuit are
+
+dI = L−1V dt
+
+(6)
+
+dV = −C−1R−1V dt − C−1Idt + √2κ0C−1N [0, I dt],
+
+(7)
+
+where I = (IL1, . . . ILd)T is the vector of inductor currents and V = (VC1, . . . VCd)T is the vector of capacitor
+
+voltages. In the above, C is the Maxwell capacitance matrix, whose diagonal elements are Cii = Cii +
+
+d j=1
+
+Cij
+
+,
+
+and
+
+whose off-diagonal elements
+
+are
+
+Cij
+
+= −Cij .
+
+The
+
+values
+
+of
+
+resistors
+
+and inductors
+
+in
+
+each
+
+cell are represented by the matrices R = RI and L = LI respectively. Finally, N [0, I dt] represents a mean-
+
+zero normally distributed random displacement with covariance matrix I dt and κ0 is the power spectral
+
+density of the current noise source. If the magnitude of the noisy driving current is larger than the intrinsic
+
+noise in the system, then κ0 can be thought of as an effective temperature control for the thermodynamic
+
+computation.
+
+Equations (6) and (7) can be mapped to the Langevin equations (1) and (2) by making a change of
+
+coordinates. Specifically, we introduce the magnetic flux vector Φ and the Maxwell charge vector Q, defined
+
+as
+
+Φ = LI, Q = CV.
+
+(8)
+
+As shown in the Supplemental Information, Φ and Q are canonically conjugate coordinates, with Φ playing the role of position and Q playing the role of momentum. We also introduce an effective inverse temperature parameter β = γκ−0 1. In terms of these variables, Eqs. (6) and (7) become
+
+dΦ = C−1Q dt
+
+(9)
+
+dQ = −L−1Φ dt − R−1C−1Q dt + N [0, 2R−1β−1I dt].
+
+(10)
+
+It is clear that Eqs. (9) and (10) are equivalent to (1) and (2) when we make the identifications x = Φ,
+
+p = Q,
+
+M
+
+=
+
+C,
+
+γ
+
+= R−1,
+
+and
+
+U (x)
+
+= U (Φ)
+
+=
+
+1 2
+
+ΦT
+
+L−1Φ.
+
+In
+
+these
+
+coordinates
+
+the
+
+Hamiltonian,
+
+without
+
+4
+
+FIG. 2: Voltage samples from two coupled unit cells of the SPU. Top Left: Histogram of the marginal of cell i. Top Right: Absolute error between the target covariance matrix and the device covariance matrix, similarly for the skewness and kurtosis, all calculated using the Frobenius norm. Bottom Left: Scatter plot of voltage samples from both cells. Bottom Right: Histogram of the marginal of cell j. For the marginal plots, the theoretical target marginal is overlaid as a solid red curve. Similarly, for the two-dimensional plot, the theoretical curve corresponding to two standard deviations from the mean is overlaid as a solid red curve.
+
+noise or dissipation, of the system is expressed as
+
+H (Φ, Q)
+
+=
+
+1 2
+
+ΦT
+
+L−1Φ
+
++
+
+1 2
+
+QT
+
+C−1
+
+Q,
+
+(11)
+
+and consequently the stationary distribution of Eqs. (9) and (10) is the Gibbs distribution given by
+
+Φ ∼ N [0, β−1L], Q ∼ N [0, β−1C],
+
+(12)
+
+where Φ and Q are independent of each other. This equilibrium distribution is reached after a sufficient amount of time has elapsed, called the equili-
+bration time. The equilibration time is closely related to the correlation time τcorr, which is the timescale over which the time-correlation function of the system decays. In fact, equilibration can be interpreted as the decorrelation of the system from its initial state, so the two timescales are essentially the same. The correlation function decays exponentially in time with a time constant of approximately
+
+τcorr ≈ Rcmax,
+
+(13)
+
+where cmax is the largest eigenvalue of C (see e.g. [15]). There are some minor corrections involving the other circuit parameters but these have relatively little effect. The amount of time one must wait in between samples is determined by the degree to which correlation must be suppressed. In order for the correlation function to decay to less than one percent of its original magnitude, we may wait for an interval of at least 5τcorr, for example.
+If one periodically measures the voltages, V , across the capacitors after the device has reached equilibrium, one finds that the voltage samples will have a covariance matrix of
+
+ΣV = Rκ0C−1.
+
+(14)
+
+Figure 2 is a visualization of such an experiment, where the measurements of the voltages of two coupled cells are taken at 12 MHz. However, the sampling rate that one chooses for these measurements is an important consideration. Sampling too fast will decrease the fidelity of the samples to the distribution due to the errors from their time-correlation.
+
+5
+FIG. 3: Effect of noise level and number of samples on sample quality. The noise level represents the amplitude of the stochastic noise injected into the unit cells. The y-axis plots the error on the covariance matrix, namely the average relative Frobenius error per matrix element. Samples are taken from the SPU with all positive couplings turned on and with the unit cell capacitances in configuration 3.
+3. Adjustable hardware parameters
+The particular implementation of a CV thermodynamic computer reported in this work is composed of 8 of the unit cells previously discussed with all-to-all connectivity. To increase the domain of addressable 8-dimensional Gaussian distributions, we designed each cell to have a switchable capacitor bank instead of a single capacitor. These capacitor banks have four distinct values of effective capacitance and as such give us 4 possible variances (diagonal elements of the covariance matrix), labeled as 0, 1, 2, 3. The capacitive couplings responsible for the covariances between voltages are also switchable and bipolar. Each of the 28 coupling elements is made of a single capacitor and a transformer. The transformer is present to make each coupling bipolar (i.e., having either positive or negative sign). It has two outputs, one that keeps the polarity of the signal and one that inverts it, each having a winding ratio of 1:1. The coupling can also be switched off, this make for three possible values of the effective coupling, labeled as -1, 0, and +1.
+In addition to the set of possible capacitances, two other key parameters can be varied: the noise level and the sampling rate. The noise level, κ0, refers to the amplitude of the stochastic noise that is injected into each unit cell. In the SPU, the noisy current source is implemented using pseudo-random Gaussian currents from a Field-Programmable Gate Array (FPGA, see Methods). The amplitude of the noise current can be controlled and it can be viewed as an effective temperature, namely the temperature of a thermal resistor in each unit cell. Figure 3 shows the effect of noise level on the performance. One can see that intermediate noise levels appear to perform well, while noise levels that are too high or too low can lead to worse performance. This behavior could be due to the non-ideal behavior of the pseudo-random noise source at low or high amplitudes.
+The sampling rate refers to the frequency at which the hardware gathers the voltage samples from the unit cells, i.e., measures the state variable. In this implementation, we kept the base sampling frequency of the hardware fixed at 12 MHz and did down-sampling digitally in post-processing to investigate the effect of this parameter. Figure 4 shows the effect of sampling rate on the performance, for a range of sampling rates from 2 MHz to 12 MHz. One can see that the highest rate, 12 MHz, performs slightly better than slower rates if one’s goal is to minimize overall sampling time. On the other hand, lower sampling rates perform better if one is concerned with the error for a certain number of samples.
+
+6
+
+FIG. 4: Effect of sampling rate and number of samples on sample quality. The y-axis plots the error on the covariance matrix, namely the average relative Frobenius error per matrix element. The left panel varies the number of samples, while the right panel varies the sampling time (i.e., the total length of time over which one draws samples). Samples are taken from the SPU with all positive couplings turned on and with the unit cell capacitances in configuration 3.
+
+B. Gaussian sampling
+
+Let us describe how to perform Gaussian sampling with our thermodynamic computer. Consider a zeromean multivariate Gaussian distribution (since we can always translate the samples by a constant vector to generate a non-zero mean):
+
+N (⃗x|Σ) =
+
+1
+
+exp
+
+(2π)N |Σ|
+
+−
+
+1 2
+
+⃗xT
+
+Σ−1⃗x
+
+,
+
+(15)
+
+where Σ is the covariance matrix. Here we consider the case where the user provides the precision matrix P = Σ−1 associated with the desired Gaussian distribution (See Supplemental Information for the alternative case where the user provides the covariance matrix Σ.)
+The Hamiltonian for the coupled oscillator system (see Supplemental Information for details) is given by:
+
+H I⃗, V⃗
+
+=
+
+1 2
+
+V⃗
+
+T
+
+CV⃗
+
++
+
+1 2
+
+I⃗T
+
+LI⃗,
+
+(16)
+
+where I⃗ is the vector of currents through the inductors in each unit cell, V⃗ is the vector of voltages across the capacitors in each unit cell, C is the Maxwell capacitance matrix and L is the inductance matrix, respectively given by
+
+Ckl =
+
+j Ckj −Ckl
+
+if if
+
+k k
+
+= ̸=
+
+l l
+
+,
+
+and Lkl =
+
+Lk 0
+
+if if
+
+k k
+
+= ̸=
+
+l l
+
+.
+
+(17)
+
+Here, Ckk and Lk are the capacitance and inductance, respectively, of the k-th unit cell, and Ckj for j ̸= k is the capacitance that couples the k-th and j-th unit cells.
+At thermal equilibrium, the dynamical variables are distributed according to a Boltzmann distribution, proportional to exp(−H/kT ), and hence V⃗ is normally distributed according to:
+
+V⃗ ∼ N [⃗0, kT C−1]
+
+(18)
+
+Thus, if the user specifies the precision matrix P, then we can obtain the correct distribution for V⃗ by choosing the Maxwell capacitance matrix to be:
+
+C = kT P
+
+(19)
+
+Hence, this describes how we can map the user-specified matrix to the matrix of electrical component values, to obtain the desired distribution.
+
+7
+
+FIG. 5: Sampling from an 8-dimensional Gaussian distribution on the SPU. The top left plot shows three error metrics, the error on the covariance, skewness, and kurtosis versus the number of samples. The error is the Frobenius norm of the difference between the target and device values. The other plots show the probability density versus voltage for each of the 8 one-dimensional marginal distributions. The experimentally determined histograms (in black) are overlaid with the target marginal distributions (in red). Samples are taken from the SPU with all couplings turned off and the unit cell capacitances are in configuration 3.
+
+Figure 2 shows an example where we sample from an 8-dimensional Gaussian distribution on our SPU, for a particular user-specified precision matrix. One can see that the error on the covariance goes down fairly mononotically with the number of samples, while errors on the skewness and kurtosis shows some initial nonmonotonic behaviour followed by a steady decline with increasing samples. Each of the 8 one-dimensional marginal distributions agree well with the theoretical distributions, suggesting that the SPU is sampling the correct distribution.
+
+C. Matrix inversion
+
+The second primitive we will consider is matrix inversion, which was discussed in the context of thermodynamic computing in Ref. [15]. Following that reference, we envision the user encoding their matrix A in the precision matrix P of the associated Gaussian distribution that will be sampled. Hence from Eq. (19), the Maxwell capacitance matrix of the hardware is given by C = kT A. Choosing this Maxwell capacitance matrix, we find from Eq. (18) that at thermal equilibrium, the voltage vector is distributed according to
+
+V⃗ ∼ N [⃗0, A−1]
+
+(20)
+
+Therefore, we can invert the matrix A simply by collecting voltage samples at thermal equilibrium and computing the sample covariance matrix. (This assumes that A is a positive semi-definite (PSD) matrix, although the extension to non-PSD matrices is possible with a pre-processing step [15].)
+Figure 6 shows the results of inverting a 4x4 matrix on the SPU, which involves using only a 4-dimensional subset of the unit cells on the SPU. One can see the error (i.e., the relative Frobenius error between the SPU inverse and the target inverse) go down as the number of samples increases. The SPU inverse after gathering several thousand samples looks visually similar to the target inverse. The fact that the error does
+
+8
+
+FIG. 6: Thermodynamic inversion of a 4x4 matrix. This experiment involved using only a subset of the unit cells, namely four of them, on the SPU. The input matrix A and its true inverse A−1 are shown, respectively, on the top left and top right. The relative Frobenius error versus the number of samples is plotted in the bottom left. The bottom right shows the experimentally determined inverse after gathering 12000 samples from the SPU.
+
+not go exactly to zero indicates that experimental imperfections are present. This likely includes capacitance tolerances, i.e., nominal capacitance values being off from their true values.
+Figure 7 shows the 8x8 inversion results. In this case, we perform the algorithm on three distinct copies of the SPU, which are nominally identical (although may slightly differ due to component tolerances). The fact that similar results are obtained on all three SPUs (as shown in Fig. 7) is useful for demonstrating scientific reproducibility. Indeed, one can see the relative Frobenius error go down as the number of samples increases. (Once again the error does not go exactly to zero due to experimental imperfections.) The final SPU inverse looks visually similar to target inverse. Moreover, Fig. 8 shows the time evolution of the SPU inverse. One can see in Fig. 8 that the SPU inverse gradually looks more-and-more like the true inverse as more samples are gathered.
+In the Supplemental Information, we show some additional plots for matrix inversion on our SPU, including the dependence of the error on the condition number of A and on the smallest eigenvalue of A.
+
+D. Gaussian Process Regression
+
+We now illustrate Gaussian process regression (GPR) with our SPU. GPR is a key primitive in probabilistic machine learning [25] and essentially corresponds to performing regression with uncertainty. We consider one-dimensional data D = {(xi, yi)} where i ∈ {1, ..., ntrain} and we want to make estimates about the values y˜j at points x˜j where j ∈ {1, ..., ntest}.
+The underlying assumption of GPR is that both y and y˜ are elements of a vector that is produced by sampling a multivariate Gaussian distribution with some mean and covariance matrix. Therefore, we can split this distribution and write:
+
+y y˜
+
+=N
+
+µ µ˜
+
+,
+
+Σ11 Σ12 Σ12 Σ22
+
+(21)
+
+where Σ11 = k(x, x), Σ12 = k(x, x˜), Σ22 = k(x˜, x˜), and k(·, ·) denotes the kernel function. So Σ11 has dimensions ntrain × ntrain, Σ12 dimensions ntrain × ntest, and Σ22 dimensions ntest × ntest.
+The goal in GPR is to determine the posterior distribution at a given test point, which can be written as
+
+9
+
+FIG. 7: Thermodynamic inversion of an 8x8 matrix. This experiment was performed independently on three distinct (but nominally identical) copies of the SPU. The input matrix A and its true inverse A−1 are shown, respectively, on the top left and middle left. The relative Frobenius error versus the number of samples is plotted in the bottom left, for each of the three SPUs. The three panels on the right show the experimentally determined inverses after gathering 12000 samples on each of three SPUs.
+
+FIG. 8: Time progression of thermodynamic matrix inversion. From left to right, more samples are gathered from the SPU to compute the matrix inversion. The number of samples and the inversion error are stated below each panel. One can visually see the resulting inverse look more like the target inverse (shown in Fig. 7) as more samples are obtained.
+
+P (y˜|x, x˜, y) = N (µ2|1, Σ2|1). Using properties of Gaussians one can show that:
+
+µ2|1 = Σ21Σ−111y,
+
+Σ2|1 = Σ22 − Σ21Σ−111Σ12
+
+(22)
+
+In order to calculate the mean and the covariance of the posterior distribution at the test data points we need to invert Σ11, which is an ntrain × ntrain matrix. Therefore, the algorithmic complexity is dominated by the matrix inversion, that is O(n3train). Because this is the dominant computational step, in our experimental
+
+10
+
+GPR with SPU inverse (ε = 5.672)
+1.5 1.0 0.5 0.0 −0.5 −1.0
+
+y
+
+1.5 1.0 0.5 0.0 −0.5 −1.0
+
+x GPR with digital inverse
+
+sin(x) σ2|1 µ2|1 (xi, yi)
+
+y
+
+−6
+
+−4
+
+−2
+
+0
+
+2
+
+4
+
+6
+
+x
+
+FIG. 9: GPR results using the stochastic processing unit. The black dots represent noisy training
+data, generated from adding noise to a sine function (dashed blue line). The red line represents the posterior
+mean prediction µ2|1 and the light-red region represents the posterior variances at each point σ2|1. The top (bottom) panel show the results from using our SPU (a digital device) for the GPR protocol.
+
+implementation we utilize our SPU for the matrix inversion subroutine and use a digital device for the other subroutines of GPR.
+For our experimental implementation, we consider synthetic data generated as yi = sin(xi)+ϵ, with ϵ being random Gaussian noise of unit variance. We use 8 training data points, which corresponds to inverting an 8x8 matrix in the GPR protocol (and hence this matrix inversion can fit on our SPU). We use a radial-basis function (RBF) kernel, common for one-dimensional problems. The results are shown in Fig. 9, with the top panel corresponding to using our SPU, and the bottom panel showing for comparison the case where a digital device is used for GPR. One can see from the top panel that the inferred mean (red curve) has oscillatory character and is starting to look somewhat sinusoidal. Moreover, the true function sin(x) largely lies within the error bars (i.e., the inferred standard deviation), suggesting that the GPR protocol is working reasonably well with our SPU.
+
+E. Uncertainty quantification for neural networks
+Neural networks enable classification of high-dimensional data and largely provide the foundation for modern machine learning. However, a key shortcoming is the “overconfidence” of the predictions made by neural networks. This phenomenon corresponds to out-of-distribution data being classified with high certainty as belonging to one of the learned classes. Uncertainty quantification (UQ) provides means to tackle the overconfidence issue, and is crucial for making AI more reliable.
+Here we focus on a state-of-the-art method for UQ in neural network classification called spectralnormalized neural Gaussian processes (SNGP) [27]. SNGP involves replacing the output layer of a deep
+
+11
+FIG. 10: Uncertainty quantification on the output of a ResNet neural network using the SPU. We consider the two-moons dataset, where the blue and orange points are training points, with color indicating that they belong to the two different classes of the problem, and red points represent out-of-distribution data. The SNGP algorithm is employed to quantify the uncertainty of the predictions. The top and bottom panels respectively correspond to running the SNGP algorithm using a digital device (with Cholesky sampling) and using our SPU to generate samples. The left panels show the class probability, representing the neural network’s prediction of points belonging to either class (1 for blue points, and 0 for orange points). The right panels show normalized uncertainty on those predictions, where 1 represents high uncertainty and 0 a low predictive uncertainty.
+neural network with a Gaussian process, and is more scalable than other standard approaches to UQ while maintaining high quality.
+When estimating uncertainty for class predictions with SNGP, one needs to sample from a multivariate Gaussian, which can become a bottleneck for large test sets. As a proof-of-principle, we show that we can use our SPU to sample from the target multivariate Gaussian and generate uncertainty estimates for out-of-distribution data. We consider the two-moons dataset, shown in Fig. 10, with the dataset defined as D = {xi, yi}Ni=1, xi ∈ R2 and yi ∈ {0, 1}. This dataset consists of two sets of points that are not linearly separable (each point belonging either to the top or the bottom moon), and is a common benchmarking dataset used for UQ. We use a similar ResNet architecture to ref. [27], where we do not perform a mean-field approximation on covariance matrix of the target distribution
+Figure 10 shows that we get relatively good agreement between performing SNGP on a digital device with Cholesky sampling (top panels) versus using our SPU for sampling (bottom panels). A key feature of the SNGP algorithm is that it yields high (low) uncertainty for test data points that are far away from (close to) the training data. This feature is clearly evident in Fig. 10, suggesting that our SPU is capable of performing the SNGP algorithm. In the figure, 64 grid points are used, and the grid was split into patches of size 8, for which we could use the 8-dimensional SPU to sample from the Gaussian distributed with zero mean and the target covariance matrix. The mean was then added digitally to the gathered samples.
+
+12
+
+(a)
+
+SPU
+
+10−1
+
+GPU
+
+(b)102
+
+Time (s) Energy (J)
+
+10−2
+
+101 10−3
+
+102
+
+103
+
+104
+
+Dimension
+
+102
+
+103
+
+104
+
+Dimension
+
+FIG. 11: Comparison of GPU and estimated SPU performance. Panel (a): time to solution to obtain 10,000 Gaussian samples for dimensions ranging from 100 to 10,000 for an A6000 GPU (black dots) and an SPU (red dots). Panel (b): Corresponding energy to solution.
+
+F. Performance advantage at scale
+We now focus on the potential advantage that one could obtain from scaling up our SPU. Specifically, we compare the expected runtime and energy consumption of our SPU to that of state-of-the-art GPUs, for the task of Gaussian sampling. Our mathematical model for runtime and energy consumption involves considering the effect of three key stages: calculating the elements of the capacitor array from the input covariance matrix, loading/readout of data, and the integration time of the physical dynamics needed to generate the samples. We assume the SPU is constructed from standard electrical components operating at room temperature, we assume the ideal case of electrical components with 16 bits of precision, and we assume the unit cells in the SPU are fully connected (This analysis is valid whether the user provides the covariance matrix or the precision matrix, where details of sampling when the covariance matrix is provided is discussed in the Supplemental Information.) In our simulations, the input matrix is compiled to the SPU in a digital pre-processing step, and then the dynamics of the SPU are run for the time needed to generate 10,000 samples. We assume a physical time constant of 1µs and that the number of analog-to-digital conversion channels scales with dimension with a sampling rate of 10 Megasamples per second. This leads to a power consumption estimate of 0.005 mW per cell, assuming it is dominated by the ADC power consumption. For comparison with digital state-of-the-art, we obtain digital timing and energy consumption results using a JAX implementation of Cholesky sampling on an NVIDIA RTX A6000 GPU.
+Figure 11(a) shows how the time taken to produce samples from a multivariate Gaussian scales with dimension. One can see that the GPU is faster for low dimensions, but the SPU performance is expected to outperform the GPU for high dimensions. The cross-over point, which we call the point of “thermodynamic advantage”, occurs around d = 3000 for the assumptions we made. The asymptotic scaling for high dimensions is expected to go as O(d2) for the SPU, as opposed to O(d3) for Cholesky sampling on the GPU. At d = 10, 000, an order-of-magnitude speedup is predicted, and larger speedups could be unlocked by scaling up even larger.
+It is also of interest to consider energy, since it is well known that GPUs consume large amounts of energy. In contrast, the natural dynamics of a physical system are energy frugal and could reduce the expected energy requirements. Figure 11(b) shows how the energy of generating Gaussian samples is expected to scale with dimension for both the SPU and GPU. One can see that our model predicts the exciting prospect that the SPU provides energy savings for all dimensions, even for low dimensions. Moreover, the energy saving is an order-of-magnitude at d = 10, 000 and is expected to continue to grow for larger dimensions.
+Ultimately, these results represent a mathematical model, and the true evidence of thermodynamic advantage will only be obtained by directly scaling up the SPU hardware. Nevertheless, it is encouraging that a simple model of the SPU, the timings involved in its end-to-end operation, and the energy cost during these processes lead to a potential speedup and energy savings of more than an order-of-magnitude relative to state-of-the-art GPUs with relatively conservative assumptions. While we showed results here for the case of Gaussian sampling, we note that similar potential speedups and energy advantages for matrix inversion
+
+13
+are expected.
+III. Discussion
+The field of thermodynamic computing is in its early days. This is similar to quantum computing in the 1990’s, when Shor discovered quantum error correction [29] and his famous quantum factoring algorithm [30], and Chuang, Gershenfeld, and Kubinec built the first small-scale quantum computer [31]. If the field thermodynamic computing follows the same trajectory as that of quantum computing, then one can expect thermodynamic computing to permeate academic research labs in the near future, and the work described herein would represent a historical landmark for the field, as the beginning of a new paradigm.
+In building the first CV thermodynamic computer, we provided a blueprint for how to perform thermodynamic computations for Gaussian sampling and linear algebra, as well as applications that utilize these primitives like regression. Indeed our matrix inversion experiments were the first implementations of thermodynamic linear algebra, hopefully inspiring further investigations into this exciting new sub-field of thermodynamic computing. Moreover, our work provides the first step towards achieving thermodynamic advantage, which corresponds to building a large enough thermodynamic computer so as to outperform state-of-the-art digital computers in either speed or energy efficiency. Achieving this would represent a huge breakthrough for the field of AI, which already consumes vast computing and energy resources.
+As our hardware is particularly relevant to probabilistic AI, we note that probabilistic reasoning is central to unlocking reliable AI for high-stakes enterprise applications, where risk has been a central barrier to AI adoption. Moreover, it may even be central to unlocking artificial general intelligence (AGI). This follows from recent arguments [3] that current AI technology, which is largely based on transformers, is not capable of reasoning and planning and hence not capable, on its own, of achieving AGI. Our computing hardware, when appropriately scaled up, will enable and accelerate probabilistic reasoning for AI applications. As an example, we demonstrated how our hardware enables uncertainty quantification on the outputs of neural networks. We, therefore, envision a key role for our hardware paradigm in bringing reliable AI to enterprise applications, and even in bringing reasoning capabilities to AGI efforts.
+IV. Methods
+Here we provide additional details on the design of our hardware, including the interface to digital hardware, the coupled resonator structure, the noise source, and the readout process.
+A. Interface to digital hardware
+Figure 12 shows the interface between the analog and digital hardware for our thermodynamic computing system. Broadly speaking, our SPU functions as a co-processor to a digital device. Namely, the operation of the SPU is controlled by a Central Processing Unit (CPU) and a Field-Programmable Gate Array (FPGA).
+Figure 12(A) shows the back of the circuit board for the SPU. One can see the FPGA attached to the board as well as the Universal Serial Bus (USB) that leads to the CPU. The CPU compiles the requested covariance matrix into FPGA code, while the FPGA opens and closes the switches controlling the capacitance values and the coupling branches and also starts the noise sources, as shown in Fig. 12(B). The FPGA then starts the measurement phase where voltage measurements are taken at a given rate, then digitized by an onboard analog-to-digital converter (ADC) and sent to the CPU.
+B. Coupled resonators structure
+While Fig. 1 shows a high-level view of the circuit structure, we give a more precise depiction in Fig. 13. (For simplicity, we only show two unit cells in Fig. 13, even though our SPU has 8 cells.) Each cell consists of an inductor, a tunable capacitor, and a current noise source that is uncorrelated to other noise sources in the SPU. While ideally a continuously tunable capacitor is desired, available technologies (e.g., varactor diodes or BST-based varactors) typically suffer from nonlinearity or complexity of integration. Consequently, we use switched capacitors in a capacitor bank. Simulations show that, with as little as three capacitors, the quality of operation is nearly unaffected. The exact values of the capacitors were chosen with numerical optimization to obtain the best performance.
+
+14
+
+FIG. 12: Interface of SPU with Digital Hardware. The SPU is controlled by a digital device as a co-processor. Panel (A) shows the back of the circuit board, displaying both the FPGA and the USB that leads to the CPU. Panel (B) shows schematically how the data flows between the analog and the digital devices. The data that determines the circuit parameters is downloaded from the CPU to the SPU, and the sampling data is uploaded from the SPU to the CPU. The FPGA acts as an intermediary in this process, and also provides the noise source.
+The coupling between the resonators is implemented capacitively. Similar to the capacitors in the cells, the coupling capacitors should ideally be continuously controlled, but a switched capacitor is used due to the limitations of tunable capacitors. A center-tapped transformer is used to switch between positive and negative polarity coupling, which allows one to achieve bipolar coupling.
+The nominal capacitances for the in-cell capacitors are chosen from the following set of values:
+In-cell capacitances ∈ {1.0nF, 3.2nF, 4.3nF, 6.5nF}.
+The nominal coupling capacitance is 0.47 nF through a center-tapped transformer, making the available coupling values:
+Coupling values ∈ {−x, 0, x}.
+where x = 0.47 × 10−9.
+
+FIG. 13: A simplified version of the SPU, containing two cells with a single coupling branch. In-cell capacitances arise from a bank of three capacitors as shown. The coupling capacitance arises from a single switched capacitor. A transformer appears in the coupling circuit, for the purpose of achieving bipolar coupling.
+
+C. Noise source
+
+The noise is generated using Linear-feedback shift register (LFSR) from the FPGA. An RC lowpass filter (LPF) is used to suppress the high frequency components of the digital output of the FPGA. In order to minimize the loading effect of the digital source on each cell (which would reduce the quality factor), a large resistance is used in series with the digital noise pin (Thevenin’s equivalent of the current source).
+The pseudo-noise sequences are based on a 16-bit primitive polynomial for maximum sequence length, shown in Figure 14(a). To ensure that the sequences in each cell are uncorrelated to the ones in other cells, each LFSR starts with a different initial condition. The primitive polynomial is given by:
+
+f (x) = x16 + x15 + x13 + x4 + 1.
+
+(23)
+
+15
+An LFSR as the one shown in Fig. 14(a) produces a uniform distribution. To bring this a step closer to a Gaussian distribution, we add the outputs of two LFSRs (using an XOR), delivering a triangular distribution. The resulting bit sequence is typically called gold codes. The RC filter at the output, shown in Figure 14(b), smooths that distribution, which approximates a Gaussian distribution.
+For proper operation of the SPU, the noise variance has to be set to a given value. The output of the LFSR, however, has a constant RMS value. This can be resolved by duty-cycling the output of the LFSR. We use Pulse Density Modulation (PDM) with an AND gate as shown in Figure 14(b).
+FIG. 14: (a) Noise source for each cell. (b) 16-bit LFSR pseudo-random bit sequence generator.
+D. Readout of samples
+Reading the voltage across each cell occurs after the capacitance values are set, and the noise source is initiated. In order to collect sufficiently large number of samples to be statistically significant, the sampling rate is expected to be relatively high. On the other hand, high sampling rate might result in non-zero correlation between a sample and a subsequent one. The time until samples become uncorrelated is inversely proportional to the quality factor (Q) of the LC resonators. For this implementation, the optimal sampling rate was found to be 12 MHz, using an eight-channel 10-bit ADS5292 ADC.
+[1] Sara Hooker, “The hardware lottery,” Communications of the ACM 64, 58–65 (2021). [2] Pavel Izmailov, Sharad Vikram, Matthew D Hoffman, and Andrew Gordon Gordon Wilson, “What are bayesian
+neural network posteriors really like?” in International conference on machine learning (PMLR, 2021) pp. 4629– 4640. [3] Yann LeCun, “Objective-driven AI,” https://www.youtube.com/watch?v=vyqXLJsmsrk (2023). [4] Geoffrey Hinton, “Neurips 2022,” https://neurips.cc/Conferences/2022/ScheduleMultitrack?event=55869 (2022). [5] Naeimeh Mohseni, Peter L. McMahon, and Tim Byrnes, “Ising machines as hardware solvers of combinatorial optimization problems,” Nat. Rev. Phys. 4, 363–379 (2022). [6] Navid Anjum Aadit, Andrea Grimaldi, Mario Carpentieri, Luke Theogarajan, John M. Martinis, Giovanni Finocchio, and Kerem Y. Camsari, “Massively parallel probabilistic computing with sparse Ising machines,” Nat. Electron. 5, 460–468 (2022). [7] George Mourgias-Alexandris, Hitesh Ballani, Natalia G Berloff, James H Clegg, Daniel Cletheroe, Christos Gkantsidis, Istvan Haller, Vassily Lyutsarev, Francesca Parmigiani, Lucinda Pickup, et al., “Analog iterative machine (aim): using light to solve quadratic optimization problems with mixed variables,” arXiv preprint arXiv:2304.12594 (2023). [8] Takahiro Inagaki, Yoshitaka Haribara, Koji Igarashi, Tomohiro Sonobe, Shuhei Tamate, Toshimori Honjo, Alireza Marandi, Peter L. McMahon, Takeshi Umeki, Koji Enbutsu, Osamu Tadanaga, Hirokazu Takenouchi, Kazuyuki Aihara, Ken-ichi Kawarabayashi, Kyo Inoue, Shoko Utsunomiya, and Hiroki Takesue, “A coherent ising machine for 2000-node optimization problems,” Science 354, 603–606 (2016). [9] William Moy, Ibrahim Ahmed, Po-wei Chiu, John Moy, Sachin S Sapatnekar, and Chris H Kim, “A 1,968-node coupled ring oscillator circuit for combinatorial optimization problem solving,” Nature Electronics 5, 310–317 (2022). [10] Jeffrey Chou, Suraj Bramhavar, Siddhartha Ghosh, and William Herzog, “Analog coupled oscillator based weighted ising machine,” Scientific reports 9, 14786 (2019). [11] Tianshi Wang and Jaijeet Roychowdhury, “Oim: Oscillator-based ising machines for solving combinatorial optimisation problems,” in Unconventional Computation and Natural Computation: 18th International Conference, UCNC 2019, Tokyo, Japan, June 3–7, 2019, Proceedings 18 (Springer, 2019) pp. 232–256. [12] Bradley H Theilman, Yipu Wang, Ojas Parekh, William Severa, J Darby Smith, and James B Aimone, “Stochastic neuromorphic circuits for solving maxcut,” in 2023 IEEE International Parallel and Distributed Processing Symposium (IPDPS) (IEEE, 2023) pp. 779–787.
+
+16
+[13] Patrick J. Coles, Collin Szczepanski, Denis Melanson, Kaelan Donatella, Antonio J. Martinez, and Faris Sbahi, “Thermodynamic AI and the fluctuation frontier,” (2023), arXiv:2302.06584 [cs.ET].
+[14] Tom Conte, Erik DeBenedictis, Natesh Ganesh, Todd Hylton, John Paul Strachan, R Stanley Williams, Alexander Alemi, Lee Altenberg, Gavin E. Crooks, James Crutchfield, et al., “Thermodynamic computing,” arXiv preprint arXiv:1911.01968 (2019).
+[15] Maxwell Aifer, Kaelan Donatella, Max Hunter Gordon, Thomas Ahle, Daniel Simpson, Gavin E Crooks, and Patrick J Coles, “Thermodynamic linear algebra,” arXiv preprint arXiv:2308.05660 (2023).
+[16] Samuel Duffield, Maxwell Aifer, Gavin Crooks, Thomas Ahle, and Patrick J Coles, “Thermodynamic matrix exponentials and thermodynamic parallelism,” arXiv preprint arXiv:2311.12759 (2023).
+[17] Todd Hylton, “Thermodynamic neural network,” Entropy 22, 256 (2020). [18] Natesh Ganesh, “A thermodynamic treatment of intelligent systems,” in 2017 IEEE International Conference
+on Rebooting Computing (ICRC) (2017) pp. 1–4. [19] Patryk Lipka-Bartosik, Martí Perarnau-Llobet, and Nicolas Brunner, “Thermodynamic computing via au-
+tonomous quantum thermal machines,” arXiv preprint arXiv:2308.15905 (2023). [20] Kerem Y. Camsari, Brian M. Sutton, and Supriyo Datta, “p-bits for probabilistic spin logic,” Appl. Phys. Rev.
+6, 011305 (2019). [21] Shuvro Chowdhury, Andrea Grimaldi, Navid Anjum Aadit, Shaila Niazi, Masoud Mohseni, Shun Kanai, Hideo
+Ohno, Shunsuke Fukami, Luke Theogarajan, Giovanni Finocchio, et al., “A full-stack view of probabilistic computing with p-bits: devices, architectures and algorithms,” IEEE Journal on Exploratory Solid-State Computational Devices and Circuits (2023). [22] Shashank Misra, Leslie C Bland, Suma G Cardwell, Jean Anne C Incorvia, Conrad D James, Andrew D Kent, Catherine D Schuman, J Darby Smith, and James B Aimone, “Probabilistic neural computing with stochastic devices,” Advanced Materials 35, 2204569 (2023). [23] Samuel Liu, T Patrick Xiao, Jaesuk Kwon, Bert J Debusschere, Sapan Agarwal, Jean Anne C Incorvia, and Christopher H Bennett, “Bayesian neural networks using magnetic tunnel junction-based probabilistic in-memory computing,” Frontiers in Nanotechnology 4, 1021943 (2022). [24] Vikash Kumar Mansinghka et al., Natively probabilistic computation, Ph.D. thesis, Citeseer (2009). [25] Kevin P Murphy, Probabilistic machine learning: an introduction (MIT press, 2022). [26] Christopher Williams and Carl Rasmussen, “Gaussian processes for regression,” Advances in neural information processing systems 8 (1995). [27] Jeremiah Liu, Zi Lin, Shreyas Padhy, Dustin Tran, Tania Bedrax Weiss, and Balaji Lakshminarayanan, “Simple and principled uncertainty estimation with deterministic deep learning via distance awareness,” Advances in Neural Information Processing Systems 33, 7498–7512 (2020). [28] Tianqi Chen, Emily Fox, and Carlos Guestrin, “Stochastic gradient hamiltonian monte carlo,” in International conference on machine learning (PMLR, 2014) pp. 1683–1691. [29] Peter W Shor, “Scheme for reducing decoherence in quantum computer memory,” Physical review A 52, R2493 (1995). [30] Peter W Shor, “Polynomial-time algorithms for prime factorization and discrete logarithms on a quantum computer,” SIAM review 41, 303–332 (1999). [31] Isaac L Chuang, Neil Gershenfeld, and Mark Kubinec, “Experimental implementation of fast quantum searching,” Physical review letters 80, 3408 (1998).
+
+17
+Supplemental Information for “Thermodynamic Computing System for AI Applications”
+A. Overview In this Supplemental Information, we will cover the following topics:
+• Additional experimental implementations • Device characterization • Derivation of circuit Hamiltonian • Details for covariance-based sampling
+B. Additional experimental implementations 1. Additional matrix inversion data
+Here we provide some additional data for inverting matrices on our SPU. Figure 15 shows the effect of certain matrix properties on the inversion error from our SPU, for the case of symmetric positive definite matrices. At the theoretical level, it is expected that increasing the condition number, κ (the ratio of the largest to the smallest eigenvalue of the matrix), should increase the difficulty of matrix inversion. For example, for our thermodynamic matrix inversion algorithm, the runtime in the underdamped regime was shown to be O(d2κϵ−2) [15]. The left panel of Fig. 15 indeed shows that error rises with condition number, as expected. Similarly, we see in the right panel of Fig. 15 that the error goes down as the smallest eigenvalue increases in magnitude.
+FIG. 15: Effect of condition number and smallest eigenvalue on the inversion error. We consider matrix inversion while varying certain properties of the matrix, for symmetric positive definite matrices. The left panel shows the inversion error versus the condition number of the matrix. The right panel shows the inversion error versus the smallest eigenvalue of the matrix.
+2. Least-squares regression Here we consider an additional application for our thermodynamic hardware: least-squares regression. Specifically, linear least-squares involves matrix inversion as a subroutine. Hence, we can run this subroutine on our hardware, and when appropriately scaled up, our hardware could accelerate this subroutine of the least-squares regression algorithm.
+
+18
+
+FIG. 16: Running the linear least-squares regression problem on our SPU. The training data are shown as blue dots. The results from the SPU are shown in the solid red curve, while the results from a digital device are shown as the black dotted line. For the SPU case, the matrix inversion portion of Eq. (B1) are run on the SPU. We find the β0SPU, β1SPU = (2.26, 0.49) and β0digital, β1digital = (2.24, 0.52).
+
+In more detail, consider a dataset where y is a vector whose ith element is the ith observation of the dependent variable, and where X is a matrix whose (i, j)th element is the ith observation of the jth dependent variable. Then the solution of the linear least-squares regression problem is given by the following equation:
+
+β = (XT X)−1y
+
+(B1)
+
+Here, β is the vector of unknown parameters, and the above equation gives the optimal set of parameters. Here there are two parameters, the intercept β0 and the slope β1.
+Figure 16 shows the results of applying our SPU to a linear least-squares regression problem for a particular dataset. Namely, we use our SPU to compute the matrix inverse that appears in Eq. (B1), and then the matrix-vector multiplication in this equation is performed digitally. One can see that a reasonable fit to the data is achieved with our SPU, fairly similar to the result obtained from performing the whole regression algorithm digitally.
+
+C. Device Characterization
+1. Spectroscopy with Noise Driving
+The characterization of the device means to identify the values of the electrical components as they are in the final product (how much they differ from the nominal design values). One method that enables us to do this without modifying the PCB or requiring outside equipment is noise-driven spectroscopy.
+This technique involves driving our system with FPGA white noise and monitoring the response of the system by measuring the voltage at the output. If we assume that the driving noise is Gaussian white noise, the power spectrum of the noise is flat and has infinite bandwidth. This means that the system is effectively being driven at every frequency, and as such the output will contain the response of the system to all frequencies and should contain the resonance frequency peak of the RLC unit cell. The noise used in the device is pseudo-Gaussian white noise that has a relatively flat power spectrum up to the sampling frequency of the device of 12 MHz. This is not a limitation of this method because we use a similar digital pseudo-random noise source for our model.
+By running the same protocol on a simple SPICE model of the device, we are able to fit and determine the values of the circuit parameters. The model used is a the one from fig. 1, with fixed components and a Gaussian current source. We run a SPICE simulation to gather samples in the same conditions of the
+
+19
+
+FIG. 17: Example fit of the power spectrum (Left) and histogram (Right) from cell 7 of the device.
+
+TABLE I: Table of best fit parameters from all 8 cells in configuration 3 of the unit cell capacitor banks.
+
+Cell ID L(µH) R(Ω) κ0(µA2Hz−1) C(nF)
+
+7 1.77 76.7 0.206
+
+6.77
+
+6 2.22 94.6 0.0632 6.14
+
+5 1.48 63.3 0.0738 6.22
+
+4 1.32 30.5 0.114
+
+6.44
+
+3 1.29 43.7 0.0631 6.21
+
+2 1.19 34.8 0.0448 6.71
+
+1 0.989 30.7 0.0660 6.44
+
+0 0.918 26.9 0.0697 6.40
+
+device, then we determine the power spectrum and fit to the device. The cost function of the fit includes the spectrum error and the variance error (the difference between the device sample variance and the SPICE simulation sample variance). Figure 17 shows a visualization of the fit results, we see great agreement between the SPICE model and the device. The best fit values were relatively close to the nominal values except for non-uniformity due to the specific implementation of the transformer-based coupling used (see Supplemental Information).
+A similar approach can be used to determine the effective capacitive coupling between the cells, with an added penalty term in the cost function related to the covariance between the cells. The best fit values for the capacitive coupling can be up to a factor of two smaller than the nominal values. This can be attributed to the resistive damping within the coupling circuitry that was not included in this simplified model. This effective lowering of the coupling can be accounted for by using the best fit values in the compilation or embedding of the desired covariance matrix.
+Table I shows the fit parameters for each cell at maximum capacitance (3 in the FPGA configuration matrix).
+a. Spectroscopy-based method for finding hardware issues
+When assembling a PCB, there is always a possibility, however small, of hardware issues. In order to quickly characterize the device for any faults, a two-cell spectroscopy experiment was used to determine the
+
+20
+
+FIG. 18: Sample variance of each cell in different capacitor bank configurations.
+
+qualitative function. In this experiment, one cell is used as the drive cell while the second cell is used as a probe cell. The drive cell is the only cell with any noise driving (usually a noise level of 100%), while the probe cell is where we take voltage measurements (samples). When the drive cell and the probe cell are the same, this means we are looking at the self-driving of that cell. This is then repeated for all combinations of cells and for the cases of zero coupling, positive coupling, and negative coupling. The samples from the probe cell are then used to calculate the power spectrum. The power spectrum of each cell and each coupling should have a peak at the designed frequency, if this peak is absent, below a certain threshold or shifted considerably in frequency, then we can flag this for further investigation. Running this test on the device takes on the order of 5 minutes and can pin-point problems that would have taken hours by hand.
+
+2. Post-processing to correct non-uniformity
+
+The current design of the PCB has an unfortunate property that makes the unit cells have different properties when they should be identical. For example, when setting up the device to have the identity covariance matrix, the covariance matrix of the samples does not have a uniform diagonal as would be expected. Specifically, the variances are monotonically increasing with the cell number; cell 0 has a smaller variance than cell 7 even when both cells have the same capacitance.
+Figure 18 shows a plot of the sample variance for each cell for each capacitor configuration (the configuration of the switching capacitor bank). In these plotted examples, the capacitance matrix is diagonal (all coupling turned off) and uniform for all cells.
+As discussed in the main text, the form of the sample covariance matrix, assuming that both the resistance matrix and the noise driving are proportional to the identity, should be given by
+
+ΣV = κ0RC−1
+
+(C1)
+
+This theory predicts that the variance of the samples from the device with an identity capacitance matrix should be identity. This is not what we see in practice, as shown in Figure 18.
+
+a. Calibration method
+In an attempt to overcome this issue, we use the insight from the analytical treatment to correct for this through post-processing.
+1. The first step is to take samples from the identity capacitance matrix as a baseline (usually configuration 0 of the capacitor bank in the unit cells, with all couplings turned off).
+
+21
+FIG. 19: Heat maps of the input capacitance matrix (Top Left), the target covariance matrix, which corresponds to the inverse of the input (Top Right), the raw uncorrected sample covariance matrix (Bottom Left), and the corrected sample covariance matrix (Bottom Left).
+2. The second step is to calculate a scaling vector based on the identity samples. This scaling vector is calculated from the diagonal values of the sample covariance matrix from step 1. The scaling vector is given by the inverse of the square-root of the diagonal.
+3. The third step is to take samples from the desired experiment with arbitrary capacitance matrix. 4. The fourth step is to re-scale the samples from the desired experiment with the scaling vector found
+from step 2. This is done by multiplying the samples from each cell by the corresponding value in the scaling vector. Doing this on the identity matrix itself (configuration 0 of the capacitor banks with all couplings turned off) results in the plots shown in Figure 19, where the non-uniformity of the diagonal is corrected.
+b. Model based on parallel loading The explanation behind this non-uniform variance is the non-symmetric implementation of the coupling unit on the PCB. The coupling unit circuit diagram is shown in Figure 20. This circuit is inserted between every pair of cells on the PCB to act as bipolar capacitive coupling. In Fig. 20, one cell is connected to node ‘A’ and a second cell is connected to node ‘B’. In this configuration, cell ‘A’ is directly connected to the transformer while cell ‘B’ is indirectly connected to it through a capacitor. This has the effect of asymmetrically loading the cells. This coupling circuit is identical for all couplings on the PCB and is always in the same orientation. This means that the cells on the left half of the PCB are connected predominantly to node ‘A’, while cells on the right half of the PCB are predominantly connected to node ‘B’. This means that cells with a higher proportion of their connections being on node ’B’ will have less parallel damping from the transformers than
+
+22
+
+FIG. 20: Circuit diagram of the coupling circuit responsible for connecting all the cells.
+
+cells predominantly connected to node ’A’. When numbering the cells from left to right, we get that the lower numbered cells have more effective loading than the higher numbered ones.
+To test this theory, we devise a simple model based on parallel loading of the added resistance by the coupling circuit. The formula for the effective resistance from two parallel resistors is given by
+
+1 Ref f
+
+=
+
+1 R1
+
++
+
+1 R2
+
+(C2)
+
+This can be extended to our case by introducing the cell resistance R, the coupling circuit resistance Rc, the total number of cells in the circuit Ntot, and the individual cell ID i. The equation for the effective resistance seen by cell i in the PCB becomes
+
+Ri′ =
+
+1
+
+1 R
+
++
+
+Ntot −1−i Rc
+
+.
+
+(C3)
+
+On first approximation from Eq. C1, the covariance matrix should be directly proportional to the effective resistance in the cells (for a constant capacitance value). We can thus suggest the following model for the variances and fit the data (where Ntot = 8)
+
+Σii
+
+=
+
+b
+
++
+
+ab (7 −
+
+i)a .
+
+(C4)
+
+Figure 21 shows this model fit to the device sample variances, which appears to explain the main trend. In future versions of the PCB, this feature could be corrected by including a capacitor on both sides of the transformer for example.
+
+D. Derivation of capacitively coupled oscillators Hamiltonian
+The stationary distribution of a system undergoing Langevin dynamics will be closely related to the noiseless and dissipation-free Hamiltonian of the same system. In this section we derive a simplified Hamiltonian that describes well our device in the limit of zero dissipation and zero noise.
+
+1. Circuit Lagrangian
+
+Consider a set of N harmonic oscillators, each capacitively coupled to all the others. Any pair i, j of oscillators can be represented by the subcircuit shown in Figure 22.
+The total inductive energy of the circuit is
+
+EL
+
+=
+
+1 2
+
+N
+
+LiIi2
+
+i=1
+
+23
+
+FIG. 21: Fit of the parallel resistive loading model (dashed lines) to the sample variance data (solid points).
+
+FIG. 22: Circuit diagram for a pair of capacitively coupled oscillators in a network of capacitively coupled harmonic oscillators that maps to a multivariate normal probability distribution.
+
+If we define the inductive matrix as
+
+Lkl =
+
+Lk 0
+
+if if
+
+k k
+
+= ̸=
+
+l l
+
+,
+
+then we can write the total inductive energy as
+
+The total capacitive energy is
+
+EL
+
+=
+
+1 2
+
+I⃗T
+
+LI⃗.
+
+
+
+
+
+EC
+
+=
+
+1 2
+
+N
+
+CiiVi2 +
+
+N
+
+Cij (Vi − Vj )2 .
+
+i=1
+
+j=i+1
+
+To simplify the subsequent calculus, define the Maxwell capacitance matrix C as
+
+Ckl =
+
+j Ckj −Ckl
+
+if k = l . if k ̸= l
+
+24
+
+Then we can rewrite the capacitive energy as
+
+EC
+
+=
+
+1 2
+
+ij
+
+ViCij Vj .
+
+Suppose we want to treat the currents through the inductors as our position coordinates. To write down a Lagrangian, we rewrite the voltages in terms of the time derivatives of these position coordinates. For each voltage, we have the relation Vi = LiI˙i. Thus we can write the capacitive energy as
+
+EC
+
+=
+
+1 2
+
+I˙iLiCij Lj I˙j .
+
+ij
+
+Now the Lagrangian for the system can be written as
+
+L({Ii, I˙i}N1 )
+
+=
+
+1 2
+
+I˙iLiCij Lj I˙j
+
+−
+
+1 2
+
+N
+
+LiIi2.
+
+ij
+
+i=1
+
+2. Circuit Hamiltonian
+
+Hamiltonians are defined in terms of N positions qi, N momenta pi, and Lagrangian L as
+
+H = piq˙i − L
+i
+
+where the momenta are defined as
+
+pi
+
+=
+
+∂L({qj, q˙j}N1 ) ∂q˙i
+
+In our case the momentum is
+
+pk
+
+=
+
+∂L({Ij, I˙j}N1 ) ∂I˙k
+
+=
+
+1 2
+
+ij
+
+δikLkCkj Lj I˙j + δjkI˙iLiCikLk
+
+=
+
+1 2
+
+LkCkj Lj I˙j +
+
+I˙j Lj CjkLk
+
+j
+
+j
+
+= LkCkj Lj I˙j
+j
+
+where, going line by line, we used: definition of conjugate momentum; product rule for derivatives; contract kronecker delta and relabel indices; and C is a symmetric matrix. We can summarize this in a matrix equation:
+
+p⃗ = LCLI⃗˙
+
+implying
+
+I⃗˙ = L−1C−1L−1p⃗.
+
+Then the Lagrangian can be rewritten as
+
+L({Ii, pi}N1 )
+
+=
+
+1 2
+
+I⃗˙T
+
+LCLI⃗˙
+
+−
+
+1 2
+
+I⃗T
+
+LI⃗
+
+=
+
+1 2
+
+p⃗T
+
+L−1
+
+C−1L−1
+
+LCLL−1C−1
+
+L−1p⃗
+
+−
+
+1 2
+
+I⃗T
+
+LI⃗
+
+=
+
+1 2
+
+p⃗T
+
+L−1
+
+C−1L−1
+
+p⃗
+
+−
+
+1 2
+
+I⃗T
+
+LI⃗.
+
+25
+
+This implies the Hamiltonian of the system is
+
+H
+
+=
+
+1 2
+
+p⃗T
+
+L−1C−1L−1
+
+p⃗
+
++
+
+1 2
+
+I⃗T
+
+LI⃗.
+
+In terms of circuit parameters, we have the voltage across the inductor as
+
+V⃗ind = LI⃗˙,
+
+so the momentum is
+
+p⃗ = LCV⃗ind
+
+and so the voltage in terms of the momentum is
+
+V⃗ind = C−1L−1p⃗
+
+Then, the Hamiltonian can also be calculated as
+
+H
+
+=
+
+1 2
+
+V⃗iTndCV⃗ind
+
++
+
+1 2
+
+I⃗T
+
+LI⃗.
+
+3. Change of coordinates
+
+The correspondence to Langevin dynamics is simplified by introducing the following change of variables. First define the “Maxwell charge vector" as
+
+Q = CV,
+
+(D1)
+
+and the “flux vector" as
+
+Φ = LI.
+
+(D2)
+
+Physically the components of the Maxwell charge vector do not correspond to the charges on individual capacitors, but satisfy the relation Q˙ = −I, where the negative sign is due to the convention we have chosen for current. In terms of these variables, the Hamiltonian is
+
+H (Φ, Q)
+
+=
+
+1 2
+
+ΦT
+
+L−1Φ
+
++
+
+1 2
+
+QT
+
+C−1
+
+Q.
+
+(D3)
+
+For a noiseless system with this Hamiltonian, the dynamics would be given by Hamilton’s equations
+
+Φ˙ = ∇QH = C−1Q Q˙ = −∇ΦH = −L−1Φ,
+
+(D4) (D5)
+
+which is equivalent to the dynamical equations Q˙ = −I and Φ˙ = V , confirming that Φ and Q are canonically conjugate variables. It is clear from our statement of Hamilton’s equations that Φ is playing the role of position here, and Q is playing the role of momentum.
+
+E. Covariance-based sampling
+
+As explained in the main text, a coordinate transformation is made to the canonically conjugate vectors Φ and Q,
+
+Φ = LI, Q = CV.
+
+(E1)
+
+The voltage vector V and current vector I evolve under the following equations, which were derived earlier
+
+dI = L−1V dt dV = −C−1R−1V dt − C−1Idt + √2κ0C−1N [0, I dt].
+
+(E2) (E3)
+
+26
+
+In terms of Φ and Q, Eqs. (E2) and (E3) can be written as
+dΦ = C−1Q dt dQ = −L−1Φ dt − R−1C−1Q dt + N [0, 2R−1β−1I dt].
+
+(E4) (E5)
+
+Note that in the absence of noise and damping, the equations of motion would be
+
+dΦ = C−1Q dt dQ = −L−1Φ dt.
+
+(E6) (E7)
+
+These are identical to Hamilton’s equations when the Hamiltonian function is given by
+
+H(Φ, Q)
+
+=
+
+1 2
+
+Q⊺C−1
+
+Q
+
++
+
+1 2
+
+Φ⊺L−1Φ.
+
+(E8)
+
+If we identify Φ as the position coordinate and Q as the momentum coordinate. That is,
+
+Φ˙ = ∂QH,
+
+(E9)
+
+and
+
+Q˙ = −∂ΦH,
+
+(E10)
+
+meaning that Φ and Q are canonically conjugate variables.
+
+It is clear that Eqs. (E4) and (E5) are equivalent to (1) and (2) when we make the identifications x = Φ,
+
+p = Q,
+
+M
+
+=
+
+C,
+
+γ
+
+= R−1,
+
+and
+
+U (x)
+
+= U (Φ)
+
+=
+
+1 2
+
+ΦT
+
+L−1Φ.
+
+In
+
+these
+
+coordinates
+
+the
+
+Hamiltonian,
+
+without
+
+noise or dissipation, of the system is expressed as
+
+H (Φ, Q)
+
+=
+
+1 2
+
+ΦT
+
+L−1Φ
+
++
+
+1 2
+
+QT
+
+C−1
+
+Q,
+
+(E11)
+
+Because the Hamiltonian takes this form, it follows from the results of [28] that the Langevin equation has the stationary distribution quoted in the main text
+
+Φ ∼ N [0, β−1L], Q ∼ N [0, β−1C].
+
+(E12)
+
+Note that the charge vector Q can be obtained by integrating the current that flows through each cell, that is
+
+t
+Qj(t) = dt′Ij(t′),
+0
+
+(E13)
+
+where Ij is the current flowing through the resistor in the ith cell. These integrals can be carried out by sending the voltage across each resistor into an analog integrator circuit, and measuring the integrated charge to obtain Q.
+

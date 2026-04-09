@@ -1,0 +1,924 @@
+J. Fluid Mech. (2018), vol. 851, pp. 606–635. c© Cambridge University Press 2018 doi:10.1017/jfm.2018.533
+606
+Stokes flow of vesicles in a circular tube
+Joseph M. Barakat1 and Eric S. G. Shaqfeh1,2,3,†
+1Department of Chemical Engineering, Stanford University, Stanford, CA 94305, USA
+2Department of Mechanical Engineering, Stanford University, Stanford, CA 94305, USA
+3Institute for Computational and Mathematical Engineering, Stanford University, Stanford, CA 94305, USA
+(Received 18 December 2017; revised 30 March 2018; accepted 27 June 2018; first published online 30 July 2018)
+The inertialess motion of lipid-bilayer vesicles flowing through a circular tube is investigated via direct numerical simulation and lubrication theory. A fully three-dimensional boundary integral equation method, previously used to study unbounded and wall-bounded Stokes flows around freely suspended vesicles, is extended to study the hindered mobility of vesicles through conduits of arbitrary cross-section. This study focuses on the motion of a periodic train of vesicles positioned concentrically inside a circular tube, with particular attention given to the effects of tube confinement, vesicle deformation and membrane bending elasticity. When the tube diameter is comparable to the transverse dimension of the vesicle, axisymmetric lubrication theory provides an approximate solution to the full Stokes-flow problem. By combining the present numerical results with a previously reported asymptotic theory (Barakat & Shaqfeh, J. Fluid Mech., vol. 835, 2018, pp. 721–761), useful correlations are developed for the vesicle velocity U and extra pressure drop 1p+. When bending elasticity is relatively weak, these correlations are solely functions of the geometry of the system (independent of the imposed flow rate). The prediction of Barakat & Shaqfeh (2018) supplies the correct limiting behaviour of U and 1p+ near maximal confinement, whereas the present study extends this result to all regimes of confinement. Vesicle–vesicle interactions, shape transitions induced by symmetry breaking, and unsteadiness introduce quantitative changes to U and 1p+. By contrast, membrane bending elasticity can qualitatively affect the hydrodynamics at sufficiently low flow rates. The dependence of U and 1p+ on the membrane bending stiffness (relative to a characteristic viscous stress scale) is found to be rather complex. In particular, the competition between viscous forces and bending forces can hinder or enhance the vesicle’s mobility, depending on the geometry and flow conditions.
+Key words: boundary integral methods, capsule/cell dynamics, lubrication theory
+1. Introduction
+A vesicle is a sac of fluid enclosed by an inextensible, lipid-bilayer membrane that admits resistance to bending deformation. When freely suspended in a mean flow,
+† Email address for correspondence: esgs@stanford.edu
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 607
+vesicles deform and produce a velocity disturbance that influences nearby vesicles and bounding surfaces (Kantsler & Steinberg 2006; Misbah 2006; Danker et al. 2007; Vlahovska & Gracia 2007; Vitkova et al. 2008; Bagchi & Kalluri 2010, 2011; Zhao & Shaqfeh 2011; Zhao, Spann & Shaqfeh 2011). In bulk shear flow, pairwise ‘dipole’ interactions have a pronounced effect on the apparent shear viscosity and normal stress differences of a vesicle suspension (Kantsler, Segre & Steinberg 2008b; Zhao & Shaqfeh 2013a). These hydrodynamic quantities depend on the vesicle shape, volume fraction, viscosity contrast, and membrane bending modulus, which together comprise a rich parameter space for vesicle suspension rheology. Less has been reported on the hydrodynamics of vesicles in bounded Poiseuille flows, in which particle interactions are screened by the conduit walls to produce an exponentially decaying velocity disturbance (Sonshine & Brenner 1966; Liron & Shahar 1978). In circular Poiseuille flow with tube radius R and suspending medium viscosity μ, a freely suspended vesicle samples only a portion of the velocity field and translates with an axial velocity U that is different from the mean fluid velocity V in the far field. The relative velocity U/V thus measures the vesicle mobility in comparison to the mean flow. The velocity disturbance produced by the suspended vesicle enhances the viscous traction on the tube wall, resulting in a pressure drop 1p+ in excess of the vesicle-free flow (Brenner 1970). The dimensionless extra pressure drop 1p+R/(μV) is important, for example, in the determination of the effective viscosity of a vesicle suspension in conduit flow. Since vesicles can deform in response to flow (unlike rigid particles), the dimensionless groups U/V and 1p+R/(μV) are nonlinearly coupled. To date, the only experimental study of vesicle motion in capillary flow is due to Vitkova, Mader & Podgorski (2004). In their study, the authors reported axisymmetric shapes and measured the effect of capillary confinement on the relative velocity U/V. They showed that capillary confinement reduces the mobility, but did not highlight the effect of shape deformation on the mobility nor did they measure the dimensionless extra pressure drop 1p+R/(μV). Recent advances in the numerical simulation of vesicles in viscous flows motivates theoretical investigation of bounded vesicle suspensions. Such problems are of the ‘free boundary type’, meaning that the hydrodynamical calculation is coupled to determination of the vesicle shape for a particular flow geometry. Recently, Barakat & Shaqfeh (2018) developed a rigorous theory using the method of matched asymptotic expansions for the motion of a vesicle in a bounded Poiseuille flow in the limit where the ratio of the vesicle radius to the tube radius λ = R0/R approaches a critical value λc (here, R0 =
+√A0/(4π) is defined with respect to the vesicle surface area A0). The critical radius ratio λc is related to the vesicle reduced volume υ = Ω0/((4/3)πR3
+0) (Ω0 being the vesicle volume) by the equation for a spherocylinder, 2υλc3 − 3λc2 + 1 = 0. (1.1)
+For λ > λc, the vesicle cannot pass through the tube cleanly without rupturing. In the limit as λ → λc, the thin film separating the vesicle membrane from the tube wall becomes vanishingly small compared to the tube radius. The asymptotic theory of Barakat & Shaqfeh (2018) produced the following predictions for the relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) as λ → λc (equations (8.8) and (8.9) in their paper):
+U
+V =1+
+4
+3
+( 3λ2
+c −2
+4λc2 − 3
+)(
+1−
+λ
+λc
+)
++O
+[ (
+1−
+λ
+λc
+)2]
+, (1.2a)
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+608 J. M. Barakat and E. S. G. Shaqfeh
+1p+R
+μV = 4(λ2
+c − 1)
+(
+1−
+λ
+λc
+)−1
++
+(
+4
+√
+2π
+4λc2 − 3
+) (
+1−
+λ
+λc
+)−1/2
++ O(1). (1.2b)
+These equations were obtained by approximating results for a wide range of values of λc, spanning ‘sphere-like’ vesicles (λc = 1) to ‘spherocylinder-like’ vesicles (λc > 1). The effect of membrane bending elasticity, which can become relevant at low flow rates and for highly aspherical vesicles, is neglected in (1.2). Although the theory of Barakat & Shaqfeh (2018) is asymptotic in the limit λ/λc → 1, the radius of convergence of the asymptotic series for 1p+R/(μV) is extremely small due to the stress singularity at maximal confinement. As such, their theory cannot yield quantitative results for the pressure drop when the ratio λ/λc is sufficiently less than unity. Although some analytical progress is possible in the opposite limit (λ/λc → 0) via small-deformation theory (Danker, Vlahovska & Misbah 2009; Farutin & Misbah 2011), the resulting predictions are limited to nearly spherical vesicles and cannot be used to study a large shape configuration space. Therefore, direct numerical methods are vital to supply accurate predictions in the regime 0 < λ/λc < 1. Unfortunately, the three-dimensional (3D) computation of vesicle motion in conduit flow has proven to be a difficult task, mainly for two reasons. Firstly, vesicles that are suspended in a viscous flow are prone to shape transitions (Kantsler & Steinberg 2006; Deschamps, Kantsler & Steinberg 2009; Zhao & Shaqfeh 2011; Farutin & Misbah 2012) and shape instabilities (Kantsler, Segre & Steinberg 2008a; Zhao & Shaqfeh 2013b; Narsimhan, Spann & Shaqfeh 2014, 2015) due to nonlinearities associated with vesicle membrane incompressibility. These phenomena are further convoluted by the various numerical instabilities that can arise in a hydrodynamical computation, which are sometimes difficult to differentiate from actual ‘physical instabilities’. Secondly, bounded fluid-flow calculations typically require highly refined grids in order to resolve the hydrodynamic interaction between the vesicle surface and the wall boundary. As a result, these calculations can become computationally expensive. The latter issue is a general facet of all bounded suspension calculations. For example, Janssen et al. (2012) reported that the collective motion of droplets and rigid particles between two parallel plates could take up to months to resolve (very long residence times) using the boundary element method (BEM). Particle motion in conduit flow represents an even more challenging task due to enhanced particle–wall interactions, which result in an exponential decay of the velocity disturbance as a function of distance from the source. By contrast, the disturbance field in a parallel-plate geometry decays algebraically, as shown by Liron & Mochon (1976). Due to the aforementioned challenges, previous numerical studies on bounded vesicle suspensions have mainly focused on two-dimensional (2D) or axisymmetric geometries, specifically examining morphological (i.e., shape) changes due to confinement. As pointed out in an appendix by Thiebaud & Misbah (2013), the velocity disturbance produced in a 2D Poiseuille flow decays exponentially and, therefore, is somewhat analogous to the particle–wall interaction of a particle suspended in 3D circular Poiseuille flow. Kaoui et al. (2011) reported a theoretical phase diagram of shapes for 2D vesicles in bounded channel flow. Although these authors reported some results for 3D vesicles (including evidence for asymmetric shapes), they concluded that the equivalent 3D calculations were ‘too time consuming’ for systematic study. Aouane et al. (2017) examined the hydrodynamic interaction for a pair of vesicles, also focusing on a 2D geometry. Trozzo et al. (2015) reported axisymmetric Stokes-flow simulations of vesicles in circular tubes, reproducing several of the shapes observed experimentally by Vitkova et al. (2004). Their method relies
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 609
+on the axisymmetric Green’s function of Tözeren (1984) and thus does not require discretization of the channel wall. However, in light of the asymmetric shapes reported by Kaoui et al. (2011) and others, it is unclear that the axisymmetric geometry is an accurate reflection of the actual 3D motion of vesicles in tubes. In the present study, the motion of vesicle trains in a circular tube is simulated using a previously reported Stokes-flow boundary integral equation method (Zhao, Shaqfeh & Narsimhan 2012; Zhao & Shaqfeh 2013a). Although the present work focuses on circular tubes, the numerical method is amenable to conduits of arbitrary cross-section. The principal goal of this study is to examine the influence of the relevant dimensionless parameters on vesicle shape deformation and hydrodynamics in the confined geometry. A periodic arrangement of identical vesicles, initially placed on the channel centreline with uniform spacing in the axial direction, is assumed a priori. This configuration is an idealization of vesicle suspension flow through a conduit. In reality, the suspension configuration will depend on both the concentration and polydispersity of the suspension. Such effects are not the focus of the present work, nor is the stability of the assumed arrangement with respect to fluctuations in concentration. Under moderate confinement, the numerical simulation technique presented herein accurately and efficiently solves the Stokes-flow problem for a wide variety of conditions. As confinement increases, regions of the fluid film become thin, demanding the use of sufficiently refined meshes to accurately capture the lubrication interaction. 3D numerical simulation techniques become impractical in this regime due to the high computational cost, even with the speedup gained by using fast, matrix-free iterative solvers. It is for this reason that a lubrication theory is also developed herein in order to predict the vesicle motion under high confinement. It is shown that this theory accurately predicts the (most confined) BEM calculations and achieves the correct asymptotic behaviour reported by Barakat & Shaqfeh (2018). Although the focus of the present work is on the steady-state motion, it is demonstrated herein that the nonlinear evolution of the vesicle shape introduces temporal dynamics and symmetry breaking. These temporal variations in vesicle shape morphology typically result in only minor changes to the relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV). Consequently, while it is a rather laborious task to systematically map out the long-time dynamics of vesicle shape morphology in conduit flow, it is comparatively easier (and useful) to quantify the hydrodynamics over a wide parameter space with acceptable accuracy. Furthermore, it is shown that when vesicles are highly confined, their motion is steady and well described by lubrication theory. This paper is organized as follows. In § 2, the governing equations for the Stokes-flow calculation are presented as an initial-boundary-value problem. The numerical method using the boundary integral formulation is discussed in § 3. An axisymmetric lubrication theory is developed in § 4 for a single vesicle. A discussion of the numerical results is presented in § 5. Concluding remarks are given in § 6.
+2. Governing equations
+A schematic of the domain is shown in figure 1 with Cartesian axes (x, y, z) = (x1, x2, x3). A periodic train of identical vesicles is placed along the axis of a circular tube of radius R. The vesicles are oriented so that their initial configuration at time t = 0 is symmetric about the x-axis with spacing Lx between their centroids (here, the vesicle–vesicle separation distance Lx supplants the suspension concentration as an
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+610 J. M. Barakat and E. S. G. Shaqfeh
+FIGURE 1. Schematic of a periodic train of identical vesicles in a circular tube. Only the z = 0 plane is shown. The system is symmetric about the x-axis at t = 0.
+independent parameter, due to the assumed configuration). The exterior fluid volume is denoted by Ω, the interior fluid volume by Ω0, the wall surface by W, and the vesicle surface by M. In the creeping flow regime, the fluid velocity u and stress S satisfy the Stokes equations (written below in Einstein notation),
+∂ uj
+∂ xj
+= 0,
+∂ Sij
+∂ xj
+=−
+∂p
+∂ xi
++ μ∇2ui = 0,
+
+  
+  
+x ∈ Ω\Ω0, (2.1a)
+∂ uj
+∂ xj
+= 0,
+∂ Sij
+∂ xj
+=−
+∂p
+∂ xi
++ μˆ ∇2ui = 0,
+
+  
+  
+x ∈ Ω0, (2.1b)
+where μ is the exterior fluid viscosity, μˆ is the interior fluid viscosity and p is the fluid pressure (a Lagrange field that enforces volume incompressibility). On the tube wall, the velocity u is subject to the ‘no-slip condition’,
+ui = 0, x ∈ W. (2.2a,b)
+The vesicle train is forced into motion by a mean flow:
+ui = 〈ui〉 + upi, 〈upi〉 = 0, (2.3)
+Sij = −xk
+〈 ∂p
+∂ xk
+〉
+δij + Spij, 〈Spij〉 = 0, (2.4)
+where up and Sp are periodic and 〈 · 〉 ≡ (1/Ωp) ∫
+Ωp( · ) d3x denotes the appropriate
+average over a periodic volume Ωp. The volume-averaged velocity 〈u〉 is specified a priori, with the average pressure gradient 〈∇p〉 uniquely determined by a force balance (Zhao et al. 2010),
+〈 ∂p
+∂ xi
+〉
+=−
+1
+Ωp
+∫
+W
+fi dS(x), (2.5)
+where f = S · n is the fluid traction and n is the unit normal of the surface. The imposed mean flow results in a mean tube velocity,
+V=
+1
+πR2
+∫
+S
+u1 dS(x), (2.6)
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 611
+where S denotes a tube cross-sectional surface of constant x. The (axial component of the) translational velocity of any vesicle in the train is given by,
+U=
+1
+Ω0
+∫
+Ω0
+u1 d3x,
+=
+1
+Ω0
+∫
+M
+x1uini dS(x), (2.7)
+where to the second line the divergence theorem and the continuity condition have been applied. Here, Ω0 denotes the vesicle volume. The vesicle membrane is treated as an internally fluid, incompressible surface with a bending stiffness B. The bending energy of the bilayer governed by the Helfrich energy functional (Helfrich 1973),
+E = 2B
+∫
+M
+H2 dS(x), (2.8)
+where H is the mean curvature. By applying the principle of virtual work to (2.8) (subject to the constraint that membrane surface area be conserved locally), one derives the membrane force density that balances the net traction exerted on the membrane by the bulk fluids (Jenkins 1977; Zhong-can & Helfrich 1989). Thus, the jump conditions for u and S on M are found to be
+JuiK = 0,
+niJfiK = −2Hτ + 2B
+[
+Pij
+∂
+∂ xj
+(
+Pik
+∂H
+∂ xk
+)
++ 2(H2 − K)H
+]
+,
+PijJfjK = −Pij
+∂τ
+∂ xj
+,
+
+     
+     
+x ∈ M, (2.9)
+where J · K is the ‘jump’ operator, P = I − nn is the surface projection tensor, K is the Gaussian curvature, and τ is the membrane tension (a Lagrange field that enforces surface-area incompressibility on M). The curvature invariants H and K are related to n by the relations
+2H = −
+∂ nj
+∂ xj
+, 2K =
+∂ ni
+∂ xj
+∂ nj
+∂ xi
+−
+( ∂nj
+∂ xj
+)2
+, x ∈ M. (2.10a,b)
+Just as the fluid pressure p guarantees satisfaction of the incompressibility conditions in the bulk fluid (requiring that u be solenoidal), the membrane tension τ enforces the surface incompressibility condition,
+Pij
+∂ ui
+∂ xj
+= 0, x ∈ M. (2.11)
+This equation stipulates that u be solenoidal (in the two-dimensional sense) on M. Since M is a free surface, the kinematic condition further requires that the membrane translate with the local fluid velocity,
+Dxsi
+Dt =
+∂ xsi
+∂t + uj
+∂ xsi
+∂ xj
+= ui, x ∈ M, (2.12)
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+612 J. M. Barakat and E. S. G. Shaqfeh
+where D/Dt is the material derivative and xs denotes the position of a point on the membrane. The unit normal n can be related to xs via standard relations from differential geometry (Kreyszig 1959). Although the governing Stokes equations are steady, the boundary-value problem is time-dependent through the kinematic condition (2.12). Thus, the system is evolved starting from some initial configuration for the vesicle shape. At the initial time point, the total vesicle volume Ω0 and surface area A0 are prescribed:
+at t = 0 :
+∫
+Ω0
+d3x = Ω0,
+∫
+∂ Ω0
+dS = A0. (2.13a,b)
+Thus, Ω0 and A0 take the role of parameters in the initial-boundary-value problem. Surface-area- and volume-incompressibility require that Ω0 and A0 be time-invariant in the Lagrangian sense,
+DΩ0
+Dt = 0, DA0
+Dt = 0. (2.14a,b)
+To recast the problem in dimensionless form, all length scales are rendered dimensionless by R, fluid velocity u by V, fluid pressure p by μV/R, and membrane tension τ by μV. The solution for these fields is parametrized by five dimensionless groups: the viscosity ratio κ = μˆ /μ, bending parameter β = B/(μVR2), radius ratio λ
+= R0/R, reduced volume υ = Ω0/((4/3)πR3
+0), and the vesicle–vesicle separation
+parameter δ = Lx/R. Here, R0 =
+√A0/(4π) is the effective vesicle radius based on surface area.
+3. Boundary element method (BEM)
+The Stokes-flow problem described in § 2 is solved using a previously reported boundary integral equation method (Zhao et al. 2012; Zhao & Shaqfeh 2013a). A summary of the method is outlined below. First, by use of Green’s theorem, the fluid velocity inside a test volume Ω∗ can be represented by a convolution of point forces and point force dipoles distributed over the bounding surface ∂Ω∗ (Pozrikidis 1992):
+−
+1 8πμ
+∫
+∂Ω∗
+fi(x)Gij(x, x0) dS(x) +
+1
+8π
+∫
+∂Ω∗
+ui(x)Tijk(x, x0)nk(x) dS(x)
+=
+
+ 
+ 
+0, x0 6∈ Ω∗,
+uj(x0), x0 ∈ Ω∗\∂Ω∗,
+1
+2 Kjk(x0)uk(x0), x0 ∈ ∂Ω∗,
+(3.1)
+where G and T are the Green’s functions of Hasimoto (1959) and K is the principalvalue tensor. (If the field point x0 lies on a Lyapunov smooth surface, then K = I.) The Green’s functions G and T are periodic in the x, y and z directions with the lattice vector L = (Lx, Ly, Lz), as shown in figure 2. Since the tube wall is a no-slip surface, the addition of periodic boundary conditions in the y and z directions is inconsequential to the flow field inside the tube so long as Ly > R and Lz > R. (Verification tests were performed to ensure that the numerical results were insensitive to the box dimensions in the y and z directions.) Numerically, there is an advantage to using fully periodic boundary conditions in that the Green’s functions may be rapidly computed by use of the smooth particle mesh Ewald (SPME) algorithm (Saintillan, Darve & Shaqfeh 2005; Zhao et al. 2010).
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 613
+FIGURE 2. Schematic of the basic cell used in the 3D BEM simulations. The cell is periodically replicated in the x, y and z directions.
+By taking the limit as the field point x0 approaches the boundary points xM
+0 ∈ M and
+xW
+0 ∈ W, a system of boundary integral equations for the membrane velocity uM = u(x ∈
+M) and wall traction jump f W = J f (x ∈ W)K may be derived from (3.1). The result, expressed in matrix-vector form, is
+
+  
+∫
+M
+Aij(x, xM
+0)
+∫
+W
+Bij(x, xM
+0)
+∫
+M
+Cij(x, xW
+0)
+∫
+W
+Dij(x, xW
+0)
+
+  
+[uM
+i (x)
+fW
+i (x)
+]
+dS(x) =
+[bj(xM
+0)
+bj(xW
+0)
+]
+, (3.2)
+where
+Aij(x, x0) =
+1+κ
+2 δ(x − x0)Kij(x) −
+1−κ
+8π Tijk(x, x0)nk(x), (3.3)
+Bij(x, x0) =
+1
+8πμ Gij(x, x0), (3.4)
+Cij(x, x0) = −
+1−κ
+8π Tijk(x, x0)nk(x), (3.5)
+Dij(x, x0) =
+1
+8πμ Gij(x, x0) (3.6)
+are the kernels and
+bj(x0) = −
+1 8πμ
+∫
+M
+fM
+i (x)Gij(x, x0) dS(x) + 〈uj〉 (3.7)
+is the source. Here, f M = J f (x ∈ M)K is the membrane traction jump. The volumeaveraged velocity 〈u〉 naturally appears in the source as a direct consequence of applying the divergence theorem to the surface integrals over the bounding surface of the periodic cell. The boundary integral equations (3.2) are solved for the membrane velocity uM and wall traction jump f W via the collocation method (Youngren & Acrivos 1975; Pozrikidis 1992). Collocation points are placed at the vertices of unstructured,
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+614 J. M. Barakat and E. S. G. Shaqfeh
+(a) (b)
+(c)
+FIGURE 3. Unstructured meshes. (a) Tube wall surface W of length Lx = 4R discretized into NW = 5 796 triangular elements. (b) Vesicle surface M discretized into NM = 162 (left) and 642 (right) triangular elements by successively subdividing an icosahedron four and eight times, respectively. This type of mesh is appropriate if the reduced volume υ is close to unity. (c) Vesicle surface M discretized into NM = 5 376 triangular elements by first Loop subdividing a cylindrical surface (left) and subsequently relaxing the mesh in a Stokes-flow BEM simulation with 〈u〉 = 0 (right). This type of mesh is appropriate if the reduced volume υ is far from unity.
+triangulated meshes approximating the surfaces M and W. Some of the unstructured meshes used in the presently reported simulations are shown in figure 3. The wall mesh is discretized into NW equally sized triangles. The vesicle mesh is discretized into NM triangles either by successive subdivision of an icosahedron (appropriate for nearly spherical vesicles, for which the reduced volume υ is close to unity) or by Loop subdivision of a cylindrical surface and subsequent mesh relaxation in a Stokes-flow simulation (for ‘deflated’ vesicles of reduced volume υ < 1). The smooth subdivision method of Loop (1987) allows for high-fidelity calculation of membrane curvature for vesicles that are highly aspherical, which is necessary in order to accurately compute the membrane traction jump f M (Spann, Zhao & Shaqfeh 2014). The latter is evaluated by a virtual work principle – i.e., by discretely evaluating the variational derivative of (2.8) with respect to a virtual displacement – as described in the appendix of Zhao et al. (2011). The unknown density fields uM and f W are approximated by piecewise linear interpolants on the discretized surfaces M and W, respectively. The Green’s functions G and T are evaluated by the SPME method using a commercially available fast Fourier transform package. Numerical integration was carried out using a standard three-point quadrature (for regular kernels) or Duffy quadrature (for singular kernels) (Duffy 1982). The discrete form of (3.2) (evaluated at the mesh vertices) is then solved using a matrix-free generalized minimal residual (GMRES) solver on distributed memory parallel computer architectures. The membrane tension τ is determined by satisfying (2.11), which requires that the area of a local surface patch on M remain time-invariant in the Lagrangian sense. Owing to numerical errors, the instantaneous membrane surface area A∗
+0 will evolve over time and is in general not exactly equal to the target value A0 (Zhao & Shaqfeh 2013b). The error in the total surface area is controlled by adding a source term
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 615
+ε ̇area = (A0/A∗
+0 − 1)/trelax to the right-hand side of (2.11),
+Pij
+∂ uM
+i
+∂ xj
+= ε ̇area, (3.8)
+where trelax is a relaxation time chosen to control the relative change in surface area. If A∗
+0 = A0, then ε ̇area = 0 and the membrane velocity uM is divergence-free (in the two-dimensional sense) on M. A predictor–corrector method is used to update the membrane velocity uM and tension τ such that (3.2) and (3.8) are both satisfied (Zhao et al. 2011; Zhao & Shaqfeh 2013a). The bending contribution to the membrane traction jump f M is computed implicitly via finite differences during the prediction step in order to preserve numerical stability (Knoll & Keys 2004). In all of the simulations reported herein, the relative error |A0/A∗
+0 − 1| was constrained to
+within 10−4 by using trelaxV/R = 1. Once a converged solution of (3.2)–(3.8) is obtained, the Lagrangian surface mesh is evolved in time using the discrete form of the kinematic condition (2.12). To formulate the right-hand side of (2.12), the vesicle translational velocity U is first subtracted from the membrane velocity uM and the difference is subsequently projected into the local normal and tangent of each vertex. The tangential components of uM are adjusted by a mesh relaxation velocity v in order to correct local distortion of the mesh elements due to in-plane shear, à la Loewenberg & Hinch (1996). This adjustment is necessary to keep a close-to-uniform distribution of vertices in the surface mesh. Thus, (2.12) is modified to read,
+Dxsi
+Dt = Ui + ninj(uM
+j − Uj) + Pij(uM
+j − Uj + vj). (3.9)
+The surface positions xs are advected using forward Euler timestepping. After the surface is advanced in time, the mesh points are adjusted so that the instantaneous vesicle volume Ω∗
+0 does not change by more than 1 %. In practice, the relative error
+|Ω0 /Ω ∗
+0 − 1| is negligibly small. Additional mesh control procedures, such as re-meshing or edge-swapping, were found to be unnecessary to preserve a high-quality mesh for the results shown herein. Numerical instabilities can develop in regions of high curvature (as is common for ‘weakly confined’ vesicles at low reduced volumes υ . 0.85) if the bending parameter β is small. In such cases, it is necessary to maintain a sufficient number of mesh points in regions of high curvature in order to stabilize high-wavenumber shape fluctuations. The extra pressure drop is computed as 1p+ = −〈∂p/∂x〉/(LyLz) − 8μVLx/R2. The vesicle translational velocity U is obtained by evaluating the first moment of the normal velocity distribution over the discretized vesicle surface M and taking the axial component (cf. (2.7)). In the simulation, the volume-averaged velocity 〈u〉 is prescribed and the mean channel velocity V is obtained by assigning ‘probes’ over a channel cross-sectional surface of constant x and subsequently performing the weighted average of the axial velocity distribution over that surface (cf. (2.6)). Since 〈u〉 is prescribed in the simulation (rather than the mean velocity V), one has to adjust 〈u〉 at each time step in order to maintain V at a steady value. The present 3D BEM simulations were compared to the axisymmetric simulations of Trozzo et al. (2015) in order to verify that the vesicle shape and membrane traction jump f M are accurately resolved. The comparison in figure 4 shows
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+616 J. M. Barakat and E. S. G. Shaqfeh
+0
+0.2
+0.4
+0.6
+0.8
+1.0
+567000
+10
+–10
+20
+–20
+3400
+0
+–4.0 –3.5 –3.0 –2.5 –2.0 –1.5 –1.0 –0.5 0
+110505
+25
+35
+45
+20
+30
+40
+–4.0 –3.5 –3.0 –2.5 –2.0 –1.5 –1.0 –0.5 0
+–2.5 –2.0 –1.5 0
+Present 3D simulations Axisymmetric simulations (Trozzo et al. 2015)
+–4.0 –3.5 –3.0 –1.0 –0.5 x
+(a)
+(b)
+(c)
+FIGURE 4. Comparison of the present 3D BEM simulations with the axisymmetric BEM simulations of Trozzo et al. (2015), figure 15(a) (υ = 0.84, λ = 1.2, β = 0.01, κ = 1, δ = 10). (a) Membrane radius ρM =
+√y2 + z2. (b) Axial membrane traction jump f M
+x . (c) Radial
+membrane traction jump f M
+ρ.
+excellent agreement. The slight discrepancy between the two simulations is due to aforementioned numerical errors in discretely satisfying surface-area incompressibility at each time step. Additional numerical experiments (not shown) were conducted in order to ensure that the relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) were accurately computed using previously reported results for trains of rigid spheres in circular tubes (Wang & Skalak 1969).
+4. Axisymmetric lubrication theory
+The boundary integral equations (3.2) become numerically stiff when the gap thickness separating the vesicle membrane and the tube wall becomes small. The high number of mesh elements NM and NW required to accurately resolve the fluid flow in the thin gap renders the full simulation method computationally expensive due to the density of the BEM matrix. Recently, Barakat & Shaqfeh (2018) developed a small-gap theory for the motion of a single vesicle in a circular tube for (1 − λ/λc) 1, in view of the computational difficulties encountered in this regime. Unfortunately, the radius of convergence for their perturbative solution is very small, owing to the singular nature of the limit λ/λc → 1. An alternative approach, which was used by Secomb et al. (1986) to study red blood cells in capillary flow, is to assume that the fluid flow near the vesicle surface is steady, axisymmetric, and nearly parallel, the latter of which implies that all
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 617
+velocity components transverse to the flow axis can be neglected (and in turn all velocity gradients along the flow axis are vanishingly small). This approximation is appropriate if the gap thickness is small relative to the vesicle length L (but not necessarily small relative to the channel radius R). Under conditions of axisymmetry, the surface position vector xs has the Eulerian representation,
+xsi(φ, x) = xδ1i + ρs(x) cos φ δ2i + ρs(x) sin φ δ3i, (4.1)
+where ρ =
+√y2 + z2 is the radius of a cylinder, φ = arctan (z/y) is the azimuthal angle, and ρ = ρs(x) ≡ ρM defines the location of the vesicle membrane in space. The curvature invariants H and K can be written entirely in terms of ρs(x) and its derivatives:
+2H =
+ρ3
+s
+Gs3
+d2ρs
+dx2 −
+1
+Gs
+, K=−
+ρ3
+s
+Gs4
+d2ρs
+dx2 , (4.2a,b)
+where Gs = ρs
+√1 + (dρs/dx)2 is the surface metric. Due to the assumed symmetry, the only admissible solution of (2.11) is a uniform velocity on the membrane. Hence, the vesicle behaves like a rigid body with velocity U whose shape must be determined from the membrane stress condition. In the lubrication approximation, the axial velocity field ux is governed by the boundary-value problem,
+1 ρ
+∂ ∂ρ
+(
+ρ ∂ux
+∂ρ
+)
+=
+1 μ
+dp
+dx , (4.3)
+ux = 0 at ρ = R, (4.4a)
+ux = U at ρ = ρs(x), (4.4b)
+∫R
+ρs (x)
+2πρ(ux − U) dρ = πR2(V − U). (4.5)
+Here, the axial velocity ux depends parametrically on x only through variations in the membrane shape ρs(x). Variations in p with respect to ρ are also neglected. Equations (4.3)–(4.5) may be directly solved to yield the Reynolds lubrication equation (Hochmuth & Sutera 1970),
+dp
+dx = −
+8μ
+R2 − ρs2
+[
+R2V +
+( R2 − ρ2
+s
+2 log (ρs/R)
+)
+U
+][
+R2 + ρ2
+s+
+R2 − ρ2
+s
+log (ρs/R)
+]−1
+. (4.6)
+This expression governs the pressure gradient in the gap separating the membrane from the tube wall. The pressure inside the vesicle is of no consequence, and one may equivalently define p with respect to this pressure. Approximating the normal traction on the membrane by −p and the shear traction by μ(∂ux/∂ρ) (due to flow in the suspending fluid), the stress conditions at ρ = ρs(x) reduce to a coupled system of ordinary differential equations with respect to the axial coordinate x:
+2B
+[1
+Gs
+d
+dx
+( ρ2
+s
+Gs
+dH
+dx
+)
++ 2(H2 − K)H
+]
+= 2Hτ − p, (4.7)
+ρs
+Gs
+dτ
+dx =
+1
+4
+dp
+dx
+(
+2ρs +
+R2 − ρ2
+s
+ρs log (ρs/R)
+)
+−
+μU
+ρs log (ρs/R) , (4.8)
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+618 J. M. Barakat and E. S. G. Shaqfeh
+where H(x) and K(x) are related to ρs(x) according to (4.2) and dp/dx is given by (4.6). It is worth noting that the normal stress condition (4.7) has been modified from the analogous expression in Secomb et al. (1986) by (i) correcting the bending stress term, as described by Secomb (1988) and Halpern & Secomb (1989), and (ii) neglecting membrane shear elasticity, which is not present for vesicles. The boundary conditions are the usual symmetry conditions at the poles:
+at x = 0 : ρs = 0, ρs
+Gs
+dρs
+dx = −1, ρs
+Gs
+dH
+dx = 0, (4.9a,b)
+at x = −L : ρs = 0, ρs
+Gs
+dρs
+dx = +1, ρs
+Gs
+dH
+dx = 0, (4.9c,d)
+where L is the axial length of the vesicle (a free boundary). To close the problem, the enclosed volume and surface area are prescribed as integral constraints on ρs(x):
+Ω0 =
+∫0
+−L
+πρ2
+s dx, A0 =
+∫0
+−L
+2πGs dx. (4.10a,b)
+Equations (4.6)–(4.10) form a boundary-value problem for the pressure p(x), membrane tension τ (x), and membrane radius ρs(x). The vesicle velocity U and axial length L are uniquely determined for specified values of μ, R, V, B, Ω0 and A0. The extra pressure drop 1p+ is approximated as the extra pressure difference across the length of the vesicle, 1p+ ≈ p|x=−L − p|x=0 − 8μVL/R2. Solutions of (4.6)–(4.10) can be multivalued functions of x when the rear tail of the vesicle develops concave curvature. Such situations are not uncommon for vesicles of low reduced volume. Multivalued solutions can be avoided by re-parametrizing the boundary-value problem in terms of the meridional arclength s (Secomb et al. 1986; Ratulowski & Chang 1989), which is related to x by the differential relation,
+ρs ds = Gs dx. (4.11)
+Using s instead of x as the independent variable has the added benefit of regularizing the slope singularity at the poles x = 0, −L. The axisymmetric lubrication equations (4.6)–(4.10) are expected to be good approximations if the membrane slope |dρs/dx| is sufficiently small. However, since the suspending fluid pressure p is typically large, these equations may be extended outside the ‘lubrication zone’ without incurring much error (Chen & Skalak 1970). The utility of this approximation is that the flow around the vesicle is completely specified in the lubrication approximation; the flow inside the vesicle is approximated as a rigid-body motion. Since the membrane traction is dominated by the relatively large lubrication stresses, the hydrodynamic interaction between vesicles in a periodic train is negligible. Thus, the originally formulated periodic problem reduces to the consideration of a single vesicle. Equations (4.6)–(4.10) are recast in dimensionless form and integrated numerically using the multiple shooting method (Morrison, Riley & Zancanaro 1962; Stoer & Bulirsch 2002). In brief, the domain −L 6 x 6 0 is divided into O(10–100) segments separated by ‘shooting points’ at which continuity conditions are applied. At the poles x = 0 and −L, the surface is approximated by a spherical section in order to avoid polar coordinate singularities. Numerical integration is carried out over each segment using a fourth-order Runge–Kutta scheme. Newton iteration with line search and backtracking is used to enforce the boundary and continuity conditions
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 619
+at the shooting points. The iteration is truncated when the norm of the subsequent Newton step or the norm of the function to be zeroed falls below 10−12. Since the integral conditions (4.10) are enforced during the Newton iteration procedure, the vesicle volume Ω0 and surface area A0 always converge to the target values. In order to avoid numerical errors associated with the behaviour of the solution near the boundaries, integration always proceeds away from the boundary points towards a ‘fitting point’ located at the centre of the domain. The solution is parametrized by the reduced volume υ, radius ratio λ and bending parameter β. The special case β = 0 (which is a singular limit only in cases where the membrane develops infinitely high curvature) reduces the order of the system by two. The viscosity ratio κ and separation parameter δ do not appear in the lubrication approximation. Once a solution for a particular triplet (υ, λ, β) is known, other solutions may be determined using the continuation method. It is important to note the difference between the approach delineated in this section and that adopted by Barakat & Shaqfeh (2018). In the latter work, a formal perturbation theory in terms of a small parameter (representing the ratio of a characteristic gap thickness to the tube radius) was developed in order to obtain asymptotic scalings for the vesicle shape, relative velocity, and extra pressure drop in the singular limit λ → λc. This procedure invoked the method of matched asymptotic expansions in order to unify an ‘outer solution’ in the bulk region, where viscous stresses are weak compared to membrane tension, to an ‘inner solution’ in the boundary-layer region, where lubrication theory accurately approximates the flow field. While this method gives the correct asymptotic behaviour, quantitative predictions are challenging due to the slow convergence of the perturbation series. Furthermore, higher-order corrections to the theory of Barakat & Shaqfeh (2018) (in which two terms in the series were computed) are difficult to compute due to the emergence of viscous stresses in the bulk region. In essence, the next-order correction to the outer solution requires knowledge of an axisymmetric Stokes flow with a singular line forcing at the matching point. This problem is compounded by the laborious matching procedure required at each order of the perturbation theory. By contrast, in the present work one need only approximate the velocity as a unidirectional field everywhere in the flow domain in order to develop a solution. This approximation effectively simplifies the Stokes-flow problem while leaving the full curvature terms in the normal stress condition for the eventual vesicle shape calculation. The axisymmetric lubrication theory has several advantages: (i) it resolves ‘all orders’ in the small-gap parameter, which in turn regularizes the perturbation series; (ii) it exhibits the same asymptotic behaviour as the small-gap theory in the limit λ → λc and, therefore, should approach the prediction of Barakat & Shaqfeh (2018) in that limit; and (iii) the vesicle shape is more accurately resolved due to the inclusion of all curvature terms in the normal stress condition (4.7), which is important for ratios λ/λc far from unity. Further discussion of the advantages of this method, as well as examples pertaining to rigid particles, red blood cells, and bubbles, can be found in earlier works (Chen & Skalak 1970; Secomb et al. 1986; Ratulowski & Chang 1989).
+5. Discussion of results
+In the forthcoming discussion, the results of the 3D BEM simulations and axisymmetric lubrication theory are presented to give a cohesive picture of the effects of the dimensionless parameters on the flow fields, vesicle deformation, relative
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+620 J. M. Barakat and E. S. G. Shaqfeh
+0 2 4 6 8 10
+1.0
+0000....2468
+0 2 4 6 8 10
+1.0
+0000....2468
+0 2 4 6 8 10
+1.0
+0000....2468
+0 2 4 6 8 10
+1.0
+0000....2468
+(a)
+(b)
+(c)
+(d )
+FIGURE 5. Velocity field from 3D BEM simulations. Results are shown for υ = 0.99, λ
+= 0.7, β = 0, κ = 1: (a) δ = 1.5, (b) δ = 2, (c) δ = 4 and (d) δ = 10.
+velocity, and extra pressure drop. Due to the large parameter space, it is instructive to focus on a specific regime. Particular attention is given here to cases where λ/λc = O(1), such that wall effects are significant to the vesicle deformation. For sufficiently large λ, the vesicle train attains an axisymmetric steady-state configuration at long times. Local surface-area incompressibility thus requires a uniform membrane velocity, so the vesicle train behaves as a line of rigid particles. This result implies that the viscosity contrast κ will have no observable effect on the configuration if it is very nearly axisymmetric. For this reason, all results presented below are for κ
+= 1.
+5.1. Flow fields
+Representative flow fields are depicted in figure 5 for trains of ‘sphere-like’ vesicles under moderate confinement and various inter-vesicle spacings (υ = 0.99, λ = 0.7, λ/λc = 0.64, δ = 1.5–10). Flow fields for more elongated vesicles at roughly the same confinement (υ = 0.8, λ = 1, λ/λc = 0.61, δ = 3–10) are shown in figure 6. In these simulations, β = 0 and κ = 1. The velocity vectors are drawn in a reference frame moving with the vesicle train at steady velocity U. As indicated previously, the interior fluid velocity is stagnant in the moving reference frame. Thus, the vesicle train resembles a line of rigid particles. The flow in the gap separating the vesicle membrane and the tube wall is a simple shear flow with a velocity gradient equal to the train velocity U divided by the gap thickness. As the separation parameter δ decreases to the point at which neighbouring vesicles are closely spaced, the interstitial fluid between vesicles moves with the train velocity U. Previous studies of periodic trains of rigid particles in bounded Poiseuille flow have shown that the relative velocity U/V is relatively insensitive to the value of the separation parameter δ (Wang & Skalak 1969; Chen & Skalak 1970). The present simulations verify this trend: vesicle trains in which the vesicles are either nearly
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 621
+0 2 4 6 8 10
+1.0
+0000....2468
+(a)
+0 2 4 6 8 10
+1.0
+0000....2468
+(b)
+0 2 4 6 8 10
+1.0
+0000....2468
+(c)
+0 2 4 6 8 10
+1.0
+0000....2468
+(d)
+FIGURE 6. Velocity field from 3D BEM simulations. Results are shown for υ = 0.80, λ
+= 1, β = 0, κ = 1: (a) δ = 3, (b) δ = 4, (c) δ = 6 and (d) δ = 10.
+touching (δR ' L, where L is the vesicle length) or well separated (δR L) exhibit as large as a 2 % difference in U/V. The corresponding change to the dimensionless pressure drop 1p+R/(μV) is O(1), which is negligible compared to the relative change with confinement. The insensitivity of these parameters to changes in δ is attributable to the exponentially decaying velocity disturbance in conduit flow. Since the effect of δ on trains of rigid particles has already been studied extensively by other authors (Wang & Skalak 1969; Chen & Skalak 1970), it will not be discussed further in this work. The remainder of this paper is devoted to the parameter space that is unique to vesicles – namely, the interplay of confinement, reduced volume, and bending elasticity. Unless otherwise indicated, all simulations reported below are for δ = 10 (all vesicle lengths L computed are smaller than 10R). In these cases, vesicle–vesicle interactions may be safely neglected and one need only consider a single vesicle.
+5.2. Symmetry breaking and time-dependent states
+In this section, some attention is given to the emergence of (rotationally) asymmetric and time-dependent states in the 3D BEM simulations. Such phenomena cannot be predicted using the lubrication approximation of § 4, as steadiness and axisymmetry are assumed a priori in that theory. These assumptions are justified by the fact that, when the ratio λ/λc is sufficiently close to unity, cylindrical confinement suppresses the formation of asymmetric shape modes. However, when the reduced volume υ and radius ratio λ are small enough (criteria to be made more precise in due course), an initially axisymmetric vesicle may in fact break symmetry even though the imposed flow field is axisymmetric. Before proceeding any further, it is instructive to review previously published studies of vesicle shape dynamics in Poiseuille flows. Danker et al. (2009) published the first small-deformation theory for vesicles in quadratic flow fields, focusing on
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+622 J. M. Barakat and E. S. G. Shaqfeh
+the migration phenomenon when the vesicle is displaced from the flow centreline. In this situation, the flow field is dominated by the shear contribution and the quadratic part supplies only a weak correction. Farutin & Misbah (2011) later reported a phase diagram for vesicle shapes parametrized by the bending parameter β (defined in their paper as the reciprocal of a ‘bending capillary number’), again using small-deformation theory. They reported only axisymmetric shapes when the vesicle is on the centreline and asymmetric shapes when off the centreline. The former results were later confirmed by experiments of Coupier et al. (2012). Later, Farutin & Misbah (2014) conducted 3D BEM simulations and reported symmetry-breaking vesicle shapes – including the so-called ‘croissant’ and ‘slipper’ shapes – at the centreline of unbounded, circular Poiseuille flow when the bending parameter β is sufficiently large. As β was decreased, the axisymmetric state was recovered in their simulations. All of the aforementioned studies focused on vesicles of reduced volumes υ near unity. Kaoui et al. (2011) and later Aouane et al. (2014) employed the 2D boundary integral method to map out the vesicle shape configuration space for a wide range of the parameters υ, λ and β in the 2D geometry. These authors uncovered a rich phase space containing a variety of vesicle shape morphologies. Among these, 2D asymmetric shapes were observed for concentrically positioned vesicles of low reduced volume, including the slipper shape. Kaoui et al. (2011) also reported some preliminary 3D calculations for planar Poiseuille flow, but provided only a sparse discussion of their results. As pointed out by Kaoui et al. (2011), determination of the phase diagram for 3D vesicle shape morphologies in circular Poiseuille flow remains a computationally intensive task. 3D computations take significantly longer to complete than the analogous 2D computations. Moreover, circular Poiseuille flow is a more intensive calculation than planar Poiseuille flow due to the enhanced vesicle–wall interactions. Compounding this increase in computational time are three issues. Firstly, the phase space for the nonlinear dynamical problem is vast, spanning all possible values of υ, λ and β (in addition to κ and δ). Secondly, the nonlinear shape evolution may be slow, requiring a prohibitively long time to reach steady state. Lastly, it is not clear a priori whether a steady state exists or if the vesicle shape will become unstable. This latter concern is supported by the vast literature documenting the onset of shape instabilities in the presence of a straining field (Kantsler et al. 2008a; Zhao & Shaqfeh 2013b; Narsimhan et al. 2014, 2015). As it is not the objective of this paper to map out the entire phase diagram for the 3D geometry, only some of the salient features of the shape dynamics in 3D are presented here. These include long-time shape transitions from axisymmetric to asymmetric states when υ . 0.85. A representative example is shown in figure 7 for υ
+= 0.8, β = 0.02, and various values of λ. At this reduced volume, the vesicle remains in a steady, axisymmetric configuration (up to tV/R = 100) for λ > 0.9 (the so-called ‘parachute’ shape, shown in figure 7e–g). However, once less confined the vesicle spontaneously breaks symmetry at later times, resulting in an asymmetric shape with two rear lobes that align along the local rate of extension (figure 7b–d). The time at which this shape transition occurs depends on the degree of confinement. As can be seen from comparing figures 7(b), 7(c), and 7(d), increasing λ delays the onset of the transition. The existence of two ‘long-lived’ states for this particular parameter set lends evidence for multiple fixed points of the (nonlinear) evolution equation for the surface position xs(x, t) (cf. (2.9)–(2.12)). Smaller vesicles (i.e., lower values of λ) exhibit different shape morphologies, including the slipper shape shown in figure 7(a). Similar observations were reported by Aouane et al. (2014) in 2D.
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 623
+(a)
+(b)
+(c)
+(d )
+(e)
+(f)
+(g)
+FIGURE 7. Time sequence of the vesicle shape evolved from an initially equilibrium configuration. Results were computed via 3D BEM for υ = 0.8, κ = 1, β = 0.02, δ = 10, with values of λ: (a) 0.4, (b) 0.6, (c) 0.7, (d) 0.8, (e) 0.9, ( f ) 1 and (g) 1.2. At this reduced volume, λc = 1.64. Vesicles for which λ < 0.9 transition to an asymmetric secondary shape at longer times.
+It is not clear whether or not the latter-stage states shown in figure 7 for λ < 0.9 are steady. Literature precedent suggests that the rear lobes shown in figure 7(b–d) will feel a local extensional field and therefore should elongate over time. Membrane curvature gradients drive this elongation (akin to the Rayleigh–Plateau instability), whereas finite bending resistance will confer a stabilizing effect (Narsimhan et al. 2014). As the local extensional field is relatively weak, the evolution of the secondary shape is slow (note, for instance, the small difference between time points tV/R = 54 and 72 in figure 7c). The evolution of the slipper shape shown in figure 7(a) is similarly slow (i.e., noticeable shape change occurs over 10–100 tV/R). In their 2D calculations, Aouane et al. (2014) reported that the slipper shape moves like a spermatozoon and exhibits period-doubling dynamics. It is expected that the simulations reported in figure 7 would have to be continued for hundreds of dimensionless time points tV/R in order to ascertain whether the system is steady or unstable (equivalent to weeks or months of computer time on a massively parallel supercomputer). In view of these possibilities, the term ‘long-lived state’ is preferred over ‘steady state’ to describe the latter-stage vesicle shapes in figure 7(a–d). Time-dependent states and symmetry breaking are also observed at lower reduced volumes. For υ = 0.7 and β = 0.02, a slight asymmetry in the membrane velocity profile induces tank treading in the direction perpendicular to the flow axis when λ . 1.2. This in turn creates an ‘asymmetric parachute’ shape akin to those predicted by Zhao et al. (2010) for red blood cells. The two-lobed shape is also observed at lower reduced volume, with the transition occurring around λ ' 1.1 for υ = 0.7 (as compared to λ ' 0.8 for υ = 0.8, shown in figure 7d). Further discussion of these cases, as
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+624 J. M. Barakat and E. S. G. Shaqfeh
+0 20 40 60 80 100
+0 20 40 60 80 100
+0 20 40 60 80 100
+0 20 40 60 80 100
+0 20 40 60 80 100
+0 20 40 60 80 100
+0 20 40 60 80 100
+1.88
+1.68
+1.60
+1.65
+1.70
+1.55 1.50
+1.60
+1.65
+1.72
+1.76
+1.46
+1.50
+1.54
+1.58
+1.38
+1.42
+1.46
+1.06
+1.10
+1.14
+1.50
+1.80
+1.89
+1.90
+1.91
+1.92
+0
+4
+8
+12
+0
+2
+4
+6
+0
+1
+2
+3
+4
+00.5
+11223.....05050
+0
+0.4
+0.8
+1.2
+1.6
+0
+0.2
+0.4
+0.6
+0.8
+0.08
+Îp+R/(μV )
+Îp+R/(μV )
+Îp+R/(μV )
+Îp+R/(μV )
+Îp+R/(μV )
+Îp+R/(μV )
+Îp+R/(μV )
+Îp+R/(μV )
+0.12
+0.04 0
+(a)
+(b)
+(c)
+(d )
+(e)
+(f)
+(g)
+FIGURE 8. Time series of the relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) for the 3D BEM simulations shown in figure 7.
+well as an exhaustive parametric study of the dynamics of vesicles in 3D bounded Poiseuille flows, is beyond the scope of the present work. In order to gauge how the shape transitions reported in figure 7 affect the Stokes disturbance field, the relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) are plotted over time in figure 8. The time-dependent shape transitions induce a 2 %–3 % relative change in U/V and up to a 70 % relative change in
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 625
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+x
+1.0
+0000....02468
+1.0
+0000....02468
+1.0 BEM simulation Lubrication theory
+0000....02468
+(a)
+(b)
+(c)
+1.0
+0000....02468
+(d)
+FIGURE 9. Vesicle shapes computed by 3D BEM simulation (solid lines) and axisymmetric lubrication theory (dashed lines) for κ = 1, β = 0.02, and δ = 10. (a) υ = 0.99, BEM: λ = 0.9, 0.8, 0.7; LT: λ = 1, 0.9, 0.8. (b) υ = 0.9, BEM: λ = 1.2, 1, 0.8; LT: λ = 1.3, 1.2, 1. (c) υ = 0.8, BEM: λ = 1.4, 1.2, 1; LT: λ = 1.6, 1.4, 1.2. (d) υ = 0.7, BEM: λ = 1.6, 1.4; LT: λ = 1.8, 1.6, 1.4.
+1p+R/(μV). However, it is worth emphasizing that these deviations are small compared to those incurred by increasing vesicle confinement. This is easily deduced by examining the scale of the ordinate in figure 8(a–g). The relative velocity U/V decreases in proportion to λ at an O(1) rate, while the dimensionless extra pressure drop 1p+R/(μV) increases precipitously (i.e., exponentially) with increasing λ. From these observations, one may arrive at a rather intuitive conclusion: the detailed vesicle shape is less significant than its size in determining hydrodynamical figures of merit. Deviations in vesicle shape morphology induced by unsteadiness contribute relatively small corrections to U/V and 1p+R/(μV) once the influence of the other dimensionless parameters are taken into account. Among these, the geometric parameters (υ and λ) are expected to have the greatest impact. A comprehensive discussion of the effects of these parameters is presented in the next section. The influence of the bending parameter β is later examined in § 5.4.
+5.3. Effect of confinement and reduced volume
+Figure 9 shows steady, axisymmetric vesicle shapes in bounded tube flow as computed via 3D BEM simulation and axisymmetric lubrication theory. For the range of reduced volumes υ and radius ratios λ shown, no indications of unsteady behaviour are observed within the time frame of the simulation (up to tV/R = 100). The bending parameter is set to a small value β = 0.02 to minimize the effect of bending elasticity while also avoiding numerical instabilities associated with high-wavenumber
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+626 J. M. Barakat and E. S. G. Shaqfeh
+0 0.5 1.0 1.5 2.0
+1.0
+1.2
+1.4
+1.6
+1.8
+2.0 Experiments (Vitkova et al. 2004)
+(BEM simulation) (BEM simulation) (BEM simulation) (BEM simulation) (lubrication theory) (lubrication theory) (lubrication theory) (lubrication theory) Asymptotic theory (Barakat & Shaqfeh 2018) Rational fraction approximant
+FIGURE 10. Relative velocity U/V plotted against the radius ratio λ for a range of reduced volumes υ (κ = 1, β = 0.02, δ = 10). Shown are the experimental measurements of Vitkova et al. (2004), calculations via 3D BEM simulation and axisymmetric lubrication theory, the correlation (1.2a) of Barakat & Shaqfeh (2018) (dashed curves), and the rational fraction approximant (5.2a) (dotted curves). Where appropriate, error bars are used to quantify the maximum change observed after start-up in the BEM simulations.
+shape fluctuations. Reduced volumes near unity are ‘sphere-like’ and deform very little due to flow. As the reduced volume decreases at fixed confinement λ/λc, the vesicle elongates and the rear tail of the vesicle can develop concave curvature. The lubrication theory does a remarkable job of reproducing the vesicle shape from the fully 3D BEM simulations. The error in the calculated shape increases as the reduced volume is decreased, with the maximum local error at the rear tail (as large as 5 % for υ = 0.7). There are two sources of error that can explain the discrepancy. The first is the relative change in surface area during shape evolution in the BEM simulations, which can result in global changes to the vesicle shape for a target surface area A0. Second, the Stokes velocity field at the rear end of the vesicle is approximated by a quasi-parallel flow in the lubrication approximation, which is not strictly valid. As shown in figures 5 and 6, the flow near the front and rear ends is not exactly unidirectional. Non-parallel velocity components contribute additional normal and shear tractions (neglected in (4.7)–(4.8)), which in turn affect the membrane tension τ , pressure p, and vesicle shape. The error in neglecting these membrane tractions become increasingly significant as the rear tail develops concave curvature (typically, this occurs when υ . 0.85 and λ/λc . 0.85). The relative velocity U/V is plotted against λ for several values of υ in figure 10. In addition to the simulations that reached steady state, unsteady results are plotted if the vesicle attains a ‘long-lived state’ (i.e., marginal shape change occurs over ∼50 tV/R). In these latter cases, error bars are used to indicate the maximum change in the relative velocity over time after the initial start-up period. The bending parameter is again kept small (β = 0.02) so that bending elasticity has a negligible effect on the Stokes flow. The experimental measurements of Vitkova et al. (2004) are plotted for comparison and show excellent agreement with the simulation results for
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 627
+0 0.5 1.0 ¬
+1.5 2.0
+102
+103
+104
+101
+100
+10–1
+10–2
+(BEM simulation) (BEM simulation) (BEM simulation) (BEM simulation) (lubrication theory) (lubrication theory) (lubrication theory) (lubrication theory) Asymptotic theory (Barakat & Shaqfeh 2018) Rational fraction approximant
+Îp+R/(μV )
+FIGURE 11. Dimensionless extra pressure drop 1p+R/(μV) plotted against the radius ratio λ for a range of reduced volumes υ (κ = 1, β = 0.02, δ = 10). Shown are calculations from 3D BEM simulations, the axisymmetric lubrication theory, the correlation (1.2b) of Barakat & Shaqfeh (2018) (dashed curves), and the rational fraction approximant (5.2b) (dotted curves). Where appropriate, error bars are used to quantify the maximum change observed after start-up in the BEM simulations.
+υ
+= 0.9–0.99. Near λ = λc, the enormous number of mesh elements required in order to resolve the lubrication interaction renders the BEM simulation computationally infeasible. Fortunately, the axisymmetric lubrication theory nicely interpolates the simulation data with the asymptotic correlation (1.2a) of Barakat & Shaqfeh (2018). Of particular note is the data for υ = 0.70, wherein the lubrication theory accurately captures the transition from a ‘spherocylinder’ shape to a ‘parachute’ shape around λ
+= 1.7 (also shown in figure 9d). This transition is accompanied by a sharp decrease in vesicle length and a comparably smaller change in the separation gap distance, which in turn decreases the rate of change of U/V with respect to λ. The theory of Barakat & Shaqfeh (2018), which assumes weak perturbations from the spherocylinder shape, cannot capture this shape transition. The dimensionless extra pressure drop 1p+R/(μV) is plotted against λ in figure 11 for the same set of conditions reported in figure 10. Again, error bars are used to quantify the maximum deviation after start-up when long-lived unsteadiness is observed in the BEM simulations. Unfortunately, no experimental results are available for this flow geometry. Again, the lubrication theory nicely interpolates the BEM simulation data with the asymptotic prediction (1.2b) of Barakat & Shaqfeh (2018). This is a crucial improvement, because the drag is singular in the limit as λ → λc. Consequently, the perturbative approximation (1.2b) with respect to the small parameter (1 − λ/λc) overestimates 1p+R/(μV) when λ is not close to λc. The present lubrication theory, which makes no assumptions about the smallness of (1 − λ/λc), introduces a negative correction. Despite the wealth of numerical data presented in figures 10 and 11, it is desirable to unify these results by means of interpolation formulae. ‘Admissible’ interpolants are those which (i) follow the asymptotic prediction of Barakat & Shaqfeh (2018) as
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+628 J. M. Barakat and E. S. G. Shaqfeh
+λ/λc → 1; (ii) interpolate the numerical results from the 3D BEM simulations and axisymmetric lubrication theory; and (iii) exhibit the correct asymptotic behaviour as λ
+→ 0. The latter asymptote represents the physical situation of a freely suspended vesicle in a tube wherein the vesicle radius is small compared to the tube radius. Danker et al. (2009) studied this regime by means of small-deformation theory, but did not compute corrections to the relative velocity U/V or dimensionless extra pressure drop 1p+R/(μV) as a result of deformation. As these corrections are expected to be relatively weak, as a first approximation one may replace the vesicle with a rigid sphere of the same diameter. Asymptotic approximations (in the limit λ
+→ 0) for rigid spheres in circular tubes are canonical (Wakiya 1957; Brenner & Happel 1958; Brenner 1970); the most relevant results are
+U
+V =2−
+4
+3 (υ1/3λ)2 + O[(υ1/3λ)3], (5.1a)
+1p+R
+μV = 16(υ1/3λ)5 + O[(υ1/3λ)10]. (5.1b)
+(Note that υ = 1 for spheres.) In (5.1), the small parameter λ has been ‘stretched’ by υ1/3 so that the dimensionless group υ1/3λ represents the ratio of the vesicle’s volumetric radius to the tube radius. The volumetric radius is defined here as the radius of a sphere with the same volume as the vesicle. Taking (5.1) as the leading-order approximation for small λ, one may then utilize the BEM simulations, lubrication theory and asymptotic formulae (1.2) in order to construct approximate correlations for the whole range of λ. There are many ways in which one may construct such correlations – e.g., rational fraction (Padé) approximants are quite popular (Frost & Harper 1976). The data shown in figures 10 and 11 are nicely interpolated by rational fractions of the form
+U
+V =2−
+4
+3 (υ1/3λ)2
+[ 1 + b1λ2 + b2λ4 + · · ·
+1 + a1λ2 + a2λ4 + · · ·
+]
+, (5.2a)
+1p+R
+μV = 16(υ1/3λ)5
+[ 1 + d1λ5 + d2λ6 + · · ·
+1 + c1λ5 + c2λ6 + · · ·
+]
+, (5.2b)
+where the coefficients an, bn, cn and dn are chosen to give the best fit to the data using nonlinear least-squares regression. These correlations are plotted as dotted curves in figures 10 and 11 using the parameters shown in table 1. The agreement with the numerical data is surprisingly good. It should be emphasized that the extrapolated predictions for small values of λ are only approximate; more detailed information about the lower asymptote is required to improve the predictions in this range.
+5.4. Effect of membrane bending elasticity
+Barakat & Shaqfeh (2018) noted that membrane bending elasticity – measured by the bending parameter β – plays a minor role in disturbing the Stokes flow when λ/λc is close to unity. The reason for this relative insensitivity to β is that the available shape configuration space is restricted when the vesicle is near critical confinement. As λ decreases, it is expected that changing β will have a more pronounced effect on the disturbance field produced by the vesicle, which in turn will affect the relative velocity and dimensionless extra pressure drop.
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 629
+υ λc a1 a2 b1 b2 c1 c2 c3 d1 d2 d3
+0.99 1.090 2.11 0.45 2.05 −0.58 3.98 2.60 −0.62 2.46 2.47 −2.83 0.90 1.371 1.01 −0.10 0.13 −0.04 6.59 7.31 −8.94 2.95 3.46 −3.11 0.80 1.644 2.33 4.96 2.51 0.86 −0.93 8.40 −4.80 0.94 0.35 −0.27 0.70 1.956 −0.48 −0.01 −0.21 0.03 2.31 1.76 −1.51 1.96 −0.95 0.07
+TABLE 1. Parameters an, bn, cn and dn used in the rational fraction approximants (5.2) (plotted as dotted curves in figures 10 and 11), as determined by nonlinear least-squares regression. Also tabulated are the critical radius ratios λc for each reduced volume.
+The numerical challenges associated with computing the membrane bending stresses in (2.9) are well documented (Guckenberger et al. 2016). These challenges originate from the need to numerically compute high-order derivatives of the surface position xs(x, t) in 3D. The scheme used in the present 3D BEM implementation relies on discretely evaluating the first variation of the Helfrich energy functional (2.8) using a smooth surrogate surface constructed by Loop subdivision (Loop 1987; Zhao et al. 2011), with an error that scales linearly with mesh size (Zhao & Shaqfeh 2013a). It is possible to obtain accurate numerical simulations for β = O(1) using this implementation. However, for large values of β (the ‘weak-flow regime’), the numerical fidelity of the method breaks down as the system becomes dominated by membrane bending stresses. Large values of β are therefore not accessible via 3D BEM. However, this latter regime is easily accessed using the aforementioned axisymmetric lubrication theory because the Laplace–Beltrami operator for the surface only requires computation of one-dimensional derivatives along the meridional contour. Since the full (axisymmetric) curvature operators are retained in (4.7), it is possible to resolve vesicle shapes very close to equilibrium. The limitation of this approach is that the accessible shape configuration space is now restricted to axisymmetric geometries. However, as shown previously, it is expected that the vesicle shape retains symmetry when it is highly confined. As this regime is of practical interest, the subsequent discussion will focus on confinement ratios λ/λc near unity. Figures 12 and 13 show the effect of membrane bending elasticity on the vesicle shape for two different reduced volumes (υ = 0.90 and 0.70) at high confinement. As the bending parameter β increases, the vesicle is forced towards its ‘equilibrium’ configuration, which is both axisymmetric and mirror-plane symmetric. A full catalogue of equilibrium vesicle shapes has been documented by many authors, most notably by Seifert, Berndl & Lipowsky (1991). As was previously shown in § 5.3, the accessible shape configuration space expands as the reduced volume υ is decreased. Consequently, the shape change with increasing β illustrated in figure 13 is far more dramatic than in figure 12. Interestingly, the weak flow in figure 13(c) results in lobe swelling at the downstream end of the vesicle. This phenomenon is akin to the ‘slider block effect’, wherein a negative pressure created by flow into a wedge creates suction between two surfaces (Batchelor 1967). It is expected that the shape transformations described above have a marked effect on the disturbance field. In figure 14, the relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) are plotted against the bending parameter β for three different confinement ratios λ/λc. All of the calculations presented in figure 14 are via axisymmetric lubrication theory, through which large data sets spanning many decades in β can be obtained expeditiously. Clearly, the dependence of the hydrodynamic figures of merit on β is highly complex, especially at low reduced
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+630 J. M. Barakat and E. S. G. Shaqfeh
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+1.0
+0000....02468
+1.0
+0000....02468
+1.0
+0000....02468 BEM simulation
+Lubrication theory
+x
+(a)
+(b)
+(c)
+FIGURE 12. Vesicle shapes computed by 3D BEM simulation (solid lines) and axisymmetric lubrication theory (dashed lines) for υ = 0.90, λ = 1.22, κ = 1, and δ = 10 (λ/λc = 0.89). (a) β = 0.02. (b) β = 2. (c) β = 200.
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+–8 –7 –6 –5 –4 –3 –2 –1 0
+1.0
+0000....02468
+1.0
+0000....02468
+1.0
+0000....02468 BEM simulation
+Lubrication theory
+x
+(a)
+(b)
+(c)
+FIGURE 13. Vesicle shapes computed by 3D BEM simulation (solid lines) and axisymmetric lubrication theory (dashed lines) for υ = 0.70, λ = 1.58, κ = 1, and δ = 10 (λ/λc = 0.81). (a) β = 0.02. (b) β = 2. (c) β = 200.
+volume. This complexity stems from the large family of shape configurations that the vesicle is able to access at low reduced volume. In the remainder of this section, special attention given to each of the cases shown in figure 14, with the aim of elucidating the competition between bending elasticity and viscous flow when vesicles are confined. At low to moderate confinement (figure 14a–d), the vesicle shape undergoes a transition at some intermediate value of β. The nature of this transition depends on the reduced volume υ. At high reduced volume (υ = 0.99 and 0.90), the transition is
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 631
+100
+10–1
+10–2 104
+103
+102
+101 100
+10–1
+10–2 104
+103
+102
+101
+100
+10–1
+10–2 104
+103
+102
+101 100
+10–1
+10–2 104
+103
+102
+101
+100
+10–1
+10–2 104
+103
+102
+101 100
+10–1
+10–2 104
+103
+102
+101
+1.08
+1.10
+1.12
+1.14
+1.16
+1.18
+1.20
+1.22
+1.24
+1.26
+0
+10
+20
+30
+40
+50
+60
+70
+80
+90
+1.00
+1.02
+1.04
+1.06
+1.08
+1.10
+1.000
+1.002
+1.004
+1.006
+1.008
+1.010
+1.12
+500
+600
+700
+800
+100
+200
+300
+400
+0
+1200 1000
+1400
+200
+400
+600
+800
+1600
+1800
+(a) (b)
+(c) (d)
+(e) ( f )
+Îp+R/(μV) Îp+R/(μV) Îp+R/(μV)
+FIGURE 14. Relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) plotted against the bending parameter β for several values of υ and λ. All results shown were computed via axisymmetric lubrication theory. (a,d) λ/λc = 0.8. (b,e) λ/λc = 0.9. (c, f ) λ/λc = 0.99.
+characterized by a modest enhancement of vesicle mobility (i.e., an increase in U/V and decrease in 1p+R/(μV)). On examining figure 12, it becomes apparent that the vesicle shape near equilibrium (i.e., under weak flow) is more streamlined than the ‘pear’ shape that develops under stronger flow conditions. In the latter situation, the rear end of the vesicle occludes a greater portion of the tube cross-section, which in turn reduces its mobility. At lower reduced volume (υ = 0.80 and 0.70), the transitions are much more complex due to the larger family of shapes that are accessible (as shown in figure 13). Still focusing for the time being on figure 14(a–d), it is apparent that increasing β can result in either a reduction or an enhancement of vesicle mobility when υ is small. Typically, the ‘dumbbell’ shape characteristic of low-reduced-volume vesicles
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+632 J. M. Barakat and E. S. G. Shaqfeh
+at equilibrium (β → ∞) is less streamlined than the ‘parachute’ shape that forms under strong flow conditions (β → 0). However, at some intermediate value of β the vesicle can be forced into a shape that occludes nearly the entire tube cross-section, resulting in a local minimum value of U/V and maximum value of 1p+R/(μV). For a given reduced volume υ, the location of this extremum along the β-axis is shifted to higher values with increasing confinement ratio λ/λc. At near-critical confinement (figure 14e,f ), the shape configuration space becomes highly restricted. Increasing β in this regime forces the vesicle into a shape that is geometrically prohibited by the tube boundary, resulting in very narrow separation distances. That is to say, the ‘equilibrium shape’ that the vesicle would likely adopt in an unbounded, weak flow (as β → ∞) cannot be accessed. Thus, a local extremum with respect to β is not observed for near-critical confinement. Rather, the vesicle mobility continues to drop with increasing β, in accordance with predictions made by Barakat & Shaqfeh (2018) (figure 8 of their paper).
+6. Conclusions
+The motion of vesicles in circular tubes has been studied using a combination of 3D BEM simulations and lubrication theory. The relative velocity U/V and dimensionless extra pressure drop 1p+R/(μV) were computed as functions of reduced volume, confinement and membrane bending stiffness. It was shown that the reduced volume υ and radius ratio λ had the most pronounced impact on vesicle hydrodynamics. Decreasing υ tends to ‘streamline’ the vesicle body and hence increase U/V. Increasing the vesicle size tends to enhance the wall friction force and hence 1p+R/(μV). Rational fraction approximants for U/V and 1p+R/(μV) were developed (cf. (5.2)) and extend a previous correlation given by Barakat & Shaqfeh (2018), which is asymptotically valid in the limit as the confinement ratio λ/λc → 1. The latter correlation is appropriate when the vesicle shape is very nearly a spherocylinder. At lower values of υ and λ, asymmetric vesicle shapes were observed. Some of these have no analogue in 2D and, to the best of the authors’ knowledge, have not been reported elsewhere. It was shown that asymmetric modes can be excited after the start-up period, with a time delay (ranging from 1tV/R = 1–10) that depends on the degree of confinement. Various shape morphologies were observed, including the ‘slipper’ shape and ‘two-lobed’ shape, and continue to evolve in time. Despite this unsteadiness, the relative changes to the vesicle velocity and extra pressure drop were small compared to geometrically induced changes (i.e., changing the confinement or reduced volume). Further study into vesicle symmetry breaking in quadratic flows remains an open and interesting area, though it is beyond the scope of the present work. Changing the separation parameter δ had little effect on the morphology and hydrodynamics of the periodic train. By contrast, the bending parameter β has a marked impact – by increasing β, the vesicle tends to return to its ‘equilibrium shape’ and significantly alters the geometry. The effect of bending stiffness is highly nonlinear and qualitatively dependent on the other dimensionless groups, as the reduced volume υ and radius ratio λ effectively restricts the accessible shape configuration space. At high confinement (large λ), increasing β tends to increase the dissipation in the thin fluid layer, thus enhancing the wall drag and decreasing vesicle mobility. The results of this study can be used in capillary-flow experiments to correlate hydrodynamical figures of merit – U/V and 1p+R/(μV) – to vesicle shape
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 633
+deformation. Specifically, the strong dependence of these quantities on the reduced volume υ and radius ratio λ suggests a means for accurately predicting υ and λ by simultaneously measuring U/V and 1p+R/(μV). Such measurements do not require advanced microscopy techniques and can be used in tandem with the results of this work – in particular, the correlations (5.2) – to extract important geometric information on a confined vesicle system. Uncertainties associated with shape asymmetries, unsteadiness, and membrane bending stiffness are also quantified in this work.
+Acknowledgements
+The authors acknowledge support from the National Science Foundation (CBET 1066263/1066334). J.M.B. was supported by a Graduate Research Fellowship from the National Science Foundation. J.M.B. would like to acknowledge several people: Dr A. Spann, for early development of the 3D BEM code; Dr J. Einarsson, for conversations that led to understanding vesicle hydrodynamics at low confinement; and Dr S. Vanapalli, for many fruitful discussions of practical microfluidic measurements.
+REFERENCES
+AOUANE, O., FARUTIN, A., THIÉBAUD, M., BENYOUSSEF, A., WAGNER, C. & MISBAH, C. 2017 Hydrodynamic pairing of soft particles in a confined flow. Phys. Rev. Fluids 2 (6), 063102. AOUANE, O., THIEBAUD, M., BENYOUSSEF, A., WAGNER, C. & MISBAH, C. 2014 Vesicle dynamics in a confined Poiseuille flow: from steady-state to chaos. Phys. Rev. E 90 (3), 033011. BAGCHI, P. & KALLURI, R. M. 2010 Rheology of a dilute suspension of liquid-filled elastic capsules. Phys. Rev. E 81 (5), 056320. BAGCHI, P. & KALLURI, R. M. 2011 Dynamic rheology of a dilute suspension of elastic capsules: effect of capsule tank-treading, swinging and tumbling. J. Fluid Mech. 669, 498–526. BARAKAT, J. M. & SHAQFEH, E. S. G. 2018 The steady motion of a closely fitting vesicle in a tube. J. Fluid Mech. 835, 721–761. BATCHELOR, G. K. 1967 An Introduction to Fluid Dynamics. Cambridge University Press. BRENNER, H. 1970 Pressure drop due to the motion of neutrally buoyant particles in duct flows. J. Fluid Mech 43 (4), 641–660.
+BRENNER, H. & HAPPEL, J. 1958 Slow viscous flow past a sphere in a cylindrical tube. J. Fluid Mech. 4 (2), 195–213. CHEN, T. C. & SKALAK, R. 1970 Stokes flow in a cylindrical tube containing a line of spheroidal particles. Appl. Sci. Res. 22 (1), 403–441. COUPIER, G., FARUTIN, A., MINETTI, C., PODGORSKI, T. & MISBAH, C. 2012 Shape diagram of vesicles in Poiseuille flow. Phys. Rev. Lett. 108 (1), 178106. DANKER, G., BIBEN, T., PODGORSKI, T., VERDIER, C. & MISBAH, C. 2007 Dynamics and rheology of a dilute suspension of vesicles: higher-order theory. Phys. Rev. E 76 (4), 041905. DANKER, G., VLAHOVSKA, P. M. & MISBAH, C. 2009 Vesicles in Poiseuille flow. Phys. Rev. Lett. 102 (14), 148102. DESCHAMPS, J., KANTSLER, V. & STEINBERG, V. 2009 Phase diagram of single vesicle dynamical states in shear flow. Phys. Rev. Lett. 102 (11), 118105. DUFFY, M. G. 1982 Quadrature over a pyramid or cube of integrands with a singularity at a vertex. SIAM J. Numer. Anal. 19 (6), 1260–1262.
+FARUTIN, A. & MISBAH, C. 2011 Symmetry breaking of vesicle shapes in Poiseuille flow. Phys. Rev. E 84 (1), 011902. FARUTIN, A. & MISBAH, C. 2012 Squaring, parity breaking, and S tumbling of vesicles under shear flow. Phys. Rev. Lett. 109 (24), 248106. FARUTIN, A. & MISBAH, C. 2014 Symmetry breaking and cross-streamline migration of threedimensional vesicles in an axial Poiseuille flow. Phys. Rev. E 89 (4), 042709.
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+634 J. M. Barakat and E. S. G. Shaqfeh
+FROST, P. A. & HARPER, E. Y. 1976 An extended Padé procedure for constructing global approximations from asymptotic expansions: an explication with examples. SIAM Rev. 18 (1), 62–91. GUCKENBERGER, A., SCHRAML, M. P., CHEN, P. G., LEONETTI, M. & GEKLE, S. 2016 On the bending algorithms for soft objects in flows. Comput. Phys. Commun. 207, 1–23. HALPERN, D. & SECOMB, T. W. 1989 The squeezing of red blood cells through capillaries with near-minimal diameters. J. Fluid Mech. 203, 381–400. HASIMOTO, H. 1959 On the periodic fundamental solutions of the Stokes equations and their application to viscous flow past a cubic array of spheres. J. Fluid Mech. 5 (2), 317–328. HELFRICH, W. 1973 Elastic properties of lipid bilayers: theory and possible experiments. Z. Naturforsch. 28c (11), 693–703.
+HOCHMUTH, R. M. & SUTERA, S. P. 1970 Spherical caps in low Reynolds-number tube flow. Chem. Engng Sci. 25 (4), 593–604. JANSSEN, P. J. A., BARON, M. D., ANDERSON, P. D., BLAWZDZIEWICZ, J., LOEWENBERG, M. & WAJNRYB, E. 2012 Collective dynamics of confined rigid spheres and deformable drops. Soft Matt. 8 (28), 7495–7506. JENKINS, J. T. 1977 Static equilibrium configurations of a model red blood cell. J. Math. Biol. 4 (2), 149–169. KANTSLER, V., SEGRE, E. & STEINBERG, V. 2008a Critical dynamics of vesicle stretching transition in elongational flow. Phys. Rev. Lett. 101 (4), 048101. KANTSLER, V., SEGRE, E. & STEINBERG, V. 2008b Dynamics of interacting vesicles and rheology of vesicle suspension in shear flow. Europhys. Lett. 82 (5), 58005. KANTSLER, V. & STEINBERG, V. 2006 Transition to tumbling and two regimes of tumbling motion of a vesicle in shear flow. Phys. Rev. Lett. 96 (3), 036001. KAOUI, B., TAHIRI, N., BIBEN, T., EZ-ZAHRAOUY, H., BENYOUSSEF, A., BIROS, G. & MISBAH, C. 2011 Complexity of vesicle microcirculation. Phys. Rev. E 84 (4), 041906. KNOLL, D. A. & KEYS, D. E. 2004 Jacobian-free Newton–Krylov methods: a survey of approaches and applications. J. Comput. Phys. 193 (2), 357–397. KREYSZIG, E. 1959 Differential Geometry. Dover. LIRON, N. & MOCHON, S. 1976 Stokes flow for a Stokeslet between two parallel flat plates. J. Engng Maths 10, 287–303. LIRON, N. & SHAHAR, R. 1978 Stokes flow due to a Stokeslet in a pipe. J. Fluid Mech. 86, 727–744. LOEWENBERG, M. & HINCH, E. J. 1996 Numerical simulation of a concentrated emulsion in shear flow. J. Fluid Mech. 321, 395–419. LOOP, C. T. 1987 smooth subdivision surfaces based on triangles. PhD thesis, University of Utah. MISBAH, C. 2006 Vacillating breathing and tumbling of vesicles under shear flow. Phys. Rev. Lett. 96 (2), 028104. MORRISON, D. D., RILEY, J. D. & ZANCANARO, J. F. 1962 Multiple shooting method for two-point boundary value problems. Commun. ACM 5 (12), 613–614. NARSIMHAN, V., SPANN, A. P. & SHAQFEH, E. S. G. 2014 The mechanism of shape instability for a vesicle in extensional flow. J. Fluid Mech. 750, 144–190. NARSIMHAN, V., SPANN, A. P. & SHAQFEH, E. S. G. 2015 Pearling, wrinkling, and buckling of vesicles in elongational flows. J. Fluid Mech. 777, 1–26.
+POZRIKIDIS, C. 1992 Boundary Integral and Singularity Methods for Linearized Viscous Flow. Cambridge University Press. RATULOWSKI, J. & CHANG, H. C. 1989 Transport of gas bubbles in capillaries. Phys. Fluids A 1 (1), 1642–1655. SAINTILLAN, D., DARVE, E. & SHAQFEH, E. S. G. 2005 A smooth particle-mesh Ewald algorithm for Stokes suspension simulations: the sedimentation of fibers. Phys. Fluids 17 (3), 3301. SECOMB, T. W. 1988 Interaction between bending and tension forces in bilayer membranes. Biophys. J. 54 (4), 743–746. SECOMB, T. W., SKALAK, R., OOZKAYA, N. & GROSS, J. F. 1986 Flow of axisymmetric red blood cells in narrow capillaries. J. Fluid Mech. 163, 405–423.
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press
+
+
+Flow of vesicles in a circular tube 635
+SEIFERT, U., BERNDL, K. & LIPOWSKY, R. 1991 Shape transformations of vesicles: phase diagram for spontaneous-curvature and bilayer-coupling models. Phys. Rev. A 44 (2), 1182–1202. SONSHINE, R. M. & BRENNER, H. 1966 The stokes translation of two or more particles along the axis of an infinitely long circular cylinder. Appl. Sci. Res. 16 (1), 425–454. SPANN, A. P., ZHAO, H. & SHAQFEH, E. S. G. 2014 Loop subdivision surface boundary integral method simulations of vesicles at low reduced volume ratio in shear and extensional flow. Phys. Fluids 26 (3), 031902.
+STOER, J. & BULIRSCH, R. 2002 Introduction to Numerical Analysis, 3rd edn, vol. 12. Springer. THIEBAUD, M. & MISBAH, C. 2013 Rheology of a vesicle suspension with finite concentration: a numerical study. Phys. Rev. E 88 (6), 062707. TÖZEREN, H. 1984 Boundary integral equation method for some Stokes problems. Intl J. Numer. Meth. Fluids 4 (2), 159–170.
+TROZZO, R., BOEDEC, G., LEONETTI, M. & JAEGER, M. 2015 Axisymmetric boundary element method for vesicles in a capillary. J. Comput. Phys. 289, 62–82. VITKOVA, V., MADER, M. & PODGORSKI, T. 2004 Deformation of vesicles flowing through capillaries. Europhys. Lett. 68 (3), 398–404.
+VITKOVA, V., MADER, M. A., POLACK, B., MISBAH, C. & PODGORSKI, T. 2008 Micro-macro link in rheology of erythrocyte and vesicle suspensions. Biophys. J. 95 (6), L33–L35. VLAHOVSKA, P. M. & GRACIA, R. S. 2007 Dynamics of a viscous vesicle in linear flows. Phys. Rev. E 75 (1), 016313. WAKIYA, S. 1957 Viscous flows past a spheroid. J. Phys. Soc. Japan 12 (10), 1130–1141. WANG, H. & SKALAK, R. 1969 Viscous flow in a cylindrical tube containing a line of spherical particles. J. Fluid Mech. 38, 75–96. YOUNGREN, G. K. & ACRIVOS, A. 1975 Stokes flow past a particle of arbitrary shape: a numerical method of solution. J. Fluid Mech. 69 (2), 377–403. ZHAO, H., ISFAHANI, A. H. G., OLSON, L. N. & FREUND, J. B. 2010 A spectral boundary integral method for flowing blood cells. J. Comput. Phys. 229 (1), 3726–3744. ZHAO, H. & SHAQFEH, E. S. G. 2011 The dynamics of a vesicle in simple shear flow. J. Fluid Mech. 674, 578–604. ZHAO, H. & SHAQFEH, E. S. G. 2013a The dynamics of a non-dilute vesicle suspension in a simple shear flow. J. Fluid Mech. 725, 709–731. ZHAO, H. & SHAQFEH, E. S. G. 2013b The shape stability of a lipid vesicle in a uniaxial extensional flow. J. Fluid Mech. 719, 345–361. ZHAO, H., SHAQFEH, E. S. G. & NARSIMHAN, V. 2012 Shear-induced particle migration and margination in a cellular suspension. Phys. Fluids 24 (1), 011902. ZHAO, H., SPANN, A. P. & SHAQFEH, E. S. G. 2011 The dynamics of a vesicle in a wall-bound shear flow. Phys. Fluids 23 (12), 121901. ZHONG-CAN, O.-Y. & HELFRICH, W. 1989 Bending energy of vesicle membranes: general expressions for the first, second, and third variation of the shape energy and applications to spheres and cylinders. Phys. Rev. A 39 (10), 5280–5288.
+https://doi.org/10.1017/jfm.2018.533 Published online by Cambridge University Press

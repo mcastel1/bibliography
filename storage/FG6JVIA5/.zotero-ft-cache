@@ -1,0 +1,911 @@
+Relaxation dynamics of fluid membranes
+Marino Arroyo
+Dept. Applied Mathematics 3, LaCa`N, Universitat Polit`ecnica de Catalunya (UPC), Barcelona 08034, Spain
+Antonio DeSimone
+SISSA-International School for Advanced Studies, Via Beirut 2-4, 34014 Trieste, Italy (Dated: February 18, 2009)
+We study the effect of membrane viscosity in the dynamics of liquid membranes–possibly with free or internal boundaries– driven by conservative forces (curvature elasticity and line tension) and dragged by the bulk dissipation of the ambient fluid and the friction occurring when the amphiphilic molecules move relative to each other. To this end, we formulate a continuum model which includes a new form of the governing equations for a two-dimensional viscous fluid moving on a curved, time-evolving surface. The effect of membrane viscosity has received very limited attention in previous continuum studies of the dynamics of fluid membranes, although recent coarse-grained discrete simulations suggest its importance. By applying our model to the study of vesiculation and membrane fusion in a simplified geometry, we conclude that membrane viscosity plays a dominant role in the relaxation dynamics of fluid membranes of sizes comparable to those found in eukaryotic cells, and is not negligible in many large synthetic systems of current interest.
+I. INTRODUCTION
+In recent years, much attention has been devoted to the study of fluid membranes and, in particular, to lipid bilayers which provide the fundamental separation structure in eukaryotic cells. Lipid bilayers form the envelope of the plasma membrane, the nucleus, the organelles, and the transport vesicles and tubes within a cell, to name a few. These are very versatile structures that change in shape and topology to accomplish the cell function. Lipid bilayer membranes also form artificial vesicles, which provide a simple model system for the study of physiological processes in the cell such as endo and exocytosis, tubulation, or raft formation and evolution [1–3]. Synthetic biomimetic systems, such as nano-scale chemical reactor networks, are also made out of lipid bilayer fluid membranes [4]. Recently, liquid amphiphilic membranes have been developed that do not rely on lipids but rather on diblock copolymers [5–7]. These polymerosomes are tougher than lipid vesicles and may find applications in drug delivery systems.
+Amphiphilic membranes adopt a fluid phase above a transition temperature. In this phase, the bilayer retains the transverse order endowing the membrane with curvature elasticity. Within its plane, however, the bilayer behaves like a viscous fluid due to a large lateral mobility of the amphiphilic molecules. The behavior of fluid membranes as two-dimensional viscous fluids has been convincingly established and quantified experimentally [8–11]. Thus, from a mechanics point of view, fluid membranes are a quite unique system in that their behavior combines the mechanics of solids (curvature or outof-plane elasticity) and of fluids (in plane viscous flow), all being tied up in a curved geometry. This feature allows for tubulation, membrane fusion or fission and other transformations essential to the cell function. When the
+membrane shape changes, the amphiphiles in the bilayer are required to rearrange, hence inducing a surface flow. The fundamental role of the viscosity of fluid membranes in the mobility of membrane inclusions has long been recognized [12]. However, its role in the dynamics of membrane systems has received only limited attention [1317]. The purpose of the present paper is to investigate this issue in the context of the dynamics of relaxation to equilibrium of fluid membranes that are brought out of equilibrium by some regulated or active mechanism [3, 18] or by a change of the environment such as the osmotic conditions, the temperature, or the concentration of lipids or proteins [2, 19, 20].
+A number of theoretical models and simulation methods have been used to study fluid membranes. Classically, these have been modelled as continua, which has lead to a wealth of striking results. The present work follows this approach. Recently, coarse-grained discrete models have been very successful in computational studies of lipid membranes, particularly in reproducing the self-assembly of amphiphilic membranes. These include dynamically triangulated surface models [21–23] as well as coarse-grained particle models [24–26]. Thanks to the increasing computational power available, these methods are starting to reach sufficiently large time and length-scales to provide significant results. Nevertheless, even for limited scale spans these simulations remain extremely expensive, and seem at this point complementary to continuum methods. Any of these approaches can describe membrane viscosity, either explicitly or implicitly.
+A number of important questions concerning the mechanics of amphiphilic membranes have already been addressed. Continuum mechanics models have produced phase diagrams of the different equilibrium shapes considering curvature elasticity and area and volume constraints, that successfully reproduce experimental obser
+Arroyo, M. and DeSimone, A., Relaxation dynamics of fluid membranes, Physical Review E, Vol. 79, Issue 3, pp. 31914-31898, 2009
+
+
+2
+vations [see 27, 28, for interesting reviews]. Much attention has also been devoted to the dynamics of fluid membrane vesicles or capsules (these are vesicles attached to a polymeric network which confers them with shear elasticity) in shear flow. Understanding the effective rheology of suspensions of these objects has been one of the main objectives [29, 30]. In most of these studies, the vesicles only generate elastic forces due to curvature elasticity, and all dissipative forces come from the ambient fluid [31]. Only rarely is the viscosity of the membrane accounted for in the continuum studies [32], although recent coarse-grained simulations highlight the critical role of membrane viscosity in the behavior of suspended vesicles in shear flow [21, 22]. The effect of the membrane flow and viscosity has been incorporated in some studies concerned with the mechanics of fluid membranes under external actions leading to tether formation [15, 16], and also for relaxation dynamics [14]. In summary, despite the importance of membrane viscosity has been pointed out, and has been accounted for in a handful of studies, it is often neglected in continuum studies on the basis of simple estimations [17]. When considered in calculations, it is for very simple geometries [14] or for small perturbations around a spherical shape [32]. This might be the case because of the difficulty of solving, and even formulating the governing equations for the membrane fluid flow.
+Here, we derive the equations for the dynamics of inextensible fluid membranes, whose shape evolution is driven by curvature elasticity and line tension (arising in membranes with boundary or in multi-component vesicles) and dragged by the surrounding incompressible viscous fluid and by the membrane viscosity. For vesicle mechanics in a fluid at rest the inertial forces are negligible. Consequently the flow does not have intrinsic dynamics but it rather acts as a dissipative force opposing the evolution of the system in the direction of the driving energetic forces. One key ingredient in this derivation is a new geometric formulation of the two-dimensional Stokes flow in a curved, time-evolving surface. This formulation is more transparent and presents practical advantages in computations as compared to previous proposals. Some effects that can be important in some instances, such as the inter-layer slip (known to be mobilized in tether formation) [13–15] or the relaxation of curvature elasticity by flip-flop dynamics (typically very slow), are not considered here. We also assume instantaneous osmotic equilibrium between the fluid enclosed by the vesicle and the outer fluid [28, 33], hence there is no fluid flow across the membrane.
+We apply our model to a minimal yet informative example of relaxation dynamics, that of a spherical bud embedded in an infinite planar membrane. This constrained geometry has been considered before to study fusion or fission of vesicles [17, 34], although these references did not consider the surface flow. As a matter of fact, to our knowledge, the surface flow equations have not been solved before for a non-trivial membrane geom
+etry experiencing large shape changes. This case study provides a first estimate to the dynamics of the formation of a small bud in a large two-component vesicle [35], and allows us to investigate the relevance of surface viscosity in the relaxation dynamics of fluid membranes. The paper is organized as follows. In Section II, we present a direct derivation of the equations governing the flow of a two-dimensional viscous fluid on a timeevolving surface. In Section III, using the principle of virtual power, we derive the governing equations for the relaxation dynamics of a fluid membrane embedded in surrounding fluid and driven by curvature elasticity and line tension. This section includes the axisymmetric particularization of the equations, useful in many practical examples. In Section IV, we analyze the example of the spherical bud and discuss the implications of our study. Finally, the conclusions are collected in Section V. The paper relies on a number of results from differential geometry and the calculus of variations, most of which are classical. We have collected them in four appendices, for the reader’s convenience.
+II. 2D STOKES FLOW ON A TIME-EVOLVING SURFACE
+The partial differential equations governing the dynamics of a fluid in the interfacial state have been proposed in [36, 37], a study motivated by the mechanics of insoluble surface films and foam stability. This theory derives the equations of motion of surface fluids from the balance laws of continuum mechanics using the tools of tensor analysis on manifolds. The equations of motion are formulated intrinsically in a two-dimensional manifold with time varying metric, ignoring the embedding in Euclidean space of the surface on which the twodimensional fluid flows. This formulation has prevailed in the literature interested in interfacial flows and the fluid mechanics of amphiphilic membranes (see [38] for a recent reference). The equations by [36] make extensive use of the covariant derivative, and calculations in local coordinates involve the coefficients of the Riemannian connection and its derivatives. The complexity of the equations may explain why they are often written but seldom solved, in most cases considering infinitesimal variations of the surface shape around a simple geometry [39, 40], or why there are no numerical simulations of the phenomenon. An alternative form of these equations expressed in Cartesian coordinates was proposed by [41], see also [32]. In this approach, the velocity of the membrane is viewed as the restriction to the surface of the velocity field of the bulk embedding fluid, and the membrane mechanics equations are obtained in terms of the bulk velocity field and the Cartesian nabla operator by means of time-dependent projection operators. This method, that somehow hides the geometry and complexity of the equations, is particularly convenient to study small shape per
+
+
+3
+turbations around simple geometries or surface flows in stationary surfaces, but has not been applied to large shape changes. In the mathematics literature, there has also been an interest in formulating the Navier–Stokes equations on general manifolds [see for example 42, 43]. These references recognize the subtleties in describing vectorial second order partial differential equations on curved domains, but consider time-independent domains. Unlike for scalar conservation laws [44], in the vector case merely translating the differential operators to manifold operators, as done by some authors [45, 46], leads to governing equations different from those that result from the basic conservation laws of physics. We next present a concise derivation of the equations governing the flow of a two-dimensional fluid moving on a surface in Euclidean space that evolves in time. We assume in this section that the time evolution of the surface is given (through a prescribed normal velocity field). We express these equations extrinsically in terms of normal and tangential components of the fields [47, 48]. We provide a new geometric form of the equations in the language of differential forms. This formulation allows for a transparent connection with the usual equations of fluid flow and for a clear interpretation of the additional geometric terms. The geometric form of the equations that we present is easily workable in analytical or numerical calculations. This section requires some background on differential geometry, exterior calculus and tensor analysis on manifolds. The reader is referred to Appendix A and references therein for the notation and basic results.
+A. Conservation of mass
+We now consider the conservation of mass for a 2D continuum medium Γt in motion with a velocity field V : Γt → R3. We assume that Γt is smooth and decompose the velocity field into its in-plane or tangential component v and its normal component vn so that V = v + vnn where n denotes the unit normal to the surface. Following [47], the conservation of mass for this deforming 2D continuum is
+ρ ̇ + ρ div v − ρvnH = ∂tρ + div(ρv) − ρvnH = 0, (1)
+where ρ denotes the mass density (per unit surface), H denotes twice the mean curvature, i.e. the trace of the second fundamental form k = −(∇n)[, and div denotes the surface divergence. For an inextensible homogeneous medium, this reduces to
+div v − vnH = 0. (2)
+Due to the disparity between elastic moduli, under usual circumstances amphiphilic membranes can be considered as inextensible [27].
+B. Conservation of linear momentum
+We adopt a similar representation for the body forces acting on the membrane B = b + bnn, where again b denotes the tangential component of the body forces while bn denotes the normal component. The body force b may be a prescribed dead load or, more interestingly, it may arise from the interaction of the membrane with the surrounding fluid, as detailed later. We shall also see that bn may arise from curvature elasticity. Like in the theory of interfacial fluid mechanics [36], it is assumed that the two-dimensional fluid can only produce tangential viscous tractions along internal boundaries. Hence, generalizing the Cauchy tetrahedron theorem, the medium sustains a two-dimensional viscous stress tensor. Consequently, as will become clearer below, such a medium can only produce viscous forces normal to the surface through curvature. Let σ denote the surface Cauchy stress tensor, a contravariant 2−tensor field on Γt. The conservation of angular momentum around an axis normal to the surface is expressed in the present setting as usual, by the symmetry of the 2D stress tensor [36, 47]. Conservation of linear momentum tangentially to the surface can be expressed as
+ρ (∂tv + v · ∇v − vnHv) = b + div σ, (3)
+where we remind that ∇ denotes the covariant derivative on the surface, and div is the surface divergence operator. We assume in the remainder of the paper that the inertial forces are much smaller than the viscous forces, and therefore can be neglected. The in-plane surface viscosity of typical lipid bilayers divided by the bilayer thickness is two orders of magnitude larger than that of water. This, together with the typical length and time scales involved in budding leads to typical Reynolds numbers in the 10−6 to 10−8 range. Therefore, the above equation reduces to
+b + div σ = 0 or ba + σab|b = 0. (4)
+The conservation of linear momentum normal to the surface reads
+bn + σ : k = 0 or bn + σabkab = 0. (5)
+If the normal velocity vn is externally prescribed, this equation provides the required reaction bn.
+C. Constitutive relation
+For the appropriate measure of the strain rate in the present setting, it is useful to resort to a geometrical definition of the rate-of-deformation tensor as the tangent projection of the rate of change of the metric tensor, i.e. the Lie derivative of the metric tensor with respect to V [47], which results in
+1
+2 LV (g) = d = 1
+2
+[
+(∇v[) + (∇v[)T ]
+− vnk, (6)
+
+
+4
+or in components
+2dab = gacvc|b + gbdvd|a − 2vnkab = va|b + vb|a − 2vnkab. (7) Analogous expressions can be found in the intrinsic formulation of [36] and in the Cartesian formulation of [41]. Note that for an inextensible 2D medium, the conservation of mass can be stated as the familiar requirement that the trace of the rate-of-deformation vanish:
+trace d = gabva|b − vngabkab = div v − vnH = 0. (8)
+A number of constitutive relations can be considered for an amphiphilic membrane. Coarse-grained molecular dynamics simulations [49] and experimental observations [8–10] support modelling the bilayer as a Newtonian twodimensional fluid, at least at temperatures well above the transition temperature between the fluid and a more ordered solid or gel phase. In fact, near the transition temperature at which the membrane loses its fluidity, surface viscosity increases dramatically and the behavior may significantly deviate from that of a Newtonian fluid [50]. Similarly, for very small length-scales, e.g. in the vicinity of a transmembrane protein, the hypothesis of the membrane behaving as a Newtonian fluid may break down. Apart from these situations, it seems reasonable to rely on the natural generalization of a Newtonian isotropic fluid to this two-dimensional setting, with a linear relation between the viscous stress tensor and the rate-of-deformation tensor. Following [36], we write
+σvisc = 2μ d] + λ(trace d) g], (9)
+the total Cauchy stress tensor being
+σ = −p g] + σvisc, (10)
+where p denotes the thermodynamic pressure (here a surface tension). Note that for a quiescent fluid σvisc vanishes, and as expected the stress arising from p = constant satisfies the balance of linear momentum since the covariant derivative of the metric tensor vanishes identically .
+D. Surface Stokes flow
+Assuming that the 2D fluid is inextensible and Newtonian, the balance of linear momentum tangential to the deforming surface and balance of mass read
+ρ (∂tv + v · ∇v − vnHv) = −grad p + 2μ div d] + b
+div v − vnH = 0
+where d] follows from Eq. (6) and involves the normal velocity of the surface vn. This is analog of the incompressible Navier–Stokes equations in the present setting. Neglecting inertial forces, the boundary value problem to be solved is: Find a vector field v tangent to Γt and a scalar field p such that
+− gabp|b + 2μdab|b + ba = 0 in Γt (11)
+va|a − vnH = 0 in Γt (12)
+supplemented by boundary conditions at ∂Γt = ∂ΓtD ∪
+∂ΓtN of the type v = w in ∂ΓtD and σ · ν = s in ∂ΓtN where ν is the unit outer normal to ∂Γt and tangential to the surface.
+E. Geometric form of the equations
+The main objective in seeking alternative forms for Eq. (11) is to untangle the term div d] into a clear geometric form in the spirit of [36], but expressed extrinsically in terms of the second fundamental form. Since 2dab = gacgbdvc|d + gacgbdvd|c − 2vnkab it follows that
+2dab|b = gacgbdvc|d|b
+} {{ }
+A
++ gacgbdvd|c|b
+} {{ }
+B
+−2vn|bkab − 2vnkab|b
+} {{ }
+C
+.
+(13) By the definition of the rough Laplacian and by virtue of Bochner’s formula (see Appendix A), we have A = (
+̂∆v)a = (∆Rv)a + Kva, where K denotes the Gaussian curvature. On the other hand, from the lack of commutativity of the second covariant derivative, we have
+B = gacvb|c|b = gacvb|b|c + gacKvc (14)
+= gac(div v)|c + Kva = (grad(div v))a + Kva.
+The Codazzi-Mainardi equations lead to
+C = 2vngacH|c = 2(grad(vnH))a − 2gacvn|cH. (15)
+Thus, we obtain
+2dab|b = (∆Rv)a + (grad(divv − 2vnH))a
+−2vn|b(kab − Hgab) + 2Kva. (16)
+Now, noting that in the language of exterior calculus div v = −δv[
+(∆Rv)a = gab[(−δd − dδ)v[]b
+= −gab(δdv[)b + (grad(div v))a, (17)
+we finally obtain
+2dab|b = −gab(δdv[)b + 2 (grad(trace d))a
+−2vn|b(kab − Hgab) + 2Kva, (18)
+or
+2div d] = −(δdv[)] + 2 grad(trace d)
+−2(k − Hg)] · grad vn + 2Kv. (19)
+We note that (k − Hg) is not the traceless part of the second fundamental form, (k − H
+2 g).
+Summarizing and rewriting Eq. (5), the Stokes boundary value problem of an inextensible fluid on an evolving surface is:
+
+
+5
+− grad p + μ
+[
+−(δdv[)] − 2(k − Hg)] · grad vn + 2Kv
+]
++ b = 0 in Γt
+div v − vnH = 0 in Γt
+bn − pH + 2μ (∇v : k − (H2 − 2K)vn
+) = 0 in Γt (20)
+v = w in ∂ΓD
+t
+σ · ν = s in ∂ΓN
+t
+The term (δdv[)] in the first equation, as noted in Appendix A, is the generalization to surfaces of the usual (curl curl v) term of the incompressible Stokes equation in bulk. For a prescribed surface time evolution, the third equation can be used to compute the required reaction bn, while for a prescribed normal force per unit surface bn, this is an equation is for the unknown vn. The correspondence of these equations with the intrinsic approach of [36], which involves time and space derivatives of the metric tensor, is not obvious for some terms, but can be checked. Let us consider, for comparison with other references in the literature, the case of a stationary surface (vn = 0) in the absence of body forces (b = 0). The equation of balance of linear momentum we have obtained involves the viscous term μ (−(δdv[)] + 2Kv). In formulating partial differential equations on manifolds, it may be tempting to merely translate the Cartesian form of the equations, replacing bulk differential operators by the corresponding surface differential operators. This procedure leads to correct equations for scalar partial differential equations such as the diffusion equation on manifolds. The equation of balance of linear momentum for an incompressible Newtonian fluid, neglecting inertial forces, admits two equivalent expressions in Cartesian coordinates, either
+− ∇p + μ∆v = 0, or − ∇p − μ∇ × ∇ × v = 0. (21)
+As further elaborated in Appendix A, there are two meaningful definitions of the Laplacian of a vector field on a manifold that are not equal in general, and essentially correspond to each of these two forms of the equations. The translation to a surface of the first form, which considers the Laplacian of the vector by components, reads
+− grad p + μ ̂∆v = −grad p + μ
+[
+−(δdv[)] + Kv
+]
+= 0,
+(22) where the inextensibility of the membrane and the Bochner’s formula have been used. This approach has been followed by [45] to formulate the Navier–Stokes equations on Riemannian manifolds. If the second form of the equations is translated, using the Laplace-de Rham operator as a natural generalization, the result is
+− grad p − μ(δdv[)] = 0. (23)
+Such an approach can be found in [46] to study the Navier–Stokes equations on a sphere. Note that none of these translations coincide with the equations we have obtained from the balance laws of continuum mechanics. For the case vn = 0, other references [Note added in Proof in 42, 43] have considered the correct operator.
+F. Variational formulation
+As in the Euclidean case, the Stokes flow follows from a minimum principle. This variational formulation is useful for coupling the surface flow with other mechanical effects and for numerical implementations of the theory. We define the Rayleigh dissipation potential (one half of the rate of viscous dissipation) as:
+WD[v, vn] = 1
+2
+∫
+Γ
+σ : d dS. (24)
+For an inextensible viscous surface fluid, the Rayleigh dissipation can be particularized to
+WD[v, vn] = μ
+∫
+Γ
+d : d dS, (25)
+noting that σ : d = (−pg] + 2μd]) : d = −p trace d + 2μd : d = 2μd : d. Interestingly, this dissipation potential for fluid membranes was deduced by [39] on the basis of covariance.
+Consider the problem of finding the vector field v tangent to the surface Γt and the scalar field vn, consistent with the Dirichlet boundary conditions that minimize the total dissipation potential including the dissipation potential of the external actions
+Diss[v, vn] = WD[v, vn] −
+∫
+Γ
+(vnbn + v · b) dS −
+∫
+∂Γ
+v ·s d`
+(26) subject to the inextensibility constraint −div v + vnH = 0. We can form the Lagrangian functional, in which the surface tension acts like a Lagrange multiplier for the inextensibility constraint, and compute its variations
+
+
+6
+L[v, vn, p] = μ
+∫
+Γ
+d : d dS −
+∫
+Γ
+(vnbn + v · b) dS −
+∫
+∂Γ
+v · s d` −
+∫
+Γ
+(div v − vnH)p dS, (27)
+δvL = 2μ
+∫
+Γ
+d : ∇δv dS −
+∫
+Γ
+b · δv dS −
+∫
+∂Γ
+s · δv d` −
+∫
+Γ
+(div δv)p dS
+=−
+∫
+Γ
+[2μ div d] + b − grad p] · δv dS +
+∫
+∂Γ
+[ν · (−pg + 2μd) − s] · δv d`, (28)
+δvn L =
+∫
+Γt
+(−2μd : k − bn + pH) δvn dS
+=−
+∫
+Γt
+[2μ (∇v : k − (H2 − 2K)vn
+) + bn − pH] δvn dS, (29)
+δpL = −
+∫
+Γ
+(div v − vnH)δp dS. (30)
+It follows that Eqs. (20) are precisely the Euler-Lagrange equations of L[v, vn, p].
+III. THE COUPLED SYSTEM
+This Section derives the equations that govern the dynamics of a fluid membrane embedded in a surrounding fluid driven by curvature elasticity and line tension. Line tension arises when the membrane is not closed or has several phases. We present each phenomenon separately, and couple all together through the principle of virtual power.
+A. Ambient fluid
+Since we are mostly concerned with surface phenomena, we have reserved the symbol ∇ for the surface covariant derivative, div for the surface divergence, V for the velocity of the particles on the surface, μ for the shear viscosity of the 2D fluid on the membrane, etc. To refer to bulk objects (operators, fields, material properties, etc.), the superscript b will be used. Assuming that the fluid membrane is surrounded by a Newtonian incompressible fluid for which inertial forces are negligible, we can define a Lagrangian functional accounting for the Rayleigh dissipation potential and the incompressibility constraint
+Lb[V b, pb] = μb
+∫
+R3
+Db : Db dV −
+∫
+R3
+(∇b · V b)pb dV
+−
+∫
+R3
+bb · V b dV. (31)
+The rate-of-deformation tensor is Db = 1
+2 [∇bV b +
+(∇bV b)T ] and bb denotes the bulk body force on the surrounding fluid. An unbounded domain for the bulk fluid is considered for simplicity. The Euler-Lagrane equations that derive from this functional are the Stokes flow equa
+tions for the bulk fluid:
+− ∇bpb − μb [∇b × ∇b × V b] + bb = 0 in R3 (32)
+∇b · V b = 0 in R3 (33)
+B. Curvature elasticity
+We model the curvature elasticity of fluid membranes using the classical Helfrich-Canham energy [see 27, for a discussion on curvature elasticity models], consisting of a term depending on twice the mean curvature H and another term depending on the Gaussian curvature K
+EHC =
+∫
+Γ
+κ
+2 (H − C0)2 dS +
+∫
+Γ
+κGK dS, (34)
+where C0 denotes the spontaneous curvature and κ and κG are elastic parameters. We ignore non-local energy contributions for simplicity [28]. When vesicles without boundary are considered, the Gaussian curvature energy contribution is a topological invariant and is often disregarded. For surfaces with boundary or multicomponent vesicles, this term is not irrelevant as a consequence of the Gauss-Bonnet theorem. An important feature of the energy EHC is its invariance under the action of tangential velocity fields whose normal component to the surface boundary vanish since these do not change the surface geometry. In other words, EHC is invariant with respect to re-parametrizations of the surface. This is a crucial difference of this curvature elasticity model with elastic models for thin solid objects, which include shear energy terms. The invariance of EHC with respect to re-parametrizations (i.e., tangential flows that do not change the boundary) is clear from the expression of the energy release rate associated with EHC presented below. Note however that tangential velocity fields may contribute to the rate of curvature energy release through boundary terms. Recalling the decomposition of the total velocity of the surface particles into
+
+
+7
+a tangential and a normal component, V = v + vnn (see Appendix C for the details, where an alternative deriva
+tion of the results in [51] is also provided), the energy release rate of the curvature energy is
+GHC [v, vn] = −E ̇ HC = −
+∫
+Γ
+κ
+[
+∆H + H − C0
+2 (H2 − 4K + HC0)
+]
+vn dS
++
+∫
+∂Γ
+κ(grad H · ν)vn d` −
+∫
+∂Γ
+κG(t · k · ν)|tvn d`
+−
+∫
+∂Γ
+κ
+2 (H − C0)2 (v · ν) d` −
+∫
+∂Γ
+κGK(v · ν) d`
+−
+∫
+∂Γ
+κ(H − C0)(vn)|ν d` −
+∫
+∂Γ
+κG(H − ν · k · ν)(vn)|ν d` (35)
+Note that for scalar fields, the surface Laplacian admits a single definition and is therefore denoted simply by ∆. Recall that ν denotes the outer unit normal to the boundary of the surface tangent to it, and t denotes a tangent unit vector to the curve ∂Γ. By |ν we denote differentiation in the direction of ν (and thus (vn)|ν = grad vn · ν), and |t denotes differentiation along the curve ∂Γ. The boundary terms in the second line can be understood as the working of shear line forces, normal to the surface since they produce power against vn. The boundary terms in the third line correspond to the working of membrane line forces since they produce power against the tangential velocity normal to the boundary, and finally, the terms in the fourth line represent the working of distributed couples applied at the boundary of the surface since they produce power against the derivative of vn normal to the boundary of the surface. This identification of the tractions at the boundary of the membrane is in principle useful when external forces or constraints are imposed on membrane edges. Although buried in the above form of the equations, it is possible to identify the stresses of an elastic fluid membrane [52, 53], and even deduce the above equations from a nonlinear Kirchhoff-Love shell theory with a specific constitutive model [54]. This has been done for the purely elastic membranes, but can be extended in the present setting, where a viscous stress would need to be introduced as well. This conceptually interesting exercise is beyond the scope of the present paper.
+C. Line tension
+To consider membranes which are possibly open, or have multiple phases, it is important to include the effect of the line tension at the boundary or interface ∂Γ [35]. The line tension or interfacial energy is
+EI =
+∫
+∂Γ
+σ d` = σ `(∂Γ), (36)
+where σ denotes the line tension and `(∂Γ) the length of the interface. As detailed in Appendix D, the interfacial energy release rate is
+GI = −E ̇I =
+∫
+∂Γ
+σ[vnkn + (v · ν)kg] d`, (37)
+where kn and kg denote the normal and geodesic curvatures of the curve ∂Γ viewed as a subset of Γ [55].
+D. Full coupled system
+The governing coupled evolution equations for a vesicle with boundary (or a vesicle with an interface) embedded in a surrounding fluid are obtained through the principle of virtual power balancing conservative and dissipative forces (the dissipation minus the energy release rate is minimized subject to the inextensibility/incompressibility constraints):
+δ
+(L[v, vn, p] + Lb[V b, pb] − GHC [v, vn] − GI [v, vn]) = 0, (38) subject to the compatibility condition
+V b∣
+∣Γ = v + vnn. (39)
+This condition can be interpreted as a no-slip condition between the surrounding fluid and the membrane, as adopted by [56] or [28], and supported by recent coarsegrained molecular dynamics simulations [49]. We assume that the surface Γ is orientable, and denote the side of the surface in which the normal n points outwards the + side, the − side being the opposite side. We define
+Tb
+± = ±n · σb
+± = ±n · (−pb
+±Id + 2μbDb
+±). (40)
+We can interpret this as the traction exerted by the bulk fluid on either side of surface. This traction is split into its tangential and normal components as
+Tb
+± = tb
+± ± (±T b
+± · n)
+} {{ }
+tb
+n±
+n (41)
+
+
+8
+Note that tbn± always denotes a normal traction on the surface pointing away from the surface. We write [| · |] for the jump of a quantity across the surface Γ, defined as the value on the + face minus the value on the − face. Noting that on the surface Γ the variations of V b are
+related to the variations of v and vn through the compatibility condition in Eq. (39), while at ∂Γ the variations of vn and (vn)|ν are independent, the resulting EulerLagrange equations are
+δV b : −∇bpb − μb [∇b × ∇b × V b] + bb = 0 in R3\Γ
+δpb : ∇b · V b = 0 in R3\Γ
+δv : −grad p − μ [(δdv[)] + 2(k − Hg)] · grad vn − 2Kv] +
+(tb+ + tb−
+) = 0 in Γ 2μ [(∇v)symm − vnk] · ν + [−p + κ
+2 (H − C0)2 + κGK − σkg
+] ν = 0 in ∂Γ
+δp : −div v + vnH = 0 in Γ
+δvn : −2μ [∇v : k − (H2 − 2K)vn
+] + pH − [|tbn|]
++κ [∆H + H−C0
+2 (H2 − 4K + HC0)] = 0 in Γ
+−κ(grad H · ν) + κG(t · k · ν)|t − σkn = 0 in ∂Γ
+δ(vn)|ν : κ(H − C0) + κG(H − ν · k · ν) = 0 in ∂Γ
+(42)
+together with the compatibility condition in Eq. (39) and the geometric evolution equation
+dx
+dt = v(x) + vn(x)n(x) for x ∈ Γ. (43)
+Note that time only appears explicitly in this last equation. This set of equations determines the time evolution of the surface Γ, of the fields defined on the surface v, vn and p, and of the bulk fields V b and pb. Let us examine the three boundary conditions at ∂Γ, which in the above equations represents the edge of the membrane. The first one is a vectorial equation and sets the equilibrium of tangential tractions, i.e. membrane line-distributed forces and in-plane shear line-distributed forces. The second equation at ∂Γ corresponds to the balance of out-of-plane shear line-distributed forces. Finally, the third equation at ∂Γ is the balance of line-distributed couples. Only the first of these boundary equations involves viscous forces. It has been assumed that no external forces or imposed velocities or twists are applied at this boundary, i.e. the boundary conditions derived are homogeneous Neumann conditions. The case of non-homogeneous Neumann or Dirichlet conditions is straightforward to treat. Also, with the above equations at hand, it is straightforward to consider multicomponent membranes.
+E. Axisymmetric form of the coupled equations
+We consider now an axisymmetric vesicle as detailed in Appendix B, given in Cartesian coordinates by
+(r(u) cos θ, r(u) sin θ, z(u)), with u ∈ I = [u1, u2] and θ ∈ [0, 2π). For brevity, we neglect the terms due to the surrounding fluid, whose axisymmetric form can be found in standard textbooks. We assume that there is no dependence on the angle θ, and therefore the normal velocity and the surface tension of the membrane only depend on u, i.e. vn(u) and p(u). The tangential ve
+locity field is of the form v = vu(u) ∂
+∂u . Its associated one-form is v[ = a2vu(u)du. We shall denote vu(u) simply by v(u). It is straightforward from Appendix B that dv[ = 0. Note carefully that the tangent vector ∂
+∂u is not
+a unit vector, unless the generating curve describing the surface of revolution is parametrized by arc-length. The unit normal at the boundary of the surface tangential to it is simply ν(u1) = − 1
+a
+∂
+∂u and ν(u2) = 1
+a
+∂
+∂u .
+With the formulas in Appendix B, defining a2(u) = (r′(u))2 + (z′(u))2 and b(u) = −r′′(u)z′(u) + r′(u)z′′(u), noting that in the present setting kn = z′
+ar , kg = −r′
+ar ,
+ν·k·ν = b
+a3 and t · k · ν = 0, and with the expressions
+H=1
+a
+(b
+a2 + z′
+r
+)
+, K = bz′
+a4r , (44)
+the coupled Eqs. (42) become:
+
+
+9
+δv : −p′ + 2μ
+( z′
+ar v′n + a2Kv
+)
+= 0 for u ∈ I
+−p + 2μ ( 1
+a (av)′ − b
+a3 vn
+)+ κ
+2 (H − C0)2 + κGK + σ r′
+ar = 0 at u = u1,2
+δp : 1
+ar (arv)′ − Hvn = 0 for u ∈ I
+δvn : −2μ
+[b
+a4 (av)′ + z′r′
+ar2 v − (H2 − 2K)vn
+]
++pH + κ
+[1 ar
+(r
+a H ′)′ + H−C0
+2 (H2 − 4K + HC0)
+]
+= 0 for u ∈ I
+−κH′ − σ z′
+r = 0 at u = u1
+κH′ − σ z′
+r = 0 at u = u2
+δ(vn)|ν : κ(H − C0) + κG z′
+ar = 0 at u = u1,2
+(45)
+The shape of the vesicle is time-dependent, and therefore we can view its parametrization as depending on time as well, i.e. r(u, t) and z(u, t). Denoting the differentiation with respect to time by a dot, the shape evolution equation (43) becomes
+r ̇ = vr′ − z′
+a vn, z ̇ = vz′ + r′
+a vn. (46)
+This geometric evolution is Lagrangian since the surface is advected by the velocity of the material particles. However, only the evolution of the shape of the membrane matters since Eqs. (45) are invariant with respect to reparametrizations, i.e. they do not refer to a reference configuration and do not depend explicitly on time. Thus, in Eq. (46) v can be chosen rather arbitrarily, as long as it agrees with the physical velocity at the boundary. In the axisymmetric case, a simple calculation shows that the viscous dissipation density can be computed as
+d:d =
+(1
+a (av)′
+)2
++
+( r′
+rv
+)2
+− 2vn
+a
+(b
+a3 (av)′ + z′r′
+r2 v
+)
++(H2 − 2K)v2
+n. (47)
+The particularization to an arc-length parametrization (u = s, a = 1) used by [57] introducing the angle φ(s) from the r−axis to the tangent vector to the generating curve is straightforward, with the caution that in the surface evolution equations r ̇ = vˆ cos φ + vn sin φ, z ̇ =
+−vˆ sin φ + vn cos φ, vˆ should be chosen such that d
+dt (r′2 +
+z′2) = 0 to preserve the arc-length parametrization, or equivalently vˆ′ + φ′vn = 0, subject to vˆ(u1) = v(u1) and vˆ(u2) = v(u2).
+IV. BUDDING OF A SPHERICAL CAP
+Consider a spherical bud protruding off an infinitely large planar fluid membrane, as in [34] and [17]. See also [14] for a related calculation. We assume that the
+FIG. 1: Model for bud formation with two fluid membranes, a spherical cap with fixed area Γα and a punctured plane Γβ.
+composition of the bud and of the flat membrane is different, and consider an interface energy between the two phases. As illustrated in Fig. 1, we shall denote the budding spherical cap by Γα, the flat perforated membrane by Γβ, and the interface between them by γ. We assume that the position of the plane containing Γβ remains fixed. This model constrains the geometry in a reasonable but severe way, in such a way that the configuration of the membrane system can be described by a single parameter. This parameter is the angle ψ illustrated in Fig. 2. This allows us to obtain the dynamics, i.e. ψ(t), from the single ordinary differential equation (ODE) that follows from the variational principle in Eq. (38), which is coupled to two systems of PDEs, that governing the bulk fluid and that governing the flow on the surface.
+A. Setup
+In the one-parameter family of configurations of the spherical bud, ψ = 0 corresponds to the completely flat circular bud, while at ψ = π the bud is a sphere. The inextensibility of the lipid bilayer completely determines the geometry of the system, and in particular sets the radius of the bud R(ψ) and the radius of the neck ρneck(ψ) during this motion. The spherical caps for each ψ must have equal area as required by the inextensibility of the bilayer, say A0.
+
+
+
+
+
+
+12
+Noting that the surface area of the spherical cap is 2πR2(ψ)(1−cos ψ), the curvature energy adopts the form EHC = π(1 − cos ψ) [κ(2 + C0R)2 + 2κG
+] , hence
+GHC (ψ, ψ ̇) = −2π sin ψ
+[
+κ
+(
+2 + C0R0
+√1 − cos ψ
+)
++ κG
+]
+ψ ̇
+(62)
+E. Dynamics of budding
+The dynamics of the budding process can now be established through the principle of virtual power, which states here that for each ψ, the rate at which the process occurs is such that the dissipative forces equilibrate the conservative driving forces:
+0= ∂
+∂ψ ̇
+[WD,α + WD,β + W b
+D − GHC − GI
+] (63)
+which results in
+R2
+0
+[
+μαFα(ψ) + μβFβ(ψ) + μbR0G(ψ)
+]
+ψ ̇
+= σR0
+2 Hσ(ψ) + Hκ(ψ)
+[
+κ
+(
+2 + C0R0
+√1 − cos ψ
+)
++ κG
+]
+,
+(64)
+where Hσ(ψ) = √1 − cos ψ, Hκ(ψ) = − sin ψ and
+Fα(ψ) = 1 + cos ψ
+(1 − cos ψ)2 I(ψ), Fβ(ψ) = 1 − cos ψ
+2.
+This first order ODE provides the time evolution ψ(t). The solution to this ODE follows from
+t=
+∫ ψ(t)
+ψ(0)
+R02
+[μαFα(ξ) + μβFβ(ξ) + μbR0G(ξ)]
+σR0
+2 Hσ(ξ) +
+[
+κ
+(
+2 + C0R0
+√1−cos ξ
+)
++ κG
+]
+Hκ(ξ)
+dξ.
+(65)
+F. Discussion
+For the sake of this discussion, we assume κG = 0 and C0 = 0. The numerator of the integrand in Eq. (65) embodies the dissipative mechanisms while the denominator represents the driving forces. Each of these terms introduces a length scale. It is convenient to introduce a conventional classification of synthetic lipid vesicles according to their size, that distinguishes between small unilamellar vesicles (SUVs) of diameters between 20 and 100 nm, large unilamellar vesicles (LUVs) of diameters between 100 nm and 1 μm, and giant unilamellar vesicles (GUVs) of diameters larger than 1 μm, which can reach hundred microns. In the denominator, the fact that the line tension term is multiplied by R0 and the curvature term is not introduces the so-called invagination length [34, 35]
+`1 = 4κ
+σ . (66)
+For lipid vesicles in the liquid phase, typical values for these parameters are κ ∼ 10−19 J [9] and σ ∼ 10−11 to 10−12 N [1, 34, 35], which result in `1 ∼ 40 to 400 nm. For buds smaller than this length scale, the curvature elasticity dominates line tension, while the opposite happens for larger buds. Similarly, the fact that the bulk viscosity term in the numerator is multiplied by the size of the bud R0, while the surface viscosity terms are not induces another length scale
+`2 = μ
+μb . (67)
+This length scale also arises in the Saffman-Delbruck theory for the diffusion of membrane inclusions [12], see also [56]. Large buds measured in terms of `2 will display dynamics governed by the dissipation in the bulk fluid, while the dinamics of small buds will be dictated by the membrane dissipation. Typically, the surrounding fluid has a viscosity close to that of water, μb ∼ 10−3 N s m−2. As for the two-dimensional viscosity of fluid membranes, the ranges of values can be quite wide. Consequently, `2 strongly depends on the particular amphiphilic mixture under consideration, as well as the environmental conditions. Typical viscosities for lipid membranes in the liquid phase are μ ∼ 5 · 10−9 N s m−1 [9], resulting in `2 ∼ 5 μm. The membrane viscosity diverges as the temperature is lowered, reaching the gel phase. In liquidordered (Lo) phases observed in multicomponent GUVs, the diffusion coefficient of chemical probes has been reported to decrease between one and two orders of magnitude, depending on the chemical composition, as compared to the liquid disordered (Ld) phase [2]. According to the theory in [12], this would imply a viscosity in Lo phases between one and two orders of magnitude larger than in Ld phases, hence `2 ∼ 50 to 500 μm. Thus, the simple example considered here suggests that for transport vesicles and organelle formation within the cell (of sizes of tens to hundreds or nanometers), or for synthetic lipid vesicles in the range of SUVs, LUVs, and even GUVs depending on the chemical composition, membrane dissipation dominates the dissipation in the bulk fluid. This challenges to some degree the predominant view that in GUVs the only relevant source of dissipation is that of the bulk fluid. For instance, in recent experiments on multicomponent GUVs, buds of Lo phases of a few microns, hence smaller than `2, were studied [1, 2]. One important observation is that for realistic parameter values of fluid membranes, `1 is smaller than `2. For lipid membranes in the liquid phase, we have seen that `1 ∼ 40 to 400 nm and `2 ∼ 5 to 50 μm. This fact allows us to distinguish three regimes. In Regime I, for small buds (R0 < `1), curvature elasticity and membrane viscosity govern the dynamics, and the characteristic time
+scale t ∼ μR2
+0
+2κ follows from Eq. (65). In Regime II for
+intermediate buds (`1 < R0 < `2), the line tension and the membrane viscosity dominate resulting in the characteristic time scale t ∼ 2μR0
+σ . In Regime III for large
+
+
+
+
+14
+a particular emphasis on the two-dimensional viscous flow of membrane constituents on the curved, timeevolving geometry of a vesicle. We have derived from the balance principles of continuum mechanics a new geometric form of the governing equations for the 2D Stokes flow on a curved moving surface. We have coupled this surface viscous flow to curvature elasticity, the line tension arising in vesicles with boundary or with several phases, and to the flow of the ambient bulk fluid. The resulting coupled system of equations describes the dynamics of fluid membranes. As a minimal yet informative model for budding of vesicles or membrane fusion, we have considered a simple one degree-of-freedom system consisting of a spherical cap membrane protruding off an infinite planar membrane, embedded in a viscous fluid. This example provides insight into the dynamics of fluid membranes. In particular, it enables us to identify three regimes for the dynamics of fluid membranes, defined in terms of two characteristic lengths. For small vesicles, curvature elasticity and membrane viscosity set the dynamics. For vesicles of intermediate size, line tension and membrane viscosity are the dominant driving and dissipative mechanisms. For large vesicles, line tension and the bulk viscosity become dominant. We find that the parameter range in which membrane viscosity dominates bulk viscosity is rather common in cell biology and in man-made bio-inspired systems. This challenges the idea that for large synthetic vesicles the main dissipation mechanism is that of the ambient fluid. For polymerosomes of any realistic size or for small transport vesicles in the cell, the surface viscous flow in the membrane provides the dominating energy dissipation mechanism of the vesicle. We believe that this research may provide fertile grounds for targeted experiments and numerical studies of more realistic geometries.
+Acknowledgments
+Acknowledgments. We gratefully acknowledge the support of the Italy-Spain Integrated Action (HI2006-0212). MA acknowledges the support of the European Commission (MIRG-CT-2005-029178) and the Ministerio de Ciencia e Innovaci ́on (DPI2007-61054). The assistance of Adrian Rosolen in producing Figure 3 is gratefully acknowledged.
+Appendix A: Facts of differential geometry
+A general introduction to the notions of differential geometry useful here can be found in [59] and [60]. Next, we provide the notation used, as well as some specific results used in the paper.
+1. Exterior calculus and differential forms
+Given a Riemannian manifold Γ of dimension n (here we consider surfaces embedded in R3), its tangent bundle (whose sections are vector fields on Γ) is denoted by T Γ, while T ∗Γ denotes its dual. T ∗Γ is the cotangent bundle, where the differential 1-forms live. The metric tensor of the manifold is denoted by g or gab in components, while it inverse is g] or gab. The operation of lowering the indices of a tensor is denoted by [, the flat operator. The sharp operator ] raises the indices of a tensor. For example, if β ∈ T ∗Γ is a differential 1-form, β] is a vector field defined by (β])a = βa = gabβb. Conversely, given a vector field v ∈ T Γ, the differential 1-form v[ is defined by va = gabvb. Differential k-forms are completely antisymmetric covariant tensors, and the bundle of differential k-forms is denoted by Ωk(Γ). The wedge product between differential forms, an anti-symmetrized tensor product, is denoted by ∧. If α is a k-form and β is a l-form, α ∧ β is a (k + l)-form. The natural differential operator acting on differential forms is the exterior derivative d : Ωk(Γ) −→ Ωk+1(Γ). The Hodge star operator ∗ : Ωk(Γ) −→ Ωn−k(Γ) is defined by the relation α ∧ ∗β = (α · β) dV for all α, β ∈ Ωk(Γ), where dV is the volume-form (the area form dS for surfaces) induced by the metric tensor and · denotes the inner product of differential forms. The co-differential operator δ : Ωk+1(Γ) −→ Ωk(Γ) is the formal L2 adjoint of the exterior derivative, i.e.
+∫
+Γ
+(dα·β) dV =
+∫
+Γ
+dα∧∗β =
+∫
+Γ
+α∧∗δβ =
+∫
+Γ
+(α·δβ) dV
+and follows from δ = (−1)nk+1 ∗ d∗, where k + 1 is the order of the differential form it is acting on, resulting in a k−form. Thus, for two-dimensional manifolds, δ = − ∗ d∗.
+2. Covariant differentiation
+The symbol ∇ denotes the covariant differentiation on the manifold. The covariant derivative of the metric is zero, ∇g = 0 and ∇g] = 0. This is the reason why the operations of raising and lowering indices commute with the covariant derivative. In index notation, covariant differentiation is denoted by |a. Note that the coordinate expression of the covariant derivative involves the Christoffel symbols or coefficients of the Riemannian connection. For example, if we denote the coordinate system by {xa}, for a a vector field v we have
+va|b = ∇bV a = ∂V a
+∂xb + ΓacbV c. (A1)
+When acting on scalar fields, the covariant derivative coincides with the exterior derivative, and produces a 1form. The sharp operator turns this 1-form into the
+
+
+15
+gradient operator on the manifold grad f = (df )], in coordinates
+(grad f )a = gabf|b = gab ∂f
+∂xb .
+The divergence is the negative adjoint operator of the gradient and follows from div v = va|a. It can also be defined in terms of the co-differential as div v = −δv[. We denote by ∇∗ the formal L2 adjoint of the covariant derivative.
+3. Curvature
+Let β denote a one-form. Then βa|b|c − βa|c|b = βdRdabc, where Rlabc denotes Riemannian curvature tensor (a measure of the non-commutativity of the second covariant derivative). Analogously, for a vector field v, we have va|b|c − va|c|b = Rabcdvd. Consequently,
+va|b|a − va|a|b = vcRbc, where Rbc = Rabac is the Ricci curvature, whose trace (the scalar curvature) is twice the Gaussian curvature K for surfaces. As a matter of fact, for surfaces in R3, Rbc = Kgbc, and consequently
+va|b|a − va|a|b = vcKgbc = Kvb.
+We denote by kab denotes the second fundamental form and H = kabgab twice the mean curvature. From the Codazzi-Mainardi equations kab|c = kbc|a = kca|b we get
+kab|b = gacH|c.
+4. Laplacians
+For functions, the Laplacian on a manifold (LaplaceBeltrami operator) can be defined in terms of the covariant derivative and its adjoint ∆f = −∇∗∇f = div(gradf ) = gabf|a|b. The Laplace-Beltrami operator can also be defined in terms of the exterior derivative ∆f = −δdf . These two definitions are equivalent. For a vector field (or a differential form), there are two common Laplacians. On the one hand, one can define for any tensor field ̂∆ = −∇∗∇, which for a vector field can be computed as ( ̂∆v)a = gbcva|b|c, and simi
+larly for a differential 1-form ( ̂∆β)a = gbcβa|b|c. This second order self-adjoint operator is called the Bochner or rough Laplacian. On the other hand, the Laplace-de Rham operator (also called Hodge-de Rham Laplacian) ∆R : Ωk → Ωk acting on differential forms is defined as ∆R = −δd − dδ. This operator can be extended to vector fields by ∆Rv = (∆R(v[))]. Recalling that div = −δ, we recognize from the definition of ∆R the classical identity of two- and three-dimensional vector calculus ∆v = −∇ × ∇ × v + ∇(∇ · v). Thus, the generalization of the curl-curl operator to n-dimensional manifolds is δd .
+Unlike the case of scalar fields, for vectors or differential 1-forms these two Laplacians are not equal in general. In fact, the Bochner’s formula [61], also called Weitzenb ̈ock identity, states that (∆Rβ)a = ( ̂∆β)a − βcgcbRba, which for a surface in R3 results in
+̂∆β = ∆Rβ + Kβ or ̂∆v = ∆Rv + Kv.
+Appendix B: Axisymmetric surfaces
+Let us consider a parametrization of a surface of revolution around the z axis Γ, of the form
+x(u, θ) = (r(u) cos θ, r(u) sin θ, z(u))
+for u ∈ [u1, u2] and θ ∈ [0, 2π), expressed in Cartesian coordinates. The natural tangent vectors associated with the coordinates (xa) = (u, θ) are
+∂
+∂u = (r′(u) cos θ, r′(u) sin θ, z′(u)),
+∂
+∂θ = (−r(u) sin θ, r(u) cos θ, 0).
+From this point on, we omit the explicit dependence on u of the functions r and z. The natural basis of the tangent plane at any point on the surface is then {ea} =
+{∂
+∂u , ∂
+∂θ }, while the natural basis for the cotangent space
+is {ea} = {du, dθ}. The metric tensor and its inverse for this surface relative to the standard Euclidean metric in the natural bases are
+{gab} =
+( a2 0 0 r2
+)
+, {gab} =
+(1
+a2 0
+01
+r2
+)
+.
+where a2(u) = (r′(u))2 + (z′(u))2. An arc-length parametrization of the generating curve is enforced by requiring a(u) = 1. We denote the determinant of the metric tensor by g = det gab = a2r2. As simple calculation shows that the unit normal to the surface can be written as n = 1/a(−z′ cos θ, −z′ sin θ, r′) and the second fundamental form in the natural basis is written as
+{kab} = 1
+a
+(b 0 0 rz′
+)
+,
+where b(u) = −r′′(u)z′(u) + r′(u)z′′(u). The mean and Gaussian curvatures are computed as the trace and the determinant of
+{kab} = {gackcb} = 1
+a
+(b
+a2 0
+0 z′
+r
+)
+.
+The exterior derivative of a function on Γ, f (u, θ) is
+df = ∂f
+∂xa ea = ∂f
+∂u du + ∂f
+∂θ dθ,
+
+
+16
+and its gradient
+grad f = (df )] = gab ∂f
+∂xb ea = 1
+a2
+∂f ∂u
+∂
+∂u + 1
+r2
+∂f ∂θ
+∂
+∂θ .
+The exterior derivative of a one-form ω = f du + gdθ is
+dω =
+( ∂g
+∂u − ∂f
+∂θ
+)
+du ∧ dθ.
+Any two-form is proportional to the volume (area) form
+dS = √g du ∧ dθ. The exterior derivative of a twoform is zero. The Hodge star of the basis vectors can be computed using textbook formulas [60]
+∗du = r
+a dθ, ∗ dθ = − a
+r du,
+∗du ∧ dθ = 1
+ar , ∗ 1 = ar du ∧ dθ = dS.
+With this in mind, the Laplacian of a scalar function can be computed as
+∆Rf = −δdf = 1
+ar
+[∂
+∂u
+(r
+a
+∂f ∂u
+)
++∂
+∂θ
+(a
+r
+∂f ∂θ
+)]
+.
+Given a vector field expressed in the natural basis by F = Fu ∂
+∂u + F θ ∂
+∂θ , the associated one-form is F [ =
+a2F udu + r2F θdθ, and we can compute
+∗F [ = ar (−F θds + F udθ) ,
+d∗F[ =
+( ∂(arF u)
+∂u + ar ∂F θ
+∂θ
+)
+du ∧ dθ
+div F = −δF = ∗d ∗ F [ = 1
+ar
+∂(arF u)
+∂u + ∂Fθ
+∂θ .
+The curl-curl of a one-form ω = f du + gdθ can be computed as
+δdω = 1
+r2
+∂ ∂θ
+( ∂g
+∂u − ∂f
+∂θ
+)
+du− r
+a
+∂ ∂u
+[1
+ar
+( ∂g
+∂u − ∂f
+∂θ
+)]
+dθ.
+To compute covariant derivatives of vector fields and differential one-forms, the Christoffel symbols are needed, see Eq. (A1). The formula for the Christoffel symbols
+Γa
+bc = 1
+2 gad(∂cgdb + ∂bgdc − ∂dgbc).
+allows us to compute
+{Γu
+··} =
+( a′
+a0
+0 − rr′
+a2
+)
+, {Γθ
+··} =
+( 0 r′
+r
+r′
+r0
+)
+.
+For instance, the covariant derivative of a vector field of the form v = v(u) ∂
+∂u is
+{va|b} =
+( v′ + a′
+av 0
+0 r′
+rv
+)
+=
+( (av)′
+a0
+0 r′
+rv
+)
+.
+Appendix C: Variations of the Helfrich-Canham energy
+We consider variations of the surface of the form x+tV where the surface velocity has a tangential and a normal component, V = vn n+v. Furthermore, at the boundary of the surface ∂Γ, we decompose the tangential velocity as follows:
+V |∂Γ = vn n + vν ν + vt t.
+By n we denote the unit normal to the surface, by ν the unit outer normal to the boundary and tangential to the surface, by t the tangential unit vector to the boundary of the surface, and by N the normal to the boundary viewed as a curve in space. In most references dealing with the Helfrich-Canham and related energies [59] only normal variations are considered. This is indeed sufficient for surfaces without boundary, since only the normal velocity changes the shape of the surface. However, as we shall see below, this is not the case for surfaces with a boundary. We first compute the rate of change of the mean curvature part of the Helfrich-Canham energy,
+d dt
+∣ ∣ ∣
+∣t=0
+∫
+Γ
+(H − C0)2 dS =
+∫
+Γ
+2(H − C0)H ̇ dS
++
+∫
+Γ
+(H − C0)2 d ̇S.
+As shown in [59], H ̇ = ∆vn + vn(H2 − 2K). As for the time derivative of the area element, besides the regular contribution considered in this reference, d ̇S = −Hvn dS,for surfaces with boundary, we have also a sin
+gular contribution concentrated at the boundary, d ̇S = −Hvn dS + vν δ(∂Γ) (ν · dS). Here, δ(∂Γ) denotes a Dirac mass concentrated at the boundary of the surface. Consequently, the above expression becomes
+∫
+Γ
+2(H − C0)[∆vn + vn(H2 − 2K)] dS −
+∫
+Γ
+(H − C0)2Hvn dS +
+∫
+∂Γ
+(H − C0)2v · ν d`
+By applying Green’s formula twice on the term involving the surface Laplacian of vn, and assuming for simplicity that κ and C0 are uniform on the surface, we finally obtain
+d dt
+∣ ∣ ∣
+∣t=0
+∫
+Γ
+κ
+2 (H − C0)2 dS =
+∫
+Γ
+κ
+[
+∆H + H − C0
+2 (H2 − 4K + HC0)
+]
+vn dS
+−
+∫
+∂Γ
+κ(grad H · ν)vn d` +
+∫
+∂Γ
+κ(H − C0)(∇vn · ν) d`
++
+∫
+∂Γ
+κ
+2 (H − C0)2 (v · ν) d`
+
+
+17
+We now turn to the rate of change of the Gaussian curvature part of the Helfrich-Canham energy, and assuming for simplicity that κG is constant, we want to compute
+D= d
+dt
+∣ ∣ ∣
+∣t=0
+∫
+Γ
+K dS =
+∫
+Γ
+K ̇ dS +
+∫
+Γ
+K d ̇S .
+We first note that for surfaces without boundary and constant genus, the above expression vanishes owing to the Gauss-Bonnet theorem. We are interested in surfaces with a boundary, for which the formula
+∫
+Γ
+K dS = 2πχ −
+∫
+∂Γ
+kg d`
+holds (kg is the geodesic curvature of the curve ∂Γ), and in general this variation does not vanish. We recall that the Gaussian curvature is obtained as K = det(kab) = det(kacgcb). From Jacobi’s formula, we have
+K ̇ = d
+dt
+∣ ∣ ∣
+∣t=0
+[det(kab)] = K(k−1)a
+ck ̇c
+a.
+The two-dimensional form of the Cayley-Hamilton formula gives
+(k−1)a
+c=−1
+K (kac − Hδac)
+and we also recall from [59] that k ̇ cd = (vn)|c|d −vn kceked
+and g ̇da = 2vnkda. From the equations above, we have
+K ̇ = (Hδac − kac)(k ̇ cdgda + kcdg ̇ da)
+= (Hgcd − kcd)[(vn)|c|d + vn kceked]
+Consequently, we have
+D=
+∫
+Γ
+(Hgcd − kcd)(vn)|c|d dS
++
+∫
+Γ
+(Hkdekde − kabkbckca)vn dS
+−
+∫
+Γ
+KHvn dS +
+∫
+∂Γ
+K(v · ν) d`
+It is simple to check that the second and the third integrals cancel each other, for instance by expressing the second fundamental form in the orthonormal basis which diagonalizes it. We are left with
+D=
+∫
+Γ
+(Hgcd − kcd)(vn)|c|d dS +
+∫
+∂Γ
+K(v · ν) d`
+=
+∫
+∂Γ
+(Hgcd − kcd)(vn)|cνd d`
+−
+∫
+Γ
+(gcdH|d − kcd|d)(vn)|c dS +
+∫
+∂Γ
+K(v · ν) d`
+where the first term in the last line vanishes according to the Codazzi-Mainardi equations. For closed surfaces the
+variations of the integral of K vanish as expected. Thus, in usual vector calculus notation, we are left with
+D=
+∫
+∂Γ
+grad vn · (Hg − k) · ν d` +
+∫
+∂Γ
+K(v · ν) d`.
+For later use, we still need to reformulate this expression. Since in general the metric and the second fundamental form are not isotropic, the first contribution does not involve only the derivative of the normal velocity in the direction normal to the boundary of the surface (vn)|ν = grad vn · ν, which is the kinematic variable conjugate to distributed couples at the boundary. Another way of looking at the same problem is that in a variational principle, the variations of vn and ∇vn and the boundary are not independent but the variations of vn and (vn)|ν are, hence yield corresponding balance laws. For this purpose, we split ∇vn|∂Γ = (vn)|ν ν + (vn)|tt, and using the divergence theorem on the boundary of the surface (which we assume to be a closed curve) rewrite the first integral in the above expression for D as
+∫
+∂Γ
+{(H − ν · k · ν)(vn)|ν + [t · (Hg − k) · ν](vn)|t
+} d`
+=
+∫
+∂Γ
+{(H − ν · k · ν)(vn)|ν − [t · (Hg − k) · ν]|tvn
+} d`
+=
+∫
+∂Γ
+(H − ν · k · ν)(vn)|ν d` +
+∫
+∂Γ
+(t · k · ν)|tvn d`.
+In the last line, we have used the fact that ν is a unit vector normal to t. Finally, we obtain
+d dt
+∣ ∣ ∣
+∣t=0
+∫
+Γ
+K dS =
+∫
+∂Γ
+(H − ν · k · ν)(vn)|ν d`+
+∫
+∂Γ
+(t · k · ν)|tvn d` +
+∫
+∂Γ
+K(v · ν) d`.
+Appendix D: Variations of the interfacial energy
+We recall the decomposition of the velocity of the particles on the boundary of the surface (a field of vectors in R3 based on ∂Γ):
+V |γ =
+v⊥
+{ }} {
+vn n + vν ν +vt t,
+where as indicated the first two terms are normal to the curve ∂Γ. A standard result for curves is that d ̇` = −k vN d`, where k is the curvature of the curve and vN is the velocity of the curve in the direction of the normal to the curve. Let us express the rate of change of the line element viewing the curve ∂Γ as a subset of the surface Γ. Let us denote by θ the angle between n and N , the normal to ∂Γ as a curve in space, measured from outside of Γ. With this definition cos θ = n·N and sin θ = ν ·N . We then have
+vN = v⊥ · N = (vn n + vν ν) · N = vn cos θ + vν sin θ.
+
+
+18
+Recalling the standard definitions of the normal and the geodesic curvatures of curves within surfaces [55], with the sign convention used here,
+kn = k cos θ = k(n · N ) and kg = k sin θ = k(ν · N ),
+we finally obtain d ̇` = −(vnkn + vνkg) d`, and thus
+E ̇I = d
+dt
+∣ ∣ ∣
+∣t=0
+∫
+∂Γ
+σ d` = −
+∫
+∂Γ
+σ(vnkn + vν kg) d`.
+[1] T. Baumgart, S. Hess, and W. Webb, Nature 425, 821 (2003). [2] K. Bacia, P. Schwille, and T. Kurzchalia, Proceedings of the National Academy of Sciences 102, 3272 (2005). [3] A. Roux, G. Cappello, J. Cartaud, J. Prost, B. Goud, and P. Bassereau, Proceedings of the National Academy of Sciences 99, 5394 (2002). [4] M. Karlsson, K. Sott, M. Davidson, A.-S. Cans, P. Linderholm, D. Chiu, and O. Orwar, Proceedings of the National Academy of Sciences 99, 11573 (2002). [5] B. M. Discher, Y. Y. Won, D. S. Ege, J. C. M. Lee, F. S. Bates, D. E. Discher, and D. A. Hammer, Science 284, 1143 (1999). [6] D. E. Discher and A. Eisenberg, Science 297, 967 (2002). [7] R. Dimova, U. Seifert, B. Pouligny, S. Forster, and H. G. Dobereiner, European Physical Journal E 7, 241 (2002). [8] K. Danov, R. Dimova, and B. Pouligny, Physics of Fluids 12, 2711 (2000). [9] R. Dimova, S. Aranda, N. Bezlyepkina, V. Nikolov, K. A. Riske, and R. Lipowsky, Journal of Physics: Condensed Matter 18, S1151 (2006). [10] P. Cicuta, S. L. Keller, and S. L. Veatch, Journal of Physical Chemistry B 111, 3328 (2007). [11] M. BenAmar, J. M. Allain, N. Puff, and M. I. Angelova, Physical Review Letters 99, 044503 (2007). [12] P. G. Saffman and M. Delbruck, Proceedings of the National Academy of Sciences 72, 3111 (1975). [13] U. Seifert and S. A. Langer, S. A., Europhysics Letters 23, 71 (1993). [14] T. M. Fischer, Physical Review E 50, 4156 (1994). [15] E. Evans and A. Yeung, Chemistry and Physics of Lipids 73, 39 (1994). [16] R. M. Hochmuth, J. Y. Shao, J. W. Dai, and M. P. Sheetz, Biophysical Journal 70, 358 (1996). [17] P. Sens, Physical Review Letters 93, 108103 (2004). [18] S. Conner and S. Schmid, Nature 422, 37 (2003). [19] G. Staneva, M. I. Angelova, and K. Koumanov, Chemistry and Physics of Lipids 129, 53 (2004). [20] Y. F. Zhou and D. Y. Yan, Journal of the American Chemical Society 127, 10468 (2005). [21] H. Noguchi and G. Gompper, Proceedings of the National Academy of Sciences 102, 14159 (2005). [22] H. Noguchi and G. Gompper, Physical Review E 72, 011901 (2005). [23] H. Noguchi and G. Gompper, Physical Review Letters 98, 128103 (2007). [24] J. Shillcock and R. Lipowsky, Journal of Physics: Condensed Matter 18, S1191 (2006).
+[25] I. R. Cooke, K. Kremer, and M. Deserno, Physical Review E 72, 011506 (2005). [26] B. J. Reynwar, G. Illya, V. A. Harmandaris, M. M. Mueller, K. Kremer, and M. Deserno, Nature 447, 461 (2007). [27] U. Seifert and R. Lipowsky, Handbook of Biological Physics (Elsevier Science B.V., 1995), vol. 1, chap. Morphology of Vesicles. [28] U. Seifert, Advances in Physics 46, 13 (1997). [29] C. Pozrikidis, Journal of Computational Physics 169, 250 (2001). [30] G. Danker and C. Misbah, Physical Review Letters 98, 088104 (2007). [31] T. Biben, K. Kassner, and C. Misbah, Physical Review E 72, 041921 (2005). [32] D. Barthes-Biesel and H. Sgaier, J. Fluid Mech. 160, 119 (1985). [33] J. M. Allain and M. BenAmar, European Physical Journal E 20, 409 (2006), ISSN 1292-8941. [34] R. Lipowsky, Journal de Physique II 2, 1825 (1992). [35] F. Julicher and R. Lipowsky, Physical Review Letters 70, 2964 (1993). [36] L. Scriven, Chem. Eng. Sci. 12, 98 (1960).
+[37] R. Aris, Vectors, tensors, and the basic equations of fluid mechanics (Prentice-Hall, 1962). [38] D. Hu, P. Zhang, and W. E, Physical Review E 75, 041605 (2007). [39] G. Dorries and G. Foltin, Physical Review E 53, 2547 (1996). [40] F. Youhei, Physica A 203 (1994). [41] T. Secomb and R. Skalak, Q. J. Mech. Appl. Math. 35, 233 (1982). [42] D. Ebin and J. Marsden, Annals of Mathematics 92, 102 (1970). [43] M. Mitrea and M. Taylor, Mathematische Annalen 321, 955 (2001). [44] P. Cermelli, E. Fried, and M. Gurtin, J. Fluid Mech. 9544, 339 (2005).
+[45] R. Temam, Infinite-dimensional dynamical systems in mechanics and physics (Springer-Verlag, 1988). [46] C. Cao, M. Rammaha, and E. Titi, Z. Angew. Math. Phys. 50, 341 (1999). [47] J. Marsden and T. Hughes, The mathematical foundations of elasticity (Prentice-Hall, 1983). [48] J. Wu, Y. Yang, Y. Luo, and C. Pozrikidis, J. Fluid Mech. 541, 371 (2005). [49] W. den Otter and S. Shkulipa, Biophysical Journal 93, 423 (2007).
+
+
+19
+[50] R. Dimova, B. Pouligny, and C. Dietrich, Biophysical Journal 79, 340 (2000). [51] R. Capovilla, J. Guven, and J. A. Santiago, Physical Review E 66, 021607 (2002). [52] R. Capovilla and J. Guven, J. Phys. A: Math. Gen. 35, 6233 (2002). [53] R. Capovilla and J. Guven, Journal of Physics: Condensed Matter 16, S2187 (2004). [54] D. Steigmann, Arch. Rational Mech. Anal. 150, 127 (1999).
+[55] M. Do Carmo, Differential geometry of curves and surfaces (Prentice-Hall, 1976). [56] H. Stone and A. Ajdari, J. Fluid Mech. 369, 151 (1998).
+[57] F. Julicher and R. Lipowsky, Physical Review E 53, 2670 (1996). [58] J. Happel and H. Brenner, Low Reynolds Number Hydrodynamics: with special applications to particulate media (Martinus Nijhoff Publishers, 1983). [59] T. Willmore, Riemannian geometry (Oxford University Press, 1993). [60] J. Marsden, T. Ratiu, and R. Abraham, Manifolds, tensor analysis and applications (Springer-Verlag, 1998). [61] S. Rosenberg, The Laplacian on a riemannian manifold: an introduction to analysis on manifolds (Cambridge University Press, 1997).

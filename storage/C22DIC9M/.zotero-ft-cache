@@ -1,0 +1,805 @@
+MODELING AND SIMULATION OF OPEN MEMBRANES IN STOKES FLOW WITH MIXED-DIMENSIONAL COUPLING∗
+HAN ZHOU† , YUAN-NAN YOUNG‡ , AND YOICHIRO MORI§
+Abstract. In this work, we present a mathematical and computational framework to model the dynamics of open lipid bilayer membranes interacting with ambient Stokes flow. The model explicitly couples the three-dimensional viscous fluid, the two-dimensional membrane surface, and its one-dimensional free edge. We develop an axisymmetric hybrid BEM-FEM method that solves the problem with an effective one-dimensional formulation. A key component is a local mesh refinement strategy designed to accurately resolve singularities and boundary layers originating at the membrane edge. Several numerical examples are provided to showcase its ability to capture intricate edge dynamics and multiscale fluid-membrane coupling.
+Key words. fluid–structure interaction, open membranes, mixed-dimensional system, boundary element method, edge singularity, local mesh refinement
+AMS subject classifications. 35Q30, 65N30, 74K15
+1. Introduction. Lipid bilayer membranes are fundamental structural components of cellular organelles, as they self-enclose to form a vesicle in a viscous fluid to separate interior from exterior contents. As a biomimetic model for blood cells, the hydrodynamics of giant vesicles provides fundamental insights into the mechanics of biomembranes, namely the coupling between membrane and fluid mechanics [56, 46, 19, 4, 6, 41, 20]. Under normal conditions, lipid bilayer membranes close on themselves in a viscous polar solvent (such as water) to form a vesicle [57]. However, in various biological and biophysical processes, the lipid bilayer membrane may open or reseal subjected to a mechanical stress or a chemical gradient [53, 19, 60, 38]. Various techniques are developed to control the opening and closing of membranes by applying osmotic stress, using light-sensitive molecules, or employing high pulse of electric field. These techniques enable precise manipulation of membrane opening and closing, with applications spanning from targeted drug delivery to synthetic vesicle engineering [44, 56, 58, 64]. Despite their relevance and importance, open membranes pose significant numerical challenges due to the presence of free edges. Unlike closed membranes, which are continuous and without boundaries, open membranes have edges where the lipid bilayer tilts to minimize exposure to solvent molecules [55, 24]. These membrane edges require boundary conditions that enforce local balances of forces and torques along the edge [5, 58, 2]. Such conditions are typically expressed as constraints involving line tension, bending moments, and the force balance between the membrane and the surrounding fluid. Most existing studies on open membranes focus on equilibrium configurations without hydrodynamic coupling [12, 40, 15, 21, 47, 48, 62, 61].
+∗Submitted to the editors DATE. Funding: YM was partially supported by the National Science Foundation (NSF) grant DMR2309034 (USA), and the Math+X award from the Simons Foundation (Award ID 234606). YNY acknowledges support from the NSF under Award No. DMS-1951600 and DMS-251071, and from the Flatiron Institute, part of Simons Foundation. †Department of Mathematics, University of Pennsylvania, Philadelphia, PA 19104, USA (hzhou24@sas.upenn.edu). ‡Department of Mathematical Sciences, New Jersey Institute of Technology, Newark, NJ 07102, USA (yyoung@njit.edu). §Department of Mathematics, University of Pennsylvania, Philadelphia, PA 19104, USA (y1mori@sas.upenn.edu).
+1
+arXiv:2504.16823v2 [math.NA] 20 Jan 2026
+
+
+2 H. ZHOU, Y, YOUNG, AND Y. MORI
+In particular, axisymmetric open membranes have been analyzed to understand their stable equilibrium shapes, the effects of edge tension, and morphological transitions [49, 63, 70, 69, 68]. For open membranes with hydrodynamics, several studies have been conducted under the assumption that the membrane maintains a prescribed shape, such as a spherical cap [6, 54, 4]. Diffuse interface methods have also been developed to model open membranes coupled with hydrodynamics [17, 18], or under purely geometric gradient flows [67]. However, the sharp-interface limits of such models remain unclear, raising questions about their convergence. Fully resolved sharp-interface formulations for the coupled dynamics of open membranes and Stokes flow remain largely unexplored. For closed fluid–membrane interaction problems, a variety of numerical algorithms have been developed, including the immersed boundary method [36, 42, 16, 43], the boundary integral method [65, 22, 29], the parametric finite element method [9], and the diffuse interface method [14, 52]. In addition, hybrid methods have been proposed that incorporate membrane and bulk viscosities and simulate vesicle electrohydrodynamics [13, 31, 30]. For open membranes, parametric finite-element formulations have been widely employed to simulate the gradient flow of the Helfrich energy and obtain equilibrium membrane shapes without explicit hydrodynamic coupling to the surrounding viscous fluid [7, 8, 9, 10, 11]. Incorporating fluid–membrane coupling would require solving the Stokes equations in domains bounded by open and deforming surfaces, a task complicated by the singular behavior near the free edge—the so-called edge condition [27, 37, 59]. Related numerical strategies have been developed in boundary-integral formulations for Laplace and Helmholtz problems on open curves, providing conceptual and computational approaches to regularizing such edge singularities [35, 34, 28]. This work develops a mathematical and computational framework for simulating the dynamics of an open axisymmetric lipid bilayer membrane immersed in an incompressible Stokesian fluid. The system is inherently multiscale, involving the coupling of PDEs across domains of differing dimensions: three-dimensional (3D) bulk fluid regions, two-dimensional (2D) membrane surfaces, and one-dimensional (1D) membrane edges. Such mixed-dimensional PDE systems are essential for accurately capturing physical phenomena governed by cross-dimensional interactions. While prior studies have addressed 3D–1D coupling in applications such as blood flow and oxygen transport in microcirculation [51, 39, 25], models that simultaneously and consistently integrate 3D fluid dynamics, 2D membrane elasticity, and 1D edge line tension remain scarce. To solve the resulting mixed-dimensional system, we employ a boundary integral formulation with axisymmetric reduction and develop a hybrid boundary element–finite element method (BEM-FEM) for the effectively one-dimensional problem. The method is further enhanced by a local mesh refinement strategy to resolve the singular behavior near the membrane edge. The proposed model and numerical scheme are validated through a series of simulations, with results benchmarked against existing analytical and computational studies. To our knowledge, this is the first fully coupled and multiscale computational framework for modeling open lipid membrane dynamics in Stokes flow. The remainder of this paper is organized as follows. Section 2 introduces the membrane energy functional and the fluid–membrane interaction, which together yield the governing equations. Section 3 presents the axisymmetric reduction and weak formulation, reducing the problem to a one-dimensional representation. Section 4 describes the numerical method used to solve the coupled system, with particular attention to the treatment of edge singularities. Section 5 presents numerical experiments that
+
+
+OPEN MEMBRANE IN STOKES FLOW 3
+demonstrate the effectiveness of the proposed method. Finally, Section 6 concludes with a summary of the work and outlines directions for future research.
+2. Model. This study focuses on modeling and simulating an open inextensible elastic membrane interacting with a viscous fluid in the Stokes regime (no inertial effect). In this section, we employ an energetic variational approach to derive the governing equations for the dynamics of the membrane.
+2.1. Differential geometry of the open membrane. To present the governing equations, we first introduce some key differential geometric concepts for an open surface and its boundary. Consider an open inextensible, elastic membrane with one or multiple holes. The membrane is assumed to be a smooth and orientable open surface Γ ⊂ R3 with zero thickness (Figure 1). The boundary ∂Γ corresponds to the open edge of elastic membrane Γ. Suppose the membrane is immersed in an incompressible viscous fluid in the domain Ω = R3 \ Γ.
+Γ
+∂Γ
+e
+n
+ν
+Fig. 1: Illustration for an open membrane surface Γ with boundary ∂Γ. n is the unit normal of Γ, e is the tangent and ν is the co-normal along the edge ∂Γ.
+Consider the surface characterized by the parametrization X(θ) ∈ Γ ⊂ R3, where θ = (θ1, θ2) denotes a coordinate system defined on the open set U . The metric tensor is defined as
+(2.1) gij = ∂iX · ∂jX, for i, j = 1, 2.
+The dual tangent vectors are given by
+(2.2) X∗
+1 = g11∂1X + g12∂2X, X∗
+2 = g21∂1X + g22∂2X,
+where (gij) = (gij)−1 represents the inverse of the metric tensor. Utilizing the dual tangent vectors, the surface gradient and surface divergence of a scalar function f and a vector field g defined on Γ can be represented as
+(2.3) ∇Γf = ∂f
+∂θ1
+X∗
+1 + ∂f
+∂θ2
+X∗
+2, ∇Γ · g = ∂g
+∂θ1
+· X∗
+1 + ∂g
+∂θ2
+· X∗
+2
+Let n = |∂1X × ∂2X|−1(∂1X × ∂2X) be the unit normal vector field. The orthogonal projection onto the tangent space of Γ, denoted as P Γ, is given by
+P Γ = I − n ⊗ n = P2
+(2.4) i=1 τ i ⊗ τ i,
+
+
+4 H. ZHOU, Y, YOUNG, AND Y. MORI
+where τ i denotes orthogonal unit tangent vectors on the surface. Defining the curvature tensor L = −∇Γn (also referred to as the Weingarten map), the mean and Gaussian curvatures H and K can be expressed as
+(2.5) H = 1
+2 trL, K = 1
+2 (trL)2 − tr L2 .
+In Figure 1, the unit tangent e along the edge ∂Γ is chosen such that the outwardpointing unit co-normal vector ν of ∂Γ, given by ν = e × n, is oriented away from Γ. The Darboux frame for ∂Γ is denoted as {e, n, ν}, and it satisfies the following relationships
+(2.6) e′ = κnn − κgν, n′ = −κne − τgν, ν′ = κge + τgn,
+where the prime denotes the derivative with respect to the arc length parameter s of ∂Γ, κn and κg represent the normal and geodesic curvatures of ∂Γ, and τg stands for the geodesic torsion of ∂Γ.
+2.2. Energy variational formulations. A lipid bilayer membrane in a given configuration stores free energy, which drives the system toward configurations of lower energy by generating conservative forces. For an open lipid bilayer membrane, the total free energy consists of contributions from both the curvature elasticity of the membrane surface and the line tension of the edge. Mathematically, the total free energy E is expressed as
+(2.7) E = EΓ + E∂Γ.
+The curvature elasticity of the membrane is modeled using the Helfrich energy,
+(2.8) EΓ =
+Z
+Γ
+α (H − c0)2 + αGK dA,
+where H is the mean curvature, K is the Gaussian curvature, c0 is the spontaneous curvature, and α and αG are the bending rigidities associated with the mean and Gaussian curvatures, respectively. The spontaneous curvature c0 reflects the natural geometry of the membrane due to its molecular composition or external environment. If c0 = 0 and αG = 0, the Helfrich energy reduces to the simpler Willmore energy, which depends only on the mean curvature. For the line tension of the edge, we consider the following energy
+(2.9) E∂Γ = γ
+Z
+∂Γ
+1 ds,
+where γ is the constant line tension, representing the energetic cost per unit length of the edge. The line tension reflects the resistance of the edge to lengthening, arising from molecular interactions at the boundary. The conservative forces produced by the membrane can be determined by calculating the first variation of the total energy. Let’s consider an arbitrary perturbation of the surface Γ in the direction of Y . We compute the first variation of the total
+
+
+OPEN MEMBRANE IN STOKES FLOW 5
+energy by (2.10)
+δX E[X](Y ) = d
+dε E[X + εY ]
+ε=0
+=
+Z
+Γ
+α ∆ΓH + 2(H − c0)(H2 + Hc0 − K) (n · Ye ) dA
++
+Z
+∂Γ
+α(H − c0)2 + αGK + γκg (ν · Ye ) − (α∇ΓH · ν − αGτ ′
+g + γκn)(n · Ye )
++ (α(H − c0) + αGκn)ν · ∇Γ(n · Ye ) ds,
+where Ye = Y ◦ X−1. The velocities of the bulk fluid flow and the surface flow are denoted by u and U , respectively. Under the assumptions of an impermeable membrane with a no-slip condition, the compatibility constraint u = U is imposed on the surface Γ. The membrane’s evolution is governed by the geometric evolution equation given by
+(2.11) ∂tX(θ, t) = U (X(θ, t), t) = u(X(θ, t), t), (θ, t) ∈ U × [0, T ].
+Furthermore, it is assumed that the fluid approaches rest at infinity, adhering to the condition
+(2.12) |u(x)| → 0 as |x| → ∞.
+The fluid environment within cells is commonly described as a low Reynolds number flow [4, 44], typically modeled using the Stokes equation. Additionally, it has been proposed that dissipation resulting from membrane viscosity plays a crucial role for large vesicles and introduces a significant regularization effect for small pores [4, 12, 33]. We consider both the bulk viscosity and membrane viscosity in formulating the model. Let μ and μΓ represent the constant viscosity coefficients of the bulk fluid and the membrane, respectively. The viscous dissipation in the bulk fluid and on the membrane surface can be characterized by the Rayleigh dissipation functions defined as
+R[u] =
+Z
+Ω
+μD(u) : D(u) dx, RΓ[U ] =
+Z
+Γ
+(2.13) μΓDΓ(U ) : DΓ(U ) dA,
+where D(u) and DΓ(U ) are the rate of deformation tensors for the bulk and surface fluid flows, defined as
+D(u) = 1
+2 ∇u + ∇u⊤ , DΓ(U ) = 1
+(2.14) 2 P Γ ∇ΓU + ∇ΓU ⊤ P Γ.
+Here, P Γ is the orthogonal projection operator defined in Equation (2.4). The membrane deformation-rate tensor DΓ(U ) is the tangential projection of the rate of change of the surface metric tensor. It depends not only on the tangential velocity but also on the normal velocity, owing to the curvature of the surface. The fluid dynamics under consideration pertain to incompressible bulk Stokes flow where the bulk velocity field is divergence-free, i.e., ∇ · u = 0. To account for the incompressibility constraint in the bulk, we construct a Lagrangian functional related to the viscous dissipation within the bulk based on the Rayleigh dissipation function,
+(2.15) L[u, p] =
+Z
+Ω
+μD(u) : D(u) − p (∇ · u) dx,
+
+
+6 H. ZHOU, Y, YOUNG, AND Y. MORI
+where the pressure p in the bulk is a Lagrange multiplier for enforcing the incompressibility condition. Moreover, the assumption of local inextensibility of the lipid bilayer membrane implies ∇Γ · U = 0. To address this constraint, a Lagrangian functional associated with the viscous dissipation on the membrane surface is constructed as
+(2.16) LΓ[U , P ] =
+Z
+Γ
+μΓDΓ(U ) : DΓ(U ) − P (∇Γ · U ) dA,
+where the Lagrange multiplier P enforces local area incompressibility and corresponds to the negative surface tension. The dissipative force can be determined by calculating the first variation of the Lagrangian functionals. Let v and V denote arbitrary perturbations of the bulk and surface velocities, respectively. As x tends to infinity, the perturbation decays such that |v| → 0 as |x| → ∞. The first variations of L can be expressed as follows
+(2.17)
+δuL[u, p](v) = d
+dε L[u + εv, p]
+ε=0
+=
+Z
+Ω
+(2μD(u) − pI) : D(v) dx
+=
+Z
+Ω
+(−∇ · σ) v dx +
+Z
+Γ
+[[σn]] · v dA,
+where the stress tensor σ is defined as σ (u, p) = −pI + 2μD(u), and [[σn]] denotes the jump of normal stress on Γ, given by
+(2.18) [[σn]](x) = εli→m0 (σ(x − εn(x)) − σ(x + εn(x))) n(x), x ∈ Γ.
+Similarly, the first variations of LΓ can be expressed as (2.19)
+δU LΓ[U , P ](V ) = d
+dε LΓ[U + εV , P ]
+ε=0
+=
+Z
+Γ
+(2μΓDΓ(U ) − P I) : DΓ(V ) dA
+=
+Z
+Γ
+(−∇Γ · σΓ) · V dA +
+Z
+∂Γ
+(σΓν) · V ds,
+where the stress tensor for the membrane fluid flow σΓ is defined as σΓ (U , P ) = −P P Γ + 2μΓDΓ(U ).
+2.3. Governing equations. The governing equations are derived via the principle of maximum dissipation, formulated as a variational condition on the rate of energy dissipation (see for example [32]). For our problem, this can be written as follows
+(2.20) δX E[X](Y ) = − (δL[u, p](v) + δLΓ[U , P ](V )) ,
+where the three terms above were computed in (2.10), (2.17), and (2.19) respectively. The above is to be satisfied for any arbitrary variations Y , V and v that satisfy the kinematic constraint Y ◦ X−1 = V = v on Γ in Equation (2.11). Now we summarize the governing equations for an open membrane immersed in a viscous fluid. The fluid flow in the bulk is described by the Stokes equation
+(2.21) − μ∆u + ∇p = 0, ∇ · u = 0, in Ω,
+with interfacial boundary condition states that the bulk fluid stress jump is balanced by bending forces and surface viscous forces on the membrane Γ, given by, (2.22) ∇Γ · σΓ = [[σn]] + α ∆ΓH + 2 (H − c0) H2 + Hc0 − K n, ∇Γ · U = 0, on Γ,
+
+
+OPEN MEMBRANE IN STOKES FLOW 7
+supplemented by boundary conditions at the edge ∂Γ,
+(2.23a) σΓν + α (H − c0)2 + αGK + γκg ν = 0, on ∂Γ,
+α∇ΓH · ν − αGτ ′
+(2.23b) g + γκn = 0, on ∂Γ,
+(2.23c) α (H − c0) + αGκn = 0, on ∂Γ.
+Equations (2.23a) and (2.23b) express the force balance conditions in the co-normal and normal directions, respectively. Equation (2.23c) expresses the torque-free condition at ∂Γ. It is worth mentioning that our formulation captures not only the interaction of the bulk fluid with the membrane surface but also incorporates the membrane edge, a codimension-two object immersed in 3D space. The forces acting on the edge are transmitted indirectly to the bulk fluid through the viscous surface, thereby circumventing the difficulties typically associated with modeling slender-body interactions. Our derivation ensures that in the above system the rate of change in energy is balanced by energy dissipation. Indeed, it can be shown that the above equations yield the following identity
+(2.24) d
+dt E = −2
+Z
+Ω
+μ|D(u)|2 dx − 2
+Z
+Γ
+μΓ|DΓ(U )|2 dA.
+where |D(u)| and |DΓ(U )| are the Frobenius norms of the deformation tensors.
+3. Axisymmetric and weak formulation. The governing equations for an open membrane in Stokes flow involve coupling the surface evolution equations with the bulk Stokes equation. We employ boundary integral formulations for the bulk Stokes equation, reducing the bulk-surface coupled PDE system to a set of differentialintegral equations confined to the surface.
+3.1. Boundary integral and weak form. Let G(x) be the Stokeslet in 3D free spaces, whose entries are given by
+(3.1) Gij(x) = − 1
+8π
+δij
+|x| + xixj
+|x|3 .
+For a surface density function f , define the single-layer integral operator S as
+(3.2) (S[f ])i(x) = − 1
+μ
+Z
+Γ
+Gij (x − x′) fj (x′) dμ(x′), x ∈ R3,
+where we have followed the Einstein summation convention. Using the Stokeslet, the velocity field of the fluid flow can be expressed as a single-layer boundary integral
+(3.3) u(x) = S[ξ](x), x ∈ R3,
+where ξ = [[σn]] represents an unknown single-layer density, introduced as an auxiliary variable. The auxiliary variable ξ has a clear physical interpretation as the exerted force, which can be directly used to enforce the force balance on Γ in equation (2.22). The single-layer integral is continuous across the surface and its restriction on Γ is well-defined, which we also denote by S[ξ]. Thus, we have U = S[ξ] on Γ. Fixing the time t = t∗, the moving boundary problem can be regarded as a set of PDEs defined on a fixed surface. Define X : Γ × [0, T ] → R3 such that X(θ, t) =
+
+
+8 H. ZHOU, Y, YOUNG, AND Y. MORI
+X(X(θ, t∗), t) and ∂tX = ∂tX ◦ X−1 = U on Γ. Clearly, we have X(·, t∗) = Id(·) where the identity mapping Id is defined as Id(x) = x for x ∈ Γ. Due to the bending force in Equation (2.22), which introduces the surface Laplacian of the mean curvature, the governing equations are high-order in space. To simplify, we treat the mean curvature H as an unknown function and reformulate the equations in a mixed form. Additionally, we introduce auxiliary variables, including the mean curvature vector H = 1
+2 ∆ΓId and the normal bending force g. Then we reformulate the problem as finding ξ, U , P, H, H, g such that the following equations are satisfied,
+(3.4a) −S[ξ] + U = 0, on Γ,
+(3.4b) ξ − ∇Γ · σΓ + gn = 0, on Γ,
+(3.4c) ∇Γ · U = 0, on Γ,
+(3.4d) ∂tX = U , on Γ,
+(3.4e) 2H − ∆ΓId = 0, on Γ,
+(3.4f) H − n · H = 0, on Γ,
+(3.4g) g − α ∆ΓH + 2 (H − c0) H2 + Hc0 − K = 0, on Γ,
+together with boundary conditions (2.23a), (2.23b), and (2.23c). Let ⟨·, ·⟩Γ be the L2 inner product defined on Γ. We define the L2 space and the Sobolev spaces on Γ as
+(3.5) L2 (Γ) = {f : ⟨f, f ⟩Γ < +∞} , H1 (Γ) = f ∈ L2 (Γ) , ∇Γf ∈ [L2 (Γ)]3 .
+For functions with Dirichlet boundary conditions on ∂Γ, we define
+H1
+(3.6) 0 (Γ) = {f ∈ H1(Γ) : f |∂Γ = 0},
+H1
+g (Γ) =
+n
+f ∈ H1 (Γ) : f |∂Γ = − αG
+α κn + c0
+o
+(3.7) .
+In order to define the functional space for the single-layer density, we suppose that Γ can be extended to a closed surface S. Let the ⟨·, ·⟩S be the dual pairing on S defined
+by extending the L2 inner product on S. Define the trace space and its dual as
+(3.8) H 1
+2 (S) = { f |S : f ∈ H1(R3)}, H− 1
+2 (S) = (H 1
+2 (S))′.
+With the Sobolev space on the closed surface S, we can now define the fractional Sobolev space on the open surface Γ by
+(3.9) H 1
+2 (Γ) = { f |Γ : f ∈ H 1
+2 (S)}, He − 1
+2 (Γ) = {f ∈ H− 1
+2 (S) : supp f ⊂ Γ}.
+Note that He 1
+2 (Γ) is the completion of Cc∞(Γ) under the H− 1
+2 (S) norm and it is the canonical dual of H 1
+2 (Γ) with respect to dual pairing ⟨·, ·⟩S [45]. The weak form of (3.4) is given as follows: for almost every t ∈ [0, T ], we find (3.10)
+ξ ∈ [He − 1
+2 (Γ)]3, H ∈ [L2(Γ)]3, U , X ∈ [H1(Γ)]3, P, g ∈ L2(Γ), H ∈ H1
+g (Γ).
+such that
+⟨φ, −S[ξ] + U ⟩Γ = 0, ∀φ ∈ [He − 1
+(3.11a) 2 (Γ)]3,
+⟨ψ, ξ⟩Γ + 2μΓ ⟨DΓ(ψ), DΓ(U )⟩Γ − ⟨∇Γ · ψ, P ⟩Γ + ⟨ψ, gn⟩Γ
+(3.11b)
+
+
+OPEN MEMBRANE IN STOKES FLOW 9
+=−
+D
+ψ, α (H − c0)2 + αGK + γκg ν
+E
+∂Γ
+, ∀ψ ∈ [H1(Γ)]3,
+(3.11c) − ⟨Q, ∇Γ · U ⟩Γ = 0, ∀Q ∈ L2 (Γ) ,
+(3.11d) ⟨ω, ∂tX − U ⟩Γ = 0, ∀ω ∈ [L2 (Γ)]3,
+(3.11e) 2 ⟨ζ, H⟩Γ + ⟨∇Γζ, ∇ΓId⟩Γ = ⟨ζ, ν⟩∂Γ , ∀ζ ∈ [H1 (Γ)]3,
+⟨η, H − n · H⟩Γ = 0, ∀η ∈ H1
+(3.11f) 0 (Γ) ,
+⟨χ, g⟩Γ + α ⟨∇Γχ, ∇ΓH⟩Γ − 2α χ, (H − c0) H2 + Hc0 − K Γ
+(3.11g)
+= χ, αGτ ′
+g − γκn ∂Γ , ∀χ ∈ H1 (Γ) .
+It is important to note that, since the surface is open, the single-layer density ξ is generally expected to belong to He − 1
+2 (Γ), but not to L2 (Γ) even when U ∈ H1 (Γ). [59, 27, 37].
+3.2. Axisymmetric formulations. While the full 3D formulation is applicable to arbitrary geometries, it is computationally intensive. To reduce computational complexity and enable more efficient numerical simulation, we only consider the axisymmetric case. This simplification assumes that the membrane surface is rotationally symmetric about the z-axis and that the surrounding fluid flow is axisymmetric, with no azimuthal velocity component. As a result, the fluid velocity in the r- and z-directions, along with the pressure, are taken to be independent of the azimuthal angle φ. Let er, eφ, z be standard cylindrical basis vectors. Let the surface Γ be generated by the rotation of a planar curve C : (Xr(s), Xz(s))⊤ around the z-axis, where s ∈ T = (0, L) denotes the arc-length parameter along the curve. The resulting axisymmetric surface Γ is parameterized as
+(3.12) Γ : X(s, φ) = Xr(s)er + Xz(s)ez, s ∈ T, φ ∈ S1 = R \ (2πZ).
+Since the surface is open, the generating curve C may terminate away from the z-axis. We denote the endpoint lying on the z-axis by ∂0C, and the open edge by ∂1C. The mean and Gaussian curvatures are given by, respectively,
+H=1
+2 Xr
+s Xz
+ss − Xz
+s Xr
+ss + Xsz
+Xr , K = Xsz
+Xr (Xr
+s Xz
+ss − Xz
+s Xr
+(3.13) ss) .
+Note that the current configuration allows the surface to have up to two holes, which correspond to cases where both endpoints of the generating curve C do not intersect the z-axis. For such cases, we provide the expressions for the co-normal vector and curvatures on the boundary ∂Γ. The co-normal vector to ∂Γ is given by
+ν=
+(
+Xsr(L)er + Xsz(L)ez, s = L,
+−Xsr(0)er − Xsz(0)ez, s = 0.
+(3.14)
+The normal and geodesic curvatures of ∂Γ are given by, respectively,
+κn =
+
+
+
+Xz
+s
+Xr s=L
+, s = L,
+− Xz
+s
+Xr s=0
+, s = 0.
+, κg =
+
+
+
+Xr
+s
+Xr s=L
+, s = L,
+− Xr
+s
+Xr s=0
+, s = 0.
+(3.15)
+Since the surface is axisymmetric, the torsion vanishes, i.e., τg = 0.
+
+
+10 H. ZHOU, Y, YOUNG, AND Y. MORI
+For axisymmetric scalar and vector-valued functions f and f defined on the surface Γ, the surface gradient and surface divergence simplify to the following forms
+∇Γf = fs(Xr
+s er + Xz
+s ez), ∇Γ · f = f r
+s Xr
+s + fz
+s Xz
+s + fr
+(3.16) Xr .
+Furthermore, the surface gradient and deformation tensor of f are given by
+∇Γf = (f r
+s er + f z
+s ez) ⊗ (Xr
+s er + Xz
+s ez) + f r
+(3.17) Xr eφ ⊗ eφ,
+DΓ (f ) = (Xs · f s) (Xr
+s er + Xz
+s ez) ⊗ (Xr
+s er + Xz
+s ez) + f r
+(3.18) Xr eφ ⊗ eφ.
+The single-layer integral S[ξ] on the axisymmetric surface Γ reduces to (3.19)
+S[ξ](X (s, φ)) = − 1
+μ
+Z
+T
+Z
+S1
+G (X (s, φ) − X (s′, φ′)) ξ (X (s′, φ′)) Xr(s′) dφ′ ds′,
+and admits an analytic integration in the φ-direction, yielding the axisymmetric single-layer representation for the surface velocity U ,
+U (s) = (S[ξ])r
+(S[ξ])z (s) = 1
+8πμ
+Z
+T
+(3.20) Xr (s′) S(s, s′)ξ(s′) ds′ d=ef S[ξ](s), s ∈ T,
+where both components (S[ξ])r and (S[ξ])z are independent of φ. The kernel S (s, s′) is given by
+S(s, s′) = I11 + (r2 + (r′)2)I31 − rr′(I30 + I32) ∆z(rI30 − r′I31)
+∆z(rI31 − r′I30) I10 + (∆z)2I30
+(3.21) ,
+with r = Xr(s), r′ = Xr(s′), ∆z = Xz(s) − Xz(s′). Here, the function Imn = Imn(r, r′, ∆z) is given by
+Imn(r1, r2, zˆ) = 2
+((r1 − r2)2 + zˆ2) m
+2
+I (1)
+mn(k1) + 2
+((r1 + r2)2 + zˆ2) m
+2
+I (2)
+(3.22) mn(k2),
+where I(1)
+mn(k) and I(2)
+mn(k) are related to complete elliptic integrals,
+I (1)
+mn(k1) =
+Zπ
+2
+0
+(1 − 2 sin2 θ′)n
+(1 + k12 sin2 θ′) m
+2
+dθ′, k2
+1 = 4r1r2
+(3.23) (r1 − r2)2 + zˆ2 ,
+I (2)
+mn(k2) =
+Zπ
+2
+0
+(2 sin2 θ′ − 1)n
+(1 − k22 sin2 θ′) m
+2
+dθ′, k2
+2 = 4r1r2
+(3.24) (r1 + r2)2 + zˆ2 .
+For example, I(2)
+10 (k) = K(k) and I(2)
+11 (k) = 2
+k2 (K(k) − E(k)) − K(k) where K(k) and E(k) are complete elliptic integrals of the first and second kind, respectively. The L2 inner-product ⟨·, ·⟩Γ naturally defines the weighted L2 inner-product on the generating curve C,
+⟨f, g⟩Γ = 2π
+Z
+T
+(3.25) Xr (s) f (s) g (s) ds d=ef 2π ⟨f, g⟩C .
+The weighted L2 and Sobolev spaces on C are defined as
+(3.26) L2 (C) = {f : ⟨f, f ⟩C < +∞} , H1 (C) = f ∈ L2 (C) , ∂sf ∈ L2 (C) .
+
+
+OPEN MEMBRANE IN STOKES FLOW 11
+Similarly, we define
+H1
+(3.27) 0 (C) = f ∈ H1 (C) : f |∂1C = 0 ,
+H1
+g (C) =
+n
+f ∈ H1 (C) : f |∂1C = − αG
+α κn + c0
+o
+(3.28) .
+The following functional space is defined for vector-valued axisymmetric functions
+(3.29) V∂ (C) = f ∈ [H1(C)]2 : f r|∂0C = 0 .
+The negative-order Sobolev space [He − 1
+2 (C)]2 is defined as
+(3.30) [He − 1
+2 (C)]2 = {(f r, f z) : f rer + f zez ∈ He − 1
+2 (Γ)}.
+We now formulate the weak form under the axisymmetric setting as follows: for almost every t ∈ [0, T ], we find
+ξ ∈ [He − 1
+2 (C)]2, H ∈ [L2 (C)]2, U , X ∈ V∂ (C) , P, g ∈ L2 (C) , H ∈ H1
+g (C) ,
+(3.31)
+such that
+⟨φ, −S[ξ] + U ⟩C = 0, ∀φ ∈ [He − 1
+(3.32a) 2 (C)]2,
+⟨ψ, ξ⟩C + 2μΓ ⟨Xs · ψs, Xs · U s⟩C + 2μΓ
+ψr
+Xr , Ur
+Xr C
+(3.32b)
+− Xs · ψs + ψr
+Xr ,P
+C
++ ⟨ψ, gn⟩C
+=−
+D
+ψ, α (H − c0)2 + αGK + γκg ν
+E
+∂C
+, ∀ψ ∈ V∂ (C) ,
+− Q, Xs · U s + U r
+Xr C
+(3.32c) = 0, ∀Q ∈ L2 (C) ,
+(3.32d) ⟨ω, ∂tX − U ⟩C = 0, ∀ω ∈ [L2 (C)]2,
+2 ⟨ζ, H⟩C + ⟨ζs, Xs⟩C + ζr
+Xr , Xr
+Xr C
+(3.32e) = ⟨ζ, ν⟩∂C , ∀ζ ∈ V∂ (C) ,
+⟨η, H − n · H⟩C = 0, η ∈ H1
+(3.32f) 0 (γ) ,
+⟨χ, g⟩C + α ⟨χs, Hs⟩C − 2α χ, (H − c0) H2 + Hc0 − K C
+(3.32g)
+= χ, αGτ ′
+g − γκn ∂C , ∀χ ∈ H1 (C) .
+4. A hybrid BEM-FEM method.
+4.1. Finite element discretization. We next construct a fully discrete scheme for the weak formulation (3.32). We discretize time using a semi-implicit backward Euler scheme, and we discretize space using a Galerkin finite element method on the generating curve. At each time level tn, the membrane configuration is represented by the generating curve Cn, given by the numerical approximation Xn(·). The only time derivative in the system appears in the curve evolution ∂tX = U , which we discretize using the
+finite difference Xn+1 − Xn /∆t. For simplicity, we adopt uniform time stepping tn = n∆t for n = 0, 1, 2, . . . , Nt. All unknown quantities in (3.32) are then understood
+
+
+12 H. ZHOU, Y, YOUNG, AND Y. MORI
+as functions defined on Cn. To avoid remeshing on a moving geometry, we pull these quantities back to a fixed reference interval I = (0, 1) using the current parametrization Xn. For any surface quantity f : Cn → R we denote by (Xn,∗f )(α) := f (Xn(α)) its pullback to I. We then approximate these pulled-back unknowns in finite element spaces on I. The reference interval I is partitioned into N cells with nodes 0 = α0 < α1 < · · · < αN = 1. On this mesh, we define a one-dimensional continuous piecewise polynomial finite element space as
+(4.1)
+VN
+k (I) =
+n
+v ∈ C(I) : v|[αi−1,αi] ∈ Pk([αi−1, αi]), 1 ≤ i ≤ N
+o
+= span
+n
+φ1
+k(x), φ2
+k(x), . . . , φMk
+k (x)
+o
+,
+where Pk is the space of polynomials of degree at most k. We define V∂(I), H01(I),
+and Hg1(I) analogously to V∂(C), H01(C), and Hg1(C), respectively. Let Xn(·) ∈ [V2N (I)]2 ∩V∂(I) denote the numerical approximation to X(·, tn), and
+let f n(·) ∈ V N
+k (I) denote the numerical approximation to the pullback (Xn,∗f )(·) =
+f (Xn(·)). To ensure the inf–sup stability condition for the surface Stokes equations, we employ a P2–P1 Taylor–Hood element: quadratic elements for the surface velocity U and linear elements for the surface tension P . For the remaining quantities, we use quadratic finite element spaces for their approximations. Let ξn, U n, P n, Hn, Hn, gn denote the numerical approximations to the pullbacks of ξ, U , P , H, H, g with respect to Xn, respectively. The initial condition X0(·) is obtained by the interpolation of X(·, 0). The hybrid BEM-FEM method is formulated as: for n ≥ 0, we find
+Hn+1, ξn+1 ∈ [V N
+2 (I)]2, U n+1, Xn+1 ∈ [V N
+(4.2) 2 (I)]2 ∩ V∂(I),
+P n+1 ∈ V N
+1 (I), gn+1 ∈ V N
+2 (I), Hn+1 ∈ V N
+2 (I) ∩ H1
+(4.3) g (I),
+such that
+− φ, Sh,n[ξn+1] h,∗
+Cn + φ, U n+1 h
+Cn = 0, ∀φ ∈ [V N
+2 (I)]2,
+(4.4a)
+ψ, ξn+1 h
+Cn + 2μΓ Xn
+s · ψs, Xn
+s · U n+1
+s
+h
+Cn + 2μΓ
+ψr
+X r,n , U r,n+1
+X r,n
+h
+Cn
+(4.4b)
+− Xn
+s · ψs + ψr
+Xr,n , P n+1
+h
+Cn
++ ψ, gn+1nn h
+Cn
+=−
+D
+ψ, α (Hn − c0)2 + αGKn + γκn
+g νnE
+∂Cn , ∀ψ ∈ [V N
+2 (I)]2 ∩ V∂ (I) ,
+− Q, Xn
+s · U n+1
+s + U r,n+1
+X r,n
+h
+Cn
+= 0, ∀Q ∈ V N
+1 (I) ,
+(4.4c)
+ω, 1
+τ Xn+1 − Xn − U n+1
+h
+Cn
+= 0, ∀ω ∈ [V N
+2 (I)]2,
+(4.4d)
+2 ζ, Hn+1 h
+Cn + ζs, Xn+1
+s
+h
+Cn + ζr
+X r,n , X r,n+1
+X r,n
+h
+Cn
+(4.4e)
+
+
+OPEN MEMBRANE IN STOKES FLOW 13
+= ⟨ζ, νn⟩∂Cn , ∀ζ ∈ [V N
+2 (I)]2 ∩ V∂ (I) ,
+η, Hn+1 − nn · Hn+1 h
+Cn = 0, ∀η ∈ V N
+2 (I) ∩ H1
+0 (I) ,
+(4.4f )
+χ, gn+1 h
+Cn + α χs, Hn+1
+s
+h
+Cn = 2α
+D
+χ, (Hn − c0) (Hn)2 + Hnc0 − Kn Eh
+Cn
+(4.4g)
++ ⟨χ, −γκn
+n⟩∂Cn , ∀χ ∈ V N
+2 (I) .
+Here, the discrete inner-product ⟨·, ·⟩h
+Cn is an approximation to the inner product
+⟨·, ·⟩Cn by Gauss-Legendre quadrature, and the double-integral ·, Sh,n[·] h,∗
+Cn is com
+puted based on the Alpert’s quadrature [3], which is well-suited for handling logarithmictype weakly singular integrals. Due to the presence of high-order spatial derivatives, any explicit scheme suffers from numerical stiffness, imposing a severe constraint on the time step. While fully implicit schemes are generally more stable and can sometimes be unconditionally stable, the nonlinear nature of the equation makes such schemes challenging, as they result in nonlinear algebraic systems that are difficult and time-consuming to solve. The current numerical scheme (4.4) uses a semi-implicit time discretization designed to balance stability and efficiency. In this scheme, only the geometry and boundary conditions are treated explicitly, while terms with high-order spatial derivatives are treated implicitly, thus removing the severe time-step constraint and yielding a linear system. The resulting coefficient matrix is mostly sparse, except for the block corresponding to the single-layer integral, which remains dense. However, due to the axisymmetric reduction, the problem is effectively one-dimensional, keeping the size of the linear system small. This enables efficient solution using direct methods, such as SparseLU [26].
+4.2. Singularity capturing mesh refinement. The solution to the open membrane problem typically exhibits singular behavior at the open edge. The single-layer density diverges as |ξ| ∼ d− 1
+2 , where d is the distance to the edge. Due to fluidmembrane coupling, membrane tension, velocity, and the curve itself can also exhibit certain singularity, typically weaker than ξ. Such singularities can easily deteriorate the convergence of the finite element method if a uniform computational mesh is employed on the curve. Here, we present a direct method for introducing local mesh refinement to capture the singular behavior at the edge by only modifying the initial parametrization of the generating curve. Let X0(α), α ∈ I represent the initial parameterization proportional to the arclength s, i.e., |∂αX0|(α) ≡ C where C > 0 is a constant. Assuming the curve is sufficiently smooth, a uniform partition in α results in almost uniform spacing of points along the curve. By carefully selecting the reparametrization, a uniform mesh in the new parameter space can produce locally refined points along the curve, which is particularly useful for capturing singular behavior in the solution. Let Φ(·) : I → I be a locally refined reparametrization function that satisfies the following properties: 1. The function Φ maps the two endpoints 0 and 1 to themselves, i.e., Φ(0) = 0, Φ(1) = 1; 2. The reparametrization is non-singular, i.e., Φ′(η) > 0 for η ∈ (0, 1); 3. The reparametrization Φ has a local refinement property near the open edge, i.e., Φ′(η) is close to 0 for all η such that X0 (Φ(η)) ∈ ∂0C.
+
+
+14 H. ZHOU, Y, YOUNG, AND Y. MORI
+If X0(0) represents the closed end and X0(1) represents the open end, we consider the following function,
+Φ(η) = cos π
+(4.5) 2 (1 − η) .
+It can be verified that Φ satisfies the three properties. let N be the total number of mesh cells. By uniformly partitioning η with ∆η = 1/N , one obtains the following mesh
+(4.6) 0 = α0 < α1 < · · · < αN = 1, αi = Φ(i∆η), i = 0, 1, · · · , N.
+This is a graded mesh with points increasingly clustered near the open endpoint. In particular, let hi = αi+1 − αi. The mesh spacing is approximately hi = O(N −2) near the open endpoint and hi = O(N −1) elsewhere. A graded mesh of this type admits the following approximation property: for any solution ψ ∈ [He − 1
+2 (C)]2, there exists an approximation ψh = ψe h ◦ (X0)−1 with ψe h ∈ [V N
+k (I)]2, and some δ > 0 such that
+(4.7) ∥ψ − ψh∥
+He − 1
+2 (C) ≤ CN −(1−δ),
+where the constant C is independent of N [66, Lemma 3.1]. Note that this method results in poor parametrization near the endpoints, where Ψ′(η) = 0, which may lead to numerical instability due to the explicit handling of geometric quantities such as κn and κg in the boundary conditions. A simple remedy is to use a regularized version
+(4.8) Φe(η) = (1 − ε) Φ(η) + εη,
+where ε > 0 is a small regularization parameter, typically chosen as ε = 10−3. This regularization is not always necessary and is introduced primarily for numerical convenience. Since the geometric quantities at the endpoints are intrinsically independent of the parametrization, they can alternatively be computed using a regular local parametrization of the generating curve. In such cases, one may simply set ε = 0.
+5. Numerical experiments. In this section, we present numerical experiments to validate our numerical method for simulating an open membrane interacting with a surrounding fluid flow. To ensure generality and facilitate comparison with related studies, we introduce the nondimensional form of the governing equations. Let L and T represent the characteristic length and time scales, respectively. We define the following nondimensional variables
+(5.1) ex = x
+L , te= t
+T , ue = T u
+L , Ue = T U
+L , pe = T p
+μ , Pe = T P
+μΓ
+.
+Setting the time scale as T = L3μ/α and omitting the tildes for clarity, the nondimensional equations are given by
+(5.2a) −∆u + ∇p = 0, in Ω,
+(5.2b) −∇ · u = 0, in Ω,
+(5.2c) [[σn]] − β∇Γ · σΓ + ∆ΓH + 2 (H − H0) H2 + H0H − K n = 0, on Γ,
+(5.2d) −∇Γ · U = 0, on Γ,
+(5.2e) u = U , on Γ,
+
+
+OPEN MEMBRANE IN STOKES FLOW 15
+(5.2f) βσΓν + (H − H0)2 + γgK + γlκg ν = 0, on ∂Γ,
+∇ΓH · ν − γgτ ′
+(5.2g) g + γlκn = 0, on ∂Γ,
+(5.2h) H − H0 + γgκn = 0, on ∂Γ,
+together with the surface evolution equation ∂tX ◦ X−1 = U and the nondimensional parameters
+β = μΓ
+Lμ , γg = αG
+α , γl = γL
+(5.3) α , H0 = Lc0.
+5.1. Annular-shaped planar membrane. We consider the case where the membrane is planar and has an annular shape,
+(5.4) Γ =
+n
+(x, y, z) : z = 0, r = px2 + y2 ∈ (Ri, Ro)
+o
+, Ro > Ri > 0,
+where Ri, Ro are the inner and outer radii of the membrane, respectively. For such a configuration, our model reduces to a set of equations that are similar to the one in [33]. Particularly, when the outer radius of the annular goes to infinity, closed form solutions for the velocity field and the membrane tension can be constructed analytically, allowing us to validate our numerical method by comparing with the analytical solution. In this case, the bending energy of the membrane is ignored and the dynamics of the membrane is only driven by the line tension on the open edges. We first perform a convergence test for the planar membrane case. Since the single-layer density is essentially unbounded, we evaluate only the error in the velocity. The parameters used are chosen as β = γl = 1, and the membrane is defined with initial radii Ri,0 = 1 and Ro,0 = 2. Due to the inextensible condition, the planar membrane only has nonzero radial velocity, which is given by U r(r) = F
+r where F is an integration constant that can be explicitly computed when the outer radius of the membrane is infinite. For a finite membrane, the constant F can be computed as follows. We numerically solve the PDE for one time step to obtain the numerical solution U r
+h. On noting that F ≡ rU r(r), we estimate the constant F by
+(5.5) Fh =
+R
+Γ rUr
+h dA
+|Γ| =
+R Ro
+Ri r2U r
+h(r) dr
+R Ro
+Ri r dr
+.
+Next, the error is defined as
+(5.6) ∥eU,h∥L2(Γ) =
+Z Ro
+Ri
+r Ur
+h(r) − Fh
+r
+2
+dr
+!1
+2
+,
+where all the integrals are evaluated using the Gauss quadrature. We compare the numerical errors obtained using a uniform mesh and a locally refined mesh for various mesh sizes N = 4, 8, . . . , 128. The results, shown in the left panel of Figure 2, demonstrate that the uniform mesh degrades the convergence of the P2 element, whereas the locally refined mesh yields optimal convergence. We also vary the parameter ε to assess the scheme’s ability to capture the singularity of the single-layer density ξ. In the planar configuration, ξ has only a nonzero radial component ξr. Using a fixed mesh size N = 32, we plot the absolute value of ξr in the right panel of Figure 2. When the mesh is uniform, corresponding to ε = 1, the result generates noticeable
+
+
+16 H. ZHOU, Y, YOUNG, AND Y. MORI
+Fig. 2: Left: numerical error of the radial velocity for different mesh size using both uniform mesh and locally refined mesh; Right: radial single-layer density ξr computed using different regularizing parameters ε = 1, 0.5, 0.001 with N = 32.
+oscillation in the vicinity of the open edge where ξr is expected to diverge. On the contrary, when local mesh refinement is applied, corresponding to ε = 0.001, oscillation near the open edge is suppressed and the predicted value at x = 1 is much larger compared with uniform mesh, suggesting the local mesh refinement strategy increases the capability of capturing the singularity behavior of the solution near the open edge. As the outer radius Ro goes to infinity, an explicit expression for the value of the constant F is available. Since we can only apply a finite number of Ro in the numerical method, we fix the initial inner radius as Ri,0 = 1 and successively increase the initial outer radius Ro,0 to approximate the case where Ro = ∞, and compare the numerical result of F (t) with the analytical result. We set the computation mesh as N = 32 with local mesh refinement for ε = 0.001 and time step as ∆t = 0.01 for the computation. The result is shown in Figure 3. The time is rescaled to t/τ2,0 where τ2,0 = μR2
+i,0/γ is the same as the one defined in [33]. It can be observed that as the value Ro,0 − Ri,0 increases, the estimated value of F is closer to the limiting case where Ro,0 = ∞, demonstrating the convergence of the numerical solution.
+Fig. 3: Numerical solution of F , normalized by γ/μ, for different membrane widths Ro,0 − Ri,0 = 16, 32, 64, 128, compared with the analytical solution for Ro,0 = ∞.
+We use the same computational setup to simulate hole-closing dynamics for several viscosity ratios μΓ/(μRi,0). The computed value F and hole area A are compared with the exact solutions obtained using the method of [33], see Figure 4. The numerical error increases as μΓ/(μRi,0) decreases. Moreover, as time progresses, the pore shrinks, strengthening the edge singularity (cf. [33]) and leading to larger numerical
+
+
+OPEN MEMBRANE IN STOKES FLOW 17
+errors near closure. In particular, the case μΓ/(μRi,0) = 0 corresponds to a degenerate limit in which the pore dynamics reduce to a curve-shortening flow. The discrepancy between the numerical and exact results for F around t/τ2,0 ≈ 3.1 reflects the increased difficulty in accurately resolving this near-closure regime.
+Fig. 4: Comparison of numerical results (solid) and analytical solutions (dashed) for the value F , normalized by γ/μ, and the dimensionless hole area A/(πR2
+i,0) over time, for viscosity ratios μΓ/(μRi,0) = 0, 0.1, 0.3, 0.5.
+5.2. Equilibrium Shapes. Here we compute the equilibrium shapes of an open membrane and compare the results with those reported in [56] and [62]. We simulate the relaxation of an inextensible elastic open membrane to equilibrium where the fluid flow ceases (u = 0 and U = 0) and the membrane shape Γ is independent of time. Under the assumption of membrane inextensibility, the membrane area remains constant during the relaxation process, and is solely determined by its initial configuration. Consequently, the equilibrium shape depends on the initial shape and the following key parameters: γg = αG/α, γe = γ/α, and c0. It is worth noting that our inextensibility assumption for the membrane differs from the extensible membrane model in [62], where a surface energy term associated with surface tension is included. In their formulation, surface tension is prescribed as a constant parameter, whereas in our approach, it emerges naturally as a Lagrange multiplier to enforce inextensibility. However, at equilibrium, both models have a constant surface tension across the membrane, enabling meaningful comparisons of equilibrium shapes. We examine three cases for numerical comparison, where the spontaneous curvature and reduced Gaussian curvature rigidity are fixed as γg = −0.122 and c0 = 0.2 μm−1. The negative value of γg indicates that surfaces with positive Gaussian curvature are energetically more favorable than those with negative Gaussian curvature. The initial membrane shapes are selected to ensure their areas match the equilibrium areas reported in [62]. The parameter values for each case are summarized in Table 1. The initial membrane shapes are selected to be close to the expected equilibrium configurations, as the membrane energy landscape can exhibit multiple equilibrium states. The dynamical equations are then solved over time until the total membrane energy ceases to decrease significantly. The computation is terminated when the relative change in total energy falls below 10−6. The time evolution of the total energy E for the three cases is shown in Figure 5. The corresponding equilibrium shapes are presented in Figure 6.
+
+
+18 H. ZHOU, Y, YOUNG, AND Y. MORI
+Table 1: Parameter values for each case.
+Case γg c0 (μm−1) γe (μm−1) A0 (μm2) 1 -0.122 0.2 0.65 27.61 2 -0.122 0.2 0.78 23.15 3 -0.122 0.2 0.79 18.42
+Fig. 5: Time evolution of the total energy of the membrane for the three cases.
+5.3. Membrane dynamics from a spherical cap. In this example, we investigate the dynamic behavior of an open membrane starting from an initial spherical cap shape. Previous numerical studies of membranes with a pore often assume that the membrane retains a spherical cap geometry throughout its evolution. This assumption simplifies the problem to a set of ODEs that govern a few geometric parameters [6, 54]. The justification for this approximation lies in the fact that a closed spherical membrane with constant mean curvature satisfies the equilibrium condition for normal stress balance. However, this assumption becomes less realistic in scenarios where the membrane has an open pore, particularly near the free edge [50]. Using our numerical method, we simulate the dynamics of an open membrane initialized as a spherical cap. The parameters are set as β = 1 and γg = γl = H0 = 0, corresponding to the Willmore energy and zero line tension. The initial shape is defined by the generating curve:
+(5.7) Xr
+0 (s) = sin(s), Xz
+0 (s) = − cos(s), s ∈ [0, 0.9π].
+The numerical results are shown in Figure 7. Initially, the membrane maintains a spherical cap shape. Over time, bending forces drive both bulk fluid flow and surface flow, causing the membrane to flatten. As the membrane evolves, deviations from the spherical cap geometry emerge, particularly near the open edge, where a neck-like structure begins to form. This deviation can be understood through the boundary condition H = 0. While a spherical cap inherently possesses a non-zero constant mean curvature, this boundary condition is incompatible with the spherical cap assumption, leading to geometric deviations near the free edge. We also plot the time evolution of the membrane area for the above two initial configurations in Figure 8. Since the membrane is locally inextensible, its total area should remain constant over time. Although the numerical solution introduces a slight variation due to discretization errors, the relative change in area remains below 0.05% in both cases, demonstrating
+
+
+OPEN MEMBRANE IN STOKES FLOW 19
+Fig. 6: Equilibrium shapes of an open membrane: the black solid curves are the numerical solutions obtained using our method; the blue squares depict the numerical results from [62]; the green triangles show the experimental data from Fig. 3 (I to K) in [56]. From left to right are cases 1, 2 and 3 with reduced line tension γe = 0.65, 0.78, 0.79 (μm−1), and initial areas of 27.61, 23.15, 18.42 (μm2) respectively.
+Fig. 7: Cross-sectional views (top row) and 3D visualizations (bottom row) of the membrane generating curve and the surrounding fluid velocity field at time points t = 0, 1, 10, and 30.
+that the numerical method effectively preserves the area. Next, we incorporate the influence of line tension by setting γl = 0.5. The line tension introduces an additional force along the open edge, acting to minimize its length and counteracting the bending force. The computation is terminated when the pore becomes sufficiently small to avoid numerical instabilities. As shown in Figure 9, a neck forms at an early stage due to the boundary condition on the mean curvature. Eventually, the pore closes while preserving the neck structure. In contrast, regions of the membrane far from the open edge maintain a nearly spherical cap shape.
+
+
+20 H. ZHOU, Y, YOUNG, AND Y. MORI
+Fig. 8: Time evolution of the membrane area and the corresponding relative change. Left: area profile for the flattening membrane; Right: area profile for the closing membrane.
+Fig. 9: Cross-sectional views of the generating curve of the membrane and the velocity field of the fluid flow for t = 0.1, 4, 10, 12.2.
+5.4. Boundary layer at the edge. The above findings indicate that while the spherical cap assumption can provide an approximate description of the global membrane shape, particularly during early stages of pore formation, it fails to capture the detailed local behavior near the open edge. The imposed geometric boundary conditions play a crucial role in determining these local deviations. As reported in [50], for small but non-zero ε = γ−1
+l , an equilibrium membrane shape introduces an elastic boundary layer near the open edge. In our dynamic evolution equation, a similar boundary layer structure emerges during the membrane’s evolution. To investigate this boundary layer more closely, we reduce γ−1
+l from 1 to 0.01. Figure 10 illustrates the mean curvature profiles for three different values of the ratio γ−1
+l = 1, 0.1, 0.01 and shows the variation of mean curvature along the arclength parameter of the generating curve. The endpoint s = 0 corresponds to the closed end in contact with the z-axis, while the other endpoint represents the open edge. The results reveal that as γ−1
+l decreases, the boundary layer near the open edge
+becomes increasingly sharp and localized. For larger γ−1
+l , the mean curvature varies
+smoothly across the membrane, and the boundary layer effect is less pronounced. As
+γ−1
+l becomes smaller, the curvature gradient steepens near the open edge, indicating a stronger influence of the elastic boundary layer. This behavior suggests that the parameters γ−1
+l play a critical role in controlling the membrane’s local geometry near
+the open boundary. When γ−1
+l is large, bending stiffness dominates, leading to a more
+uniform membrane profile. In contrast, when γ−1
+l is small, the interplay between line
+
+
+OPEN MEMBRANE IN STOKES FLOW 21
+Fig. 10: Numerical solution of the mean curvature on the membrane at different time vs. arc-length parameter for γ−1
+l = 1, 0.1, 0.01 from left to right. The endpoint s = 0 is the closed end in contacting with the z−axis, the other endpoint is the open edge.
+tension and bending forces results in a highly localized boundary layer near the open edge. These findings highlight the importance of accurately resolving the boundary layer structure in numerical simulations. Failure to capture this sharp transition can lead to significant inaccuracies in predicting the membrane’s behavior near the open edge, particularly in scenarios where local geometric effects are dominant. We compare our PDE model, which allows the membrane to adopt arbitrary shapes, with a simplified ODE model based on the spherical cap assumption. The ODE model assumes that the membrane maintains a spherical cap geometry throughout its evolution. This configuration is parameterized by three key variables: the sphere radius R, the cap angle α, and the center position z0. Using viscous force calculations from [54], we can also derive an ODE system for the dynamics of R, α, and z0. Unlike the extensible membrane model in [54], where surface tension is prescribed as a constant parameter, our ODE model enforces membrane inextensibility. In this framework, surface tension emerges as a Lagrange multiplier. For numerical simulations, we adopt physical parameters from [54]: an initial sphere radius of 20 μm, an initial hole radius of 6 μm, a line tension of 12 pN, fluid viscosity of 1 mP s, and membrane viscosity of 3 × 10−9 Pa m s. The characteristic spatial and time scales are chosen as L = 20 μm and T = 1 s. Both the PDE and ODE models are initialized with the same shape described by (5.7). The numerical solutions from both models are presented in Figure 11. For such a parameter, the boundary layer at the edge is thin and the membrane predicted by the PDE and ODE matches well in the outer region.
+Fig. 11: Numerical solutions for the open membrane obtained by solving the PDE model (solid dark line) and simplified ODE model (red triangles).
+
+
+22 H. ZHOU, Y, YOUNG, AND Y. MORI
+Figure 12 shows the evolution of the hole radius predicted by both the ODE and PDE models, with varying mesh refinement levels. At early stages (t < 0.2), the PDE model converges as the mesh is refined, and the ODE predictions closely match the PDE results. However, as the hole shrinks, discrepancies between the models become apparent. The ODE model predicts an exponential decay of the hole radius to zero, while the PDE model indicates that the hole radius approaches a steady state before further closure. In Figure 12, we also compare the averaged surface tension predicted by the ODE model with the effective surface tension obtained from the PDE model. In the PDE simulation, the surface tension evolves toward a limiting value of approximately −400 and becomes nearly uniform across the membrane, indicating equilibrium. In contrast, the ODE model predicts a continuous decrease in surface tension, even when the hole becomes extremely small, with values significantly larger than those observed in the PDE model. This inconsistency highlights the inadequacy of the spherical cap assumption, particularly when considering the boundary layer effect of the membrane near the open edge.
+Fig. 12: Left: hole radius of the spherical cap-shaped membrane predicted by the PDE and ODE models. Middle: surface tension predicted by the ODE model over time. Right: surface tension predicted by the PDE model, where the x-axis corresponds to the generating curve parameter.
+5.5. Membrane with different initial shapes. In this example, we investigate the dynamics of lipid membranes starting from various initial shapes beyond the spherical cap configuration. We begin by examining a membrane initialized as a flat sheet to simulate the evolution of a closed vesicle originating from an open planar membrane. A flat sheet with zero spontaneous curvature represents a steady-state configuration under significant bending force and line tension. However, introducing a small degree of spontaneous curvature induces membrane bending, thereby amplifying the role of line tension in determining the membrane shape. For this study, the dimensionless parameters are set as γg = 0, β = 1, and H0 = 0.1. First, we consider a small line tension value of γl = 1. Numerical results, shown in Figure 13, indicate that the small spontaneous curvature causes the membrane to bend slightly, approaching a near-equilibrium configuration. However, the low line tension is insufficient to drive the membrane toward full closure into a vesicle. Subsequently, we increase the line tension to γl = 5. As illustrated in Figure 13, the elevated line tension actively drives the open edge of the membrane to close, forming a nearly closed vesicle structure. To further investigate membrane dynamics, we consider an initial membrane shape resembling a biconcave red blood cell with a
+
+
+OPEN MEMBRANE IN STOKES FLOW 23
+Fig. 13: Numerical solutions for an open membrane starting from a flat sheet. Top row: γl = 1 at time points t = 0, 0.5, 2, and 6; bottom row: γl = 5 at time points t = 0, 1, 2, and 3.
+small pore. The parametric form of this shape is given by
+(5.8) r(η) = 2pη(1 − η), z(η) = 0.7(2η − 1) − 0.6(2η − 1)3 + 0.05(2η − 1)5,
+η(s) = 0.475(1 − cos(πs)), s ∈ [0, 1].
+Using the same dimensionless parameters as before (γg = 0, β = 1, and H0 = 0.1), we first consider a strong line tension (γl = 5). As shown in Figure 14, the strong line tension drives the small pore to close rapidly, leaving the enclosed volume of the cell essentially unchanged, meaning the resulting steady state is not affected much. This scenario suggests efficient healing of membrane damage without significant deformation. Conversely, when the line tension is reduced to γl = 1, the pore does not close immediately. Instead, the membrane begins to deform into an alternative configuration, preventing it from returning to a closed vesicle state. This behavior, illustrated in Figure 14, underscores the critical role of line tension in the formation, stability, and repair processes of lipid membranes.
+6. Disscusion. For an open, inextensible membrane immersed in Stokes flow, we derive a continuum model based on the principle of maximum dissipation within an energy variational framework. The membrane is represented as a zero-thickness open surface endowed with a membrane energy comprising the Helfrich bending energy and a line tension along its open edge. Dissipative effects from both the bulk and membrane viscosities are incorporated via Rayleigh dissipation functionals, while incompressibility of the surrounding fluid and inextensibility of the membrane are enforced through Lagrange multipliers. Taking first variations and balancing surface and boundary forces yields the coupled PDEs governing membrane–fluid interactions.
+
+
+24 H. ZHOU, Y, YOUNG, AND Y. MORI
+Fig. 14: Numerical solutions for an open membrane initially shaped as a biconcave red blood cell with a small pore, for γl = 5 (top row) and γl = 1 (bottom row).
+To conduct numerical simulations for the PDE model, we consider the axisymmetric case for both the membrane and fluid flow. For this scenario, we adopt a boundary integral formulation, reducing the 3D problem into a 1D problem along the generating curve. Due to the complex coupling between the boundary integral and geometric quantities, we developed a hybrid BEM-FEM method by rewriting the high-order PDE into a weak mixed form, which only contains first derivatives. The time discretization is semi-implicit: low-order derivatives, nonlinear terms and boundary terms are treated explicitly, while high-order derivatives, linear terms are treated implicitly. This ensures that the final scheme is both stable and can be solved efficiently. The single-layer density typically exhibits singular behavior near the open edge. To address this, we designed a local mesh refinement strategy that increases the resolution of the computational mesh near the open edge, improving the scheme’s ability to capture singularities. Using the developed axisymmetric numerical scheme, we applied it to model open membranes in different cases. The present numerical method can be applied to investigate the behavior of open membranes interacting with the bulk flow, such as the relaxation dynamics of membranes under the influence of the bulk fluid and the dynamics of pores in membranes influenced by fluid leakage. Lipid bilayer membranes are nearly inextensible, and a weak area compressibility may result in fluid leakage that alters both the membrane dynamics [23] and the pore dynamics [54]. How does such weak area compressibility affect the transition from a (closed) vesicle to an open membrane? To answer this question we have been working on improving our PDE model for the lipid bilayer membrane to account for the physical area compressibility within the boundary integral framework. Beyond lipid membranes, our framework may also apply to colloidal membranes and help interpret experimentally observed colloidosome assembly and disassembly pathways [1].
+
+
+OPEN MEMBRANE IN STOKES FLOW 25
+Furthermore the current numerical method can be improved in several directions. By carefully studying the singularity behavior of the solution near the open edge, it should be possible to develop a high-order numerical method that incorporates an analytical expression for the singularity structure, reducing the need for mesh refinement. Developing numerical schemes to perform full 3D simulations for membranes with general shapes is another challenging but interesting direction.
+REFERENCES
+[1] R. Adkins, J. Robaszewski, S. Shin, F. Brauns, L. Jia, A. Khanra, P. Sharma, R. A. Pelcovits, T. R. Powers, and Z. Dogic, Topology and kinetic pathways of colloidosome assembly and disassembly, Proceedings of the National Academy of Sciences, 122 (2025), p. e2427024122.
+[2] J. C. Alexander, A. J. Bernoff, E. K. Mann, J. A. Mann, and L. Zou, Hole dynamics in polymer langmuir films, Physics of Fluids, 18 (2006).
+[3] B. K. Alpert, Hybrid Gauss-Trapezoidal Quadrature Rules, SIAM Journal on Scientific Computing, 20 (1999), pp. 1551–1584.
+[4] M. Arroyo and A. Desimone, Relaxation dynamics of fluid membranes, Physical Review E Statistical, Nonlinear, and Soft Matter Physics, 79 (2009), pp. 1–17.
+[5] M. Asgari and A. Biria, Free energy of the edge of an open lipid bilayer based on the interactions of its constituent molecules, International Journal of Non-Linear Mechanics, 76 (2015), pp. 135–143. [6] C. A. Aubin and R. J. Ryham, Stokes flow for a shrinking pore, Journal of Fluid Mechanics, 788 (2016), pp. 228–245.
+[7] A. Balchunas, L. L. Jia, M. J. Zakhary, J. Robaszewski, T. Gibaud, Z. Dogic, R. A. Pelcovits, and T. R. Powers, Force-induced formation of twisted chiral ribbons, Physical Review Letters, 125 (2020), p. 018002.
+[8] A. J. Balchunas, R. A. Cabanas, M. J. Zakhary, T. Gibaud, S. Fraden, P. Sharma, M. F. Hagan, and Z. Dogic, Equation of state of colloidal membranes, Soft Matter, 15 (2019), pp. 6791–6802.
+[9] J. W. Barrett, H. Garcke, and R. N ̈urnberg, Parametric finite element approximations of curvature-driven interface evolutions, in Handbook of Numerical Analysis, vol. 21, 2020, pp. 275–423, https://arxiv.org/abs/1903.09462.
+[10] J. W. Barrett, H. Garcke, and R. N ̈urnberg, Stable variational approximations of boundary value problems for willmore flow with gaussian curvature, IMA Journal of Numerical Analysis, 37 (2017), pp. 1657–1709.
+[11] J. W. Barrett, H. Garcke, and R. Nu ̈rnberg, Stable approximations for axisymmetric willmore flow for closed and open surfaces, ESAIM: Mathematical Modelling and Numerical Analysis, 55 (2021), pp. 833–885.
+[12] A. Biria, M. Maleki, and E. Fried, Continuum Theory for the Edge of an Open Lipid Bilayer, vol. 46, Elsevier Inc., 1 ed., 2013, pp. 1–68.
+[13] G. Boedec, M. Leonetti, and M. Jaeger, Isogeometric FEM-BEM simulations of drop , capsule and vesicle dynamics in Stokes flow, Journal of Computational Physics, 342 (2017), pp. 117–138.
+[14] M. Bottacchiari, M. Gallo, M. Bussoletti, and C. M. Casciola, The diffuse interface description of fluid lipid membranes captures key features of the hemifusion pathway and lateral stress profile, PNAS Nexus, 3 (2024), pp. 1–10.
+[15] R. Capovilla, J. Guven, and J. A. Santiago, Lipid membranes with an edge, Physical Review E - Statistical Physics, Plasmas, Fluids, and Related Interdisciplinary Topics, 66 (2002), pp. 1–7.
+[16] K. Chuan, M.-c. Lai, and Y. Seol, An immersed boundary projection method for incompressible interface simulations in 3D flows, Journal of Computational Physics, 430 (2021), p. 110090.
+[17] F. S. Cohen, R. Eisenberg, and R. J. Ryham, A dynamic model of open vesicles in fluids, Communications in Mathematical Sciences, 10 (2012), pp. 1273–1285.
+[18] F. S. Cohen and R. J. Ryham, The aqueous viscous drag of a contracting open surface, Physics of Fluids, 26 (2014).
+[19] S. T. Cooper and P. L. McNeil, Membrane repair: Mechanisms and pathophysiology, Physiological Reviews, 95 (2015), pp. 1205–1240.
+[20] R. Cortez, C. S. Peskin, J. M. Stockie, and D. Varela, Parametric resonance in immersed
+
+
+26 H. ZHOU, Y, YOUNG, AND Y. MORI
+elastic boundaries, SIAM Journal on Applied Mathematics, 65 (2005), pp. 494–520.
+[21] M. Deserno, Fluid lipid membranes: From differential geometry to curvature stresses, Chemistry and Physics of Lipids, 185 (2015), pp. 11–45.
+[22] A. Farutin, T. Biben, and C. Misbah, 3D numerical simulations of vesicle and inextensible capsule dynamics, Journal of Computational Physics, 275 (2014), pp. 539–568.
+[23] S.-P. Fu, B. Quaife, R. Ryham, and Y.-N. Young, Two-dimensional hydrodynamics of a janus particle vesicle, Journal of Fluid Mechanics, 941 (2022), p. A41.
+[24] S.-P. P. Fu, R. Ryham, A. Klo ̈ckner, M. Wala, S. Jiang, and Y.-N. Young, Simulation of multiscale hydrophobic lipid dynamics via efficient integral equation methods, Multiscale Modeling & Simulation, 18 (2020), pp. 79–103.
+[25] D. Grappein, S. Scialo`, and F. Vicini, Extended finite elements for 3d–1d coupled problems via a pde-constrained optimization approach, Computer Methods in Applied Mechanics and Engineering, 415 (2024), p. 116237.
+[26] G. Guennebaud, B. Jacob, et al., Eigen: A C++ template library for linear algebra, 2010. [27] Y. Hayashi, Three-dimensional dirichlet problem for the helmholtz equation for an open boundary, Proceedings of the Japan Academy, Series A, Mathematical Sciences, 53 (1977), pp. 123.
+[28] J. Helsing and S. Jiang, The helmholtz dirichlet and neumann problems on piecewise smooth open curves, 2024, https://arxiv.org/abs/2411.05761.
+[29] S. H. Hsu, J. Chu, M. C. Lai, and R. Tsai, A coupled grid based particle and implicit boundary integral method for two-phase flows with insoluble surfactant, Journal of Computational Physics, 395 (2019), pp. 747–764.
+[30] W.-F. Hu, M.-C. Lai, Y. Seol, and Y.-N. Young, Vesicle electrohydrodynamic simulations by coupling immersed boundary and immersed interface method, Journal of Computational Physics, 317 (2016), pp. 66–81.
+[31] W.-F. Hu, M.-C. Lai, and Y.-N. Young, A hybrid immersed boundary and immersed interface method for electrohydrodynamic simulations, Journal of Computational Physics, 282 (2015), pp. 47–61.
+[32] Y. Hyon, D. Y. Kwak, and C. Liu, Energetic variational approach in complex fluids: maximum dissipation principle, Discrete Contin. Dyn. Syst, 26 (2010), pp. 1291–1304.
+[33] L. L. Jia and M. J. Shelley, The role of monolayer viscosity in Langmuir film hole closure dynamics, Journal of Fluid Mechanics, 948 (2022), p. A1, https://arxiv.org/abs/2201. 00908.
+[34] S. Jiang and V. Rokhlin, Second kind integral equations for the classical potential theory on open surfaces i: Analytical apparatus, Journal of Computational Physics, 191 (2003), pp. 40–74.
+[35] S. Jiang and V. Rokhlin, Second kind integral equations for the classical potential theory on open surfaces ii, Journal of Computational Physics, 195 (2004), pp. 1–16.
+[36] Y. Kim and M.-c. Lai, Simulating the dynamics of inextensible vesicles by the penalty immersed boundary method, Journal of Computational Physics, 229 (2010), pp. 4840–4853. [37] V. Kirvalidze, The dirichlet problem for stokes equation in a domain exterior to an open surface, Mathematical Methods in the Applied Sciences, 20 (1997), pp. 1257–1269.
+[38] M. B. Klenow, M. S. Vigsø, W. Pezeshkian, J. Nylandsted, M. A. Lomholt, and A. C. Simonsen, Shape of the membrane neck around a hole during plasma membrane repair, Biophysical Journal, 123 (2024), pp. 1827–1837.
+[39] M. Kuchta, F. Laurino, K.-A. Mardal, and P. Zunino, Analysis and approximation of mixed-dimensional pdes on 3d–1d domains coupled with lagrange multipliers, SIAM Journal on Numerical Analysis, 58 (2020), pp. 3673–3700.
+[40] A. Laadhari, C. Misbah, and P. Saramito, On the equilibrium equation for a generalized biological membrane energy by using a shape optimization approach, Physica D, 239 (2010), pp. 1567–1572.
+[41] M. C. Lai and Z. Li, A remark on jump conditions for the three-dimensional navier-stokes equations involving an immersed moving membrane, Applied Mathematics Letters, 14 (2001), pp. 149–154.
+[42] M. C. Lai and K. C. Ong, Unconditionally energy stable schemes for the inextensible interface problem with bending, SIAM Journal on Scientific Computing, 41 (2019), pp. B649–B668. [43] M. C. Lai and Y. Seol, A stable and accurate immersed boundary method for simulating vesicle dynamics via spherical harmonics, Journal of Computational Physics, 449 (2022), p. 110785.
+[44] V. K. Malik, O. S. Pak, and J. Feng, Pore dynamics of lipid vesicles under light-induced osmotic stress, Physical Review Applied, 17 (2022), p. 1.
+[45] W. McLean, Strongly Elliptic Systems and Boundary Integral Equations, vol. 15 of Cambridge
+
+
+OPEN MEMBRANE IN STOKES FLOW 27
+Monographs on Applied and Computational Mathematics, Cambridge University Press, Cambridge, 2000.
+[46] C. Misbah, Vacillating breathing and tumbling of vesicles under shear flow, Physical Review Letters, 96 (2006), p. 028104.
+[47] B. Palmer and A ́ lvaro Pa ́mpano, Minimizing configurations for elastic surface energies with elastic boundaries, Journal of Nonlinear Science, 31 (2021), p. 23. [48] B. Palmer and A ́ lvaro P ́ampano, The euler–helfrich functional, Calculus of Variations and Partial Differential Equations, 61 (2022), pp. 1–28.
+[49] B. Palmer and  ́Alvaro P ́ampano, Symmetry breaking bifurcation of membranes with boundary, Nonlinear Analysis, Theory, Methods and Applications, 238 (2024), p. 113393.
+[50] T. R. Powers, G. Huber, and R. E. Goldstein, Fluid-membrane tethers: Minimal surfaces and elastic boundary layers, Physical Review E - Statistical Physics, Plasmas, Fluids, and Related Interdisciplinary Topics, 65 (2002), p. 11.
+[51] A. Quarteroni and A. Veneziani, On the stability of the coupling of 3d and 1d fluid-structure interaction models, ESAIM: Mathematical Modelling and Numerical Analysis, 41 (2007), pp. 697–721.
+[52] S. Reuther and A. Voigt, Incompressible two-phase flows with an inextensible Newtonian fluid interface, Journal of Computational Physics, 322 (2016), pp. 850–858.
+[53] R. Ryham, I. Berezovik, and F. S. Cohen, Aqueous viscosity is the primary source of friction in lipidic pore dynamics, Biophysical Journal, 101 (2011), pp. 2929–2938.
+[54] R. J. Ryham, On the viscous flows of leak-out and spherical cap natation, Journal of Fluid Mechanics, 836 (2018), pp. 502–531.
+[55] R. J. Ryham, M. A. Ward, and F. S. Cohen, Teardrop shapes minimize bending energy of fusion pores connecting planar bilayers, Physical Review E—Statistical, Nonlinear, and Soft Matter Physics, 88 (2013), p. 062701.
+[56] A. Saitoh, K. Takiguchi, Y. Tanaka, and H. Hotani, Opening-up of liposomal membranes by talin, Proceedings of the National Academy of Sciences, 95 (1998), pp. 1026–1031.
+[57] U. Seifert, Configurations of fluid membranes and vesicles, Advances in physics, 46 (1997), pp. 13–137.
+[58] N. Srividya and S. Muralidharan, Determination of the line tension of giant vesicles from pore-closing dynamics, The Journal of Physical Chemistry B, 112 (2008), pp. 7147–7152. [59] E. P. Stephan, Boundary integral equations for screen problems in ir3, Integral Equations and Operator Theory, 10 (1987), pp. 236–257.
+[60] S. K. Y. Tang and W. F. Marshall, Self-repairing cells: How single cells heal membrane ruptures and restore lost structures, Science, 356 (2017), pp. 1022–1025.
+[61] Z. Tu, Geometry of membranes, Journal of Geometry and Symmetry in Physics, 24 (2011), pp. 45–75.
+[62] Z. C. Tu, Compatibility between shape equation and boundary conditions of lipid membranes with free edges, The Journal of Chemical Physics, 132 (2010). [63] Z. C. Tu and Z. C. Ou-Yang, Lipid membranes with free edges, Physical Review E - Statistical Physics, Plasmas, Fluids, and Related Interdisciplinary Topics, 68 (2003), pp. 1–7.
+[64] T. Umeda, Y. Suezaki, K. Takiguchi, and H. Hotani, Theoretical analysis of opening-up vesicles with single and two holes, Physical Review E, 71 (2005), p. 011913.
+[65] S. K. Veerapaneni, D. Gueyffier, G. Biros, and D. Zorin, A numerical method for simulating the dynamics of 3D axisymmetric vesicles suspended in viscous flows, Journal of Computational Physics, 228 (2009), pp. 7233–7249.
+[66] T. Von Petersdorff and E. P. Stephan, Regularity of mixed boundary value problems in R3 and boundary element methods on graded meshes, Mathematical Methods in the Applied Sciences, 12 (1990), pp. 229–249.
+[67] X. Wang and Q. Du, Modelling and simulations of multi-component lipid membranes and open membranes via diffuse interface approaches, Journal of Mathematical Biology, 56 (2007), pp. 347–371.
+[68] Y. Yin, Y. Chen, D. Ni, H. Shi, and Q. Fan, Shape equations and curvature bifurcations induced by inhomogeneous rigidities in cell membranes, Journal of Biomechanics, 38 (2005), pp. 1433–1440.
+[69] Y. Yin, J. Yin, and D. Ni, General mathematical frame for open or closed biomembranes (part i): Equilibrium theory and geometrically constraint equation, Journal of Mathematical Biology, 51 (2005), pp. 403–413.
+[70] X. Zhou, An integral case of the axisymmetric shape equation of open vesicles with free edges, International Journal of Non-Linear Mechanics, 106 (2018), pp. 25–28.

@@ -1,0 +1,1922 @@
+J. Fluid Mech. (2019), vol. 872, pp. 218–271. c© Cambridge University Press 2019 doi:10.1017/jfm.2019.341
+218
+Modelling fluid deformable surfaces with an emphasis on biological interfaces
+Alejandro Torres-Sánchez1, Daniel Millán1,2 and Marino Arroyo1,3,†
+1LaCàN, Universitat Politècnica de Catalunya – BarcelonaTech, 08034 Barcelona, Spain
+2CONICET and Facultad de Ciencias Aplicadas a la Industria, Universidad Nacional de Cuyo, 5600 San Rafael, Argentina
+3Institute for Bioengineering of Catalonia, The Barcelona Institute of Science and Technology, 08028 Barcelona, Spain
+(Received 23 November 2018; revised 12 April 2019; accepted 24 April 2019; first published online 10 June 2019)
+Fluid deformable surfaces are ubiquitous in cell and tissue biology, including lipid bilayers, the actomyosin cortex or epithelial cell sheets. These interfaces exhibit a complex interplay between elasticity, low Reynolds number interfacial hydrodynamics, chemistry and geometry, and govern important biological processes such as cellular traffic, division, migration or tissue morphogenesis. To address the modelling challenges posed by this class of problems, in which interfacial phenomena tightly interact with the shape and dynamics of the surface, we develop a general continuum mechanics and computational framework for fluid deformable surfaces. The dual solid–fluid nature of fluid deformable surfaces challenges classical Lagrangian or Eulerian descriptions of deforming bodies. Here, we extend the notion of arbitrarily Lagrangian–Eulerian (ALE) formulations, well-established for bulk media, to deforming surfaces. To systematically develop models for fluid deformable surfaces, which consistently treat all couplings between fields and geometry, we follow a nonlinear Onsager formalism according to which the dynamics minimizes a Rayleighian functional where dissipation, power input and energy release rate compete. Finally, we propose new computational methods, which build on Onsager’s formalism and our ALE formulation, to deal with the resulting stiff system of higher-order partial differential equations. We apply our theoretical and computational methodology to classical models for lipid bilayers and the cell cortex. The methods developed here allow us to formulate/simulate these models in their full three-dimensional generality, accounting for finite curvatures and finite shape changes.
+Key words: capsule/cell dynamics, computational methods, membranes
+1. Introduction
+Fluid deformable surfaces are a common motif in cell and tissue biology. For instance, lipid bilayers are fluid thin sheets that define the boundary of cells and compartmentalize them. They are the base material for the plasma membrane, the
+† Email address for correspondence: marino.arroyo@upc.edu
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 219
+endoplasmic reticulum, mitochondria or the Golgi apparatus. From a mechanical viewpoint, lipid bilayers are remarkably soft materials exhibiting a solid–fluid duality: while they store elastic energy when stretched or bent, as solid shells (Lipowsky 1991), they cannot store elastic energy under in-plane shear, a situation under which they flow as viscous two-dimensional fluids (Dimova et al. 2006). This solid–fluid duality is tightly intertwined with membrane geometry: shape changes induce lipid flows that bring material from one part of the membrane to another (Evans & Yeung 1994), whereas flows in the presence of curvature generate out-of-plane forces, which further curve the membrane (Rahimi, DeSimone & Arroyo 2013). The solid–fluid duality of membranes is essential for cell function; it is required during cell motility and migration (Arroyo et al. 2012; Lieber et al. 2015), membrane trafficking (Sprong, van der Sluijs & van Meer 2001; Rustom et al. 2004) or to enable the mechano-adaptation of cells to stress (Staykova et al. 2013; Kosmalska et al. 2015). Furthermore, the in-plane fluidity of the membrane allows membrane inclusions, such as proteins, to diffuse (Saffman & Delbrück 1975; Sens, Johannes & Bassereau 2008). On the other hand, lipid bilayers are chemically responsive. Chemo-mechanical couplings can trigger tubulation (Roux et al. 2002), phase separation (Bacia, Schwille & Kurzchalia 2005), budding and fission (Staneva, Angelova & Koumanov 2004; Zhou & Yan 2005) or pearling (Khalifat et al. 2014). Another important instance of biological fluid surface is the actomyosin cortex, a thin network of cross-linked actin filaments lying immediately beneath the plasma membrane of animal cells (Bray & White 1988). Within this network, myosin motors exert active forces by consuming chemical energy in the form of adenosine triphosphate (ATP), that generate active tension (Salbreux, Charras & Paluch 2012). Furthermore, the cell cortex undergoes dynamic remodelling, or turnover, in less than one minute, as a result of the polymerization and depolymerization of actin and the binding and unbinding of cross-linkers (Howard 2001). The cell cortex behaves as an elastic network at short time scales and as a quasi-two-dimensional viscous fluid at longer time scales due to turnover. The interplay between remodelling, elasticity and active forces in this thin cortical layer plays a critical role in different cellular processes such as cytokinesis (Levayer & Lecuit 2012), or migration (Bergert et al. 2015; Ruprecht et al. 2015; Callan-Jones et al. 2016), where the coupling between shape and actin flows becomes apparent. In summary, fluid deformable surfaces are ubiquitous interfaces in biology, adopting three-dimensional dynamical shapes, involving chemo-mechanical couplings and exhibiting a dual solid–fluid behaviour. The mechanics of these biological interfaces plays an essential role in processes from the subcellular to the tissue scale (not discussed here). However, and despite recent efforts (Salbreux & Jülicher 2017; Sahu, Sauer & Mandadapu 2017; Sauer et al. 2017), a general theoretical and computational framework to describe the multiphysics and geometry-dependent mechanics of these systems has been lacking. Towards filling this gap, here we develop a rather general three-dimensional nonlinear modelling and simulation framework for fluid deformable surfaces. Even though such interfacial fluids are embedded in a bulk fluid or confined to substrates, here we focus only on the mechanics of the surface. The coupling of interfaces with a bulk fluid (Salac & Miksis 2011; Farutin & Misbah 2012; Woodhouse & Goldstein 2012; Reuther & Voigt 2016; Laadhari et al. 2017; Shen et al. 2018) or a substrate (Staykova et al. 2013) has been examined extensively in other works. We also note that in their present form, the models and computations developed here do not address topological changes of the fluid surface. Different mathematical formalisms have been developed to describe fluid deformable surfaces. In a common approach (Secomb & Skalak 1982; Barthes-Biesel & Sgaier
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+220 A. Torres-Sánchez, D. Millán and M. Arroyo
+1985), a Cartesian description of the velocity field of the interface is considered, and interfacial physics are recovered invoking time-dependent projection operators and, for time-independent surfaces, tangency constraints. In this approach, Cartesian derivatives of the velocity require that this field is defined away from the surface (Biria, Maleki & Fried 2013). This Cartesian approach hides much of the geometric structure of the governing equations. Furthermore, it is not obvious how to extend it to bilayer interfaces such as lipid membranes, in which individual monolayers are bound to a single geometric surface but can slip relative to each other. An alternative approach, pioneered by Scriven (1960), distinguishes between the intrinsic (tangential) velocity of particles as seen from within the surface, and the extrinsic (normal) surface velocity, which changes its shape and thus its metric tensor (Aris 1962). This approach, applied to lipid bilayers in various works (Hu, Zhang & Weinan 2007; Arroyo & DeSimone 2009; Rahimi & Arroyo 2012; Sahu et al. 2017), requires the language of differential geometry, provides a clear geometric picture of the governing equations and eloquently shows the tight interplay between shape changes and interfacial flows (Rahimi et al. 2013). Of course, both modelling approaches convey the same physics and are equivalent (Jankuhn, Olshanskii & Reusken 2018). Various formalisms for interfacial media have been proposed, which lead to a correct treatment of inertial terms (Yavari, Ozakin & Sadik 2016; Koba, Liu & Giga 2017; Jankuhn et al. 2018), negligible in our context of biological interfaces. Here, we show that, by decoupling shape changes and tangential flows, Scriven’s approach can naturally generalize arbitrarily Lagrangian–Eulerian (ALE) methods, well established for bulk media (Hirt, Amsden & Cook 1974; Donea & Huerta 2003), to fluid deformable surfaces. The resulting surface ALE formalism alleviates the large distortions of a pure Lagrangian framework, which may require intensive remeshing (Rodrigues et al. 2015), and allows us to deal with multilayer systems by considering independent tangential velocities for each monolayer. Our method is related to the ALE approach for mass transport by Elliott & Styles (2012) and Dziuk & Elliott (2013). To deal with the multiphysics aspects of fluid surfaces, we base our approach on a nonlinear Onsager formalism (Doi 2011; Mielke 2012; Peletier 2014; Arroyo et al. 2018), which provides a unified variational framework for the dissipative dynamics of soft-matter systems. In this formalism, the dynamics minimizes a Rayleighian functional and results from the interplay between energetic driving forces, dissipative drag forces and external forces, each of them deriving from potentials that are the sum of individual contributions for each physical mechanism. Complex models coupling different physics can be assembled by just adding more terms to the energy and dissipation potentials, and encoding in them the interactions between the different physical mechanisms. Thus, this framework provides a transparent and thermodynamically consistent method to generate complex models. Onsager’s formalism is applicable to capillarity, elasticity, low Reynolds number hydrodynamics, reaction–diffusion systems, and provides a natural framework to model biological activity. In different contexts, similar ideas have been referred to by different names, such as extremal principles in non-equilibrium thermodynamics studied in physics (Martyushev & Seleznev 2006; Lebon, Jou & Casas-Vázquez 2008), in materials modelling (Ziegler 1958; Ziegler & Wehrli 1987; Ortiz & Stainier 1999; Fischer, Svoboda & Petryk 2014) or in atmospheric transport processes (Paltridge 1975). The Onsager formalism used here generalizes previous minimum principles identified in low Reynolds number hydrodynamics coupled to capillary (Skalak 1970) or viscoelastic interfaces (Secomb & Skalak 1982; Dörries & Foltin 1996). Beyond the low Reynolds number limit, Koba et al. (2017) have recently developed a new
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 221
+variational formalism for interfacial Navier–Stokes systems reconciling a classical approach for the Euler equations based on an inertial action and minimization of a dissipation potential for the viscous component. Paralleling the various mathematical descriptions of fluid interfaces discussed above, different computational approaches have been proposed in recent years, either based on the Cartesian approach for fixed or time-evolving surfaces (Dziuk & Elliott 2013; Barrett, Garcke & Nürnberg 2015, 2016; Burman, Hansbo & Larson 2015; Rodrigues et al. 2015; Hansbo, Larson & Larsson 2016; Fries 2018; Olshanskii et al. 2018), or based on Scriven’s intrinsic approach but restricted to axisymmetry (Arroyo, DeSimone & Heltai 2010; Rahimi & Arroyo 2012), to manifolds of fixed shape (Nitschke, Voigt & Wensch 2012; Gross & Atzberger 2018; Reuther & Voigt 2018b) or allowing for time-evolving surfaces, albeit with prescribed shape evolution (Reuther & Voigt 2015, 2018a). Sticking to Scriven’s approach, here we develop computational methods in three dimensions for models that self-consistently determine shape dynamics and interfacial hydrodynamics. The numerical treatment of these problems is challenging because the resulting equations (i) usually involve higher-order derivatives of the parametrization, (ii) lead to a mixed system of elliptic and hyperbolic partial differential equations and (iii) are stiff and difficult to integrate in time (Rahimi et al. 2013). Surface shape enters into the energy and dissipation expressions through curvature, which involves second-order derivatives of the parametrization. From a finite element method (FEM) perspective, this requires the basis functions parametrizing the surface to be in H2 (square-integrable functions whose first- and second-order derivatives are also square integrable). Here, we resort to subdivision surfaces, which have already been used to study the equilibrium shapes of lipid bilayers (Feng & Klug 2006; Ma & Klug 2008) and to analyse thin shells (Cirak & Ortiz 2000, 2001; Cirak & Long 2011; Zhang & Arroyo 2014; Li et al. 2018). Based on a time-incremental version of Onsager’s formalism, we develop variational time integrators (Ortiz & Stainier 1999; Peco, Rosolen & Arroyo 2013), which are nonlinearly and unconditionally stable and allow us to adapt the time step spanning orders of magnitude during the dynamics of fluid deformable surfaces. Our theoretical framework is general with regards to the geometry and topology of the fluid interface and the magnitude of shape deformations. Our numerical treatment, however, is limited to simply connected surfaces because it relies on the representation of tangential velocities in terms of scalar potentials. Staying within Scriven’s formalism, this limitation can be overcome using more general numerical representations of tangential vector fields (Torres-Sánchez, Santos-Oliván & Arroyo 2019). Alternatively, numerical approaches based on the Cartesian formalism can also deal with surfaces of general topology at the expense of additional degrees of freedom and constraints. The paper is structured as follows. In § 2, we develop a theoretical description of fluid surfaces, including Lagrangian, Eulerian and ALE formulations. We introduce the rate-of-deformation tensor and the Reynolds transport theorem. We also describe a useful set of tools to represent the kinematics of fluid deformable surfaces. In § 3, we describe several classical models of fluid surfaces to describe the dynamics of lipid bilayers and the cell cortex. We show how Onsager’s variational formalism provides a direct and transparent tool to derive complex governing equations. In § 4, we describe the discretization, both in time and space, of the equations governing the dynamics of general fluid surfaces. We introduce a variational time integrator based on Onsager’s formalism, and show how to discretize the different fields defined on the surface. In § 5, we exercise the models in § 3 through several examples simulated using the techniques described in § 4. Finally, we conclude in § 6 with a summary and discussion of the manuscript, along with suggestions for future work.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+222 A. Torres-Sánchez, D. Millán and M. Arroyo
+2. Mathematical description of fluid deformable surfaces
+In this section, we mathematically describe fluid surfaces as two-dimensional continua moving and deforming in Euclidean space. One way to represent this kind of systems is through a Lagrangian parametrization of the surface, φ(ξ , t), in which
+a material particle is identified with a point ξ ∗ in parametric domain and φ(ξ ∗, t) follows its trajectory in time. However, Lagrangian parametrizations present two major drawbacks for the description of fluid surfaces. First, due to the fluid nature of the interface, Lagrangian parametrizations suffer from very large distortions that are difficult to accommodate with conventional discretization schemes. Second, a single Lagrangian parametrization cannot track simultaneously all material particles in a multilayer interface. For example, in a lipid bilayer, two material particles representing lipid molecules from each monolayer occupy the same position on the surface. A single Lagrangian parametrization cannot track the time evolution of both simultaneously because they can slip relative to each other. In this section, we examine the definition of Lagrangian, Eulerian and ALE parametrizations of material surfaces and establish their relations. Associated with the flow generated by these parametrizations, we define the Lagrangian, Eulerian and ALE time derivatives of fields on the surface. We then introduce the right Cauchy deformation tensor and the rate-of-deformation tensor, which latter characterizes the rate at which lengths, angles and areas transform on the time-evolving surface. We examine time derivatives of integrals on time-evolving surfaces, and derive the form of Reynolds transport theorem and conservation of mass for the Lagrangian, Eulerian and ALE descriptions. Finally, we introduce some mathematical tools to represent the kinematics of fluid surfaces. Throughout the manuscript, we use the language of the differential geometry of surfaces, including the metric tensor or first fundamental form g, second fundamental form or shape operator k, covariant differentiation ∇ and Lie derivation Lv, along with push-forwards and pull-backs by maps. Contravariant components of a tensor are denoted by superscripts, whereas covariant components are denoted by subscripts; for instance, the components of the metric tensor are denoted by gab, whereas the
+components of a tangent vector are denoted by va. We use Latin letters to denote indices running from 1 to 2, representing tensors on the tangent space of the surface, and Greek letters to denote indices running from 1 to 3, used for tensors in Euclidean space. We follow Einstein’s notation: contravariant and covariant indices with the same label are implicitly summed Ta···Ta··· = ∑2
+a=1 Ta···Ta···. We refer to do Carmo (1992, 2016) and Willmore (1996) for background texts about the differential geometry of surfaces and manifolds.
+2.1. Lagrangian, Eulerian and ALE parametrizations
+We consider the parametrization of a two-dimensional continuum Γt deforming in R3.
+A Lagrangian parametrization of Γt is a map which assigns to each point ξ ∈ Γ ̄ ⊂ R2 in the parametric domain and to each time t the position of a particle on the surface
+x = φ(ξ , t) ∈ Γt. A point ξ = (ξ1, ξ2) ∈ Γ ̄ identifies a material particle and the
+curve obtained by fixing ξ , φξ (t) = φ(ξ , t), is its trajectory in R3 (see figure 1). We focus on a specific chart, although the arguments presented in this section can be trivially extended to surfaces covered by an atlas of charts. The time derivative of the Lagrangian parametrization is the material velocity
+V ̄ (ξ , t) = d
+dt φξ (t) = ∂tφ(ξ , t). (2.1)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 223
+R2
+R3
+≈2
+ ̋t
+W
+V
+c
+x3
+≈1
+¥
+œ
+ƒ
+≈
+c¡
+ ̋¡
+≈¡
+ ̋
+x2
+x1
+FIGURE 1. (Colour online) A Lagrangian parametrization φ(ξ , t) maps a domain Γ ̄ ⊂ R2
+onto a time-evolving surface Γt. Fixing a point ξ ̄ in Γ ̄ , the curve in R3 generated by φ follows the time evolution of a material particle (blue). The velocity of this particle at time t is given by V. An alternative parametrization ψ(ξ , t) maps the parametric domain
+Γ ̃ onto Γt. The composition θ = ψ−1 ◦ φ characterizes the motion of material particles
+in Γ ̃ . The curve in Γ ̃ generated by the mapping θ for ξ ̄ fixed (green) indicates how the
+parametric position of a material particle evolves with time in Γ ̃ . At time t this curve
+has a velocity c ̃. The curve constructed from the map ψ by fixing ξ ̃ = θ(ξ ̄, t) (red) does not follow the time evolution of any material particle in general. At time t this curve
+has a velocity W. The velocities V and W are related by V = W + c, where c is the
+push-forward of c ̃ by ψt.
+The spatial velocity V on Γt is V(x, t) = V ̄ ◦ φ−1
+t (x), where we use the notation φt(ξ ) =
+φ(ξ , t). In general, V has a tangential and a normal component to Γt
+V = v + vnN, (2.2)
+where N is the unit normal to the surface. The normal velocity vn characterizes shape changes of Γt while v represents the flow of material tangent to Γt. In the remainder of the paper we denote by upper-case letters vectors with tangential and normal components to Γt and by lower-case letters vectors that are tangent to Γt. We
+now introduce an alternative parametrization of the surface ψ mapping Γ ̃ ⊂ R2 into
+Γt. The curves of constant ξ , ψξ (t) = ψ(ξ , t) do not follow trajectories of material particles in general. The velocity fields associated with this parametrization are
+W ̃ (ξ , t) = d
+dt ψξ (t) = ∂tψ(ξ , t),
+W(x, t) = W ̃ ◦ ψ−1
+t (x) = w + wnN.
+
+
+
+(2.3)
+We can construct a map relating both parametrizations θ = ψ−1
+t ◦ φ : Γ ̄ × I → Γ ̃ , a
+diffeomorphism from R2 to R2 at each t. The curves of constant ξ , θξ (t) = θ (ξ , t),
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+224 A. Torres-Sánchez, D. Millán and M. Arroyo
+track the parametric positions of material particles evolving in Γ ̃ , and have a velocity
+ ̄c(ξ , t) = d
+dt θξ (t) = ∂tθ (ξ , t),
+ ̃c(ξ , t) = c ̄ ◦ θ −1
+t (ξ ).
+
+
+
+(2.4)
+To physically interpret  ̃c, we define its push-forward by ψt as
+c = [Dψtc ̃] ◦ ψ−1
+t , (2.5)
+where Dψt stands for the differential of ψt, a linear mapping from the tangent space
+of Γ ̃ at ξ , Tξ Γ ̃ , to the tangent space of Γt at x = ψt(ξ ), TxΓt. Thus, c is tangent to Γt. Using the chain rule and previous definitions (see appendix A), we recover the classical relation between Lagrangian and ALE parametrizations in the bulk (Donea & Huerta 2003),
+V = W + c, (2.6)
+and thus c represents the relative velocity of material particles to that of the parametrization given by ψ. Since c is tangent to Γt, comparing (2.2) and (2.3), we conclude
+that vn = wn and v = w + c. This reflects that, since both parametrizations describe the same shape, their normal velocities, characterizing shape changes, must coincide. With this in mind, we can now introduce the notion of Eulerian parametrization in the context of a time-evolving surface. We say that a parametrization χ is Eulerian if its velocity field is always perpendicular to the surface
+∂tχ ◦ χ −1
+t = vnN. (2.7)
+In summary, the parametrization φ is a Lagrangian parametrization that tracks the evolution of material particles as they move with and along Γt. On the other hand, χ is an Eulerian parametrization whose velocity is always perpendicular to Γt regardless of the tangential flows of material. These parametrizations are special cases of a general parametrization ψ, which may present tangential movements not consistent with the velocity of material particles. This kind of parametrization is referred to as an arbitrarily Lagrangian–Eulerian (ALE) parametrization.
+2.2. Material, Eulerian and ALE time derivatives
+We introduce next the concept of the time derivative of fields on Γt. Let us focus for simplicity on a scalar field over Γt, f (x, t). We first note that the operator ∂t acting on f (x, t), with the usual meaning of taking the time derivative at fixed x, is not well defined since x cannot be held fixed on a time-evolving surface in general (Cermelli, Fried & Gurtin 2005). The idea of the time derivative can be more easily rationalized resorting to a parametrization. Let us first consider the Lagrangian parametrization φ.
+Fixing a point ξ ∈ Γ ̄ , we can compute how f (x, t) changes along the curve φξ (t). We define the material time derivative of the scalar f as
+Dt f (x, t) ≡ d
+dt f (φξ (t), t)
+∣ ∣ ∣
+∣ξ =φt−1(x)
+. (2.8)
+We note that f (φξ (t), t) is a function of t only and therefore the right-hand side of the previous expression is the usual derivative of a function of one variable. By defining
+the pull-back of f onto Γ ̄ as f ̄ = f ◦ φt, we can rewrite the previous expression as
+Dtf (x, t) = d
+dt
+f ̄(ξ , t)
+∣ ∣ ∣
+∣ξ =φt−1(x)
+= ∂tf ̄ ◦ φ−1
+t (x) = ∂t( f ◦ φt) ◦ φ−1
+t (x), (2.9)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 225
+where ∂t f ̄ has the usual meaning of taking the partial derivative of f ̄ at fixed ξ . The last expression in this equation can be termed as the push-forward (composition with
+φ−1
+t ) of the time derivative of the pull-back of f . This is nothing but the Lie derivative of f along the flow generated by V, usually denoted by LVf (do Carmo 1992; Arroyo & DeSimone 2009). We note that the Lie derivative depends on φ only through V. Thus, we can write the material time derivative as
+Dtf = LVf = ∂t( f ◦ φt) ◦ φ−1
+t (x). (2.10)
+We can equivalently define the ALE time derivative of f
+∂ ̃tf ≡ LWf = ∂t( f ◦ ψt) ◦ ψ −1
+t (x), (2.11)
+and the Eulerian time derivative
+∂tf ≡ LvnNt = ∂t( f ◦ χt) ◦ χ −1
+t (x). (2.12)
+On the left-hand side of this equation the meaning of the symbol ∂t is clear: it measures the rate of change of f along the flow normal to Γt. If the shape of Γt remains stationary, then ∂t recovers the usual meaning of taking the derivative with respect to time at fixed x. We note that the symbol ∂t retains the usual meaning when
+applied to fields on parametric domains, e.g. ∂t f ̄ = lim1t→0( f ̄(ξ , t + 1t) − f ̄(ξ , t))/1t, and should not be confused with the definition (2.12) for fields on Γt. The operators
+Dt, ∂ ̃t and ∂t are related. For instance, using previous definitions and the chain rule (see appendix B), we find that
+Dtf = ∂ ̃tf + ∇f · c, (2.13)
+where ∇ denotes the covariant derivative, or here the surface gradient, of f .
+2.3. Rate-of-deformation tensor
+Let us define the natural basis of the tangent space of Γt at x induced by the
+parametrization φt and given by the vectors ea(x) = ∂aφt ◦ φ−1
+t (x), where ∂a stands for
+∂ξa. An important tensor on Γt is the first fundamental form or metric tensor g. Its
+components in the natural basis are gab = ea · eb. The metric tensor induces a scalar
+product on the tangent space of Γt, which allows us to measure lengths, angles and areas on Γt. As shown in appendix C, see also Marsden & Hughes (1994) and Wu et al. (2005), the rate of change of these metric quantities is characterized by the so-called rate-of-deformation tensor defined as half of the Lie derivative of g by V, which takes the form
+d=1
+2 LVg = 1
+2 [∇v + (∇v)T] − vnk. (2.14)
+Here, k is the shape operator characterizing the local curvature of the surface, whose components in the natural basis are defined as
+kab = −∂b(N ◦ φt) ◦ φ−1
+t · ea. (2.15)
+From this expression, it is clear that the surface Γt deforms through tangential flows,
+which contribute to the rate-of-deformation tensor with the usual term [∇v + (∇v)T]/2,
+but also through the change in shape of Γt, which contributes with the term −vnk. This relation illustrates the coupling between tangential flows and shape changes in the presence of curvature.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+226 A. Torres-Sánchez, D. Millán and M. Arroyo
+≈2
+≈1
+ ̨
+ ̨¡
+ ̨
+f
+f¡
+J¡
+ ̋¡
+J-  ̋
+R2
+R3
+ ̋t1
+ ̋t2
+f
+¥( ̨¡)
+ƒ( ̨-)
+f
+x3
+x2
+x1
+FIGURE 2. (Colour online) Given a domain Ξ on Γt1 and a scalar function f , we can
+compute the integral of f on Ξ , I = ∫
+Ξ f dS, by pulling back the domain onto Γ ̄ , I =
+∫
+Ξ ̄ f ̄J ̄ dξ (blue). The same can be done for the ALE parametrization (red). As t evolves,
+the domain Ξ evolves differently following the Lagrangian parametrization, φ(Ξ ̃ ), or the
+ALE parametrization, ψ(Ξ ̃ ), and therefore the rate of change of I on Γ ̄ , DtI, and on Γ ̃ ,
+∂ ̃tI, are different. These are the material and ALE time derivatives of I.
+2.4. Reynolds transport theorem and conservation of mass
+In this section we extend the concept of Lagrangian, Eulerian and ALE time derivatives of integrals on Γt. Consider a subset Ξ ⊂ Γt, a scalar field f : Γt → R, and define
+I=
+∫
+Ξ
+f dS =
+∫
+Ξ ̄
+f ̄J ̄ dξ , (2.16)
+where to write the expression on the right we have changed the domain of integration
+to Ξ ̄ = φ−1
+t (Ξ ), and we define J ̄ = √det(DφTDφ) and dξ = dξ1 dξ2. We define the material time derivative of I as
+DtI = d
+dt
+∫
+Ξ ̄
+f ̄J ̄ dξ . (2.17)
+This expression characterizes the rate of change of the integral I when the domain Ξ is a material subset of Γt (see figure 2). Developing the definition, we have
+DtI = d
+dt
+∫
+Ξ ̄
+f ̄J ̄ dξ =
+∫
+Ξ ̄
+∂t( f ̄J ̄) dξ =
+∫
+Ξ ̄
+(∂t f ̄J ̄ + f ̄∂t J ̄) dξ . (2.18)
+The rate of change of J ̄ can be computed as (see appendix C)
+∂tJ ̄ = J ̄(tr d ◦ φt) = J ̄[(∇ · v − vnH) ◦ φt], (2.19)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 227
+where ∇ · v = ∇ava is the surface divergence of v, and we define the mean curvature
+as H = gabkab. Then,
+DtI =
+∫
+Ξ
+Dtf dS +
+∫
+Ξ ̄
+f ̄J ̄[(∇ · v − vnH) ◦ φt] dξ
+=
+∫
+Ξ
+[Dtf + f (∇ · v − vnH)] dS. (2.20)
+Using (2.13) and the divergence theorem for surfaces, we can rewrite the previous equation in different ways
+DtI =
+∫
+Ξ
+[∂tf + ∇ · ( f v) − f vnH] dS, (2.21)
+=
+∫
+Ξ
+[∂tf − f vnH] dS +
+∫
+∂Ξ
+f v · m dl, (2.22)
+=
+∫
+Ξ
+[∂ ̃tf + ∇ · ( f c) + f (∇ · w − vnH)] dS, (2.23)
+=
+∫
+Ξ
+[∂ ̃tf + f (∇ · w − vnH)] dS +
+∫
+∂Ξ
+f c · m dl, (2.24)
+where ∂Ξ indicates the boundary curve of Ξ and m the outer normal to ∂Ξ tangent to the surface. Equations (2.20)–(2.24) are the equivalent to Reynold’s transport theorem for material domains in terms of the material, Eulerian and ALE time derivatives of f . As for scalar fields, we can extend the notion of material time derivative of an integral relative to other parametrizations. In particular, we can consider the parametric domain
+Ξ ̃ = ψ −1
+t (Ξ ), and the time derivative
+∂ ̃tI = d
+dt
+∫
+Ξ ̃
+f ̃J ̃ dξ , (2.25)
+where J ̃ = √det(DψTDψ). This time derivative characterizes the rate of change of I when Ξ follows the flow generated by the ALE parametrization. One can easily prove that
+DtI = ∂ ̃tI +
+∫
+∂Ξ
+f c · m dl. (2.26)
+For an Eulerian parametrization, one equivalently finds
+DtI = ∂tI +
+∫
+∂Ξ
+f v · m dl. (2.27)
+From these expressions, it is clear that for an integration domain covering a closed
+surface DtI = ∂ ̃tI = ∂tI. The previous expression can be used to derive the statement of conservation of mass on fluid surfaces. Indeed, in the special case of f = ρ, the mass density per unit area, conservation of mass for every material sub-domain Γt requires that
+Dt
+∫
+Ξ
+ρ dS =
+∫
+Ξ
+r dS, (2.28)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+228 A. Torres-Sánchez, D. Millán and M. Arroyo
+where r is the rate of creation of mass per unit area, which may for instance result from the exchange of material with the bulk. Since this must hold for every subdomain Ξ , we can localize the statement to obtain Lagrangian, Eulerian and ALE forms of local conservation of mass
+0 = Dtρ + ρ(∇ · v − vnH) − r, = ∂tρ + ∇ · (ρv) − ρvnH − r,
+= ∂ ̃tρ + ∇ · (ρc) + ρ(∇ · w − vnH) − r. (2.29)
+For inextensible fluid surfaces in the absence of mass exchange, balance of mass reduces to Dtρ = 0, leading to the condition
+∇ · v − vnH = tr d = 0. (2.30)
+Thus, for an inextensible surface with curvature, any shape change must be accompanied by a tangent flow to fulfil the inextensibility constraint, further highlighting the tight coupling between tangent flows and shape changes in the presence of curvature.
+2.5. Representation of kinematics for fluid deformable surfaces
+In previous sections, we have seen that Lagrangian parametrizations are natural tools to study the kinematics of deformable surfaces, obtain expressions for the rate-of-deformation tensor d and establish the transport theorem. A time-dependent Lagrangian parametrization contains information about shape changes (vn) and about interfacial flows (v). In practical computations, however, Lagrangian parametrizations are not well suited for fluid surfaces because they exhibit large distortions, requiring intensive remeshing (Rodrigues et al. 2015), and because a single Lagrangian parametrization cannot describe a multicomponent system like a lipid bilayer, where monolayers can slip relative to each other. In this case, one could consider a Lagrangian parametrization for each component, which, however, increases the number of degrees of freedom since each parametrization describes both tangential motion and shape, whereas only tangential motions are independent of each other. In the present section, we provide a set of modelling tools, which are useful for a clean formulation of physical models of fluid surfaces and particularly for their numerical discretization. In the previous section, we have introduced the notion of a time-dependent ALE parametrization ψ to describe the time evolution of a material surface Γt, which can alleviate mesh distortion when dealing with fluid surfaces since it does not follow material particles. We note, however, that ψ does not contain information about the tangential motion of material particles (the interfacial flows) given by v, since v and the tangential velocity of ψ differ by a relative velocity c. This fact confronts us with two issues. First, how to select the tangential velocity of ψ, which is arbitrary in the sense of not being prescribed by any physical law? Second, since v needs to be considered as an object independent of ψ, how do we parametrize tangential vector fields? The first issue has been addressed by introducing a numerical drag, which limits the tangential motion of ψ (Ma & Klug 2008; Rahimi & Arroyo 2012). One could also use the physically unconstrained tangential degrees of freedom of ψ to perform dynamical mesh adaptation (Barrett, Garcke & Nürnberg 2008; Veerapaneni et al. 2011). These approaches, however, increase the number of essential degrees of
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 229
+ ̋t0
+ ̋t0
+ ̋t
+ ̋t
+M
+(a) (b)
+x = x0 + hM
+h
+FIGURE 3. (Colour online) Surface parametrization in terms of an offset. (a) The field
+of directors M represents the direction in which the point x0 ∈ Γt0 can evolve. The height
+function h, which may be negative, represents the distance between the point x on Γt and Γt0 in the direction of M. (b) In this example Γt lies at the limit of the tubular
+neighbourhood to Γt0 for the given director field.
+freedom required to describe shape changes (from one to three) and require parameter tuning. Instead, in § 2.5.1 we develop a special kind of ALE parametrization based on an offset (Rangarajan & Gao 2015), which parametrizes ψ using a scalar field over Γt. Regarding the second issue, we note that interpolating tangent vector fields in a system with multiple charts, as in isoparametric finite elements, is delicate (TorresSánchez et al. 2019). In § 2.5.2, we introduce the Hodge decomposition of vector fields in terms of scalar fields valid for simply connected surfaces (of genus zero), whose interpolation is straightforward.
+2.5.1. An ALE parametrization based on an offset
+We define next a restricted ALE parametrization, which by construction is devoid of the arbitrary freedom associated with tangential motions. Let us consider the state of the surface at a given time t0, Γt0, and a parametrization of this surface ψ0(ξ ). We consider a vector field M(ξ ), representing a field of directors over Γt0, with non-zero normal component but not necessarily coinciding with the normal field of Γt0. We define a family of parametrizations of Γt at time t > t0 in terms of the offset of a
+point x = ψ0(ξ ) along M(ξ ),
+ψ(ξ , t) = ψ0(ξ ) + h(ξ , t)M(ξ ), (2.31)
+see figure 3(a). The field that characterizes the time evolution of the parametrization
+is h, a simple scalar field on Γ ̃ . This approach is not completely general, since it only allows us to parametrize the surfaces lying in the so-called tubular neighbourhood of Γt0 (do Carmo 2016). However, for some interval I = (t0, t0 + δt), the deformed surface Γt will lie in the tubular neighbourhood of Γt0 if the time evolution is smooth. To deal with the fact that after some time Γt may leave the tubular neighbourhood of Γt0 (see figure 3b), a simple solution is to periodically update the reference configuration Γt0. This kind of parametrization, proposed by Rangarajan & Gao (2015), generalizes the classical Monge parametrization, which is recovered by setting Γt0 to a plane, M to its constant normal and h to the height of the surface Γt with respect to the plane (do Carmo 2016). We finally note that for this kind of surface parametrization, we have
+W(x, t) = (∂th M) ◦ ψ−1(x, t). (2.32)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+230 A. Torres-Sánchez, D. Millán and M. Arroyo
+Since h is a scalar field on Γ ̃ , ∂th in this equation has the usual meaning of time differentiation at fixed ξ . In practice, M can be chosen to be N0, the field of normals of the reference surface as in (Rangarajan & Gao 2015). This leads to an Eulerian
+parametrization at t = t0, and close to it at later times. Thus, W will have in general non-zero tangential components, and therefore this parametrization is neither Eulerian nor Lagrangian. Instead, it is an ALE parametrization depending on a generalized height field h, in which the arbitrariness is removed by following (2.31) and choosing the field of directors M.
+2.5.2. Velocity potentials: Hodge decomposition
+Given a vector field V ∈ R3, it is well known that V admits a decomposition in terms of the gradient of a function Φ and the curl of a vector potential A in what is called the Helmholtz decomposition,
+V = ∇ Φ + ∇ × A, (2.33)
+where here ∇ and ∇× stand for the gradient and curl in R3. For a vector field tangent to a plane embedded in R3, this can be simplified to
+V = ∇ Φ + ∇ × (Ψ N), (2.34)
+where N is the normal to the plane and Ψ is a scalar function. Therefore, for a plane embedded in R3, a tangent vector field can be represented in terms of two scalar fields, Φ and Ψ . This property can be generalized to arbitrary surfaces in terms of their intrinsic differential geometry, i.e. not relying on their embedding in R3, as a special case of the Hodge decomposition for n-forms (do Carmo 1992). A vector field v tangent to a surface Γ can be decomposed as
+v = ∇α + ∇ × β + h, (2.35)
+where α and β are scalar fields on Γ and h is a harmonic vector field, satisfying
+∇ · h = 0 and ∇ × h = 0. We note that the curl operator ∇× on a surface, an instance of exterior derivative, is defined differently to its counterpart in Euclidean space. For
+instance, applied on a scalar function ∇ × β is a vector with components (∇ × β)a = ab∇bβ, where is the antisymmetric tensor
+ab = J−1εab, (2.36)
+with εab the Levi-Civita symbols, defined by ε11 = ε22 = 0, ε12 = −ε21 = 1. For simply connected surfaces, i.e. closed surfaces with genus equal to 0, there is only a trivial
+harmonic vector field, h = 0, and v can be described in terms of the two scalar fields α and β (see figure 4 for an example on an ellipsoid). In the absence of shape changes,
+from (2.30) it is clear that an inextensible flow satisfies ∇ · v = 0. In this case, v
+can be represented in terms of a streamfunction as v = ∇ × β. This approach was introduced by Secomb & Skalak (1982) to describe flows in fluid surfaces with fixed shape and used more recently by various authors (Nitschke et al. 2012; Morris & Turner 2015; Reuther & Voigt 2015, 2016; Sigurdsson & Atzberger 2016; Gross & Atzberger 2018; Mickelin et al. 2018). However, we note that for inextensible surfaces that change shape, both α and β need be considered. In this case, using the fact that
+∇ · v = ∇ · ∇α + ∇ · ∇ × β = ∇ · ∇α = 1α, where 1α = ∇ · ∇α, it follows from (2.30) that in an inextensible flow α and vn satisfy the constraint
+1α = vnH. (2.37)
+This approach has been recently considered to examine flows on a time-evolving inextensible membrane with prescribed shape changes (Reuther & Voigt 2018a).
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 231
+0
+ƒ¥
+0.90
+-0.90
+Vector field
+√ = grad å + curl ı Grad å Curl ı
+=+
+Irrotational field Solenoidal field
+0
+-0.75
+1.00
+FIGURE 4. (Colour online) A vector field on a simply connected surface can be decomposed as the sum of a solenoidal and an irrotational field.
+3. Physical models of fluid surfaces
+In this section we examine classical models for fluid deformable surfaces, two used to model lipid bilayers and one applicable to the cell cortex. Thanks to the tools introduced above and Onsager’s formalism, we derive the corresponding governing equations in their full three-dimensional and nonlinear generality.
+3.1. Lipid bilayers: an inextensible viscous layer with bending energy
+Lipid membranes are interfacial viscous fluids with bending elasticity. The interplay between viscosity and elasticity determines their relaxation dynamics after they are brought out of equilibrium by external forces or biological activity. These two essential mechanical features of lipid membranes, their out-of-plane elasticity and interfacial viscosity, have often been examined separately. The mechanical equilibrium of lipid bilayers can be understood to a large extent with the classical bending model of Helfrich (Helfrich 1973; Lipowsky 1991; Jülicher & Lipowsky 1993). For that reason, studies of lipid bilayers at scales beyond tens of nanometres have mainly focused on this model, e.g. in investigations of equilibrium configurations of closed vesicles under geometric constraints, such as fixed surface area or fixed enclosed volume (Steigmann 1999; Capovilla & Guven 2002; Tu & Ou-Yang 2004; Feng & Klug 2006; Rangarajan & Gao 2015; Sauer et al. 2017). Beyond the Helfrich model, and subsequent refinements such as the area difference elasticity model (Miao et al. 1994; Seifert 1997), more general models are required to describe the dynamical transformations that bilayers undergo, which should capture the interfacial dissipative mechanisms that dominate at sub-cellular scales. In a discrete stochastic approach based on dynamically triangulated surfaces (Ho & Baumgärtner 1990), shape transformations of fluid vesicles (Kroll & Gompper 1992; Gompper & Kroll 2004) or their dynamics under flow (Noguchi & Gompper 2005; Peng et al. 2013) have been examined. From a continuum viewpoint, the interfacial hydrodynamics of bilayer membranes was first examined separately from membrane deformation, i.e. assuming fixed membrane shape. These studies focused on the mobility of membrane inclusions, such as proteins, starting with the seminal work of Saffman & Delbrück (1975) on planar lipid bilayers. Subsequent studies have considered the effect of fluid boundaries (Stone & Ajdari 1998) or the (fixed) shape of the fluid membrane (Levine, Liverpool & MacKintosh 2004; Henle & Levine 2010; Sigurdsson & Atzberger 2016). Interfacial flows of vesicles induced by shear bulk flows were also considered at fixed vesicle shape (Secomb & Skalak 1982). Following the seminal works of Scriven (1960) and Aris (1962) on the hydrodynamics of insoluble fluid films, Barthes-Biesel &
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+232 A. Torres-Sánchez, D. Millán and M. Arroyo
+Bending elastic energy
+Shear viscous dissipation Inextensibility
+FIGURE 5. (Colour online) A simple model of a lipid bilayer as an inextensible viscous fluid with bending elasticity.
+Sgaier (1985) examined the interfacial flow of vesicles in a shear flow allowing for infinitesimal shape deformations. More recently, a geometrically nonlinear model for an inextensible viscous interfacial fluid with bending rigidity was examined, formulated geometrically, and exercised under the assumption of axisymmetry (Arroyo & DeSimone 2009; Arroyo et al. 2010). Along these lines, there is an increasing interest in the community of applied and computational mathematics to develop numerical methods to solve the three-dimensional equations governing inextensible viscous interfaces with curvature elasticity (Nitschke et al. 2012; Rodrigues et al. 2015; Barrett et al. 2016; Reuther & Voigt 2016). This model provides a first approximation to the dynamical behaviour of lipid membranes, see figure 5. Here, we formulate this model based on Onsager’s variational formalism (Arroyo & DeSimone 2009), and derive the Euler–Lagrange equations. Considering a membrane without spontaneous curvature and ignoring the Gaussian curvature term in the Helfrich Hamiltonian, the bending energy of the membrane can be written as
+FH[φ] =
+∫
+Γt
+κ
+2 H2 dS, (3.1)
+where κ is the bending modulus. The free energy depends on the set of state variables of the system, usually denoted by X. In this case, the material parametrization is the state variable of the system, X = {φ}. We note, however, that since the energy only depends on the shape of Γt, φ can be replaced by any other ALE parametrization ψ. In Onsager’s variational formalism, dissipative mechanisms are introduced through dissipation potentials. The Newtonian shear rheology of lipid membranes (Dimova et al. 2006) is encoded in the following dissipation potential
+DS[φ; V] =
+∫
+Γt
+μ|d|2 dS, (3.2)
+where μ is the (in-plane) shear viscosity of the monolayer and |d|2 = dabgacgbddcd. Since we assume that the deformation of the membrane is inextensible, only the deviatoric part of d matters in the above definition. The dissipation potential depends on the state variable of the system, φ, through shape in dS and g, but primarily on the variable representing the rate of change of the state, V. The variables that represent the processes that change the state of the system and produce dissipation are called process variables and denoted by V; here V = {V}. Here the process variable is
+simply the time derivative of the state variable V = ∂tφ, but this is not necessarily the
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 233
+case. For instance, if we had used ψ rather than φ as state variable, then W = ∂tψ would not be a meaningful variable to encode dissipation since it does not represent a physical velocity. For thermodynamical consistency, the dissipation potential D(X; V)
+must be a convex function of V with minimum at V = 0 (Arroyo et al. 2018). We
+further assume that D(X; 0) = 0, so that D(X; V) > 0. If external forces F are applied, these introduce a power input
+P[φ; V] = −
+∫
+Γt
+F · V dS. (3.3)
+One can also include the dissipation potential associated with the bulk viscous fluid where the membrane is embedded. Here, we ignore bulk hydrodynamical forces to focus on the fluid membrane, an assumption which is physically justified for phenomena below the Saffman–Delbrück length scale lSD = μ/μb, where μb is the bulk viscosity (Saffman & Delbrück 1975; Arroyo & DeSimone 2009). For a lipid membrane, lSD ≈ 5 μm. Onsager’s variational principle establishes a competition between energy release rate, power and dissipation through the Rayleighian, which takes the form
+R[φ; V] = DtFH[φ; V] + DS[φ; V] + P[φ; V]. (3.4)
+Here, the rate of change of the energy DtFH[φ; V] is
+DtFH[φ; V] =
+∫
+Γt
+κ
+{
+H1vn −
+(1
+2 H2 − |k|2
+)
+Hvn + ∇a
+(1
+2 κ H2va
+)}
+dS, (3.5)
+where we have used that ∂tH = 1vn + |k|2vn (Capovilla & Guven 2002; Arroyo & DeSimone 2009). Then, Onsager’s principle states that process variables minimize the Rayleighian V = arg min
+U
+R[φ; U], (3.6)
+subject to constraints Q[φ; V]. Here, we consider that the surface is inextensible
+Q1[φ; V] = tr d = ∇ · v − vnH = 0. (3.7)
+Furthermore, due to osmotic effects, it can often be assumed that cells and vesicles maintain constant volume, and hence
+Q2[φ; V] =
+∫
+Γt
+V · N dS = 0. (3.8)
+To enforce these constraints, we can introduce the Lagrangian
+L[φ; V, γ , P] = R[φ; V] +
+∫
+Γt
+γ Q1[φ; V] dS − PQ2[φ; V]. (3.9)
+P is the pressure in the vesicle and γ is a component of the surface tension. Then, Onsager’s principle subject to constraints can be written as a saddle-point problem
+{V, γ , P} = arg min
+U
+arg max
+λ,S
+L[φ; U, λ, S]. (3.10)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+234 A. Torres-Sánchez, D. Millán and M. Arroyo
+From the stationarity conditions of (3.10), one finds the weak and the strong form of the governing equations (see appendix D), the latter of which take the form
+∇aΣa + B = 0, (3.11)
+tr d = 0, (3.12)
+∫
+Γt
+V · N dS = 0. (3.13)
+Here, Σa is the so-called surface stress vector,
+Σ a = σ abeb + σ a
+n N, (3.14)
+where σ is the in-plane stress
+σ ab = κH( 1
+2 Hgab − kab) + 2μdab + γ gab, (3.15)
+and σn is a vector of normal stresses
+σa
+n = −κgab∇bH. (3.16)
+When multiplied by a unit vector l in TxΓt, Σblb is the three-dimensional force per unit length across a curve passing through x and perpendicular to l. Note that σ a
+n
+represents bending moments caused by curvature imbalances. Finally, B is the field of (external) body forces B = F + PN. (3.17)
+Equations (3.11)–(3.13) express the balance of linear momentum and conservation of mass (inextensibility) and enclosed volume in a fully nonlinear regime. Alternatively, one could have derived equation (3.11) from a local force balance on the membrane as in Salbreux & Jülicher (2017), and postulated the constitutive laws (3.15) and (3.16). Thus, by starting from different ingredients (a Rayleighian expressing energy release-rate, dissipation and power input) and invoking a variational principle subject to constraints, Onsager’s formalism recovers these equations in a systematic and transparent way. As a direct corollary of Onsager’s principle, it is easy to see that, in the absence of external power inputs, the free energy is a Lyapunov functional of the dynamics, i.e. F is a decreasing functional (Arroyo et al. 2018)
+DtF 6 0, (3.18)
+which provides a nonlinear notion of stability for the dynamics. From a computational point of view, only the weak form of the stationarity conditions issuing from Onsager’s formalism is required for a space discretization based on finite elements. Onsager’s formalism also provides a framework to formulate nonlinearly stable variational time integrators, as described in § 4. We finally note that the choice of state and process variables is not unique. For instance, as mentioned earlier, we can choose an ALE parametrization ψ instead of φ as state variable, since the free energy depends only on shape. The velocity V, our process variable, then needs to be split into a normal and a tangential components V = v + vnN, where vn = W · N. For the ALE parametrization in (2.31), we have
+vn = ∂thM · N. We can then rewrite the Lagrangian in terms of ∂th and v. We can
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 235
+further decompose v = ∇α + ∇ × β. Then, the governing equations for this set of variables follow from
+min
+∂th,α,β mγ ,aPx L[h; ∂th, α, β, γ , P]. (3.19)
+The Euler–Lagrange equations resulting from this statement will look very different from those in (3.10) but describe the same dynamics. While the choice of variables
+X = {φ} and V = {V} is natural from a modelling viewpoint, the choice X = {h} and
+V = {vn, α, β} is better suited from a computational viewpoint, as will become clear in § 4. In appendix G we provide detailed expressions for the algebraic optimization problem that we solve numerically and that results from discretizing equation (3.19) in space and time.
+3.2. Lipid bilayers: the Seifert–Langer model
+The previous model provides a first approach to the mechanics of lipid bilayers. It is often overlooked, however, that by ignoring the bilayer architecture it fails to capture many important phenomena. Seifert and Langer developed a continuum model explicitly accounting for the bilayer architecture and capturing the major energetic driving forces and dissipative drag forces involved in the dynamics of lipid membranes (Seifert & Langer 1993). The elastic forces in this theory appear in response to bending of the membrane, as in the previous model, but also to monolayer stretching (see figure 6). As viscous effects, the in-plane Newtonian rheology of the lipid bilayer (Dimova et al. 2006) is included through shear and dilatation dissipations, and the frictional coupling between the two monolayers opposing inter-monolayer slippage is also included. This model provided predictions about the relaxation dynamics of membrane fluctuations. Importantly, its material parameters can be experimentally measured (Dimova et al. 2006). The work of Seifert & Langer (1993), along with Evans & Yeung (1994), highlighted the role of inter-monolayer friction as a ‘hidden’ but significant dissipative effect. This physical model was originally introduced and has been predominantly exercised under the restricted assumptions of linearized disturbances around a planar (Seifert & Langer 1993; Fournier 2015) or cylindrical state (Nelson, Powers & Seifert 1995) or of simplified and fixed membrane shape (Evans & Yeung 1994). These approximations, however, hide much of the interaction between shape dynamics and interfacial hydrodynamics, which is mediated by membrane curvature. This was demonstrated by the linearization of the theory about spherical or cylindrical configurations (Rahimi 2013) and by simulations based on a fully nonlinear version of this theory, albeit axisymmetric (Rahimi & Arroyo 2012), which further demonstrated the geometry-dependent subtle interplay between all the ingredients in figure 6 at multiple scales. Seifert and Langer’s (SL) model is conceptually simple, captures sufficient physics to describe a plethora of dynamical phenomena, and can be the basis for more sophisticated dynamical models including for instance lipid tilt near molecular inclusions (Hamm & Kozlov 1998, 2000) or the physicochemical interaction of lipids with scaffolding or integral proteins (Brochard-Wyart & de Gennes 2002; Arroyo et al. 2018). Here we formulate and develop numerical calculations with this model in a three-dimensional and fully nonlinear set-up which, to our best knowledge, has not been examined before. In this model, Γt characterizes the bilayer mid-surface (see figure 6). In addition to the Helfrich energy of the form of (3.1), the Seifert–Langer model accounts for the stretching elasticity of each of the monolayers through the functional
+FS[χ , ρ±] =
+∫
+Γt
+kS
+2 (ρ ̆± − 1)2 dS =
+∫
+Γt
+kS
+2 [ρ±(1 ± dH) − 1]2 dS, (3.20)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+236 A. Torres-Sánchez, D. Millán and M. Arroyo
+Bilayer bending
+Intermonolayer friction N √
+Monolayer stretching
+Dilatation dissipation
+Shear dissipation Mathematical description
+ ̋t+
+d ®+
+ ̋t®+
+®
+ ̋t-® √+
+FIGURE 6. (Colour online) In a basic model incorporating elasticity and hydrodynamics (Seifert & Langer 1993), a lipid bilayer stores energy due to bending and monolayer stretching and dissipates energy through shear, dilatation and inter-monolayer friction. To
+describe this model mathematically, the densities at the monolayer mid-surfaces ρ ̆± are
+projected onto the bilayer mid-surface leading to the scalar fields ρ± : Γt → R. The velocity
+fields v± identify the velocity of the material particles at Γt.
+where the fields ρ ̆± represent the lipid density at the neutral surface of the upper (+)
+and lower (−) monolayers, measured in units of the equilibrium density, which differ from the lipid density at the bilayer mid-surface according to
+ρ ̆ = ρ±(1 ± dH) + O(Kd2), (3.21)
+with d ≈ 1 nm the distance between the neutral surfaces and the bilayer mid-surface.
+Unless otherwise noted, a functional containing ± implies a summation on the + and
+− monolayers. For convenience, in this section we use an Eulerian parametrization χ to derive the governing equations. The free energy depends on χ and the two density
+fields ρ+ and ρ−, representing the density of lipids on the mid-surface, and thus
+X = {χ , ρ+, ρ−}. We take into account three main dissipation mechanisms in the bilayer. First we consider the dissipation due to in-plane shear in each monolayer, which takes the form
+DS[χ ; vn, v±] =
+∫
+Γt
+μ|d±|2 dS, (3.22)
+where μ is the shear viscosity and
+d± = 1
+2 {∇(v±) + [∇(v±)]T} − vnk, (3.23)
+is the rate-of-deformation tensor, introduced earlier, for each monolayer. We consider
+three process variables; vn = ∂tχ · N, which determines shape changes, and v+
+and v−, which determine the tangential flow of lipids in each monolayer. Thus,
+V = {vn, v+, v−}. Additionally, we consider a dilatational dissipation
+DD[χ ; vn, v±] = 1
+2
+∫
+Γt
+λ(tr d±)2 dS, (3.24)
+where λ is the dilatational viscosity. Finally, we consider the inter-monolayer friction caused by the relative slippage of one monolayer with respect to the other
+DI[χ ; vn, v±] =
+∫
+Γt
+bI|v+ − v−|2 dS, (3.25)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 237
+where bI is the inter-monolayer friction coefficient. Thus, the total dissipation is
+D[χ ; vn, v±] = DS[χ ; vn, v±] + DD[χ ; vn, v±] + DI[χ ; vn, v±]. (3.26)
+The rate of change of the stretching energy is
+DtFS[χ ; ρ±; vn, ∂tρ±] =
+∫
+Γt
+kS
+{[ρ±(1 ± dH) − 1]
+×
+[∂tρ±(1 ± dH) ± dρ±(1vn + |k|2vn) − 1
+2 [ρ±(1 ± dH) − 1]vnH] +
+1
+2 ∇ · ([ρ±(1 ± dH) − 1]2v±)} dS. (3.27)
+Note carefully that DtFS[χ ; ρ±; vn, ∂tρ±] depends on ∂tρ± rather than on the process
+variables v±. We invoke the equations encoding conservation of mass
+∂tρ± = Π (χ , ρ±; vn, v±) = −∇ · (ρ±v±) − ρ±vnH, (3.28)
+where Π is referred to as a process operator, to express DtFS in terms of the process variables, in equal footing with D, towards applying Onsager’s formalism (Rahimi & Arroyo 2012). Process operators, usually linear operators, relate the rate of change of
+state variables, in this case ∂tρ±, with process variables, vn and v±. In general, we
+write X ̇ = Π(X)V. (3.29)
+In the previous model, the process operator was trivial X ̇ = V (∂tφ = V). Using (3.28), the rate of change of the energy can be written as
+DtFS[χ ; ρ±; vn, ∂tρ±] =
+∫
+Γt
+kS
+{[ρ±(1 ± dH) − 1]
+×
+[[−∇(ρ±v±) + ρ±vnH](1 ± dH)
+± dρ±(1vn + |k|2vn) − 1
+2 [ρ±(1 ± dH) − 1]vnH] +
+1
+2 ∇ · ([ρ±(1 ± dH) − 1]2v±)} dS, (3.30)
+and the Lagrangian as
+L[χ , ρ±; vn, v±, P] = R[χ , ρ±; vn, v±] − PQ[χ ; vn], (3.31)
+where here
+Q[χ ; vn] =
+∫
+Γt
+vn dS. (3.32)
+Then, Onsager’s variational principle states that
+{vn, v±, P} = arg min
+{un ,u± }
+arg max
+S
+L[χ , ρ±; un, u±, S]. (3.33)
+The stationarity conditions issued from Onsager’s principle provide equations for P
+and the fields vn and v±. To find the time evolution of the density fields ρ±, the process operator (3.28) needs to be integrated in time. We stress that Onsager’s variational principle provides directly the weak form of the problem, which can be directly discretized with finite elements. For completeness, we derive using Onsager’s formalism the stress tensor and strong form of the governing equations of the SL
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+238 A. Torres-Sánchez, D. Millán and M. Arroyo
+model, which to the best of our knowledge have not been presented before in the fully nonlinear case. The tangential and normal components of the stress of each monolayer can be identified as (see appendix E)
+σ ± = kS(ρ±(1 ± dH) − 1) (− 1
+2 [ρ±(1 ± dH) + 1]g ∓ dρ±k) +
+1
+2κH (1
+2 Hg − k) + 2μd± + λtr d±g, (3.34)
+and
+σ±
+n =−[κ
+2 + kS(ρ±d)2
+]
+∇H ∓ dkS(2ρ±(1 ± dH) − 1)∇ρ±. (3.35)
+Note that, aside from the terms involving kS and λ, the expressions are similar to those of previous model. Density imbalances generate a source of in-plane stress, but also lead to bending moments. Furthermore, the bending rigidity of the bilayer
+is κ + kSd2[(ρ+)2 + (ρ−)2], which includes the effect of Helfrich and stretching energies. Balance of linear momentum tangent to the surface on the upper and lower monolayers reads
+∇ · σ + − kσ +
+n = bI(v+ − v−),
+∇ · σ − − kσ −
+n = bI(v− − v+),
+}
+(3.36)
+where bI(v+ − v−) identifies the force exerted by the lower monolayer on the upper monolayer due to inter-monolayer friction. Finally, balance of linear momentum perpendicular to the bilayer leads to
+∑
+±
+{σ ± : k + ∇ · σ ±
+n } = −P. (3.37)
+Seifert and Langer first introduced a linearized version of these equations around a planar state (Seifert & Langer 1993), which has been recently reviewed in the context of Onsager’s principle (Fournier 2015). The stress tensors in (3.34) and (3.35) are similar to those found in Rahimi & Arroyo (2012), using the Doyle–Ericksen formula of continuum mechanics. Our general and systematic derivation shows the ability of Onsager’s formalism to derive complex models mixing different physics in a fully nonlinear setting, which would otherwise be difficult to rationalize. For instance, although not unconceivable, it is difficult to postulate the constitutive relation for the in-plane stress in (3.34).
+3.3. The cell cortex: a viscous layer driven by active tension
+The cell cortex is a layer of cross-linked actin filaments lying just beneath the plasma membrane of animal cells (Bray & White 1988). The thickness of this layer is of hundreds of nanometres, while the typical size of an animal cell is of tens of microns. Thus, this layer can be considered as a quasi-two-dimensional material. In addition to actin, this network is crowded with polymerization regulators, cross-linkers or myosin motors, which bind to actin filaments. By consuming ATP, these molecular motors pull on actin filaments and generate active tension. In turn, this active tension, if non-uniform, generates actin flows and drives shape changes (Salbreux et al. 2012). Another important property of this actin network is that it undergoes dynamic remodelling, with a continuous turnover by polymerization and depolymerization of actin filaments and binding and unbinding of cross-linking proteins (Howard 2001). This process is characterized by a time scale of the order of a few tens of seconds. At time scales shorter than the turnover time, the cortex behaves as an elastic network.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 239
+Turnover
+Tension Actin flow
+ ̊d®  ̊p
+Shape change
+¡0.2 μm
+(a) (b)
+©
+ ̋t
+√nN
+μ
+®
+√
+¡10 μm
+FIGURE 7. (Colour online) In a simple model, the cortex is described as a surface Γt with a space varying thickness ρ. Active tension and the turnover are taking cast into Onsager’s formalism.
+At longer time scales, the dynamic remodelling of the cortex leads to a fluid-like viscous behaviour with active tension. Following previous works (Turlier et al. 2014; Prost, Jülicher & Joanny 2015), we consider an active gel model of the cortex as an isotropic viscous material with active tension confined to a surface and undergoing turnover, in which viscosity, active tension and depolymerization depend on the thickness of the cortex. This model can describe phenomena at time scales of a minute and longer, where elastic energy storage in the network becomes negligible, and does not account for the architecture of the network, e.g. the orientation of the actin filaments, which may not be appropriate in some important examples such as during cytokinesis (Reymann et al. 2016). Using
+common estimates of cortex two-dimensional viscosity, e.g. μ = 27 × 10−4 Pa s m in
+Bergert et al. (2015), an estimate for the Saffman–Delbrück length scale is lDS ≈ 3 m. Thus, and given the size of cells, we can safely neglect the dissipative forces arising from the bulk fluid. Turlier et al. (2014) and subsequent works (Bergert et al. 2015; Saha et al. 2016; Mietke, Jülicher & Sbalzarini 2019) were restricted to axisymmetric or to two-dimensional configurations, and derived the active gel equations from the stress tensor and force balance. Here, we develop a fully three-dimensional and geometrically nonlinear version of this active gel model, and derive the governing equations using Onsager’s formalism. Mathematically, we characterize the cortex as a fluid surface Γt, described here for the purpose of deriving the governing equations with a Lagrangian parametrization φ, with a space-varying thickness ρ, see figure 7. φ and ρ are our state variables. The process variable in this problem is the velocity field V of actin, with a tangential component v, characterizing the flow of actin on Γt, and a normal component vnN describing the change of shape of the actin cortex. The viscous rheology of the cortex is characterized by a dissipation potential, similar to that of lipid bilayers
+D[φ, ρ; V] =
+∫
+μ[|d|2 + (tr d)2]ρ dS, (3.38)
+where here μ is the bulk shear viscosity of the cortex. This dissipation potential can be obtained by integrating over the thickness a three-dimensional shear dissipation potential ∫ μ|D|2 dV, with D the three-dimensional rate-of-deformation tensor, for an incompressible thin slab of gel whose thickness adapts to its in-plane stretching, i.e. D = d + Dnnn ⊗ n and Dnn = −tr d (Salbreux, Prost & Joanny 2009; Turlier et al. 2014). To introduce the active tension generated by the activity of myosin motors,
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+240 A. Torres-Sánchez, D. Millán and M. Arroyo
+we consider a power input of the form
+P[φ, ρ; V] =
+∫
+ξ (ρ)ρ tr d dS, (3.39)
+where ξ is a measure of myosin activity, which may depend on cortical density ρ,
+see discussion in § 5.3. This leads to an active surface tension γ = ξ (ρ)ρ. Since tr d measures the rate at which local area expands (positive tr d) or contracts (negative tr d), for a positive γ the power input functional will drive the contraction of cortex area. As we neglect the elastic behaviour of the cortex, there is no free energy associated with the problem. Introducing a cell volume constraint, we obtain the Lagrangian
+L[φ, ρ; V, P] = D[φ, ρ; V] + P[φ, ρ; V] − PQ2[φ; V], (3.40)
+and the dynamics follows from
+{V, P} = arg min
+U
+arg max
+S
+L[φ, ρ; U, S]. (3.41)
+From the Euler–Lagrange equations we identify the constitutive law
+σ = ρ{2μd + μtr dg + ξ (ρ)g}, (3.42)
+and the statement of balance of linear momentum, this time in the absence of bending moments,
+∇ · σ = 0, σ : k = −P, (3.43a,b)
+with the last equation generalizing Laplace’s law. To relate the rate of change of ρ and V, we consider balance of cortical material
+Dtρ + ρ(∇ · v − vnH) = kp − kdρ (3.44) = (ρ0 − ρ)/τ , (3.45)
+where the first term on the right-hand side of (3.44) stands for actin polymerization. Since polymerization nucleators are located at the plasma membrane, polymerization is assumed to occur at a constant rate kp independent of the thickness. The second term on the right-hand side of (3.44) stands for actin depolymerization, which is
+proportional to the local thickness ρ. The ratio ρ0 = kp/kd determines the thickness at
+steady state. By defining the characteristic turnover time as τ = 1/kd, one can rewrite the right-hand side as in (3.45).
+4. Discretization of the mechanics of fluid surfaces
+In this section, rather than providing a comprehensive description of the numerical methods used here for the space and time discretization of the various models of fluid surfaces, we outline a few key elements in our numerical treatment of fluid surfaces. First, we introduce a variational time integrator based on Onsager’s principle, which is unconditionally stable by construction. Then, we summarize the spatial discretization of the different fields on the time-evolving surface. We end with the derivation of the discrete equations for an inextensible fluid surface with bending elasticity as a reference example.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 241
+4.1. Time discretization: variational time integrator based on Onsager’s principle
+To integrate in time the dynamics of continuum mechanical systems, a common approach is to first discretize in space, obtain a system of ordinary differential equations, which is then integrated in time with specialized algorithms. The fact that the dynamics in the models examined here emerges from a variational principle provides an alternative approach: to discretize in time the variational principle itself. Such methods are usually referred to as variational time integrators, and have been widely applied, for instance, to discretize in time Hamilton’s principle in conservative systems including molecular dynamics (Frenkel & Smit 2001) and elastodynamics (Lew et al. 2004), and in the context of dissipative systems (Ortiz & Stainier 1999; Peco et al. 2013). Variational time integrators inherit qualitative properties of the associated time-continuous problem. Here, we propose a first-order variational time integrator for Onsager’s principle that inherits that F is a Lyapunov functional of the dynamics, see (3.18). This feature provides nonlinear stability to the resulting discrete dynamics by construction. We consider here an abstract statement of Onsager’s variational principle, with a set of state variables X, a set of process variables V, obeying Onsager’s principle in (3.6) and a process operator as in (3.29). For simplicity, we neglect constraints in our discussion but they can be added by substituting the Rayleighian by the corresponding Lagrangian without changing the essence of the proposed variational
+integrator. Let us consider a time discretization {t1, . . . , tN} and let us start with
+a trivial process operator ∂tX = V. We will consider here the simplest low-order version of an implicit variational time integrator based on Onsager’s principle, and
+leave higher-order schemes to future work. We approximate Vn = V(tn) with a simple
+backward difference
+Vn+1 ≈ Xn+1 − Xn
+1tn , (4.1)
+where Xn = X(tn) and 1tn = tn+1 − tn. The dissipation potential and the power input can now be approximated as
+D(X; V) ≈ D
+(
+Xn; Xn+1 − Xn
+1tn
+)
+, P(X; V) ≈ P
+(
+Xn; Xn+1 − Xn
+1tn
+)
+. (4.2a,b)
+To discretize the Rayleighian, we also need to discretize the rate of change of the
+free energy. Rather than resorting to an expression like F ̇ ≈ DF · (Xn+1 − Xn)/1tn,
+we consider
+F ̇ (X, ∂tX) ≈ F (Xn+1) − F (Xn)
+1tn , (4.3)
+or a similar higher-order finite difference. Using the previous expressions we define the discrete Rayleighian as
+Rn(Xn; Xn+1) ≡ F (Xn+1)
+1tn + D
+(
+Xn; Xn+1 − Xn
+1tn
+)
++P
+(
+Xn; Xn+1 − Xn
+1tn
+)
+, (4.4)
+where we have ignored the constant term F (Xn)/1tn. Then, the incremental Onsager’s principle is given by
+Xn+1 = arg min
+X
+Rn(Xn; X). (4.5)
+Thus, the dynamical problem arising from our variational time discretization can be interpreted as an energy minimization problem for F with the addition of a convex
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+242 A. Torres-Sánchez, D. Millán and M. Arroyo
+(and often quadratic) function of Xn+1, D, subject to the external forces represented in P. This approach retains the full nonlinearity of F in the formulation. The weight of F relative to D is controlled by 1tn, which can be decreased to ease the solvability of the problem by increasing the influence of the convex functional D, or increased to allow the system to reach equilibrium faster. In appendix F, we extend this notion of Onsager variational time integrators to problems with non-trivial process operators, and show that in either case and for homogeneous problems, the functional F is a Lyapunov functional of the discrete dynamics irrespective of 1t. Hence, these algorithms are nonlinearly and unconditionally stable. Consequently, the time step is not limited by stability, but rather by accuracy and solvability of the nonlinear optimization problem in (4.5), which becomes ‘easier’ or ‘more convex’ for small 1tn. The ability to take stably large time steps is particularly useful in stiff problems, such as those involving the Helfrich curvature energy.
+4.2. Spatial discretization
+We now summarize the space discretization of Γt and the different fields defined on it. We first note that, since models for fluid surfaces usually involve the shape operator k, the surface parametrization must be a square-integrable function with square-integrable first- and second-order derivatives; we call such a surface a H2 surface. The discretization of a H2 surface may be addressed with various numerical methods, including higher-order tensor-product splines as in isogeometric methods (Piegl & Tiller 2012; Sauer et al. 2017) or max-ent meshfree approximants (Millán, Rosolen & Arroyo 2011). Subdivision surfaces are another versatile technique to discretize smooth surfaces with meshes of arbitrary connectivity. Here, we use Loop subdivision surfaces based on triangular meshes (Loop 1987; Stam 1999; Biermann, Levin & Zorin 2000; Cirak & Ortiz 2000, 2001; Cirak & Long 2011; Torres-Sánchez 2017). Subdivision surfaces technology provides smooth basis functions, which allow us to approximate a H2 geometry and other fields. Recalling the ALE parametrization introduced in § 2.5.1, we use subdivision basis functions to approximate the parametrization ψ0(ξ ) as well as the height field h(ξ ) and the field of normals M(ξ ). Since ψ0, h and M
+are in H2, then ψ = ψ0 + hM is also in H2. To discretize density fields, which only appear in the models examined here through the field itself and its first-order derivative, we consider linear basis functions on the same triangulation. The discretization of tangential velocity fields such as
+v or v± is delicate since the natural bases of the tangent planes across element boundaries are in general discontinuous (Torres-Sánchez et al. 2019). One option is to describe tangential velocity fields by approximating general velocity fields on the surface and then imposing tangency through constraints (Fries 2018; Reuther & Voigt 2018b). A more convenient option for simply connected surfaces is to recall the Hodge decomposition of v in (2.35) and discretize the scalar fields α and β. We note that α and β need to be in H2 for d to be square integrable, and for this reason we use subdivision basis functions to approximate these vector potentials. In some models, we need to discretize Lagrange multiplier fields such as the surface tension γ . Since γ acts as a Lagrange multiplier, the space of basis functions for γ needs to be chosen with care to ensure that the discretization satisfies the discrete inf-sup condition (Brezzi & Fortin 2012). Similarly to previous works in isogeometric analysis (Dortdivanlioglu et al. 2018), we consider a macro-element approach where Lagrange multipliers are approximated using a mesh with one level of coarsening. We refer to Santos-Oliván et al. (2019) for further details of this macro-element approach
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 243
+and to appendix G for a detailed derivation of the discrete equations following the application of Onsager’s time-discrete formalism combined with finite elements to the model of an inextensible viscous fluid surface with bending elasticity described in § 3.1.
+4.3. Restricting rigid body motion in simulations
+The simulation of fluid surfaces lacking interaction with the surrounding viscous fluid requires restricting rigid body motions of the interface since these do not dissipate energy or affect the free energy of the system. To restrict these motions, we impose three translational constraints and three rotational constraints
+∫
+Γt
+∂thM dS = 0,
+∫
+Γt
+x × V dS = 0, (4.6a,b)
+using six additional Lagrange multipliers.
+4.4. Mass conservation: stabilized finite element formulation
+We now discuss the discretization of mass conservation in its ALE form, equation (2.29), which appears in the Seifert–Langer model of lipid bilayers and in our model for the cell cortex. We consider an implicit backward Euler scheme in time for this advection-reaction equation. For its space discretization, we consider a stream-upwind Petrov Galerkin (SUPG) method (Donea & Huerta 2003), which treats the convective term by adding controlled numerical diffusion in a consistent manner. The equations of conservation of mass and balance of linear momentum are solved monolithically using Newton’s method. See appendix H for details.
+5. Representative simulations of fluid surfaces
+5.1. Lipid bilayers: an inextensible viscous layer with bending energy
+Example 1: relaxation dynamics from a non-equilibrium non-axisymmetric shape. We first simulate the behaviour of an inextensible viscous layer with curvature elasticity. To test the performance of the numerical methods described in the previous section, we first examine the relaxation of an out-of-equilibrium and non-axisymmetric configuration of a vesicle of radius R = 100 nm, see figure 8. Using common estimates for the model parameters (Dimova et al. 2006; Rahimi & Arroyo 2012), we choose
+κ = 10−19 J, μ = 10−9 J s m−2. As expected for a dissipative system in the absence of external inputs, the free energy F decreases monotonically with time (figure 8a) by dissipating energy (figure 8b). Because of the semi-logarithmic scale, it is difficult to appreciate in figure 8(a,b) that the negative of the rate of change of free energy is equal to the rate of dissipation. A selection of states during the relaxation dynamics is shown in the figure, along with the normal and tangential velocity fields and the Lagrange multiplier field γ representing the contribution to surface tension of the inextensibility constraint. The smoothness of this field indicates that the macro-element approach described in § 4.2 satisfies the discrete inf-sup condition (Santos-Oliván et al. 2019). Figure 8(c), shows the L2 norm of tr d for three different levels of refinement as a function of time, measuring the error in enforcing inextensibility. Initially, this error linearly converges as mesh is refined. At later stages, and even though we use an ALE method, the large shape changes during the relaxation dynamics require
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+244 A. Torres-Sánchez, D. Millán and M. Arroyo
+t (ns) t (ns)
+10-4
+10-3
+10-2
+10-1
+10-1 101 103
+Error in
+volume
+Error (%)
+Error in
+total area
+105
+30
+35
+Energy
+(÷ 10-19 J)
+L2 (tr d)
+(m s-1) Dissipation rate
+(÷ 10-10 J s-1)
+I
+I
+I
+II
+II
+II
+III
+III
+III
+IV
+IV
+IV
+40
+45
+(a) I II III
+IV
+(b)
+(c) (d)
+10-3
+0↔0.1 m s-1
+mN m-1 mN m-1
+mN m-1
+mN m-1
+0↔4 ÷ 10-2 m s-1 0↔10-3 m s-1
+m s-1 m s-1 (÷ 10-3) m s-1 (÷ 10-3)
+10-1 101 103 105
+-0.5 -7 7 -2 2
+√ √n √ √n √ √n
+0.5
+10-3 10-1 101 103 105
+-5 © 3 ©
+©
+© -0.3 -0.1
+-0.07
+-0.1 -0.04
+0
+0.25
+0.50
+0.75
+1.00
+1.25
+10-2 100 102 104
+10-11 10-14
+10-8
+10-5
+10-2
+-0.05
+FIGURE 8. (Colour online) Relaxation dynamics of an inextensible viscous layer with bending elasticity. (a) Helfrich energy as a function of time. (b) Shear dissipation as a function of time. Snapshots (I–IV) represent different stages of the dynamics. In the upper panels of snapshots (I–III) we plot the normal (colour map) and tangential (arrows) components of the velocity. In the lower panels of snapshots (I–III) and in snapshot (IV) we plot the Lagrange parameter γ , representing the contribution to surface tension of the inextensibility constraint. (c) L2 norm of tr d for different refinement levels (blue: 4066 nodes, green: 16 258 nodes, red: 65 026). Yellow circles: remeshing; blue lines:
+h/R ≈ 1/17; green lines: h/R ≈ 1/34; red lines: h/R ≈ 1/68. (d) Error in the conservation of volume and total mass.
+four full remeshing operations, marked with yellow circles and illustrated in movie 1 available at https://doi.org/10.1017/jfm.2019.341 for the coarser refinement level. We observe that remeshing increases the error of local inextensibility noticeably, but this error remains small. This example illustrates the benefit of the ALE method to reduce the frequency of remeshing events. We also note that the relative error in total area and volume conservation is smaller than 0.1 % over the whole dynamics, see
+figure 8(d). The error in volume conservation is very small (<10−11 %) until the first remeshing step, where the error presents a jump. This illustrates the success of our nonlinear method to impose volume conservation. On the other hand, it shows the lack of explicit control on volume (and area) conservation during remeshing, which could be incorporated into the least-squares procedure underlying remeshing. Errors in area conservation are smoother in time and larger in magnitude, since it is imposed weakly through the Lagrange multiplier γ .
+Example 2: dynamics following hyper-osmotic shocks. Cells and vesicles are often exposed to changes in the inner and outer chemical composition, which create flows of water through the semipermeable lipid membrane, increasing or decreasing their enclosed volume, and generating shape changes (Staykova et al. 2013; Kosmalska
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 245
+30 0 2 4
+Volume decrease
+(÷105 nm3)
+40
+50
+(a)
+0
+0
+(b)
+(a) (c) (d)
+(b)
+(c) (d)
+Energy (÷10-19 J)
+60 10 000 nm3 ns-1
+10 nm3 ns-1
+FIGURE 9. (Colour online) Bending energy as a function of volume decreases during the
+deflation of a vesicle at different deflation rates; blue 10 nm3 ns−1, red 10 000 nm3 ns−1. Snapshots show the vesicle shape and normal and tangential velocities (colour map and arrows respectively) for the different deflation rates.
+et al. 2015). Here, we simulate the effect of a hyper-osmotic shock by decreasing the enclosed volume at different deflation rates. We start with the equilibrium shape of the previous example using the finest mesh (figure 9-0), and apply a deflation rate
+of 10 nm3 ns−1. In a plot comparing the elastic energy stored during deflation (blue curve in figure 9), we observe a linear dependence. In fact, at this small deflation rate, the shape of the vesicle (figure 9c,d) closely follows a sequence of equilibrium prolate shapes for the given area and volume (Feng & Klug 2006). We observe, however, a small fluctuation of normal and tangential velocities at the equator of the vesicle, a signature of a non-equilibrium symmetry-breaking process. These deviations from axisymmetry become more noticeable at higher deflation rates. For a deflation
+rate of 10 000 nm3 ns−1, we observe that the shape dynamics strongly deviates from the quasi-equilibrium path and velocity variations disturbing axisymmetry are very pronounced (see figure 9a,b). In agreement with this, we observe that the energy stored during this faster deflation is now higher. The viscous dissipation of the lipid membrane becomes increasingly dominant as deflation rate increases, and imposes a dynamical confinement to the elastic membrane, causing it to transiently buckle and break symmetry.
+5.2. Lipid bilayers: Seifert–Langer model
+In this section we examine the response of the Seifert–Langer model to monolayer density imbalances, which may arise from chemical perturbations. Membranes in cells and organelles are often exposed to changes in their local lipid density. Proteins and other membrane inclusions, such as polymers, can insert in the membrane and locally change the lipid packing (Tsafrir et al. 2003; Shibata et al. 2009). Disturbances in the local chemical environment, such as pH (Khalifat et al. 2008; Fournier et al. 2009), can also alter lipid packing. Changes in the local density can occur asymmetrically, affecting only one of the two monolayers. Local density perturbations lead to transient dynamics, where lipid flows and shape changes are tightly coupled and dictated by the interplay between stretching, bending, shear and inter-monolayer friction. Thus, these processes constitute an excellent example of application of our theoretical
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+246 A. Torres-Sánchez, D. Millán and M. Arroyo
+and computational framework. Furthermore, these processes have been previously examined under the assumption of axisymmetry (Rahimi & Arroyo 2012), which can be used as a reference to verify our numerical procedure.
+We examine deflated spheroidal prolate vesicles, with a reduced volume v =
+(3√4πV)/S3/2 < 1, initially at equilibrium, to which we apply a density disturbance. To prepare the initial state, we first minimize the Helfrich energy for the given reduced volume to obtain a prolate shape. Then, we initialize the lipid densities on each monolayer close to their equilibrium state for the given shape, i.e. satisfying
+ρ± = ρ0(1 ∓ dH). To perturb the initial density profiles, we add a localized perturbation
+δρ± = δρ ̆±(1 ∓ dH), where δρ ̆± = δρ ̆±
+m f (θ , φ) is the perturbation of the densities at the
+neutral surfaces of each monolayer, δρ ̆±
+m is the maximum value of the perturbation
+at the outer and inner monolayers respectively and f (θ , φ) is a function with values from 0 to 1 of the angles (θ, φ) of a set of spherical coordinates adapted to the prolate shape. Following Dimova et al. (2006), Rahimi & Arroyo (2012), we choose
+κ = 10−19 J, kS = 5 × 10−2 J m−2, bI = 109 J s m−4, μ = 5 × 10−10 J s m−2 and
+the dilatational viscosity λ = 0 (this parameter seems to play a minor role in the dynamics).
+Example 1: relaxation dynamics of a density disturbance in an axisymmetric vesicle of 200 nm. To compare with Rahimi & Arroyo (2012), we start by examining a
+small vesicle (R = 200 nm) with a reduced volume v = 0.99, to which we apply
+a disturbance of 5 % in the outer monolayer, δρ ̆+
+m /ρ0 = 5 %, with a distribution
+f (θ ) = tanh((w − θ)/π), where w = π/10 controls the width of the disturbance. We show some snapshots of the dynamics along with the time evolution of the dissipation and the main energy contributions, see figure 10. Again, the total energy F decays with time (figure 10a), as expected. Furthermore, from figure 10(b) we observe that the largest energetic component is FH, the Helfrich energy. However, it does not play a significant role in this problem since its variation is very small. Instead, we observe that the relaxation of the stretching energy in the upper monolayer, which transiently increases that of the lower monolayer, is the main driver of the dynamics (see figure 10b). The local density asymmetry results in a small but noticeable shape change (snapshot III), whose signature can be seen in the curvature energy. Note that, given the versatility of subdivision surfaces to deal with meshes of arbitrary connectivity, we have used a surface mesh with a much higher resolution at the pole where the density disturbance is imposed, see figure 10(c). This dynamics can be rationalized introducing several time scales for this model following Rahimi & Arroyo (2012). Gradients of the average density relax with a time
+scale given by t4 = μ/kS, as they are driven by stretching energy and dragged by shear
+dissipation. This time scale is size independent, and usually very fast, t4 ≈ 10 ns for our choice of model parameters. Gradients of density differences between monolayers are also penalized by the stretching energy but can relax by inter-monolayer slippage,
+introducing an effective diffusivity D = kS/bI (Evans & Yeung 1994), which results
+in a time scale t1 = S ̄/D = S ̄bI/kS where S ̄ is the area of the density disturbance. However, density differences can also relax by curving the membrane with a time
+scale given by t2 = √S ̄μ/(kSd). For the 200 nm vesicle, we find that t1 ≈ 0.151 ms and
+t2 ≈ 1 μs. All these time scales are apparent in figure 10(a) and highlight the dramatic gap between time scales in this model, which need to be resolved by the simulations. To address this challenge, we adapt the time step as shown in figure 10(d), with time steps spanning six orders of magnitude, from 0.1 ns to 0.1 ms. To adapt the time step we follow the following prescription: if Newton’s method is solved less than NS steps, with NS given initially (usually a number between 4
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 247
+26
+28
+30
+32
+I
+I II III IV
+II
+III
+IV
+34
+t4 t2 t1
+10-1 101 103 t (ns)
+105 107 10-1 101 103
+t (ns)
+105 107
+0
+0.2
+Dissipation rate
+(÷ 10-10 J s-1)
+Energy (÷ 10-19 J)
+Energy (÷ 10-19 J)
+0.4
+0.6
+0
+5
+10
+15
+20
+25
+Helfrich energy Stretching energy upper Stretching energy lower
+30
+(a) (b) (c)
+(d)
+(e)
+(f)
+(g)
+10-1
+101
+103
+105
+0 100 200 Time step
+Ît (ns)
+Energy
+discrepancy (%)
+Inner monolayer Outer monolayer
+Density disturbance
+Density disturbance
+-5 % 5 %
+-25 % 25 %
+Error in mass (% ÷10-3)
+conservation
+t (ns)
+t (ns)
+300
+0 20
+10-1 101 103 105 107
+40 60 80 100
+0.02
+0.04
+0.06
+0.08
+0 -2 -4
+-6 Upper monolayer Lower monolayer
+-8
+FIGURE 10. (Colour online) Relaxation dynamics of a density perturbation on the outer
+monolayer of a small vesicle of R = 200 nm with δρ ̆+
+m = 5 %. (a) Energy (blue) and
+dissipation (green) along the time evolution of the system. Note that the x−axis is in log scale to enhance the different time scales in the problem. The different scales of the system t1, t2 and t4 (see main text) are depicted for comparison. (b) Time evolution of the different energies of the problem. (I–IV) show snapshots of the shape and the densities of outer and inner monolayers at different stages of the dynamics. (c) Mesh used for the simulations with a much higher resolution at the pole where the density disturbance is imposed. (d) Time evolution of the time step. (e) Energy discrepancy when comparing our time-adaptive simulations with one with fixed and very small time step for the first 100 ns of dynamics. ( f ) Time evolution of the relative error in total mass conservation. (g) Snapshots of the shape and the density of outer monolayer at different stages of the relaxation dynamics of the same vesicle in a non-axisymmetric set-up and with an initial
+density disturbance of δρ ̆+
+m = 25 %.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+248 A. Torres-Sánchez, D. Millán and M. Arroyo
+and 6), we increase 1tn+1 = f 1tn with f a scaling factor greater than 1. If, however,
+Newton’s method does not converge in NS steps, we reduce 1tn+1 as 1tn+1 = 1tn/f . This adaptive time-stepping algorithm allows us to perform the simulation in less than 300 time steps, whereas a fixed time-step algorithm with the required initial resolution would need 10 million of time steps. To show that the dynamics is not affected by the adaptive time stepping, we plot the difference in the total energy between a simulation
+with a fixed and very small time step (1t = 0.1 ns) and the simulation with the adaptive time stepping for the first 100 ns of dynamics, which shows a difference smaller than 0.1 % (figure 10e). Another important aspect of the numerical method is the conservation of mass. Conservation of the total mass depends on the local mass conservation imposed weakly. The time evolution of the relative error in total mass
+for the outer and inner monolayers in figure 10( f ) shows errors smaller than 10−2 %. To further show the versatility of the numerical method, we examine the relaxation
+dynamics of this vesicle for a larger density disturbance, δρ+
+m = 25 %, not aligned with the axis of symmetry axis of the prolate vesicle (see figure 10g and movie 2). The relaxation of the system is qualitatively similar, now with larger amplitude and nonaxisymmetric shape and density dynamics.
+Example 2: relaxation dynamics of a density disturbance in an initially axisymmetric
+2 micron vesicle. We consider a vesicle of R = 2 μm with δρ ̆+
+m /ρ0 = 5 %. For this size, the stretching energy becomes even more dominant than for the 200 nm vesicle since the relative influence between the different energetic components is highly size dependent. As a result, the 2 μm vesicle develops a large bulge that affects the shape of the whole vesicle and exhibits a stretching energy 20-fold larger than the Helfrich
+energy (see figure 11). The time scales associated with this problem are t1 ≈ 15 ms
+and t2 ≈ 10 μs, with t4 = 20 ns as before. In agreement with these time scales, we observe the first energy decrease in a scale comparable with t4, and a total duration of the relaxation dynamics of 10 ms, similar to t1. In figure 11(b) we plot the different dissipation contributions, shear viscosity and inter-monolayer friction. This plot shows that, during the initial equilibration of the total density and during the bulge formation, shear dissipation dominates. However, at later stages, density differences relax through inter-monolayer slippage. In this time-adaptive simulation, the smallest and largest time steps differ by 7 orders of magnitude. Interestingly, in the initial stages of the bulge formation (figure 11III), we observe a transient local buckling pattern at the edge of the bulge, presumably caused by a transient and local compression in a large enough region compared to the Föppl–von
+Kármán length scale lFvK = √κ/σ ≈ 5 nm, where we estimate σ = kS((ρ±/ρ0)2 − 1) ≈
+10−2 J m−2 for ρ± = 1.05ρ0. To examine this phenomenon further, we zoom in the interval when the pattern forms, see figure 11VII–XI and (c). After the pattern has formed, the amplitude of the bulge continues to increase, and the oscillatory deformation pattern progressively disappears. The rest of the dynamics is similar to that obtained by previous axisymmetric calculations (Rahimi & Arroyo 2012). To further test the stability of our scheme, we used a finer mesh and found the same dynamics; fluctuations develop with the same length scale, suggesting that this transient buckling is a physical outcome of the model rather than an instability of the method. Our model lacks the dissipative forces induced by the bulk medium, which may modify this buckling-induced transient pattern formation. The size of the
+disturbance, however, is a bit smaller than the Saffman–Delbrück length, lSD = 5 μm, and therefore bulk dissipation should not play a dominant role (Saffman & Delbrück 1975; Arroyo & DeSimone 2009). A similar transient instability has been observed experimentally in vesicles subject to a local compression generated by a flow field (Kantsler, Segre & Steinberg 2007).
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 249
+0
+200
+400
+t2
+t1
+t4
+I
+II
+III IV
+V VI
+VII
+VII
+I III IV V VI
+VIII IX X XI
+VIII IX
+X
+XI
+600 Helfrich energy Shear dissipation
+Intermonolayer friction
+Stretching energy upper Stretching energy lower
+800
+(a) (b) (c)
+Energy (÷ 10-19 J)
+Dissipation rate
+(÷ 10-10 J s-1)
+t (ns)
+10-4 100 104 108 t (ns)
+10-4 100 104 108 t (ns)
+101
+405
+415
+425
+Energy (÷ 10-19 J)
+Dissipation rate
+(÷ 10-10 J s-1)
+435
+102 103 104
+100
+10-4
+10-8
+10-12
+Density disturbance (%) -5 5
+0
+0.2
+0.4
+0.6
+0.8
+1.0
+FIGURE 11. (Colour online) Relaxation dynamics of a density perturbation on the outer
+monolayer of a vesicle of R = 2 μm with δρ ̆+
+m = 5 %. (a) Time evolution of the different energies of the problem. (b) Time evolution of the different sources of dissipation of the problem. (I–IV) show snapshots of the shape and the density of outer monolayer at different stages of the dynamics. (c) Zoom of energy and dissipation as a function of time during the period when the pattern forms. (VII) and (VIII) show the velocity field with arrows at the onset of the pattern formation. After the pattern has formed, the bulge continues growing (IX) and (X). Finally, the wrinkles associated with the pattern smoothly disappear (XI).
+5.3. The cell cortex: a viscous layer driven by active tension
+The elementary model of the actomyosin cortex introduced in § 3.3 exhibits a nontrivial phenomenology and reproduces to a large extent the mechanics of cells in different processes, such as during cytokinesis (Turlier et al. 2014). Here, we focus on the ability of this model to describe adhesion-independent cell migration. During this kind of migration cells develop a persistent cortical flow from the front to the rear of the cell that propel the cell forward by unspecific friction under confinement (Bergert et al. 2015; Ruprecht et al. 2015), see figure 12(a). Adhesion-independent locomotion plays a major role in three-dimensional cell migration through the extracellular matrix or in confined environments (Poincloux et al. 2011; Liu et al. 2015). Adhesion-independent migration raises several questions. First, what is the mechanism by which cells acquire such a polarized state? Second, how can this flow be made persistent to allow for a self-sustained motion? And, how does the tight interplay between interfacial flows on the cortex and cell shape changes manifest itself during this process? Several models based on the theory of active gels have been developed over the past decade to try to answer these questions (Hawkins et al. 2011; Callan-Jones & Voituriez 2013). In these models, myosin-mediated contraction of the cell cortex is identified as the main driver of the self-polarization. In particular,
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+250 A. Torres-Sánchez, D. Millán and M. Arroyo
+Cortical flow
+(a) (b)
+Net
+velocity
+Self-polarized state
+Tension fluctuation generates flow reinforcing tension gradient
+Thickness
+gradient
+FIGURE 12. (Colour online) (a) In adhesion-independent migration, confined cells develop a self-sustained cortical flow. By friction with the surroundings, here friction with the confining plates, the cell migrates in a direction opposite to the gradient of tension. (b) An initial fluctuation in myosin activity or a density disturbance can trigger a cortical flow, which in turn reinforces the gradient in tension. This leads to a self-polarized state in which a steady state flow is maintained.
+a spatial fluctuation in myosin activity can lead to a tension gradient in the cortex. This tension gradient triggers cortical flows, which further reinforce the gradient of tension, see figure 12(b). This mechanism works against actin turnover, which tries to homogenize the system. Thus, adhesion-independent migration depends on the competition between myosin activity and actin turnover. Most of previous models rely on simple one-dimensional or fixed-shape assumptions that cannot address the effect of shape in locomotion. Recently, Callan-Jones et al. (2016) studied the shape transformations that cells suffer during migration, but this work is restricted to small deformations around a sphere. Here, we present, to our best knowledge, the first numerical results of a fully three-dimensional and nonlinear model connecting cortical flows and cell shape dynamics during locomotion. This work opens the door to a more systematic study of adhesion-independent migration in the future. A critical ingredient controlling the formation of a self-polarized cortical flow is contractile activity, which is described by the function ξ (ρ) in our model. If this function is constant, as assumed in previous works (Turlier et al. 2014), then the active tension is proportional to cortical thickness, γ = ξ0ρ. In this case, the positive feedback illustrated in figure 12(b) leads to an instability with unbounded actin accumulation at the rear of the cell. Recently, Chugh et al. (2017) found that active tension does not depend monotonically on cortical density in general. Along these lines, here we model the dependence of specific contractility on cortical thickness as
+ξ (ρ) = ξ0
+[
+1− 1
+3
+(ρ
+ωρ0
+)2]
+, (5.1)
+where ξ0 measures a basal myosin activity and ω characterizes its dependence with cortex thickness. This leads to an active tension
+γ (ρ) = ξ (ρ)ρ = ξ0
+[
+ρ − ωρ0
+3
+(ρ
+ωρ0
+)3]
+, (5.2)
+which has a maximum at ρ = ωρ0; at steady state γ0 = γ (ρ0) = ξρ0(1 − 1/3ω2). We note that the second term in the active tension looks very similar to the osmotic contribution introduced by Callan-Jones & Voituriez (2013) to stabilize the dynamics of polarization.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 251
+Following the experimental work by Ruprecht et al. (2015), we examine the migration of cells confined between two plates. To represent this confinement
+mathematically, we introduce a free energy contribution of the form Fc = ∫
+Γt U(z) dS
+where z is a coordinate perpendicular to the plates, and U(z) is a repulsive potential modelling contact with the plates and given by
+U(z) =
+
+
+
+0 if |z| < h/2,
+Kc
+3
+( |z| − h/2
+δc
+)3
+if |z| > h/2, (5.3)
+with Kc and δc characterizing the strength and the width of the repulsive interaction respectively.
+We consider a cell of radius R = 5 μm and material parameters obtained from
+the literature; ρ0 = 500 nm (Clark, Dierkes & Paluch 2013), μ = 10 kPa s (Bergert
+et al. 2015), τ = 10 s (Fritzsche et al. 2013), ξ0 = 1–10 kPa (Chugh et al. 2017).
+We also choose ω = 2√3/3. We first compress the cell between the plates by setting
+h = 8 μm and let the system relax. To drive the cortex out of the unpolarized steady state, we perturb the system with a gradient in density of 1 % in the x
+direction, see figure 13(a) left. If contractility is low, ξ0 = 1 kPa, the induced tension difference is not high enough to overcome cortical turnover and the system quickly relaxes to the unpolarized state, see figure 13(a) top right. If contractility is higher,
+ξ0 = 10 kPa, the cortical flow generated by the activity gradient overcomes turnover, and the cell becomes self-polarized with a sustained cortical flow and a significant shape change, see figure 13 bottom right. Our ALE method is able to describe such shape changes without remeshing, see figure 13(b). More importantly, the mesh is unaffected by the constant flow of actin from the front to the rear of the cell. In a Lagrangian framework, such a polarized steady state would continuously distort the mesh, requiring very frequent remeshing. Since tension is not a monotonic function of cortical thickness, it exhibits a maximum between the front and the rear of the cell, see figure 13(c). For self-polarization to lead to migration, we introduce a frictional interaction with the confining plates. To represent unspecific friction, we introduce the dissipation potential
+Dc =
+∫
+Γt
+ηcU′(z)
+2 [V2
+x + V2
+y ] dS, (5.4)
+where ηc measures friction with the plates and U′(z) identifies the pressure exerted by the cell on the plates. This pressure is equal to the internal pressure of the cell,
+P ≈ 0.3 kPa in our simulations, which is essentially determined by the radius of the cell and its surface tension. Resorting to experimental measurements of the product
+of ηcP = 1–104 kPa s m−1 on somewhat larger cells (Bergert et al. 2015), we choose
+ηc = 600 s m−1. We note, however, that our results are largely independent of the magnitude of the friction coefficient because we do not consider a hydrodynamical resistive force in the relatively unconfined situation of cell motion between parallel plates (Noselli et al. 2019). Including friction, the simulations in the high contractility
+case, ξ0 = 10 kPa, capture the migration induced by self-polarization, see figure 14 and movie 3. Our simulations show that friction introduced a very small perturbation in the polarized state (data not shown). To computationally deal with cell migration, we consider the following ALE parametrization
+ψ(ξ1, ξ2; t) = ψ0(ξ1, ξ2) + h(t)M(ξ1, ξ2) + R(t), (5.5)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+252 A. Torres-Sánchez, D. Millán and M. Arroyo
+-75 % +75 %
+0
+(a) (b)
+(c)
+Thickness disturbance
+≈0 =1 kPa
+≈0 = 10 kPa
+≈0 = 10 kPa
+-66 %
+©0
+©
++66 %
+Initial
+thickness
+gradient
+0 ↔ 0.5 μm min-1
+FIGURE 13. (Colour online) (a) An initial thickness gradient (left) can be homogenized
+due to turnover for low tension (ξ0 = 1 kPa, right top) or can lead to a sustained self
+polarized steady state for higher tension (ξ0 = 10 kPa, right bottom). Thickness is depicted with a colour map, whereas velocity is shown with arrows. (b) The ALE mesh is able to cope with this kind of directed flow without remeshing, which would continuously distort any Lagrangian mesh and require frequent remeshing operations. (c) Active tension profile
+for a self-polarized cell (ξ0 = 10 kPa). Since tension is a non-monotonic function of actin density, it has a maximum between the front and the rear of the cell.
+where we impose zero net displacement due to the offset, ∫
+Γt h(t)M dS = 0, and
+incorporate a rigid body translation R(t) as an unknown. In conclusion, our theoretical and computational framework allows us to formulate and simulate thin and curved active gels with high generality. We have illustrated that this approach can be used to examine systematically adhesion-independent cell migration under confinement. Remarkably, our ALE formulation allows us to deal with the sustained cortical flows of the polarized state and with the shape changes that the cell experiences during self-polarization and confinement.
+6. Summary, discussion and future work
+We have introduced a novel theoretical and computational framework to model and simulate fluid surfaces. Fluid surfaces are a common motif in cell and tissue biology. Thanks to increasingly quantitative biophysical experiments, there is a growing need for accurate theoretical predictions. Yet, modelling these systems requires overcoming significant theoretical and computational challenges, which we have addressed in this work. First, based on time-evolving parametrizations, we have rigorously extended the notion of ALE methods to fluid surfaces. We have also used Onsager’s formalism, a general variational framework for the dissipative dynamics of soft-matter systems, to derive thermodynamically consistent models of fluid surfaces coupling multiple physics in a fully geometrically nonlinear manner. From a numerical perspective, we have proposed a new framework for the simulation of fluid surfaces based on a variational and nonlinearly stable time integrator rooted in Onsager’s variational formalism, allowing us to bridge time scales over seven decades, and on a combination of subdivision and linear finite elements.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 253
+0 ↔ 0.5 μm min-1
+3D view
+(a)
+(b)
+(c)
+(d)
+Side view
+10 μm
+0 ↔ 0.5 μm min-1
+Cortical thickness 1:1 (μm)
+-75 % +75 %
+0
+Thickness disturbance
+FIGURE 14. (Colour online) With friction with the plates, the cell is able to crawl. On the left, we show a three-dimensional viewpoint of cell locomotion, with thickness shown in colour map, and velocity shown with arrows. On the right, we show a side view of
+the motion, with cortical thickness depicted in light red in 1 : 1 scale.
+We have applied the previous theoretical and numerical methods to derive the governing equations and simulate the dynamics of canonical models of fluid surfaces with unprecedented generality (in three dimensions, for general shapes and accounting for full geometric nonlinearity). Here, we have studied simply connected surfaces, but with the approach in Torres-Sánchez et al. (2019) to represent tangential vector fields, the present framework can deal with surfaces of general topology. We have first studied the dynamics of lipid bilayers in a number of interesting assays, including membrane relaxation, deflation due to osmotic shocks or perturbations due to density disturbances. Our framework opens new possibilities in the study of shape pattern formation under dynamical changes in lateral strain or osmotic conditions in supported membranes (Staykova et al. 2013) beyond axisymmetry, relevant to cell membrane mechano-adaptation (Kosmalska et al. 2015). Our method could also be useful to understand the effective rheology of a bilayer populated by transmembrane proteins, limiting inter-monolayer slippage in a heterogeneous manner, which could explain the unexpected and highly viscous behaviour of complex biomembranes (Campillo et al. 2013), or coupled to additional fields describing the concentration of membrane proteins to understand the dynamics of curvature sensing and generation (see (Baumgart et al. 2011; Arroyo et al. 2018) and references therein). While interfacial hydrodynamics is dominant at length scales smaller than the Saffman–Delbrück length, the bulk hydrodynamics may be a relevant ingredient in processes involving larger scales. Including the bulk hydrodynamics is straightforward conceptually, but requires specialized computational methods, such as immersed boundary methods (Liu et al. 2006) or dynamically body-fitted triangulations (Rangarajan, Kabaria & Lew 2019). We have also applied our methodology to model and simulate the cell cortex. Our model is based on a viscous isotropic fluid layer, which is able to reproduce a number
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+254 A. Torres-Sánchez, D. Millán and M. Arroyo
+of rheological experiments and could be employed to infer material parameters in conjunction with experiments (Torres-Sánchez 2017). Here, we have shown that our model is capable of reproducing adhesion-independent cell migration. Our simulations show how our ALE method can deal with the shape transformations that cells experience during migration and at the same time it can withstand steady flows from the front to the rear of the cell during migration. While our model for the cortex can reproduce a number of cellular behaviours, it is insufficient to reproduce phenomena where the transient elastic behaviour of the cortex becomes important, e.g. during laser ablation (Saha et al. 2016), or situations in which the orientational order of actin filaments becomes relevant (Reymann et al. 2016). This would require introducing tensorial fields on the surface (Nestler et al. 2018). Furthermore, a more detailed mechano-chemical model of activity, the explicit treatment of the cytosol, and models capable of spontaneously producing polarization would provide a more complete understanding of the mechanics of the cortex. These and other extensions of the active gel model presented here are enabled by the theoretical and computational tools introduced here.
+Acknowledgements
+We acknowledge the support of the European Research Council (CoG-681434), the European Commission (project H2020-FETPROACT-01-2016-731957), the Spanish Ministry of Economy and Competitiveness/FEDER (DPI2015-71789-R to M.A. and BES-2012-05489 to A.T.-S.) and the Generalitat de Catalunya (SGR-1471, ICREA Academia award to M.A.). We also thank N. Walani, S. Kale and D. Santos-Oliván for useful discussions.
+Supplementary movies
+Supplementary movies are available at https://doi.org/10.1017/jfm.2019.341.
+Appendix A. Relation between Lagrangian and ALE velocities
+V = ∂tφ ◦ φ−1 = ∂t(ψ ◦ ψ −1 ◦ φ) ◦ φ−1 = ∂t(ψ ◦ θ ) ◦ φ−1 = ∂tψ ◦ θ ◦ φ−1 + [(Dψ) ◦ θ ◦ φ−1][∂tθ ◦ φ−1] = ∂tψ ◦ ψ−1 + [(Dψ) ◦ ψ−1][ ̄c ◦ φ−1] = W + [(Dψ) ◦ ψ−1][c ̃ ◦ θ ◦ φ−1] = W + [(Dψ) ◦ ψ−1][c ̃ ◦ ψ−1] = W + [(Dψ)c ̃] ◦ ψ−1 = W + ψ∗  ̃c = W + c. (A 1)
+Appendix B. Relation between Lagrangian and ALE time derivatives
+Dtf = ∂tf ̄ ◦ φ−1 = ∂t(f ̃ ◦ θ ) ◦ φ−1 = ∂tf ̃ ◦ θ ◦ φ−1 + [Df ̃ ◦ θ ◦ φ−1][∂tθ ◦ φ−1] = LWf + [Df ̃ ◦ ψ−1][c ̄ ◦ φ−1] = LWf + [Df ̃ ◦ ψ−1][ ̃c ◦ θ ◦ φ−1]
+= LWf + [Df ̃ ◦ ψ−1][ ̃c ◦ ψ−1] = LWf + [Df ̃  ̃c] ◦ ψ−1 = LWf + ∇f · c. (B 1)
+Here we identify [Df ̃  ̃c] ◦ ψ−1 as the pull-back of ∇f · c, where ∇f is the surface gradient of f .
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 255
+Appendix C. Rate-of-deformation tensor
+Let us consider two curves in the parametric domain Γ ̄ , given by α ̄ (λ) : [−1, 1] → Γ ̄
+and β ̄(λ) : [−1, 1] → Γ ̄ , that cross at λ = 0, and the image of these curves φ (a
+Lagrangian parametrization), α(λ, t) = φ(α ̄ (λ), t) and β(λ, t) = φ(β ̄(λ), t). The length of α (and equivalently of β) is given by the functional
+`[α] =
+∫1
+−1
+|∂λα| dλ, (C 1)
+where |v| = √v · v is the norm of v. The angle θ between curves α and β at their point of intersection is given by
+cos θ =
+[ ∂λα · ∂λβ |∂λ α ||∂λ β |
+]
+λ=0
+. (C 2)
+The time evolution of the lengths of material curves and the angles between them
+measure how the material deforms. It is interesting to note that the pull-back of g, g ̄ =
+φ∗g, induces a time-dependent scalar product on Γ ̄ that allows us to compute products
+of deformed vectors from their time-independent description on Γ ̄ . For instance, one can easily see that
+(∂λα · ∂λβ)λ=0 = [(g ◦ α)(∂λα, ∂λβ)]λ=0 = [(g ̄ ◦ α ̄ )(α ̄ ′, β ̄′)]λ=0, (C 3)
+where the notation g(·, ·) denotes the application of the two-covariant tensor g as a bilinear form. Equivalently,
+|∂λα| = √(g ̄ ◦ α ̄ )(α ̄ ′, α ̄ ′). (C 4)
+Thus, scalar products, lengths and angles of material curves on Γt, such as α and β,
+can be measured on Γ ̄ , from the time-independent α ̄ and β ̄, with the time-dependent
+scalar product induced by g ̄ . It is clear from (C 3) and (C 4) that the time dependence
+of these measures of local deformation is completely encoded in g ̄ . We conclude that
+the tensor g ̄ characterizes the deformation of Γt. In continuum mechanics, this tensor is referred to as the (right Cauchy–Green) deformation tensor and is generally denoted
+by C. The time derivative of this tensor defines a new tensor over Γ ̄
+d ̄ = 1
+2 ∂t g ̄ , (C 5)
+where the 1/2 is introduced here to follow the usual convention. The push-forward of this tensor to Γt by φ defines the so-called rate-of-deformation tensor,
+d=1
+2 φt∗∂t g ̄ = 1
+2 φt∗∂t(φ∗g) = 1
+2 LVg, (C 6)
+where we recognize again the structure of a Lie derivative, this time applied to the metric tensor. The rate of change of the scalar product can then be written as
+d
+dt (∂λα · ∂λβ)
+∣ ∣ ∣
+∣λ=0
+= 2[(d ◦ α)(∂λα, ∂λβ)]λ=0, (C 7)
+and the rate of change of the norm as
+[d
+dt |∂λα|
+]
+=1
+|∂λα| (d ◦ α)(∂λα, ∂λα). (C 8)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+256 A. Torres-Sánchez, D. Millán and M. Arroyo
+Thus, the rate of change of local deformation of Γt is encoded in d. To obtain the
+form d in terms of V, let us consider the components of g ̄ , which coincide with those
+of g in the convected basis by φ given by the tangent vectors ea = ∂aφ, a = 1, 2
+[g ̄ ]ab(ξ ) = gab ◦ φt(ξ ) = ∂aφt · ∂bφt. (C 9)
+Then, we have
+[LVg]ab = ∂tg ̄ ab ◦ φ−1 = [∂t∂aφ ◦ φ−1
+t · eb + ea · ∂t∂bφ ◦ φ−1
+t] = [∂a[(v + vnN) ◦ φt] ◦ φ−1
+t · eb + ea · ∂a[(v + vnN) ◦ φt] ◦ φ−1
+t]
+=
+∇avb + ∇bva − 2vnkab, (C 10)
+where we have used the commutativity of partial derivatives, the definition of covariant derivative
+∇avb = ∂a(v ◦ φt) ◦ φ−1
+t · eb, (C 11)
+the orthogonality of N to the tangent space of Γt ea · N = 0, and the definition of the second fundamental form (2.15). Using these results, we recover the expression for the rate-of-deformation tensor in (2.14).
+Appendix D. Weak form of an inextensible monolayer with bending rigidity
+To derive the weak form of the problem, we rewrite the material time derivative of the free energy (3.5) as
+DtFH[φ; V] =
+∫
+Γt
+κ
+{−H1vn + ( 1
+2 H2 − kabkab) Hvn + ∇a
+(1
+2 κH2va)} dS
+=
+∫
+Γt
+κ
+{−1H + ( 1
+2 H2 − kabkab) H} vn dS
++
+∫
+Γt
+{
+∇a
+[H (kab − 1
+2 gabH)] − ∇aHkab} vb dS
+=
+∫
+Γt
+κ
+{[−∇a
+[H ( 1
+2 gabH − kab)] − ∇aHkab] eb
++
+[1H − H ( 1
+2 Hgab − kab) kab
+] N}
+· V dS, (D 1)
+where we have used that ∇aHgab = ∇akab, that
+∇a( 1
+2H2va) = 1
+2H2∇ava + vaH∇aH = 1
+2 H2∇ava + vbH∇akab
+=
+1
+2 H2∇ava + ∇a(Hkabvb) − Hkab∇avb − vb∇aHkab
+= H(1
+2 gabH − kab)∇avb − vb∇aHkab + ∇a(Hkabvb)
+= −∇a[H( 1
+2 gabH − kab)]vb − vb∇aHkab + ∇a(Hkabvb)
++
+∇a(H( 1
+2 gabH − kab)vb) (D 2)
+and taken into account that the last two terms are null Lagrangians. Thus, variations of the velocity field around the solution V of the form V + U lead to
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 257
+δU{DtFH[φ; V]} =
+∫
+Γt
+κ
+{[−∇a
+[H ( 1
+2 gabH − kab)] − ∇aHkab] eb
++
+[1H − H ( 1
+2 Hgab − kab) kab
+] N}
+· U dS. (D 3)
+Equivalently, taking variations of the dissipation potential (3.2), we get
+δUDS[φ; V] =
+∫
+Γt
+2μdab{∇aub − unkab} dS
+=−
+∫
+Γt
+2μ∇adabub dS −
+∫
+Γt
+2μd abunkab dS
+=−
+∫
+Γt
+2μ{∇adabeb + μdabkabN} · U dS, (D 4)
+where, again, we have set to zero null Lagrangians. Variations of the inextensibility constraint result in
+δU
+∫
+Γt
+γ tr d dS =
+∫
+Γt
+γ (∇aua − unH) dS = −
+∫
+Γt
+(∇aγ ea + γ gabkabN) · U dS. (D 5)
+Finally, the last two terms have trivial variations
+δU
+∫
+Γt
+PN · V dS =
+∫
+Γt
+PU · N dS, (D 6)
+and
+δUP[φ; V] = −
+∫
+Γt
+F · U dS. (D 7)
+Collecting all these variations, we have the following statement of stationarity
+0 = δUL =
+∫
+Γt
+{−F + [−∇a
+[H ( 1
+2 gabH + kab) + 2μd ab + γ gab] − ∇aHkab] eb
++
+[
+∇a∇bHgab − [H ( 1
+2 Hgab − kab) + 2μdab + γ gab] kab − P] N}
+· U dS
+=−
+∫
+Γt
+{
+∇aΣa + B} · U dS, (D 8)
+which should hold for all admissible variations U, where
+∇aΣ a = (∇aσ ab − ka
+bσ a
+n )eb + (σ abkab + ∇aσ a
+n )N, (D 9)
+from where one can identify
+Σ a = σ abeb + σ a
+n N, (D 10)
+with
+σ ab = κH( 1
+2 Hgab − kab) + 2μdab + γ gab, (D 11)
+and
+σa
+n = −κgab∇bH. (D 12)
+Finally,
+B = F + PN. (D 13)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+258 A. Torres-Sánchez, D. Millán and M. Arroyo
+Appendix E. Weak form of the three-dimensional nonlinear Seifert–Langer model
+In this case, we focus on the stretching energy, dilatation dissipation and inter-monolayer friction, since the rest of terms were already derived for an inextensible monolayer (see appendix D). The rate of change of the stretching energy is
+DtFS[χ ; ρ±; vn, v±]
+=
+∫
+Γt
+kS
+
+  
+  
+[ρ±(1 ± dH) − 1] ×
+
+  
+(1 ± dH)
+
+
+1
+{ }} {
+−
+∇ · (ρ±v±) +
+2
+{ }} {
+ρ±vnH
+
+
+3
+{ }} {
+±dρ±(1vn + kabkabvn) − 1
+2 (ρ±(1 ± dH) − 1)vnH
+} {{ }
+4
+
+  
++1
+2 ∇ · ([ρ±(1 ± dH) − 1]2v±)
+} {{ }
+5
+
+  
+  
+dS. (E 1)
+Accounting for multiplicative factors, term 1 leads to
+−
+∇ · (ρ±v±)[ρ±(1 ± dH) − 1](1 ± dH) = −(1 ± dH)[ρ±(1 ± dH) − 1]∇ρ± · v± − (1 ± dH)[ρ±(1 ± dH) − 1]ρ±∇ · v±,
+(E 2)
+and term 5 to
+1
+2 ∇ · ([ρ±(1 ± dH) − 1]2v±) = (1 ± dH)[ρ±(1 ± dH) − 1]∇ρ± · v±
+± ρ±d[ρ±(1 ± dH) − 1]∇H · v± +
+1
+2 [ρ±(1 ± dH) − 1]2∇ · v±. (E 3)
+Summing them, we note that their first terms cancel out with each other. Rearranging the last terms, we get
+1
+2 [1 − [ρ±(1 ± dH)]2]∇ · v± ± ρ±d[ρ±(1 ± dH) − 1]∇H · v± =
+1
+2 [1 − [ρ±(1 ± dH)]2]∇ · v± ∓ k∇{ρ±d[ρ±(1 ± dH) − 1]}v±
+∓ ρ±d[ρ±(1 ± dH) − 1]k : ∇v±, (E 4)
+plus null Lagrangians, which we neglect for the sake of simplicity since we are dealing with a closed surface. Let us define the stress tensors
+(σ ±
+S )ab = (σ ±
+S1 )ab + (σ ±
+S2 )ab, (E 5)
+(σ ±
+S1 )ab = 1
+2 kS[1 − [ρ±(1 ± dH)]2]gab, (E 6)
+(σ ±
+S2 )ab = ∓kSρ±d[ρ±(1 ± dH) − 1]kab, (E 7)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 259
+and the normal stress vector
+(σ ±
+Sn)a = ∓kS∇b{gabρ±d[ρ±(1 ± dH) − 1]}
+= −kS{±gab∇bρ±d[ρ±(1 ± dH) − 1] ± gabρ±d∇bρ±(1 ± dH) + gab(ρ±d)2∇bH} = −kS{gabd[2ρ±(1 ± dH) − 1]∇bρ± + gab(ρ±d)2∇bH}. (E 8)
+Then, multiplying equation (E 4) by kS, we get
+σ±
+S : ∇v± + k σSn v±. (E 9)
+Terms 2 plus 4 lead to
+kS{[ρ±(1 ± dH) − 1]ρ±(1 ± dH) − 1
+2 [ρ±(1 ± dH) − 1]2}vnH = −σ ±
+S1 : kvn. (E 10)
+Term 3, neglecting null Lagrangians,
+±kSdρ±(1vn + kabkabvn)[ρ±(1 ± dH) − 1]
+= kS{±∆[ρ±d[ρ±(1 ± dH) − 1]] ± dρ±[ρ±(1 ± dH) − 1]kabkab}vn = −{∇ · σ ±
+Sn + σ ±
+S2 : k}vn. (E 11)
+Altogether, we can write the rate of change of the free energy as
+DtFS[χ ; ρ±; vn, v±] =
+∫
+Γt
+{−[∇ · σ ±
+S − kσ ±
+Sn] · v±
++ [−∇ · σ ±
+Sn − σ ±
+S : k]vn} dS. (E 12)
+Thus,
+δu± {DtFS[χ ; ρ±; vn, v±]} = −
+∫
+Γt
+[
+∇ ·σ±
+S − kσ ±
+Sn] · u± dS, (E 13)
+and
+δun {DtFS[χ ; ρ±; vn, v±]} = −
+∫
+Γt
+[
+∇ ·σ±
+Sn + σ ±
+S : k]un dS. (E 14)
+From variations of the dilatation dissipation potential, we get
+δu± DD[χ ; ρ±; vn, v±] = −
+∫
+Γt
+λ∇ · (tr d±g)u± dS, (E 15)
+and
+δun DD[χ ; ρ±; vn, v±] = −
+∫
+Γt
+λ∇(tr d±g) : kun dS. (E 16)
+Finally, variations of the inter-monolayer friction dissipation potential lead to
+δu± DI[χ ; ρ±; v±] = ±
+∫
+Γt
+bI(v+ − v−) · u± dS. (E 17)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+260 A. Torres-Sánchez, D. Millán and M. Arroyo
+Appendix F. Nonlinear stability of variational time integrators based on Onsager’s principle
+We consider the variational time integrator introduced in § 4.1. Let us now prove
+that, for a homogeneous problem (P(X; V) = 0), the free energy is a Lyapunov functional of the dynamics. We evaluate the Rayleighians
+Rn(Xn; Xn+1) = F (Xn+1)
+1tn + D
+(
+Xn; Xn+1 − Xn
+1tn
+)
+,
+Rn(Xn; Xn) = F (Xn)
+1tn + D(Xn; 0) = F (Xn)
+1tn ,
+
+  
+  
+(F 1)
+where we have used that D(Xn; 0) = 0, as discussed in § 3.1. Since Xn+1 minimizes
+Rn, it is clear that Rn(Xn; Xn+1) − Rn(Xn; Xn) 6 0. Then,
+0 > Rn(Xn; Xn+1) − Rn(Xn; Xn) = F (Xn+1) − F (Xn)
+1tn + D
+(
+Xn; Xn+1 − Xn
+1tn
+)
+> F (Xn+1) − F (Xn)
+1tn , (F 2)
+where we have used that D(Xn; (Xn+1 − Xn)/1tn) is positive. Therefore, we obtain
+F (Xn+1) 6 F (Xn), (F 3)
+which shows that F is a Lyapunov functional of the discrete dynamics.
+When the process operator is not trivial, i.e. ∂tX 6= V, the approach above needs
+to be modified. For those cases, we can keep Vn+1 as the variable of the discrete Onsager’s principle and discretize the process operator in different ways. As a first approach, we can consider a simple forward Euler approximation for the process operator
+∂tX ≈ Xn+1 − Xn
+1tn = Π (Xn)Vn+1 H⇒ Xn+1 = Xn + 1tnΠ (Xn)Vn+1. (F 4)
+We can then rewrite (4.3) as
+F ̇ ≈ F (Xn+1) − F (Xn)
+1tn = F (Xn + 1tnΠ (Xn)Vn+1) − F (Xn)
+1tn . (F 5)
+This approximation still retains the nonlinearity of F and is thus implicit in this sense. We can now define the Rayleighian as
+Rn(Xn; Vn+1) = F (Xn + 1tnΠ (Xn)Vn+1)
+1tn + D(Xn; Vn+1) + P(Xn; Vn+1), (F 6)
+and solve
+Vn+1 = arg min
+V
+Rn(Xn; V). (F 7)
+Finally, we can recover Xn+1 from (F 4). With this simple forward approximation for the process operator, however, the accuracy and stability of the integration can be very limited. As a better alternative, we consider a backward Euler approximation of the process operator, which involves solving
+Xn+1 − Xn − 1tnΠ (Xn+1)Vn+1 = 0, (F 8)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 261
+together with the minimization of the Rayleighian
+Rn(Xn, Xn+1; Vn+1) = F (Xn + 1tnΠ (Xn+1)Vn+1)
+1tn + D(Xn; Vn+1)
++ P(Xn; Vn+1). (F 9)
+That is, one needs to solve the system
+0 = Xn+1 − Xn − 1tnΠ (Xn+1)Vn+1,
+Vn+1 = arg min
+V
+R(Xn, Xn+1; V),
+}
+(F 10)
+for Xn+1 and Vn+1 simultaneously. It is easily shown that with any of these discretizations, F is also a Lyapunov function of the dynamics in the absence of power input, thus retaining the nonlinear stability of the time-discretization scheme.
+Appendix G. Spatial discretization and discrete equations for an inextensible viscous monolayer with bending energy
+G.1. Spatial discretization
+To define the discretization of Γ with subdivision surfaces, we consider a control
+mesh made of triangles or elements, labelled by E = 1, . . . , Ne whose vertices, with
+positions {xI}Nn
+I=1, are called control points. For each triangle in the mesh, we define
+the parametrization ψE(ξ ) : Γ ̃ → R3, with Γ ̃ the reference triangle, as
+ψE(ξ ) = ∑
+I∈〈E〉1
+xI BE
+I (ξ ), (G 1)
+where BE
+I are the subdivision basis function of node I at element E and 〈E〉1 is the first ring of nodes surrounding the element. The atlas of charts formed by such parametrizations in each triangle can be shown to define a C2-continuous surface everywhere except at a finite number of points, the vertices with valence different from 6, where it is C1. Recall the ALE parametrization introduced in § 2.5.1. For the parametrization of the surface Γt0, we can define the local charts ψE
+0 (ξ ) following (G 1) with control points
+{x0I }Nn
+I=1. Analogously, we also define the fields
+hE(ξ , t) = ∑
+I∈〈E〉1
+hI (t)BE
+I (ξ ), ME(ξ ) = ∑
+I∈〈E〉1
+MI BE
+I (ξ ). (G 2a,b)
+The parametrization of the deformed surface Γt then reads
+ψE(ξ , t) = ∑
+I∈〈E〉1
+x0I BE
+I (ξ ) +
+
+
+∑
+J∈〈E〉1
+hJ (t)BE
+J (ξ )
+
+
+
+
+∑
+K∈〈E〉1
+MK BE
+K(ξ )
+
+ . (G 3)
+We note that, if we had used the normal to the reference surface N0 instead of M, because the calculation of N0 already involves first-order derivatives of ψ0, we would need Γt0 be C2 everywhere, which cannot be achieved with subdivision surfaces. This is why we choose the field of directors as in (G 2), where MI can be chosen to approximate the true field of normals in a least-squares sense.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+262 A. Torres-Sánchez, D. Millán and M. Arroyo
+To discretize density fields, we consider linear basis functions on the triangulation NE
+I and write
+ρ(ξ ) = ∑
+I∈〈E〉0
+ρI N E
+I (ξ ), (G 4)
+where 〈E〉0 is the zeroth ring of nodes of the element. We recall the Hodge decomposition of v in (2.35) and discretize the scalar fields α and β with subdivision basis functions so that d is square integrable
+α(ξ ) = ∑
+I∈〈E〉1
+αI BE
+I (ξ ), β(ξ ) = ∑
+I∈〈E〉1
+βI BE
+I (ξ ). (G 5a,b)
+To discretize γ , a Lagrange multiplier field, the space of basis functions needs to be chosen with care to ensure that the discretization spaces are compatible and satisfy the discrete inf-sup condition (Brezzi & Fortin 2012). We consider a macro-element approach where Lagrange multipliers are approximated using a mesh with one level of coarsening (Santos-Oliván et al. 2019). We denote this approximation on a coarser mesh as
+γ (ξ ) = ∑
+I ∈〈Ec 〉0
+γI NEc
+I (ξ ), (G 6)
+where Ec identifies a macro-element.
+G.2. Discrete equations for an inextensible viscous monolayer with bending energy
+Here, we show the application of our methodology, based on the variational time integrator described in § 4.1 and on the space discretization described above to the model of an inextensible viscous fluid surface with bending elasticity (§ 3.1). We define the following vectors of nodal coefficients
+h=
+
+ 
+h...1
+hNf
+n
+
+
+, a=
+
+ 
+α...1
+αNf
+n
+
+
+, b=
+
+ 
+β...1
+βNf
+n
+
+
+, s=
+
+
+γ...1
+γNnc
+
+ , (G 7a−d)
+containing the degrees of freedom describing the offset, the irrotational and solenoidal vector potentials and the surface tension. Here Nf
+n and Nc
+n denote the number of nodes in the finer and coarser meshes respectively. The discrete Lagrangian, now a function, can then be written as
+Ln(h, a, b, s)
+=1
+1tn FH(h) + 1
+2
+(( h − hn
+1tn
+)T
+aT bT
+)
+
+
+Dhh Dha Dhb DT
+ha Daa Dab DT
+hb DT
+ab Dbb
+
+
+
+  
+h − hn
+1tn
+a
+b
+
+  
++ sT (Qh Qa
+)
+( h − hn
+1tn
+a
+)
+−1
+1tn P[Ω(h) − Ωn], (G 8)
+where the explicit form for the different terms is given next. The Helfrich energy is
+FH(h) =
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+κ
+2 H(h)2J(h) dξ , (G 9)
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 263
+where we have split integration on Γt as a sum of integrals over the curved triangles ΓE
+t , which are evaluated at the parametric domains Γ ̃ . Functions H(h) and J(h) describe the mean curvature and the surface Jacobian in terms of the discretized parametrization; these can be computed by plugging the form of ψ (G 3) in the expressions for the curvature and metric in the natural or convected basis of the parametrization. We have also defined the matrices representing dissipation and the inextensibility constraint
+[Dhh]IJ = μ
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+(M(h) · N(h))2|k(h)|2BE
+I BE
+J Jn dξ , (G 10)
+[Dha]IJ = −μ
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+M(h) · N(h)BE
+I k(h) : ∇∇BE
+J Jn dξ , (G 11)
+[Dhb]IJ = −μ
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+M(h) · N(h)BE
+I k(h) : ∇(∇ × BE
+J )Jn dξ , (G 12)
+[Daa]IJ = μ
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+∇∇BE
+I : ∇∇BE
+J Jn dξ , (G 13)
+[Dab]IJ = μ
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+∇∇BE
+I : ∇(∇ × BE
+J )Jn dξ , (G 14)
+[Dbb]IJ = μ
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+(∇(∇ × BE
+I ))S : (∇(∇ × BE
+J ))SJn dξ , (G 15)
+[Qh]IJ = −
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+N Ec
+I (M · N)H(h)BE
+J Jn dξ , (G 16)
+[Qa]IJ =
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+N Ec
+I 1BE
+J Jn dξ , (G 17)
+where, in the last two equations, the functions NEc
+I , interpolating the surface tension γ are evaluated at the corresponding parametric point in the macro-element. We note that ∇ is the covariant derivative, calculated from partial derivatives in parametric space and using Christoffel symbols (do Carmo 1992). We also note that we have also
+discretized the rate of change of volume Ω ̇ as (Ω − Ωn)/1tn instead of discretizing equation (3.8) directly, similarly to our discretization of the energy release rate. This leads to a discrete dynamics that keeps a constant volume by construction, up to numerical error, regardless of the value of 1tn. To exercise this formulation, we compute Ω(h) using Gauss’ theorem on the surface
+Ω(h) = 1
+3
+∫
+Γ ̃
+ψ(h) · N(h)Jn dξ . (G 18)
+We finally note that we use Gauss quadrature in the reference element Γ ̃ , although other integration schemes especially suited for subdivision surfaces have been recently
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+264 A. Torres-Sánchez, D. Millán and M. Arroyo
+proposed (Jüttler et al. 2016). The discrete version of Onsager’s variational principle then leads to the saddle-point problem
+{hn+1, an+1, bn+1, sn+1, Pn+1} = arg min
+l ,e,f
+arg max
+t ,S
+L(l, e, f , t, S), (G 19)
+the stationarity conditions of which form a nonlinear algebraic system of equations, which we solve using Newton’s method.
+Appendix H. Discretization of mass conservation
+We consider an implicit Euler scheme to discretize in time the process operator in the transport problem as in (F 8), which leads to
+ρn+1 − ρn
+1tn + ρn+1tr d + c · ∇ρn+1 = 0. (H 1)
+In this case, d and c depend on (h, a, b), but we do not write it for simplicity. This
+is a reaction-advection problem in ρn+1 and its discretization with finite elements has to be carefully considered, since Galerkin methods cannot deal with large convective terms. Discretizing we obtain
+∑
+I
+ρ n+1
+I [NE
+I (1 + 1tn tr d) + 1tn c · ∇NE
+I ] = ρn. (H 2)
+To deal with the convective term appropriately, we use the test functions
+wJ = NE
+J + γs1tnc · ∇NE
+J , (H 3)
+following a stream-upwind Petrov Galerkin method (Donea & Huerta 2003). This method adds some numerical diffusion controlled by the parameter γs. The corresponding weak form is
+Mr n+1 = s, (H 4)
+with
+MJI =
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+(NE
+J + γs1tnc · ∇NE
+J )[NI(1 + 1tn tr d) + 1tnc · ∇NE
+I ]J dξ , (H 5)
+and
+sJ =
+Nf
+e ∑
+E=1
+∫
+Γ ̃
+(NE
+J + γs1tnc · ∇NE
+J )ρnJ dξ . (H 6)
+We note that M is not symmetric and M and s depend nonlinearly on (h, a, b) through d, c and J. The coupled system of finite element equations involving balance of linear momentum and mass transport, corresponding to the spatial discretization of (F 10), are solved simultaneously using a Newton–Raphson method.
+REFERENCES
+ARIS, R. 1962 Vectors, Tensors, and the Basic Equations of Fluid Mechanics. Prentice-Hall.
+ARROYO, M. & DESIMONE, A. 2009 Relaxation dynamics of fluid membranes. Phys. Rev. E 79 (3), 031915.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 265
+ARROYO, M., DESIMONE, A. & HELTAI, L. 2010 The role of membrane viscosity in the dynamics of fluid membranes. arXiv:1007.4934. ARROYO, M., HELTAI, L., MILLÁN, D. & DESIMONE, A. 2012 Reverse engineering the euglenoid movement. Proc. Natl Acad. Sci. USA 109 (44), 17874–17879. ARROYO, M., WALANI, N., TORRES-SÁNCHEZ, A. & KAURIN, D. 2018 Onsager’s variational principle in soft matter: introduction and application to the dynamics of adsorption of proteins onto fluid membranes. In The Role of Mechanics in the Study of Lipid Bilayers (ed. D. J. Steigmann), pp. 287–332. Springer. BACIA, K., SCHWILLE, P. & KURZCHALIA, T. 2005 Sterol structure determines the separation of phases and the curvature of the liquid-ordered phase in model membranes. Proc. Natl Acad. Sci. USA 102 (9), 3272–3277. BARRETT, J. W., GARCKE, H. & NÜRNBERG, R. 2008 On the parametric finite element approximation of evolving hypersurfaces in R3. J. Comput. Phys. 227 (9), 4281–4307. BARRETT, J. W., GARCKE, H. & NÜRNBERG, R. 2015 Numerical computations of the dynamics of fluidic membranes and vesicles. Phys. Rev. E 92 (5), 052704. BARRETT, J. W., GARCKE, H. & NÜRNBERG, R. 2016 A stable numerical method for the dynamics of fluidic membranes. Numer. Math. 134 (4), 783–822. BARTHES-BIESEL, D. & SGAIER, H. 1985 Role of membrane viscosity in the orientation and deformation of a spherical capsule suspended in shear flow. J. Fluid Mech. 160, 119–135. BAUMGART, T., CAPRARO, B. R., ZHU, C. & DAS, S. L. 2011 Thermodynamics and mechanics of membrane curvature generation and sensing by proteins and lipids. Annu. Rev. Phys. Chem. 62, 483–506. BERGERT, M., ERZBERGER, A., DESAI, R. A., ASPALTER, I. M., OATES, A. C., CHARRAS, G., SALBREUX, G. & PALUCH, E. K. 2015 Force transmission during adhesion-independent migration. Nat. Cell Biol. 17 (4), 524–529. BIERMANN, H., LEVIN, A. & ZORIN, D. 2000 Piecewise smooth subdivision surfaces with normal control. In Proceedings of the 27th Annual Conference on Computer Graphics and Interactive Techniques, pp. 113–120. ACM Press/Addison-Wesley. BIRIA, A., MALEKI, M. & FRIED, E. 2013 Chapter one – continuum theory for the edge of an open lipid bilayer. In Advances in Applied Mechanics (ed. S. P. A. Bordas), vol. 46, pp. 1–68. Elsevier. BRAY, D. & WHITE, J. G. 1988 Cortical flow in animal cells. Science 239 (4842), 883–888. BREZZI, F. & FORTIN, M. 2012 Mixed and Hybrid Finite Element Methods. Springer Science & Business Media. BROCHARD-WYART, F. & DE GENNES, P.-G. 2002 Adhesion induced by mobile binders: dynamics. Proc. Natl Acad. Sci. USA 99 (12), 7854–7859.
+BURMAN, E., HANSBO, P. & LARSON, M. G. 2015 A stabilized cut finite element method for partial differential equations on surfaces: the Laplace–Beltrami operator. Comput. Meth. Appl. Mech. Engng 285, 188–207. CALLAN-JONES, A. C., RUPRECHT, V., WIESER, S., HEISENBERG, C. P. & VOITURIEZ, R. 2016 Cortical flow-driven shapes of nonadherent cells. Phys. Rev. Lett. 116 (2), 028102. CALLAN-JONES, A. C. & VOITURIEZ, R. 2013 Active gel model of amoeboid cell motility. New J. Phys. 15 (2), 025022. CAMPILLO, C., SENS, P., KÖSTER, D., PONTANI, L.-L., LÉVY, D., BASSEREAU, P., NASSOY, P. & SYKES, C. 2013 Unexpected membrane dynamics unveiled by membrane nanotube extrusion. Biophys. J. 104 (6), 1248–1256. CAPOVILLA, R. & GUVEN, J. 2002 Stresses in lipid membranes. J. Phys. A 35 (30), 6233–6247. DO CARMO, M. P. 1992 Riemannian Geometry, vol. 115. Birkhäuser.
+DO CARMO, M. P. 2016 Differential Geometry of Curves and Surfaces, 2nd edn. Dover.
+CERMELLI, P., FRIED, E. & GURTIN, M. E. 2005 Transport relations for surface integrals arising in the formulation of balance laws for evolving fluid interfaces. J. Fluid Mech. 544, 339–351. CHUGH, P., CLARK, A. G., SMITH, M. B., CASSANI, D. A. D., DIERKES, K., RAGAB, A., ROUX, P. P., CHARRAS, G., SALBREUX, G. & PALUCH, E. K. 2017 Actin cortex architecture regulates cell surface tension. Nat. Cell Biol. 19 (6), 689–697.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+266 A. Torres-Sánchez, D. Millán and M. Arroyo
+CIRAK, F. & LONG, Q. 2011 Subdivision shells with exact boundary control and non-manifold geometry. Intl J. Numer. Meth. Engng 88, 897–923.
+CIRAK, F. & ORTIZ, M. 2000 Schroder (2000) Subdivision surfaces: a new paradigm for thin shell finite-element analysis. Intl J. Numer. Meth. Engng 47 (12), 2039–2072. CIRAK, F. & ORTIZ, M. 2001 Fully C1-conforming subdivision elements for finite deformation thin-shell analysis. Intl J. Numer. Meth. Engng 51 (7), 813–833. CLARK, A. G., DIERKES, K. & PALUCH, E. K. 2013 Monitoring actin cortex thickness in live cells. Biophys. J. 105 (3), 570–580. DIMOVA, R., ARANDA, S., BEZLYEPKINA, N., NIKOLOV, V., RISKE, K. A. & LIPOWSKY, R. 2006 A practical guide to giant vesicles. Probing the membrane nanoregime via optical microscopy. J. Phys.: Condens. Matter 18 (28), S1151–S1176.
+DOI, M. 2011 Onsager’s variational principle in soft matter. J. Phys.: Condens. Matter 23 (28), 284118. DONEA, J. & HUERTA, A. 2003 Finite Element Methods for Flow Problems, reprint edn. John Wiley & Sons. DÖRRIES, G. & FOLTIN, G. 1996 Energy dissipation of fluid membranes. Phys. Rev. E 53 (3), 2547–2550. DORTDIVANLIOGLU, B., KRISCHOK, A., BEIRÃO DA VEIGA, L. & LINDER, C. 2018 Mixed isogeometric analysis of strongly coupled diffusion in porous materials: mixed IGA of strongly coupled diffusion in porous materials. Intl J. Numer. Meth. Engng 114 (1), 28–46. DZIUK, G. & ELLIOTT, C. M. 2013 Finite element methods for surface PDEs. Acta Numer. 22, 289–396. ELLIOTT, C. M. & STYLES, V. 2012 An ALE ESFEM for solving PDEs on evolving surfaces. Milan J. Math. 80 (2), 469–501. EVANS, E. & YEUNG, A. 1994 Hidden dynamics in rapid changes of bilayer shape. Chem. Phys. Lipids 73 (1), 39–56. FARUTIN, A. & MISBAH, C. 2012 Rheology of vesicle suspensions under combined steady and oscillating shear flows. J. Fluid Mech. 700, 362–381. FENG, F. & KLUG, W. S. 2006 Finite element modeling of lipid bilayer membranes. J. Comput. Phys. 220 (1), 394–408. FISCHER, F. D., SVOBODA, J. & PETRYK, H. 2014 Thermodynamic extremal principles for irreversible processes in materials science. Acta Mater. 67, 1–20. FOURNIER, J.-B. 2015 On the hydrodynamics of bilayer membranes. Intl J. Non-Linear Mech. 75, 67–76. FOURNIER, J.-B., KHALIFAT, N., PUFF, N. & ANGELOVA, M. I. 2009 Chemically triggered ejection of membrane tubules controlled by intermonolayer friction. Phys. Rev. Lett. 102 (1), 018102. FRENKEL, D. & SMIT, B. 2001 Understanding Molecular Simulation: From Algorithms to Applications, 2nd edn. Academic Press. FRIES, T.-P. 2018 Higher-order surface FEM for incompressible Navier–Stokes flows on manifolds. Intl J. Numer. Meth. Fluids 88 (2), 55–78.
+FRITZSCHE, M., LEWALLE, A., DUKE, T., KRUSE, K. & CHARRAS, G. 2013 Analysis of turnover dynamics of the submembranous actin cortex. Mol. Biol. Cell 24 (6), 757–767. GOMPPER, G. & KROLL, D. M. 2004 Triangulated-surface models of fluctuating membranes. In Statistical Mechanics of Membranes and Surfaces, pp. 359–426. World Scientific.
+GROSS, B. J. & ATZBERGER, P. J. 2018 Hydrodynamic flows on curved surfaces: spectral numerical methods for radial manifold shapes. J. Comput. Phys. 371, 663–689. HAMM, M. & KOZLOV, M. M. 1998 Tilt model of inverted amphiphilic mesophases. Eur. Phys. J. B 6 (4), 519–528. HAMM, M. & KOZLOV, M. M. 2000 Elastic energy of tilt and bending of fluid membranes. Eur. Phys. J. E 3 (4), 323–335. HANSBO, P., LARSON, M. G. & LARSSON, K. 2016 Analysis of finite element methods for vector laplacians on surfaces. arXiv:1610.06747.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 267
+HAWKINS, R. J., POINCLOUX, R., BÉNICHOU, O., PIEL, M., CHAVRIER, P. & VOITURIEZ, R. 2011 Spontaneous contractility-mediated cortical flow generates cell migration in three-dimensional environments. Biophys. J. 101 (5), 1041–1045. HELFRICH, W. 1973 Elastic properties of lipid bilayers: theory and possible experiments. Z. Naturforsch. 28c, 693–703.
+HENLE, M. L. & LEVINE, A. J. 2010 Hydrodynamics in curved membranes: the effect of geometry on particulate mobility. Phys. Rev. E 81 (1), 1–17. HIRT, C. W., AMSDEN, A. A. & COOK, J. L. 1974 An arbitrary Lagrangian–Eulerian computing method for all flow speeds. J. Comput. Phys. 14 (3), 227–253. HO, J. S. & BAUMGÄRTNER, A. 1990 Simulations of fluid self-avoiding membranes. Europhys. Lett. 12 (4), 295. HOWARD, J. 2001 Mechanics of Motor Proteins and the Cytoskeleton. Sinauer Associates, Publishers. HU, D., ZHANG, P. & WEINAN, E. 2007 Continuum theory of a moving membrane. Phys. Rev. E 75 (4), 1–11. JANKUHN, T., OLSHANSKII, M. A. & REUSKEN, A. 2018 Incompressible fluid problems on embedded surfaces: modeling and variational formulations. Interfaces Free Boundaries 20, 353–378. JÜLICHER, F. & LIPOWSKY, R. 1993 Domain-induced budding of vesicles. Phys. Rev. Lett. 70 (19), 2964–2967. JÜTTLER, B., MANTZAFLARIS, A., PERL, R. & RUMPF, M. 2016 On numerical integration in isogeometric subdivision methods for PDEs on surfaces. Comput. Meth. Appl. Mech. Engng 302, 131–146. KANTSLER, V., SEGRE, E. & STEINBERG, V. 2007 Vesicle dynamics in time-dependent elongation flow: wrinkling instability. Phys. Rev. Lett. 99 (17), 178102. KHALIFAT, N., PUFF, N., BONNEAU, S., FOURNIER, J.-B. & ANGELOVA, M. I. 2008 Membrane deformation under local pH gradient: mimicking mitochondrial cristae dynamics. Biophys. J. 95 (10), 4924–4933. KHALIFAT, N., RAHIMI, M., BITBOL, A.-F., SEIGNEURET, M., FOURNIER, J.-B., PUFF, N., ARROYO, M. & ANGELOVA, M. I. 2014 Interplay of packing and flip-flop in local bilayer deformation. How phosphatidylglycerol could rescue mitochondrial function in a cardiolipin-deficient yeast mutant. Biophys. J. 107 (4), 879–890. KOBA, H., LIU, C. & GIGA, Y. 2017 Energetic variational approaches for incompressible fluid systems on an evolving surface. Q. Appl. Maths 75 (2), 359–389. KOSMALSKA, A. J., CASARES, L., ELOSEGUI-ARTOLA, A., THOTTACHERRY, J. J., MORENOVICENTE, R., GONZÁLEZ-TARRAGÓ, V., DEL POZO, M. Á., MAYOR, S., ARROYO, M., NAVAJAS, D. et al. 2015 Physical principles of membrane remodelling during cell mechanoadaptation. Nat. Commun. 6, 7292. KROLL, D. M. & GOMPPER, G. 1992 The conformation of fluid membranes: Monte Carlo simulations. Science 255 (5047), 968–971. LAADHARI, A., SARAMITO, P., MISBAH, C. & SZÉKELY, G. 2017 Fully implicit methodology for the dynamics of biomembranes and capillary interfaces by combining the level set and Newton methods. J. Comput. Phys. 343, 271–299.
+LEBON, G., JOU, D. & CASAS-VÁZQUEZ, J. 2008 Understanding Non-equilibrium Thermodynamics: Foundations, Applications, Frontiers. Springer.
+LEVAYER, R. & LECUIT, T. 2012 Biomechanical regulation of contractility: spatial control and dynamics. Trends Cell Biol. 22 (2), 61–81. LEVINE, A. J., LIVERPOOL, T. B. & MACKINTOSH, F. C. 2004 Dynamics of rigid and flexible extended bodies in viscous films and membranes. Phys. Rev. Lett. 93 (3), 038102. LEW, A., MARSDEN, J. E., ORTIZ, M. & WEST, M. 2004 Variational time integrators. Intl J. Numer. Meth. Engng 60 (1), 153–212. LI, B., MILLÁN, D., TORRES-SÁNCHEZ, A., ROMAN, B. & ARROYO, M. 2018 A variational model of fracture for tearing brittle thin sheets. J. Mech. Phys. Solids 119, 334–348. LIEBER, A. D., SCHWEITZER, Y., KOZLOV, M. M. & KEREN, K. 2015 Front-to-rear membrane tension gradient in rapidly moving cells. Biophys. J. 108 (7), 1599–1603. LIPOWSKY, R. 1991 The conformation of membranes. Nature 349 (6309), 475–481.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+268 A. Torres-Sánchez, D. Millán and M. Arroyo
+LIU, W. K., LIU, Y., FARRELL, D., ZHANG, L., WANG, X. S., FUKUI, Y., PATANKAR, N., ZHANG, Y., BAJAJ, C., LEE, J., HONG, J., CHEN, X. & HSU, H. 2006 Immersed finite element method and its applications to biological systems. Comput. Meth. Appl. Mech. Engng 195 (13–16), 1722–1749. LIU, Y.-J., LE BERRE, M., LAUTENSCHLAEGER, F., MAIURI, P., CALLAN-JONES, A., HEUZÉ, M., TAKAKI, T., VOITURIEZ, R. & PIEL, M. 2015 Confinement and low adhesion induce fast amoeboid migration of slow mesenchymal cells. Cell 160 (4), 659–672. LOOP, C. 1987 Smooth subdivision surfaces based on triangles. PhD thesis, University of Utah. MA, L. & KLUG, W. S. 2008 Viscous regularization and r-adaptive remeshing for finite element analysis of lipid membrane mechanics. J. Comput. Phys. 227 (11), 5816–5835. MARSDEN, J. E. & HUGHES, T. J. R. 1994 Mathematical Foundations of Elasticity. Courier Corporation. MARTYUSHEV, L. M. & SELEZNEV, V. D. 2006 Maximum entropy production principle in physics, chemistry and biology. Phys. Rep. 426 (1), 1–45. MIAO, L., SEIFERT, U., WORTIS, M. & DÖBEREINER, H. G. 1994 Budding transitions of fluid-bilayer vesicles: the effect of area-difference elasticity. Phys. Rev. E 49 (6), 5389–5407. MICKELIN, O., SŁOMKA, J., BURNS, K. J., LECOANET, D., VASIL, G. M., FARIA, L. M. & DUNKEL, J. 2018 Anomalous chained turbulence in actively driven flows on spheres. Phys. Rev. Lett. 120 (16), 164503. MIELKE, A. 2012 Thermomechanical modeling of energy-reaction-diffusion systems, including bulkinterface interactions. Discrete Continuous Dyn. Syst. – Ser. S 6 (2), 479–499. MIETKE, A., JÜLICHER, F. & SBALZARINI, I. F. 2019 Self-organized shape dynamics of active surfaces. Proc. Natl Acad. Sci. USA 116 (1), 29–34.
+MILLÁN, D., ROSOLEN, A. & ARROYO, M. 2011 Thin shell analysis from scattered points with maximum-entropy approximants. Intl J. Numer. Meth. Engng 85 (6), 723–751. MORRIS, R. G. & TURNER, M. S. 2015 Mobility measurements probe conformational changes in membrane proteins due to tension. Phys. Rev. Lett. 115 (19), 198101. NELSON, P., POWERS, T. & SEIFERT, U. 1995 Dynamical theory of the pearling instability in cylindrical vesicles. Phys. Rev. Lett. 74 (17), 3384–3387. NESTLER, M., NITSCHKE, I., PRAETORIUS, S. & VOIGT, A. 2018 Orientational order on surfaces: the coupling of topology, geometry, and dynamics. J. Nonlinear Sci. 28 (1), 147–191. NITSCHKE, I., VOIGT, A. & WENSCH, J. 2012 A finite element approach to incompressible two-phase flow on manifolds. J. Fluid Mech. 708, 418–438. NOGUCHI, H. & GOMPPER, G. 2005 Shape transitions of fluid vesicles and red blood cells in capillary flows. Proc. Natl Acad. Sci. USA 102 (40), 14159–14164. NOSELLI, G., BEAN, A., ARROYO, M. & DESIMONE, A. 2019 Swimming Euglena respond to confinement with a behavioural change enabling effective crawling. Nat. Phys. 15 (5), 496–502. OLSHANSKII, M., QUAINI, A., REUSKEN, A. & YUSHUTIN, V. 2018 A finite element method for the surface stokes problem. SIAM J. Sci. Comput. 40 (4), A2492–A2518. ORTIZ, M. & STAINIER, L. 1999 The variational formulation of viscoplastic constitutive updates. Comput. Meth. Appl. Mech. Engng 171 (3), 419–444.
+PALTRIDGE, G. W. 1975 Global dynamics and climate – a system of minimum entropy exchange. Q. J. R. Meteorol. Soc. 101 (429), 475–484.
+PECO, C., ROSOLEN, A. & ARROYO, M. 2013 An adaptive meshfree method for phase-field models of biomembranes. Part II: a Lagrangian approach for membranes in viscous fluids. J. Comput. Phys. 249, 320–336. PELETIER, M. 2014 Variational modelling: energies, gradient flows, and large deviations. Preprint, arXiv:1402.1990. PENG, Z., LI, X., PIVKIN, I. V., DAO, M., KARNIADAKIS, G. E. & SURESH, S. 2013 Lipid bilayer and cytoskeletal interactions in a red blood cell. Proc. Natl Acad. Sci. USA 110 (33), 13356–13361. PIEGL, L. & TILLER, W. 2012 The NURBS Book. Springer Science & Business Media.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 269
+POINCLOUX, R., COLLIN, O., LIZÁRRAGA, F., ROMAO, M., DEBRAY, M., PIEL, M. & CHAVRIER, P. 2011 Contractility of the cell rear drives invasion of breast tumor cells in 3D Matrigel. Proc. Natl Acad. Sci. USA 108 (5), 1943–1948.
+PROST, J., JÜLICHER, F. & JOANNY, J.-F. 2015 Active gel physics. Nat. Phys. 11 (2), 111. RAHIMI, M. 2013 Shape dynamics and lipid hydrodynamics of bilayer membranes: modeling, simulation and experiments. PhD thesis, Universitat Politècnica de Catalunya – BarcelonaTech. RAHIMI, M. & ARROYO, M. 2012 Shape dynamics, lipid hydrodynamics, and the complex viscoelasticity of bilayer membranes. Phys. Rev. E 86 (1), 011932. RAHIMI, M., DESIMONE, A. & ARROYO, M. 2013 Curved fluid membranes behave laterally as effective viscoelastic media. Soft Matt. 9 (46), 11033–11045. RANGARAJAN, R. & GAO, H. 2015 A finite element method to compute three-dimensional equilibrium configurations of fluid membranes: optimal parameterization, variational formulation and applications. J. Comput. Phys. 297, 266–294. RANGARAJAN, R., KABARIA, H. & LEW, A. 2019 An algorithm for triangulating smooth threedimensional domains immersed in universal meshes: meshing domains immersed in universal meshes. Intl J. Numer. Meth. Engng 117 (1), 84–117.
+REUTHER, S. & VOIGT, A. 2015 The interplay of curvature and vortices in flow on curved surfaces. Multiscale Model. Simul. 13 (2), 632–643.
+REUTHER, S. & VOIGT, A. 2016 Incompressible two-phase flows with an inextensible Newtonian fluid interface. J. Comput. Phys. 322, 850–858. REUTHER, S. & VOIGT, A. 2018a Erratum: the interplay of curvature and vortices in flow on curved surfaces. Multiscale Model. Simul. 16 (3), 1448–1453. REUTHER, S. & VOIGT, A. 2018b Solving the incompressible surface Navier–Stokes equation by surface finite elements. Phys. Fluids 30 (1), 012107. REYMANN, A.-C., STANISCIA, F., ERZBERGER, A., SALBREUX, G. & GRILL, S. W. 2016 Cortical flow aligns actin filaments to form a furrow. Elife 5, 1–25. RODRIGUES, D. S., AUSAS, R. F., MUT, F. & BUSCAGLIA, G. C. 2015 A semi-implicit finite element method for viscous lipid membranes. J. Comput. Phys. 298, 565–584. ROUX, A., CAPPELLO, G., CARTAUD, J., PROST, J., GOUD, B. & BASSEREAU, P. 2002 A minimal system allowing tubulation with molecular motors pulling on giant liposomes. Proc. Natl Acad. Sci. USA 99 (8), 5394–5399. RUPRECHT, V., WIESER, S., CALLAN-JONES, A., SMUTNY, M., MORITA, H., SAKO, K., BARONE, V., RITSCH-MARTE, M., SIXT, M., VOITURIEZ, R. & HEISENBERG, C.-P. 2015 Cortical contractility triggers a stochastic switch to fast amoeboid cell motility. Cell 160 (4), 673–685. RUSTOM, A., SAFFRICH, R., MARKOVIC, I., WALTHER, P. & GERDES, H.-H. 2004 Nanotubular highways for intercellular organelle transport. Science 303 (5660), 1007–1010. SAFFMAN, P. G. & DELBRÜCK, M. 1975 Brownian motion in biological membranes. Proc. Natl Acad. Sci. USA 72 (8), 3111–3113. SAHA, A., NISHIKAWA, M., BEHRNDT, M., HEISENBERG, C.-P., JÜLICHER, F. & GRILL, S. W. 2016 Determining physical properties of the cell cortex. Biophys. J. 110 (6), 1421–1429. SAHU, A., SAUER, R. A. & MANDADAPU, K. K. 2017 Irreversible thermodynamics of curved lipid membranes. Phys. Rev. E 96 (4), 042409. SALAC, D. & MIKSIS, M. 2011 A level set projection model of lipid vesicles in general flows. J. Comput. Phys. 230 (22), 8192–8215.
+SALBREUX, G., CHARRAS, G. & PALUCH, E. 2012 Actin cortex mechanics and cellular morphogenesis. Trends Cell Biol. 22 (10), 536–545. SALBREUX, G. & JÜLICHER, F. 2017 Mechanics of active surfaces. Phys. Rev. E 96 (3), 032404. SALBREUX, G., PROST, J. & JOANNY, J. F. 2009 Hydrodynamics of cellular cortical flows and the formation of contractile rings. Phys. Rev. Lett. 103 (5), 058102. SANTOS-OLIVÁN, D., TORRES-SÁNCHEZ, A., VILANOVA, G. & ARROYO, M. 2019 A macroelement approach for inextensible flows with subdivision finite elements. (in preparation). SAUER, R. A., DUONG, T. X., MANDADAPU, K. & STEIGMANN, D. 2017 A stabilized finite element formulation for liquid shells and its application to lipid bilayers. J. Comput. Phys. 330, 1–19.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+270 A. Torres-Sánchez, D. Millán and M. Arroyo
+SCRIVEN, L. E. 1960 Dynamics of a fluid interface Equation of motion for Newtonian surface fluids. Chem. Engng Sci. 12 (2), 98–108.
+SECOMB, T. W. & SKALAK, R. 1982 Surface flow of viscoelastic membranes in viscous fluids. Q. J. Mech. Appl. Maths 35 (2), 233–247.
+SEIFERT, U. 1997 Configurations of fluid membranes and vesicles. Adv. Phys. 46 (1), 13–137. SEIFERT, U. & LANGER, S. A. 1993 Viscous modes of fluid bilayer membranes. Europhys. Lett. 23 (1), 71–76. SENS, P., JOHANNES, L. & BASSEREAU, P. 2008 Biophysical approaches to protein-induced membrane deformations in trafficking. Curr. Opin. Cell Biol. 20 (4), 476–482. SHEN, Z., FISCHER, T. M., FARUTIN, A., VLAHOVSKA, P. M., HARTING, J. & MISBAH, C. 2018 Blood crystal: emergent order of red blood cells under wall-confined shear flow. Phys. Rev. Lett. 120 (26), 268102. SHIBATA, Y., HU, J., KOZLOV, M. M. & RAPOPORT, T. A. 2009 Mechanisms shaping the membranes of cellular organelles. Annu. Rev. Cell Dev. Biol. 25, 329–354. SIGURDSSON, J. K. & ATZBERGER, P. J. 2016 Hydrodynamic coupling of particle inclusions embedded in curved lipid bilayer membranes. Soft Matt. 12 (32), 6685–6707. SKALAK, R. 1970 Extensions of extremum principles for slow viscous flows. J. Fluid Mech. 42 (3), 527–548. SPRONG, H., VAN DER SLUIJS, P. & VAN MEER, G. 2001 How proteins move lipids and lipids move proteins. Nat. Rev. Mol. Cell Biol. 2 (7), 504–513. STAM, J. 1999 Evaluation of Loop subdivision surfaces. In SIGGRAPH’99 Course Notes. Los Angeles, CA.
+STANEVA, G., ANGELOVA, M. I. & KOUMANOV, K. 2004 Phospholipase A2 promotes raft budding and fission from giant liposomes. Chem. Phys. Lipids 129 (1), 53–62. STAYKOVA, M., ARROYO, M., RAHIMI, M. & STONE, H. A. 2013 Confined bilayers passively regulate shape and stress. Phys. Rev. Lett. 110 (2), 028101. STEIGMANN, D. J. 1999 Fluid films with curvature elasticity. Arch. Rat. Mech. Anal. 150 (2), 127–152. STONE, H. A. & AJDARI, A. 1998 Hydrodynamics of particles embedded in a flat surfactant layer overlying a subphase of finite depth. J. Fluid Mech. 369, 151–173. TORRES-SÁNCHEZ, A. 2017 A theoretical and computational study of the mechanics of biomembranes at multiple scales. PhD thesis, Universitat Politècnica de Catalunya. TORRES-SÁNCHEZ, A., SANTOS-OLIVÁN, D. & ARROYO, M. 2019 Approximation of tensor fields on surfaces of arbitrary topology based on local Monge parametrizations. arXiv:1904.06390. TSAFRIR, I., CASPI, Y., GUEDEAU-BOUDEVILLE, M.-A., ARZI, T. & STAVANS, J. 2003 Budding and tubulation in highly oblate vesicles by anchored amphiphilic molecules. Phys. Rev. Lett. 91 (13), 138102. TU, Z. C. & OU-YANG, Z. C. 2004 A geometric theory on the elasticity of bio-membranes. J. Phys. A 37 (47), 11407–11429. TURLIER, H., AUDOLY, B., PROST, J. & JOANNY, J.-F. 2014 Furrow constriction in animal cell cytokinesis. Biophys. J. 106 (1), 114–123. VEERAPANENI, S. K., RAHIMIAN, A., BIROS, G. & ZORIN, D. 2011 A fast algorithm for simulating vesicle flows in three dimensions. J. Comput. Phys. 230 (14), 5610–5634. WILLMORE, T. J. 1996 Riemannian Geometry. Oxford University Press. WOODHOUSE, F. G. & GOLDSTEIN, R. E. 2012 Shear-driven circulation patterns in lipid membrane vesicles. J. Fluid Mech. 705, 165–175. WU, J.-Z., YANG, Y.-T., LUO, Y.-B. & POZRIKIDIS, C. 2005 Fluid kinematics on a deformable surface. J. Fluid Mech. 541, 371–381. YAVARI, A., OZAKIN, A. & SADIK, S. 2016 Nonlinear elasticity in a deforming ambient space. J. Nonlinear Sci. 26 (6), 1651–1692.
+ZHANG, K. & ARROYO, M. 2014 Understanding and strain-engineering wrinkle networks in supported graphene through simulations. J. Mech. Phys. Solids 72, 61–74.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press
+
+
+Modelling fluid deformable surfaces 271
+ZHOU, Y. & YAN, D. 2005 Real-time membrane fission of giant polymer vesicles. Angew. Chem. Intl Ed. Engl. 44 (21), 3223–3226. ZIEGLER, H. 1958 An attempt to generalize Onsager’s principle, and its significance for rheological problems. Z. Angew. Math. Phys. 9 (5–6), 748–763. ZIEGLER, H. & WEHRLI, C. 1987 The derivation of constitutive relations from the free energy and the dissipation function. In Advances in Applied Mechanics (ed. T. Y. Wu & J. W. Hutchinson), vol. 25, pp. 183–238. Elsevier.
+https://doi.org/10.1017/jfm.2019.341 Published online by Cambridge University Press

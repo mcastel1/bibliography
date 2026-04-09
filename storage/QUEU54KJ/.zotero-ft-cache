@@ -1,0 +1,922 @@
+Parametric FEM for geometric biomembranes
+Andrea Bonito a,1, Ricardo H. Nochetto b,c,2, M. Sebastian Pauletti a,*,3
+a Department of Mathematics, Texas A&M University, College Station, TX 77843, USA b Department of Mathematics, University of Maryland, College Park, MD 20742, USA c Institute for Physical Science and Technology, University of Maryland, College Park, MD 20742, USA
+article info
+Article history:
+Received 7 December 2008 Received in revised form 1 December 2009 Accepted 30 December 2009 Available online 11 January 2010
+Keywords:
+Moving finite elements Isoparametric elements Geometric flow Shape differential calculus Gradient flow Helfrich Willmore Bending energy Biomembrane Red blood cell
+abstract
+We consider geometric biomembranes governed by an L2-gradient flow for bending energy subject to area and volume constraints (Helfrich model). We give a concise derivation of a novel vector formulation, based on shape differential calculus, and corresponding discretization via parametric FEM using quadratic isoparametric elements and a semi-implicit Euler method. We document the performance of the new parametric FEM with a number of simulations leading to dumbbell, red blood cell and toroidal equilibrium shapes while exhibiting large deformations. Ó 2010 Elsevier Inc. All rights reserved.
+1. Introduction
+Lipids consist of a hydrophilic head group and one or more hydrophobic hydrocarbon tails. When lipid molecules are immersed in aqueous environment at a proper concentration and temperature they spontaneously aggregate into a bilayer or membrane that forms an encapsulating bag called vesicle. This phenomenon is of interest in biology and biophysics because lipid membranes are ubiquitous in biological systems, and an understanding of vesicles provides an important element to understand real cells. Canhan and Helfrich [1,2] were the first to introduce over 35 years ago, a model for the equilibrium shape of vesicles consisting of minimization of the bending elasticity or curvature energy. The structure of lipid membranes is that of a two dimensional, oriented, incompressible and viscous fluid. Phenomenological [1,2] and rigorous continuum mechanical [3–5] approaches agree that the membrane C is endowed with a bending or elastic energy. The simplest form of this energy is
+0021-9991/$ - see front matter Ó 2010 Elsevier Inc. All rights reserved. doi:10.1016/j.jcp.2009.12.036
+* Corresponding author. Tel.: +1 9798624477; fax: +1 9798624190. E-mail addresses: bonito@math.tamu.edu (A. Bonito), rhn@math.umd.edu (R.H. Nochetto), pauletti@math.tamu.edu (M. Sebastian Pauletti). URLs: http://www.math.tamu.edu/~bonito (A. Bonito), http://www.math.umd.edu/~rhn (R.H. Nochetto), http://www.math.tamu.edu/~pauletti (M. Sebastian Pauletti). 1 Partially support by Swiss NSF Fellowship PBEL2-114311 and NSF Grant DMS-0505454. 2 Partially support by NSF Grants DMS-0505454 and DMS-0807811. 3 Partially support by NSF Grant DMS-0505454.
+Journal of Computational Physics 229 (2010) 3171–3188
+Contents lists available at ScienceDirect
+Journal of Computational Physics
+journal homepage: www.elsevier.com/locate/jcp
+
+
+j
+Z
+C
+h2 þ jG
+Z
+C
+k;
+where h and k are the mean and Gauss curvature, respectively; and j and jG are the constant bending coefficients. For closed surfaces without topological changes, the Gauss–Bonnet theorem [6, Section 8.5] yields the equivalence (up to scaling) between the above energy and the ‘‘Willmore” energy [7] defined by
+WðCÞ :1⁄4 1
+2
+Z
+C
+h2: ð1Þ
+If the temperature and osmotic pressure of the vesicle do not change, the enclosed volume and surface area can be assumed to be conserved. The former is a consequence of the impermeability of the membrane. The latter is because the number of molecules remains fixed in each layer and the energetic cost of stretching or compressing the membrane is much larger than the cost of bending deformations. Refer to [8–10] for more details. In this work, we consider the Willmore energy model (1) with isoperimetric area and volume constraints. The combined effect of the bending elasticity with the surface and volume constraints generates a great variety of non-spherical shapes, in contrast to the characteristic spherical equilibrium shapes of simple liquids which are governed by isotropic surface tension. Describing the membrane by quantities all defined on the surface (energy, area and volume), equilibrium shapes are obtained as stationary states of a geometric evolution equation. For other aspects more related to the dynamics, the effect of the surrounding fluid should be taken into account. We study this effect in [11] and compare it with the geometric model. Formally, the geometric model is a gradient flow for a suitable shape functional JðCÞ: find the evolution of the surface C 1⁄4 CðtÞ such that its velocity v is given by
+hv; wi 1⁄4 dJðC; wÞ 8w; ð2Þ
+where dJðC; wÞ is the shape derivative of JðCÞ in the direction of w and h ; i is a scalar product determining the type of flow [12]. The shape derivative of the Willmore energy (1) in three dimensions is given by
+dWðC; wÞ 1⁄4
+Z
+C
+ð DCh 1
+2 h3 þ 2khÞw; ð3Þ
+where w 1⁄4 m w is the normal component of w. The L2-gradient flow (i.e. hv; wi :1⁄4 R
+C v w) obtained from (2) with J 1⁄4 W, namely using (3), is known as the Willmore flow and is a highly nonlinear 4th order geometric partial differential equation (PDE) on CðtÞ. We refer to [13] for a general discussion of discrete gradient flows. Parametric finite element methods (FEM) have already been proposed for the Willmore flow without constraints [14,15] and with constraints [16]. A chief difficulty is to make sense of Gauss curvature k within a variational framework. The scheme of Rusu [15] is the first of this class for (1) without constraints. That of Dziuk [14] copes with undesirable tangential motions observed in Rusu’s scheme near equilibrium and presents a stability estimate for special initial conditions. In both cases, the formulation involves vector quantities (position and curvature). In contrast, Garcke et al. [16] present a scalar scheme for (1) with constraints and evolve the interface in the direction of an averaged normal. The latter is somewhat related to the method of Bänsch et al for surface diffusion [17]. All these schemes are implemented with piecewise linear elements and exhibit difficulties to start; they are due to geometric inconsistency, a new concept that we discuss briefly in Section 4.4 and fully in [18]. Alternative techniques are also available in the literature, for instance the phase field approach [19,20], threshold dynamics [21] and level set method [22]. An advantage of our parametric method over the alternatives is the capability to easily increase the approximation order of the interface. In addition, quadratics are more robust than linears regarding mesh quality; this adds to several other important features for fourth order problems discussed in Section 4.5. Finally note that the number of degrees of freedom associated with the parametric approach is that of a 2D problem, whereas for the phase field or level set methods a full 3D problem is to be solved, perhaps with the help of adaptive meshes or narrow band methods to improve efficiency. These advantages are at the expense of difficulties in executing topological changes, especially in 3D. In this paper, we give a rather concise derivation of a novel vector formulation for (1) with constraints that hinges on shape differential calculus [23,12]. In fact, we derive the following vector form of the shape derivative (Theorem 3.1)
+dWðC; /Þ 1⁄4
+Z
+C
+rC/ rCh
+Z
+C
+ðrCx þ rCxTÞrC/ : rCh þ 1
+2
+Z
+C
+divCh divC/; ð4Þ
+where x is the variable of integration or, with a slight abuse of notation, is also the identity over C. Since (4) is variational, it is the basis of a new parametric FEM with C0-elements. We prefer quadratic isoparametric elements to linear elements, and discuss the reasons in Section 4.5. We evolve the computational domain at each time step via a semi-implicit Euler method; this is similar to [17,16,11,24,25,13,26,14] and is discussed in Section 4.1. The contributions of this paper are as follows:
+We derive the novel variational formulation (4) and corresponding parametric FEM. The derivation, being based on concepts from shape differential calculus, is rather concise.
+3172 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+We implement the scheme using quadratic isoparametric elements. Previous parametric FEM use piecewise linears instead. We show the benefits of quadratics and explore further their use for curvature driven flows in [18]. We do not need an explicit initial approximation to mean curvature to initialize the discrete Willmore flow (see (4)). This is rather tricky for piecewise linear FEM, due to geometric inconsistency, and a serious drawback of previous parametric approaches. We present a new and efficient algorithm to enforce the discrete isoperimetric volume and area constraints to machine precision. This hinges on a suitable Newton iteration. We introduce three computational tools, namely time and space adaptivity and mesh smoothing, which are important enhancements for large deformations and problems with disparate space-time scales. The use of mesh smoothing is indispensable for piecewise linears but not much so for quadratics. We include several numerical three dimensional simulations which lead to equilibrium shapes such as dumbbells, red cells, toroids, and exhibit large deformations. The evolutions as well as final shapes are rather stable.
+The outline of the paper is as follows. In Section 2 we briefly introduced concepts from tensor algebra, tangential calculus and shape differential calculus. In Section 3 we present the continuous model for the biomembrane and derive a new variational formulation. We discretize this formulation in Section 4 after briefly introducing the finite element method for surfaces. In Section 5 we briefly discuss computational tools employed to enhance mesh quality and speed up computations. Finally, in Section 6 we present several numerical simulations.
+2. Shape and tangential differential calculus
+Hereafter C denotes a compact, oriented, smooth d-hypersurface in Rdþ1 without boundary. The outer unit normal vector field is well defined and denoted by m. Given a vector function w defined on C its normal component is denoted by w :1⁄4 w m. Consider v a smooth vector field defined in V Rdþ1, a domain containing C. Then the surface C 1⁄4 Cð0Þ is deformed through an autonomous system of ODEs prescribed by v. We denote the resulting sequence of perturbed surfaces by fCðtÞgtP0. Under these considerations let J be a shape functional that assigns to each surface C a scalar value. Then the shape derivative of J in the direction of the vector field v is defined as the limit dJðC; vÞ 1⁄4 limt!0 1
+t ðJðCðtÞÞ JðCÞÞ. We are interested in shape functionals of the form
+JðCÞ 1⁄4
+Z
+C
+wðx; CÞ;
+where the function w depends not only on the position but also on the geometry of C; for instance wðx; CÞ 1⁄4 1
+2 h2 in (1). For smooth surfaces, the signed distance function b is well defined in a neighborhood V of C. This provides a canonical extension to functions defined on C and is the basis of a simple differential calculus on C which uses the Euclidean differential calculus in the ambient neighborhood V of C [27,12,23]. Let f and v be C1 scalar and vector valued functions defined on C and F and V canonical extensions to V. Then, we can define the tangential gradient of f as the orthogonal projection of rF to the tangent hyperplane of C rCf :1⁄4 ðI m mÞrFjC:
+This definition is independent of the extension . The tangential divergence of v is defined by divCv :1⁄4 trrCv while the surface gradient of a vector and the surface divergence of a tensor are taken by columns. Finally for C2ðCÞ functions or vectors, the surface Laplacian or Laplace Beltrami operator is defined by DC :1⁄4 divCðrC Þ. The second fundamental form is rCm. This symmetric tensor has the eigenvector m with zero eigenvalue. The remaining eigenvalues are the principal curvatures j1; . . . ; jd. We denote by h :1⁄4 j1 þ þ jd the total mean curvature, by k :1⁄4 j1; . . . ; jd the Gauss curvature, and by h :1⁄4 hm the vector total mean curvature. Using the previous differential operator definitions the following geometric identities follow [23, Chapter 8]:
+rCx 1⁄4 ðI m mÞ; DCx 1⁄4 hm;
+divCm 1⁄4 h; DCm 1⁄4 jrCmj2m þ rCh; ð5Þ
+where x is the identity function. Also observe that
+divCv 1⁄4 trðrCvÞ 1⁄4 I : rCv 1⁄4 rCx : rCv:
+We can extend some useful classical product rules (see [28, p. 30]) to tangential vector calculus: if f, v and S are C1ðCÞ scalar, vector and tensor valued fields, then
+rCðf vÞ 1⁄4 f rCv þ rCf v; ð6Þ divCðf vÞ 1⁄4 f divCv þ v rCf ; ð7Þ divCðSvÞ 1⁄4 S : rCv þ v divCS; ð8Þ
+divCðf SÞ 1⁄4 f divCS þ STrCf ; ð9Þ rCðv wÞ 1⁄4 rCvw þ rCwv: ð10Þ
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3173
+
+
+Tangential Stokes and Green formulas can be obtained (see [23, Chapter 8]). If f and v are C1ðCÞ scalar and vector field, then Z
+C
+f divCv þ
+Z
+C
+rCf v 1⁄4
+Z
+C
+f v h: ð11Þ
+3. Geometric model for biomembranes
+The equilibrium shapes of biomembranes are stationary points of an L2-gradient flow of an augmented bending energy J
+that accounts for the area and volume constraints. Let AðCÞ :1⁄4 R
+C 1 be the area of C 1⁄4 CðtÞ and VðCÞ :1⁄4 1
+dþ1
+R
+C x m be its enclosed volume, where x denotes the identity function on the domain of integration. Therefore, if k; p are the area and volume Lagrange multipliers, the augmented functional J reads
+JðC; k; pÞ :1⁄4 1
+2
+Z
+C
+h2 þ k
+Z
+C
+1
+Z
+C0
+1þ p
+dþ1
+Z
+C
+xm
+Z
+C0
+xm;
+where C0 is a given initial surface. For more details on imposing constraints using Lagrange multipliers see [29]. We now state the Helfrich problem, or equivalently the geometric flow for biomembrane modeling. Let GT be the trajectory space
+GT :1⁄4 fðx; tÞ : x 2 CðtÞ; t 2 1⁄20; T g;
+and x : GT ! Rdþ1 be the unique function defined by the property that xðx; tÞ 1⁄4 x for all x 2 CðtÞ; t 2 1⁄20; T . We call x the trajectory of the evolution.
+Problem 3.1. (Weak Helfrich flow) Given an initial surface C0 and a final time T > 0, find the trajectory x : GT ! Rdþ1, the area multiplier k : 1⁄20; T ! R and the volume multiplier p : 1⁄20; T ! R such that Cð0Þ 1⁄4 C0 and for all t 2 ð0; TÞ
+Z
+CðtÞ
+x_ / 1⁄4 dJðCðtÞ; /Þ :1⁄4 dWðCðtÞ; /Þ k dAðCðtÞ; /Þ p dVðCðtÞ; /Þ ð12Þ
+for all smooth / : CðtÞ ! Rdþ1 and supplemented by the conservation relations
+AðCðtÞÞ 1⁄4 AðCð0ÞÞ; VðCðtÞÞ 1⁄4 VðCð0ÞÞ: ð13Þ
+The shape derivatives of the area, volume and bending energy functionals are given by (see [12])
+dAðC; /Þ 1⁄4
+Z
+C
+h/ dVðC; /Þ 1⁄4
+Z
+C
+/; ð14Þ
+dWðC; /Þ 1⁄4
+Z
+C
+rC/ rCh
+Z
+C
+hjrCmj2/ þ 1
+2
+Z
+C
+h3/: ð15Þ
+Integrating (15) by parts, and using that jrCmj2 1⁄4 h2 þ 2k in three dimensions [12], the Euler–Lagrange equation for J is given by
+DCh 1
+2 h3 þ 2kh þ kh þ p 1⁄4 0:
+The familiar equations for W without constraints follows from k 1⁄4 p 1⁄4 0 [7]. Since neither the normal m nor the second fundamental form rCm are well defined on a globally C0 piecewise polynomial surface, we now eliminate m as an explicit quantity in (15). This is achieved as in [14,15], by allowing general variations of the manifold C, not necessarily in the normal direction, and using the total mean curvature h 1⁄4 hm as a variable instead of h. However, our derivation being based on shape differential calculus is rather concise. First note that (14) give rise to the following vector form of the area and volume shape derivatives:
+dAðC; /Þ 1⁄4
+Z
+C
+h /; dVðC; /Þ 1⁄4
+Z
+C
+m /: ð16Þ
+The following Theorem establishes an equivalent formulation of the shape derivative (15) of Willmore energy, which does not explicitly involve the normal m.
+Theorem 3.1 (Vector form of dW). For all smooth vector functions /, we have
+dWðC; /Þ 1⁄4
+Z
+C
+rC/ : rCh
+Z
+C
+rC/ðrCx þ rCxTÞ : rCh þ 1
+2
+Z
+C
+divCh divC/:
+Since rCx 1⁄4 rCxT 1⁄4 I m m for as long as x stands for the identity over C, whether C is discrete or not, the symmetrization above is immaterial. However, writing the middle term implicitly would break the symmetry and could potentially be useful to reduce tangential motions. The proof of Theorem 3.1 requires the two following lemmas. The first one deals with the term
+R
+C rC/ rCh in (15).
+3174 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+Lemma 3.2. For all smooth vector functions /, we have the identity
+Z
+C
+rC/ rCh 1⁄4
+Z
+C
+rC/ : rCh
+Z
+C
+rC/ðrCx þ rCxTÞ : rCh
+Z
+C
+hDCm /: ð17Þ
+Proof. We first observe that rCmh 1⁄4 rCmTh 1⁄4 0 because rCm is symmetric and h is normal. In view of (10), we obtain rCh 1⁄4 rCðh mÞ 1⁄4 rChm. Then
+rC/ rCh 1⁄4 rCðh mÞ rCð/ mÞ 1⁄4 rChm rC/m þ rChm rCm/ 1⁄4 rC/ðm mÞ : rCh þ rCh rCm/;
+where we have used again (10). We next employ (11) to integrate by parts the last term of the previous formula Z
+C
+rCh rCm/ 1⁄4
+Z
+C
+hdivCðrCm/Þ 1⁄4
+Z
+C
+hrCm : rC/
+Z
+C
+hDCm /:
+In light of (6), we can write rCh 1⁄4 rCðhmÞ 1⁄4 hrCm þ rCh m, whence
+Z
+C
+rCh rCm/ 1⁄4
+Z
+C
+rC/ : rCh þ
+Z
+C
+ðrCh mÞ : rC/
+Z
+C
+hDCm /:
+Since we have shown that rCh 1⁄4 rChm, using tensor product identities we get
+ðrCh mÞ : rC/ 1⁄4 ðrChm mÞ : rC/ 1⁄4 rC/ðm mÞ : rCh:
+Inserting this expression into the previous one, and using 2ðI m mÞ 1⁄4 ðrCx þ rCxTÞ as given by (5), leads to the asserted
+equality (17). The second lemma provides an alternative expression for R
+C hDCm / in (17). h
+Lemma 3.3. For all smooth vector functions /, we have the identity
+Z
+C
+hDCm / 1⁄4
+Z
+C
+hjrCmj2/ 1
+2
+Z
+C
+rCh2 /; ð18Þ
+where / 1⁄4 m / is the normal component of /.
+Proof. From (5) it follows that / 1⁄4 /m þ rCx/ and
+hDCm / 1⁄4 hjrCmj2/ þ hrCh rCx/:
+As rCx is symmetric, and is the identity for tangent vectors, we see that
+hrCh rCx/ 1⁄4 1
+2 rCh2 rCx/ 1⁄4 1
+2 rCxrCh2 / 1⁄4 1
+2 rCh2 /;
+and the asserted expression (18) follows. h
+We are now in a position to prove Theorem 3.1.
+Proof of Theorem 3.1. Inserting (17) and (18) into (15) yields
+dWðC; /Þ 1⁄4
+Z
+C
+rC/ : rCh
+Z
+C
+rC/ðrCx þ rCxTÞ : rCh þ 1
+2
+Z
+C
+h2h /
+Z
+C
+rCh2 / :
+In view of (11) we have R
+C h2h / 1⁄4 R
+C divCðh2/Þ. Moreover, invoking (7) we deduce
+divCðh2/Þ 1⁄4 h2divC/ þ rCh2 /;
+divCh 1⁄4 divCðhmÞ 1⁄4 rCh m þ hdivCm 1⁄4 h2;
+because divCm 1⁄4 h. Consequently
+Z
+C
+h2h / 1⁄4
+Z
+C
+divCh divC/ þ
+Z
+C
+rCh2 /;
+which implies the assertion.
+4. Discrete geometric schemes for biomembranes
+We now present a discrete version of the Helfrich flow (12). We start with a semi-implicit Euler method for time stepping. We continue with the notion of isoparametric finite elements on surfaces. Together they yield the fully discrete scheme. We conclude with the algorithm for computing Lagrange multipliers.
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3175
+
+
+4.1. Time discretization
+Consider the time partition t0 1⁄4 0 < < tMþ1 1⁄4 T of 1⁄20; T , with time step sn :1⁄4 tnþ1 tn, for n 1⁄4 0; . . . ; M. For advancing the surface from Cn to Cnþ1, we resort to the same semi-implicit Euler method as in [30,17,16,31,24,25,13,26,14,15]:
+xð ; tnþ1Þ Xnþ1 :1⁄4 x þ snVnþ1; ð19Þ
+where x is the identity over Cn and Vnþ1 is an approximation of the velocity vð:; tnþ1Þ. Note that both, Xnþ1 and Vnþ1 are approximation at time tnþ1 but are defined over Cn. The vector field Xnþ1 is an implicit description of the new surface Cnþ1 according to the following time discretization of (12)
+1 sn
+Z
+Cn ðXnþ1 xÞ U 1⁄4 dJnþ1ðCn; UÞ 8U; ð20Þ
+and
+Cnþ1 :1⁄4 fXnþ1ðxÞ 8x 2 Cng: ð21Þ
+The time-discrete shape derivative dJnþ1ðCnÞ in (20) reads very much like expressions (16) for area and volume energies and Theorem 3.1 for Willmore energy, except that the geometry ðC; m; xÞ is explicit at time tn and the system is linear in the implicit unknowns ðXnþ1; Hnþ1Þ. This is an effective geometric linearization of the highly nonlinear flow (12). Eq. (21) means that the surface Cnþ1 is obtained as the image of Xnþ1, thereby preserving the connectivity of Cn. Consequently, topological changes are not admissible in this formulation. Eq. (20) can be equivalently written in terms of Vnþ1 :1⁄4 1
+sn ðXnþ1 xÞ instead
+of Xnþ1. We prefer this choice because it helps make the exposition more coherent as this is the natural variable for membrane–fluid interaction [11]. So we will describe all our discrete schemes using Vnþ1 instead of Xnþ1. In this vein, we now formulate a semidiscrete equation for curvature Hnþ1. The point of departure is the key geometric identity DCx 1⁄4 h written in (5). Combining this with (19) we get the following geometric PDE on Cn:
+Hnþ1 þ snDCn Vnþ1 1⁄4 DCn x: ð22Þ
+Eq. (20) requires both Vnþ1 and Hnþ1. It is then natural to keep them separately, which entails an operator splitting of the underlying fourth order problem into two second order linear PDE on Cn.
+4.2. Space discretization
+We recall the notion of finite elements on surfaces.
+Definition 4.1 (Polyhedral surface). A pair ðCh; T hÞ is a polyhedral surface if Ch Rdþ1 and T h is a finite family of closed, non degenerate, d-simplices in Rdþ1 such that:
+The intersection of two simplices in the family is either empty or a ðd kÞ-dimensional sub-simplex of both simplices with k 1⁄4 1; . . . ; d, and
+Ch 1⁄4 S
+K2T h K.
+Let Kb Rd be the master element, i.e. the convex hull spanned by the canonical basis feigd
+i1⁄41. Given a d-simplex K in Rdþ1
+let FK : Kb ! K be a injective affine map such that the vertices of Kb are mapped to the vertices of K.
+Definition 4.2 (Piecewise polynomial surface). Given a polyhedral surface ðCh; T hÞ and a positive integer m, let F : Ch ! Rdþ1
+be a C0 map that leaves the vertices of Ch unchanged and such that FjK is a polynomial of degree 6 m for each K 2 T h. Then
+the subordinate piecewise polynomial surface eCh of degree m is defined by eCh 1⁄4 FðChÞ.
+A C0-finite element space on eCh can then be defined as follows:
+Shð eChÞ 1⁄4 fU 2 C0ðCe hÞ : U eFK 2 PmðKb Þ 8 K 2 T hg;
+where PmðKb Þ is the set of polynomial of degree 6 m in d variables and FeK 1⁄4 F FK . We do not consider C1-elements. We restrict both the surface and finite element space to have the same polynomial degree m for ; we discuss polynomial mismatch in [18].
+4.3. The fully discrete scheme
+We now couple the time discretization (20) and (22) with a space discretization using polynomial degree m 1⁄4 2. We seek velocity and curvature Vnþ1; Hnþ1 2 Snþ1
+h , and multipliers pnþ1; knþ1 2 R, satisfying
+Z
+Cn
+h
+Vnþ1 U 1⁄4 dWnþ1
+h ðCn
+h; UÞ knþ1dAn
+h ðCn
+h; UÞ pnþ1dV n
+h ðCn
+h; UÞ ð23Þ
+3176 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+for all U 2 Snþ1
+h as well as Z
+Cn
+h
+Hnþ1 W sn
+Z
+Cn
+h
+rCn
+h Vnþ1 : rCn
+hW 1⁄4
+Z
+Cn
+h
+rCn
+h x : rCn
+h W; ð24Þ
+for all W 2 Snþ1
+h . The parametric scheme (24) is due to Dziuk for the mean curvature flow [26]. It has been used more recently
+for other flows [30,17,16,11,18,31,24,25,13,14,32,33,15]. On the other hand, dWnþ1
+h ðCn
+h; UÞ approximates dWðC; UÞ in Theorem 3.1 and reads
+dW nþ1
+h ðCn
+h; UÞ 1⁄4
+Z
+Cn
+h
+rCn
+h Hnþ1 : rCn
+hU
+Z
+Cn
+h
+ðrCn
+h x þ rCn
+h xTÞrCn
+h U : rCn
+h Hnþ1 þ 1
+2
+Z
+Cn
+h
+divCn
+h Hnþ1 divCn
+h U; ð25Þ
+whereas dAn
+h ðCn
+h; UÞ and dV n
+h ðCn
+h; UÞ approximate (16)
+dAn
+h ðCn
+h; UÞ 1⁄4
+Z
+Cn
+h
+Hn U; dVn
+h ðCn
+h; UÞ 1⁄4
+Z
+Cn
+h
+U m: ð26Þ
+Finally, we enforce the area and volume constraints
+AðCnþ1
+h Þ 1⁄4 AðCn
+hÞ; V ðCnþ1
+h Þ 1⁄4 V ðCn
+h Þ:
+We explain the actual computation of multipliers knþ1; pnþ1 in Section 4.6.
+4.4. Geometric consistency
+The chief geometric identity h 1⁄4 DCx needs to be relaxed at the discrete level. According to [18] we say that a discrete triple ðC; X; HÞ is geometrically consistent if it satisfies the weak relation:
+X; H 2 Sh :
+Z
+C
+H U1⁄4
+Z
+C
+rCX : rCU 8U 2 Sh ð27Þ
+However, if X 1⁄4 x is the identity over C, then (27) may yield oscillations in both direction and magnitude for H and polynomial degree m 1⁄4 1. Lack of convergence has already been reported in the literature [14,16], whereas convergence of H with order m 1 has been proved [32,34]. We note that (19) decouples Xnþ1 and x, the identity over Cn
+h, and thereby makes (24) geometrically consistent. The situation is even more dramatic when mesh modification is involved, because we have no access to the exact geometry, and leads to a new paradigm: where to place the nodes to keep geometric consistency and accuracy. To illustrate this issue, consider the example of Fig. 1 with m 1⁄4 1 (linear finite elements) in 2D. Both the exact unit circle C and its piecewise linear approximation Ch are given (left). Bisection of every edge of Ch yields a piecewise linear vector pair (X,H) satisfying (27) with H much bigger in magnitude to 1 at the old vertices and with wrong orientation at the midpoints. This strange behavior is however consistent with the curvature of a smooth curve going through the nodes (right), but quite distinct from the unit circle (left). Therefore, the issue at stake is that placing the new nodes over Ch, namely overrelying on the approximate curve, has undesirable geometric effects. Similar geometric artifacts occur when doing mesh coarsening and smoothing, which together with mesh refinement are important ingredients to maintain a balanced computational effort and mesh quality for any polynomial degree m P 1. A remedy is briefly explored in Section 5 and in full detail in [18].
+4.5. Linears vs. quadratics
+The simulations in Section 6 are obtained using quadratics ðm 1⁄4 2Þ. We now list their advantages against linears.
+Fig. 1. Placing the new nodes created by bisection on the curve is equivalent to replacing the circle being approximated (left) by a smooth curve passing through all the nodes (right). This yields geometric artifacts.
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3177
+
+
+Initialization. To start our scheme (24), (23) we need a discrete representation of C0
+h but not of H0. This appears to be an
+advantage of our method with respect to those in [16,31,14,15] for Willmore energy. However, we also need H0 to deal with dA0
+h ðC0
+h; UÞ on (26). We have noticed that a geometrically inconsistent initial triple ðC0; X0; H0Þ may prevent ours, as well as the other methods, to start for m 1⁄4 1. Dziuk proposes in [14] an intricate computation for the initial triple to be geometrically consistent. The issue disappears with quadratics m 1⁄4 2. They can also be used to create a geometrically consistent triple for m 1⁄4 1. In fact, we let X0 be the identity over C0
+h, compute H0 explicitly from (27), and finally interpolate at the linear nodes; the resulting triple is geometrically consistent and the method is practical. We have used this idea for initialization in Figs. 2 and 3. Time-steps. The only time-step restriction of our approach, as well as those in [16,31,14,15], is to avoid node crossing while advancing the surface from Cn
+h to Cnþ1
+h . However, taking small time-steps may represent an almost explicit, and so geo
+metrically inconsistent, computation of curvature Hnþ1 from (24). This undesirable effect has been observed for m 1⁄4 1 and is responsible for initialization difficulties and numerical oscillations associated with mesh modification. The issue does not occur with m 1⁄4 2. Tangential motions. Undesirable tangential motions, particularly close to equilibrium, have been reported [14–16]. Our method does exhibit such motions for m 1⁄4 1 as documented in Figs. 2 and 3. They may lead to severe mesh distortions and compromise simulations. The use of mesh smoothing resolves the problem as can be seem by comparing left and middle columns of Fig. 2. More importantly, m 1⁄4 2 bypasses the problem altogether without mesh smoothing (right column of Fig. 2). Mesh quality. For the ellipsoid evolutions of Fig. 2, quadratics maintain the mesh quality at a value roughly of 0.4 (right column) whereas linears with smoothing keep it at about 0.5 (mid column); see Fig. 3. These values are excellent. This situation is rather typical in our simulations in Section 6, which run with m 1⁄4 2 without mesh smoothing except for the large deformation of the twisted banana (see Figs. 12 and 13). On the other hand, linears without smoothing blow up in finite time (Fig. 2 left column).
+4.6. Constraints
+We present a method to compute the discrete Lagrange multipliers of (23). This is an instance of the more general method described in [35] to enforce discrete isoperimetric constraints to machine precision. Since both dAn
+h ðCn
+h; UÞ and dV n
+h ðCn
+h; UÞ in (26) are explicit, then (23) and (24) can be rewritten as
+Fig. 2. An initial ellipsoid of aspect ratio 4 1 1 is subject to a Helfrich flow. The mesh evolution under scheme (23) is shown using piecewise linears (left), piecewise linears with smoothing (center), and piecewise quadratics (right). The snapshots are taken at times t 1⁄4 0; 0:4; 1:4. All three meshes have the same number of degrees of freedoms and the quadratic mesh has 4 times fewer elements. Using piecewise linears produces a blow up of the computed bending energy in finite time due to mesh distortion. This does not occur if mild mesh smoothing is used or if quadratic elements (without smoothing) are used. See Fig. 3 for a more quantitative behavior.
+3178 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+EðVnþ1; Hnþ1Þ :1⁄4 Fw þ knþ1Fa þ pnþ1Fv ; ð28Þ
+where Fw; Fa, and Fv are the forcing functions in system (23), (24) corresponding to energies W, A and V; note that E is linear in its two arguments. The idea of the method is to solve (28) by solving a similar system for three different right hand sides, and adjust the multipliers to verify the area and volume constraints
+AðCnþ1
+h Þ 1⁄4 AðCn
+hÞ; V ðCnþ1
+h Þ 1⁄4 V ðCn
+hÞ: ð29Þ
+More precisely, let ðVnþ1
+s ; Hnþ1
+s Þ be the solution of
+EðVnþ1
+s ; Hnþ1
+s Þ 1⁄4 Fs;
+for s 1⁄4 w; a; v. Invoking the linearity of system (28) we have
+Vnþ1 1⁄4 Vnþ1
+w þ knþ1Vnþ1
+a þ pnþ1Vvnþ1;
+where knþ1 and pnþ1 are determined so that (29) is satisfied. Given Vnþ1
+w ; Vnþ1
+a and Vvnþ1, the pair ðknþ1; pnþ1Þ is a root of
+f : R2 ! R2 defined by
+f ðk; pÞ :1⁄4 AðChðk; pÞÞ AðCn
+hÞ VðChðk; pÞÞ VðCn
+hÞ
+"#
+; ð30Þ
+where Chðk; pÞ :1⁄4 Cn
+h þ sðVnþ1
+w þ kVnþ1
+a þ pVvnþ1Þ. A Newton method can now be used to find the roots knþ1 and pnþ1 of f: for i 1⁄4 1; 2; . . .
+Ch ðknþ1
+i 1 ; pnþ1
+i 1 Þ :1⁄4 Cn
+h þ s Vnþ1
+w þ knþ1
+i 1 Vnþ1
+a þ pnþ1
+i 1 Vvnþ1 ;
+ðknþ1
+i ; pnþ1
+i Þ :1⁄4 ðknþ1
+i 1 ; pnþ1
+i 1 Þ ðDf ðknþ1
+i 1 ; pnþ1
+i 1 ÞÞ 1f ðknþ1
+i 1 ; pnþ1
+i 1 Þ;
+where the derivatives of f can be obtained via shape differential calculus.
+Lemma 4.1 (Jacobian of f). For s sufficiently small, the differential of fg1028 in (30) is given by
+Df ðk; pÞ 1⁄4 s
+R
+Ch divCh Va
+R
+Ch divCh Vv
+R
+Ch m Va
+R
+Ch m Vv
+"#
+;
+where Ch 1⁄4 Chðk; pÞ.
+Proof. We define an extension Ve s of Vs for s 1⁄4 w; a; v in a tubular neighborhood V of Cn
+h as follows:
+Ve sðxÞ 1⁄4 VsðysÞ; where ys 2 Cn
+h satisfies ys þ sVsðysÞ 1⁄4 x 2 V:
+Note that this extension is independent of k and p and is well defined provided that s is sufficiently small. Since
+AðChðk; pÞÞ 1⁄4
+Z
+Ch ðk;pÞ
+1; VðChðk; pÞÞ 1⁄4
+Z
+Xh ðk;pÞ
+1;
+invoking the shape derivatives (14), we deduce
+74
+76
+78
+80
+82
+84
+0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8
+0
+0.2
+0.4
+0.6
+0.8
+1
+Bending Energy
+Minimum Quality
+Time
+Quadratics (energy) Linears (energy) Linear with Smoothing (energy) Quadratics (quality) Linears (quality) Linear with Smoothing (quality)
+Fig. 3. Energy (left scale) and mesh quality (right scale) as a function of time for the simulations described in Fig. 2. For linear elements blow up occurs at t 1:4 and correlates with mesh distortion. Quadratics conserve the mesh quality without smoothing.
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3179
+
+
+@kAðChðk; pÞÞ 1⁄4 s
+Z
+Ch ðk;pÞ
+H Ve a 1⁄4 s
+Z
+Ch ðk;pÞ
+divC Ve a
+and
+@kVðChðk; pÞÞ 1⁄4 s
+Z
+Ch ðk;pÞ
+eVv m:
+This concludes the proof. h
+Remark 4.1 (Initial guess). To derive a good initial guess, we recall that
+AðCÞ 1⁄4 1
+d
+Z
+C
+divCx; VðCÞ 1⁄4 1
+dþ1
+Z
+C
+x m;
+and manipulate these formulas to approximate AðChðk; pÞÞ and VðChðk; pÞÞ. To do so, we replace the domain of integration Chðk; pÞ by Cn
+h and the identity on Chðk; pÞ by x þ sVnþ1 to infer that
+AðChðk; pÞÞ s
+d
+Z
+Cn
+h
+divCn
+h Vw þ k
+Z
+Cn
+h
+divCn
+h Va þ p
+Z
+Cn
+h
+divCn
+h Vv
+!
+þ AðCn
+hÞ
+VðChðk; pÞÞ s
+dþ1
+Z
+Cn
+h
+m Vw þ k
+Z
+Cn
+h
+m Va þ p
+Z
+Cn
+h
+m Vv
+!
+þ V ðCn
+h Þ:
+In view of (29) we impose that the terms in parenthesis vanish. If as 1⁄4 R
+Cn
+h
+divCn
+h Vs and bs 1⁄4 R
+Cn
+h
+m Vs with s 1⁄4 w; a; v, then we can solve the following system for k and p to get a good initial guess:
+aa av
+ba bv
+k
+p 1⁄4 aw
+bw
+:
+Remark 4.2 (Implementation). If a direct solver is used to solve the system, then it is only necessary to do the factorization once and use it to solve all the systems. This implies that the computational cost of using this method to impose the constraints is basically the same as not having the constraints. On the other hand, if an iterative solver is used then the system has to be solved three times, but each system is independent from the others so a parallel implementation is very straightforward.
+Remark 4.3 (Comparison with penalization). The previous method exhibits a couple of advantages over penalization: penalization is sensitive to the penalization parameter and the solution oscillates when reaching equilibrium. These drawbacks do not happen with the previous method.
+5. Computational tools
+A drawback of the parametric FEM is the deterioration of mesh quality caused by tangential motion of nodes. Another issue is the disparate space-time scales typical of fourth order problems. In this section, we briefly describe numerical tools to circumvent these issues and speed up computations. Full details are given in [35]. As an illustration Fig. 4 shows a view of the final mesh obtained for the flow of Fig. 5 with and without space adaptivity.
+Fig. 4. The initial ellipsoid of Fig. 5 below was subject to a discrete Helfrich’s flow. Starting with the same initial mesh two simulations were run, one with space adaptivity (left) and the other one without (right). The pictures show the spherical caps of the final equilibrium meshes (cf. 4th frame of Fig. 5). Space adaptivity allows for the of a smaller number of degrees of freedoms and a consequent decrease on the computational time without any appreciable difference in the geometric quantities of interest.
+3180 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+5.1. Time adaptivity
+Time-step control for nonlinear time dependent fourth order problems is indispensable for two reasons:
+Disparate time-scales. It is typical that fast scales coexist with slow scales. We illustrate this with Example 6.3 for a twisted banana. At the beginning the time scale is fast relative to the interval of evolution, whereas it turns out to be relatively slow towards the end. Time-step control helps avoid negligible evolution. Node crossing. This is the only geometric constraint for the time-step but it is crucial for the integrity of the mesh and success of the entire simulation.
+130
+135
+140
+145
+150
+155
+160
+165
+170
+175
+180
+0 0.2 0.4 0.6 0.8 1
+0
+20
+40
+60
+80
+100
+120
+140
+160
+180
+200
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies
+Bending Energy Kinetic Energy
+-6
+-5.5
+-5
+-4.5
+-4
+-3.5
+-3
+-2.5
+-2
+-1.5
+-1
+0 0.2 0.4 0.6 0.8 1
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies
+Area Multiplier Volume Multiplier
+Fig. 5. Evolution of an initial axisymmetric ellipsoid of aspect ratio 8 1 1. For each frame the picture on the right is a 3D view of the surface mesh whereas that on the left is a 2D cut through a symmetry plane. The evolution is characterized by the formation of spherical caps connected by a strongly cylindrical and long neck (dumbbell shape). The two bottom graphs show the evolution of the corresponding bending and kinetic energies (left) and the area and volume Lagrange multipliers (right). Notice that the bending energy approaches the equilibrium as the kinetic energy approaches 0. The bending energy for this aspect ratio is reduced approximately 22%.
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3181
+
+
+We employ the following algorithm, fully described in [35]. If qK is the diameter of the largest inscribed ball in K 2 T , and z is a generic node of T , then we let dðzÞ be the nodal function that takes the minimum of qK over all K 2 T that share z. The
+quantity # dðzÞ
+jVðzÞj gives the largest time-step to move node z without entangling the mesh, provided # 6 1=2. Practice indicates that # 1⁄4 1=3 is a good choice for linear meshes whereas # 1⁄4 1=6 is the safe choice for quadratic meshes controlled by the hybrid method of [35].
+80
+85
+90
+95
+100
+0 0.2 0.4 0.6 0.8 1
+0
+10
+20
+30
+40
+50
+60
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies
+Bending Energy Kinetic Energy
+-5
+-4.5
+-4
+-3.5
+-3
+-2.5
+-2
+-1.5
+0 0.2 0.4 0.6 0.8 1
+3
+3.5
+4
+4.5
+5
+5.5
+6
+6.5
+7
+7.5
+8
+Volume mult axis
+Area mult axis
+Time
+Area and volume multipliers
+Area Multiplier Volume Multiplier
+Fig. 6. Evolution of an initial axisymmetric ellipsoid of aspect ratio 4 1 1. For each frame the picture on the right is a 3D view of the surface mesh and that on the left is a 2D cut through a symmetry plane. This evolution displays the formation of spherical caps connected by a relatively short neck, but still gives rise to a dumbbell shape (compare with Fig. 5). The two bottom graphs show the evolution of the corresponding bending and kinetic energies (left) and the area and volume Lagrange multipliers (right). The bending energy for this aspect ratio is reduced approximately 14%.
+60
+60.2
+60.4
+60.6
+60.8
+61
+61.2
+61.4
+61.6
+61.8
+0 0.1 0.2 0.3 0.4 0.5
+-2
+0
+2
+4
+6
+8
+10
+12
+14
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies
+Bending Energy Kinetic Energy
+Fig. 7. Evolution of an initial axisymmetric ellipsoid of aspect ratio 2 1 1. For each frame the picture on the left is a 3D view of the surface mesh and that on the right is a 2D cut through a symmetry plane. This evolution does not exhibit the formation of separate spherical caps but rather a pill shaped configuration. (compare with Figs. 5 and 6). The two bottom graphs show the evolution of the corresponding bending and kinetic energies (left) and the area and volume Lagrange multipliers (right). The bending energy for this aspect ratio is reduced approximately 2%.
+3182 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+5.2. Space adaptivity and geometric consistency
+The idea is to equidistribute the pointwise error, as proposed in [17] and studied in [34]; see also [36–38]. This maintains a balance between accuracy and number of degrees of freedom, and makes simulations affordable. This is achieved via atomic refinement and coarsening operations based on the domain pointwise error (see [35]). We use the maximum strategy, and refer to [39,40] for details. To avoid geometric artifacts due to geometric inconsistency, as explained in Section 4.4, we first interpolate H in the new mesh and next solve (27) for X. This procedure is stable, efficient, and keeps the existing geometric accuracy for any polynomial degree m P 1. We refer to [18] for a full discussion including proofs of these assertions.
+Fig. 8. Evolution of a non-axisymmetric ellipsoid of aspect ratio 2 3 5. For each frame the picture on the bottom is a 3D view of the surface mesh and the pictures on the top from left to right are three cuts through the coordinate planes. The evolution seems to produce an axisymmetric equilibrium.
+80
+85
+90
+95
+100
+105
+110
+0 0.1 0.2 0.3 0.4 0.5
+0
+10
+20
+30
+40
+50
+60
+70
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies
+Bending Energy Kinetic Energy
+-5
+-4.5
+-4
+-3.5
+-3
+-2.5
+-2
+-1.5
+-1
+-0.5
+0 0.2 0.4 0.6 0.8 1
+1
+1.5
+2
+2.5
+3
+3.5
+4
+4.5
+5
+5.5
+Volume mult axis
+Area mult axis
+Time
+Area and volume multipliers
+Area Multiplier Volume Multiplier
+Fig. 9. Evolution of an initial axisymmetric ellipsoid of aspect ratio 3 1 1. For each frame the picture on the bottom is a 3D view of the surface mesh and that on the top is a 2D cut through a symmetry plane. This evolution is characterized by the formation of a depression in the center together with a rounding and thickening of the outer circular edge (red blood cell). The two bottom graphs show the evolution of the corresponding bending and kinetic energies (left) and the area and volume Lagrange multipliers (right). The bending energy for this aspect ratio is reduced approximately 24%.
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3183
+
+
+5.3. Mesh improvement
+If a parametric FEM is used to discretize a geometric evolution, then it creates a discrete flow of the mesh. The mesh quality tends to deteriorate as the mesh gets transported. This effect is most pronounced for large domain deformations, and may lead to blow up in finite time. Figs. 2 and 3 depict such a situation for linear FEM. It is thus significant to include mesh quality control as part of the design of a robust method. We implement a mesh optimization routine which operates on stars and selectively reallocates the centered node so as to:
+Improve the star quality; Preserve the shape of the approximate surface; Maintain the local mesh size; Produce negligible changes of the finite element functions defined on the mesh.
+Fig. 10. Evolution of an initial axisymmetric ellipsoid of aspect ratio 5 5 1. For each frame the picture on the bottom is a 3D view of the surface mesh and that on the top is a 2D cut through symmetry plane. The equilibrium is characterized by the formation of an extreme depression of the center to the point of almost pinching (red blood cell). During the evolution the thickening of the outer circular edge occurs faster than the motion on the center, producing a depressed circular ring in between the outer edge and the center (second frame). This in turn is responsible for the appearance of a center bump instead of a depression. Later the evolution continues to squeeze this bump to a depression at the expense of more thickening and rounding of the outer circular edge.
+Fig. 11. Initial configuration of the twisted banana. We see from left to right the front, back and top views of the initial twisted banana shape. To help visualize the shape it is rendered next to a thin right cylinder with its axis in the z direction.
+3184 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+Our method, described in [35], consists of a hybrid affine-quadratic approach for isoparametric surfaces, which extends mesh smoothing techniques from linears to quadratics. More precisely, after mesh smoothing has been performed on the underlying simplicial mesh (the skeleton), we relocate the position of the quadratic midnodes but restrict it to lie not too far from the corresponding simplicial midnode. Mesh modification yields geometric inconsistencies, especially for linear elements, which can be cured with the algorithm in [18].
+6. Numerical results
+In this section, we present numerical simulations for the geometric biomembrane model of Problem 3.1 using the fully discrete scheme (24), (23) for quadratics polynomials m 1⁄4 2. We do not employ the computational tools of Section 5 except for the twisted banana, which exhibits very large domain deformations. These tools are indispensable for linears m 1⁄4 1. The algorithm was coded in C using the adaptive finite element library ALBERTA [41,40]. The description of each simulation is included in the caption of the corresponding figure. In all simulations the volume and surface area are preserved to machine precision.
+Fig. 12. Evolution of the twisted banana shape of Fig. 11. The frames show a 3D view of the surface mesh. The simulation was run in the time interval [0,5]. The final equilibrium was reached at t 0:6. Two different time scales associated to distinct geometric motions were observed. In Figs. 13 and 14 we describe the two time scales leading to the second and forth frames, respectively.
+Fig. 13. Time zooming to the interval [0,0.02] for the evolution of the twisted banana described in Fig. 12. For each frame the picture on the left is a 3D view of the whole surface and that on the right is a 3D mesh view of the lower end suitably zoomed. This is the fast time scale of the simulation and is characterized by the formation of spherical caps and disappearance of the twist.
+Fig. 14. Time zooming to the interval [0.04, 1.3] for the evolution of the twisted banana described in Fig. 12. For each frame the picture on the left is a 3D view of the surface and that on the right is a 2D cut through a symmetry plane together with the velocity field depicted with arrows. Observe that the arrows disappeared in the last frame, when equilibrium is reached. This is the slow time scale of the evolution, and is characterized by the straightening of the boomerang-like shape of the fast time scale evolution (Fig. 13).
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3185
+
+
+Axisymmetric equilibrium shapes have been obtained in [42,43] by reducing the problem to a system of ODEs. Our simulations preserve the axisymmetry during the evolution without imposing it. We refer to [16,31,14] for 3 dimensional simulations with piecewise linears with and without axial symmetry.
+6.1. Dumbbell bars
+For axisymmetric initial ellipsoids it follows that 2 of its 3 axes are equal. Also as the bending energy is invariant under dilations what actually matters for the flow is the aspect ratio of the ellipsoid axes. When the third axis of the initial configuration is greater than about twice the length of the other axes, the evolution gives rise to dumbbell shapes. We present three simulations for the aspects ratios of 8 1 1 (Fig. 5), 4 1 1 (Fig. 6) and 2 1 1 (Fig. 7). The last one is not literally in the family but makes the transition phase to the ‘‘pill” shaped family through the sphere to the next family of Section 6.2. We also include a non axisymmetric initial ellipsoid (Fig. 8). The simulation reveals that at equilibrium it ends being axisymmetric.
+6.2. Red blood cells
+This family of shapes, also called discocytes, occurs when the third axis on the initial axisymmetric ellipsoid is less than about half the length of the other axes. We present two simulations for aspects ratios 3 3 1 (Fig. 9) and 5 5 1 (Fig. 10). Pinching is observed when the third axis is at least five times smaller than the others. For higher aspects ratios the upper and lower sides actually cross. This self-intersection is allowed by the parametric FEM, which is local in nature, but the evolution is meaningless for biomembrane modeling. The aspect ratio 5 5 1 yields an equilibrium shape which barely touches the other side (see Fig. 10).
+6.3. Twisted banana
+The twisted banana is interesting for bending flows because it is not axisymmetric and also has two different bendings in it (the banana bending plus the twist). The time-step adaptivity was crucial for this simulation as we detected two very different time scales along the evolution: the initial time-step is 10 6 whereas the total running time is t 1⁄4 5. Moreover, the mesh smoothing algorithm is turn on to cope with very large deformations, First we introduce the shape (Fig. 11) and next show the full simulation (Fig. 12) and the two time scales (Figs. 13–15).
+6.4. Toroids
+Fig. 16 shows a nonsymmetric donut shape configuration. The stationary state is not the Clifford torus, as conjectured by Willmore, because the evolution is subject to area and volume constraints.
+6.5. Conclusions
+From the simulations presented in this chapter the following conclusions can be drawn:
+110
+115
+120
+125
+130
+135
+140
+145
+0 0.05 0.1 0.15 0.2
+0
+10
+20
+30
+40
+50
+60
+70
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies (Fast Timescale)
+Bending Energy Kinetic Energy
+113
+113.2
+113.4
+113.6
+113.8
+114
+0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2
+0
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+1.4
+1.6
+Bending Energy
+Kinetic Energy
+Time
+Bending and Kinetic Energies (Slow Timescale)
+Bending Energy Kinetic Energy
+Fig. 15. Kinetic and bending energy plot for the twisted banana simulation. Each graph is correspond to the time interval of the fast and slow scale of the simulation. For the full time scale of the simulation the energy drops appear quite abrupt. The spherical caps are completely formed in the interval [0, 0.01] and the evolution falsely seems to reach a steady state. The bending the energy decreases about 21% in this time interval t 1⁄4 0:01. After this the bending energy decreases only a tiny 0.3% in a relatively long time interval t 1:0.
+3186 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188
+
+
+Spherical caps. For a geometric flow when the initial shape has distinctive ends (as in Simulations 6.1 and 6.3), the formation of spherical-shaped ends connected by a cylindrical neck seems to be the most effective way to minimize the energy. In fact, the formation of spherical-shaped ends decreases the energy several orders of magnitude more than straightening of a bended shape (see Simulation 6.3). Red cells. For a geometric flow when the initial shape is disc like (as Simulation 6.2) the evolution to decrease the energy is characterized by the thickening of the outer circular edge with the formation of a depression in the center. Exponential decay of kinetic energy. The geometric flow shows a clear exponential decay of the kinetic energy when approaching the equilibrium shape. The rate of decay seems to depend in a non trivial way on the equilibrium shape.
+Acknowledgments
+We would like to thank Daniel Köster for providing us with a developmental version of ALBERTA 2.0 with enhanced isoparametric features for surface and volume meshes [41].
+References
+[1] P. Canham, The minimum energy of bending as a possible explanation of the biconcave shape of the human red blood cell, J. Theor. Biol. 26 (1) (1970) 61–81. [2] W. Helfrich, Elastic properties of lipid bilayers – theory and possible experiments, Zeitschrift Fur Naturforschung C – A Journal Of Biosciences 28 (1973) 693. [3] J. Jenkins, The equations of mechanical equilibrium of a model membrane, SIAM J. Appl. Math. 32 (4) (1977) 755–764.
+80
+85
+90
+95
+100
+105
+110
+115
+120
+012345
+0
+10
+20
+30
+40
+50
+60
+70
+80
+90
+Bending energy axis
+Kinetic energy axis
+time
+Bending and Kinetic Energies
+Bending Energy Kinetic Energy
+-3
+-2.5
+-2
+-1.5
+-1
+-0.5
+0
+0 1 2 3 4 5 0.4
+0.6
+0.8
+1
+1.2
+1.4
+1.6
+1.8
+2
+2.2
+2.4
+Volume mult axis
+Area mult axis
+time
+Area and volume multipliers
+Area Multiplier Volume Multiplier
+Fig. 16. Evolution of an initial nonsymmetric donut-shaped surface. Each frame shows a 3D transparent view of the surface (bottom) and the corresponding mesh (top). The evolution follows an asymmetric path and exhibits an energy decrease and multipliers behavior quite different from previous examples with genus 1 topology.
+A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188 3187
+
+
+[4] D. Steigmann, Fluid films with curvature elasticity, Arch. Ration. Mech. Anal. 150 (2) (1999) 127–152. [5] D. Hu, P. Zhang, W. E, Continuum theory of a moving membrane, Phys. Rev. E 375 (4) (2007) 041605–041611. [6] S. Montiel, A. Ros, Curves and surfaces, Graduate Studies in Mathematics, vol. 69. American Mathematical Society, Providence, RI, 2005 (Translated and updated from the 1998 Spanish edition by the authors). [7] T.J. Willmore, Riemannian Geometry, Oxford Science Publications, The Clarendon Press Oxford University Press, New York, 1993. [8] E.A. Evans, R. Skalak, Mechanics and thermodynamics of biomembranes. 2. CRC Crit. Rev. Bioeng. 3 (4) (1979) 331–418. [9] U. Seifert, Configurations of fluid membranes and vesicles, Adv. Phys. 46 (1) (1997) 13–137. [10] D. Steigmann, E. Baesu, R. Rudd, J. Belak, M. McElfresh, On the variational theory of cell-membrane equilibria, Interfaces Free Bound. 5 (4) (2003) 357366. [11] A. Bonito, R. Nochetto, M. Pauletti, Dynamics of biomembranes: effect of the bulk fluid, in preparation. [12] J. Sokołowski, J.-P. Zolésio, Introduction to shape optimization, Springer Series in Computational Mathematics, vol. 16, Springer-Verlag, Berlin, 1992 (Shape sensitivity analysis). [13] G. Dogan, P. Morin, R. Nochetto, M. Verani, Discrete gradient flows for shape optimization and applications, Comput. Methods Appl. Mech. Eng. 196 (37–40) (2007) 3898–3914. [14] G. Dziuk, Computational parametric Willmore flow, Numer. Math. 111 (1) (2008) 55–80. [15] R.E. Rusu, An algorithm for the elastic flow of surfaces, Interfaces Free Bound. 7 (3) (2005) 229–239. [16] J. Barrett, H. Garcke, R. Nürnberg, Parametric approximation of Willmore flow and related geometric evolution equations, preprint. [17] E. Bänsch, P. Morin, R. Nochetto, A finite element method for surface diffusion: the parametric case, J. Comput. Phys. 203 (1) (2005) 321–343. [18] A. Bonito, R. Nochetto, M. Pauletti, Geometrically consistent mesh modification, submitted for publication. [19] Q. Du, C. Liu, X. Wang, A phase field approach in the numerical study of the elastic bending energy for vesicle membranes, J. Comput. Phys. 198 (2) (2004) 450–468. [20] Q. Du, C. Liu, X. Wang, Simulating the deformation of vesicle membranes under elastic bending energy in three dimensions, J. Comput. Phys. 212 (2) (2006) 757–777. [21] S. Esedoglu, S. Ruuth, R. Tsai, Threshold dynamics for high order geometric motions, Interfaces Free Bound. 10 (3) (2008) 263–282. [22] M. Droske, M. Rumpf, A level set formulation for Willmore flow, Interfaces Free Bound. 6 (3) (2004) 361–378. [23] M.C. Delfour, J.-P. Zolésio, Shapes and geometries, Advances in Design and Control, vol. 4, Society for Industrial and Applied Mathematics (SIAM), Philadelphia, PA, 2001 (Analysis, differential calculus, and optimization). [24] K. Deckelnick, G. Dziuk, Error analysis of a finite element method for the Willmore flow of graphs, Interfaces Free Bound. 8 (1) (2006) 21–46. [25] K. Deckelnick, G. Dziuk, C. Elliott, Computation of geometric partial differential equations and mean curvature flow, Acta Numer. 14 (2005) 139–232. [26] G. Dziuk, An algorithm for evolutionary surfaces, Numer. Math. 58 (6) (1991) 603–611. [27] D. Gilbarg, N. Trudinger, Elliptic partial differential equations of second order, Grundlehren der Mathematischen Wissenschaften [Fundamental Principles of Mathematical Sciences], vol. 224, Springer-Verlag, Berlin, 1983. [28] M. Gurtin, An introduction to continuum mechanics, Mathematics in Science and Engineering, vol. 158, Academic Press Inc. [Harcourt Brace Jovanovich Publishers], New York, 1981. [29] M. Giaquinta, S. Hildebrandt, Calculus of variations. I, Grundlehren der Mathematischen Wissenschaften [Fundamental Principles of Mathematical Sciences], vol. 310, Springer-Verlag, Berlin, 1996 (The Lagrangian formalism). [30] E. Bänsch, Finite element discretization of the Navier–Stokes equations with a free capillary surface, Numer. Math. 88 (2) (2001) 203–235. [31] U. Clarenz, U. Diewald, G. Dziuk, M. Rumpf, R. Rusu, A finite element method for surface restoration with smooth boundary conditions, Comput. Aided Geom. Des. 21 (5) (2004) 427–445. [32] C. Heine, Isoparametric finite element approximations of curvature on hypersurfaces, preprint from his webpage. [33] O. Lakkis, R. Nochetto, A posteriori error analysis for the mean curvature flow of graphs, SIAM J. Numer. Anal. 42 (5) (2005) 1875–1898 (electronic). [34] A. Demlow, Higher-order finite element methods and pointwise error estimates for elliptic problems on surfaces, SIAM J. Numer. Anal. 47 (2) (2009) 805–827. [35] M. Pauletti, Parametric AFEM for Geometric Evolution Equations and Coupled Fluid–Membrane Interaction, Ph.D. Thesis, University of Maryland, 2008 %3chttp://www.lib.umd.edu/drum/handle/1903/8603%3e. [36] A. Demlow, G. Dziuk, An adaptive finite element method for the Laplace–Beltrami operator on implicitly defined surfaces, SIAM J. Numer. Anal. 45 (1) (2007) 421–442 (electronic). [37] K. Mekchay, Convergence of Adaptive Finite Element Methods, Ph.D. Thesis, University of Maryland, 2005. [38] K. Mekchay, P. Morin, R. Nochetto, AFEM for the Laplace-Beltrami operator on graphs: design and conditional contraction property, submitted for publication. [39] I. Kossaczky ́ , A recursive approach to local mesh refinement in two and three dimensions, J. Comput. Appl. Math. 55 (3) (1994) 275–288. [40] A. Schmidt, K. Siebert, Design of adaptive finite element software, Lecture Notes in Computational Science and Engineering, vol. 42, Springer-Verlag, Berlin, 2005 (The finite element toolbox ALBERTA, With 1 CD-ROM (Unix/Linux)). [41] D. Köster, O. Kriessl, K. Siebert, Design of finite element tools for coupled surface and volume meshes, Numer. Math. Theor. Methods Appl. 1 (3) (2008) 245–274. [42] J. Jenkins, Static equilibrium configurations of a model red blood cell, J. Math. Biol. 4 (2) (1977) 150–169. [43] U. Seifert, K. Berndl, R. Lipowsky, Shape transformations of vesicles: phase diagram for spontaneous-curvature and bilayer-coupling models, Phys. Rev. A 44 (2) (1991) 1182–1202.
+3188 A. Bonito et al. / Journal of Computational Physics 229 (2010) 3171–3188

@@ -1,0 +1,1148 @@
+A PRACTICAL METHOD FOR NUMERICAL EVALUATION OF SOLUTIONS OF PARTIAL DIFFERENTIAL EQUATIONS OF THE
+HEAT-CONDUCTION TYPE
+BY J. CRANK AND P. NICOLSON
+Communicated by D. R. HARTREE
+Received 20 March 1946'
+1. INTRODUCTION
+This paper is concerned with methods of evaluating numerical solutions of the nonlinear partial differential equation
+dd _d2d dw
+
+where
+
+-=- = — kwe~Aie,
+
+(2)
+
+ot
+
+subject to the boundary conditions
+
+a t < = 0 for 0 < x < l ,
+
+dd
+
+dx = Hx{d) at x = 0 for
+
+(3)
+
+7\R
+^ = H2(d) at x = 1 for
+
+A, k, q are known constants. Equation (1) is of the type which arises in problems of heat flow when there is an
+internal generation of heat within the medium; if the heat is due to a chemical reaction proceeding at each point at a rate depending upon the local temperature, the rate of heat generation is often defined by an equation such as (2).
+The presence of the non-linear term q(dw/dt) in (1) and the empirical nature in many cases, of the surface heat transfer function H-^6), render the use of formal methods unsuitable. Now Hartree(i),(2) has suggested two methods (methods I and II below) of evaluating approximate solutions of partial differential equations in two variables, of the heat-conduction type. In the first the time derivative is replaced by a finite difference ratio, and the resulting ordinary differential equation with x as independent variable is integrated numerically or mechanically. This integration is repeated for each finite step in time, and a trial and error process of solution is necessary to satisfy conditions at the two ends of the range in x. In Hartree's second method the range in x is divided into a finite number of intervals, and the second space derivative of 6 at each point is expressed in terms of the values of 6 at that point and at the neighbouring points on each side. In this way the partial differential equation is replaced approxi-
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+51
+
+mately by a set of first-order equations in time, two of which express the boundary conditions at x = 0, x = 1 to the same degree of approximation. The differential analyser has been used to obtain solutions ofthese equations, the integration proceeding in time. In §§ 2 and 3 of the present paper, the application of Hartree's methods to equations (1) and (2) with conditions (3) is discussed, and the difficulties arising in carrying out mechanical solutions are examined.
+The main purpose of this paper is to discuss a numerical method, method III below, developed by the authors in which both derivatives are replaced by finite difference ratios and the solution proceeds by finite steps in time. In a method proposed by Richardson (3), (4) the steps in time are overlapping which gives rise to a rapidly increasing oscillatory error. A method recently reported by the American Applied Mathematics Panel (5) would seem liable to a similar disadvantage. In the method III below, the time steps do not overlap and an iterative process is involved at each step. In this way the-oscillatory error is removed and much bigger steps in time may be used than in Richardson's treatment.
+For convenience in discussion, the present paper refers to equations (1) and (2), but it is clear that the numerical method can be applied to other forms of equation (2) and is capable of extension to other types of second-order partial differential equations where there is an open boundary in one of the variables.
+
+2. METHOD I: REPLACING THE TIME DERIVATIVE
+Writing d(t) for temperature at time t, regarded as a function of x, and considering a time interval St, the derivative with respect to time may be written
+m
+
+Hence equation (1) becomes approximately
+
+(1/*) [6(t + St) - 0(t)] = l^2 W(t + St) + 0(0] - (q/St) [w(t + St) - w(t)].
+
+(5)
+
+Similarly (2) may be written
+
+(1/St) [w(t + St) - w(t)] = - \k[w{t + St) + w{t)] e-ww+n)+om
+
+or
+
+w(t + St)-w(t) = E[w(t + St) + w(t)],
+
+(6)
+
+where
+
+E =-^kSte-ZA^t+">+m.
+
+(7)
+
+Therefore
+
+w(t + St) = \-^w{t).
+1 — Mi
+
+Alternatively, on integrating with respect to time, (2) becomes
+
+. w(t + St) log .,. = -
+
+/•<+« k
+
+e-A'BAad,tt
+
+Mt)
+
+it
+
+(approximately)
+
+or
+
+w(t + St) = w(t)e2E.
+
+(8)
+(9)
+4-2
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+52
+
+J. CRANK AND P. NICOLSON
+
+I t is easy to see that (8) and (9) reduce to the same for E small, for c2^ = l + 2E + O(E2),
+
+and also
+
+^-^ = 1 + 2E + O(E2).
+
+For E large, however, (9) is a better approximation to the original equation (2)
+
+than (8). The form (9) was suggested to the authors by Prof. D. R. Hartree.
+
+Now the equations (5) and (8) or (5) and (9) are a pair of ordinary differential equa-
+
+tions which can be solved either numerically or mechanically to determine 6(t + St)
+
+and w(t + St) as functions of #, given 6(t) and w(t) as known functions of a;. The integra-
+
+tion proceeds by a number of successive finite intervals-St, which in practice are taken
+
+to be of equal length. The approximate solution of (1) and (2) thus evaluated is a func-
+
+tion of (St) as well as of a; and t, and the true solution is the limit of the approximate one
+
+as 8t-+0.
+
+The nature of the boundary conditions for which this method can be used effectively, and for which the Richardson h2 extrapolation process (4) can be used to remove the
+
+main part of the error in an approximate solution, has been examined by Hartree and
+
+Womersley(l).
+
+A set of solutions of (5) and (9) for given values of the constants and for simple forms
+
+of Hx(6) and H2(d), namely,
+
+Hx(d) = a-p6, H2(6) = 0,
+
+(10)
+
+has been obtained using the differential analyser. For each step St the solution must
+
+satisfy boundary conditions at both ends of the range in x, that is, at x = 0 and x = 1.
+
+This involves evaluating a number of solutions starting at x = 0, with different initial
+
+values of 6{t + St) and by trial and error finding a solution which satisfies the condition
+
+ddjdx = 0 at x = 1. This may necessitate six or more trial solutions for each step in
+
+time; in the particular example under consideration twelve successive steps St were
+
+used and about seventy-two solutions were needed in all. Furthermore, three operators
+
+were required to feed into the differential analyser the functions 6(t), w(t) and E which
+
+is a function of \[6(t + St) + 6(t)], so that the time and labour demanded by this method
+
+tend to be prohibitive. On the other hand, only four integrator units of the analyser
+
+are needed to handle the problem in this way. Results obtained by this method are
+
+discussed in § 10.
+
+3. METHOD I I : REPLACING THE SPACE DERIVATIVE
+Equation (1) may be reduced to a set of ordinary differential equations of the first order by replacing the second space derivative by a finite difference ratio. If 6m_1, 6m and dm+1 are temperatures at time t, at the points x = (m— l)Sx, mSx and (m+l)Sx respectively, then
+
+Equation (1) may therefore be written approximately as
+
+Mm_8m_1-26n + 0n+1 dw
+
+dt ~
+
+(fep
+
+q~df
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+53
+
+An equation of this type holds for each point (mSx) in the range 0<mSx< 1. It is convenient to take Sx such that there is a whole number of steps Sx in the range, i.e. l/&e = p say, an integer. There then exist p — 1 equations of the type (11) for 0 < m < p. To take account of the specified conditions at x = 0 and 1, these points require special treatment. Consider the equation for the point x = 0. Assume that the range in x may be extended one step beyond x = 0, i.e. to the point (— Sx) so that the equation at x = 0 may be written
+
+d¥ = 6~1~{s2^+6l-qdW-
+
+(12)
+
+To the same degree of accuracy the surface condition (3) becomes
+
+*-*$£* = Wo)-
+
+(13)
+
+Elimination of d_x from (12) and (13) gives
+
+A similar equation holds at x = 1. The original partial differential equation with appropriate boundary conditions has now been replaced approximately by a set of ordinary equations. With each equation of the type (11) there is associated a second equation of type
+
+^5=-iwme-^V
+
+(15)
+
+ot
+
+This method has been used extensively by Hartree and co-workers to obtain approxi-
+
+mate solutions of the simple heat-flow equation in one dimension, that is equation (1)
+
+without the term q(dw/dt). In such cases adequate accuracy was obtained by taking
+
+only three or four intervals Sx and it was possible to use an eight-integrator differential
+
+analyser to evaluate solutions of the resulting four or five ordinary equations. It is
+
+of interest to examine the difficulties which arise in attempting to extend such a
+
+treatment to the equations (1) and (2) of this paper.
+
+For each point (mSx) there is now a pair of equations (11), (15) and treatment of these
+
+demands three integrator units of the analyser, and also one input table from which erAiem is fed in by an operator. Thus with an eight-unit machine, which is the largest
+
+machine at present available in Great Britain, only two equations of the above type
+
+can be set up simultaneously. This means taking only one step to cover the whole range
+
+in x, and so the method cannot be applied directly. It should be emphasized that this
+
+is a limitation imposed not by theoretical considerations, but by machine capacity.
+
+Exploratory work using the method in which finite steps in time are taken, showed
+
+that for certain values of the constants A, k, q, namely those which correspond to a
+
+comparatively rapid evolution of heat at moderate temperatures, the term q(dw/dt) is
+
+important only over a small part of the range in x at any given time. For the rest of
+
+the range w remains constant either at its initial value or at zero and the term does
+
+not appear. Hence not all the equations (11) contain the term q(dwmjdt), and for those
+
+which do not only one integrator is needed. In this way it is possible to use the analyser
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+54
+
+J. CRANK AND P. NICOLSON
+
+to evaluate a solution having three steps in x, the necessary condition being that only two of the four equations have the heat-generated term present and utilize simultaneously three integrators each. The interconnexions between the various units of the machine are made so that the heat-generated term can be included in successive equations of type (11) as the integration proceeds. Results discussed in § 10 show that the 3-step solution obtained in this way is not a sufficiently accurate solution of equation (1), but clearly a more accurate solution cannot be obtained without the use of a much larger machine. This method therefore, although very powerful for the simple heat-flow equation, is seriously limited by machine capacity in the case of equation (1).
+
+4. METHOD I I I : REPLACING BOTH DERIVATIVES BY FINITE DIFFERENCE RATIOS
+The authors have developed a satisfactory method of evaluating solutions of equations (1) and (2) in which derivatives with respect to both x and t are replaced in a particular way by finite difference ratios; the solution is carried out numerically, and the only limitation on the number of intervals in x is that of time of solution.
+The particular finite difference form of (1) used by the authors is given below, equation (16), and is obtained by replacing space and time derivatives at the point [mSx, (n + \) St] by the usual finite difference ratios:
+
+) - 6m(n) = ^ ~ [d^n or, on rearranging,
+
++ 1) + 6m+1(n + n)}} - q[wm(n + 1) - wjn)],
+
+(16)
+
+Here dm(n) and wm(n) are the values at the point (mSx,nSt), which point will in future be referred to as (m,n).
+[wm(n+ 1) — wm(n)] is obtained by using relation (9), i.e.
+(16a)
+
+where
+
+E
+
+e2E, being a function of the mean temperature at (mdx) over the time interval 8t, can
+
+be tabulated before the process of solution commences, once the interval St has been
+
+decided.
+
+Given 0m(n) for all values in the interval O^m^p, the equations (16), (16a), (166) form a set of simultaneous non-linear equations for dm(n+ 1) as a function of m. The fact that these equations are simultaneous leads to an iterative method of solution,
+
+in some ways similar to the Southwell relaxation process, applied successively at each
+
+time (nSt).
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+55
+
+Another way of replacing the derivatives by finite differences, described in detail in § 6, leads to equations which formally give each 6m{n + 1) separately from the others and so avoids the solution of a set of simultaneous equations for each time point. This method, however, suffers from the serious disadvantage that oscillatory errors are likely to arise in the process of solution, and the form (16) above is much preferable in spite of the complication of simultaneous equations. (In practice this is not a serious complication.)
+The details of the method of solution of the equations (16) are best illustrated by an example.
+
+5. EXAMPLE: METHOD I I I .
+
+For convenience in examining the results later in the paper, it is useful to replace the boundary conditions (3) by more definite ones, the method of solution being unaffected. Consider the solution of (1) and (2) subject to boundary conditions
+
+6 — constant at t = 0 for 0 < x =% 1, • w = constant at t = 0 for 0 ^ x < 1
+
+^ = Hx{0) for t>0, x = 0,
+
+(17)
+
+dd
+
+K- = 0
+
+for
+
+t^0,x=l.
+
+Let the range 0 < x < 1 be divided into eight intervals so that Sx = \, and choose the interval St such that 8t/(Sx)2 = 1. The equations (16) and the two boundary equations
+at x = 0, x = 1 then take the particularly simple forms
+
+dm(n + 1) = i[0m-i(™ + 1) + 0m-i(n) + 0m+1(n +1) + dm+1(n)] - \q[wm(n + 1) - wjn)], (18)
+
+eo(n+i) = K ^ + il+^Wl+lfi^+M+Wl-kK^+i)-^")],
+
+(!9)
+
+6s(n+l) = ^ 7 ( ^ + l ) + ^ W ] - | g K ( 7 i + l ) - w ; 8 ( « ) ] .
+
+(20)
+
+There are seven equations of the type (18) for 1 ^ m ^ 7. Each equation has a subsidiary equation of the form wm(n+ l)jwm(n) = e2E associated with it.
+Before the process of solution commences, tables of Hlt e2E and \q{\ — e2E) as functions of 6, are constructed.
+Table 1 shows a section of the scheme of computation adopted; it has been divided into three panels arranged vertically for ease in printing. The table is drawn up with a row for each step in t and a column for each step in x. Values of 6 are recorded on the left-hand side of the columns, and those of w on the right.
+Leaving until later the consideration of the problem of starting the integration from t = 0, assume the solution has proceeded as far as the ?z.th step in time, i.e. t = ndt, and it is desired to evaluate the (n + l)th step. The following operations are performed successively:
+(a) Estimate values of do(n+l), d^n+1), ..., 68(n+l) by inspection of previous differences in each column.
+(b) Evaluate q[wm(n+ l)-wm(w)]/2 for each column by looking up the value of
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+56
+
+J. CRANK AND P. NICOLSON
+
+q(l —e2E)/2 corresponding to [6m(n+ l) + dm(n)]/2 in the subsidiary table, and forming the product \wm(ri) (1 — e~2E) q.
+(c) Look up H^d^n + 1) + 0o(n)]/2 in the H-0 table. (d) Evaluate 0o(n +1) by substituting known and estimated values in the right-hand side of equation (19).
+
+(e) If this calculated value for do(n+ 1) differs from the estimated, adjust Hx and q[wQ(n +1) — wo(n)]/2 and recalculate 0o(n+l). Repeat until the calculated and estimated values agree.
+
+(/) Solve equation (18) for 0x(n+ 1) and iterate if the new 6x(n+ 1) differs from the estimated value, adjusting q[wm(n+ l)-wm(n)]/2 if necessary.
+(g) Evaluate 62(n + 1),..., 6B(n + 1) by solving the appropriate equations iteratively, remembering that an alteration in 6m(n+ 1) may necessitate resolving the equations for 0m_1(n+ 1) and 0m+1(n+ 1).
+
+Table 1. Section of computation sheet
+
+N o . of step St
+
+0o
+
+w0
+
+28
+
+786
+
+0
+
+29
+
+787
+
+0
+
+30
+
+788
+
+0
+
+31
+
+789
+
+0
+
+0i
+
+w,
+
+750
+
+0
+
+752
+
+0
+
+754
+
+0
+
+756
+
+0
+
+w2
+
+715
+
+0004
+
+719
+
+0002
+
+723
+
+0-000
+
+727
+
+0-000
+
+N o . of step St
+
+0,
+
+28
+
+684
+
+29
+
+691
+
+30
+
+697
+
+31
+
+703
+
+w3
+0-132 0-094 0-062 0-037
+
+649
+
+0-304
+
+658
+
+0-276
+
+667
+
+0-243
+
+676
+
+0-201
+
+0s
+
+w,
+
+618
+
+0-360
+
+628
+
+0-350
+
+638
+
+0-336
+
+647
+
+0-322
+
+N o . of step St
+
+0*
+
+28
+
+593
+
+29
+
+603
+
+30
+
+613
+
+31
+
+623
+
+v't
+0-372 0-369 0-363 0-355
+
+0,
+
+w.
+
+578
+
+0-374
+
+588
+
+0-373
+
+598
+
+0-371
+
+608
+
+0-369
+
+0s
+
+w*
+
+573
+
+0-374
+
+583
+
+0-373
+
+593
+
+0-371
+
+602
+
+0-369
+
+(h) Calculate w(n + 1) for each column by looking up the value of e2E corresponding to [6(n + 1) + 6(n)]/2 and multiplying it by w(n).
+The iteration of a whole line may appear prohibitive, but in practice very little labour is involved and the method has proved quite easy to carry out. In parts of the range where the term involving q is negligible the differences in the 8 column are so smooth that it is rarely necessary to solve an equation more than once. Also since a change A in 6m(n+ 1) produces a change JA in 0m_1(n+ 1) which affects 6m(n + 1) itself by only ygA, these adjustments are readily made without repeating the full solution of an equation. Even for the 3x steps in which there is a contribution from the heatgenerated term, it is rarely necessary to iterate more than twice.
+I t is to be noted that for the St defined above, i.e. 8t/(8x)2 = 1, a change of 4 in 0m(n+ 1) produces only a change of 1 in 6m_1(n+ 1), and so the iterative process converges rapidly. I t is clear that the convergence is more rapid for a smaller value of
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+57
+
+2. I t is interesting to note that a value of 8tj(8x)2 as large as 4 has been found
+
+quite satisfactory in cases where the rate of evolution of heat is fairly slow; with this
+
+value a change of 5 in 6m(n + 1) produces a change of 2 in 9m_x{n + 1) and dm+1(n + 1).
+
+6. RICHARDSON'S 'OVERLAPPING STEPS' METHOD
+It is useful to state briefly Richardson's method of overlapping time steps and to see what difficulties arise in the use of it.
+Consider the solution of the simple heat-conduction equation
+
+dt
+
+(21)
+
+Richardson constructs a table similar to Table 1 of the present paper in which there is a line for each step in t and a column for each step in x. Let Table 2 be a sample of the main table, taken well away from the boundaries.
+
+(n-l) St nSt (n+l)8t
+
+Table 2
+
+(m-1) Sx
+
+mSx
+
+0»-i(»-l) 0«-i(») «m-i(n+l)
+
+0m(»-l)
+0m(n+\)
+
+(m+1) Sx
+0m+x(»)
+
+Let the entries in the lines t = (TO — l)St and nSt be known. At the point (m,n),d2d/dx2 is approximately \0m+1(n) — Wm{ri) + 6m-.1(n)]/(dx)2, and by equation (21) this is the
+value of ddjdt at the same point. Richardson replaces the latter by
+
+and obtains where
+
+m
+ej^ +l) = gm{n_1) + y[em__x(n)-26m(n) + dm+1(n)], y = 28tl(8x)2.
+
+(22) (22a)
+
+In this way dm(n +1) is obtained without any estimation or iteration, which at first sight is a great advantage.
+
+An obvious disadvantage of the method, as compared with method I I I above, is
+
+that, although it only advances by steps St, the effective interval for the integration
+
+is 28t and hence the second-order error term of equation (4) is increased by a factor 4.
+
+A much more serious objection to the method is that rounding-off errors tend to
+
+build up and may produce rapidly increasing oscillatory errors as the solution pro-
+
+gresses. The cause of this is clear. Suppose a small positive error A arises in 6m(n), i.e. 6m{n) is too large by an amount A. Then from equation (22) 0m(n +1) will be too small by an amount 2yA and 6m(n + 2) will be too large by an amount (1 + 6y2) A. The way in which errors build up is illustrated in Table 3, in which an error A is supposed
+
+to arise in 6m(n). It is clear that the error in 6m(n + s) builds up as s increases, however small y is. (It is significant to note here that method III was satisfactorily used with a
+
+value of y as large as 8.)
+
+The error after a given number of steps clearly decreases with y decreasing, but the
+
+error in a definite total time T may not do so; for if the reduction in y is due to a decrease
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+58
+
+J. CRANK AND P. NICOLSON
+
+in St more steps will be required to cover the range T, and the increase in error due to this may more than counteract the decrease due to a smaller y. If, on the other hand, the reduction in y is effected by an increase in Sx, i.e. fewer steps in x, the error in the solution of equation (22) will be less, but this equation will be a poorer approximation to the exact equation (21).
+An alternative way of examining the accumulation of errors in the case of Richardson's process was proposed to the authors by Prof. T>. R. Hartree, following a suggestion by Prof. J . von Neumann. As this treatment can also be applied to method I I I it will now be outlined.
+
+Table 3. Error/A is shown. As the table is symmetrical about (mSx) only half is shown
+
+(m-5)Sx
+• nSt (n+l)St !(n+2) St .(n+3)St (n + 4) St (n+5) St
+
+-10y6
+
+(m— 3) Sx (m-2) Sx
+
+(m-l) Sx
+
+mSx
+
+-6y3
+_[24y3+12y6]
+
++ y
+_4y2
+[2y+15y3] -[12y2 + 56y4] [3y + 60y3 + 210y6]
+
+1 -2y l + 6y2 - [ 4 y + 20y3] [l + 18y2+7Oy4] -[6y + 80y3+252y5]
+
+7. ANALYTICAL TREATMENT OF THE BUILDING UP OF ERRORS
+
+This treatment is simplest in the case of equation (21), where the term containing q
+
+is absent. As equation (21) is linear, the error Ad, to which 6 is subject, must satisfy
+
+the same finite difference form of (21) as does 6. For simplicity the surface boundary
+
+condition, 6 a specified function of t, is taken, so that the boundary conditions for
+
+Ad may be written
+
+A6> = 0 at x = 0, x = 2,^
+
+Ad symmetrical about x = l.j
+
+Taking 2P intervals across the block, the equation (22)forAd has an exact solution
+
+of the form
+
+p A0m(») = S fMSt)sin
+3= 1
+
+[<2.? - 1) wmte/2],
+
+(23)
+
+where fj(nSt) is independent of x. The form of this function/3- depends upon the par-
+
+ticular finite difference form of (21) used.
+
+From (23)
+
+(a) Richardson's method
+
+Adm+1(n) - 2A0m(n) + Adm_l{n) = ~ 2l/,(»«) s i n ^
+
+Substituting this in (22), taking a single component of the sum, and dividing through by the factor sin (2j— l)nmSx/2 gives
+
+/,[(»+1) &]-/,[(»-1)&] = -2yfj(n8t)(l-cos(2j~l2)7T8xy
+
+(24)
+
+The general solution of (24) is fj(n8t) = AjeW + B^ - 1 ) n e-"V<,
+( TTJ §x\ 1-cos^—-I.
+
+(25) (26)
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+59
+
+From (26) kx is real and negative, and so the term in the expression for /3- which alternates in sign in successive t steps, increases exponentially in magnitude. This is true for eachj. The rate of increase in amplitude of the oscillating term is different for different modes (kt being a function of j); however these modes are superimposed to give Ad, that is, whatever the coefficients Ap Bp the resulting Ad must oscillate with increasing amplitude for large enough n. This is true however small y is. Furthermore, the aggregate error over a given time range T is roughly independent of St for, from (26)
+nkxSt = (TjSt) sinh-1 [{2St/(Sx)*} (1 - cos [(2j - 1) /r&c/2])]
+which for small y, is independent of St.
+
+(6) Method III
+Ad now satisfies equation (16) with q = 0, that is
+(1 + y/2) Adm(n + 1) = (y/4) [Adm^{n +1) + Adm+1(n + 1) + A0m » + Adm+1(n)] (\-7l2)A6m(n).
+Each component of Ad therefore satisfies
+
+from which it follows that fj(n + l)/fj(n) < 1 for all y and j .
+Since this is true for all j , Ad must decrease as n increases, i.e. any error tends to disappear. If y is very large an oscillatory error which only disappears very slowly may arise.
+This treatment thus confirms the conclusion arrived at empirically, that errors tend to be damped out when method III is used.
+
+8. METHODS REPORTED BY THE AMERICAN APPLIED MATHEMATICS PANEL(5)
+The main method of § II of the A.M.P. report is similar to the above using finite differences in both directions; terms up to the fourth order are taken into account in the differentiation formulae by using sets of points as indicated by x in Table 4 to derive the value of 6 at the point P, [mSz, {n+ 1) St].
+
+(n-3)8t
+(n-2)8t (n-1) St •nSt {n+l)St
+
+(m-2) Sx
+— — —
+X —
+
+Table 4
+(m — 1) Sx
+—-
+— —
+X —
+
+mSx
+X X X X
+x(P)
+
+(m+1) Sx
+—. — —
+X —
+
+(m + 2) Sx
+— — —
+X
+—
+
+This makes the formula giving 6 at P very cumbersome; also the method would seem liable to the same defect as Richardson's in that errors may tend to build up.
+An alternative scheme for the solution of the finite difference equations, analogous
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+60
+
+J. CRANK AND P. NICOLSON
+
+to the Adams-Bashforth method (6) is outlined in the A.M.P. report. It involves an iterative process at every step, but is not used by the A.M.P., since not only are the formulae to be evaluated very elaborate but also many iterations are required.
+The other main method described in this report (§ I) is completely different and does not use finite difference approximations. The method is based upon the formal expression of the solution of (1) as an integral equation (7); this integral equation is then solved by a method of successive approximations. In the case of boundary conditions (3) above, where surface temperature is not constant, the method is impracticable on account of the extreme complexity of the formal expression for the solution. Its use would seem to be restricted to the special case in which the surface temperature is held constant.
+
+9. FORMAL SOLUTIONS IN SPECIAL CASES
+
+To avoid starting numerical integration at t = 0 and for the purposes of testing the accuracy of the step by step solutions, formal solutions of the equation d2djdx2 = dd/dt
+
+subject to appropriate boundary conditions have been developed for (1) a semi-infinite
+
+slab, (2) a finite slab, heated symmetrically.
+
+The boundary conditions for these two cases are tabulated below, (27) and (29).
+
+The solutions were obtained by the method of Laplace transforms and only the results
+
+need be quoted here.
+
+(1) Semi-infinite slab
+
+Boundary conditions:
+
+0 = 0
+
+at t = 0 for x>0,-
+
+= -
+
+fc x = 0 for 13s 0,
+
+(27)
+
+dx
+-—>-0 dx
+
+as x-^-oo for t~^ 0.
+
+Solution
+
+= | f l - efi*+/>11 erfc ( X + fi Jt) - erf
+
+(28)
+
+Boundary conditions: 0 = 0
+
+(2) Finite slab at< = 0 for - 1 <x<+l,
+= - 1 for
+
+ox
+
+= + l for
+
+(Here the solution was developed in the form of a series suitable for use at small values oft; only the first two terms of this series will be given.)
+Solution:
+
+(30)
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+61
+
+The first term gives the main contribution to the heat flow from the surface x = +1 and the second from x = - 1. For t and (1 — | x |) small, this solution is for practical purposes the same as solution (24) referring to a semi-infinite slab; physically this means that at small t no appreciable amount of heat flowing from one surface has reached a point in the vicinity of the second surface.
+From (28) it will be seen that ddjdt at x = 0 is infinite at t = 0 (for small t, do~fi-Jt). Consequently it is inadvisable to start any method, in which dd/dt is replaced by a finite difference ratio, from t = 0. In tne physical problem actually treated, the term due to evolution of heat is negligible until the temperature has risen considerably from its initial value, so that in the neighbourhood of t = 0, the equation to be solved is simply d^djdx2 = dd/dt; the solution of the full equation may therefore be started at some convenient value of t > 0 with values calculated from solution (28).
+
+(3) Accuracy of the numerical method III
+To examine the accuracy of the step by step process described in § 5, it was used to evaluate a solution of equation (21) subject to conditions (29); this was then compared with the formal solution of equation (21) for the same values of a and /?, namely a = 3618, p = 4-44. In the numerical solution 8 steps were taken between x — 0 and 1, so that 8x = \ and the time interval was such that 8t/(8x)2 = \. In Table 5 comparison between the 2 solutions at two values of t is shown.
+
+Table 5. Comparison of results obtained by method III with formal solution
+
+l+x
+0
+0125 0-25 0-375 0-500 0-625 0-750 0-875 1000
+
+e
+(method III)
+459 283 156
+76 33 12 4
+1 0
+
+e
+(formal)
+458 281 156
+75 32 11
+3 1 0
+
+t=20St
+
+e
+(method III)
+
+6 (formal)
+
+587
+
+586
+
+468
+
+466
+
+361
+
+359
+
+269
+
+269
+
+194
+
+196
+
+138
+
+137
+
+98
+
+98
+
+75
+
+77
+
+66
+
+68
+
+Although only three figures were carried in the computation, the largest difference between the finite step solution and the formal solution is two in the last figure. This accuracy is quite adequate for most practical purposes. It is interesting to note that using method III, the computation of a single line with 8x = J takes under 10 min. which is considerably quicker than evaluation of the formal solution, for the same number of points.
+(Using Richardson's method with the above values of 8x and St, an error of order (2y)20, i.e. 220 or say 106 in the last figure kept, could be expected after 20 steps in time.)
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+62
+
+J. CRANK AND P. NICOLSON
+
+10. DISCUSSION OF RESULTS IN TWO PARTICULAR CASES
+
+This paper is concerned with methods of evaluating solutions rather than with physical applications of the methods. However, the number of steps needed in x and t is so closely related to the nature of each particular problem that it is most convenient to discuss the effect of interval size on solutions by reference to a specific example.
+The equations relating to a parallel-faced slab of wood, heated symmetrically on each face by a flame, reduce to (1) and (2) with suitable choice of variables. Equation (2) describes the rate at which the wood decomposes into charcoal and volatile substances; this decomposition is an exothermic reaction and gives rise to the second term on the right-hand side of (1). A reaction zone is established at the wood surface and moves inwards leaving charcoal behind it. (The physical aspects of this problem are discussed in detail in a separate paper (8).)
+It is to be expected that the high derivatives of d will be most important near the wood surface at the start of the heating, i.e. when the flame is applied, and later in that part of the wood which is then decomposing. For a given external supply of heat, the behaviour of the solution near the wood surface (x = 0) for small t, is independent of the slab thickness and clearly a given number of steps in the whole thickness will give a better representation of surface behaviour in a thin block than in a thick one. Furthermore, a slow rate of decomposition in the reaction zone will have less local effect on the temperature gradient than a rapid decomposition. These general considerations suggest that a thin block with comparatively slow chemical reaction will present a more favourable case for finite step methods (i.e. fewer steps will be required for a given accuracy) than a thick block with rapid reaction. Solutions for these two extreme types of conditions have been evaluated for various sizes of steps in x and t and the results are described below. The values of the various constants and the form adopted for Hx(d) in the two examples, are shown in Table 6.
+
+Table 6
+
+Example I (2 cm. block)
+
+Example II (1 cm. block)
+
+A
+q . k Hx(6)
+
+22,500 532
+7-23 x 10" 0-90(0,,-1400)
+
+16,580 261
+1-62 x 1011 M(0O - 1400) + O-253{(0O/1OO)4 - 1920}
+
+0O = surface temperature of block
+
+In example I, H^d), the surface heat transfer function, is based upon Newton's law of heating; in all the early work on this problem this law was assumed to give an adequate representation of the transfer of heat from the flame to the surface. Later, as a result of more serious consideration of the surface transfer combined with new experimental data(8), the form of H-J.d) was modified to that used in example II. With this new law, heat is transferred more rapidly at the beginning and more slowly later; transfer ceases when the surface temperature is about 800° K. as H^d) vanishes at about this value.
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+63
+
+Example I. 2 cm. block with very rapid reaction rate
+Fig. 1 shows the variation ofthe surface, central and halfway to the centre (x = 0, \, 1) temperatures with time as calculated by method I, i.e. by takingfinitesteps in time and integrating with respect to x by the differential analyser. For the main evaluation, steps of 30 sec. were used. In the region 120-240 sec, the surface temperature oscillates, suggesting that 30 sec. steps are too big in this region. Values using 8t = 15 sec. are also shown in this diagram; the oscillation although reduced is still present, and it is clear that even smaller steps are required to define the curve accurately when the surface layers are decomposing. No further solutions were obtained in this way mainly because the time taken was prohibitive (see Table 7).
+It is to be noted that the machine solutions start at t = 0 and so the infinite time gradient at this point is replaced by afinitedifference ratio. The effect of this is seen by
+
+800
+
+Machine solutions using finite steps in time and integrating in x.
+
+[x Si- - 30 sec.*]
+
+700 Dotted curves indicate solution of exact equation in neighbourhood of origin
+
+Surfaced-0)
+
+600
+
+-ir
+
+_L
+120
+
+180
+
+240
+
+300
+
+360
+
+Time (seconds)
+
+Fig. 1. Example I: Temperature-time curves for x = 0, \, 1.
+
+comparing the full and dotted curves. The latter are thought to be a fairly accurate solution of the exact equation; they are started by numerical evaluation of the formal solution (28) and then continued by method III; they end at the point where 8- and 12-step solutions (see Figs. 2 and 3) begin to diverge significantly. The error introduced at t = 0 appears to cause the machine solutions using finite steps in t to lag behind the true solution over almost the whole range in x and t.
+Fig. 2 shows the surface temperature-time relation, calculated by dividing the range 0 < x < 1 into 3, 8 and 12 steps respectively and for part ofthe time range a solution for 48 steps is given. In the case of the 3-step solution the integration was carried out by the differential analyser (method II). The other solutions were obtained by method III.
+It will be seen that the general shape of the surface temperature curve as defined by the 3-step solution is quite different from the corresponding curve of Fig. 1. These were the first two solutions obtained and at that stage of the work, their lack of agreement was very puzzling. It was not obvious whether the peaks of Fig. 2 were a direct result
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+64
+
+J. CRANK AND P. NICOLSON
+
+of taking finite steps in x and would disappear in the true solution of equation (1) or whether the peaks were real but were smoothed out in Fig. 1 by taking finite steps in t. It was this difficulty that led to the development of method III. It will be seen that
+
+800700
+
+3 steps
+
+I 600-
+500-
+
+Machine solutions using finite steps in time and integrating in x. Finite steps in distance x. 3<6tep solution, being a machine solution, is integrated in lime. 8,12,48 step solutions are numerical solutions obtained by method HI.
+
+60
+
+120
+
+180
+
+240
+
+I
+"ISO
+
+Time (seconds)
+
+Fig 2. Example I : Surface temperature-time curves obtained by various methods.
+
+?oor
+
+_ 600
+
+! 500
+
+400-
+
+imertcal solutions, thod III
+ichine solution, finite ps in time
+
+120
+
+180
+
+240
+
+300
+
+360
+
+420
+
+Time (seconds)
+
+Fig. 3. Example I : Temperature-time curves for x = J and x = 1.
+
+the peaks become less prominent as more steps in x are taken and have entirely disappeared in the 48-step solution. It is clear therefore that the peaks are spurious, being a result of taking too few steps in x.
+In the critical region 90 < t < 120 sec, the surface temperature for the 48-step solu-
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+65
+
+tion is in fairly good agreement with that obtained by method I (shown in Fig. 1) when allowance is made for the lag of the latter behind the true solution. This 48-step solution is taken to define the true solution in this region. For t > 4£ min. all solutions, even including the 3-step, tend to the same curve which suggests that this is the true surface temperature.
+In Fig. 3 temperature-time curves are shown for x = \ and x = 1 derived by 8- and 12-step solutions respectively. The solution obtained by taking finite steps in time is also shown. There is a spurious peak in the 8-step solution when the wood in the region of x = | is decomposing and subsidiary peaks when decomposition is occurring in the steps centred on x = f and f-. In the 12-step solution the peaks have almost disappeared and this solution is in good agreement with the solution using finite steps in time when allowance for the time lag of the latter is made.
+The 8- and 12-step central temperatures are in good agreement until the centre of the block begins to decompose, then the 12-step lags behind the 8-step solution. The discrepancy in this region is not surprising as the temperature is very difficult to determine precisely once the exothermic reaction has started, on account of the rapidity with which this reaction proceeds.
+
+800 -
+
+o o o o o 8.step solution
+
+60
+
+no
+
+180
+
+240
+
+300
+
+Time (seconds)
+
+Fig. 4. Example I I : Comparison of 8- and 12-step numerical solutions.
+
+Example II. 1 cm. block with moderate rate of reaction Fig. 4 shows the corresponding 8- and 12-step solutions for a case where the block is thinner and the reaction slower. The two solutions are now in good agreement throughout the range in x and t; there is no trace of the spurious peaks which were so conspicuous in the surface temperature curves for both 8 and 12 steps in x, in example I. The variation of w with time was almost identical in the two solutions as is illustrated in Fig. 5 for the surface layer. In the particular problem for which the methods described above were investigated, a quantity whose behaviour was ultimately required was
+dW dt
+PSP 43. i
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+66
+
+J. CRANK AND P. NICOLSON
+
+The reasons for the importance of this quantity are not relevant here, but it is of interest to note that satisfactory agreement in dW/dt was obtained from the 8- and 12-step solutions in example II (see Eig. 6). In example I, on account of the rapidity of the reaction and the consequent narrowness of the reaction zone, fewer than 12 steps in the range 0 < x < 1 were insufficient to define dW/dt.
+
+04 -
+0-3
+s 0-2
+bo 0-1
+
+— — 12 step solution O O 8 step solution
+\
+\
+A
+
+i
+
+i
+
+30 60 9o m *
+
+Time (seconds)
+
+Fig. 5. Example I I : w — t at surface.
+
+Si* 1x
+
+120
+
+180
+
+Time (seconds)
+
+Fig. 6. Example I I : d—W for 8- and 12-step solutions.
+Cut
+
+11. CONCLTJSION
+From the comparison of 6, w and dW/dt for 8- and 12-step solutions, it is evident that an 8-step solution defines these quantities adequately throughout the range in x and t, in the case of example II.
+For example I, where the reaction is much more rapid, more steps are needed to define 6 and w at any point of the slab in the time range during which the reaction is occurring there; outside this time range an 8-step solution gives a fairly good approximation to the temperature.
+A great deal of exploratory work has been undertaken on the effect of variations in the function Hx{6) and the constants A, k and q, intermediate between those corresponding to examples I and II above. For this purpose method III, using 8 steps in x, has proved a most valuable tool. In this context it is significant to compare the
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+
+Evaluation of solutions of partial differential equations
+
+67
+
+approximate time of evaluation of a single solution by the three main methods described in this report (Table 7).
+Table 7
+
+Method
+
+No. of operators required
+
+Approximate time for 1
+complete solution
+
+I. Finite steps in t\ Differential Integrate in a; J analyser
+
+3
+
+2 weeks
+
+II. 3 steps in a; \ Differential Integrate in t j analyser
+
+2
+
+3-4 hrs.
+
+III. Finite steps in x and t\
+
+(a) 8 steps in x - Numerical
+
+1
+
+7-8 hrs.
+
+(b) 12 steps in a; J
+
+10-12 hrs.
+
+These times refer to the actual process of solution only. They do not include time
+spent in preliminaries such as setting up the machine and constructing input curves in the case of methods I and II, and constructing the table of e2E as a function of d in
+the case of method III.
+
+The authors are grateful to Prof. D. R. Hartree for many heplful suggestions. In operating the differential analyser, the authors were assisted by Messrs E. C. Lloyd, H. W. Parsons and W. W. J. Cairns.
+
+REFERENCES
+(1) HARTREE, D. R. and WOMERSLEY, J. R. Proc. Roy. Soc. A,. 161 (1937), 353.
+(2) JACKSON, R., SABJANT, R. J., WAGSTAFF, J. B., EYRES, N. R., HAKTKEE, D. R. and INGHAM, J.
+The Iron and Steel Institute, 1944, Paper No. 15/1944 of the Alloy Steels Research Committee. EYRES, N. R., HARTREE, D. R. and others. Philos. Trans. A, 240 (1946), 1. (3) RICHARDSON, L. F. Philos. Trans. A, 210 (1910), 307. (4) RICHARDSON, L. F. Philos. Trans. A, 226 (1927), 299. (5) A.M.P. Memo. No. 131. IM: Title 'On the solution of certain boundary problems'. (6) LEVY and BAGGOTT. Numerical Studies in Differential Equations, Chapter iv. (7) LOWAN, A. N. Amer. J. Math. 56, no. 3 (1934), 396. (8) BAMFORD, C. H., CRANK, J. and MALAN, D. H. Proc. Cambridge Phil. Soc. 42 (1946), 166.
+
+THE MATHEMATICAL, LABORATORY CAMBRIDGE
+
+GIRTON COLLEGE CAMBRIDGE
+
+https://doi.org/10.1017/S0305004100023197 Published online by Cambridge University Press
+

@@ -1,0 +1,8696 @@
+Springer Series in
+
+41
+
+Computational
+
+Mathematics
+
+Editorial Board
+R. Bank R.L. Graham J. Stoer R. Varga H. Yserentant
+
+For further volumes: http://www.springer.com/series/797
+
+Jie Shen • Tao Tang • Li-Lian Wang
+Spectral Methods
+Algorithms, Analysis and Applications
+ABC
+
+Jie Shen Department of Mathematics Purdue University N. University St. 150 West Lafayette, IN 47907-2067 USA shen@math.purdue.edu
+
+Tao Tang Department of Mathematics Hong Kong Baptist University Waterloo Road 224 Kowloon Hong Kong SAR ttang@hkbu.edu.hk
+
+Li-Lian Wang Division of Mathematical Sciences School of Physical & Mathematical Sciences Nanyang Technological University 21 Nanyang Link 637371 Singapore lilian@ntu.edu.sg
+
+ISSN 0179-3632
+
+ISBN 978-3-540-71040-0
+
+e-ISBN 978-3-540-71041-7
+
+DOI 10.1007/978-3-540-71041-7
+
+Springer Heidelberg Dordrecht London New York
+
+Library of Congress Control Number: 2011934044
+
+Mathematics Subject Classiﬁcation (2010): 65M70, 65M12, 65N15, 65N35, 65N22, 65F05, 35J25, 35J40, 35K15, 42C05
+c Springer-Verlag Berlin Heidelberg 2011 This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, speciﬁcally the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microﬁlm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, 1965, in its current version, and permission for use must always be obtained from Springer. Violations are liable to prosecution under the German Copyright Law. The use of general descriptive names, registered names, trademarks, etc. in this publication does not imply, even in the absence of a speciﬁc statement, that such names are exempt from the relevant protective laws and regulations and therefore free for general use.
+
+Cover design: deblik, Berlin
+
+Printed on acid-free paper
+
+Springer is part of Springer Science+Business Media (www.springer.com)
+
+Preface
+This book is developed from lecture notes of graduate courses taught over the years by the authors at the Pennsylvania State University, Purdue University, Hong Kong Baptist University and Nanyang Technological University of Singapore.
+The aim of the book is to provide • A detailed presentation of basic spectral algorithms • A systematical presentation of basic convergence theory and error analysis for
+spectral methods • Some illustrative applications of spectral methods For many basic algorithms presented in the book, we provide Matlab codes (which will be made available online) which contain additional programming details beyond the mathematical formulas, so that the readers can easily use or modify these codes to suite their need. We believe that these Matlab codes will help the readers to have a better understanding of these spectral algorithms and provide a useful starting point for developing their own application codes.
+There are already quite a few monographs/books on spectral methods. The classical books by Gottlieb and Orszag (1977) and by Canuto et al. (1987)1 were intended for researchers and advanced graduate students, and they are excellent references for the historical aspects of spectral methods as well as in depth presentations of various techniques and applications in computational ﬂuid dynamics. The book by Boyd (2001) focused on the Fourier and Chebyshev methods with emphasis on implementations and applications. The book by Trefethen (2000) gave an excellent exposition on the spectral-collocation methods through a set of elegant Matlab routines. The books by Deville et al. (2002) and by Karniadakis and Sherwin (2005) concentrated on the spectral-element methods with details on parallel implementations and applications in ﬂuid dynamics, while the more recent book by Hesthaven and Warburton (2008) focused on the discontinuous Galerkin methods with a nodal spectral-element approach. On the other hand, Hesthaven et al. (2007) focused on
+1 An updated and expanded version of Canuto et al. (1987) is recently published. This new version Canuto et al. (2006, 2007) incorporated many new developments made in the last 20 years and provided a more systematical treatment for spectral methods.
+v
+
+vi
+
+Preface
+
+the spectral methods for time-dependent problems with a particular emphasis on hyperbolic equations and problems with non-smooth solutions. The book length article by Bernardi and Maday (1997) and their monograph in French Bernardi and Maday (1992a) provided an excellent exposition on the basic approximation theory of spectral methods with a particular emphasis on Stokes equations, while the monograph (Shen and Tang 2006) presented a basic introduction in a lecture note style to the implementation and analysis of spectral methods. The emphasis of the book by Guo (1998b), on the other hand, was on numerical analysis of spectral methods for nonlinear evolution problems. Finally, spectral methods have been playing a very signiﬁcant role in dealing with stochastic differential equations and uncertainty quantiﬁcations, and we refer to the recent books by Le Maˆıtre and Knio (2010) and by Xiu (2010) on these emerging topics.
+The current book attempts to provide a self-contained presentation for the construction, implementation and analysis of efﬁcient spectral algorithms for some model equations, of elliptic, dispersive and parabolic type, which have wide applications in science and engineering. It strives to provide a systematical approach based on variational formulations for both algorithm development and numerical analysis. Some of the unique features of the current book are
+• Our analysis is based on the non-uniformly weighted Sobolev spaces which lead to simpliﬁed analysis and more precise estimates, particularly for problems with corner singularities. We also advocate the use of the generalized Jacobi polynomials which are particularly useful for dealing with boundary value problems.
+• We develop efﬁcient spectral algorithms and present their error analysis for Volterra integral equations, higher-order differential equations, problems in unbounded domains and in high-dimensional domains. These topics have rarely been covered in detail in the existing books on spectral methods.
+• We provide online a set of well structured Matlab codes which can be easily modiﬁed and expanded or rewritten in other programming languages.
+The Matlab codes as well as corrections/updates to the book will be available at http://www.math.purdue.edu/∼shen/STWbook. In case this site becomes unavailable due to unforeseen circumstances in the future, the readers are advised to check the Springer Web site for the updated Web link on the book.
+We do not attempt to provide in this book an exhaustive account on the wide range of topics that spectral methods have had impact on. In particular, we do not include some important topics such as spectral methods for hyperbolic equations and spectral-element methods, partly because these topics do not ﬁt well in our uniform framework, and mostly because there are already some excellent books mentioned above on these topics. As such, no attempt is made to provide a comprehensive list of references on the spectral methods. The cited references reﬂect the topics covered in the book, but inevitably, the authors’ bias. While we strive for correctness, it is most likely that errors still exist. We welcome comments, suggestions and corrections.
+The book can be used as a textbook for graduate students in both mathematics and other science/engineering. Mathematical analysis and applications are organized
+
+Preface
+
+vii
+
+mostly at the end of each chapter and presented in such a way that they can be skipped without affecting the understanding of algorithms in the following chapters. The ﬁrst four chapters and Sects. 8.1–8.4 provide the basic ingredients on Fourier and polynomial approximations and essential strategies for developing efﬁcient spectral-Galerkin and spectral-collocation algorithms. Section 8.5 deals with sparse spectral methods for high-dimensional problems. The topics in Chaps. 5, 6 and 7 are independent of each other so the readers can choose according to their need. Applications covered in Chap. 9, except for a slight dependence on Sects. 9.4–9.5, are also independent of each other. For the readers’ convenience, we provide in the Appendices some essential mathematical concepts, basic iterative algorithms and commonly used time discretization schemes.
+The book is also intended as a reference for active practitioners and researchers of spectral methods. The prerequisite for the book includes standard entry-level graduate courses in Numerical Analysis, Functional Analysis and Partial Differential Equations (PDEs). Some knowledge on numerical approximations of PDEs will be helpful in understanding the convergence theory and error analysis but hardly necessary for understanding the numerical algorithms presented in this book.
+The authors would like to thank all the people and organizations who have provided support for this endeavor. In particular, the authors acknowledge the general support over the years by NSF and AFOSR of USA, Purdue University; Hong Kong Research Grants Council, the National Natural Science Foundation of China, Hong Kong Baptist University; Singapore Ministry of Education and Nanyang Technological University. We are grateful to Mrs. Thanh-Ha Le Thi of Springer for her support and for tolerating our multiple delays, and to Ms. Xiaodan Zhao of Nanyang Technological University for carefully checking the manuscript. Last but not the least, we would like to thanks our wives and children for their love and support.
+
+Indiana, USA Hong Kong, China Singapore
+
+Jie Shen Tao Tang Li-Lian Wang
+
+Contents
+1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 1.1 Weighted Residual Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 1.2 Spectral-Collocation Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4 1.3 Spectral Methods of Galerkin Type . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 1.3.1 Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6 1.3.2 Petrov-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8 1.3.3 Galerkin Method with Numerical Integration . . . . . . . . . . . . . 9 1.4 Fundamental Tools for Error Analysis . . . . . . . . . . . . . . . . . . . . . . . . . 10 1.5 Comparative Numerical Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 1.5.1 Finite-Difference Versus Spectral-Collocation . . . . . . . . . . . . 16 1.5.2 Spectral-Galerkin Versus Spectral-Collocation . . . . . . . . . . . . 19 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+2 Fourier Spectral Methods for Periodic Problems . . . . . . . . . . . . . . . . . . . 23 2.1 Continuous and Discrete Fourier Transforms . . . . . . . . . . . . . . . . . . . . 24 2.1.1 Continuous Fourier Series . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24 2.1.2 Discrete Fourier Series . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25 2.1.3 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 29 2.1.4 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 31 2.2 Fourier Approximation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33 2.2.1 Inverse Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33 2.2.2 Orthogonal Projection . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34 2.2.3 Interpolation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35 2.3 Applications of Fourier Spectral Methods . . . . . . . . . . . . . . . . . . . . . . 37 2.3.1 Korteweg–de Vries (KdV) Equation . . . . . . . . . . . . . . . . . . . . 38 2.3.2 Kuramoto–Sivashinsky (KS) Equation . . . . . . . . . . . . . . . . . . . 40 2.3.3 Allen–Cahn Equation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+ix
+
+x
+
+Contents
+
+3 Orthogonal Polynomials and Related Approximation Results . . . . . . . 47 3.1 Orthogonal Polynomials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47 3.1.1 Existence and Uniqueness . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48 3.1.2 Zeros of Orthogonal Polynomials . . . . . . . . . . . . . . . . . . . . . . . 53 3.1.3 Computation of Zeros of Orthogonal Polynomials . . . . . . . . . 55 3.1.4 Gauss-Type Quadratures . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57 3.1.5 Interpolation and Discrete Transforms . . . . . . . . . . . . . . . . . . . 63 3.1.6 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 64 3.1.7 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 66 3.1.8 Approximability of Orthogonal Polynomials . . . . . . . . . . . . . 68 3.2 Jacobi Polynomials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 70 3.2.1 Basic Properties . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 70 3.2.2 Jacobi-Gauss-Type Quadratures . . . . . . . . . . . . . . . . . . . . . . . . 80 3.2.3 Computation of Nodes and Weights . . . . . . . . . . . . . . . . . . . . . 83 3.2.4 Interpolation and Discrete Jacobi Transforms . . . . . . . . . . . . . 86 3.2.5 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 88 3.2.6 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 92 3.3 Legendre Polynomials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 93 3.3.1 Legendre-Gauss-Type Quadratures . . . . . . . . . . . . . . . . . . . . . 95 3.3.2 Computation of Nodes and Weights . . . . . . . . . . . . . . . . . . . . . 98 3.3.3 Interpolation and Discrete Legendre Transforms . . . . . . . . . . 100 3.3.4 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 103 3.3.5 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 105 3.4 Chebyshev Polynomials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 106 3.4.1 Interpolation and Discrete Chebyshev Transforms . . . . . . . . . 108 3.4.2 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 110 3.4.3 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 111 3.5 Error Estimates for Polynomial Approximations . . . . . . . . . . . . . . . . . 113 3.5.1 Inverse Inequalities for Jacobi Polynomials . . . . . . . . . . . . . . 113 3.5.2 Orthogonal Projections . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 116 3.5.3 Interpolations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 129 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 137
+
+4 Spectral Methods for Second-Order Two-Point Boundary Value Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 141 4.1 Galerkin Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 143 4.1.1 Weighted Galerkin Formulation . . . . . . . . . . . . . . . . . . . . . . . . 143 4.1.2 Legendre-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . 145 4.1.3 Chebyshev-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . 148 4.1.4 Chebyshev-Legendre Galerkin Method . . . . . . . . . . . . . . . . . . 150 4.2 Galerkin Method with Numerical Integration . . . . . . . . . . . . . . . . . . . 152 4.3 Collocation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 154 4.3.1 Galerkin Reformulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 156 4.3.2 Petrov-Galerkin Reformulation . . . . . . . . . . . . . . . . . . . . . . . . . 157
+
+Contents
+
+xi
+
+4.4 Preconditioned Iterative Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 157 4.4.1 Preconditioning in the Modal Basis . . . . . . . . . . . . . . . . . . . . . 158 4.4.2 Preconditioning in the Nodal Basis . . . . . . . . . . . . . . . . . . . . . 162
+4.5 Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 165 4.5.1 Legendre-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . 165 4.5.2 Chebyshev-Collocation Method . . . . . . . . . . . . . . . . . . . . . . . . 170 4.5.3 Galerkin Method with Numerical Integration . . . . . . . . . . . . . 171 4.5.4 Helmholtz Equation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 174
+Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 179
+
+5 Volterra Integral Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 181 5.1 Legendre-Collocation Method for VIEs . . . . . . . . . . . . . . . . . . . . . . . . 182 5.1.1 Numerical Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 182 5.1.2 Convergence Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 184 5.1.3 Numerical Results and Discussions . . . . . . . . . . . . . . . . . . . . . 188 5.2 Jacobi-Galerkin Method for VIEs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 189 5.3 Jacobi-Collocation Method for VIEs with Weakly Singular Kernels . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 191 5.4 Application to Delay Differential Equations . . . . . . . . . . . . . . . . . . . . 197 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 200
+
+6 Higher-Order Differential Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 201 6.1 Generalized Jacobi Polynomials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 201 6.2 Galerkin Methods for Even-Order Equations . . . . . . . . . . . . . . . . . . . . 206 6.2.1 Fourth-Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 206 6.2.2 General Even-Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . 208 6.3 Dual-Petrov-Galerkin Methods for Odd-Order Equations . . . . . . . . . 210 6.3.1 Third-Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 210 6.3.2 General Odd-Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . 213 6.3.3 Higher Odd-Order Equations with Variable Coefﬁcients . . . . 216 6.4 Collocation Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 218 6.5 Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 221 6.5.1 Even-Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 223 6.5.2 Odd-Order Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 224 6.6 Applications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 227 6.6.1 Cahn–Hilliard Equation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 228 6.6.2 Korteweg–de Vries (KdV) Equation . . . . . . . . . . . . . . . . . . . . 229 6.6.3 Fifth-Order KdV Type Equations . . . . . . . . . . . . . . . . . . . . . . . 232 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 236
+
+7 Unbounded Domains . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 237 7.1 Laguerre Polynomials/Functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 238 7.1.1 Basic Properties . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 238 7.1.2 Laguerre-Gauss-Type Quadratures . . . . . . . . . . . . . . . . . . . . . . 243 7.1.3 Computation of Nodes and Weights . . . . . . . . . . . . . . . . . . . . . 247
+
+xii
+
+Contents
+
+7.1.4 Interpolation and Discrete Laguerre Transforms . . . . . . . . . . . 249 7.1.5 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 251 7.1.6 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 252 7.2 Hermite Polynomials/Functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 254 7.2.1 Basic Properties . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 254 7.2.2 Hermite-Gauss Quadrature . . . . . . . . . . . . . . . . . . . . . . . . . . . . 257 7.2.3 Computation of Nodes and Weights . . . . . . . . . . . . . . . . . . . . . 258 7.2.4 Interpolation and Discrete Hermite Transforms . . . . . . . . . . . 260 7.2.5 Differentiation in the Physical Space . . . . . . . . . . . . . . . . . . . . 261 7.2.6 Differentiation in the Frequency Space . . . . . . . . . . . . . . . . . . 262 7.3 Approximation by Laguerre and Hermite Polynomials/Functions . . . 263 7.3.1 Inverse Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 263 7.3.2 Orthogonal Projections . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 265 7.3.3 Interpolations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 271 7.4 Spectral Methods Using Laguerre and Hermite Functions . . . . . . . . . 273 7.4.1 Laguerre-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . 273 7.4.2 Hermite-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 275 7.4.3 Numerical Results and Discussions . . . . . . . . . . . . . . . . . . . . . 276 7.4.4 Scaling Factor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 278 7.5 Mapped Spectral Methods and Rational Approximations . . . . . . . . . . 279 7.5.1 Mappings . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 279 7.5.2 Approximation by Mapped Jacobi Polynomials . . . . . . . . . . . 281 7.5.3 Spectral Methods Using Mapped Jacobi Polynomials . . . . . . 287 7.5.4 Modiﬁed Legendre-Rational Approximations . . . . . . . . . . . . . 294 7.5.5 Irrational Mappings . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 296 7.5.6 Miscellaneous Issues and Extensions . . . . . . . . . . . . . . . . . . . . 296 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 297
+
+8 Separable Multi-Dimensional Domains . . . . . . . . . . . . . . . . . . . . . . . . . . . 299 8.1 Two- and Three-Dimensional Rectangular Domains . . . . . . . . . . . . . . 300 8.1.1 Two-Dimensional Case . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 300 8.1.2 Three-Dimensional Case . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 305 8.2 Circular and Cylindrical Domains . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 307 8.2.1 Dimension Reduction and Pole Conditions . . . . . . . . . . . . . . . 307 8.2.2 Spectral-Galerkin Method for a Bessel-Type Equation . . . . . 309 8.2.3 Another Fourier-Chebyshev Galerkin Approximation . . . . . . 315 8.2.4 Numerical Results and Discussions . . . . . . . . . . . . . . . . . . . . . 320 8.2.5 Three-Dimensional Cylindrical Domains . . . . . . . . . . . . . . . . 321 8.3 Spherical Domains . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 323 8.3.1 Spectral Methods on the Surface of a Sphere . . . . . . . . . . . . . 323 8.3.2 Spectral Methods in a Spherical Shell . . . . . . . . . . . . . . . . . . . 325 8.4 Multivariate Jacobi Approximations . . . . . . . . . . . . . . . . . . . . . . . . . . . 328 8.4.1 Notation and Preliminary Properties . . . . . . . . . . . . . . . . . . . . 328 8.4.2 Orthogonal Projections . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 330
+
+Contents
+
+xiii
+
+8.4.3 Interpolations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 339 8.4.4 Applications of Multivariate Jacobi Approximations . . . . . . . 340 8.5 Sparse Spectral-Galerkin Methods for High-Dimensional Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 346 8.5.1 Hyperbolic Cross Jacobi Approximations . . . . . . . . . . . . . . . . 346 8.5.2 Optimized Hyperbolic Cross Jacobi Approximations . . . . . . 352 8.5.3 Extensions to Generalized Jacobi Polynomials . . . . . . . . . . . . 356 8.5.4 Sparse Spectral-Galerkin Methods . . . . . . . . . . . . . . . . . . . . . . 357 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 366
+
+9 Applications in Multi-Dimensional Domains . . . . . . . . . . . . . . . . . . . . . . 367 9.1 Helmholtz Equation for Acoustic Scattering . . . . . . . . . . . . . . . . . . . . 367 9.1.1 Time-Harmonic Wave Equations . . . . . . . . . . . . . . . . . . . . . . . 368 9.1.2 Dirichlet-to-Neumann (DtN) Map . . . . . . . . . . . . . . . . . . . . . . 369 9.1.3 Spectral-Galerkin Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 371 9.2 Stokes Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 375 9.2.1 Stokes Equations and Uzawa Operator . . . . . . . . . . . . . . . . . . 376 9.2.2 Galerkin Method for the Stokes Problem . . . . . . . . . . . . . . . . . 376 9.2.3 Error Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 379 9.3 Allen–Cahn and Cahn–Hilliard Equations . . . . . . . . . . . . . . . . . . . . . . 381 9.3.1 Simple Semi-Implicit Schemes . . . . . . . . . . . . . . . . . . . . . . . . . 382 9.3.2 Convex Splitting Schemes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 384 9.3.3 Stabilized Semi-Implicit Schemes . . . . . . . . . . . . . . . . . . . . . . 386 9.3.4 Spectral-Galerkin Discretizations in Space . . . . . . . . . . . . . . . 387 9.3.5 Error Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 388 9.3.6 Effect of Spatial Accuracy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 391 9.4 Unsteady Navier–Stokes Equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . 392 9.4.1 Second-Order Rotational Pressure-Correction Scheme . . . . . 392 9.4.2 Second-Order Consistent Splitting Scheme . . . . . . . . . . . . . . . 394 9.4.3 Full Discretization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 396 9.5 Axisymmetric Flows in a Cylinder . . . . . . . . . . . . . . . . . . . . . . . . . . . . 397 9.5.1 Governing Equations and the Time Discretization . . . . . . . . . 397 9.5.2 Treatment for the Singular Boundary Condition . . . . . . . . . . . 401 9.6 Gross-Pitaevskii Equation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 403 9.6.1 GPE and Its Time Discretization . . . . . . . . . . . . . . . . . . . . . . . 403 9.6.2 Hermite-Collocation Method for the 1-D GPE . . . . . . . . . . . . 405 9.6.3 Laguerre Method for the 2-D GPE with Radial Symmetry . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 407 9.6.4 Laguerre-Hermite Method for the 3-D GPE with Cylindrical Symmetry . . . . . . . . . . . . . . . . . . . . . . . . . . . . 409 9.6.5 Numerical Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 411 Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 412
+
+xiv
+
+Contents
+
+A Properties of the Gamma Functions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 415
+
+B Essential Mathematical Concepts . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 417 B.1 Banach Space . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 417 B.2 Hilbert Space . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 418 B.3 Lax-Milgram Lemma . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 419 B.4 Lp-Space . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 420 B.5 Distributions and Weak Derivatives . . . . . . . . . . . . . . . . . . . . . . . . . . . 421 B.6 Sobolev Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 422 B.7 Integral Identities: Divergence Theorem and Green’s Formula . . . . . 425 B.8 Some Useful Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 426 B.8.1 Sobolev-Type Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 426 B.8.2 Hardy-Type Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 428 B.8.3 Gronwall Inequalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 430
+
+C Basic Iterative Methods and Preconditioning . . . . . . . . . . . . . . . . . . . . . . 433 C.1 Krylov Subspace Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 433 C.1.1 Conjugate Gradient (CG) Method . . . . . . . . . . . . . . . . . . . . . . 433 C.1.2 BiConjugate Gradient (BiCG) Method . . . . . . . . . . . . . . . . . . 436 C.1.3 Conjugate Gradient Squared (CGS) Method . . . . . . . . . . . . . . 437 C.1.4 BiConjugate Gradient Stabilized (BiCGStab) Method . . . . . 439 C.1.5 Generalized Minimal Residual (GMRES) Method . . . . . . . . . 441 C.2 Preconditioning . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 443 C.2.1 Preconditioned Conjugate Gradient (PCG) Method . . . . . . . . 443 C.2.2 Preconditioned GMRES Method . . . . . . . . . . . . . . . . . . . . . . . 445
+
+D Basic Time Discretization Schemes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 447 D.1 Standard Methods for Initial-Valued ODEs . . . . . . . . . . . . . . . . . . . . . 447 D.1.1 Runge–Kutta Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 448 D.1.2 Multi-Step Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 450 D.1.3 Backward Difference Methods (BDF) . . . . . . . . . . . . . . . . . . . 452 D.2 Operator Splitting Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 453
+
+References . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 455
+
+Index . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 467
+
+Symbol List
+
+Common Notation
+C Set of all complex numbers R Set of all real numbers Z Set of all integers N Set of all nonnegative integers PN Set of all real polynomi√als of degree ≤ N i Complex unit, i.e., i = −1 δmn Kronecker Delta symbol Γ Gamma function deﬁned in (A.1) ∼= zn ∼= wn means that for wn = 0, zn/wn → 1 as n → ∞ ∼ zn ∼ wn means that for wn = 0, zn/wn → C (independent of n) as n → ∞
+zn wn means that zn ≤ Cwn with C independent of n
+
+Orthogonal Polynomials/Functions
+
+Ln Tn Jnα ,β Jnk,l Ln Ln Ln(α )
+Ln(α )
+Hn Hn
+
+Legendre polynomial of degree n deﬁned in (3.168) Chebyshev polynomial of degree n deﬁned in (3.207)
+Jacobi polynomial of degree n with parameter (α, β ) deﬁned in (3.110) generalized Jacobi polynomial of degree n with k, l ∈ Z deﬁned in (6.1) Laguerre polynomial of degree n deﬁned in (7.4) with α = 0 Laguerre function of degree n deﬁned in (7.16) with α = 0 generalized Laguerre polynomial of degree n with parameter α deﬁned in (7.4)
+generalized Laguerre function of degree n with parameter α deﬁned in (7.16) Hermite polynomial of degree n deﬁned in (7.58) Hermite function of degree n deﬁned in (7.71)
+
+xv
+
+xvi
+
+Symbol List
+
+Weight Functions and Weighted Spaces of Functions
+
+ω ω α,β ωα ωˆ α Lp(Ω ) Hr(Ω ) Hωr (Ω ) Brα,β Id
+Brα R+ Bˆrα R+ Krα ,β (Id )
+
+A generic non-negative weight function Jacobi weight function: ωα,β (x) = (1 − x)α(1 + x)β Weight function associated with Ln(α), i.e., ωα (x) = xα e−x Weight function associated with Ln(α), i.e., ωˆα (x) = xα Lp-space on Ω with 1 ≤ p ≤ ∞ Sobolev space on Ω Weighted Sobolev space on Ω Non-uniformly Jacobi-weighted Sobolev space deﬁned
+in (3.251) (d = 1) and in (8.125) with vector-valued α , β Non-uniformly weighted Sobolev space deﬁned in (7.103)
+Non-uniformly weighted Sobolev space deﬁned in (7.110)
+Jacobi-weighted Korobov-type space deﬁned in (8.190)
+
+Inner Products and Norms
+
+(·, ·)ω (·, ·)
+·ω · r,ω | · |r,ω ·
+·r | · |r
+·∞ ·, · N,ω ·, · N · N,ω
+
+Inner product of L2ω (Ω ) Inner product of L2(Ω ) Norm of L2ω (Ω ) Norm of Hωr (Ω ) Semi-norm of Hωr (Ω ) Norm of L2(Ω ) Norm of Hr(Ω ) Semi-norm of Hr(Ω ) Norm of L∞(Ω )
+Discrete inner product associated with a Gauss-type quadrature
+·, · N = ·, · N,ω with ω ≡ 1 Discrete norm associated with ·, · N,ω
+
+One-Dimensional Projection/Interpolation Operators
+
+πNα ,β πN1 ,α ,β πN1,,0α ,β INα ,β
+πN, IN
+πNc , INc
+Π N,α Πˆ N,α
+ΠN Πˆ N INα , IˆNα INh , IˆNh
+
+L2ωα,β -orthogonal projection operator deﬁned in (3.249) Hω1 α,β -orthogonal projection operator deﬁned in (3.269) H01,ωα,β -orthogonal projection operator deﬁned in (3.290)
+Jacobi-Gauss-type interpolation operator Operators πNα,β , INα,β with α = β = 0 Operators πNα,β , INα,β with α = β = −1/2 Orthogonal projection operator in L2ωα (R+) deﬁned in (7.102) Orthogonal projection operator in L2ωˆα (R+) deﬁned in (7.109) Orthogonal projection operator in L2ω (R) with ω = e−x2 deﬁned in (7.125) Orthogonal projection operator deﬁned in (7.128)
+Laguerre-Gauss-type interpolation operators
+Hermite-Gauss interpolation operators
+
+Chapter 1
+Introduction
+
+Numerical methods for partial differential equations can be classiﬁed into the local and global categories. The ﬁnite-difference and ﬁnite-element methods are based on local arguments, whereas the spectral method is global in character. In practice, ﬁnite-element methods are particularly well suited to problems in complex geometries, whereas spectral methods can provide superior accuracy, at the expense of domain ﬂexibility. We emphasize that there are many numerical approaches, such as hp ﬁnite-elements and spectral-elements, which combine advantages of both the global and local methods. However in this book, we shall restrict our attentions to the global spectral methods.
+Spectral methods, in the context of numerical schemes for differential equations, belong to the family of weighted residual methods (WRMs), which are traditionally regarded as the foundation of many numerical methods such as ﬁnite element, spectral, ﬁnite volume, boundary element (cf. Finlayson (1972)). WRMs represent a particular group of approximation techniques, in which the residuals (or errors) are minimized in a certain way and thereby leading to speciﬁc methods including Galerkin, Petrov-Galerkin, collocation and tau formulations.
+The objective of this introductory chapter is to formulate spectral methods in a general way by using the notion of residual. Several important tools, such as discrete transform and spectral differentiation, will be introduced. These are basic ingredients for developing efﬁcient spectral algorithms.
+
+1.1 Weighted Residual Methods
+
+Prior to introducing spectral methods, we ﬁrst give a brief introduction to the WRM. Consider the general problem:
+
+∂t u(x,t) − L u(x,t) = N (u)(x,t), t > 0, x ∈ Ω ,
+
+(1.1)
+
+J. Shen et al., Spectral Methods: Algorithms, Analysis and Applications,
+
+1
+
+Springer Series in Computational Mathematics 41, DOI 10.1007/978-3-540-71041-7 1,
+
+c Springer-Verlag Berlin Heidelberg 2011
+
+2
+
+1 Introduction
+
+where L is a leading spatial derivative operator, and N is a lower-order linear or nonlinear operator involving only spatial derivatives. Here, Ω denotes a bounded domain of Rd, d = 1, 2 or 3. Equation (1.1) is to be supplemented with an initial condition and suitable boundary conditions.
+We shall only consider the WRM for the spatial discretization, and assume that
+the time derivative is discretized with a suitable time-stepping scheme. Among various time-stepping methods (cf. Appendix D), semi-implicit schemes or linearly-
+implicit schemes, in which the principal linear operators are treated implicitly to
+reduce the associated stability constraint, while the nonlinear terms are treated explicitly to avoid the expensive process of solving nonlinear equations at each time
+step, are most frequently used in the context of spectral methods. Let τ be the time step size, and uk(·) be an approximation of u(·, kτ). As an
+example, we consider the Crank-Nicolson leap-frog scheme for (1.1):
+
+un+1 − 2τ
+
+un−1
+
+−
+
+L
+
+un+1 + un−1 2
+
+= N (un),
+
+n ≥ 1.
+
+(1.2)
+
+We can rewrite (1.2) as
+
+Lu(x) := αu(x) − L u(x) = f (x), x ∈ Ω ,
+
+(1.3)
+
+where,
+
+with
+
+a
+
+slight
+
+abuse
+
+of
+
+notation,
+
+u
+
+=
+
+un+1+un−1 2
+
+,
+
+α
+
+=
+
+τ −1
+
+and
+
+f
+
+=
+
+αun−1 +
+
+N (un). Hence, at each time step, we need to solve a steady-state problem of the
+
+form (1.3).
+
+At this point, it is important to emphasize that the construction of efﬁcient numer-
+
+ical solvers for some important equations in the form of (1.3), such as Poisson-type
+
+equations and advection-diffusion equations, is an essential step in solving general
+
+nonlinear PDEs. With this in mind, a particular emphasis of this book is to design
+
+and analyze efﬁcient spectral algorithms for equations of the form (1.3) where L is
+
+a linear elliptic operator.
+
+The starting point of the WRM is to approximate the solution u of (1.3) by a
+
+ﬁnite sum
+
+N
+u(x) ≈ uN(x) = ∑ akφk(x), k=0
+
+(1.4)
+
+where {φk} are the trial (or basis) functions, and the expansion coefﬁcients {ak} are to be determined. Substituting uN for u in (1.3) leads to the residual:
+
+RN(x) = LuN(x) − f (x) = 0, x ∈ Ω .
+
+(1.5)
+
+The notion of the WRM is to force the residual to zero by requiring
+
+(RN , ψ j)ω := RN (x)ψ j(x)ω(x)dx = 0, 0 ≤ j ≤ N,
+Ω
+where {ψ j} are the test functions, and ω is a positive weight function; or
+
+(1.6)
+
+1.1 Weighted Residual Methods
+
+3
+
+N
+∑ RN , ψ j N,ω := RN(xk)ψ j(xk)ωk = 0, 0 ≤ j ≤ N, k=0
+
+(1.7)
+
+where {xk}Nk=0 are a set of preselected collocation points, and {ωk}Nk=0 are the weights of a numerical quadrature formula.
+The choice of trial/test functions is one of the main features that distinguishes spectral methods from ﬁnite-element and ﬁnite-difference methods. In the latter two methods, the trial/test functions are local in character with ﬁnite regularities. In contrast, spectral methods employ globally smooth functions as trial/test functions. The most commonly used trial/test functions are trigonometric functions or orthogonal polynomials (typically, the eigenfunctions of singular Sturm-Liouville problems), which include
+• φk(x) = eikx (Fourier spectral method) • φk(x) = Tk(x) (Chebyshev spectral method) • φk(x) = Lk(x) (Legendre spectral method) • φk(x) = Lk(x) (Laguerre spectral method) • φk(x) = Hk(x) (Hermite spectral method)
+Here, Tk, Lk, Lk and Hk are the Chebyshev, Legendre, Laguerre and Hermite polynomials of degree k, respectively.
+The choice of test functions distinguishes the following formulations:
+• Galerkin. The test functions are the same as the trial ones (i.e., φk = ψk in (1.6) or (1.7)), assuming the boundary conditions are periodic or homogeneous.
+• Petrov-Galerkin. The test functions are different from the trial ones. • Collocation. The test functions {ψk} in (1.7) are the Lagrange basis polynomials
+such that ψk(x j) = δ jk, where {x j} are preassigned collocation points. Hence, the residual is forced to zero at {x j}, i.e., RN(x j) = 0.
+Remark 1.1. In the literature, the term of pseudo-spectral method is often used to describe any spectral method where some operations involve a collocation approach or a numerical quadrature which produces aliasing errors (cf. Gottlieb and Orszag (1977)). In this sense, almost all practical spectral methods are pseudo-spectral. In this book, we shall not classify a method as pseudo-spectral or spectral. Instead, it will be classiﬁed as Galerkin type or collocation type.
+Remark 1.2. The so-called tau method is a particular class of Petrov-Galerkin method. While the tau method offers some advantages in certain situations, for most problems, it is usually better to use a well-designed Galerkin or Petrov-Galerkin method. So in this book, we shall not touch on this topic, and refer to El-Daou and Ortiz (1998), Canuto et al. (2006) and the references therein for a thorough discussion of this approach.
+In the forthcoming sections, we shall demonstrate how to construct spectral methods for solving differential equations by examining several spectral schemes based on Galerkin, Petrov-Galerkin and collocation formulations in a general manner. We shall revisit these illustrative examples in a more rigorous fashion in the main body of the book.
+
+4
+1.2 Spectral-Collocation Method
+
+1 Introduction
+
+To ﬁx the idea, we consider the following linear problem:
+
+Lu(x) = −u (x) + p(x)u (x) + q(x)u(x) = f (x), x ∈ (−1, 1), (1.8)
+B±u(±1) = g±,
+
+where B± are linear operators corresponding to Dirichlet, Neumann or Robin boundary conditions (see Sect. 4.1), and the data p, q, f and g± are given such that the above problem is well-posed.
+As mentioned earlier, the collocation method forces the residual to vanish pointwisely at a set of preassigned points. More precisely, let {x j}Nj=0 (with x0 = −1 and xN = 1) be a set of Gauss-Lobatto points (see Chap. 3), and let PN be the set of all real algebraic polynomials of degree ≤ N. The spectral-collocation method for (1.8) amounts to ﬁnding uN ∈ PN such that (a) the residual RN(x) = LuN(x) − f (x) equals to zero at the interior collocation points, namely,
+
+RN (xk) = LuN (xk) − f (xk) = 0, 1 ≤ k ≤ N − 1,
+
+(1.9)
+
+(b) uN satisﬁes exactly the boundary conditions, i.e.,
+
+B−uN (x0) = g−, B+uN(xN ) = g+.
+
+(1.10)
+
+The spectral-collocation method is usually implemented in the physical space by seeking approximate solution in the form
+
+N
+uN(x) = ∑ uN(x j)h j(x), j=0
+
+(1.11)
+
+where {h j} are the Lagrange basis polynomials (also referred to as nodal basis functions), i.e., h j ∈ PN and h j(xk) = δk j. Hence, inserting (1.11) into (1.9)-(1.10) leads to the linear system
+
+N
+∑ Lh j(xk) uN(x j) = f (xk), 1 ≤ k ≤ N − 1,
+j=0
+
+N
+
+N
+
+∑ ∑ B−h j(x0) uN(x j) = g−,
+
+B+h j(xN ) uN(x j) = g+.
+
+j=0
+
+j=0
+
+(1.12)
+
+The above system contains N + 1 equations and N + 1 unknowns, so we can rewrite it in a matrix form. To ﬁx the idea, we consider (1.8) with Dirichlet boundary conditions: u(±1) = g±. In this case, setting uN(x0) = g− and uN(xN) = g+ in the ﬁrst equation of (1.12), we ﬁnd that the system (1.12) reduces to
+
+1.2 Spectral-Collocation Method
+
+5
+
+N−1
+∑ Lh j(xk) uN (x j) = f (xk) − Lh0(xk) g− + LhN(xk) g+ ,
+j=1
+for 1 ≤ k ≤ N − 1. Differentiating (1.11) m times leads to
+
+(1.13)
+
+∑ u(Nm)(xk) = N dk(mj )uN(x j) where dk(mj ) = h(jm)(xk). j=0
+
+(1.14)
+
+The matrix D(m) = dk(mj ) k, j=0,...,N is called the differentiation matrix of order m relative to {x j}Nj=0. If we denote by u(m) the vector whose components are the values of u(Nm) at the collocation points, it follows from (1.14) that
+
+u(m) = D(m)u(0), m ≥ 1.
+
+(1.15)
+
+Hence, we have
+
+Lh j(xk) = −dk(2j) + p(xk)dk(1j) + q(xk)δk j.
+
+(1.16)
+
+Denote by f the vector with N − 1 components given by the right-hand side of (1.13).
+
+Setting
+
+Dm = dk(mj ) k, j=1,...,N−1, m = 1, 2, P = diag p(x1), . . . , p(xN−1) , Q = diag q(x1), . . . , q(xN−1) ,
+the system (1.13) reduces to − D2 + PD1 + Q u(0) = f.
+
+(1.17) (1.18)
+
+Observe that the collocation method is easy to implement, once the differentiation matrices are precomputed. Moreover, it is very convenient for solving problems with variable coefﬁcients and/or nonlinear problems, since we work in the physical space and derivatives can be evaluated by (1.14) directly. As a result, the collocation method has been extensively used in practice. However, three important issues should be considered in the implementation and analysis of a collocation method:
+• The coefﬁcient matrix of the collocation system is always full with a condition number behaving like O(N2m) (m is the order of the differential equation).
+• The choice of collocation points is crucial in terms of stability, accuracy and ease of dealing with boundary conditions. In general, they are chosen as nodes (typically, zeros of orthogonal polynomials) of Gauss-type quadrature formulas.
+• The aforementioned collocation scheme is formulated in a strong form. In terms of error analysis, it is more convenient to reformulate it as a (but not always equivalent) weak form, see Sect. 1.3.3 and Chap. 4.
+
+6
+1.3 Spectral Methods of Galerkin Type
+
+1 Introduction
+
+The collocation method described in the previous section is implemented in the physical space. In this section, we shall describe Galerkin-type spectral methods in the frequency space, and present the basic principles of the spectral-Galerkin method, spectral-Petrov-Galerkin method, and spectral-Galerkin method with numerical integration.
+
+1.3.1 Galerkin Method
+
+Without loss of generality, we consider (1.8) with g± = 0. The non-homogeneous boundary conditions can be easily handled by considering v = u − u˜, where u˜ is a “simple” function satisfying the non-homogeneous boundary conditions (cf. Chap. 4).
+Deﬁne the ﬁnite-dimensional approximation space:
+
+XN = φ ∈ PN : B±φ (±1) = 0 ⇒ dim(XN ) = N − 1.
+
+Let {φk}Nk=−02 be a set of basis functions of XN. We expand the approximate solu-
+
+tion as
+
+N−2
+
+uN(x) = ∑ uˆkφk(x) ∈ XN.
+
+(1.19)
+
+k=0
+
+Then, the expansion coefﬁcients {uˆk}Nk=−02 can be determined by the residual equation (1.6) with {ψ j = φ j} :
+
+1
+LuN(x) − f (x) φ j(x)ω(x)dx = 0, 0 ≤ j ≤ N − 2,
+−1
+
+(1.20)
+
+which is equivalent to
+
+Find uN ∈ XN such that LuN, vN ω = f , vN ω , ∀vN ∈ XN.
+
+(1.21)
+
+Here, (·, ·)ω is the inner product of L2ω (−1, 1) (cf. Appendix B). The linear system of the above scheme is obtained by substituting (1.19) into
+(1.20). More precisely, setting
+
+u = uˆ0, uˆ1, . . . , uˆN−2 T ; f j = ( f , φ j)ω , f = f0, f1, . . . , fN−2 T ; s jk = Lφk, φ j ω , S = (s jk) j,k=0,...,N−2,
+
+the system (1.20) reduces to
+
+Su = f.
+
+(1.22)
+
+1.3 Spectral Methods of Galerkin Type
+
+7
+
+Therefore, it is crucial to choose basis functions {φ j} such that:
+• The right-hand side ( f , φ j)ω can be computed efﬁciently. • The linear system (1.22) can be solved efﬁciently.
+
+The key idea is to use compact combinations of orthogonal polynomials or orthogo-
+nal functions to construct basis functions. To demonstrate the basic principle, we consider the Legendre spectral approximation (i.e., ω ≡ 1 in (1.20)-(1.22)). Let Lk(x) be the Legendre polynomial of degree k, and set
+
+φk(x) = Lk(x) + αkLk+1(x) + βkLk+2(x), k ≥ 0,
+
+(1.23)
+
+where the constants αk and βk are uniquely determined by the boundary conditions: B±φk(±1) = 0 (cf. Sect. 4.1). We shall refer to such basis functions as modal basis functions. Therefore, we have
+
+XN = span φ0, φ1, . . . , φN−2 .
+
+(1.24)
+
+Using the properties of Legendre polynomials (cf. Sect. 3.3), one veriﬁes easily
+
+that, if p(x) and q(x) are constants, the coefﬁcient matrix S is sparse so the linear
+
+system (1.22) can be solved efﬁciently. However, for more general p(x) and q(x),
+
+the coefﬁcient matrix S is full and one needs to resort to an iterative method (cf.
+
+Sect. 4.4).
+
+In the above, we just considered the Legendre case. In fact, the construc-
+
+tion of such a basis is also feasible for the Chebyshev, Laguerre and Hermite
+
+cases (see Chaps. 4–7). The notion of using compact combinations of orthogonal
+
+polynomials/functions to develop efﬁcient spectral solvers will be repeatedly em-
+
+phasized in this book.
+
+We now consider the evaluation of ( f , φ j)ω . In general, this term can not be computed exactly and is usually approximated by (IN f , φ j)ω , where IN is an
+interpolation operator upon PN relative to the Gauss-Lobatto points. Thus, we can
+
+write
+
+N
+(IN f )(x) = ∑ f˜kϕk(x), k=0
+
+(1.25)
+
+where {ϕk} is an orthonormal polynomial basis of PN (orthogonal with respect to ω, i.e., (ϕk, ϕ j)ω = δ jk). Thanks to the orthogonality, the discrete transforms between the physical values { f (x j)}Nj=0 and the expansion coefﬁcients { f˜k}Nk=0 can be computed efﬁciently. In particular, the computational complexity of the Fourier and Chebyshev discrete transforms can be reduced to O(N log2 N) by using the fast Fourier transform (FFT). An approach for implementing discrete transforms relative
+to general orthogonal polynomials is given in Sect. 3.1.5.
+It is important to point out that in solving time-dependent nonlinear problems, f
+usually contains nonlinear terms involving derivatives of the numerical solution uN at previous time steps (cf. (1.3)). Hence, numerical differentiations in the frequency
+space and/or in the physical space are required. Differentiation techniques relative
+to general orthogonal polynomials are addressed in Sects. 3.1.6 and 3.1.7.
+
+8
+1.3.2 Petrov-Galerkin Method
+
+1 Introduction
+
+As pointed out in Sect. 1.1, the use of different test and trial functions distinguishes the Petrov-Galerkin method from the Galerkin method. Thanks to this ﬂexibility, the Petrov-Galerkin method can be very useful for some non-self-adjoint problems such as odd-order equations.
+As an illustrative example, we consider the following third-order equation:
+
+Lu(x) := u (x) + u(x) = f (x), x ∈ (−1, 1), u(±1) = u (1) = 0.
+
+(1.26)
+
+As with the Galerkin case, we enforce the boundary conditions on the approximate solution. So we set
+
+XN = φ ∈ PN : φ (±1) = φ (1) = 0 ⇒ dim(XN) = N − 2.
+
+Assuming that {φk}Nk=−03 is a basis of XN, we expand the approximate solution as
+
+N−3
+uN(x) = ∑ uˆkφk(x) ∈ XN. k=0
+
+The expansion coefﬁcients {uˆk}Nk=−03 are determined by the residual equation (1.6) (with ω = 1):
+
+1
+LuN(x) − f (x) ψ j(x)dx = 0, 0 ≤ j ≤ N − 3.
+−1
+
+(1.27)
+
+Since the leading third-order operator is not self-adjoint, it is natural to use a PetrovGalerkin method with the test function space:
+
+XN∗ = ψ ∈ PN : ψ(±1) = ψ (−1) = 0 ⇒ dim(XN∗) = N − 2.
+
+Assume that {ψk}Nk=−03 is a basis of XN∗ . Then, (1.27) is equivalent to the variational formulation:
+
+Find uN ∈ XN such that LuN , vN = f , vN , ∀vN ∈ XN∗ ,
+
+(1.28)
+
+where (·, ·) is the inner product of the usual L2-space. The theoretical aspects of the above scheme will be examined in Chap. 6. We
+now consider its implementation. Setting
+
+u = uˆ0, uˆ1, . . . , uˆN−3 T ; f j = ( f , ψ j), f = s jk = (φk, ψ j ), S = s jk j,k=0,...,N−3; m jk = (φk, ψ j), M = m jk j,k=0,...,N−3,
+
+f0, f1, . . . , fN−3 T ;
+
+1.3 Spectral Methods of Galerkin Type
+
+9
+
+the linear system (1.28) becomes
+
+S + M u = f.
+
+(1.29)
+
+As described in the previous section, we wish to construct basis functions for XN and XN∗, so that the linear system (1.29) can be inverted efﬁciently. Once again, this goal can be achieved by using compact combinations of orthogonal polynomials. It
+can be checked that for 0 ≤ k ≤ N − 3,
+
+φk
+
+=
+
+Lk
+
+−
+
+2k 2k
+
++ +
+
+3 5 Lk+1
+
+−
+
+Lk+2
+
++
+
+2k 2k
+
++ +
+
+3 5 Lk+3
+
+∈
+
+XN ;
+
+ψk
+
+=
+
+Lk
+
++
+
+2k 2k
+
++ +
+
+3 5 Lk+1
+
+−
+
+Lk+2
+
+−
+
+2k 2k
+
++ +
+
+3 5 Lk+3
+
+∈
+
+XN∗ ,
+
+(1.30)
+
+where Ln is the Legendre polynomial of degree n (cf. Sect. 3.3). Hence, {φk}Nk=−03 (resp. {ψ j}Nj=−03) forms a basis of XN (resp. XN∗ ). Moreover, using the properties of the Legendre polynomials, one veriﬁes easily that the matrix M is seven-diagonal,
+i.e., m jk = 0 for all | j − k| > 3. More importantly, the matrix S is diagonal.
+
+1.3.3 Galerkin Method with Numerical Integration
+
+We considered previously Galerkin-type methods in the frequency space, which are well suited for linear problems with constant (or polynomial) coefﬁcients. However, their implementations are not convenient for problems with general variable coefﬁcients. On the other hand, the collocation method is easy to implement, but it can not always be reformulated as a suitable variational formulation (most convenient for error analysis). A combination of these two approaches leads to the so-called Galerkin method with numerical integration, or sometimes called the collocation method in the weak form.
+The key idea of this approach is to replace the continuous inner products in the Galerkin formulation by the discrete ones. As an example, we consider again (1.8) with g± = 0. The spectral-Galerkin method with numerical integration is
+
+Find uN ∈ XN := {φ ∈ PN : B±φ (±1) = 0} such that aN(uN , vN ) := LuN , vN N = f , vN N , ∀vN ∈ XN,
+
+(1.31)
+
+where the discrete inner product is deﬁned by
+N
+u, v N = ∑ u(x j)v(x j)ω j, j=0
+with {x j, ω j}Nj=0 being the set of Legendre-Gauss-Lobatto quadrature nodes and weights (cf. Theorem 3.29).
+
+10
+
+1 Introduction
+
+For problems with variable coefﬁcients, the above method is easier to implement, thanks to the discrete inner product, than the spectral-Galerkin method (1.21). It is also more convenient for error analysis, thanks to the weak formulation, than the spectral-collocation method (1.12).
+We note that in the particular case of homogeneous Dirichlet boundary conditions, i.e., B±u(±1) = u(±1) = 0, by taking vN = h j, 1 ≤ j ≤ N − 1 in (1.31) and using the exactness of Legendre-Gauss-Lobatto quadrature, i.e.,
+
+u, v N = (u, v), ∀u · v ∈ P2N−1,
+
+(1.32)
+
+we ﬁnd that the formulation (1.31) is equivalent to the collocation formulation (1.12). However, this is not true for general boundary conditions (see Chap. 4).
+
+1.4 Fundamental Tools for Error Analysis
+
+In the previous sections, we brieﬂy described several families of spatial discretization schemes using the notion of weighted residual methods. In this section, we present some fundamental apparatuses for stability and convergence analysis of numerical schemes based on weak (or variational) formulations.
+We consider the linear boundary value problem (1.3):
+
+Lu = f , in Ω ; Bu = 0, on ∂ Ω ,
+
+(1.33)
+
+where L and B are linear operators, and f is a given function on Ω . As shown before, the starting point is to reformulate (1.33) in a weak formulation:
+
+Find u ∈ X such that a(u, v) = F(v), ∀v ∈ Y,
+
+(1.34)
+
+where X is the space of trial functions, Y is the space of test functions, and F is a linear functional on Y. The expression a(u, v) deﬁnes a bilinear form on X × Y. It is conventional to assume that X and Y are Hilbert spaces. We refer to Appendix B for basic functional analysis settings.
+Now, we consider what conditions should be placed on (1.34) to guarantee its well-posedness in the sense that:
+• Existence-uniqueness: There exists exactly one solution of the problem. • Stability: The solution must be stable which means that it depends on the data
+continuously. In other words, a small change of the given data produces a small change of the solution correspondingly.
+The ﬁrst fundamental result concerning the existence-uniqueness and stability is known as the Lax-Milgram lemma (see Theorem B.1) related to the abstract problem (1.34) with X = Y, i.e.,
+
+1.4 Fundamental Tools for Error Analysis
+
+11
+
+Find u ∈ X such that a(u, v) = F(v), ∀v ∈ X.
+
+(1.35)
+
+More precisely, if the bilinear form a(·, ·) : X × X → R satisﬁes
+
+• Continuity:
+
+∃C > 0 such that |a(u, v)| ≤ C u X v X ,
+
+(1.36)
+
+• Coercivity:
+
+∃α > 0
+
+such that
+
+a(u, u) ≥ α
+
+u
+
+2 X
+
+,
+
+(1.37)
+
+then for any F ∈ X (the dual space of X as deﬁned in Appendix B), the problem (1.35) admits a unique solution u ∈ X, satisfying
+
+u
+
+X
+
+≤
+
+1 α
+
+F
+
+X.
+
+(1.38)
+
+Remark 1.3. The constant
+
+α
+
+=
+
+inf
+0=u∈X
+
+|a(u, u)|
+
+u
+
+2 X
+
+is referred to as the ellipticity constant of (1.35).
+
+(1.39)
+
+The above result can only be applied to the problem (1.34) with Y = X. We now present a generalization of the Lax-Milgram lemma for the case X = Y (see, e.g., Babusˇka and Aziz (1972)).
+
+Theorem 1.1. Let X and Y be two real Hilbert spaces, equipped with norms · X and · Y , respectively. Assume that a(·, ·) : X ×Y → R is a bilinear form and F(·) : Y → R is a linear continuous functional, i.e., F ∈ Y (the dual space of Y ) satisfying
+
+F
+
+Y
+
+= sup |F(v)| < ∞. 0=v∈Y v Y
+
+(1.40)
+
+Further, assume that a(·, ·) satisﬁes
+
+• Continuity:
+
+∃C > 0 such that |a(u, v)| ≤ C u X v Y ,
+
+• Inf-sup condition:
+
+(1.41)
+
+∃ β > 0 such that sup |a(u, v)| ≥ β , ∀ 0 = u ∈ X, 0=v∈Y u X v Y
+
+(1.42)
+
+• “Transposed” inf-sup condition:
+
+sup |a(u, v)| > 0, ∀ 0 = v ∈ Y.
+0=u∈X
+
+(1.43)
+
+Then, for any F ∈ Y , the problem (1.34) admits a unique solution u ∈ X, which satisﬁes
+
+12
+
+1 Introduction
+
+u
+
+X
+
+≤
+
+1 β
+
+F
+
+Y.
+
+(1.44)
+
+Remark 1.4. The condition (1.42) is also known as the Babusˇka-Brezzi inf-sup condition (cf. Babusˇka (1973), Brezzi (1974)), and the real number
+
+β = inf sup |a(u, v)| 0=u∈X 0=v∈Y u X v Y
+
+(1.45)
+
+is called the inf-sup constant.
+
+Remark 1.5. Theorem 1.1 with X = Y is not equivalent to the Lax-Milgram lemma. In fact, one can verify readily the relation between the ellipticity and inf-sup constants: α ≤ β . Indeed, by (1.37),
+
+α
+
+u
+
+X
+
+≤
+
+|a(u, u)| uX
+
+≤
+
+sup
+0=v∈X
+
+|a(u, v)| , vX
+
+∀0 = u ∈ X,
+
+which implies
+
+α ≤ inf sup |a(u, v)| = β . 0=u∈X 0=v∈X u X v X
+
+This means that one can have α = 0 but β > 0. In other words, the bilinear form is not coercive, but satisﬁes the inf-sup condition.
+
+We review below the fundamental theory on convergence analysis of numerical approximations to (1.34).
+We ﬁrst consider the case X = Y . Assume that XN ⊆ X and
+
+∀v ∈ X,
+
+inf
+vN ∈XN
+
+v − vN
+
+X →0
+
+as
+
+N → ∞.
+
+The Galerkin approximation to (1.35) is
+
+(1.46)
+
+Find uN ∈ XN such that a(uN, vN ) = F(vN ), ∀vN ∈ XN.
+
+(1.47)
+
+The stability and convergence of this scheme can be established by using the following lemma (cf. Ce´a (1964)):
+Theorem 1.2. (Ce´a Lemma). Under the assumptions of the Lax-Milgram lemma (see Theorem B.1), the problem (1.47) admits a unique solution uN ∈ XN such that
+
+uN
+
+X
+
+≤
+
+1 α
+
+F
+
+X.
+
+(1.48)
+
+Moreover, if u is the solution of (1.35), we have
+
+u − uN
+
+X
+
+≤
+
+C α
+
+inf
+vN ∈XN
+
+u − vN X .
+
+(1.49)
+
+Here, the constants C and α are given in (1.36) and (1.37), respectively.
+
+1.4 Fundamental Tools for Error Analysis
+
+13
+
+Proof. Since XN is a subspace of X , applying the Lax-Milgram lemma to (1.47)
+
+leads to the existence-uniqueness of uN and the stability result (1.48). Now, taking
+
+v = vN in (1.35), and subtracting (1.47) from the resulting equation, we obtain the
+
+error equation
+
+a(u − uN, vN ) = 0, ∀vN ∈ XN ,
+
+(1.50)
+
+which, together with (1.36)-(1.37), implies
+
+α
+
+u − uN
+
+2 X
+
+≤
+
+a(u
+
+−
+
+uN, u
+
+−
+
+uN )
+
+=
+
+a(u
+
+−
+
+uN, u
+
+−
+
+vN )
+
+≤ C u − uN X u − vN X , ∀vN ∈ XN ,
+
+from which (1.49) follows.
+
+Remark 1.6. If, in addition, the bilinear form is symmetric, i.e., a(u, v) = a(v, u), the Galerkin method is referred to as the Ritz √method. In this case, the constant in the upper bound of (1.49) can be improved to Cα−1.
+
+Remark 1.7. In performing error analysis of spectral methods, we usually take vN in (1.49) to be a suitable orthogonal projection of u upon XN, denoted by πNu, which leads to
+
+u − uN
+
+X
+
+≤
+
+C α
+
+u − πNu
+
+X.
+
+(1.51)
+
+Hence, the error estimate follows from the approximation result on u − πNu X , which takes a typical form:
+
+u − πNu X ≤ cN−σ(m) u Hm ,
+
+(1.52)
+
+where c is a generic positive constant independent of N and any function, σ (m) > 0 is the so-called order of convergence in terms of the regularity index m, and Hm is a suitable Sobolev space with a norm involving derivatives of u up to m-th order. The establishment of such approximation results for each family of orthogonal polynomials/functions will be another emphasis of this book.
+Typically, if u is sufﬁciently smooth, the estimate (1.52) is valid for every m. However, for a ﬁnite-element method, the order of convergence is restricted by the order of local basis functions. The explicit dependence of the estimates of (1.52) type on the regularity index m will also be explored in this book.
+
+Observe that the bilinear form and the functional F in the discrete problem (1.47) are the same as those in the continuous problem (1.35). However, it is often convenient to use suitable approximate bilinear forms and/or functionals (see, for example, (1.31)). Hence, it is necessary to consider the following approximation to (1.35):
+
+Find uN ∈ XN such that aN (uN, vN ) = FN(vN ), ∀vN ∈ XN ,
+
+(1.53)
+
+where XN still satisﬁes (1.46), and aN(·, ·) and FN(·) are suitable approximations to a(·, ·) and F(·), respectively. In general, although XN is a subspace of X , the
+
+14
+
+1 Introduction
+
+properties of the discrete bilinear form can not carry over from those of the continuous one. Hence, they have to be derived separately.
+The result below, known as the ﬁrst Strang lemma (see, e.g., Strang and Fix (1973), Ciarlet (1978)), is a generalization of Theorem 1.2.
+
+Theorem 1.3. (First Strang lemma). Under the assumptions of the Lax-Milgram lemma, suppose further that the discrete forms FN(·) and aN(·, ·) satisfy the same properties in the subspace XN ⊂ X , and ∃ α∗ > 0, independent of N, such that
+
+aN(v, v) ≥ α∗
+
+v
+
+2 X
+
+,
+
+∀v ∈ XN .
+
+(1.54)
+
+Then, the problem (1.53) admits a unique solution uN ∈ XN, satisfying
+
+uN
+
+X
+
+≤
+
+1 α∗
+
+sup
+0=vN ∈XN
+
+|FN(vN )| . vN X
+
+(1.55)
+
+Moreover, if u is the solution of (1.35), we have
+
+u − uN
+
+X
+
+≤ inf
+wN ∈XN
+
+1
+
++
+
+C α∗
+
+u − wN X
+
++
+
+1 α∗
+
+sup
+0=vN ∈XN
+
+|a(wN , vN ) − aN(wN , vN )| vN X
+
++
+
+1 α∗
+
+sup
+0=vN ∈XN
+
+|F(vN ) − vN
+
+FN(vN )| .
+X
+
+Here, the constant C is given in (1.36).
+
+(1.56)
+
+Proof. The existence-uniqueness and stability of (1.55) follow from the LaxMilgram lemma. The proof of (1.56) is slightly different from that of (1.49). For any wN ∈ XN, let eN = uN − wN. Using (1.54), (1.35) and (1.53) leads to
+
+α∗
+
+eN
+
+2 X
+
+≤
+
+aN (eN , eN )
+
+=
+
+a(u − wN, eN ) + a(wN, eN )
+
+− aN(wN , eN ) + FN(eN ) − F(eN ).
+
+Since the result is trivial for eN = 0, we derive from (1.36) that for eN = 0,
+
+α∗
+
+eN
+
+X ≤C
+
+u − wN
+
+X
+
++
+
+|a(wN ,
+
+eN
+
+)− eN
+
+aN (wN
+X
+
+,
+
+eN
+
+)|
+
++ |F(eN ) − FN(eN )| eN X
+
+≤C
+
+u − wN
+
+X
+
++
+
+sup
+0=vN ∈XN
+
+|a(wN , vN ) − aN(wN , vN )| vN X
+
++ sup |F(vN ) − FN(vN )| ,
+
+0=vN ∈XN
+
+vN X
+
+1.4 Fundamental Tools for Error Analysis
+
+15
+
+which, together with the triangle inequality, yields
+
+u − uN X ≤ u − wN X + eN X .
+
+Finally, taking the inﬁmum over wN ∈ XN leads to the desired result.
+The previous discussions were restricted to approximations of the abstract problem (1.35) based on Galerkin-type formulations. Similar analysis can be done for the Petrov-Galerkin approximation of (1.34) by using Theorem 1.1. Indeed, let XN ⊆ X and YN ⊆ Y . Consider the approximation to (1.34):
+
+Find uN ∈ XN such that a(uN, vN ) = F(vN ), ∀vN ∈ YN .
+
+(1.57)
+
+Unlike the coercivity property, the inf-sup property can not carry over from the whole space to the subspace. Indeed, the inﬁmum in (1.39) will not decrease if it is taken on a subspace, whereas the supremum in the inf-sup constant (1.45), in general, becomes smaller on a subspace. Consequently, we have to prove
+
+• Discrete inf-sup condition:
+
+∃ β∗ > 0
+
+such that
+
+sup
+0=vN ∈YN
+
+|a(uN, vN )| uN X vN Y
+
+≥ β∗,
+
+• Discrete “transposed” inf-sup condition:
+
+∀ 0 = uN ∈ XN ,
+
+(1.58)
+
+sup |a(uN, vN )| > 0, ∀ 0 = vN ∈ YN .
+0=uN ∈XN
+
+(1.59)
+
+The following result, which is another generalization of Theorem 1.2, can be found in Babusˇka and Aziz (1972).
+
+Theorem 1.4. Under the assumptions of Theorem 1.1, assume further that (1.58)
+
+and (1.59) hold. Then the discrete problem (1.57) admits a unique solution uN ∈ XN,
+
+satisfying
+
+uN
+
+X
+
+≤
+
+1 β∗
+
+F
+
+Y.
+
+(1.60)
+
+Moreover, if u is the solution of (1.34), we have
+
+u − uN X ≤
+
+1
+
++
+
+C β∗
+
+inf
+vN ∈XN
+
+u − vN
+
+X,
+
+(1.61)
+
+where the constant C is given in (1.41). Remark 1.8. If we consider the following approximation to (1.34):
+
+Find uN ∈ XN such that aN(uN, vN ) = FN(vN ), ∀vN ∈ YN ,
+
+(1.62)
+
+then a result similar to Theorem 1.3 can be derived, provided that (1.58) and (1.59) hold in the subspaces XN and YN.
+
+16
+1.5 Comparative Numerical Examples
+
+1 Introduction
+
+The aim of this section is to provide some illustrative numerical examples for a qualitative comparison of:
+• Global versus local approximations • Spectral-Galerkin versus spectral-collocation methods
+in terms of accuracy, computational complexity and/or conditioning of the linear systems.
+
+1.5.1 Finite-Difference Versus Spectral-Collocation
+
+In order to illustrate the main differences between the ﬁnite-difference and spectral
+
+methods, we compare numerical differentiations of a periodic function u by using a
+
+fourth-order ﬁnite-difference method and a spectral-collocation method.
+
+Given
+
+h=
+
+2π N
+
+and
+
+a
+
+uniform grid
+
+{x0, x1, . . . , xN }
+
+with
+
+xj
+
+=
+
+jh,
+
+and
+
+a
+
+set
+
+of
+
+physical values {u0, u1, . . . , uN} with u j = u(x j), a fourth-order centered ﬁnite-
+
+difference approximation to u (x j) is
+
+wj
+
+:=
+
+u j−2 − 8u j−1 + 8u j+1 − u j+2 . 12h
+
+(1.63)
+
+To account for periodicity of u, we set
+
+u−2 = uN−1, u−1 = uN, u0 = uN+1, u1 = uN+2.
+
+Then, the differentiation process (1.63) can be expressed as
+
+⎡⎤ w0
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣wwN............−1 1⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+wN
+
+=
+
+1 12h
+
+⎡ ⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣−1
+8
+
+−1
+
+... ... ... ... ...
+
+−1 8 0 −8 1
+
+... ... ... ... ...
+
+1
+
+⎤⎡ ⎤
+
+−18⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+u0 ⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣uNu............−1 1
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+.
+
+uN
+
+(1.64)
+
+Note that the coefﬁcient matrix is sparse, reﬂecting the local nature of the ﬁnitedifference method.
+
+1.5 Comparative Numerical Examples
+
+17
+
+On the other hand, the Fourier-collocation approximation of the function u is
+
+N−1
+φ (x) = ∑ hk(x)uk, k=0
+where hk(x j) = δ jk and (cf. Lemma 2.2)
+
+(1.65)
+
+hk(x)
+
+=
+
+1 N
+
+sin sin
+
+N(x − xk)/2 (x − xk)/2
+
+cos
+
+(x − xk)/2 .
+
+Then, we approximate u (x j) by
+
+N−1
+∑ w j = φ (x j) = hk(x j)uk, j = 0, 1, . . . , N − 1, k=0
+
+where we have the explicit formula (cf. (2.34)):
+
+hk(x j) =
+
+(−1)k+ 2
+
+j
+
+cot
+
+( j−k)π N
+
+,
+
+0,
+
+if j = k, if j = k.
+
+(1.66) (1.67) (1.68)
+
+Thus, the matrix form of (1.67) becomes
+
+⎡ ⎤⎡
+
+w0
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣wwN............−1 2⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+=
+
+1 2
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣
+
+wN−1
+
+... ... ...
+
+...
+
+−
+
+cot
+
+2h 2
+
+cot
+
+h 2
+
+0
+
+−
+
+cot
+
+h 2
+
+cot
+
+2h 2
+
+...
+
+⎤⎡ ⎤
+
+u0
+
+... ... ...
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦ ⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣uNu............−1 2⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦ .
+
+uN−1
+
+(1.69)
+
+Note that the coefﬁcient matrix is full, reﬂecting the global nature of the spectralcollocation method. More detailed discussions of the Fourier method will be con-
+ducted in Chap. 2. Next, we take u(x) = ln(2 + sin x), which is 2π-periodic, and compare the exact
+derivative u (x) = cosx/(2 + sin x) with the numerical derivative {w j} obtained by the ﬁnite difference (1.64), and Fourier-collocation method (1.69) at the same grid. In Fig. 1.1, we plot the error max0≤ j≤N−1 |u (x j) − w j| against various N. We observe a fourth-order convergence O(h4) (or O(N−4)) of the ﬁnite difference (1.64). We also observe that the Fourier-collocation method converges much faster than the
+
+18 100
+
+1 Introduction Convergence of 4th−order FD & Fourier−collocation method
+
+10−5
+
+h4
+
+Error
+
+10−10
+
+10−15100
+
+101
+
+102
+
+103
+
+104
+
+N
+
+Fig. 1.1 Convergence of 4th-order ﬁnite difference (1.64) and Fourier-collocation (1.69) differentiation processes
+
+Convergence of Fourier−collocation method −2
+
+−4
+
+log10(Error)
+
+−6
+
+−8
+
+−10
+
+−12
+
+−14 5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+40
+
+45
+
+50
+
+N
+
+Fig. 1.2 Convergence of Fourier-collocation (1.69) differentiation process
+
+ﬁnite difference method. To have a clearer picture of the convergence of the Fouriercollocation method (1.69), we plot in Fig. 1.2 the errors in the semi-log scale, which indicates an exponential convergence rate O(e−cN) for some c > 0.
+Remark 1.9. The typical convergence behavior of a spectral method is O(N−m) where m is a regularity index of the underlying function. In other words, its convergence rate is only limited by the regularity of the underlying function. A method exhibiting such a convergence behavior is often said to have spectral accuracy in the literature. On the other hand, the convergence rate of a ﬁnite element/ﬁnite difference method is limited by the order of the method, regardless of the regularity of the underlying function.
+
+1.5 Comparative Numerical Examples
+
+19
+
+A main advantage of a spectral method over a low-order ﬁnite element/ﬁnite difference method is that the former requires much fewer unknowns to resolve a given problem to a ﬁxed accuracy, leading to potentially signiﬁcant savings in storage and CPU time. For example, a rule of thumb (cf. Gottlieb and Orszag (1977)) is that to achieve an engineering precision of 1%, a spectral method only needs π points per wave-length, as opposed to roughly ten points per wave-length required by a low-order method.
+Another important feature of spectral methods is that the derivatives of discrete functions are usually computed exactly (cf. (1.14)). Therefore, spectral methods are usually free of phase errors, which can be very problematic for long-time integrations of partial differential equations.
+Remark 1.10. If a function is analytic in a strip of width 2β (containing the underlying interval) in the complex plane, spectral approximations of such function can achieve an exponential convergence rate of O(e−β N). We refer to Davis (1975), Szego¨ (1975), and Gottlieb et al. (1992), Gottlieb and Shu (1997) for such results on spectral projection errors, and to Tadmor (1986) for spectral differentiation errors (see Reddy and Weideman (2005) for a simpler analysis which also improved the estimates in Tadmor (1986)). Since the condition for an exponential convergence of order O(e−β N) is quite generic, we shall not conduct analysis with exponential convergence in this book.
+
+1.5.2 Spectral-Galerkin Versus Spectral-Collocation
+
+We compare in this section two versions of spectral methods: the Galerkin method in the frequency space and the collocation method in the physical space, in terms of the conditioning and round-off errors.
+As an illustrative example, we consider the problem
+
+u − uxx = f , u(±1) = 0
+
+with the exact solution u(x) = sin(10πx). In the comparison, the collocation solution is computed by (1.17)-(1.18) with p = 0, q = α and g± = 0, while the Galerkin solution is obtained by solving (1.22) with the Legendre basis functions (cf. (1.23))
+
+φk (x)
+
+=
+
+√1 4k +
+
+6
+
+Lk(x) − Lk+2(x)
+
+,
+
+0 ≤ k ≤ N − 2.
+
+Let us ﬁrst examine the conditioning of the two linear systems. In Table 1.1,
+we list the condition numbers of the matrices resulted from the collocation method
+(COL) and the Galerkin method (GAL). We see that for various α, the condition numbers of the GAL systems are all
+relatively small and independent of N, while those of the COL systems increase like O N4 .
+
+20
+
+1 Introduction
+
+Table 1.1 Condition numbers of COL and GAL N Method α = 0 α = 10 α = 100
+
+32 COL 1.04E+04 2.05E+03 2.50E+02
+
+32 GAL
+
+1.00
+
+5.07
+
+41.6
+
+64 COL 1.71E+05 3.37E+04 4.09E+03
+
+64 GAL
+
+1.00
+
+5.07
+
+41.6
+
+128 COL 2.77E+06 5.47E+05 6.63E+04
+
+128 GAL
+
+1.00
+
+5.07
+
+41.7
+
+256 COL 4.46E+07 8.81E+06 1.07E+06
+
+256 GAL
+
+1.00
+
+5.07
+
+41.7
+
+α = 1, 000 2.64E+01
+396 4.18E+02
+407 6.78E+03
+408 1.09E+05
+408
+
+Convergence of Legendre−collocation and −Galerkin methods 0
+
+−2
+
+−4
+
+log10(Error)
+
+−6
+
+−8
+
+−10
+
+−12
+
+−14
+
+30
+
+35
+
+40
+
+45
+
+50
+
+55
+
+60
+
+N
+
+Fig. 1.3 Convergence: COL (“ ”) vs. GAL (“◦”)
+
+Round−off error of Legendre−collocation and −Galerkin methods −11
+
+−11.5
+
+−12
+
+log10(Error)
+
+−12.5
+
+−13
+
+−13.5
+
+−14
+
+−14.5 50
+
+100 150 200 250 300 350 400 450 500 N
+
+Fig. 1.4 Round-off errors: COL (“ ”) vs. GAL (“◦”)
+
+Next, we compare the effect of round-off errors. The maximum point-wise errors of two methods against various N are depicted in Figs. 1.3 and 1.4. We observe from Fig. 1.3 that, for relatively small N, both methods share essentially the same order of
+
+Problems
+
+21
+
+convergence rate. However, Fig. 1.4 indicates that the effect of roundoff errors may become severer in a collocation method as N becomes large.
+The above comparison is performed on a simple one-dimensional model problem. It should be pointed out that similar behaviors can be expected for multidimensional and/or higher-order problems. Finally, we want to emphasize that in a collocation method, the choice of the collocation points (the quadrature nodes) should be in agreement with underlying differential equations and boundary conditions. For instance, the Gauss-Lobatto points are not suitable for third-order equations (cf. Huang and Sloan (1992), Merryﬁeld and Shizgal (1993)). However, in a spectral-Galerkin method, the use of quadrature rules is merely to evaluate the integrals, so the usual Gauss-Lobatto quadrature works for the third-order equation as well.
+
+Problems
+
+1.1. Consider the heat equation
+
+ut (x,t) = uxx(x,t), t > 0; u(x, 0) = u0(x),
+
+(1.70)
+
+where u0(x) is 2π-periodic. We expand the periodic solution u in terms of Fourier series (cf. Sect. 2.1.1)
+
+∑∞
+u(x,t) = ak(t)eikx
+|k|=0
+
+with
+
+ak(t) =
+
+1 2π
+
+2π
+u(x, t )e−ikx d x,
+0
+
+√ where i = −1 is the complex unit.
+
+(1.71)
+
+(a)Show that
+
+ak(t) = e−k2t ak(0), ∀t ≥ 0, k ∈ Z,
+
+where (b) Let
+
+ak(0)
+
+=
+
+1 2π
+
+2π
+u0(x)e−ikxdx.
+0
+
+N−1
+∑ uN(x,t) := ak(t)eikx. |k|=0
+
+Show that
+
+(u − uN)(·,t)
+
+∞ ≤ ct−1/2
+
+u0
+
+√ ∞ erfc( tN),
+
+where v ∞ = maxx∈[0,2π] |v(x)|, and erfc(x) is the complementary error function deﬁned by
+
+erfc(x)
+
+=
+
+√2 π
+
+∞ e−y2 dy.
+x
+
+22
+
+1 Introduction
+
+(c) Use the property to prove that
+
+erfc(x)
+
+∼=
+
+√e−x2 , πx
+
+x
+
+1,
+
+(u − uN)(·,t) ∞ ≤ ct−3/2N−1e−tN2 , ∀ t > 0.
+
+Chapter 2
+Fourier Spectral Methods for Periodic Problems
+
+The spectral method was introduced in Orszag’s pioneer work on using Fourier series for simulating incompressible ﬂows about four decades ago (cf. Orszag (1971)). The word “spectral” was probably originated from the fact that the Fourier series are the eigenfunctions of the Laplace operator with periodic boundary conditions. This fact and the availability of the fast Fourier transform (FFT) are two major reasons for the extensive applications of Fourier methods to problems with periodic boundary conditions. In practice, a variety of physical problems exhibit periodicity. For instance, some problems are geometrically and physically periodic, such as crystal structures and homogeneous turbulence. On the other hand, many problems of scientiﬁc interest, such as the interaction of solitary waves and homogeneous turbulence, can be modeled by PDEs with periodic boundary conditions. Furthermore, even if an original problem is not periodic, the periodicity may be induced by using coordinate transforms, such as polar, spherical and cylindrical coordinates. Indeed, there are numerous circumstances where the problems are periodic in one or two directions, and non-periodic in other directions. In such cases, it is natural to use Fourier series in the periodic directions and other types of spectral expansions, such as Legendre or Chebyshev polynomials, in the non-periodic directions (cf. Chap. 7).
+The objective of this chapter is to study some computational and theoretical aspects of Fourier spectral methods for periodic problems. In the ﬁrst section, we introduce the continuous and discrete Fourier series, and examine the fundamental spectral techniques including discrete Fourier transforms, Fourier differentiation matrices and Fourier spectral differentiation based on FFT. The approximation properties of continuous and discrete Fourier series are surveyed in the second section. The applications of Fourier spectral methods to some linear and nonlinear problems are presented in the last section. For more detail and other aspects of Fourier approximations, we refer to Gottlieb and Orszag (1977), Gottlieb et al. (1984), Boyd (2001) and the references therein.
+
+J. Shen et al., Spectral Methods: Algorithms, Analysis and Applications,
+
+23
+
+Springer Series in Computational Mathematics 41, DOI 10.1007/978-3-540-71041-7 2,
+
+c Springer-Verlag Berlin Heidelberg 2011
+
+24
+
+2 Fourier Spectral Methods for Periodic Problems
+
+2.1 Continuous and Discrete Fourier Transforms
+
+This section is devoted to a brief review of the properties of Fourier series and Fourier transforms. Our focus is put on the discrete Fourier transforms and Fourier differentiation techniques, which play an important role in the Fourier spectral methods.
+
+2.1.1 Continuous Fourier Series
+
+We denote the complex exponentials by
+
+Ek(x) := eikx = coskx + i sin kx = (cos x + i sin x)k, k ∈ Z, x ∈ R,
+
+where
+
+i
+
+=
+
+√ −1.
+
+The
+
+set
+
+{eikx
+
+:
+
+k
+
+∈
+
+Z}
+
+forms
+
+a
+
+complete
+
+orthogonal
+
+system
+
+in
+
+the
+
+complex Hilbert space L2(0, 2π), equipped with the inner product and the norm
+
+(u,
+
+v)
+
+=
+
+1 2π
+
+2π
+u(x)v¯(x)dx,
+0
+
+u = (u, u) ,
+
+where v¯ is the complex conjugate of v. The orthogonality of {Ek : k ∈ Z} reads
+
+(Ek, Em)
+
+=
+
+1 2π
+
+2π ei(k−m)xdx = δkm,
+0
+
+(2.1)
+
+where δkm is the Kronecker Delta symbol. For any complex-valued function u ∈ L2(0, 2π), its Fourier series is deﬁned by
+
+∞
+u(x) ∼ F (u)(x) := ∑ uˆkeikx, k=−∞
+
+(2.2)
+
+where the Fourier coefﬁcients are given by
+
+uˆk
+
+=
+
+(u, eikx)
+
+=
+
+1 2π
+
+2π
+u(x)e−ikxdx.
+0
+
+(2.3)
+
+It is clear that if u is a real-valued function, its Fourier coefﬁcients satisfy
+
+uˆ−k = uˆk, k ∈ Z,
+
+(2.4)
+
+and uˆ0 is obviously real. In fact, the Fourier series can be deﬁned for general absolutely integrable
+functions in (0, 2π), and the convergence theory of Fourier expansions in different senses has been subjected to a rigorous and thorough investigation in Fourier
+analysis (see, e.g., Zygmund (2002), Stein and Shakarchi (2003)). It is well-known
+
+2.1 Continuous and Discrete Fourier Transforms
+
+25
+
+that, for any u ∈ L2(0, 2π), its truncated Fourier series FN (u) := ∑|k|≤N uˆkeikx converges to u in the L2-sense, and there holds the Parseval’s identity:
+
+∞
+u 2 = ∑ |uˆk|2. k=−∞
+
+(2.5)
+
+If u is continuous, periodic and of bounded variation on [0, 2π], then FN(u) uniformly converges to u.
+Notice that the truncated Fourier series can also be expressed in the convolution
+form, namely,
+
+FN(u)(x) =
+
+DN ∗ u
+
+(x) =
+
+1 2π
+
+2π
+DN(x − t)u(t)dt,
+0
+
+where DN is known as the Dirichlet kernel given by
+
+(2.6)
+
+∑ ∑ DN(x)
+
+:=
+
+N k=−N
+
+eikx
+
+=
+
+1
+
++
+
+N
+2 cos kx
+k=1
+
+=
+
+sin((N + 1/2)x) sin(x/2)
+
+.
+
+(2.7)
+
+It is sometimes convenient to express the Fourier series in terms of the trigonometric polynomials:
+
+u(x)
+
+∼
+
+S
+
+(u)(x)
+
+=
+
+a0 2
+
++
+
+∞
+∑
+k=1
+
+ak cos kx + bk sin kx
+
+,
+
+(2.8)
+
+where the expansion coefﬁcients are
+
+ak
+
+=
+
+1 π
+
+2π
+u(x) cos kxdx,
+0
+
+bk
+
+=
+
+1 π
+
+2π
+u(x) sin kxdx.
+0
+
+The coefﬁcients of the two different representations (2.2) and (2.8) are related by
+
+uˆ0
+
+=
+
+a0 2
+
+,
+
+⎧ ⎪⎨
+
+ak
+
+−
+
+ibk
+
+,
+
+uˆk
+
+=
+
+⎪⎩
+
+2 a−k +
+
+ib−k
+
+,
+
+2
+
+if k ≥ 1, if k ≤ −1.
+
+(2.9)
+
+In particular, if u is a real-valued function, then a0 = 2uˆ0, ak = 2Re(uˆk), bk = −2Im(uˆk), k ≥ 1.
+
+(2.10)
+
+2.1.2 Discrete Fourier Series
+
+Given a positive integer N, let
+
+xj
+
+=
+
+jh
+
+=
+
+j 2π N
+
+,
+
+0 ≤ j ≤ N − 1,
+
+(2.11)
+
+26
+
+2 Fourier Spectral Methods for Periodic Problems
+
+be the N-equispaced grids in [0, 2π), which are referred to as the Fourier collocation points. We deﬁne the discrete inner product by
+
+∑ u, v
+
+N
+
+=
+
+1 N
+
+N−1
+u(x j)v¯(x j).
+j=0
+
+(2.12)
+
+The following lemma is the discrete counterpart of (2.1). Lemma 2.1. Let El(x) = eilx. For any integer N ≥ 1, we have
+1, if k − m = lN, ∀l ∈ Z, Ek, Em N = 0, otherwise.
+
+(2.13)
+
+Proof. Observe that if k − m is not divisible by N, then
+
+∑ ∑ Ek, Em
+
+N
+
+=
+
+1 N
+
+N−1
+ei(k−m)x j
+j=0
+
+=
+
+1 N
+
+N−1 j=0
+
+e2π i(k−m)/N
+
+j
+
+=
+
+1 N
+
+e2πi(k−m) − 1 e2πi(k−m)/N − 1
+
+=
+
+0.
+
+If k − m is divisible by N, we have e2πi(k−m)/N = 1, so the summation in the second line above equals to 1.
+
+In general, the Fourier coefﬁcients {uˆk} in (2.3) can not be evaluated exactly, so we have to resort to some quadrature formula. A simple and accurate quadrature formula for 2π-periodic functions is the rectangular rule
+
+∑ 1
+2π
+
+2π 0
+
+v(x)dx
+
+≈
+
+1 N
+
+N−1
+v(x j),
+j=0
+
+∀v ∈ C[0, 2π),
+
+(2.14)
+
+which is exact for all
+
+v ∈ span eikx : 0 ≤ |k| ≤ N − 1 .
+
+Moreover, one veriﬁes readily that (2.14) is also exact for v = sin(±Nx) but not for v = cos(±Nx).
+Applying (2.14) to (2.3) leads to the approximation
+
+∑ uˆk
+
+≈
+
+u˜k
+
+:=
+
+1 N
+
+N−1
+u(x j)e−ikxj ,
+j=0
+
+k = 0, ±1, . . ..
+
+(2.15)
+
+Note that {u˜k} are N-periodic, that is,
+
+∑ ∑ u˜k±N
+
+=
+
+1 N
+
+N−1
+u(x j)e−i(k±N)xj
+j=0
+
+=
+
+1 N
+
+N−1
+u(x j)e−ikxj e∓2πi j
+j=0
+
+=
+
+u˜k,
+
+2.1 Continuous and Discrete Fourier Transforms
+
+27
+
+which implies that for even N, we have
+
+u˜−N/2 = u˜N/2.
+
+(2.16)
+
+Hence, for even N, the grids {x j}Nj=−01 can not distinguish the modes: k = ±N/2, since
+
+eiNxj/2 = ei jπ = (−1) j = e−iNxj/2, 0 ≤ j ≤ N − 1.
+
+(2.17)
+
+In other words, the two modes k = ±N/2 are aliased. In order to have an effective implementation of the discrete Fourier transform
+(DFT), it is preferable to use an even N, and accordingly, a symmetric ﬁnite set of modes: −N/2 ≤ k ≤ N/2 in the discrete Fourier series (cf. (2.20) below). In view of (2.16)–(2.17), we redeﬁne the approximation (2.15) by modifying the two modes k = ±N/2 :
+
+∑ uˆk
+
+≈
+
+u˜k
+
+=
+
+1 Nck
+
+N−1
+u(x j)e−ikxj ,
+j=0
+
+k = −N/2, . . . , N/2,
+
+(2.18)
+
+where ck = 1 for |k| < N/2, and ck = 2 for k = ±N/2. The expression (2.18) is referred to as the (forward) discrete Fourier transform of u(x) associated with the grid points in (2.11).
+Due to (2.16), there are only N independent coefﬁcients. Hence, we set
+
+N/2
+
+∑ TN = u =
+
+u˜keikx : u˜−N/2 = u˜N/2 ,
+
+k=−N/2
+
+(2.19)
+
+and deﬁne the mapping IN : C[0, 2π) → TN by
+
+N/2
+
+∑ (INu)(x) =
+
+u˜keikx,
+
+k=−N/2
+
+(2.20)
+
+with {u˜k} given by (2.18). The following lemma shows that IN is the interpolation operator from C[0, 2π) to TN such that
+
+(INu)(x j) = u(x j),
+
+xj =
+
+2π j , N
+
+0 ≤ j ≤ N − 1.
+
+(2.21)
+
+Lemma 2.2. For any u ∈ C[0, 2π),
+
+N−1
+(INu)(x) = ∑ u(x j)h j(x), j=0
+
+where
+
+h
+
+j (x)
+
+=
+
+1 N
+
+sin
+
+Nx−xj 2
+
+cot
+
+x−xj 2
+
+∈ TN
+
+(2.22) (2.23)
+
+28
+
+2 Fourier Spectral Methods for Periodic Problems
+
+satisfying h j(xk) = δ jk, ∀ j, k = 0, 1, . . . , N − 1.
+Proof. By (2.18) and (2.20),
+
+(2.24)
+
+∑ ∑ N/2
+(INu)(x) =
+k=−N/2
+
+1 Nck
+
+N−1
+u(x j)e−ikxj
+j=0
+
+eikx
+
+∑ ∑ N−1
+=
+j=0
+
+1 N/2 1 eik(x−x j) N k=−N/2 ck
+
+u(x j)
+
+N−1
+=: ∑ h j(x)u(x j). j=0
+
+We derive from (2.7) and a direct calculation that
+
+∑ h j(x)
+
+=
+
+1 N
+
+N/2 k=−N/2
+
+1 ck
+
+eik(x−x j)
+
+=1 N
+
+DN/2−1(x − x j) + cos
+
+Nx−xj 2
+
+=1 N
+
+sin
+
+(N
+
+−
+
+1)
+
+x−x 2
+
+j
+
+sin
+
+x−x j 2
+
++ cos N x − x j 2
+
+= 1 sin N x − x j cot x − x j .
+
+N
+
+2
+
+2
+
+(2.25)
+
+Due to (2.17), we have h j(x) ∈ TN, and it is clear that h j(xi) = 0 for i = j. Moreover, taking x = x j in the ﬁrst identity of (2.25) yields h j(x j) = 1.
+Taking x = x j in (2.20) and using (2.21), leads to the inverse (or backward) discrete transform:
+
+N/2
+
+∑ u(x j) =
+
+u˜keikxj , j = 0, 1, . . . , N − 1.
+
+k=−N/2
+
+(2.26)
+
+It is obvious that the discrete Fourier transforms (2.18) and its inverse (2.26) can be carried out through matrix–vector multiplication with O(N2) operations. How-
+ever, thanks to the fast Fourier transforms due to Cooley and Tukey (1965), such
+processes can be accomplished with O(N log2 N) operations. Moreover, if u is a real valued function, then u˜−k = u˜k, so only half of the coefﬁcients in (2.26) need to be computed/stored.
+The computational routines for FFT and IFFT are available in many software
+packages. Here, we restrict our attentions to their implementations in MATLAB. Given the data {v( j) = u(x j−1)}Nj=1 sampled at {xk = 2πk/N}Nk=−01, the command “v˜ = fft(v)” returns the vector {v˜(k)}Nk=1, deﬁned by
+
+2.1 Continuous and Discrete Fourier Transforms
+
+29
+
+N
+∑ v˜(k) = v( j)e−2πi( j−1)(k−1)/N, 1 ≤ k ≤ N, j=1
+
+(2.27)
+
+while the inverse FFT can be computed with the command “v = ifft(v˜)” which returns the physical values {v( j)}Nj=1 via
+
+∑ v( j) = 1 N v˜(k)e2πi( j−1)(k−1)/N, 1 ≤ j ≤ N.
+N k=1
+
+(2.28)
+
+Notice that some care has to be taken for the ordering of the modes. To illustrate this, we examine the one-to-one correspondence of the transforms in (2.18) and (2.26). More precisely, let
+
+u(x j) = v( j + 1),
+
+xj
+
+=
+
+2π N
+
+j,
+
+0 ≤ j ≤ N − 1.
+
+We ﬁnd that
+
+u˜k
+
+=
+
+1 N
+
+v˜ (k
+
++
+
+1),
+
+0 ≤ k ≤ N − 1, 2
+
+u˜k
+
+=
+
+1 N
+
+v˜ (k
+
++
+
+N
+
++
+
+1),
+
+− N + 1 ≤ k ≤ −1, 2
+
+u˜−N/2
+
+=
+
+u˜N/2
+
+=
+
+1 2N
+
+v˜ (N /2
+
++
+
+1).
+
+A tabulated view of the above relations is given in the following table.
+
+(2.29) (2.30)
+
+Table 2.1 Correspondence of DFT and FFT & IFFT in MATLAB
+
+j
+
+1 2 . . . N/2 − 1 N/2 N/2 + 1 N/2 + 2 . . . N − 1 N
+
+u = v u0 u1 . . . . . .
+
+...
+
+...
+
+...
+
+. . . uN−2 uN−1
+
+u˜ = v˜/N u˜0 u˜1 . . . u˜N/2−2 2u˜N/2−1 u˜N/2 u˜−N/2+1 . . . u˜−2 u˜−1
+
+k 0 1 . . . N/2 − 2 N/2 − 1 0 −N/2 + 1 . . . −2 −1
+
+In the table, we denote {u j = u( j)}Nj=−01 and {u˜k = u˜ (k)}Nk=/2−N/2. The last row gives the frequency vector k for the Fourier-spectral differentiation based on FFT, see Sect. 2.1.4 below. Note that the frequency −N/2 is aliased with the frequency N/2
+in the discrete Fourier transform.
+
+2.1.3 Differentiation in the Physical Space
+In a Fourier spectral method, differentiation can be performed in the physical space as well as in the frequency space.
+
+30
+
+2 Fourier Spectral Methods for Periodic Problems
+
+We start with differentiation in the physical space. Let {x j} and {h j} be deﬁned in (2.11) and (2.23), respectively. Setting
+
+N−1
+u(x) = ∑ u(x j)h j(x), j=0
+
+(2.31)
+
+and taking the m-th derivative, we get
+
+∑ u(m)(x) = N−1 u(x j)h(jm)(x). j=0
+
+(2.32)
+
+This process can be formulated as a matrix–vector multiplication
+
+where
+
+u(m) = D(m)u, m ≥ 0,
+
+(2.33)
+
+D(m) = dk(mj ) := h(jm)(xk) k, j=0,...,N−1, u = u(x0), u(x1), . . . , u(xN−1) T , u(m) = u(m)(x0), u(m)(x1), . . . , u(m)(xN−1) T .
+
+In particular, we denote D = D(1). The compact form of the ﬁrst-order differentiation matrix is given below.
+
+Lemma 2.3. The entries of the ﬁrst-order Fourier differentiation matrix D are determined by
+
+dk(1j) = h j(xk) =
+
+(−1)k+ 2
+
+j
+
+cot
+
+(k− j)π N
+
+,
+
+0,
+
+if k = j, if k = j.
+
+(2.34)
+
+Proof. Differentiating the Lagrange basis in (2.23) directly gives
+
+h
+
+j(x)
+
+=
+
+1 2
+
+cos
+
+Nx−xj 2
+
+cot
+
+x−xj 2
+
+− 1 sin N x − x j csc2 x − x j .
+
+2N
+
+2
+
+2
+
+It is clear that if x = xk = x j, then the second term is 0 and the ﬁrst term can be simpliﬁed into the desired expression in (2.34).
+We now consider the case k = j. For convenience, let θ = (x − x j)/2, and rewrite the above formula as
+
+h j(x)
+
+=
+
+1 2
+
+cos(Nθ ) cos θ
+
+sin θ − sin2 θ
+
+N−1
+
+sin(Nθ ) .
+
+(2.35)
+
+2.1 Continuous and Discrete Fourier Transforms
+
+31
+
+Using the Taylor expansion, we ﬁnd cos(Nθ ) cos θ sin θ = θ + O(θ 3), N−1 sin(Nθ ) = θ + O(θ 3), |θ | 1.
+
+Hence, we derive from (2.35) that h j(x j) = limx→xj h j(x) = 0, since θ → 0 as x → x j.
+
+Remark 2.1. The ﬁrst-order Fourier differentiation matrix has the following properties:
+• D is a real and skew-symmetric matrix, since cot(−x) = − cot(x) and dkk = 0. • D is a circulant Toeplitz matrix, since dk j = dk+1, j+1. • The distinct eigenvalues of D are ik : −N/2 + 1 ≤ k ≤ N/2 − 1 , and the eigen-
+value 0 has a multiplicity 2.
+
+The approximation of higher-order derivatives follows the same procedure. From the ﬁrst relation in (2.25), we ﬁnd
+
+∑ h(jm)(xi)
+
+=
+
+1 N
+
+N/2 k=−N/2
+
+(ik)m ck
+
+e2πik(i− j)/N.
+
+(2.36)
+
+In particular, the entries of the second-order differentiation matrix D(2) are given by
+
+dk(2j )
+
+=
+
+h
+
+j
+
+(xk)
+
+=
+
+⎧ ⎪⎨− ⎪⎩−
+
+(−1)k+ 2
+N2 − 1
+
+j
+,
+
+sin−2
+
+(k − j)π N
+
+,
+
+12 6
+
+if k = j, if k = j.
+
+(2.37)
+
+It is worthwhile to point out that D(2) = D2. Indeed, we consider u = cos(Nx/2) and denote u the vector that samples u at {x j}Nj=−01. Since u(x j) = (−1) j, one veriﬁes readily that Du = 0 and D2u = 0, while D(2)u = −N2u/4.
+It is clear that the differentiation procedure through (2.33) requires O(N2)
+operations. We shall demonstrate below how to perform the differentiation in the
+frequency space with O(N log2 N) operations using FFT.
+
+2.1.4 Differentiation in the Frequency Space
+
+For a function given by (2.31), we can rewrite it as a ﬁnite Fourier series
+
+N/2
+
+∑ u(x) =
+
+u˜keikx,
+
+k=−N/2
+
+(2.38)
+
+32
+
+2 Fourier Spectral Methods for Periodic Problems
+
+where u˜N/2 = u˜−N/2 as before. Thus, we have
+
+N/2
+
+∑ u (x j) =
+
+iku˜keikxj ,
+
+k=−N/2
+
+(2.39)
+
+{wuh(exrje)}{Njx=−j01=,
+
+2π the
+
+j/N}Nj=−01 are the grids approximation of the
+
+given by derivative
+
+(2.11). values
+
+Given the physical {w j = u (x j)}Nj=−01
+
+values can be
+
+computed as follows:
+
+• Call v˜ = fft(v), where the components of the input vector v are v( j) = u(x j−1), j = 1, . . . , N, and which returns the frequency vector:
+
+v˜ = v˜1, v˜2, . . . , v˜N .
+
+• Compute the coefﬁcients of the expansion of the derivative:
+
+v˜(1) = ik. ∗ v˜ = i 0, v˜2, . . . , (N/2 − 1)v˜N/2, 0, (−N/2 + 1)v˜N/2+2, . . . , −v˜N ,
+
+where the multiplicative vector k is given in Table 2.1: k = 0, 1, . . . , N/2 − 1, 0, −N/2 + 1, . . ., −1 .
+
+(2.40)
+
+• Call w = ifft(v˜(1)), which produces the desired derivative values {w j}Nj=−01.
+As a striking contrast to the differentiation process described in the previous section, the computational cost of the above procedure is O N log2 N . Moreover, higher-order derivatives can be computed using these three steps repeatedly. Multi-dimensional cases can be implemented similarly by using available routines such as fft2.m and ifft2.m in MATLAB.
+
+Convergence of Fourier−spectral differentiation 1
+
+−3
+
+log10(Error)
+
+−7
+
+−11
+
+−15 4
+
+8
+
+12
+
+16
+
+20
+
+24
+
+28
+
+N
+
+Fig. 2.1 Errors of Fourier-spectral differentiation of ﬁrst-order (“◦”) and second-order (“ ”)
+
+2.2 Fourier Approximation
+
+33
+
+As a numerical illustration, we consider the Fourier spectral differentiation of the 2π−periodic function u(x) = e1+sinx. In Fig. 2.1, we plot, in semi-log scale, the maximum point-wise errors of the ﬁrst- and second-order derivatives against
+various N. The plots in Fig. 2.1 clearly indicate the exponential convergence of the
+Fourier spectral differentiation process.
+
+2.2 Fourier Approximation
+In this section, we summarize some fundamental results on the approximation of periodic functions by the continuous and discrete Fourier series.
+
+2.2.1 Inverse Inequalities
+
+Since all norms of a ﬁnite dimensional space are equivalent, we can bound a strong
+
+norm by a weaker one with bounding constants depending on the dimension of the
+
+space. This type of inequality is called inverse inequality. Our aim in this section is
+
+to ﬁnd the optimal constants in such inequalities.
+
+For notational convenience, we use A B to mean that there exists a generic
+
+positive constant c, which is independent of N and any function, such that A ≤ cB.
+
+We
+
+also
+
+use
+
+∂xmu
+
+or
+
+u(m)
+
+to
+
+denote
+
+the
+
+ordinary
+
+derivative
+
+dmu dxm
+
+.
+
+Let
+
+I
+
+:=
+
+(0, 2π),
+
+and
+
+deﬁne the complex (2N + 1)-dimensional space
+
+XN := span eikx : −N ≤ k ≤ N .
+
+(2.41)
+
+The Banach space Lp(I) with 1 ≤ p ≤ ∞ and its norm Appendix B.4.
+We ﬁrst recall the following Nikolski’s inequality.
+Lemma 2.4. For any u ∈ XN and 1 ≤ p ≤ q ≤ ∞,
+
+· Lp are deﬁned as in
+
+u Lq ≤
+
+N p0 + 1 2π
+
+1 p
+
+−
+
+1 q
+
+u Lp,
+
+(2.42)
+
+where p0 is the least even integer ≥ p.
+Another type of inverse inequality, i.e., the so-called Bernstein inequality, relates the Lp-norms of a function and its derivatives.
+
+Lemma 2.5. For any u ∈ XN and 1 ≤ p ≤ ∞,
+
+∂xmu Lp Nm u Lp, m ≥ 1.
+
+(2.43)
+
+In particular, for p = 2,
+
+∂xmu Nm u .
+
+(2.44)
+
+34
+
+2 Fourier Spectral Methods for Periodic Problems
+
+The proofs of these inverse inequalities can be found in Butzer and Nessel (1971)
+(also see Guo (1998b)). In particular, the derivation of (2.44) is straightforward by using ∂xm(eikx) = (ik)meikx, and the orthogonality of the Fourier series.
+
+2.2.2 Orthogonal Projection
+
+Let PN : L2(I) → XN be the L2-orthogonal projection, deﬁned by
+
+PNu − u, v = 0, ∀v ∈ XN.
+
+(2.45)
+
+It is obvious that PNu is the truncated Fourier series, namely,
+
+N
+
+∑ (PNu)(x) =
+
+uˆkeikx,
+
+k=−N
+
+where {uˆk} are given by (2.3).
+We next measure the errors between PNu and u in Sobolev spaces. For this purpose, we denote by Hpm(I) the subspace of Hm(I) (cf. Appendix B.4), which consists of functions with derivatives of order up to m − 1 being 2π-periodic. In view of the relation (eikx) = ikeikx, the norm and semi-norm of Hpm(I) can be characterized in
+the frequency space by
+
+u m=
+
+∞
+
+1/2
+
+∑ (1 + k2)m|uˆk|2 ,
+
+k=−∞
+
+|u|m =
+
+∞
+
+1/2
+
+∑ |k|2m|uˆk|2 .
+
+k=−∞
+
+(2.46)
+
+We see that the space Hpm(I) with fractional m is also well-deﬁned. Formally, for any u ∈ Hpm(I), we can differentiate the Fourier series term-wisely,
+
+and obtain
+
+∞
+
+∑ ∂xlu(x) =
+
+(ik)l uˆkeikx, 0 ≤ l ≤ m,
+
+k=−∞
+
+which implies the commutability of the derivative and projection operators:
+
+∂xl (PNu) = PN(∂xl u), 0 ≤ l ≤ m.
+
+(2.47)
+
+The main approximation result is stated below (cf. Kreiss and Oliger (1979), Canuto and Quarteroni (1982)).
+
+Theorem 2.1. For any u ∈ Hpm(I) and 0 ≤ μ ≤ m,
+
+PNu − u μ Nμ−m|u|m.
+
+(2.48)
+
+2.2 Fourier Approximation
+
+35
+
+Proof. By (2.46),
+
+∑ PNu − u
+
+2 μ
+
+=
+
+(1 + k2)μ |uˆk|2
+
+|k|>N
+
+∑ N2μ−2m
+
+|k|2m−2μ (1 + k2)μ |uˆk|2
+
+|k|>N
+
+∑ N2μ−2m
+
+|k|2m|uˆk|2
+
+|k|>N
+
+N2μ−2m|u|2m.
+
+This completes the proof.
+
+This theorem indicates that the projection PNu is the best approximation of u in all Sobolev spaces Hpm(I) (m ≥ 0).
+The L∞-estimate of the projection errors is stated as follows.
+Theorem 2.2. For any u ∈ Hpm(I) with m > 1/2,
+
+max (PNu − u)(x) ≤
+x∈[0,2π ]
+
+1 2m −
+
+1
+
+N
+
+1/2−m|u|m.
+
+(2.49)
+
+Proof. By the Cauchy–Schwarz inequality,
+
+∑ ∑ ∑ (PNu − u)(x) ≤ |uˆk| ≤
+
+|k|−2m 1/2
+
+|k|2m|uˆk|2 1/2
+
+|k|>N
+
+|k|>N
+
+|k|>N
+
+≤
+
+1 2m −
+
+1
+
+N
+
+1/2−m|u|m
+
+.
+
+The last step is due to the fact that for m > 1/2,
+
+∑ |k|−2m ≤
+|k|>N
+
+∞ x−2mdx
+N
+
+≤
+
+N1−2m 2m − 1
+
+.
+
+This completes the proof.
+
+2.2.3 Interpolation
+
+For the sake of consistency, we consider the Fourier interpolation on 2N collocation points {x j = π j/N}2j=N−0 1, but still denote the interpolation operator by IN. That is,
+
+N
+
+∑ (INu)(x) =
+
+u˜keikx
+
+k=−N
+
+(2.50)
+
+36
+
+2 Fourier Spectral Methods for Periodic Problems
+
+with u˜N = u˜−N and
+
+∑ u˜k
+
+=
+
+1 2Nck
+
+2N−1
+u(x j)e−ikxj ,
+j=0
+
+−N ≤ k ≤ N.
+
+(2.51)
+
+The interpolation error: INu − u is characterized by the following theorem (see also Kreiss and Oliger (1979), Canuto and Quarteroni (1982)):
+Theorem 2.3. For any u ∈ Hpm(I) with m > 1/2,
+
+∂xl(IN u − u) Nl−m|u|m, 0 ≤ l ≤ m.
+
+(2.52)
+
+Proof. We ﬁrst show that the expansion coefﬁcients of the continuous (cf. (2.3)) and
+
+discrete Fourier series (cf. (2.51)) are connected by
+
+∞
+∑ cku˜k = uˆk + uˆk+2pN. | p|>0
+
+(2.53)
+
+Indeed, plugging u(x j) = ∑∞|p|=0 uˆpeipxj into (2.51) gives
+
+∑ ∑ ∑ ∑ cku˜k
+
+=
+
+1 2N
+
+2N−1 j=0
+
+∞
+uˆpei(p−k)x j
+| p|=0
+
+=1 ∞ 2N |p|=0
+
+2N−1
+ei(p−k)x j uˆp,
+j=0
+
+where the constant ck = 1 for |k| < N and ck = 2 for k = ±N. We deduce from Lemma 2.1 that ei(p−k)xj = 1, if and only if p − k = 2lN with
+l ∈ Z, otherwise, it equals to zero. Hence, we have
+
+∞
+
+∞
+
+∑ ∑ cku˜k =
+
+uˆk+2pN = uˆk +
+
+uˆk+2pN ,
+
+| p|=0
+
+| p|>0
+
+which yields (2.53). Thus, a direct calculation leads to
+
+∑ PNu − INu 2 =
+
+|uˆk − u˜k|2
+
+|k|≤N
+
+∑ ∑ =
+
+|k|<N
+
+|uˆk
+
+−
+
+u˜k|2
+
++
+
+1 4
+
+k=±N
+
+|2uˆk
+
+−
+
+2u˜k|2
+
+∑ ∑ ∑ ≤
+
+|k|<N
+
+|uˆk
+
+−
+
+u˜k|2
+
++
+
+1 2
+
+k=±N
+
+|uˆk
+
+−
+
+2u˜k|2
+
++
+
+1 2
+
+k=±N
+
+|uˆk|2
+
+∑ ∑ ≤
+
+|k|≤N
+
+|uˆk
+
+−
+
+cku˜k|2
+
++
+
+1 2
+
+k=±N
+
+|uˆk|2.
+
+The last term is bounded by
+
+∞
+
+∑ |uˆN|2 + |uˆ−N|2 ≤ N−2m
+
+|k|2m|uˆk|2 ≤ N−2m|u|2m,
+
+|k|=N
+
+2.3 Applications of Fourier Spectral Methods
+
+37
+
+and the ﬁrst term can be estimated by using the relation (2.53) and the Cauchy– Schwarz inequality:
+
+∑ ∑ ∑ |uˆk − cku˜k|2 =
+
+∞
+
+2
+
+uˆk+2 pN
+
+|k|≤N
+
+|k|≤N |p|>0
+
+≤∑ |k|≤N
+
+∞
+∑ |k + 2pN|−2m
+| p|>0
+
+∞
+∑ |k + 2pN|2m|uˆk+2pN|2
+| p|>0
+
+∞
+
+∑ ≤ max
+
+|k + 2pN|−2m
+
+|k|≤N |p|>0
+
+∞
+∑ ∑ |k + 2pN|2m|uˆk+2pN|2 .
+|k|≤N |p|>0
+
+It is clear that
+
+∑ ∑ max
+|k|≤N
+
+∞
+|k + 2pN|−2m
+| p|>0
+
+≤
+
+1 N2m
+
+∞ | p|>0
+
+1 |2p − 1|2m
+
+N−2m,
+
+and
+∞
+∑ ∑ |k + 2pN|2m|uˆk+2pN|2 ≤ 2|u|2m.
+|k|≤N |p|>0
+Hence, a combination of the above estimates leads to
+
+PNu − INu N−m|u|m.
+Moreover, by the inverse inequality (2.44), ∂xl(PNu − INu) Nl PNu − INu Nl−m|u|m.
+Finally, using the triangle inequality and Theorem 2.1 yields ∂xl(INu − u) ≤ ∂xl(PN u − INu) + ∂xl(PNu − u) Nl−m|u|m.
+This ends the proof.
+We presented above some basic Fourier approximations in the Sobolev spaces. The interested readers are referred to the books on Fourier analysis (see, e.g., Ko¨rner (1988), Folland (1992)) for a thorough discussion on the Fourier approximations in different contexts.
+
+2.3 Applications of Fourier Spectral Methods
+In this section, we apply Fourier spectral methods to several nonlinear PDEs with periodic boundary conditions, including the Korteweg–de Vries (KdV) equation (cf. Korteweg and de Vries (1895)), the Kuramoto–Sivashinsky (KS) equation
+
+38
+
+2 Fourier Spectral Methods for Periodic Problems
+
+(cf. Kuramoto and Tsuzuki (1976)) and the Allen–Cahn equation (cf. Allen and Cahn (1979)). The emphasis will be put on the treatment for nonlinear terms and time discretizations.
+
+2.3.1 Korteweg–de Vries (KdV) Equation
+
+The KdV equation is a celebrated mathematical model of waves on shallow water surfaces. A fascinating property of the KdV equation is that it admits soliton-type solutions (cf. Zabusky and Galvin (1971)). Consider the KdV equation in the whole space:
+
+∂t u + u∂yu + ∂y3u = 0, y ∈ (−∞, ∞), t > 0, u(y, 0) = u0(y), y ∈ (−∞, ∞),
+
+(2.54)
+
+which has the exact soliton solution
+
+u(y,t) = 12κ2sech2 κ(y − y0) − 4κ3t ,
+
+(2.55)
+
+where y0 is the center of the initial proﬁle u(y, 0), and κ is a constant related to the traveling phase speed.
+Since u(y,t) decays exponentially to zero as |y| → ∞, we can truncate the inﬁnite interval to a ﬁnite one (−πL, πL) with L > 0, and approximate the boundary conditions by the periodic boundary conditions on (−πL, πL). It is expected that the initial-boundary valued problem (2.54) with periodic boundary conditions can provide a good approximation to the original initial-valued problem as long as the soliton does not reach the boundaries.
+For convenience, we map the interval [−πL, πL] to [0, 2π] through the coordinate transform:
+x = y + π, y = L(x − π), x ∈ [0, 2π], y ∈ [−πL, πL], L
+
+and denote
+
+v(x,t) = u(y,t), v0(x) = u0(y).
+
+(2.56)
+
+The transformed KdV equation reads
+
+∂t
+
+v
+
++
+
+1 L
+
+v∂xv
+
++
+
+1 L3
+
+∂x3v
+
+=
+
+0,
+
+x ∈ (0, 2π), t > 0,
+
+v(·,t) periodic on [0, 2π), t ≥ 0; v(x, 0) = v0(x), x ∈ [0, 2π].
+
+(2.57)
+
+Writing v(x,t) = ∑∞|k|=0 vˆk(t)eikx, taking the inner product of the ﬁrst equation with
+
+eikx,
+
+and
+
+using
+
+(2.3)
+
+and
+
+the
+
+fact
+
+that
+
+v∂xv
+
+=
+
+1 2
+
+∂x(v2
+
+),
+
+we
+
+obtain
+
+that
+
+dvˆk dt
+
+−
+
+ik3 L3
+
+vˆk
+
++
+
+ik 2L
+
+(v2)k
+
+=
+
+0,
+
+k = 0, ±1, . . . ,
+
+(2.58)
+
+2.3 Applications of Fourier Spectral Methods
+
+39
+
+with the initial condition
+
+vˆk(0)
+
+=
+
+1 2π
+
+2π v0(x)e−ikxdx.
+0
+
+(2.59)
+
+The ODE systems (2.58)–(2.59) can be solved by various numerical methods such as the Runge–Kutta methods or the semi-implicit/linearly implicit schemes in which the nonlinear terms are treated explicitly while the leading linear term is treated implicitly.
+Here, we use a combination of the integrating factor and Runge–Kutta methods as suggested in Trefethen (2000). More precisely, multiplying (2.58) by the integrating factor e−ik3t/L3 , we can rewrite the resulting equation as
+
+d dt
+
+e−ik3t/L3 vˆk
+
+=
+
+−
+
+ik 2L
+
+e−ik3t/L3
+
+(v2)k
+
+,
+
+k = 0, ±1, . . ..
+
+(2.60)
+
+Such a treatment makes the linear term disappear and can relax the stiffness of the system. The system (2.60) can then be solved by a standard ODE solver.
+We now describe the Fourier approximation of (2.57) in MATLAB. Let k be the vector as in (2.40), and denote
+
+v˜ = v˜0, . . . , v˜N/2, v˜−N/2+1, . . . , v˜−1 , g = e−ik3t/L3 , u˜ = g. ∗ v˜,
+
+where the operations on the vectors are component-wise. Then, the Fourier approximation scheme based on (2.60) is as follows:
+
+du˜ = − ik . ∗ g. ∗ fft
+
+ifft g−1. ∗ u˜
+
+2
+,
+
+t > 0.
+
+dt 2L
+
+(2.61)
+
+Therefore, a Runge–Kutta method, such as the fourth-order MATLAB routine rk4.m, can be directly applied to (2.61).
+We present below some numerical results obtained by Program 27 (with some minor modiﬁcations) in Trefethen (2000). We ﬁrst take κ = 0.3, y0 = −20 and L = 15. On the left of Fig. 2.2, we plot the time evolution of the approximate solution (with N = 256, time step size τ = 0.01 and t ∈ [0, 60]), and on the right, we plot the maximum errors at t = 1, 30, 60 for various N with τ = 0.001. Observe that the errors decay like O(e−cN), which is typical for smooth solutions. The superior accuracy for this soliton solution indicates that the KdV equation on a ﬁnite interval can be used to effectively simulate the KdV equation on the whole space before the solitary wave reaches the boundaries.
+In the next example, we consider the interaction of ﬁve solitary waves. More precisely, we consider the KdV equation (2.54) with the initial condition which consists of ﬁve solitary waves,
+
+5
+∑ u0(y) = 12κ2j sech2 κ j(y − y0) , j=1
+
+(2.62)
+
+40
+
+2 Fourier Spectral Methods for Periodic Problems
+
+10−2
+
+t=1
+
+1.5
+
+10−3
+
+t=30 t=60
+
+VN(y,t) Error
+
+1
+
+10−4
+
+0.5
+
+10−5
+
+0 60
+40
+
+10−6 50
+
+20
+
+0
+
+0 −50
+
+10−7 50
+
+60
+
+70
+
+80
+
+90 100
+
+t
+
+y
+
+X
+
+Fig. 2.2 Left: time evolution of the numerical solution; right: maximum errors vs. N
+
+with
+
+κ1 = 0.3, κ2 = 0.25, κ3 = 0.2, κ4 = 0.15, κ5 = 0.1, y1 = −120, y2 = −90, y3 = −60, y4 = −30, y5 = 0.
+
+(2.63)
+
+We ﬁx L = 50, N = 512 and τ = 0.01. In Fig. 2.3, we plot the time evolution of the approximate solution for t ∈ [0, 600], and depict the initial proﬁle and ﬁnal proﬁle at t = 600 in Fig. 2.4. We observe that the soliton with large amplitude travels with a faster speed, and the amplitudes of the ﬁve solitary waves are well preserved at the
+ﬁnal time. This indicates the scheme has an excellent conservation property.
+
+Fig. 2.3 Interaction of ﬁve solitary waves
+2.3.2 Kuramoto–Sivashinsky (KS) Equation
+The KS equation has been used in the study of a variety of reaction-diffusion systems (cf. Kuramoto and Tsuzuki (1976)), and is also an interesting dynamical PDE that can exhibit chaotic solutions (cf. Hyman and Nicolaenko (1986), Nicolaenko et al. (1985)).
+
+2.3 Applications of Fourier Spectral Methods
+
+41
+
+Fig. 2.4 Proﬁles at t = 0, 600
+
+We consider the KS equation of the form
+
+∂t u + ∂x4u + ∂x2u + uux = 0, x ∈ (−∞, ∞), t > 0, u(x,t) = u(x + 2Lπ,t), ∂xu(x,t) = ∂xu(x + 2Lπ,t), u(x, 0) = u0(x), x ∈ (−∞, ∞),
+
+t ≥ 0,
+
+(2.64)
+
+where the given function u0 is 2Lπ-periodic. Thanks to the periodicity, it sufﬁces to consider (2.64) in the reference interval
+[0, 2Lπ]. We discretize (2.64) in space by seeking the approximate solution
+
+N/2
+
+∑ uN(x,t) =
+
+u˜k(t)eikx/L, t > 0,
+
+k=−N/2
+
+(2.65)
+
+where u˜N/2(t) = u˜−N/2(t). The N independent frequencies are determined by the scheme
+
+∂t uN
+
++
+
+∂x4uN
+
++
+
+∂x2uN
+
+=
+
+−
+
+1 2
+
+∂xIN
+
+u2N
+
+,
+
+t > 0,
+
+(2.66)
+
+where IN is the interpolation operator associated with the grids
+
+x j = 2Lπ j/N
+
+N−1 j=0
+
+.
+
+Thus, for each frequency k, we have
+
+u˜k(t) +
+
+k4 L4
+
+−
+
+k2 L2
+
+u˜k(t
+
+)
+
+=
+
+−
+
+1 2L
+
+ikw˜ k (t
+
+),
+
+t > 0,
+
+where w˜k(t) is the discrete Fourier coefﬁcient of the nonlinear term, i.e.,
+
+(2.67)
+
+N/2
+
+∑ IN u2N =
+
+w˜ k(t)eikx/L.
+
+k=−N/2
+
+(2.68)
+
+42
+
+2 Fourier Spectral Methods for Periodic Problems
+
+It is important to point out that, using the Fourier transform, linear operators with constant coefﬁcients can always be diagonalized (i.e., the frequencies are separable) like (2.67). This leads to efﬁcient time integrations for the resulting equation in the frequency space. We refer to Kassam and Trefethen (2005) for a review of various time-stepping schemes. Here, we use an exponential time-differencing (ETD) method as suggested in Kassam and Trefethen (2005).
+Denote by u˜ (t) the vector of the expansion coefﬁcients as arranged in Table 2.1. Let L be the diagonal matrix with the diagonal k2/L2 − k4/L4, where k is the index vector given by Table 2.1, and N (t) := N (u˜ ,t) be the vector of the nonlinear term in (2.67)–(2.68). Then, we can rewrite (2.67)–(2.68) as a nonlinear ODE system
+
+u˜ (t) = Lu˜ (t) + N(t), t > 0.
+
+(2.69)
+
+Let τ be the time step size. It is clear that (2.69) is equivalent to
+
+u˜ (tn + τ) = eLτ u˜ (tn) + eLτ τ e−LsN u˜ (tn + s),tn + s ds.
+0
+
+(2.70)
+
+Based on how one approximates the integral, various ETD schemes may be constructed. For example, let u˜ n be the approximation of u˜ (tn). The following modiﬁed fourth-order ETD Runge–Kutta (ETDRK4) has been shown to be a very stable and accurate scheme for stiff equations (cf. Kassam and Trefethen (2005)):
+
+an = eLτ/2u˜ n + L−1 eLτ/2 − I N (u˜ n,tn), bn = eLτ/2u˜ n + L−1 eLτ/2 − I N (an,tn + τ/2), cn = eLτ/2an + L−1 eLτ/2 − I 2N (bn,tn + τ/2) − N(u˜ n,tn) , u˜ n+1 = eLτ u˜ n + αN (u˜ n,tn) + 2β N (an,tn + τ/2)
+
+(2.71)
+
++ N(bn,tn + τ/2) + γN(cn,tn + τ) ,
+
+where the coefﬁcients
+
+α = τ−2L−3 − 4 − Lτ + eLτ 4 − 3Lτ + (Lτ)2 ,
+
+β = τ−2L−3 2 + Lτ + eLτ − 2 + Lτ ,
+
+(2.72)
+
+γ = τ−2L−3 − 4 − 3Lτ + eLτ 4 − Lτ − (Lτ)2 .
+
+In the following computations, we take L = 16 and impose the initial condition:
+u0(x) = cos(x/L)(1 + sin(x/L))
+as in Kassam and Trefethen (2005). In Fig. 2.5, we depict the time evolution of the KS equation (2.64) obtained by the above algorithm with τ = 10−4 and N = 128. We plot in Fig. 2.6 the proﬁles of the numerical solution at various time in the waterfall format. We can observe the same pattern of the deterministic chaos as illustrated in Kassam and Trefethen (2005).
+
+2.3 Applications of Fourier Spectral Methods
+
+43
+
+Fig. 2.5 Time evolution of the KS equation. Time runs from 0 at the bottom to 300 at the top
+
+5 0 −5 300
+250 200 t 150 100 50 00
+
+100
+
+80
+
+60
+
+40
+
+20
+
+x
+
+Fig. 2.6 Waterfall plot of the proﬁles of the numerical solution
+
+2.3.3 Allen–Cahn Equation
+
+The Allen–Cahn equation was originally introduced in Allen and Cahn (1979) to describe the motion of anti-phase boundaries in crystalline solids. It has been widely used in material science applications.
+We consider the two-dimensional Allen–Cahn equation with periodic boundary conditions:
+
+∂t u − ε2Δ u + u3 − u = 0, (x, y) ∈ Ω = (−1, 1)2, t > 0, u(−1, y,t) = u(1, y,t), u(x, −1,t) = u(x, 1,t), t ≥ 0, u(x, y, 0) = u0(x, y), (x, y) ∈ Ω¯ ,
+
+(2.73)
+
+44
+
+2 Fourier Spectral Methods for Periodic Problems
+
+where ε is a small parameter which describes the inter-facial width. We refer to Sect. 9.3 for a more thorough discussion on the Allen–Cahn equation.
+Let us write the Fourier approximation of the solution as
+
+N/2−1
+
+∑ uN(x, y,t) =
+
+u˜kl (t)ei(kx+ly)π ,
+
+k,l=−N/2
+
+(2.74)
+
+and denote by umN the approximation of uN at time tm = mτ with τ being the time step size. Then a second-order stabilized semi-implicit scheme in time is (cf. Shen
+and Yang (2010)):
+
+3umN+1
+
+−
+
+4umN 2τ
+
++
+
+umN−1
+
+−
+
+ε
+
+2Δ
+
+umN+1
+
++
+
+2FN(umN ) − FN(umN−1)
+
++ s umN+1 − 2umN + umN−1 = 0, m = 1, 2, . . . ,
+
+(2.75)
+
+where s > 0 is an adjustable parameter, and FN(v) = IN(v3) − v with IN being the
+two-dimensional tensorial interpolation operator on the computational grid. Notice that the extra dissipative term s umN+1 − 2umN + umN−1 (of order sτ2) is added to improve the stability while preserving the simplicity. At each time step, we only need
+to solve the linear problem
+
+−2τε2Δ umN+1 + (3 + 2sτ)umN+1 = N umN, umN−1 ,
+
+(2.76)
+
+where
+
+N umN, umN−1 = 4 1 + τs + τ umN − 1 + 2τs + 2τ umN−1 − 2τIN 2(umN)3 − (umN−1)3 .
+
+(2.77)
+
+Applying the Fourier Galerkin method yields the equations in the frequency space:
+
+2τε2(k2 + l2)π2 + 3 + 2sτ u˜mkl+1 = w˜kl ,
+
+(2.78)
+
+where {w˜kl} are the discrete Fourier coefﬁcients of the nonlinear term N umN, umN−1 . The above semi-implicit scheme leads to an efﬁcient implementation with the main cost coming from the treatment for the nonlinear term, which can be manipulated by FFT through a pseudo-spectral approach.
+To test the numerical scheme, we consider the motion of a circular interface and impose the initial condition:
+
+u0(x, y) =
+
+1, −1,
+
+(x − 0.5)2 + (y − 0.5)2 < 1, otherwise.
+
+(2.79)
+
+The motion of the interface is driven by the mean curvature of the circle, so the circle will shrink and eventually disappear, see Fig. 2.7. Note that the rate at which the diameter of the circle shrinks can be determined analytically (cf. Chen and Shen (1998)).
+
+Problems
+
+45
+
+Fig. 2.7 Time evolution of a circular domain
+
+Problems
+
+2.1. Let DN(x) be the Dirichlet kernel deﬁned in (2.7). (a) Show that DN(x) is an even function, and it is symmetric about x = 1/2, namely,
+
+DN(−x) = DN(x), DN(1/2 + x) = DN(1/2 − x),
+
+(b) Show that and
+
+1 2π
+
+2π
+DN(x)dx = 1,
+0
+
+(c) Show that
+
+1 2π
+
+2π
+DN2 (x)dx = 2N + 1.
+0
+
+2π
+|DN(x)|dx ≤ c ln N,
+0
+where c is a positive constant independent of N. (d) Prove that for any φ ∈ XN (deﬁned in (2.41)),
+
+N ≥ 2,
+
+φ (x)
+
+=
+
+1 2π
+
+2π
+φ (t)DN(x − t)dt,
+0
+
+and √
+φ ∞ ≤ 2N + 1 φ .
+
+46
+
+2 Fourier Spectral Methods for Periodic Problems
+
+2.2. The Feje´r kernel is deﬁned as the Nth arithmetic mean of the Dirichlet kernels:
+
+Show that
+
+∑ FN (x)
+
+=
+
+1 N
+
+N−1
+Dn(x).
+n=0
+
+sin2 Nx/2 FN(x) = N sin2 x/2 .
+
+2.3. Use the Sobolev inequality (B.33) and Theorem 2.1 to prove Theorem 2.2 with m ≥ 1 in place of m > 1/2.
+2.4. Determine D(2) and D2 with N = 4 and conﬁrm that D2 = D(2).
+
+2.5. Derive the formula (2.37) for the entries of the second-order differentiation matrix D(2).
+
+2.6. Describe and implement a fourth-order Runge–Kutta and Fourier method for the Burger equation with periodic boundary conditions:
+
+ut = εuxx + uux, x ∈ (−π, π); u(x, 0) = e−10sin2(x/2), with ε = 0.03 and the simulation running up to t = 1.
+
+Chapter 3
+Orthogonal Polynomials and Related Approximation Results
+
+The Fourier spectral method is only appropriate for problems with periodic boundary conditions. If a Fourier method is applied to a non-periodic problem, it inevitably induces the so-called Gibbs phenomenon, and reduces the global convergence rate to O(N−1) (cf. Gottlieb and Orszag (1977)). Consequently, one should not apply a Fourier method to problems with non-periodic boundary conditions. Instead, one should use orthogonal polynomials which are eigenfunctions of some singular Sturm-Liouville problems. The commonly used orthogonal polynomials include the Legendre, Chebyshev, Hermite and Laguerre polynomials.
+The aim of this chapter is to present essential properties and fundamental approximation results related to orthogonal polynomials. These results serve as preparations for polynomial-based spectral methods in the forthcoming chapters. This chapter is organized as follows. In the ﬁrst section, we present relevant properties of general orthogonal polynomials, and set up a general framework for the study of orthogonal polynomials. We then study the Jacobi polynomials in Sect. 3.2, Legendre polynomials in Sect. 3.3 and Chebyshev polynomials in Sect. 3.4. In Sect. 3.5, we present some general approximation results related to these families of orthogonal polynomials. We refer to Szego¨ (1975), Davis and Rabinowitz (1984) and Gautschi (2004) for other aspects of orthogonal polynomials.
+
+3.1 Orthogonal Polynomials
+
+Orthogonal polynomials play the most important role in spectral methods, so it is necessary to have a thorough study of their relevant properties. Our starting point is the generation of orthogonal polynomials by a three-term recurrence relation, which leads to some very useful formulas such as the Christoffel-Darboux formula. We then review some results on zeros of orthogonal polynomials, and present efﬁcient algorithms for their computations. We also devote several sections to discussing some important topics such as Gauss-type quadrature formulas, polynomial interpolations, discrete transforms, and spectral differentiation techniques.
+
+J. Shen et al., Spectral Methods: Algorithms, Analysis and Applications,
+
+47
+
+Springer Series in Computational Mathematics 41, DOI 10.1007/978-3-540-71041-7 3,
+
+c Springer-Verlag Berlin Heidelberg 2011
+
+48
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+3.1.1 Existence and Uniqueness
+
+Given an open interval I := (a, b) (−∞ ≤ a < b ≤ +∞), and a generic weight func-
+
+tion ω such that
+
+ω(x) > 0, ∀x ∈ I and ω ∈ L1(I),
+
+(3.1)
+
+two functions f and g are said to be orthogonal to each other in L2ω (a, b) or orthogonal with respect to ω if
+
+b
+( f , g)ω := f (x)g(x)ω(x)dx = 0.
+a
+
+An algebraic polynomial of degree n is denoted by
+
+pn(x) = knxn + kn−1xn−1 + . . . + k1x + k0, kn = 0,
+
+(3.2)
+
+where {ki} are real constants, and kn is the leading coefﬁcient of pn.
+
+A sequence of polynomials {pn}∞n=0 with deg(pn) = n is said to be orthogonal
+
+in L2ω (a, b) if
+
+b
+
+(pn, pm)ω = pn(x)pm(x)ω(x)dx = γnδmn,
+
+(3.3)
+
+a
+
+where the constant γn =
+
+pn
+
+2 ω
+
+is nonzero, and δmn
+
+is the Kronecker delta.
+
+Throughout this section, {pn} denotes a sequence of polynomials orthogonal
+
+with respect to the weight function ω, and pn is of degree n.
+
+Denote by Pn the set of all algebraic polynomials of degree ≤ n, namely,
+
+Pn := span 1, x, x2, . . . , xn .
+
+(3.4)
+
+By a dimension argument,
+
+Pn = span {p0, p1, . . . , pn} .
+
+(3.5)
+
+A direct consequence is the following. Lemma 3.1. pn+1 is orthogonal to any polynomial q ∈ Pn. Proof. Thanks to (3.5), for any q ∈ Pn, we can write
+
+q = bn pn + bn−1 pn−1 + . . . + b0 p0.
+
+Hence,
+
+(pn+1, q)ω = bn(pn+1, pn)ω + bn−1(pn+1, pn−1)ω + . . . + b0(pn+1, p0)ω = 0,
+
+where we have used the orthogonality (3.3). Hereafter, we denote the monic polynomial corresponding to pn by p¯n(x) := pn(x)/kn = xn + a(nn−)1xn−1 + . . . + a(0n).
+
+(3.6)
+
+3.1 Orthogonal Polynomials
+
+49
+
+We show below that for any given weight function ω(x) deﬁned in (a, b), there exists a unique family of monic orthogonal polynomials generated by a three-term recurrence formula.
+Theorem 3.1. For any given positive weight function ω ∈ L1(I), there exists a unique sequence of monic orthogonal polynomials {p¯n} with deg(p¯n) = n, which can be constructed as follows
+
+p¯0 = 1, p¯1 = x − α0, p¯n+1 = (x − αn)p¯n − βn p¯n−1, n ≥ 1,
+
+(3.7)
+
+where
+
+αn
+
+=
+
+(xp¯n, p¯n)ω p¯n 2ω
+
+,
+
+n ≥ 0,
+
+βn =
+
+p¯n
+
+2 ω
+
+p¯n−1 2ω
+
+,
+
+n ≥ 1.
+
+(3.8a) (3.8b)
+
+Proof. It is clear that the ﬁrst two polynomials are
+
+p¯0(x) ≡ 1, p¯1(x) = x − α0.
+
+To determine α0, we see that (p¯0, p¯1)ω = 0 if and only if
+
+b
+α0 = ω(x)xdx
+a
+
+b
+ω (x)d x
+a
+
+=
+
+(xp¯0, p¯0)ω
+
+p¯0
+
+2 ω
+
+,
+
+where the denominator is positive due to (3.1).
+We proceed with the proof by using an induction argument. Assuming that by a
+similar construction, we have derived a sequence of monic orthogonal polynomials {p¯k}nk=0 . Next, we seek p¯n+1 of the form
+
+∑ p¯n+1 = xp¯n − αn p¯n − βn p¯n−1 − n−2 γk(n) p¯k, k=0
+
+(3.9)
+
+with αn and βn given by (3.8), and we require
+
+p¯n+1, p¯k ω = 0, 0 ≤ k ≤ n.
+
+(3.10)
+
+Taking the inner product with p¯k on both sides of (3.9), and using the orthogonality of {p¯k}nk=0, we ﬁnd that (3.10) is fulﬁlled if and only if
+
+(p¯n+1, p¯n)ω = (xp¯n, p¯n)ω − αn(p¯n, p¯n)ω = 0,
+
+(p¯n+1, p¯n−1)ω = (xp¯n, p¯n−1)ω − βn(p¯n−1, p¯n−1)ω = 0,
+
+n−2
+∑ (p¯n+1, p¯ j)ω = (xp¯n, p¯ j)ω − γk(n)(p¯k, p¯ j)ω k=0
+
+(3=.3)
+
+(x p¯n ,
+
+p¯ j)ω
+
+−
+
+γ
+
+(n) j
+
+p¯ j
+
+2 ω
+
+=
+
+0,
+
+0 ≤ j ≤ n − 2.
+
+(3.11)
+
+50
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Hence, the ﬁrst equality implies (3.8a), and by the second one,
+
+βn =
+
+(xp¯n, p¯n−1)ω p¯n−1 2ω
+
+=
+
+(p¯n, xp¯n−1)ω p¯n−1 2ω
+
+=
+
+p¯n p¯n−1
+
+2 ω
+2ω
+
+,
+
+where we have used the fact
+
+n−1
+∑ xp¯n−1 = p¯n + δk(n) p¯k, k=0
+and the orthogonality of {p¯k}nk=0 to deduce the last identity. It remains to show that the coefﬁcients {γk(n)}nk=−02 in (3.9) are all zero. Indeed, we derive from Lemma 3.1 that
+xp¯n, p¯ j ω = (p¯n, xp¯ j)ω = 0, 0 ≤ j ≤ n − 2,
+which, together with the last equation of (3.11), implies γk(n) ≡ 0 for 0 ≤ k ≤ n − 2, in (3.9). This completes the induction.
+Next, we show that the polynomial sequence generated by (3.7)–(3.8) is unique. For this purpose, we assume that {q¯n}∞n=0 is another sequence of monic orthogonal polynomials. Since p¯n, given by (3.7), is also monic, we have deg p¯n+1 − q¯n+1 ≤ n. By Lemma 3.1,
+
+(p¯n+1, p¯n+1 − q¯n+1)ω = 0, (q¯n+1, p¯n+1 − q¯n+1)ω = 0,
+
+which implies
+
+p¯n+1 − q¯n+1, p¯n+1 − q¯n+1 ω = 0 ⇒ p¯n+1(x) − q¯n+1(x) ≡ 0. This proves the uniqueness.
+
+The above theorem provides a general three-term recurrence relation to construct orthogonal polynomials, and the constants αn and βn can be evaluated explicitly for the commonly used families. The three-term recurrence relation (3.7) is essential
+for deriving other properties of orthogonal polynomials. For convenience, we ﬁrst extend it to the orthogonal polynomials {pn}, which are not necessarily monic.
+
+Corollary 3.1. Let {pn} be a sequence of orthogonal polynomials with the leading coefﬁcient kn = 0. Then we have
+
+pn+1 = (anx − bn)pn − cn pn−1, n ≥ 0,
+
+(3.12)
+
+with p−1 := 0, p0 = k0 and
+
+an
+
+=
+
+kn+1 , kn
+
+bn
+
+=
+
+kn+1 kn
+
+(xpn, pn)ω pn 2ω
+
+,
+
+cn
+
+=
+
+kn−1kn+1 kn2
+
+pn pn−1
+
+2 ω
+2ω
+
+.
+
+(3.13a) (3.13b) (3.13c)
+
+3.1 Orthogonal Polynomials
+
+51
+
+Proof. This result follows directly from Theorem 3.1 by inserting p¯l = pl/kl with l = n − 1, n, n + 1 into (3.7) and (3.8).
+
+The orthogonal polynomials {pn} with leading coefﬁcients {kn} are uniquely determined by (3.12)–(3.13). Interestingly, the following result, which can be viewed as the converse of Corollary 3.1, also holds. We leave its proof as an exercise (see Problem 3.1).
+Corollary 3.2. Let {kn = 0} be a sequence of real numbers. The three-term recurrence relation (3.12)–(3.13) generates a sequence of polynomials satisfying the properties:
+• the leading coefﬁcient of pn is kn and deg(pn) = n; • {pn} are orthogonal with respect to the weight function ω(x); • the L2ω -norm of pn is given by
+
+γn =
+
+pn
+
+2 ω
+
+=
+
+(a0/an)c1c2 . . . cnγ0,
+
+n ≥ 0,
+
+(3.14)
+
+where γ0 = k02
+
+b a
+
+ω
+
+(x)dx.
+
+An important consequence of the three-term recurrence formula (3.12)–(3.13) is
+
+the well-known Christoff-Darboux formula.
+
+Corollary 3.3. Let {pn} be a sequence of orthogonal polynomials with deg(pn) = n. Then,
+
+∑ pn+1(x)pn(y) − pn(x)pn+1(y)
+x−y
+
+=
+
+kn+1 kn
+
+n j=0
+
+pn pj
+
+2
+
+ω 2ω
+
+p j(x)p j(y),
+
+(3.15)
+
+and
+
+∑ pn+1(x)pn(x) −
+
+pn (x) pn+1 (x)
+
+=
+
+kn+1 kn
+
+n j=0
+
+pn pj
+
+2
+
+ω 2ω
+
+p2j (x).
+
+Proof. We ﬁrst prove (3.15). By Corollary 3.1,
+
+(3.16)
+
+p j+1(x)p j(y) − p j(x)p j+1(y) = [(a jx − b j)p j(x) − c j p j−1(x)]p j(y) − p j(x)[(a jy − b j)p j(y) − c j p j−1(y)] = a j(x − y)p j(x)p j(y) + c j[p j(x)p j−1(y) − p j−1(x)p j(y)].
+
+Thus, by (3.13),
+
+k j p j+1(x)p j(y) − p j(x)p j+1(y)
+
+k j+1
+
+pj
+
+2 ω
+
+x−y
+
+− kj
+
+k j−1 p j−1
+
+2ω
+
+p j(x)p j−1(y) x
+
+− −
+
+p j−1(x)p j(y) y
+
+=
+
+1 pj
+
+2ω
+
+p j(x)p j(y).
+
+This relation also holds for j = 0 by deﬁning p−1 := 0. Summing the above identities for 0 ≤ j ≤ n leads to (3.15).
+
+52
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+To prove (3.16), we observe that
+
+pn+1(x)pn(y) − pn(x)pn+1(y)
+
+x−y
+
+=
+
+pn+1(x) − pn+1(y) x−y
+
+pn(y) −
+
+pn(x) − pn(y) x−y
+
+pn+1(y).
+
+Consequently, letting y → x, we obtain (3.16) from (3.15) and the deﬁnition of the derivative.
+
+Deﬁne the kernel
+
+∑ Kn(x, y)
+
+=
+
+n j=0
+
+p
+
+j
+
+(x)p pj
+
+j (y)
+2ω
+
+.
+
+The Christoff-Darboux formula (3.15) can be rewritten as
+
+(3.17)
+
+Kn(x, y)
+
+=
+
+kn kn+1 pn
+
+2ω
+
+pn+1(x)
+
+pn(y) x
+
+− −
+
+pn(x) y
+
+pn+1
+
+(y)
+
+.
+
+A remarkable property of {Kn} is stated in the following lemma.
+
+Lemma 3.2. There holds the integral equation:
+
+(3.18)
+
+b
+q(x) = q(t)Kn(x,t)ω(t)dt, ∀q ∈ Pn.
+a
+
+(3.19)
+
+Moreover, the polynomial sequence {Kn(x, a)} (resp. {Kn(x, b)}) is orthogonal with respect to the weight function (x − a)ω (resp. (b − x)ω).
+
+Proof. Thanks to (3.5), for any q ∈ Pn, we can write
+
+∑n
+q(x) = qˆ j p j(x)
+j=0
+
+with
+
+qˆ j =
+
+1 p j 2ω
+
+b
+q(t)p j(t)ω(t)dt.
+a
+
+Thus, by deﬁnition (3.17),
+
+∑n
+q(x) =
+j=0
+
+1 p j 2ω
+
+b
+q(t)p j(x)p j(t)ω(t)dt =
+a
+
+b
+q(t )Kn (x, t )ω (t )dt ,
+a
+
+which gives (3.19). Next, taking x = a and q(t) = (t − a)r(t) for any r ∈ Pn−1 in (3.19) yields
+b
+0 = q(a) = Kn(t, a)r(t)(t − a)ω(t)dt, ∀r ∈ Pn−1,
+a
+which implies {Kn(x, a)} is orthogonal with respect to (x − a)ω. Similarly, taking x = b and q(t) = (b − t)r(t) for any r ∈ Pn−1 in (3.19), we can
+show that {Kn(x, b)} is orthogonal with respect to (b − x)ω.
+
+3.1 Orthogonal Polynomials
+
+53
+
+3.1.2 Zeros of Orthogonal Polynomials
+
+Zeros of orthogonal polynomials play a fundamental role in spectral methods. For example, they are chosen as the nodes of Gauss-type quadratures, and used to generate computational grids for spectral methods. Therefore, it is useful to derive their essential properties.
+Again, let {pn} (with deg(pn) = n) be a sequence of polynomials orthogonal with respect to the weight function ω(x) in (a, b). The ﬁrst important result about the zeros of orthogonal polynomials is the following:
+
+Theorem 3.2. The zeros of pn+1 are all real, simple, and lie in the interval (a, b).
+
+Proof. We ﬁrst show that the zeros of pn+1 are all real. Assuming α ± iβ are a pair of complex roots of pn+1. Then pn+1/((x − α)2 + β 2) ∈ Pn−1, and by Lemma 3.1,
+
+0=
+
+b a
+
+pn+1
+
+(x
+
+−
+
+pn+1 α)2 +
+
+β
+
+2
+
+ω
+
+dx
+
+=
+
+b a
+
+(x − α)2 + β 2
+
+pn+1 (x − α)2 + β 2
+
+2
+ω d x,
+
+which implies that β = 0. Hence, all zeros of pn+1 must be real. Next, we prove that the n + 1 zeros of pn+1 are simple, and lie in the interval
+(a, b). By the orthogonality,
+
+b
+pn+1(x)ω(x)dx = 0, ∀n ≥ 0,
+a
+there exists at least one zero of pn+1 in (a, b). In other words, pn+1(x) must change sign in (a, b). Let x0, x1, . . . , xk be all such points in (a, b) at which pn+1(x) changes sign. If k = n, we are done, since {xi}ni=0 are the n + 1 simple real zeros of pn+1. If k < n, we consider the polynomial
+
+q(x) = (x − x0)(x − x1) . . . (x − xk).
+
+Since deg(q) = k + 1 < n + 1, by orthogonality, we derive
+
+(pn+1, q)ω = 0.
+
+However, pn+1(x)q(x) cannot change sign on (a, b), since each sign change in pn+1(x) is canceled by a corresponding sign change in q(x). It follows that
+
+(pn+1, q)ω = 0,
+
+which leads to a contradiction.
+
+Another important property is known as the separation theorem.
+Theorem 3.3. Let x0 = a, xn+1 = b and x1 < x2 < . . . < xn be the zeros of pn. Then there exists exactly one zero of pn+1 in each subinterval (x j, x j+1), j = 0, 1, . . . , n.
+
+54
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Proof. It is obvious that the location of zeros is invariant with any nonzero constant
+multiple of pn and pn+1, so we assume that the leading coefﬁcients kn, kn+1 > 0. We ﬁrst show that each of the interior subintervals (x j, x j+1), j = 1, 2, . . . , n − 1,
+contains at least one zero of pn+1, which is equivalent to proving
+
+pn+1(x j)pn+1(x j+1) < 0, 1 ≤ j ≤ n − 1.
+
+(3.20)
+
+Since pn can be written as pn(x) = kn(x − x1)(x − x2) . . . (x − xn),
+
+a direct calculation leads to
+
+j−1
+
+n
+
+∏ pn(x j) = kn (x j − xl) · ∏ (x j − xl).
+
+l=1
+
+l= j+1
+
+(3.21)
+
+This implies
+
+pn(x j)pn(x j+1) = Dn, j × (−1)n− j × (−1)n− j−1 < 0,
+
+(3.22)
+
+where Dn, j is a positive constant. On the other hand, using the facts that pn(x j) = pn(x j+1) = 0 and kn, kn+1 > 0, we ﬁnd from (3.16) that
+
+−pn(x j)pn+1(x j) > 0, −pn(x j+1)pn+1(x j+1) > 0.
+
+(3.23)
+
+Consequently,
+
+pn(x j)pn(x j+1) pn+1(x j)pn+1(x j+1) > 0 (3=.⇒22) pn+1(x j)pn+1(x j+1) < 0.
+Next, we prove that there exists at least one zero of pn+1 in each of the boundary subintervals (xn, b) and (a, x1). Since pn(xn) = 0 and pn(xn) > 0 (cf. (3.21)), the use of (3.16) again gives pn+1(xn) < 0. On the other hand, due to kn+1 > 0, we have pn+1(b) > 0. Therefore, pn+1(xn)pn+1(b) < 0, which implies (xn, b) contains at least one zero of pn+1. The existence of at least one zero of pn+1 in (a, x1) can be justiﬁed in a similar fashion.
+In summary, we have shown that each of the n + 1 subintervals (x j, x j+1), 0 ≤ j ≤ n, contains at least one zero of pn+1. By Theorem 3.2, pn+1 has exactly n + 1 real zeros, so each subinterval contains exactly one zero of pn+1.
+A direct consequence of (3.22) is the following.
+Corollary 3.4. Let {pn} be a sequence of orthogonal polynomials with deg(pn) = n. Then the zeros of pn are real and simple, and there exists exactly one zero of pn between two consecutive zeros of pn.
+
+3.1 Orthogonal Polynomials
+
+55
+
+3.1.3 Computation of Zeros of Orthogonal Polynomials
+
+We present below two efﬁcient algorithms for computing zeros of orthogonal polynomials.
+The ﬁrst approach is the so-called Eigenvalue Method.
+
+Theorem 3.4. The zeros {x j}nj=0 of the orthogonal polynomial pn+1(x) are eigenvalues of the following symmetric tridiagonal matrix:
+
+⎡
+
+⎤
+
+α0 β1
+
+An+1
+
+=
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣β1
+
+α1 ...
+
+β2 ... βn−1
+
+... αn−1
+
+βn⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦ ,
+
+(3.24)
+
+βn αn
+
+where
+
+αj
+
+=
+
+bj aj
+
+,
+
+j ≥ 0;
+
+βj
+
+=
+
+1 a j−1
+
+a j−1c j , aj
+
+j ≥ 1,
+
+(3.25)
+
+with {a j, b j, c j} being the coefﬁcients of the three-term recurrence relation (3.12), namely,
+
+p j+1(x) = (a jx − b j)p j(x) − c j p j−1(x), j ≥ 0,
+
+(3.26)
+
+with p−1 := 0. Proof. We ﬁrst normalize the orthogonal polynomials {p j} by deﬁning
+
+p˜ j(x)
+
+=
+
+1 √γ j
+
+p j(x)
+
+with
+
+γj =
+
+pj
+
+2 ω
+
+⇒
+
+p˜ j ω = 1.
+
+Thus, we have
+
+xp˜ j
+
+(3=.26)
+
+cj aj
+
+γ j−1 γj
+
+p˜
+
+j−1
+
++
+
+b a
+
+j j
+
+p˜
+
+j
+
++
+
+1 aj
+
+γ j+1 γj
+
+p˜
+
+j+1
+
+(3=.13) 1 a j−1
+
+γj γ j−1
+
+p˜
+
+j−1
+
++
+
+b a
+
+j j
+
+p˜
+
+j
+
++
+
+1 aj
+
+γ
+
+j+1
+γj
+
+p˜
+
+j+1
+
+= β j p˜ j−1(x) + α j p˜ j(x) + β j+1 p˜ j+1(x), j ≥ 0,
+
+(3.27)
+
+where we denote
+
+αj
+
+:=
+
+bj , aj
+
+βj
+
+:=
+
+1 a j−1
+
+γ
+
+γj
+j−1
+
+.
+
+56
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+By (3.13),
+
+γj γ j−1
+
+=
+
+a j−1c j aj
+
+>0
+
+⇒
+
+βj
+
+=
+
+1 a j−1
+
+Then we rewrite the recurrence relation (3.27) as
+
+a j−1c j . aj
+
+xp˜ j(x) = β j p˜ j−1(x) + α j p˜ j(x) + β j+1 p˜ j+1(x), j ≥ 0. We now take j = 0, 1, . . . , n to form a system with the matrix form
+xP(x) = An+1P(x) + βn+1 p˜n+1(x)En+1, where An+1 is given by (3.24), and
+P(x) = p˜0(x), p˜1(x), . . . , p˜n(x) T , En+1 = (0, 0, . . . , 0, 1)T .
+
+(3.28)
+
+Since p˜n+1(x j) = 0, 0 ≤ j ≤ n, the system (3.28) at x = x j becomes
+
+x jP(x j) = An+1P(x j), 0 ≤ j ≤ n.
+
+(3.29)
+
+Hence, {x j}nj=0 are eigenvalues of the symmetric tridiagonal matrix An+1.
+An alternative approach for ﬁnding zeros of orthogonal polynomials is to use an iterative procedure. More precisely, let x0j be an initial approximation to the zero x j of pn+1(x). Then, one can construct an iterative scheme in the general form:
+
+xkj+1 = xkj + D(xkj), 0 ≤ j ≤ n, k ≥ 0, given x0j nj=0, and a termination rule.
+
+(3.30)
+
+The deviation D(·) classiﬁes different types of iterative schemes. For instance, the Newton method is of second-order with
+
+D(x)
+
+=
+
+−
+
+pn+1 pn+1
+
+(x) (x)
+
+,
+
+(3.31)
+
+while the Laguerre method is a third-order scheme with
+
+D(x)
+
+=
+
+−
+
+pn+1(x) pn+1(x)
+
+−
+
+pn+1 (x) pn+1 (x) 2( pn+1 (x))2
+
+.
+
+(3.32)
+
+Higher-order schemes can be constructed by using higher-order derivatives of pn+1. The success of an iterative method often depends on how good is the initial guess.
+If the initial approximation is not sufﬁciently close, the algorithm may converge to other unwanted values or even diverge. For a thorough discussion on how to ﬁnd zeros of polynomials, we refer to Pan (1997) and the references therein.
+
+3.1 Orthogonal Polynomials
+
+57
+
+3.1.4 Gauss-Type Quadratures
+
+We now discuss the relations between orthogonal polynomials and Gauss-type integration formulas. The mechanism of a Gauss-type quadrature is to seek the best numerical approximation of an integral by selecting optimal nodes at which the integrand is evaluated. It belongs to the family of the numerical quadratures:
+
+b
+
+N
+
+f (x)ω(x)dx = ∑ f (x j)ω j + EN[ f ],
+
+a
+
+j=0
+
+(3.33)
+
+where {x j, ω j}Nj=0 are the quadrature nodes and weights, and EN[ f ] is the quadrature
+error. If EN[ f ] ≡ 0, we say the quadrature formula (3.33) is exact for f . Hereafter, we assume that the nodes {x j}Nj=0 are distinct. If f (x) ∈ CN+1[a, b],
+we have (see, e.g., Davis and Rabinowitz (1984)):
+
+∏ EN [
+
+f
+
+]
+
+=
+
+(N
+
+1 +
+
+1)!
+
+b f (N+1)(ξ (x)) N (x − xi)dx,
+
+a
+
+i=0
+
+(3.34)
+
+where ξ (x) ∈ [a, b]. The Lagrange basis polynomials associated with {x j}Nj=0 are
+
+given by
+
+∏ h
+
+j(x)
+
+=
+
+N i=0;i=
+
+j
+
+x − xi x j − xi
+
+,
+
+0 ≤ j ≤ N,
+
+(3.35)
+
+so taking f (x) = h j in (3.33) and using (3.34), we ﬁnd the quadrature weights:
+
+b
+ω j = h j(x)ω(x)dx, 0 ≤ j ≤ N.
+a
+
+(3.36)
+
+We say that the integration formula (3.33)–(3.36) has a degree of precision (DOP) m, if there holds
+
+EN[p] = 0, ∀p ∈ Pm but ∃ q ∈ Pm+1 such that EN [q] = 0.
+
+(3.37)
+
+In general, for any N + 1 distinct nodes {x j}Nj=0 ⊆ (a, b), the DOP of (3.33)–(3.36) is between N and 2N + 1. Moreover, if the nodes {xk}Nk=0 are chosen as zeros of the polynomial pN+1 orthogonal with respect to ω, this rule enjoys the maximum
+degree of precision 2N + 1. Such a rule is known as the Gauss quadrature.
+
+Theorem 3.5. (Gauss quadrature) Let {x j}Nj=0 be the set of zeros of the orthogonal
+polynomial pN+1. Then there exists a unique set of quadrature weights {ω j}Nj=0, deﬁned by (3.36), such that
+
+b
+
+N
+
+p(x)ω(x)dx = ∑ p(x j)ω j, ∀p ∈ P2N+1,
+
+a
+
+j=0
+
+(3.38)
+
+58
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+where the quadrature weights are all positive and given by
+
+ωj
+
+=
+
+kN+1 kN
+
+pN
+
+(x
+
+j
+
+pN
+
+2 ω
+
+) pN +1 (x
+
+j
+
+)
+
+,
+
+0 ≤ j ≤ N,
+
+(3.39)
+
+where k j is the leading coefﬁcient of the polynomial p j.
+
+Proof. Let {h j}Nj=0 be the Lagrange basis polynomials deﬁned in (3.35). It is clear that
+
+N
+PN = span h j : 0 ≤ j ≤ N ⇒ p(x) = ∑ p(x j)h j(x), ∀p ∈ PN. j=0
+
+Hence,
+
+b
+
+N
+
+p(x)ω(x)dx = ∑ p(x j)
+
+b
+
+h j(x)ω(x)dx
+
+(3=.36)
+
+N
+∑
+
+p(x j)ω j,
+
+a
+
+j=0
+
+a
+
+j=0
+
+(3.40)
+
+which implies (3.38) is exact for any p ∈ PN. In other words, the DOP of this rule is not less than N.
+Next, for any p ∈ P2N+1, we can write p = rpN+1 + s where r, s ∈ PN. In view of pN+1(x j) = 0, we have p(x j) = s(x j) for 0 ≤ j ≤ N. Since pN+1 is orthogonal to r (cf. Lemma 3.1) and s ∈ PN, we ﬁnd
+
+b
+
+b
+
+p(x)ω(x)dx = s(x)ω(x)dx
+
+a
+
+a
+
+=
+
+N
+∑
+
+s(x j)ω j
+
+(3=.40)
+
+N
+∑
+
+p(x j)ω j,
+
+j=0
+
+j=0
+
+∀p ∈ P2N+1,
+
+(3.41)
+
+which leads to (3.38).
+
+Now, we show that ω j > 0 for 0 ≤ j ≤ N. Taking p(x) = h2j(x) ∈ P2N in (3.41)
+
+leads to
+
+b
+
+N
+
+0 < ∑ h2j(x)ω(x)dx = h2j (xk)ωk = ω j, 0 ≤ j ≤ N.
+
+a
+
+k=0
+
+It remains to establish (3.39). Since pN+1(x j) = 0, taking y = x j and n = N in the Christoff-Darboux formula (3.15) yields
+
+∑ pN
+
+(x
+
+j
+
+)
+
+pN+1(x) x−xj
+
+=
+
+kN+1 kN
+
+N i=0
+
+pN pi
+
+2 ω 2ω
+
+pi(x j)pi(x).
+
+Multiplying the above formula by ω(x) and integrating the resulting identity over (a, b), we deduce from the orthogonality (pi, 1)ω = 0, i ≥ 1, that
+
+pN (x j)
+
+b a
+
+pN+1(x) x−xj
+
+ω
+
+(x)dx
+
+= kN+1 kN
+
+pN
+
+2 (p0(x j), p0)ω
+
+ω
+
+p0
+
+2 ω
+
+= kN+1 kN
+
+pN
+
+2 ω
+
+.
+
+(3.42)
+
+3.1 Orthogonal Polynomials
+
+59
+
+Note that the Lagrange basis polynomial h j(x) in (3.35) can be expressed as
+
+h j(x) =
+
+pN+1(x) pN+1(x j)(x −
+
+x
+
+j
+
+)
+
+.
+
+(3.43)
+
+Plugging it into (3.42) gives
+
+pN (x j)
+
+b a
+
+pN+1(x) x−xj
+
+ω
+
+(x)dx
+
+=
+
+pN (x j)pN+1(x j)
+
+b
+h j(x)ω(x)dx
+a
+
+=
+
+pN (x j)pN+1(x j)ω j
+
+=
+
+kN+1 kN
+
+pN
+
+2 ω
+
+,
+
+which implies (3.39).
+
+(3.44)
+
+The above fundamental theorem reveals that the optimal abscissas of the Gauss quadrature formula are precisely the zeros of the orthogonal polynomial for the same interval and weight function. The Gauss quadrature is optimal because it ﬁts all polynomials up to degree 2N + 1 exactly, and it is impossible to ﬁnd any set of {x j, ω j}Nj=0 such that (3.38) holds for all p ∈ P2N+2 (see Problem 3.3).
+With the exception of a few special cases, like the Chebyshev polynomials, no explicit expressions of the quadrature nodes and weights are available. Theorem 3.4 provides an efﬁcient approach to compute the nodes {x j}Nj=0, through ﬁnding the eigenvalues of the symmetric tridiagonal matrix AN+1 deﬁned in (3.24). The following result indicates that the weights {ω j}Nj=0 can be computed from the ﬁrst component of the eigenvectors of AN+1.
+Theorem 3.6. Let
+Q(x j) = Q0(x j), Q1(x j), . . . , QN (x j) T
+
+be the orthonormal eigenvector of AN+1 corresponding to the eigenvalue x j, i.e.,
+
+AN+1Q(x j) = x jQ(x j) with Q(x j)T Q(x j) = 1.
+
+Then the weights {ω j}Nj=0 can be computed from the ﬁrst component of the eigenvector Q(x j) by using the formula:
+
+ω j = Q0(x j) 2
+
+b
+ω (x)d x,
+
+0 ≤ j ≤ N.
+
+a
+
+(3.45)
+
+Proof. Using the Christoffel-Darboux formula (3.16) and the fact that pN+1(x j) = 0, we derive from (3.39) the following alternative expression of the weights:
+
+∑ ω
+
+−1 j
+
+(3=.39)
+
+kN kN+1
+
+pN (x j)pN+1(x j)
+
+pN
+
+2 ω
+
+(3=.16)
+
+N n=0
+
+p2n(x j)
+
+pn
+
+2 ω
+
+= P(x j)T P(x j), 0 ≤ j ≤ N,
+
+(3.46)
+
+60
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+where
+
+P(x j) = p˜0(x j), p˜1(x j), . . . , p˜N (x j) T with p˜n =
+
+The identity (3.46) can be rewritten as
+
+pn . pn ω
+
+ω jP(x j)T P(x j) = 1, 0 ≤ j ≤ N.
+
+On the other hand, we deduce from (3.29) that P(x j) is an eigenvector corresponding to the eigenvalue x j. Therefore,
+
+Q(x j) = √ω j P(x j), 0 ≤ j ≤ N,
+
+(3.47)
+
+is the unit eigenvector corresponding to the eigenvalue x j. Equating the ﬁrst components (3.47) yields
+
+ωj =
+
+Q0(x j) p˜0(x j)
+
+2
+=
+
+p0
+
+2 ω
+
+p0(x j) 2
+
+Q0(x j) 2 =
+
+Q0(x j) 2
+
+b
+ω (x)d x,
+a
+
+0 ≤ j ≤ N.
+
+This completes the proof.
+
+Notice that all the nodes of the Gauss formula lie in the interior of the interval (a, b). This makes it difﬁcult to impose boundary conditions. Below, we consider the Gauss-Radau or Gauss-Lobatto quadratures which include either one or both endpoints as a node(s).
+We start with the Gauss-Radau quadrature. Assuming we would like to include the left endpoint x = a in the quadrature, we deﬁne
+
+qN (x) =
+
+pN+1(x) + αN pN(x) x−a
+
+with
+
+αN
+
+=
+
+−
+
+pN+1(a) pN (a)
+
+.
+
+(3.48)
+
+It is obvious that qN ∈ PN, and for any rN−1 ∈ PN−1, we derive from Lemma 3.1 that
+
+b
+qN(x)rN−1(x)ω(x)(x − a)dx
+a
+b
+= (pN+1(x) + αN pN(x)) rN−1(x)ω(x)dx = 0.
+a
+
+(3.49)
+
+Hence, qN : N ≥ 0 deﬁnes a sequence of polynomials orthogonal with respect to the weight function ω˜ (x) := ω(x)(x − a), and the leading coefﬁcient of qN is kN+1.
+Theorem 3.7. (Gauss-Radau quadrature) Let x0 = a and {x j}Nj=1 be the zeros of qN deﬁned in (3.48). Then there exists a unique set of quadrature weights {ω j}Nj=0, deﬁned by (3.36), such that
+
+b
+
+N
+
+p(x)ω(x)dx = ∑ p(x j)ω j, ∀p ∈ P2N.
+
+a
+
+j=0
+
+(3.50)
+
+3.1 Orthogonal Polynomials
+
+61
+
+Moreover, the quadrature weights are all positive and can be expressed as
+
+ω0
+
+=
+
+1 qN (a)
+
+b
+qN (x)ω (x)d x,
+a
+
+ωj
+
+=
+
+1 xj −a
+
+kN+1 kN
+
+qN−1
+
+2 ω˜
+
+qN−1(x j)qN(x
+
+j
+
+)
+
+,
+
+1 ≤ j ≤ N.
+
+(3.51a) (3.51b)
+
+Proof. The proof is similar to that of Theorem 3.5, so we shall only sketch it below. Obviously, for any p ∈ PN,
+
+b
+
+N
+
+p(x)ω(x)dx = ∑ p(x j)
+
+b
+
+h j(x)ω(x)dx
+
+(3=.36)
+
+N
+∑
+
+p(x j)ω j.
+
+a
+
+j=0
+
+a
+
+j=0
+
+(3.52)
+
+Hence, the DOP is at least N. Next, for any p ∈ P2N, we write
+
+p = (x − a)rqN + s, r ∈ PN−1, s ∈ PN .
+
+Since (x − a)qN(x) x=xj = 0, we have p(x j) = s(x j) for 0 ≤ j ≤ N. Therefore, we deduce from (3.49) that
+
+b
+
+b
+
+p(x)ω(x)dx = s(x)ω(x)dx
+
+a
+
+a
+
+N
+
+N
+
+= ∑ s(x j)ω j = ∑ p(x j)ω j,
+
+j=0
+
+j=0
+
+∀p ∈ P2N.
+
+Taking p(x) = h2k(x) ∈ P2N in the above identities, we conclude that ωk > 0 for 0 ≤ k ≤ N.
+Note that the Lagrange basis polynomials take the form
+
+h j(x) =
+
+(x − a)qN(x)
+
+(x − a)qN(x)
+
+(x − x j)
+
+x=x j
+
+=
+
+(x − a)qN(x)
+
+,
+
+qN (x j) + (x j − a)qN(x j) (x − x j)
+
+0 ≤ j ≤ N.
+
+Hence, letting j = 0, we derive (3.51a) from the deﬁnition of ω0, and for 1 ≤ j ≤ N,
+
+ωj =
+
+b a
+
+h j(x)ω(x)dx
+
+=
+
+xj
+
+1 −
+
+a
+
+b a
+
+qN (x) qN(x j)(x −
+
+x
+
+j)
+
+ω˜ (x)dx.
+
+Recall that {qn} are orthogonal with respect to ω˜ , so the integral part turns out to be the weight of the Gauss quadrature associated with N nodes being the zeros of qN(x). Hence, (3.51b) follows from the formula (3.39).
+
+62
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Remark 3.1. Similarly, a second Gauss-Radau quadrature can be constructed if we want to include the right endpoint x = b instead of the left endpoint x = a.
+
+We now turn to the Gauss-Lobatto quadrature, whose nodes include two endpoints x = a, b. In this case, we choose αN and βN such that
+
+pN+1(x) + αN pN (x) + βN pN−1(x) = 0 for x = a, b,
+
+(3.53)
+
+and set
+
+zN −1 (x)
+
+=
+
+pN+1(x)
+
++ αN pN(x) + βN (x − a)(b − x)
+
+pN−1(x)
+
+.
+
+(3.54)
+
+It is clear that zN−1 ∈ PN−1 and for any rN−2 ∈ PN−2, we derive from Lemma 3.1 that
+
+b
+zN−1rN−2(x − a)(b − x)ω dx
+a
+
+b
+
+=
+
+pN+1 + αN pN + βN pN−1 rN−2ω dx = 0.
+
+a
+
+(3.55)
+
+Hence, zN−1 : N ≥ 1 deﬁnes a sequence of polynomials orthogonal with respect to the weight function ωˆ (x) := (x − a)(b − x)ω(x), and the leading coefﬁcient of zN−1 is −kN+1.
+Theorem 3.8. (Gauss-Lobatto quadrature) Let x0 = a, xN = b and {x j}Nj=−11 be the zeros of zN−1 in (3.53)–(3.54). Then there exists a unique set of quadrature weights {ω j}Nj=0, deﬁned by (3.36), such that
+
+b
+
+N
+
+p(x)ω(x)dx = ∑ p(x j)ω j, ∀p ∈ P2N−1,
+
+a
+
+j=0
+
+(3.56)
+
+where the quadrature weights are expressed as
+
+ω0
+
+=
+
+1 (b − a)zN−1(a)
+
+b
+(b − x)zN−1(x)ω(x)dx,
+a
+
+ωj
+
+=
+
+(x j
+
+1 − a)(b − x j)
+
+kN+1 kN
+
+zN−2
+
+2 ωˆ
+
+zN−2(x j)zN−1
+
+(x
+
+j)
+
+,
+
+1 ≤ j ≤ N − 1,
+
+ωN
+
+=
+
+(b
+
+−
+
+1 a)zN−1(b)
+
+b
+(x − a)zN−1(x)ω(x)dx.
+a
+
+(3.57a) (3.57b) (3.57c)
+
+Moreover, we have ω j > 0 for 1 ≤ j ≤ N − 1.
+
+Proof. The exactness (3.56) and the formulas of the weights can be derived in a similar fashion as in Theorem 3.7, so we skip the details. Here, we just verify ω j > 0 for 1 ≤ j ≤ N − 1 by using a different approach. Since {zN−1} are orthogonal with
+
+3.1 Orthogonal Polynomials
+
+63
+
+respect to the weight function ωˆ , and zN−1(x j) = 0 for 1 ≤ j ≤ N − 1, we obtain from the Christoff-Darboux formula (3.16) that
+
+∑ kN
+kN+1
+
+zN−2(x
+
+j
+
+)zN −1 (x
+
+j
+
+)
+
+=
+
+N−2 j=0
+
+zN−2
+
+2 ωˆ
+
+zj
+
+2 ωˆ
+
+z2j
+
+(x
+
+j
+
+)
+
+>
+
+0,
+
+1≤
+
+j ≤ N − 1.
+
+Inserting it into the formula (3.57b) leads to ω j > 0 for 1 ≤ j ≤ N − 1.
+
+The Gauss-type quadrature formulas provide powerful tools for evaluating integrals and inner products in a spectral method. They also play an important role in spectral differentiations as to be shown later.
+
+3.1.5 Interpolation and Discrete Transforms
+
+Let
+
+xj,ωj
+
+N j=0
+
+be
+
+a
+
+set
+
+of
+
+Gauss,
+
+Gauss-Radau
+
+or
+
+Gauss-Lobatto
+
+quadrature
+
+nodes
+
+and weights. We deﬁne the corresponding discrete inner product and norm as
+
+N
+∑ u, v N,ω := u(x j)v(x j)ω j, j=0
+
+u N,ω :=
+
+u, u N,ω .
+
+(3.58)
+
+Note that ·, · N,ω is an approximation to the continuous inner product (·, ·)ω , and the exactness of Gauss-type quadrature formulas implies
+
+u, v N,ω = (u, v)ω , ∀u · v ∈ P2N+δ ,
+
+(3.59)
+
+where δ = 1, 0 and −1 for the Gauss, Gauss-Radau and Gauss-Lobatto quadrature, respectively.
+
+Deﬁnition 3.1. For any u ∈ C(Λ ), we deﬁne the interpolation operator IN : C(Λ ) →
+
+PN such that
+
+(IN u)(x j) = u(x j), 0 ≤ j ≤ N,
+
+(3.60)
+
+where Λ = (a, b), [a, b), [a, b] for the Gauss, Gauss-Radau and Gauss-Lobatto quadrature, respectively.
+
+The interpolation condition (3.60) implies that IN p = p for all p ∈ PN. On the other hand, since INu ∈ PN, we can write
+
+N
+(INu)(x) = ∑ u˜n pn(x), n=0
+
+(3.61)
+
+which is the counterpart of the discrete Fourier series (2.20) and may be referred to
+as the discrete polynomial series. By taking the discrete inner product of (3.61) with {pk}Nk=0, we can determine the coefﬁcients {u˜n} by using (3.60) and (3.59). More precisely, we have
+
+64
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Theorem 3.9.
+
+∑ u˜n
+
+=
+
+1 γn
+
+N
+u(x j)pn(x j)ω j,
+j=0
+
+0 ≤ n ≤ N,
+
+where γn =
+
+pn
+
+2 ω
+
+for 0 ≤ n ≤ N − 1, and
+
+γN =
+
+pN
+
+2 ω
+
+,
+
+for Gauss and Gauss-Radau,
+
+pN , pN N,ω , for Gauss-Lobatto.
+
+(3.62) (3.63)
+
+The formula (3.62)-(3.63) deﬁnes the forward discrete polynomial transform as in
+the Fourier case, which transforms the physical values {u(x j)}Nj=0 to the expansion coefﬁcients {u˜n}Nn=0. Conversely, the backward (or inverse) discrete polynomial transform is formulated by
+
+N
+∑ u(x j) = (INu)(x j) = u˜n pn(x j), 0 ≤ j ≤ N, n=0
+
+(3.64)
+
+which takes the expansion coefﬁcients {u˜n}Nn=0 to the physical values {u(x j)}Nj=0. We see that if the matrices pn(x j) 0≤n, j≤N and/or γn−1 pn(x j)ω j 0≤n, j≤N are
+precomputed, then the discrete transforms (3.62) and (3.64) can be manipulated
+directly by a standard matrix–vector multiplication routine in about N2 ﬂops. Since
+
+discrete transforms are frequently used in spectral codes, it is desirable to reduce
+
+the computational complexity, especially for multidimensional cases. In particu-
+
+lar, the Fast Fourier Transform (FFT) (cf. Cooley and Tukey (1965)) and discrete
+
+Chebyshev transform (treated as a Fourier-cosine transform) can be accomplished
+
+by O(N log2 N) operations. However, with the advent of more powerful computers, this aspect should not be a big concern for moderate scale problems.
+
+3.1.6 Differentiation in the Physical Space
+
+Now, we are ready to address an important issue – polynomial-based spectral differ-
+
+entiation techniques. As with the Fourier cases, they can be performed in either the
+physical space or the frequency space.
+Let us start with the implementation in the physical space. Assume that u ∈ PN is an approximation of the unknown solution U. Let {h j}Nj=0 be the Lagrange basis polynomials associated with a set of Gauss-type points {x j}Nj=0. Clearly,
+
+N
+u(x) = ∑ u(x j)h j(x). j=0
+
+(3.65)
+
+Hence, differentiating it m times leads to
+
+∑ u(m)(xk) = N h(jm)(xk)u(x j), 0 ≤ k ≤ N. j=0
+
+(3.66)
+
+3.1 Orthogonal Polynomials
+
+65
+
+Let us denote
+
+u(m) := u(m)(x0), u(m)(x1), . . . , u(m)(xN ) T , u := u(0);
+
+D(m) :=
+
+dk(mj )
+
+,
+0≤k, j≤N
+
+D := D(1).
+
+(3.67)
+
+Different from the Fourier case, the higher-order differentiation matrix in this context can be computed by a product of the ﬁrst-order one.
+
+Theorem 3.10.
+
+D(m) = DD . . . D = Dm, m ≥ 1,
+
+(3.68)
+
+and
+
+u(m) = Dmu, m ≥ 1.
+
+(3.69)
+
+Proof. Differentiating (3.65) gives
+
+N
+u (x) = ∑ u(xl)hl(x). l=0
+Taking u = h j ∈ PN−1 in the above equation leads to
+
+(3.70)
+
+N
+h j (x) = ∑ hl(x)h j(xl). l=0
+
+Hence, which implies
+
+∑ ∑ dk(2j) = h j (xk) = N hl(xk)h j(xl ) = N dk(1l )dl(1j ),
+
+l=0
+
+l=0
+
+D(2) = DD = D2.
+
+Similarly, taking u = h(ji) in (3.70) leads to
+
+(3.71)
+
+N
+
+N
+
+∑ ∑ dk(ij+1) = h(ji+1)(xk) = hl(xk)h(ji)(xl) = dk(1l )dl(ij).
+
+l=0
+
+l=0
+
+Therefore,
+
+D(i+1) = DD(i), i ≥ 1,
+
+which yields (3.68). Finally, (3.69) can be written in matrix form as in (3.66).
+
+(3.72)
+
+Thanks to Theorem 3.10, it sufﬁces to compute the ﬁrst-order differentiation matrix D. We present below the explicit formulas for the entries of D.
+
+66
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Theorem 3.11. The entries of D are determined by
+
+dk
+
+j
+
+=
+
+h
+
+j (xk )
+
+=
+
+⎧ ⎪⎪⎨ ⎪⎪⎩
+
+Q (xk)
+
+Q (x j) xk
+
+Q 2Q
+
+(xk) (xk )
+
+,
+
+1 −
+
+x
+
+j
+
+,
+
+if k = j, if k = j,
+
+(3.73)
+
+where
+
+Q(x) = pN+1(x), (x − a)qN(x), (x − a)(b − x)zN−1(x)
+
+(3.74)
+
+are the quadrature polynomials (cf. (3.48) and (3.54)) of the Gauss, Gauss-Radau and Gauss-Lobatto quadrature, respectively.
+
+Proof. The Lagrange basis polynomials can be expressed as
+
+h j(x)
+
+=
+
+Q
+
+Q(x) (x j)(x −
+
+xj),
+
+0 ≤ j ≤ N.
+
+(3.75)
+
+Differentiating (3.75) and using the fact Q(x j) = 0 lead to
+
+dk
+
+j
+
+=
+
+h
+
+j (xk )
+
+=
+
+Q Q
+
+(xk) (x j)
+
+xk
+
+1 −
+
+xj
+
+,
+
+∀k = j.
+
+Applying the L’Hopital’s rule twice yields
+
+dkk
+
+=
+
+lim
+x→xk
+
+hk(x)
+
+=
+
+Q
+
+1 (xk)
+
+lim
+x→xk
+
+Q
+
+(x)(x − xk) − Q(x) (x − xk)2
+
+=
+
+Q 2Q
+
+(xk) (xk )
+
+.
+
+This completes the proof.
+
+Therefore, having precomputed the ﬁrst-order differentiation matrix, the differentiation in the physical space can be carried out through matrix–matrix and matrix– vector multiplications.
+
+3.1.7 Differentiation in the Frequency Space
+
+Differentiation in the frequency space is to express the expansion coefﬁcients of the derivatives of a function in terms of expansion coefﬁcients of the function itself. More precisely, given u ∈ PN, instead of using the Lagrange basis polynomials, we expand u in terms of the orthogonal polynomials:
+
+N
+u(x) = ∑ uˆn pn(x). n=0
+
+(3.76)
+
+3.1 Orthogonal Polynomials
+
+67
+
+Using the orthogonality, we can determine the coefﬁcients by
+
+uˆn =
+
+1
+
+pn
+
+2 ω
+
+b
+u(x) pn (x)ω (x)d x,
+a
+
+0 ≤ n ≤ N.
+
+(3.77)
+
+Since u ∈ PN−1, we have
+
+∑ u (x) = N uˆ(n1) pn(x) with uˆ(N1) = 0. n=0
+
+(3.78)
+
+In order to express {uˆ(n1)}Nn=0 in terms of {uˆn}Nn=0, we assume that {pn} are also orthogonal. Indeed, this property holds for the classical orthogonal polynomials
+such as the Legendre, Chebyshev, Jacobi, Laguerre and Hermite polynomials. In other words, {pn} satisfy the three-term recurrence relation due to Corollary 3.1:
+
+pn+1(x) = a(n1)x − b(n1) pn(x) − c(n1) pn−1(x).
+
+(3.79)
+
+Differentiating the three-term recurrence relation (3.12) and using (3.79), we derive
+
+pn(x) = a˜n pn−1(x) + b˜ n pn(x) + c˜n pn+1(x).
+
+(3.80)
+
+The coefﬁcients uˆ(n1) in (3.78) can be computed by the following backward recurrence formulas.
+
+Theorem 3.12.
+
+uˆ(n1−)1
+
+=
+
+1 c˜n−1
+
+uˆn − b˜ nuˆ(n1) − a˜n+1uˆ(n1+)1
+
+,
+
+n = N − 1, . . . , 1,
+
+uˆ(N1) = 0,
+
+uˆ(N1−) 1 =
+
+1 c˜N−1
+
+uˆN
+
+.
+
+(3.81)
+
+Proof. By (3.78) and (3.80),
+
+∑ ∑ u = N−1 uˆ(n1) pn = N−1 uˆ(n1)[a˜n pn−1 + b˜ n pn + c˜n pn+1]
+
+n=0
+
+n=0
+
+∑ = N−1[c˜n−1uˆ(n1−)1 + b˜ nuˆ(n1) + a˜n+1uˆ(n1+)1]pn + c˜N−1uˆ(N1−) 1 pN . n=1
+
+On the other hand, by (3.76),
+
+N
+u (x) = ∑ uˆn pn(x). n=1
+By the (assumed) orthogonality of {pn}, we are able to equate the coefﬁcients of pn in the above two expressions, which leads to (3.81).
+
+68
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Higher-order differentiations in the frequency space can be carried out by using the formula (3.81) repeatedly. It is important to point out that spectral differentiations together with discrete transforms form the basic ingredients for the so-called “pseudo-spectral technique” (particularly useful for nonlinear problems): the differentiations are manipulated in the frequency space, the inner products are computed in the physical space, and both spaces are communicated through discrete transforms.
+
+3.1.8 Approximability of Orthogonal Polynomials
+
+We now brieﬂy review some general polynomial approximation results. One can ﬁnd their proofs from standard books on approximation theory (see, for instance, Timan (1994), Cheney (1998)).
+The ﬁrst fundamental result is the remarkable Weierstrass Theorem, which states that any continuous function in a ﬁnite interval can be uniformly approximated by an algebraic polynomial.
+Theorem 3.13. Let (a, b) be a ﬁnite interval. Then for any u ∈ C[a, b], and any ε > 0, there exist n ∈ N and pn ∈ Pn such that
+
+u − pn L∞(a,b) < ε.
+
+(3.82)
+
+This theorem forms the cornerstone of the classical polynomial approximation theory. The construction of pn essentially relies on the solution of the best approximation problem:
+
+⎧ ⎨
+
+Given
+
+a
+
+ﬁxed
+
+n
+
+∈
+
+N,
+
+ﬁnd
+
+p∗n
+
+∈
+
+Pn,
+
+such
+
+that
+
+⎩
+
+u − p∗n
+
+L∞ (a,b)
+
+=
+
+inf
+pn∈Pn
+
+u − pn
+
+L∞ (a,b) .
+
+(3.83)
+
+This problem admits a unique solution, and as a consequence of Theorem 3.13, p∗n uniformly converges to u as n → ∞. However, the derivation of the best uniform approximation polynomial p∗n is nontrivial, since a strong uniform norm is involved in (3.83), whereas the best approximation problem in the L2-sense is easier to
+solve.
+
+Theorem 3.14. Let I = (a, b) be a ﬁnite or an inﬁnite interval. Then for any u ∈ L2ω (I) and n ∈ N, there exists a unique q∗n ∈ Pn, such that
+
+u − q∗n
+
+ω
+
+=
+
+inf
+qn∈Pn
+
+u − qn
+
+ω,
+
+(3.84)
+
+3.1 Orthogonal Polynomials
+
+69
+
+where
+
+∑n
+q∗n(x) = uˆk pk(x)
+k=0
+
+with
+
+uˆk
+
+=
+
+(u, pk)ω
+
+pk
+
+2 ω
+
+,
+
+(3.85)
+
+and {pk}nk=0 forms an L2ω -orthogonal basis of Pn. In particular, we denote the best approximation polynomial q∗n by πnu, which is
+the L2ω -orthogonal projection of u, and is characterized by the projection theorem
+
+u − πnu
+
+ω
+
+=
+
+inf
+qn ∈Pn
+
+u − qn
+
+ω.
+
+(3.86)
+
+Equivalently, the L2ω -orthogonal projection can be deﬁned by
+
+(u − πnu, φ )ω = 0, ∀φ ∈ Pn,
+
+(3.87)
+
+so πnu is the ﬁrst n + 1-term truncation of the series u = ∑∞k=0 uˆk pk(x). It is interesting to notice that a result similar to the Weierstrass theorem holds
+on inﬁnite intervals, if suitable conditions are imposed on the growth of the given
+function u (cf. Funaro (1992)).
+
+Theorem 3.15. If u ∈ C[0, ∞) and for certain δ > 0, u satisﬁes
+
+u(x)e−δx → 0, as x → ∞,
+
+then for any ε > 0, there exist an n ∈ N and pn ∈ Pn such that |u(x) − pn(x)|e−δx ≤ ε, ∀x ∈ [0, ∞).
+Similar result holds on (−∞, ∞), if we replace e−δx by e−δx2 .
+
+3.1.8.1 A Short Summary of this Section
+We presented some basic knowledge of orthogonal polynomials, which is mostly relevant to spectral approximations. We also set up a general framework for the study of each speciﬁc family of orthogonal polynomials to be presented in the forthcoming sections as tabulated in Table 3.1.
+
+Table 3.1 List of orthogonal polynomials
+
+Symbol Interval
+
+Weight function
+
+Jacobi Legendre Chebyshev
+Laguerre Hermite
+
+Jnα ,β Ln Tn Ln(α )
+Hn
+
+(−1,1) (−1,1) (−1,1)
+(0, +∞) (−∞, +∞)
+
+(1 − x)α (1 + x)β , α, β > −1 √1
+1/ 1 − x2
+xα e−x, α > −1 e−x2
+
+Section
+3.2 3.3 3.4 7.1 7.2
+
+70
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+3.2 Jacobi Polynomials
+
+3.2.1 Basic Properties
+
+The Jacobi polynomials, denoted by Jnα,β (x), are orthogonal with respect to the Jacobi weight function ωα,β (x) := (1 − x)α (1 + x)β over I := (−1, 1), namely,
+
+1 Jnα,β (x)Jmα,β (x)ωα,β (x)dx = γnα,β δmn,
+−1
+
+(3.88)
+
+where γnα,β =
+
+Jnα ,β
+
+2 ω
+
+α
+
+,β
+
+.
+
+The
+
+weight
+
+function
+
+ω α,β
+
+belongs
+
+to
+
+L1(I)
+
+if
+
+and
+
+only
+
+if
+
+α, β > −1 (to be assumed throughout this section).
+
+Let knα,β be the leading coefﬁcient of Jnα,β (x). According to Theorem 3.1, there
+
+exists a unique sequence of monic orthogonal polynomials {Jnα,β (x)/knα,β .
+
+This class of Jacobi weight functions leads to Jacobi polynomials with many
+
+attractive properties that are not shared by general orthogonal polynomials.
+
+3.2.1.1 Sturm-Liouville Equation
+
+We ﬁrst show that the Jacobi polynomials are the eigenfunctions of a singular SturmLiouville operator deﬁned by
+
+Lα,β u : = −(1 − x)−α(1 + x)−β ∂x (1 − x)α+1(1 + x)β +1∂xu(x) = (x2 − 1)∂x2u(x) + α − β + (α + β + 2)x ∂xu(x).
+
+(3.89)
+
+More precisely, we have
+
+Theorem 3.16. The Jacobi polynomials are the eigenfunctions of the singular Sturm-Liouville problem:
+
+Lα,β Jnα,β (x) = λnα,β Jnα,β (x),
+
+(3.90)
+
+and the corresponding eigenvalues are
+
+λnα,β = n(n + α + β + 1).
+
+(3.91)
+
+Proof. For any u ∈ Pn, we have Lα,β u ∈ Pn. Using integration by parts twice, we ﬁnd that for any φ ∈ Pn−1,
+
+Lα,β Jnα,β , φ ωα,β = ∂xJnα,β , ∂xφ = ωα+1,β+1 Jnα,β , Lα,β φ ωα,β (3=.88) 0.
+Since Lα,β Jnα,β ∈ Pn, the uniqueness of orthogonal polynomials implies that there exists a constant λnα,β such that
+Lα,β Jnα,β = λnα,β Jnα,β .
+
+3.2 Jacobi Polynomials
+
+71
+
+To determine λnα,β , we compare the coefﬁcient of the leading term xn on both sides, and ﬁnd
+knα,β n(n + α + β + 1) = knα,β λnα,β ,
+where knα,β is the leading coefﬁcient of Jnα,β . Hence, we have λnα,β = n(n + α+ β + 1).
+
+Remark 3.2. Observe from integration by parts that the Sturm-Liouville operator Lα,β is self-adjoint with respect to the inner product (·, ·)ωα,β , i.e.,
+
+(Lα,β φ , ψ )ωα,β = (φ , Lα,β ψ )ωα,β ,
+
+(3.92)
+
+for any φ , ψ ∈ u : Lα,β u ∈ L2ωα,β (I) .
+
+As pointed out in Theorem 4.2.2 of Szego¨ (1975), the differential equation
+
+Lα,β u = λ u,
+
+has a polynomial solution not identically zero if and only if λ has the form n(n + α + β + 1). This solution is Jnα,β (x) (up to a constant), and no solution which is linearly independent of Jnα,β (x) can be a polynomial. Moreover, we can show that
+n
+∑ Jnα,β (x) = ank (x − 1)k, k=0
+
+where
+
+ank+1 ank
+
+=
+
+γnα,β − k(k + 2(k + 1)(k
+
+α +
+
++ α
+
+β +
+
++ 1) 1)
+
+.
+
+Assume that the Jacobi polynomials are normalized such that
+
+(3.93)
+
+an0 = Jnα,β (1) =
+
+n+α n
+
+=
+
+Γ (n + α + 1) n!Γ (α + 1)
+
+,
+
+(3.94)
+
+where Γ (·) is the Gamma function (cf. Appendix A). We can derive from (3.93) the
+
+leading coefﬁcient
+
+ann
+
+=
+
+knα ,β
+
+=
+
+Γ (2n + α + β 2nn!Γ (n + α +
+
++ 1) β + 1)
+
+.
+
+(3.95)
+
+Moreover, working out {ank} by using (3.93), we ﬁnd
+
+∑ Jnα,β
+
+(x)
+
+=
+
+Γ (n + α + 1) n!Γ (n + α + β +
+
+1)
+
+n k=0
+
+n k
+
+Γ (n + k + α + β + 1) Γ (k + α + 1)
+
+x−1 2
+
+k
+.
+
+(3.96)
+
+A direct consequence of Theorem 3.16 is the orthogonality of ∂xJnα,β .
+
+Corollary 3.5.
+
+1 −1
+
+∂xJnα
+
+,β
+
+∂x
+
+Jmα ,β
+
+ω
+
+α
+
++1,β
+
++1d
+
+x
+
+=
+
+λnα
+
+,β
+
+γnα
+
+,β
+
+δnm.
+
+(3.97)
+
+72
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Proof. Using integration by parts, Theorem 3.16 and the orthogonality of Jnα,β , we obtain
+
+∂xJnα,β , ∂xJmα,β
+
+= ωα+1,β +1
+
+Jnα,β , Lα,β Jmα,β
+
+ωα,β (3=.90) λnα,β
+
+Jnα ,β
+
+2 ω
+
+α
+
+,β
+
+δnm.
+
+This ends the proof.
+Since {∂xJnα,β } is orthogonal with respect to the weight ωα+1,β +1, by Theorem 3.1, ∂xJnα,β must be proportional to Jnα−+11,β +1, namely,
+
+∂xJnα,β (x) = μnα,β Jnα−+11,β +1(x).
+
+(3.98)
+
+Comparing the leading coefﬁcients on both sides leads to the proportionality con-
+
+stant:
+
+μnα ,β
+
+=
+
+nknα ,β knα−+11,β +1
+
+(3=.95)
+
+1 2
+
+(n
+
++
+
+α
+
++β
+
++ 1).
+
+(3.99)
+
+This gives the following important derivative relation:
+
+∂xJnα,β (x)
+
+=
+
+1 (n + α 2
+
++β
+
++ 1)Jnα−+11,β +1(x).
+
+Applying this formula recursively yields
+
+(3.100)
+
+∂xkJnα,β (x) = dnα,k,β Jnα−+kk,β +k(x), n ≥ k,
+
+(3.101)
+
+where
+
+dnα,k,β
+
+=
+
+Γ (n + k + α + β + 1) 2kΓ (n + α + β + 1)
+
+.
+
+(3.102)
+
+3.2.1.2 Rodrigues’ Formula
+
+The Rodrigues’ formula for the Jacobi polynomials is stated below.
+
+Theorem 3.17.
+
+(1
+
+−
+
+x)α (1
+
++
+
+x)β
+
+Jnα ,β
+
+(x)
+
+=
+
+(−1)n 2nn!
+
+dn dxn
+
+(1 − x)n+α(1 + x)n+β
+
+.
+
+Proof. For any φ ∈ Pn−1, using integration by parts leads to
+
+1
+∂xn
+
+(1 − x)n+α (1 + x)n+β
+
+φdx = ...
+
+−1
+
+1
+
+= (−1)n
+
+(1 − x)n+α(1 + x)n+β ∂xnφ dx = 0.
+
+−1
+
+(3.103)
+
+3.2 Jacobi Polynomials
+
+73
+
+Hence, by Theorem 3.1, there exists a constant cn such that
+
+∂xn (1 − x)n+α(1 + x)n+β = cn(1 − x)α (1 + x)β Jnα,β (x).
+
+(3.104)
+
+Letting x → 1 and using (3.94) leads to
+
+cn
+
+=
+
+1 Jnα,β (1)
+
+(1
+
+−
+
+1 x)α (1
+
++
+
+x)β
+
+∂xn
+
+(1 − x)n+α(1 + x)n+β
+
+x=1
+
+= (−1)nn!2n.
+
+The proof is complete.
+
+We now present some consequences of the Rodrigues’ formula. First, expanding the nth-order derivative in (3.103) yields the explicit formula
+
+∑n
+Jnα,β (x) = 2−n
+j=0
+
+n+α j
+
+n+β n− j
+
+(x − 1)n− j(x + 1) j.
+
+(3.105)
+
+Second, replacing x by −x in (3.103) immediately leads to the symmetric relation
+
+Jnα,β (−x) = (−1)nJnβ ,α (x).
+
+(3.106)
+
+Therefore, the special Jacobi polynomial Jnα,α (x) (up to a constant, is referred to as the Gegenbauer or ultra-spherical polynomial), is an odd function for odd n and an even function for even n. Moreover, using (3.94) and (3.106) leads to
+
+Jnα
+
+,β
+
+(−1)
+
+=
+
+(−1)n
+
+Γ (n + β + 1) n!Γ (β + 1)
+
+,
+
+(3.107)
+
+and by the Stirling’s formula (A.7),
+
+Jnα,β (1) ∼ nα and |Jnα,β (−1)| ∼ nβ for n 1.
+
+(3.108)
+
+As another consequence of (3.103), we derive the explicit formula of the normalization constant γnα,β in (3.88).
+
+Corollary 3.6.
+
+1 Jnα,β (x) 2ωα,β (x)dx = γnα,β
+−1
+
+=
+
+2α (2n
+
++β +1Γ (n + α + 1)Γ (n + β + 1) + α + β + 1)n!Γ (n + α + β + 1)
+
+.
+
+(3.109)
+
+74
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Proof. Multiplying (3.103) by Jnα,β and integrating the resulting equality over (−1, 1), we derive from integration by parts that
+
+1
+
+(1
+−1
+
+−
+
+x)α
+
+(1
+
++
+
+x)β
+
+[Jnα
+
+,β
+
+(x)]2d
+
+x
+
+=
+
+(−1)n 2nn!
+
+1
+∂xn
+−1
+
+(1 − x)n+α(1 + x)n+β
+
+Jnα,β (x)dx
+
+=
+
+(−1)2n 2nn!
+
+1
+(1 − x)n+α(1 + x)n+β ∂xnJnα,β (x)dx
+−1
+
+=
+
+knα ,β 2n
+
+1 (1 − x)n+α (1 + x)n+β dx
+−1
+
+(3=.95) (A.6)
+
+2α+β +1Γ (n + α + 1)Γ (n + β + 1) (2n + α + β + 1)n!Γ (n + α + β + 1)
+
+.
+
+This ends the proof.
+
+3.2.1.3 Recurrence Formulas
+
+The Jacobi polynomials are generated by the three-term recurrence relation:
+
+Jnα+,β1(x) = aαn ,β x − bαn ,β Jnα,β (x) − cαn ,β Jnα−,β1(x), n ≥ 1,
+
+J0α,β (x) = 1,
+
+J1α ,β
+
+(x)
+
+=
+
+1 (α 2
+
++
+
+β
+
++
+
+2)x
+
++
+
+1 (α 2
+
+−
+
+β ),
+
+(3.110)
+
+where
+
+aαn ,β
+
+=
+
+(2n
+
++ α + β + 1)(2n + α + β 2(n + 1)(n + α + β + 1)
+
++
+
+2) ,
+
+bαn ,β
+
+=
+
+2(n
+
+(β 2 − α + 1)(n +
+
+2)(2n + α + β + 1) α + β + 1)(2n + α +
+
+β
+
+)
+
+,
+
+cαn ,β
+
+=
+
+(n + α)(n (n + 1)(n +
+
++ β )(2n + α + β + 2) α + β + 1)(2n + α + β
+
+)
+
+.
+
+(3.111a) (3.111b) (3.111c)
+
+This relation allows us to evaluate the Jacobi polynomials at any given abscissa x ∈ [−1, 1], and it is the starting point to derive other properties.
+Next, we state several useful recurrence formulas involving different pairs of (α, β ).
+
+Theorem 3.18. The Jacobi polynomial Jnα+1,β (x) is a linear combination of Jlα,β (x), l = 0, 1, . . . , n, i.e.,
+
+3.2 Jacobi Polynomials
+
+75
+
+Jnα+1,β (x)
+
+=
+
+Γ
+
+Γ (n (n +
+
++β + α+β
+
+1) + 2)
+
+×
+
+n
+∑
+l=0
+
+(2l
+
++
+
+α
+
++
+
+β Γ
+
++ (l
+
+1)Γ +β
+
+(l + α + 1)
+
++
+
+β
+
++
+
+1)
+
+Jlα
+
+,β
+
+(x).
+
+(3.112)
+
+Proof. In the Jacobi case, the kernel polynomial (3.17) takes the form
+
+∑ Kn(x,
+
+y)
+
+=
+
+n l=0
+
+1 γlα ,β
+
+Jlα ,β
+
+(x)Jlα ,β
+
+(y).
+
+(3.113)
+
+By Lemma 3.2, {Kn(x, 1)} are orthogonal with respect to ωα+1,β . By the unique-
+
+ness of orthogonal polynomials (cf. Theorem 3.1), Kn(x, 1) must be proportional to
+
+Jnα+1,β , i.e.,
+
+∑ Kn
+
+(x,
+
+1)
+
+=
+
+n l=0
+
+Jlα,β (1) γlα ,β
+
+Jlα
+
+,β
+
+(x)
+
+=
+
+dnα ,β
+
+Jnα
+
++1,β
+
+(x).
+
+(3.114)
+
+The proportionality constant dnα,β is determined by comparing the leading coefﬁcients of both sides of (3.114) and working out the constants, namely,
+
+dnα ,β
+
+=
+
+knα,β Jnα,β (1) knα+1,β γnα,β
+
+=
+
+2−α
+
+−β
+
+−1
+
+Γ
+
+Γ (n + α (α + 1)Γ
+
++ (n
+
+β+ +β
+
+2) +
+
+1)
+
+.
+
+Inserting this constant into (3.114), we obtain (3.112) directly from (3.94) and (3.109).
+
+Remark 3.3. Thanks to (3.106), it follows from (3.112) that
+
+Jnα ,β
+
++1(x)
+
+=
+
+Γ
+
+Γ (n + (n + α
+
+α +
+
++ 1) β + 2)
+
+×
+
+∑n
+(−1)n−l
+l=0
+
+(2l
+
++
+
+α
+
++
+
+β Γ
+
++ (l
+
+1)Γ +α
+
+(l + α + 1)
+
++
+
+β
+
++
+
+1)
+
+Jlα
+
+,β
+
+(x).
+
+Theorem 3.19. The Jacobi polynomials satisfy
+
+(3.115)
+
+Jnα +1,β
+
+=
+
+2 2n + α + β
+
++2
+
+(n + α
+
++
+
+1)Jnα 1
+
+,β
+−
+
+− x
+
+(n
+
++
+
+1)Jnα+,β1
+
+,
+
+Jnα,β +1
+
+=
+
+2 2n + α + β
+
++2
+
+(n + β
+
++
+
+1)Jnα 1
+
+,β + +x
+
+(n
+
++
+
+1)Jnα+,β1
+
+.
+
+(3.116a) (3.116b)
+
+Proof. In the Jacobi case, the Christoffel-Darboux formula (3.15) reads
+
+Kn(x, y)
+
+=
+
+knα ,β knα+,β1 γnα ,β
+
+Jnα+,β1(x)Jnα
+
+,β
+
+(y) x
+
+− −
+
+Jnα y
+
+,β
+
+(x)Jnα+,β1(y)
+
+,
+
+(3.117)
+
+76
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+which, together with (3.114), leads to
+
+Jnα+1,β (x)
+
+=
+
+1 dnα ,β
+
+Kn(x, 1)
+
+=
+
+knα ,β dnα,β knα+,β1γnα,β
+
+Jnα+,β1(x)Jnα
+
+,β
+
+(1) x
+
+− −
+
+Jnα 1
+
+,β
+
+(x)Jnα+,β1(1)
+
+.
+
+Working out the constants yields (3.116a). Replacing x in (3.116a) by −x and using the symmetric property (3.106), we
+derive (3.116b) immediately.
+
+We state below two useful formulas and leave their derivation as an excise (see Problem 3.7).
+
+Theorem 3.20.
+
+Jnα−,β1(x) = Jnα,β −1(x) − Jnα−1,β (x),
+
+Jnα,β (x)
+
+=
+
+1 n+α
+
++β
+
+(n + β )Jnα,β −1(x) + (n + α)Jnα−1,β (x) .
+
+(3.118a) (3.118b)
+
+More generally, we can express Jnα,β in terms of {Jka,b}nk=0, where the expansion coefﬁcients are known as the connection coefﬁcients.
+
+Theorem 3.21. Suppose that
+
+n
+∑ Jnα,β (x) = cˆnkJka,b(x), a, b, α, β > −1. k=0
+
+(3.119)
+
+Then
+
+cˆnk
+
+=
+
+Γ
+
+Γ (n + (n + α
+
+α + 1) + β + 1)
+
+(2k
+
++
+
+a
+
++ b + 1)Γ(k + a Γ (k + a + 1)
+
++
+
+b
+
++
+
+1)
+
+×
+
+n−k
+∑
+m=0
+
+(−1)mΓ (n + k + m + α m!(n − k − m)!Γ (k + m +
+
++β α+
+
++ 1)Γ (m 1)Γ (m +
+
++ 2k
+
+k + a + 1) +a+b+
+
+2)
+
+.
+
+(3.120)
+
+Proof. By the Rodrigues’ formula and integration by parts,
+
+cˆnk
+
+=
+
+1 γka,b
+
+1 −1
+
+Jnα
+
+,β
+
+(x)Jka,b(x)ω
+
+a,b(x)d
+
+x
+
+=
+
+(−1)k 2kk!γka,b
+
+1 Jnα,β (x)∂xk ωa+k,b+k(x) dx
+−1
+
+=
+
+1 2kk!γka,b
+
+1 ∂xkJnα,β (x)ωa+k,b+k(x)dx.
+−1
+
+3.2 Jacobi Polynomials
+
+77
+
+Using (3.101) and (3.96) yields
+
+cˆnk
+
+=
+
+dnα,k,β 2kk!γka,b
+
+1 −1
+
+Jnα−+kk,β
+
++k
+
+(x)ω
+
+a+k,b+k
+
+(x)d
+
+x
+
+=
+
+dnα,k,β Γ (n 2kk!γka,bΓ (n +
+
++ α + 1) k+α+β
+
++
+
+1)
+
+∑ ×
+
+n−k m=0
+
+(−1)mΓ (n + k + m + α + β + 1) 2mm!(n − k − m)!Γ (k + m + α + 1)
+
+1
+ω a+m+k,b+kdx.
+−1
+
+Working out γka,b, dnα,k,β and the integral respectively by (3.109), (3.102) and (A.6) leads to (3.120).
+
+Next, we derive some recurrence formulas between {Jnα,β } and {∂xJnα,β }. Theorem 3.22. The Jacobi polynomials satisfy
+
+(1 − x2)∂xJnα,β = Aαn ,β Jnα−,β1 + Bαn ,β Jnα,β + Cnα,β Jnα+,β1,
+
+(3.121)
+
+where
+
+Aαn ,β
+
+=
+
+2(n + α)(n (2n + α +
+
++ β )(n + α + β + 1) β )(2n + α + β + 1)
+
+,
+
+Bαn ,β
+
+=
+
+(α
+
+−
+
+β ) (2n
+
+2n(n + α + β + 1) + α + β )(2n + α + β
+
++
+
+2) ,
+
+Cnα ,β
+
+=
+
+−
+
+(2n
+
+2n(n + 1)(n + α + α + β + 1)(2n
+
++ +
+
+β α
+
++ +
+
+1) β+
+
+2)
+
+.
+
+(3.122a) (3.122b) (3.122c)
+
+Proof. This formula follows from (3.100) and (3.116) directly.
+
+In the Jacobi case, the relation (3.80) takes the following form.
+
+Theorem 3.23.
+
+Jnα,β = Aαn ,β ∂xJnα−,β1 + Bαn ,β ∂xJnα,β + Cnα,β ∂xJnα+,β1,
+
+where
+
+Aαn ,β
+
+=
+
+(n + α
+
+−2(n + α)(n + β ) + β )(2n + α + β )(2n + α
+
++β
+
++ 1),
+
+Bαn ,β
+
+=
+
+(2n + α
+
+2(α − β ) + β )(2n + α
+
++β
+
++ 2),
+
+Cnα ,β
+
+=
+
+(2n + α
+
+2(n + α + β + 1) + β + 1)(2n + α + β
+
++ 2).
+
+(3.123)
+(3.124a) (3.124b) (3.124c)
+
+78
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Proof. We observe from Corollary 3.16 that {∂xJlα,β }nl=+11 forms an orthogonal basis of Pn. Hence, we can express Jnα,β (x) as
+
+n+1
+∑ Jnα,β (x) = eαl ,β ∂xJlα,β (x), l=1
+
+where
+
+eαl ,β
+
+=
+
+1 γlα,β λlα,β
+
+1 −1
+
+Jnα ,β
+
+(x)(1
+
+−
+
+x2)∂xJlα
+
+,β
+
+(x)ω
+
+α ,β
+
+(x)d
+
+x.
+
+Inserting (3.121) into the above integral and using the orthogonality of {Jnα,β }, we ﬁnd that
+
+Cnα ,β
+
+=
+
+eαn+,β1
+
+=
+
+Aαn+,β1 γnα ,β γnα+,β1λnα+,β1
+
+,
+
+Bαn ,β
+
+=
+
+eαn ,β
+
+=
+
+Bαn ,β λnα ,β
+
+,
+
+Aαn ,β
+
+=
+
+eαn−,β1
+
+=
+
+Cnα−,β1 γnα ,β γnα−,β1λnα−,β1
+
+,
+
+eαl ,β = 0, 0 ≤ l ≤ n − 2.
+
+Working out the constants yields the coefﬁcients in (3.124).
+
+3.2.1.4 Maximum Value
+
+Theorem 3.24. For α, β > −1, set
+
+x0
+
+=
+
+α
+
+β− +β
+
+α +
+
+, 1
+
+q = max(α, β ).
+
+Then we have
+
+⎧
+
+max
+|x|≤1
+
+|Jnα ,β
+
+(x)|
+
+=
+
+⎨max ⎩|Jnα ,β
+
+Jnα,β (±1)
+
+(x
+
+)|
+
+∼
+
+n−
+
+1 2
+
+,
+
+∼ nq,
+
+if
+
+q
+
+≥
+
+−
+
+1 2
+
+,
+
+if
+
+q
+
+<
+
+−
+
+1 2
+
+,
+
+where x is one of the two maximum points nearest x0.
+
+Proof. Deﬁne
+
+fn(x) :=
+
+Jnα,β (x)
+
+2
+
++
+
+1 λnα ,β
+
+(1
+
+−
+
+x2)
+
+∂xJnα,β (x)
+
+2,
+
+n ≥ 1.
+
+(3.125) (3.126)
+
+3.2 Jacobi Polynomials
+
+79
+
+A direct calculation by using (3.90) leads to
+
+fn(x)
+
+=
+
+2 λnα ,β
+
+(α − β ) + (α + β + 1)x
+
+∂xJnα,β (x) 2
+
+=
+
+2 λnα ,β
+
+(α + β
+
++ 1)(x − x0)
+
+∂xJnα,β (x)
+
+2.
+
+Notice that we have the equivalence
+
+−1 < x0 < 1 ⇐⇒
+
+α+1 2
+
+β + 1 > 0. 2
+
+We proceed by dividing the parameter range of (α, β ) into four different cases.
+
+•
+
+Case
+
+I
+
+:
+
+α,β
+
+>
+
+−
+
+1 2
+
+.
+
+In
+
+this
+
+case,
+
+fn(x)
+
+≤
+
+0
+
+(resp.
+
+fn(x)
+
+≥
+
+0)
+
+for
+
+all
+
+x
+
+∈
+
+[−1, x0]
+
+(resp. x ∈ [x0, 1]). Hence, fn(x) attains its maximum at x = ±1, so we have
+
+max
+|x|≤1
+
+|Jnα ,β
+
+(x)|
+
+=
+
+max
+
+Jnα,β (±1)
+
+(3.∼108) nmax{α,β }, α, β > − 1 .
+
+(3.106)
+
+2
+
+(3.127)
+
+•
+
+Case
+
+II
+
+:
+
+α
+
+≥
+
+−
+
+1 2
+
+and
+
+−1
+
+<
+
+β
+
+≤
+
+−
+
+1 2
+
+.
+
+In
+
+this
+
+case,
+
+the
+
+linear
+
+function
+
+(α − β ) + (α + β + 1)x ≥ 0, ∀x ∈ [−1, 1],
+
+which implies fn(x) ≥ 0 for all x ∈ [−1, 1]. Hence, we have
+
+max
+|x|≤1
+
+|Jnα
+
+,β
+
+(x)|
+
+=
+
+|Jnα
+
+,β
+
+(1)|
+
+∼
+
+nα
+
+,
+
+α
+
+≥
+
+−
+
+1 2
+
+,
+
+−1
+
+<
+
+β
+
+≤
+
+−1 2
+
+.
+
+(3.128)
+
+•
+
+Case
+
+III
+
+:
+
+−1
+
+<
+
+α
+
+≤
+
+−
+
+1 2
+
+and
+
+β
+
+≥
+
+−
+
+1 2
+
+.
+
+This
+
+situation
+
+is
+
+opposite
+
+to
+
+Case
+
+II,
+
+i.e.,
+
+(α − β ) + (α + β + 1)x ≤ 0 and fn(x) ≤ 0 for all x ∈ [−1, 1]. Thus, we have
+
+max
+|x|≤1
+
+|Jnα
+
+,β
+
+(x)|
+
+=
+
+|Jnα
+
+,β
+
+(−1)|
+
+∼
+
+nβ
+
+,
+
+−1
+
+<
+
+α
+
+≤
+
+−1 2
+
+,
+
+β
+
+≥
+
+−
+
+1. 2
+
+(3.129)
+
+•
+
+Case
+
+IV
+
+:
+
+−1
+
+<
+
+α
+
+<
+
+−
+
+1 2
+
+and
+
+−1
+
+<
+
+β
+
+<
+
+−
+
+1 2
+
+.
+
+In
+
+this
+
+case,
+
+we
+
+have
+
+−1
+
+<
+
+x0
+
+<
+
+1,
+
+and fn(x) ≥ 0 (resp. fn(x) ≤ 0) for all x ∈ [−1, x0] (resp. x ∈ [x0, 1]). Therefore,
+
+the maximum of fn(x) is attained at x0. Notice that the extreme point of Jnα,β (x)
+
+in (−1, 1) is the zero of ∂xJnα,β (x). Thus, we ﬁnd from (3.126) that the maximum
+
+of |Jnα,β (x)| can be attained at one of the zero of ∂xJnα,β (x) nearest x0 on the left
+
+or on the right of x0.
+
+The proof is complete.
+
+In Fig. 3.1, we plot the ﬁrst six Jacobi polynomials Jn1,1(x) and Jn1,0(x). It is seen that the maximum values are attained at the endpoints. We also observe that Jn1,1(x) is an odd (resp. even) function for odd (resp. even) n, while the non-symmetric Jacobi polynomial Jn1,0(x) does not have this property.
+
+80
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Jacobi polynomials 6
+
+Jacobi polynomials 6
+
+4
+
+4
+
+2
+
+2
+
+J1n,1(x) J1n,0(x)
+
+0
+
+0
+
+−2
+
+−2
+
+−4
+
+−4
+
+−6
+
+−1 −0.5 0
+
+0.5
+
+1
+
+x
+
+−6
+
+−1 −0.5 0
+
+0.5
+
+1
+
+x
+
+Fig. 3.1 Jacobi polynomials Jn1,1(x) (left) and Jn1,0(x) (right) with n = 0, 1, . . ., 5
+
+3.2.2 Jacobi-Gauss-Type Quadratures
+
+It is straightforward to derive the Jacobi-Gauss-type (i.e., Jacobi-Gauss (JG), Jacobi-
+
+Gauss-Radau (JGR) and Jacobi-Gauss-Lobatto (JGL)) integration formulas from the
+
+general rules in Sect. 3.1.4. In the Jacobi case, the general quadrature formula (3.33)
+
+reads
+
+∑ 1 p(x) ωα,β (x)dx = N p(x j)ω j + EN[p].
+
+−1
+
+j=0
+
+(3.130)
+
+Recall that if the quadrature error EN[p] = 0, we say (3.130) is exact for p.
+
+Theorem 3.25. (Jacobi-Gauss quadrature) The JG quadrature formula (3.130) is
+
+exact for any p ∈ P2N+1 with the JG nodes
+
+xj
+
+N j=0
+
+being
+
+the
+
+zeros
+
+of
+
+JNα+,β1(x)
+
+and
+
+the corresponding weights given by
+
+ωj
+
+=
+
+GαN,β JNα,β (x j)∂xJNα+,β1(x j)
+
+=
+
+GαN,β (1 − x2j) ∂xJNα+,β1(x j)
+
+2,
+
+(3.131a) (3.131b)
+
+where
+
+GαN,β
+
+=
+
+2α +β
+
+(2N
+
++ α + β + 2)Γ (N + α (N + 1)!Γ (N + α +
+
++ 1)Γ (N β + 2)
+
++
+
+β
+
++
+
+1) ,
+
+GαN,β
+
+=
+
+2α+β +1Γ (N + α + 2)Γ (N (N + 1)!Γ (N + α + β
+
++ +
+
+β+ 2)
+
+2)
+
+.
+
+(3.132a) (3.132b)
+
+3.2 Jacobi Polynomials
+
+81
+
+Proof. The formula (3.131a) with (3.132a) follows directly from (3.39), and the
+
+constant
+
+GαN,β
+
+=
+
+kNα+,β1 kNα ,β
+
+γNα ,β
+
+can be worked out by using (3.95) and (3.109).
+
+In order to derive the alternative formula (3.131b) with (3.132b), we ﬁrst use (3.110) and (3.121) to obtain the recurrence relation
+
+(2N + α + β + 2)(1 − x2)∂xJNα+,β1(x) = −(N + 1) (2N + α + β + 2)x + β − α JNα+,β1(x) + 2(N + α + 1)(N + β + 1)JNα,β (x).
+
+(3.133)
+
+Using the fact JNα+,β1(x j) = 0, yields
+
+JNα,β (x j)
+
+=
+
+2(N
+
+2N + α + β + 2 + α + 1)(N + β +
+
+1) (1
+
+−
+
+x2j)∂xJNα+,β1(x j).
+
+Plugging it into (3.131a) leads to (3.131b).
+
+We now consider the Jacobi-Gauss-Radau (JGR) quadrature with the ﬁxed endpoint x0 = −1.
+
+Theorem 3.26. (Jacobi-Gauss-Radau quadrature) Let x0 = −1 and
+
+xj
+
+N j=1
+
+be
+
+the zeros of JNα,β +1(x), and
+
+ω0
+
+=
+
+2α+β +1(β + 1)Γ 2(β + 1)N!Γ (N + α Γ (N + β + 2)Γ (N + α + β + 2)
+
++
+
+1) ,
+
+ωj
+
+=
+
+1 1+xj
+
+GαN,−β1+1 JNα−,β1+1(x j)∂xJNα,β
+
++1(x
+
+j
+
+)
+
+,
+
+=
+
+1 (1 − x j)(1 + x j)2
+
+GαN,−β1+1 [∂xJNα,β +1(x j)]2
+
+,
+
+1 ≤ j ≤ N.
+
+(3.134a) (3.134b)
+
+where the constants GαN,−β1+1 and GαN,−β1+1 are deﬁned in (3.132). Then, the quadrature formula (3.130) is exact for any p ∈ P2N.
+
+Proof. In the Jacobi case, the quadrature polynomial qN deﬁned in (3.48) is orthogonal with respect to the weight function ωα,β +1, so it must be proportional to JNα,β +1. Therefore, the interior nodes {x j}Nj=1 are the zeros of JNα,β +1.
+We now prove (3.134a). The general formula (3.51a) in the Jacobi case reads
+
+ω0
+
+=
+
+1 JNα,β +1(−1)
+
+1 −1
+
+JNα ,β
+
++1(x)ω
+
+α
+
+,β
+
+(x)dy.
+
+(3.135)
+
+82
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+The formula (3.115) implies
+
+JNα,β +1(x) = aαN,,0β J0α,β (x) + linear combination of {Jlα,β }Nl=1 ,
+
+(3.136)
+
+where
+
+aαN,,0β
+
+=
+
+(−1)N
+
+Γ (α Γ (α
+
++ β + 2)Γ (N + 1)Γ (N + α
+
++α +β
+
++ +
+
+1) 2)
+
+.
+
+In view of J0α,β (x) ≡ 1, we ﬁnd from the orthogonality (3.88) that
+
+ω0
+
+=
+
+aαN,,0β γ0α,β JNα,β +1(−1)
+
+=
+
+2α+β +1(β + 1)Γ 2(β + 1)N!Γ (N + α Γ (N + β + 2)Γ (N + α + β + 2)
+
++ 1),
+
+where we have worked out the constants by using (3.107) and (3.109). We next prove (3.134b). The Lagrange basis polynomial related to x j is
+
+h j(x) =
+
+∂x
+
+(1 + x)JNα,β +1(x) (1 + x)JNα,β +1(x) x=xj (x − x j)
+
+=
+
+(1 + x)JNα,β +1(x) (1 + x j)∂xJNα,β +1(x j)(x − x j)
+
+=
+
+1+x 1+xj
+
+h˜
+
+j(x),
+
+1 ≤ j ≤ N,
+
+(3.137)
+
+where {h˜ j}Nj=1 are the Lagrange basis polynomials associated with the Jacobi-Gauss
+
+points
+
+xj
+
+N j=1
+
+(zeros
+
+of
+
+JNα,β +1)
+
+with
+
+the
+
+parameters
+
+(α, β
+
++
+
+1).
+
+Replacing
+
+N
+
+and
+
+β in (3.131a) and (3.132a) by N − 1 and β + 1, yields
+
+ωj =
+
+1 h j(x)ωα,β (x)dx
+−1
+
+=
+
+1 1+xj
+
+1 h˜ j(x)ωα,β +1(x)dx
+−1
+
+=
+
+1 1+xj
+
+GαN,−β1+1 JNα−,β1+1(x j)∂xJNα,β +1(x j)
+
+=
+
+1 (1 − x j)(1 +
+
+x j)2
+
+GαN,−β1+1 [∂xJNα,β +1(x j)]2
+
+,
+
+1 ≤ j ≤ N.
+
+This ends the proof.
+
+(3.138)
+
+Remark 3.4. A second Jacobi-Gauss-Radau quadrature with a ﬁxed right endpoint xN = 1 can be established in a similar manner.
+Finally, we consider the Jacobi-Gauss-Lobatto quadrature, which includes two endpoints x = ±1 as the nodes.
+
+3.2 Jacobi Polynomials
+
+83
+
+Theorem 3.27. (Jacobi-Gauss-Lobatto quadrature) Let x0 = −1, xN = 1 and
+
+xj
+
+N−1 j=1
+
+be
+
+the
+
+zeros
+
+of
+
+∂xJNα,β (x),
+
+and
+
+let
+
+ω0
+
+=
+
+2α+β +1(β + 1)Γ 2(β + 1)Γ (N)Γ (N + α Γ (N + β + 1)Γ (N + α + β + 2)
+
++
+
+1) ,
+
+ωN
+
+=
+
+2α+β +1(α + 1)Γ 2(α + 1)Γ (N)Γ (N + β Γ (N + α + 1)Γ (N + α + β + 2)
+
++
+
+1) ,
+
+ωj
+
+=
+
+1 1 − x2j
+
+JNα−+21,β
+
+GαN+−12,β +1 +1(x j)∂xJNα−+11,β
+
++1(x
+
+j)
+
+,
+
+=
+
+1 (1 − x2j)2
+
+GαN+−12,β +1 ∂xJNα−+11,β +1(x j)
+
+2,
+
+1 ≤ j ≤ N − 1,
+
+(3.139a) (3.139b)
+(3.139c)
+
+where the constants GαN,−β1+1 and GαN,−β1+1 are deﬁned in (3.132). Then, the quadrature formula (3.130) is exact for any p ∈ P2N−1.
+The proof is similar to that of Theorem 3.26 and is left as an exercise (see Problem 3.8).
+
+Remark 3.5. The quadrature nodes and weights of these three types of Gaussian
+
+formulas have close relations. Indeed, denote by
+
+ξZα,N,β, j , ωZα,,Nβ, j
+
+N j=0
+
+with
+
+Z = G, R, L the Jacobi-Gauss, Jacobi-Gauss-Radau and Jacobi-Gauss-Lobatto
+
+quadrature nodes and weights, respectively. Then there hold
+
+ξRα,N,β, j = ξGα,,Nβ−+11, j−1,
+
+ωRα,,Nβ, j
+
+=
+
+1
+
+ωGα,,Nβ−+11, j−1 + ξGα,,Nβ−+11, j−1
+
+,
+
+1 ≤ j ≤ N,
+
+(3.140)
+
+and
+
+ξLα,N,β, j = ξGα,+N1−,β2,+j−11,
+
+ωLα,N,β, j
+
+=
+
+ωGα,+N1−,β2,+j−1 1 1 − ξGα,+N1−,β2,+j−11
+
+2,
+
+1 ≤ j ≤ N − 1.
+
+(3.141)
+
+This connection allows us to compute the interior nodes and weights of the JGR and JGL quadratures from the JG rule. Moreover, it makes the analysis of JGR and JGL (e.g., the interpolation error) easier by extending the results for JG case.
+
+3.2.3 Computation of Nodes and Weights
+Except for the Chebyshev case (see Sect. 3.4), the explicit expressions of the nodes and weights of the general Jacobi-Gauss quadrature are not available, so they have to be computed by numerical means. An efﬁcient algorithm is to use the eigenvalue method described in Theorems 3.4 and 3.6.
+
+84
+
+3 Orthogonal Polynomials and Related Approximation Results
+
+Thanks to the relations (3.140) and (3.141), it sufﬁces to compute the Jacobi-
+
+Gauss nodes and weights. Indeed, as a direct consequence of Theorem 3.4, the ze-
+ros of the Jacobi polynomial JNα+,β1 are the eigenvalues of the following symmetric tridiagonal matrix
+
+⎡√
+
+⎤
+
+a0 b1
+
+AN+1 = ⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣√b1
+
+a1 ...
+
+√ b2
+... √
+bN−1
+
+... aN−1 √
+
+√ bN
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+,
+
+bN aN
+
+(3.142)
+
+where the entries are derived from (3.25) and the three-term recurrence relation
+
+(3.110):
+
+aj
+
+=
+
+(2
+
+j
+
++
+
+α
+
++
+
+β2 −α2 β )(2 j + α
+
++
+
+β
+
++
+
+2) ,
+
+(3.143a)
+
+bj
+
+=
+
+(2
+
+j
+
++
+
+α
+
+4 j( j + α)( + β − 1)(2 j
+
+j + β )( j + α + α + β )2(2
+
++β) j+α
+
++
+
+β
+
++
+
+1) .
+
+(3.143b)
+
+Moreover, by Theorem 3.6, the Jacobi-Gauss weights {ω j}Nj=0 can be obtained by computing the eigenvectors of AN+1, namely,
+
+ω j = γ0α,β
+
+Q0(x j)
+
+2
+
+=
+
+2α+β +1Γ (α + 1)Γ (β Γ (α + β + 2)
+
++
+
+1)
+
+Q0(x j)
+
+2,
+
+(3.144)
+
+where Q0(x j) is the ﬁrst component of the orthonormal eigenvector corresponding to the eigenvalue x j. Notice that weights {ω j}Nj=0 may also be computed by using the formula (3.131).
+Alternatively, the zeros of the Jacobi polynomials can be computed by the
+Newton’s iteration method described in (3.30) and (3.31). The initial approxima-
+tion can be chosen as some estimates presented below, see, e.g., (3.145).
+We depict in Fig. 3.2 the distributions of zeros of some sample Jacobi
+polynomials:
+
+• In (a), the zeros of JN1,1(x) with various N
+
+•
+
+In (b), the zeros
+
+θ j = cos−1 x j
+
+N−1 j=0
+
+of
+
+JN1,1(cos θ )
+
+with
+
+various
+
+N
+
+• In (c), the zeros of J1α5,α (x) with various α
+
+• In (d), the zeros of J1α5,0(x) with various α
+
+We observe from (a) and (b) in Fig. 3.2 that the zeros {x j} (arranged in
+descending order) of the Jacobi polynomials are nonuniformly distributed in (−1, 1), while {θ j = cos−1 x j} are nearly equidistantly located in (0, π). More precisely, the nodes (in x) cluster near the endpoints with spacing density like O(N−2), and are considerably sparser in the inner part with spacing O(N−1). This feature is
+
+3.2 Jacobi Polynomials
+
+85
+
+quantitatively characterized by Theorem 8.9.1 of Szego¨ (1975), which states that for α, β > −1,
+
+a node distribution in (−1,1)
+
+b node distribution in (0,π)
+
+−1 −0.5 0
+
+0.5
+
+1
+
+x
+
+c node distribution (α=β)
+2
+
+0
+
+1
+
+2
+
+3
+
+θ
+
+d node distribution (β=0)
+2
+
+1.5
+
+1.5
+
+α α
+
+1
+
+1
+
+0.5
+
+0.5
+
+0
+
+−1 −0.5
+
+0
+
+0.5
+
+1
+
+x
+
+0
+
+−1 −0.5 0
+
+0.5
+
+1
+
+x
+
+Fig. 3.2 Distributions of Jacobi-Gauss quadrature nodes
+
+cos−1 x j = θ j =
+
+1 N+1
+
+( j + 1)π + O(1)
+
+,
+
+j = 0, 1, . . . , N,
+
+(3.145)
+
+where O(1) is uniformly bounded for all values j = 0, 1, . . . , N, and N = 1, 2, 3, . . . . We see that near the endpoints x = ±1 (i.e., θ = 0, π),
+
+1 − x2j = sin2 θ j = O(N−2), j = 0, N.
+
+Hence, the node spacing in the neighborhood of x = ±1 behaves like O(N−2). In particular, for the case
+
+−1 ≤ α ≤ 1, −1 ≤ β ≤ 1,
+
+2
+
+22
+
+2
+
+(3.146)
+

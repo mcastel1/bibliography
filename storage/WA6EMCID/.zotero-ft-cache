@@ -1,0 +1,1924 @@
+Memory and rejuvenation in spin glasses: aging systems are ruled by more than
+one length scale
+M. Baity-Jesi,1 E. Calore,2 A. Cruz,3, 4 L.A. Fernandez,5, 4 J.M. Gil-Narvion,4 I. Gonzalez-Adalid Pemartin,5
+A. Gordillo-Guerrero,6, 7, 4 D. Iñiguez,4, 8 A. Maiorano,9, 4 E. Marinari,10 V. Martin-Mayor,5, 4
+J. Moreno-Gordo,4, 3, 11, 7 A. Muñoz Sudupe,5, 4 D. Navarro,12 I. Paga,13, ∗ G. Parisi,10 S. Perez-Gaviro,3, 4
+F. Ricci-Tersenghi,10 J.J. Ruiz-Lorenzo,11, 7, 4 S.F. Schifano,14 B. Seoane,5, 4 A. Tarancon,3, 4 and D. Yllanes15, 4 (Janus Collaboration)
+1Eawag, Überlandstrasse 133, CH-8600 Dübendorf, Switzerland
+2Dipartimento di Fisica e Scienze della Terra,
+Università di Ferrara and INFN, Sezione di Ferrara, I-44122 Ferrara, Italy
+3Departamento de Física Teórica, Universidad de Zaragoza, 50009 Zaragoza, Spain
+4Instituto de Biocomputación y Física de Sistemas Complejos (BIFI), 50018 Zaragoza, Spain
+5Departamento de Física Teórica, Universidad Complutense, 28040 Madrid, Spain
+6Departamento de Ingeniería Eléctrica, Electrónica y Automática, U. de Extremadura, 10003, Cáceres, Spain
+7Instituto de Computación Científica Avanzada (ICCAEx),
+Universidad de Extremadura, 06006 Badajoz, Spain
+8Fundación ARAID, Diputación General de Aragón, 50018 Zaragoza, Spain
+9Dipartimento di Biotecnologie, Chimica e Farmacia, Università degli studi di Siena,
+53100 Siena, Italy and INFN, Sezione di Roma 1, 00185 Rome, Italy
+10Dipartimento di Fisica, Sapienza Università di Roma, and CNR-Nanotec,
+Rome unit and INFN, Sezione di Roma 1, 00185 Rome, Italy
+11Departamento de Física, Universidad de Extremadura, 06006 Badajoz, Spain
+12Departamento de Ingeniería, Electrónica y Comunicaciones and I3A, U. de Zaragoza, 50018 Zaragoza, Spain
+13Dipartimento di Fisica, Sapienza Università di Roma,
+and CNR-Nanotec, Rome unit, Sezione di Roma 1, 00185 Rome, Italy
+14Dipartimento di Scienze Chimiche e Farmaceutiche,
+Università di Ferrara e INFN Sezione di Ferrara, I-44122 Ferrara, Italy
+15Chan Zuckerberg Biohub, San Francisco, CA, 94158
+(Dated: August 31, 2022)
+Memory and rejuvenation effects in the magnetic response of off-equilibrium spin glasses have
+been widely regarded as the doorway into the experimental exploration of ultrametricity and tem
+perature chaos (maybe the most exotic features in glassy free-energy landscapes). Unfortunately,
+despite more than twenty years of theoretical efforts following the experimental discovery of memory
+and rejuvenation, these effects have thus far been impossible to simulate reliably. Yet, three recent
+developments convinced us to accept this challenge: first, the custom-built Janus II supercomputer
+makes it possible to carry out “numerical experiments” in which the very same quantities that can
+be measured in single crystals of CuMn are computed from the simulation, allowing for parallel
+analysis of the simulation/experiment data. Second, Janus II simulations have taught us how nu
+merical and experimental length scales should be compared. Third, we have recently understood
+how temperature chaos materializes in aging dynamics. All three aspects have proved crucial for
+reliably reproducing rejuvenation and memory effects on the computer. Our analysis shows that (at
+least) three different length scales play a key role in aging dynamics, while essentially all theoret
+ical analyses of the aging dynamics emphasize the presence and the crucial role of a single glassy
+correlation length.
+The remarkable off-equilibrium behavior of glass
+formers at low temperatures has been described with
+terms such as aging [1] or memory and rejuvena
+tion [2–5], which seem more suitable for living be
+ings than for inert chunks of matter. In this context,
+spin glasses (which are disordered magnetic alloys, see,
+e.g., [6]) enjoy a privileged status. On the experimen
+tal side, their magnetic response can be studied with
+great accuracy using a superconducting quantum in
+terference device (SQUID). Rejuvenation and mem
+ory (see the description below) are, furthermore, re
+markably strong in spin glasses, probably because of
+∗ ilaria.paga@gmail.com
+the large correlation length ξ of the coherent spin do
+mains. The values of ξ reached in single-crystal sam
+ples [7–10] is much larger than in other glass-forming
+materials (for instance, the ξ measured in supercooled
+glycerol or propylene carbonate [11] is smaller by a fac
+tor ∼ 100). On the other hand, spin-glass theory [12]
+has proved applicable to distant fields that also fea
+ture rugged free-energy landscapes, such as combina
+torial optimization, machine learning, biology, finan
+cial markets or social dynamics. It is worth stressing that the main part of spin
+glass experimental studies is carried out under off
+equilibrium conditions [14]. In the simplest setting,
+the so-called zero-field-cooling (ZFC) protocol, the
+system is initially at equilibrium at some very high
+temperature. Eventually the spin glass is abruptly
+arXiv:2207.06207v2 [cond-mat.dis-nn] 30 Aug 2022
+
+
+2
+0.015
+0.020
+0.025
+8 16 24 32
+T = 0.9
+T = 0.5
+temperature jump
+temperature jump back
+t↓w → 231.25 MC steps at T = 0.9
+t↑w → 231.25 MC steps at T = 0.9
++ 231.25 MC steps at T = 0.5
+Rejuvenation
+Memory
+0.005
+0.010
+0.015
+0.020
+8 16 24 32 8 16 24 32
+0.015
+0.020
+0.025
+8 16 24 32
+S(t, tw; H = 0.01)
+log2 t
+tw = 222
+tw = 226.5
+tw = 231.25
+S(t, tw; H = 0.01)
+log2 t
+tw = 210
+tw = 215.625
+tw = 223.5
+tw = 231.25
+log2 t
+tw = 210 after t↓w
+tw = 215.625 after t↓w
+tw = 223.5 after t↓w
+tw = 231.25 after t↓w
+S(t, tw; H = 0.01)
+log2 t
+tw = 210 after t↑w
+FIG. 1. The zero-field-cooling (ZFC) numerical experiment measuring rejuvenation and memory. The
+starting random spin configuration is placed instantaneously at the working temperature and it relaxes for a time tw
+without a field. At time tw, a magnetic field H = 0.01 is applied and the magnetic density, MZFC(t, tw; H), is recorded.
+Left panels show the relaxation function SZFC(t, tw; H), Eq. (1), for the native runs at the warmer, T1 = 0.9, and
+colder, T2 = 0.5, temperatures (both below the glass temperature Tg = 1.102(3) [13]). The physically interesting peak
+of SZFC(t, tw; H) defines teHff ' tw (in some cases there is also a peak at shorter times, see Methods). In our protocol
+(schematized by the green arrows), after a waiting time t↓w = 231.25, the temperature is abruptly dropped from the initial
+temperature T1 = 0.9 to the colder temperature T2 = 0.5. Then, the system relaxes at T2 for an additional time, after
+which the magnetic field is switched on and the function SZFC(t, tw; H) shown in the bottom-center panel is measured.
+Waiting times for these jump runs are reported in the legend; the rejuvenation effect is clearly visible, since teHff t↓w
+and similar to the time tw spent at T2 (we use tw for the time spent at the last temperature in a given protocol). Finally,
+after the waiting time t↑w = 2t↓w = 232.25 [i.e., the system has spent half of its life at the initial temperature T1 and half
+at the colder temperature T2 without a field], the spin glass is suddenly heated back to T1. We let the system relax for
+a short time, tw = 210 t↓w, after which the magnetic field is switched on. The SZFC(t, tw; H) measured after the jump
+back and shown in the top-right panel has a peak very similar to the one before the first jump (see top-left panel),
+evincing the memory of the aging at the initial temperature T1, notwithstanding the rejuvenation observed when staying
+at the lower temperature T2. In all cases, error bars are one standard deviation.
+cooled to the working temperature T < Tg and re
+laxes for a waiting time tw (Tg is the glass tempera
+ture, while tw ranges from minutes to several hours).
+At time tw a magnetic field H is switched on and
+the growing magnetization MZFC(t, tw) is recorded at
+later times t+tw. MZFC(t, tw) has turned out to have a
+significant dependence on tw for as long as researchers
+have had the patience to wait. The relaxation rate
+SZFC(t, tw; H) = 1
+H
+dMZFC(t, tw; H)
+d log t (1)
+peaks at a time teHff roughly equal to tw (see, e.g.,
+
+
+3
+Refs. [9, 10] for experimental results). The only rele
+vant time scale that can be identified is the glass’s age,
+namely tw (hence the term aging). The left panels in
+Fig. 1 show our results for this comparatively simple
+fixed-temperature protocol, which will be named na
+tive hereafter. The native setup is used as a standard
+for comparison.
+The quest for rejuvenation and memory.
+An even more interesting behavior appears when
+temperature is made to vary with time. In fact,
+we shall consider here only the simplest protocol for
+which rejuvenation and memory have been experimen
+tally found [15] (see our temperature-time scheme in
+the central part of Fig. 1). After a relaxation of dura
+tion t↓w, the temperature is lowered abruptly from the
+initial temperature T1 < Tg to a lower temperature T2
+(the choice of T2 turns out to be critical, see below).
+The system is again let to relax at temperature T2 for
+an additional time tw, after which a magnetic field is
+switched on and the relaxation function SZFC is mea
+sured at times t↓w + tw + t. Surprisingly enough, one
+finds that the initial relaxation at T1 has been essen
+tially forgotten: the long-time peak of SZFC is found
+at times teHff ∼ tw, which can be substantially shorter
+than t↓w. This is the rejuvenation effect, which was ex
+perimentally found more than 20 years ago and which
+we are reporting in the bottom-central panel of Fig. 1
+for the first time in a simulation.
+Yet, rejuvenation is not the end of the story. After a
+total time of t↑w = 2t↓w, half of it spent at T1 and half at
+T2, the system is suddenly heated back to the original
+temperature T1, where it is left to relax for a time
+tw t↓w, after which the magnetic field is switched on
+and the relaxation function measured. The SZFC is
+found to peak again at time ∼ t↓w, as if the excursion
+to temperature T2 never happened (Fig. 1, top-right
+panel). This is the memory effect, which at first sight
+seems quite contradictory with the rejuvenation effect.
+The physical origin of memory and rejuvenation
+in spin glasses has not been identified yet. Then,
+it is perhaps unsurprising that all past attempts
+to reproduce these effects in computer simulations
+have failed [16–21], which has even raised ques
+tions about the validity of the standard model of
+finite-dimensional spin glasses, the Edwards-Anderson
+model [22, 23]. Fortunately, the Janus II dedicated su
+percomputer [24] has changed this situation, attaining
+realistic time and length scales and allowing for the
+first time a thorough examination of spin-glass dy
+namics both in the vicinity of the critical temperature
+Tg and in the low-temperature regime.
+The spin-glass dynamics at T < Tg consists in the
+growth of (glassy) magnetic domains of linear size
+ξ(tw) [25–27] (we shall later refer to this length as
+ξmicro). The non-equilibrium nature of the process is
+evident in the growth of ξ(tw) as tw varies, which is
+never-ending and extremely slow. In fact, the lower
+the temperature, the more sluggish the growth of
+ξ(tw) is, see, e.g., [7, 28]. Janus II has reached un
+precedentedly large values of ξ(tw), enabling safe ex
+trapolations from the numerical time scale of tenths
+of a second (when ξ ∼ 20 a0, where a0 is the typ
+ical spin-spin distance) to the experimental scale of
+hours [7, 28] (when ξ ∼ 200 a0). This special-purpose
+computer has also made it possible to simulate [29]
+the experimental protocol for extracting the spin-glass
+coherence length from the Zeeman effect [26], thus
+showing the consistency between the Zeeman method
+and the microscopic approach. Janus II allowed us
+to perform computer experiments with a native (i.e.,
+fixed-temperature) protocol and make a direct com
+parison of the SZFC (1) obtained in the simulation
+with that from real experiments on a single crystal
+of CuMn [9, 10, 30]. The Edwards-Anderson model
+and CuMn turned out to be governed by the same
+scaling laws, where ξ is the all-important scaling vari
+able. This agreement between simulations and exper
+iment, however, was established only for native pro
+tocols. We need to understand what happens when
+temperature is varied.
+Experimentalists are prone to attribute the rejuve
+nation effect to temperature chaos (see, e.g., Ref. [15];
+explanations not invoking temperature chaos have
+been also proposed [31, 32]). Temperature chaos [33
+35] is an equilibrium notion stating that spin config
+urations typical from the Boltzmann distribution at
+temperature T1 would be very atypical for tempera
+ture T2, no matter how close T1 and T2 are (provided
+that T1, T2 < Tg). Temperature chaos could explain
+why the relaxation at temperature T1 seems useless
+at T2 (i.e., rejuvenation). Yet, even in the mean-field
+approximation, showing that temperature chaos is re
+ally present in equilibrium has been a real tour-de
+force [36, 37]. Furthermore, extending the equilibrium
+concept of temperature chaos to the experimentally
+relevant context of off-equilibrium dynamics is a very
+recent achievement [38].
+Dynamic temperature chaos is spatially extremely
+heterogeneous (see Fig. 2). To measure it we choose
+many spheres of linear size R in random positions
+within the sample. We compare within each sphere
+spin configurations obtained at temperature T1 and
+time tTw1 with configurations from temperature T2
+and time tTw2 (the simplifying choice ξ(tTw1 , T1) =
+ξ(tTw2 , T2) = ξ(tw) was made in [38]). The comparison
+is quantitative, through the computation of a correla
+tion coefficient XT1,T2 , see Methods. Many of those
+spheres turn out to have very weak temperature chaos
+[XT1,T2 ≈ 1]. Yet, with low probability, one picks
+a chaotic sphere with a significantly smaller XT1,T2 .
+In fact, the analysis in [38] identifies a crossover
+length scale ξ∗(T1, T2): for ξ(tw) ξ∗(T1, T2) chaotic
+spheres are very rare but for ξ(tw) ξ∗(T1, T2)
+chaotic spheres become fairly typical. A scaling law
+was also found: ξ∗(T1, T2) ∝ (T1 − T2)−1/ζNE with
+ζNE = 1.19(2).
+Our last building block comes from the experiment
+of Ref. [8], which identifies a minimal temperature
+jump ∆Tmin in a CuMn sample. Temperature chaos in
+
+
+4
+FIG. 2. Temperature chaos is spatially heterogeneous when it is clearly present. The 8000 randomly chosen
+spheres in a sample of size L = 160 are depicted with a color code depending on 1 − X (X is the chaotic correlation
+parameter as computed for spheres of radius R = 5 a0, see Methods). For visualization purposes, spheres are represented
+with a radius 12(1 − X), so that only fully chaotic spheres (i.e., X = 0) would have the largest size. In order to avoid
+cluttering, we draw only spheres with X < 0.97. On the left, we calculate the chaotic correlation parameter X between
+the native system at T = 0.5 (i.e., a fixed-temperature protocol: a completely disordered system is put at temperature
+T = 0.5 and let to evolve at this temperature for a time tw = 231.25) and the jump system at the same temperature
+T = 0.5 (recall the central part of Fig. 1: the jump system has spent the first half of its life, t↓w = 231.25, at the
+hot temperature T1 = 0.9 and the second half, tw = 231.25, at the cold temperature T = 0.5). Very strong chaotic
+heterogeneity is found. On the right, we calculate the chaotic correlation parameter X between the native system at
+the hot temperature T = 0.9 and the jump-back system at the same temperature T = 0.9 (the jump-back system has
+spent a time t↓w = 231.25 at the hot temperature T1 = 0.9, a time t↑w − t↓w = 231.25 at the cold temperature T2 = 0.5,
+and then tw = 210 again at T1 = 0.9 — see the temperature protocol of Fig. 1). After the cycle the system does not
+display chaotic heterogeneity since almost every sphere has a large correlation parameter X, i.e., a strong memory (more
+examples can be found in Supplementary Note V).
+that sample turned out to be exceedingly weak when
+ever T1 − T2 < ∆Tmin. It follows that, in a simulation,
+chaotic spheres will be just too rare to significantly af
+fect the overall sample relaxation unless [39]
+T1 − T2
+Tg
+∣∣∣∣sim
+≈ ∆Tmin
+Tg
+∣∣∣∣CuMn
+[
+ξCuMn (tw ) ξmicro (tw )
+]ζNE
+, (2)
+where the subindex micro stands for the ξ computed
+in the numerical simulation (see Methods) while
+Tg is the glass temperature, which is different for
+the CuMn sample and for simulations. Plugging in
+typical numbers (∆Tmin = 450 mK, Tg = 31.5 K,
+ξCuMn(tw) ≈ 220 a0 and ξmicro(tw) ≈ 16.6 a0), we con
+clude from Eq. (2) that, given the correlation length
+reached in our simulations, a successful simulation of
+the rejuvenation effect should have T1 − T2 > 0.32Tg.
+In this work we have considered two temperature
+jumps, see Table I. The first jump, namely T1 =
+0.9 → T2 = 0.5, meets the requirement for tempera
+ture chaos expressed in Eq. (2), while the second jump,
+T1 = 0.9 → T2 = 0.7 is too small. Hence we expect to
+find qualitative differences between the two.
+Becoming quantitative: how many controlling
+length scales?
+Our discussion shall emphasize three different
+length scales, focusing on their physical interpreta
+tion and their utility to rationalize the rejuvenation
+and memory effects (many more details are provided
+in Methods [40]). Only one of these scales, named
+ξZeeman, can be experimentally accessed nowadays
+(the other two lengths, however, provide invaluable
+microscopic information):
+• ξmicro is the size of the (glassy) domains within
+the sample (is the largest length scale at which
+we can regard the system as ordered at time tw).
+• ξZeeman is obtained by counting the number of
+spins that react coherently to an externally ap
+plied field [26]. It provides a very direct quan
+tification of memory and rejuvenation.
+• ζ(t1, t2) [41–43] is obtained from the comparison
+of the same system at the two times t1 < t2
+[ζ(t1, t2) is the typical size of the regions where
+coherent rearrangements have occurred between
+t1 and t2].
+Previous analysis for native (i.e., fixed
+
+
+5
+temperature) protocols tell us that ξZeeman follows
+quite closely the behavior of the microscopic length
+ξmicro [9, 10, 26, 29]. This is what we find in the top
+panel of Fig. 3. There are two salient features in the
+time growth of either ξZeeman or ξmicro(tw) at fixed
+temperature [7, 28]: the growth slows down as ξmicro
+increases [44] and the dynamics at lower temperatures
+is enormously slower [45]. In fact, see Table I and
+Ref. [28], at the largest temperature T = 0.9 it is
+comparatively easy to reach a large ξmicro ≈ 16.6 a0
+in a native protocol. Instead, for a similar simulation
+time, the native protocol at T = 0.5 is limited to
+ξmicro ≈ 5.6 a0. It is then unsurprising that, when the
+temperature jumps from T1 = 0.9 to T2 = 0.5 or 0.7,
+see Fig. 3–top, the size of the glassy domains is locked
+to their value at jump time, namely ξmicro ≈ 16.6 a0:
+the time needed for such a large domain to grow at
+the lower temperature T2 far exceeds the scale of our
+simulations. The importance of this locking was also
+emphasized in Ref. [18].
+While ξmicro is locked at the value it has at the
+jump time, the behavior of ξZeeman is different in the
+jump protocols. In the jump complying with Eq. (2),
+T1 = 0.9 → T2 = 0.5, ξZeeman(tw) is quite similar to
+the corresponding curve for the native run at T = 0.5.
+From the point of view of the response to the magnetic
+field, rejuvenation is almost complete for this temper
+ature jump, because the initial relaxation at T1 = 0.9
+(almost) does not leave a measurable trace. Instead,
+for the more modest jump T1 = 0.9 → T2 = 0.7,
+rejuvenation is weaker and ξZeeman is sensibly larger
+than in the native runs (see Supplementary Note II
+for more details).
+Furthermore, it is also shown in Fig. 3–top that,
+when the system jumps back to T1 = 0.9 (i.e. T1 =
+0.9 → T2 = 0.5 → T1 = 0.9, recall the top-right panel
+in Fig. 1), the response to the magnetic-field goes back
+to normal: ξZeeman catches up with ξmicro after a ex
+tremely short transient. This is another manifestation
+of the memory effect.
+As for the third length scale, see Fig. 3–bottom,
+for all our jump protocols we find ζ ξmicro, which
+means that the configuration right before the jump
+has not been substantially modified by the excur
+sion to the low temperature T2 = 0.5. Interestingly
+enough, for the jump-back protocol ζ gets a lot big
+ger than for the single jump protocols. In other words,
+the dynamics is unlocked when the system comes back
+to its original temperature T1. Nevertheless, ζ is still
+substantially smaller than ξmicro. The original spin
+configuration has, therefore, suffered only local dis
+tortions.
+Dynamic temperature chaos and rejuvenation
+At this point, the elephant in the room is clear:
+what is the physical origin for rejuvenation and mem
+oryIn? order to answer the question, we need to com
+pare pairs of spin configurations. One of the config
+3
+4
+5
+6
+8
+10
+12
+14
+17
+ξZeeman : solid lines ξmicro : dashed lines
+3
+4
+5
+6
+8
+10 15 20 25 30
+ξ
+ζ
+log2(t1)
+T = 0.5 jump T = 0.5 native T = 0.9 jump − back
+T = 0.7 jump T = 0.7 native
+FIG. 3. Aging dynamics is controlled by three
+length scales (at least). (See text and Methods for ex
+tended discussion of these three length scales). The dashed
+lines and empty dots are for ξmicro(tw, T ), the continuous
+lines and filled dots are for ξZeeman(tw, T ), and the continu
+ous lines and filled triangles are for ζ(t1, t2). On the top,
+for the native protocols, ξZeeman(tw) follows quite closely
+the behavior of ξmicro(tw). For the jump protocol with
+T2 = 0.5, ξZeeman(tw) is extremely similar to the corre
+sponding curve for the native run [this T2 meets the chaos
+requirement expressed in Eq. (2)], which means that the
+system responds to an external magnetic field as if rejuve
+nated, ξjump
+Zeeman(tw) ξmicro(tw). When the system jumps
+back to T1 = 0.9 (i.e. T1 = 0.9 → T2 = 0.5 → T1 = 0.9),
+ξjump
+Zeeman(tw) = ξmicro(tw) after a extremely short time
+(memory). Instead, ξZeeman(tw) never becomes small for
+the jump protocols with T2 = 0.7. On the bottom,
+the size of the regions undergoing coherent rearrangements
+when evolving from the initial to the final time, ζ(t1, t2),
+is much smaller than ξmicro(tw) for all our jump protocols.
+The earliest of the two times is the very last instant that
+the system spent at temperature T1 = 0.9 (i.e., just be
+fore the temperature jump; in the case of the jump-back
+protocol just before the first jump T1 = 0.9 → T2 = 0.5).
+In all cases, ζ is represented as a function of t2 − t1. Error
+bars are one standard deviation. See Supplementary Note
+III for more results on ζ(t1, t2).
+urations will be taken from the jump protocols. The
+other configuration will come from the native runs at
+temperatures T2 = 0.5 or T2 = 0.7. In an attempt
+to make a fair comparison, we shall choose the native
+configurations at T2 at their largest possible waiting
+time. In fact, the magnetic domains will be substan
+tially smaller in the native protocol than they are in
+the jump protocol (at T2 = 0.5, for instance, one has
+to compare ξnative
+micro ≈ 5.8 a0 with ξjump
+micro ≈ 16.6 a0).
+The main steps in the comparison were outlined
+above (for a more paused exposition see Methods and
+Ref. [38]). We pick at random in the sample spheres
+
+
+6
+Type T Waiting time ξmicro tmax
+native 0.9 231.25( = t↓w) 16.63(5) 232
+native 0.5 210 2.23926(2) 228
+native 0.5 215.625 2.9090(4) 228
+native 0.5 223.5 4.0865(15) 230
+native 0.5 231.25 5.6167(4) 232
+jump 0.5 t↓w + 210 16.62(12) 228
+jump 0.5 t↓w + 215.625 16.68(12) 228
+jump 0.5 t↓w + 223.5 16.75(13) 231
+jump 0.5 t↓w + 231.25 16.81(13) 233.5
+native 0.7 210 2.6629(4) 228
+native 0.7 215.625 3.8230(10) 228
+native 0.7 223.5 6.1742(4) 228
+native 0.7 231.25 9.578(11) 233
+jump 0.7 t↓w + 210 16.62(12) 228
+jump 0.7 t↓w + 215.625 16.67(12) 228
+jump 0.7 t↓w + 223.5 16.76(12) 228
+jump 0.7 t↓w + 231.25 16.81(13) 232
+TABLE I. Basic features of our simulations. We have
+simulated on the Janus II supercomputer the Edwards
+Anderson model with nearest-neighbor couplings (J = ±1
+with 50% probability), on simple-cubic lattices containing
+1603 Ising spins s = ±1 (the lattice size is L = 160 a0) and
+endowed with periodic boundary conditions. A particular
+set of couplings is termed sample. For every sample and
+every set of parameters, we have simulated 512 indepen
+dent trajectories (i.e., 512 replicas, see Methods). This
+table lists the main parameters for each of our numerical
+simulations. Temperature-varying protocols, see the cen
+tral part of Fig. 1, are named jump protocols. In all cases,
+temperature T refers to the temperature at which the re
+laxation function in Eq. (1) is computed. All temperatures
+considered are in the spin-glass phase: T < Tg = 1.102(3)
+[13]. The waiting time is the period before the magnetic
+field H is switched on (for jump protocols, this consists
+of a time t↓w at the starting temperature T1 = 0.9, plus a
+time tw at T2). The microscopic correlation length ξmicro
+is given in a0 = 1 units and computed just before the mag
+netic field is switched on [error bars for ξmicro(tw) are one
+standard deviation]. Finally, the longest simulation time
+in the presence of a field is tmax.
+of radius R. The results presented in this paper were
+obtained with R = 5 a0 to make sure that the spheres
+will have a chance to fit within the glassy domains of
+the native runs (we have tried other values of R, find
+ing qualitatively similar results, see Supplementary
+Note VI). The configurations from the two protocols
+are compared by computing a correlation coefficient
+X that takes into account only the spins contained in
+the sphere. If X is significantly smaller than unity we
+regard that particular sphere as chaotic, because typi
+cal configurations from the two protocols differ within
+the sphere. To be precise, we compute the probabil
+ity distribution function F (X ̃ ), namely the fraction of
+the spheres with a correlation coefficient X < X ̃ .
+Our results shown in Fig. 4–bottom for the jump
+protocol T1 = 0.9 → T2 = 0.7 remind us of previous
+studies [38]. The vast majority of the spheres have
+a very large correlation coefficient, and truly chaotic
+spheres are found only in the tail of the distribution
+(probability 0.1% or smaller).
+Interestingly enough, see the left panel in Fig. 2 and
+Fig. 4–top, the situation is radically different for the
+jump protocol T1 = 0.9 → T2 = 0.5, where the spheres
+in percentile 10 of the distribution are as chaotic as the
+most chaotic spheres we could find for the jump T1 =
+0.9 → T2 = 0.7. In fact, to our knowledge, Fig. 4–top
+reports the strongest temperature-chaos signal ever
+observed in a simulation of glassy dynamics.
+In order to convince ourselves that the extreme
+chaos is not an artifact of the disparity in domain sizes,
+we have tried a null experiment by simulating a model
+where no temperature chaos is expected, namely the
+link-diluted ferromagnetic Ising model (we have used
+the results in Ref. [46] to match as closely as possi
+ble in the diluted ferromagnet the conditions in our
+spin-glass simulations, with special care in matching
+the size of the domains, see Methods). As expected,
+see Fig. 4, the sphere distribution for the ferromagnet
+is concentrated at correlation coefficient X ≈ 1. We
+conclude that the spin-glass results in Fig. 4–top are
+genuine evidence for dynamic temperature chaos.
+It is also interesting that the distribution function in
+Fig. 4–top barely depends on tw. This is another man
+ifestation of the dynamic lock-down when the temper
+ature jumps to the lower value.
+The overall conclusions of this analysis are twofold.
+First, the requirement expressed by Eq. (2), which is
+based on CuMn experimental results [8], is sensible:
+strong temperature chaos is found only when T1 − T2
+is as large as Eq. (2) demands. Second, only when
+temperature chaos is strong do our simulations find
+strong rejuvenation (recall Fig. 3–top).
+Where do we stand?
+Our simulations depict a clear picture of the re
+juvenation and memory effects. Provided that the
+temperature jump is large enough, see Eq. (2), the
+spin-glass state that was forming at temperature T1 is
+completely alien at temperature T2 (at least it looks
+like an alien when compared with the native state that
+grows directly at T2, see Fig. 2). In fact, the response
+to the magnetic field (which is the quantity measured
+in experiments [2–5, 7–10, 15]) is not qualitatively dif
+ferent in the alien state and in the native state that
+grows from a fully disordered high-temperature state.
+The system just dismisses the relaxation it achieved
+at the higher temperature T1.
+Paradoxically enough, the alien state is locked at
+temperature T2: the microscopic rearrangement at T2,
+see Fig. 3–bottom, takes place on too small length
+scales to dissolve such foreign glassy domains. As a
+consequence, when the temperature is taken back to
+T1, the glassy domains characteristic of T1 are still
+there. This seems to be the physical origin of the
+memory effect. This reasoning is also consistent with
+recent experiments that find that the memory effect
+strongly depends on t↓w (i.e., the time spent in the
+
+
+7
+0.0001
+0.001
+0.01
+0.1
+1 T = 0.5
+0.0001
+0.001
+0.01
+0.1
+1
+0.5 0.6 0.7 0.8 0.9 1
+T = 0.7
+F(  ̃
+X)
+SG: (A5,B5)
+SG: (A5,C5)
+SG: (A5,D5)
+SG: (A5,E5)
+DIM: (A′5,A′9)
+DIM: (A′5,B′5)
+F(  ̃
+X)
+X ̃
+SG: (A7,B7)
+SG: (A7,C7)
+SG: (A7,D7)
+SG: (A7,E7)
+DIM: (A′7,A′9)
+DIM: (A′7,B′7)
+FIG. 4. Strong temperature chaos correlates with
+full rejuvenation. The figure shows the fraction of the
+spheres with radius R = 5 a0 that have a correlation pa
+rameter X smaller than X ̃ , F (X ̃ ) (see Methods; the pairs
+of systems for which the correlation parameter X is com
+puted are listed in Table II). In the top panel, one of the
+systems in the pair used to compute X is always taken
+from the native protocol at T = 0.5 (T = 0.7 for the bot
+tom panel). In the cases reported in the top panel, the
+partner in the pair that undergoes the temperature-jump
+protocol experiences strong rejuvenation. Instead, recall
+Fig. 3–top, rejuvenation is only partial for the cases re
+ported in the bottom panel. Interestingly enough, small
+correlation parameters appear with high probability in the
+top panel while they are very rare events in the bottom
+panel. We also show a comparison with the diluted Ising
+Model (our null experiment, see Methods), where tem
+perature chaos is not expected. Indeed, in the absence of
+temperature chaos, the probability concentrates at X ≈ 1.
+In all cases, error bars are one standard deviation.
+first stay at T1) [47]. Indeed, if t↓w is too small, the
+memory effect almost disappears. Our interpretation
+of this experimental finding is that the glassy domains
+at T1 need to grow large enough as to remain mostly
+unaltered at the lower temperature T2.
+Looking back, we understand as well why rejuve
+nation has been so difficult to find in simulations:
+the correlation lengths that could be reached prior to
+the Janus family of supercomputers were rather lim
+ited (we are referring here to the ξmicro length scale).
+Therefore, Eq. (2) would demand an exceedingly large
+temperature jump T1 − T2 if one wants to have a large
+fraction of chaotic spheres of the relevant size.
+System T Type Waiting time
+A9 SG 0.9 native t↓w = 231.25
+B9 SG 0.9 jump-back t↓w + t↑w + 210
+A5 SG 0.5 native t↓w + 231.25
+B5 SG 0.5 jump t↓w + 210
+C5 SG 0.5 jump t↓w + 215.625
+D5 SG 0.5 jump t↓w + 223.5
+E5 SG 0.5 jump t↓w + 231.25
+A7 SG 0.7 native t↓w + 231.25
+B7 SG 0.7 jump t↓w + 210
+C7 SG 0.7 jump t↓w + 215.625
+D7 SG 0.7 jump t↓w + 223.5
+E7 SG 0.7 jump t↓w + 231.25
+A′5 DIM 0.5 native 76
+B′5 DIM 0.5 jump 430 + 69
+A′7 DIM 0.7 native 197
+B′7 DIM 0.7 jump 430 + 165
+A′9 DIM 0.9 native 430
+TABLE II. Identifying parameters for each of the
+numerical simulations appearing in Figure 4. Spin
+glass (SG) protocols follow the notation in Figure 1. T is
+the final temperature in the protocol. For the diluted Ising
+Model (DIM; see Methods for the DIM temperaturenaming convention) we write explicitly t(w1) + t(w2) for jump
+protocols to stress that the time before the jump (at T = 0.9), t(w1), differs from the time t(w2) at the final temperature. We choose t(w1) such that ξmicro coincides for both
+protocols in the pairs (A5,A’5), (A7,A’7) and (A9,A’9).
+An open question is whether or not the only
+experimentally accessible coherence length, namely
+ξZeeman(tw), relates to some correlation function under
+all circumstances. Indeed, in the case of native pro
+tocols, ξZeeman(tw) behaves analogously to ξmicro(tw),
+which we know how to obtain from a correlation func
+tion. However, ξmicro(tw) is not a valid proxy for
+ξZeeman(tw) in temperature-jump protocols.
+Finally, we should also stress that the analysis of the
+rejuvenation and memory effects requires considering
+no less than three different length scales, which can be
+quite different from each other. Of course, one of the
+three, the domain size ξmicro(tw), acts as a cut-off for
+the other lengths. Yet we have seen that ξmicro(tw) is
+not nearly enough to describe the variety of behaviors
+that an aging system may present. In fact, ξmicro(tw)
+has stayed essentially constant for all the jump sim
+ulations that we have considered here! Therefore, a
+useful theory of aging dynamics cannot feature just a
+single length scale. In this sense, we think that our
+work poses a new and significant question for the dif
+ferent theories of aging dynamics.
+[1] C. L. E. Struik, Physical Aging in Amorphous Poly
+mers and Other Materials (Elsevier, Amsterdam, 1980).
+
+
+8
+[2] K. Jonason, E. Vincent, J. Hammann, J. P.
+Bouchaud, and P. Nordblad, Phys. Rev. Lett. 81,
+3243 (1998).
+[3] L. Lundgren, P. Svedlindh, and O. Beckman, J.
+Magn. Magn. Mater. 31–34, 1349 (1983).
+[4] T. Jonsson, K. Jonason, P. E. Jönsson, and P. Nord
+blad, Phys. Rev. B 59, 8770 (1999).
+[5] J. Hammann, E. Vincent, V. Dupuis, M. Alba,
+M. Ocio, and J.-P. Bouchaud, J. Phys. Soc. Jpn. ,
+Suppl A. 206 (2000).
+[6] J. A. Mydosh, Spin Glasses: an Experimental Intro
+duction (Taylor and Francis, London, 1993).
+[7] Q. Zhai, V. Martin-Mayor, D. L. Schlagel, G. G. Ken
+ning, and R. L. Orbach, Phys. Rev. B 100, 094202
+(2019).
+[8] Q. Zhai, R. L. Orbach, and D. L. Schlagel, Phys. Rev.
+B 105, 014434 (2022).
+[9] Q. Zhai, I. Paga, M. Baity-Jesi, E. Calore, A. Cruz,
+L. A. Fernandez, J. M. Gil-Narvion, I. Gonzalez
+Adalid Pemartin, A. Gordillo-Guerrero, D. Iñiguez,
+A. Maiorano, E. Marinari, V. Martin-Mayor,
+J. Moreno-Gordo, A. Muñoz Sudupe, D. Navarro,
+R. L. Orbach, G. Parisi, S. Perez-Gaviro, F. Ricci
+Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano, D. L.
+Schlagel, B. Seoane, A. Tarancon, R. Tripiccione, and
+D. Yllanes, Phys. Rev. Lett. 125, 237202 (2020).
+[10] I. Paga, Q. Zhai, M. Baity-Jesi, E. Calore, A. Cruz,
+L. A. Fernandez, J. M. Gil-Narvion, I. Gonzalez
+Adalid Pemartin, A. Gordillo-Guerrero, D. Iñiguez,
+A. Maiorano, E. Marinari, V. Martin-Mayor,
+J. Moreno-Gordo, A. Muñoz-Sudupe, D. Navarro,
+R. L. Orbach, G. Parisi, S. Perez-Gaviro, F. Ricci
+Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano, D. L.
+Schlagel, B. Seoane, A. Tarancon, R. Tripiccione, and
+D. Yllanes, J. Stat. Mech. 2021, 033301 (2021).
+[11] S. Albert, T. Bauer, M. Michl, G. Biroli, J.-P.
+Bouchaud, A. Loidl, P. Lunkenheimer, R. Tourbot,
+C. Wiertel-Gasquet, and F. Ladieu, Science 352,
+1308 (2016), arXiv:1606.04079.
+[12] M. Mézard, G. Parisi, and M. Virasoro, Spin
+Glass Theory and Beyond (World Scientific, Singa
+pore, 1987).
+[13] M. Baity-Jesi, R. A. Baños, A. Cruz, L. A. Fernandez,
+J. M. Gil-Narvion, A. Gordillo-Guerrero, D. Iniguez,
+A. Maiorano, F. Mantovani, E. Marinari, V. Martín
+Mayor, J. Monforte-Garcia, A. Muñoz Sudupe,
+D. Navarro, G. Parisi, S. Perez-Gaviro, M. Pivanti,
+F. Ricci-Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano,
+B. Seoane, A. Tarancon, R. Tripiccione, and D. Yl
+lanes (Janus Collaboration), Phys. Rev. B 88, 224416
+(2013), arXiv:1310.2910.
+[14] E. Vincent, J. Hammann, M. Ocio, J.-P. Bouchaud,
+and L. F. Cugliandolo, in Complex Behavior of Glassy
+Systems, Lecture Notes in Physics No. 492, edited by
+M. Rubí and C. Pérez-Vicente (Springer, 1997).
+[15] C. Djurberg, K. Jonason, and P. Nordblad, Eur.
+Phys. J. B 10, 15 (1999).
+[16] T. Komori, H. Yoshino, and H. Takayama, Journal
+of the Physical Society of Japan 69, 1192 (2000).
+[17] M. Picco, F. Ricci-Tersenghi, and F. Ritort, Phys.
+Rev. B 63, 174412 (2001).
+[18] L. Berthier and J.-P. Bouchaud, Phys. Rev. B 66,
+054404 (2002).
+[19] H. Takayama and K. Hukushima, Journal of the Phys
+ical Society of Japan 71, 3003 (2002).
+[20] A. Maiorano, E. Marinari, and F. Ricci-Tersenghi,
+Phys. Rev. B 72, 104411 (2005).
+[21] S. Jiménez, V. Martín-Mayor, and S. Pérez-Gaviro,
+Phys. Rev. B 72, 054417 (2005).
+[22] S. F. Edwards and P. W. Anderson, Journal of Physics
+F: Metal Physics 5, 965 (1975).
+[23] S. F. Edwards and P. W. Anderson, J. Phys. F 6, 1927
+(1976).
+[24] M. Baity-Jesi, R. A. Baños, A. Cruz, L. A. Fernandez,
+J. M. Gil-Narvion, A. Gordillo-Guerrero, D. Iniguez,
+A. Maiorano, F. Mantovani, E. Marinari, V. Martín
+Mayor, J. Monforte-Garcia, A. Muñoz Sudupe,
+D. Navarro, G. Parisi, S. Perez-Gaviro, M. Pivanti,
+F. Ricci-Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano,
+B. Seoane, A. Tarancon, R. Tripiccione, and D. Yl
+lanes (Janus Collaboration), Comp. Phys. Comm
+185, 550 (2014), arXiv:1310.1032.
+[25] E. Marinari, G. Parisi, J. Ruiz-Lorenzo, and F. Ri
+tort, Phys. Rev. Lett. 76, 843 (1996).
+[26] Y. G. Joh, R. Orbach, G. G. Wood, J. Hammann,
+and E. Vincent, Phys. Rev. Lett. 82, 438 (1999).
+[27] F. Belletti, M. Cotallo, A. Cruz, L. A. Fernan
+dez, A. Gordillo-Guerrero, M. Guidetti, A. Maiorano,
+F. Mantovani, E. Marinari, V. Martín-Mayor, A. M.
+Sudupe, D. Navarro, G. Parisi, S. Perez-Gaviro, J. J.
+Ruiz-Lorenzo, S. F. Schifano, D. Sciretti, A. Taran
+con, R. Tripiccione, J. L. Velasco, and D. Yllanes
+(Janus Collaboration), Phys. Rev. Lett. 101, 157201
+(2008), arXiv:0804.1471.
+[28] M. Baity-Jesi, E. Calore, A. Cruz, L. A. Fernandez,
+J. M. Gil-Narvion, A. Gordillo-Guerrero, D. Iñiguez,
+A. Maiorano, E. Marinari, V. Martin-Mayor,
+J. Moreno-Gordo, A. Muñoz Sudupe, D. Navarro,
+G. Parisi, S. Perez-Gaviro, F. Ricci-Tersenghi, J. J.
+Ruiz-Lorenzo, S. F. Schifano, B. Seoane, A. Tarancon,
+R. Tripiccione, and D. Yllanes (Janus Collaboration),
+Phys. Rev. Lett. 120, 267203 (2018).
+[29] M. Baity-Jesi, E. Calore, A. Cruz, L. A. Fer
+nandez, J. M. Gil-Narvion, A. Gordillo-Guerrero,
+D. Iñiguez, A. Maiorano, E. Marinari, V. Martin
+Mayor, J. Monforte-Garcia, A. Muñoz Sudupe,
+D. Navarro, G. Parisi, S. Perez-Gaviro, F. Ricci
+Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano,
+B. Seoane, A. Tarancon, R. Tripiccione, and D. Yl
+lanes (Janus Collaboration), Phys. Rev. Lett. 118,
+157202 (2017).
+[30] I. Paga, Q. Zhai, M. Baity-Jesi, E. Calore, A. Cruz,
+L. A. Fernandez, J. M. Gil-Narvion, I. Gonzalez
+Adalid Pemartin, A. Gordillo-Guerrero, D. Iñiguez,
+A. Maiorano, E. Marinari, V. Martin-Mayor,
+J. Moreno-Gordo, A. Muñoz-Sudupe, D. Navarro,
+R. L. Orbach, G. Parisi, S. Perez-Gaviro, F. Ricci
+Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano, D. L.
+Schlagel, B. Seoane, A. Tarancon, and D. Yllanes,
+“Magnetic-field symmetry breaking in spin glasses,”
+In preparation (2022).
+[31] L. F. Cugliandolo and J. Kurchan, Phys. Rev. B 60,
+922 (1999).
+[32] L. Berthier and J.-P. Bouchaud, Phys. Rev. Lett 90,
+059701 (2003).
+[33] S. R. McKay, A. N. Berker, and S. Kirkpatrick, Phys.
+Rev. Lett. 48, 767 (1982).
+[34] A. J. Bray and M. A. Moore, Phys. Rev. Lett. 58, 57
+(1987).
+[35] I. Kondor, J. Phys. A 22, L163 (1989).
+[36] T. Rizzo and A. Crisanti, Phys. Rev. Lett. 90, 137201
+(2003).
+
+
+9
+[37] G. Parisi and T. Rizzo, Journal of Physics A: Mathe
+matical and Theoretical 43, 235003 (2010).
+[38] M. Baity-Jesi, E. Calore, A. Cruz, L. A. Fer
+nandez, J. M. Gil-Narvion, I. Gonzalez-Adalid Pe
+martin, A. Gordillo-Guerrero, D. Iñiguez, A. Maio
+rano, E. Marinari, V. Martin-Mayor, J. Moreno
+Gordo, A. Muñoz Sudupe, D. Navarro, I. Paga,
+G. Parisi, S. Perez-Gaviro, F. Ricci-Tersenghi, J. J.
+Ruiz-Lorenzo, S. F. Schifano, B. Seoane, A. Taran
+con, R. Tripiccione, and D. Yllanes, Commun. Phys.
+4, 74 (2021).
+[39] We are indebted to Prof. Orbach for this observation.
+[40] Our simulations are also described in the Methods
+section, see also Table I for crucial simulation details
+and Ref. [48] for useful computational tricks.
+[41] F. Belletti, A. Cruz, L. A. Fernandez, A. Gordillo
+Guerrero, M. Guidetti, A. Maiorano, F. Manto
+vani, E. Marinari, V. Martín-Mayor, J. Monforte,
+A. Muñoz Sudupe, D. Navarro, G. Parisi, S. Perez
+Gaviro, J. J. Ruiz-Lorenzo, S. F. Schifano, D. Sciretti,
+A. Tarancon, R. Tripiccione, and D. Yllanes (Janus
+Collaboration), J. Stat. Phys. 135, 1121 (2009).
+[42] H. E. Castillo, C. Chamon, L. F. Cugliandolo, and
+M. P. Kennett, Phys. Rev. Lett. 88, 237201 (2002).
+[43] L. C. Jaubert, C. Chamon, L. F. Cugliandolo, and
+M. Picco, J. Stat. Mech. 2007, P05001 (2007).
+[44] In fact, d log tw/d log ξmicro is approximately constant
+when tw varies in logarithmic scale.
+[45] T d log tw/d log ξmicro is roughly constant when differ
+ent temperatures are compared.
+[46] P.-E. Berche, C. Chatelain, B. Berche, and W. Janke,
+Eur. Phys. J. B 38, 463 (2004).
+[47] Jennifer Freedberg, private communication (2022).
+[48] I. Paga, From glassy bulk systems to spin-glass films:
+simulations meet experiments, Ph.D. thesis (2021).
+Appendix A: Methods
+The layout of this note is as follows. In Sect. A 1 we
+describe our simulations. In Sect. A 2 we define some
+quantities characteristic of the ZFC protocol. In fact,
+the magnetic field plays a crucial role in the determi
+nation of the Zeeman length scale, as we explain in
+Sect. A 3. The other two spin-glass coherence lengths,
+ξmicro and ζ, are computed as explained in Sect. A 4.
+Finally, in Sect. A 5 we explain our computation of
+the chaotic correlation parameter.
+1. The models simulated
+We performed massive simulations on the Janus
+II supercomputer [24] to study the three-dimensional
+Edwards-Anderson (EA) model on a cubic lattice with
+periodic boundary conditions and size L = 160 (in
+units of the lattice constant a0). The main parame
+ters describing our simulations are provided in Tab. I.
+The N = L3 Ising spins, sx = ±1, interact with
+their lattice nearest neighbors in presence of a mag
+netic field (H) through the Hamiltonian:
+H=− ∑
+〈x,y〉
+Jxysxsy − H ∑
+x
+sx , (A1)
+where the couplings are independent, identically dis
+tributed random variables: Jxy = ±1, with 50% prob
+ability. The couplings are chosen at simulation start,
+and remain fixed (quenched disorder). A particular
+choice of the couplings is termed a sample. In the ab
+sence of an external magnetic field H = 0, this model
+undergoes a spin-glass transition at the critical tem
+perature Tg = 1.102(3) [13].
+The off-equilibrium dynamics was simulated with a
+Metropolis algorithm. The numerical time unit is the
+lattice sweep, which roughly corresponds to 1 ps of
+physical time.
+In this work we have simulated NS = 4 samples us
+ing a lattice size of L = 160 a0. For each of these
+samples and for each protocol (Tab. I in the main
+text) we have simulated NR = 512 r eplicas (i.e., in
+dependent simulations carried out for a given sample,
+following an identical protocol). We use replicas to
+account for the thermal noise controlling the simu
+lation (each replica is controlled by an independent
+realization of the thermal noise). The average over
+the thermal noise will be represented as 〈· · · 〉. Only
+afterwards, we shall perform the average over samples,
+which will be indicated as 〈· · · 〉.
+Some times, however, (most notably for the analysis
+in Sect. A 3) final quantities are computed for a single
+sample (this is, of course, the approach followed in
+the laboratory). In these cases, the different samples
+allow us to asses to which extent our results depend
+on the disorder realization, see Supplementary Note I.
+Besides, as a null experiment for temperature chaos,
+we have studied the link-diluted Ising model (DIM),
+also on cubic lattices of size L = 160 a0 with periodic
+boundary conditions and using Metropolis dynamics.
+Specifically, we used the Hamiltonian in Eq. (A1) but
+with couplings Jxy = 1 (with 70% probability) or
+Jxy = 0 (with 30% probability) and magnetic field
+H = 0. Since all couplings are positive or zero, this is
+a ferromagnetic system without frustration, for which
+no temperature chaos is expected. The critical tem
+perature for the DIM is Tc = 3.0609(5) [46] (actually,
+this is twice the value reported in [46] due to our use
+of an Ising, rather than Potts, formulation). In fact,
+with some abuse of language, in the main text we
+refer to DIM temperatures as T = 0.9, T = 0.7 or
+0.5 rather than to their actual values T = 0.9 Tc/Tg,
+T = 0.7 Tc/Tg or 0.5 Tc/Tg, where Tg is the critical
+temperature for the EA model. We follow the very
+same procedure, which is explained in Sect. A 4 a, to
+compute the coherence length ξmicro for both the spin
+glass and the DIM. We have chosen times for the DIM
+such that ξmicro coincides with the corresponding spin
+glass value, namely ξmicro = 5.84 (protocol A’5 in Ta
+ble II in the main text), ξmicro = 10.11 (protocol A’7)
+and ξmicro = 16.63 (protocol A’9). Of course, the nec
+essary times are extremely shorter for the DIM than
+for the spin glass. Given that DIM simulations were
+comparatively inexpensive, we simulated 16 samples
+(each with 512 replicas) for this model.
+
+
+10
+2. Some zero-field-cooled observables
+As explained in the main text, our simulations are
+designed to mimic the experimental protocol named
+zero-field cooling (ZFC). In ZFC protocols, a sample
+initially in equilibrium at some very high temperature
+is cooled below Tg, always being kept at zero magnetic
+field. In the native protocols, the system is abruptly
+taken to the measuring temperature, where it is let to
+relax for a time tw. The cooling process (always with
+out a field) is more complex for our jump protocols,
+as depicted in Fig. 1 in the main text.
+For both protocols, native or jump, we let the sys
+tem relax for a time tw at the final, measuring tem
+perature. Then, the external magnetic field, H, is
+switched on and we record the magnetic density
+MZFC(t, tw; H) = 1
+N
+∑
+x
+〈sx(t + tw; H)〉 , (A2)
+which grows with t from its initial value M = 0 at
+t = 0. We also record the two-time autocorrelation
+function,
+CZFC(t, tw; H) = 1
+N
+∑
+x
+〈sx(tw; 0)sx(t + tw; H)〉 .
+(A3)
+Note that CZFC is a monotonically decreasing function
+of time and CZFC = 1 at t = 0.
+3. Measurement of the Zeeman length through
+the scaling law of the effective times
+The method introduced in Ref. [26] to measure
+the spin-glass coherence length experimentally has re
+cently been refined. Indeed, the scaling law intro
+duced in [9, 10] is a milestone for describing the mag
+netic response of a spin glass in both “lab experiments”
+and “numerical experiments”. We shall name ξZeeman
+the length scale extracted using these methods.
+In experiments on a single-crystal CuMn sample,
+the main quantity evaluated is the relaxation func
+tion SZFC(t, tw; H), which exhibits a local maximum
+at time teHff ≈ tw. Hence, one focuses on the H depen
+dence of teHff . On the numerical side, we carry out mas
+sive numerical experiments spanning from picoseconds
+to tenths of a second on Janus II, from which we can
+also extract the teHff . The numerical method proceeds
+as follows (see [9, 10] for a full discussion). One first
+changes variable by considering SZFC as a function of
+C(t, tw; H), recall Eq. (A3), rather than time. The
+peak is found at some Cpeak(tw). Finally, teHff is found
+by solving the equation C(teHff , tw; H) = Cpeak(tw). A
+crucial advantage is that this equation can also be
+solved directly at H = 0.
+The numerical SZFC(t, tw; H), however, shows two
+peaks: a tw-independent peak at very short times, and
+a second, physically interesting peak at t ∼ tw. Unfor
+tunately, in fixed-temperature simulations (i.e., native
+protocols) with very short tw, the two peaks cannot
+be resolved (see, for instance, bottom-left of Fig. 1).
+We have not attempted to extract ξZeeman in native
+runs where the two peaks cannot be resolved. How
+ever, for the shortest jump protocol with T2 = 0.5,
+namely tw = 210, 215.625, we could borrow Cpeak from
+the jump with the largest tw (unfortunately, the same
+trick did not work for native runs, because important
+consistency checks [30] were not passed in this case).
+From a phenomenological point of view, the effec
+tive time teHff can be associated with the height of the
+largest free-energy barrier, ∆max, through the usual
+Arrhenius law [26]
+∆max = kBT (log teHff − log τ0) , (A4)
+where τ0 is a characteristic exchange time, τ0 ∼
+ħ/kBTg. In an external magnetic field, the free-energy
+barriers are lowered by the Zeeman energy EZ [26].
+For small magnetic field, EZ behaves as:
+EZ = ξD−θ/2
+ZeemanχFCH2 , (A5)
+which defines ξZeeman. χFC is the field-cooled mag
+netic susceptibility per spin, ξD−θ/2
+Zeeman is the number of
+correlated spins, D = 3 is the spatial dimension and
+θ is the replicon exponent [29].
+We slightly depart from the previous approach by
+exploiting a scaling theory. We use the effective time
+teHff to reflect the total free-energy change at magnetic
+fields H and H = 0+ [9, 10]:
+log
+[ teHff
+teHff→0+
+]
+= Sˆ
+2T ξD−θ/2
+micro H 2+
+ξ−θ/2
+microG(T , ξD−θ/2
+micro H2) , (A6)
+where Sˆ is a constant coming from the fluctuation
+dissipation relations and G(x) is a scaling function behaving as G(x) ∼ x2 for small x = ξD−θ/2
+micro H2. For
+small-enough magnetic fields [H ≤ 0.017], we can ne
+glect the O(H4) terms in Eq. (A6):
+log
+[ teHff
+teHff→0+
+]
+= c2(tw; T )H2 , (A7)
+where we have included all the constants in the
+c2(tw; T ) coefficient.
+Thus, fitting our data according to Eq. (A7), we can
+define the Zeeman coherence length ξZeeman as
+ξjump
+Zeeman(tw, T1 → Tm) =
+[ c2(tw, T1 → Tm) c2(t∗w, Tm)
+]1/(D−θ/2)
+ξmicro(t∗w; Tm), (A8)
+ξnative
+Zeeman(tw, Tm) =
+[ c2(tw, Tm) c2(t∗w, Tm)
+]1/(D−θ/2)
+ξmicro(t∗w; Tm) . (A9)
+where ξmicro(t∗w; Tm) plays the role of a reference
+length [the reference length allows us to avoid the
+precise determination of constants in Eq. (A7)]. The
+
+
+11
+refence time t∗w is the longest available waiting time
+for our native runs at the measuring temperature Tm.
+For the sake of clarity, we omit in Eqs. (A8) and (A9)
+the explicit dependence of θ on ξmicro (which is dealt
+with as explained in Ref. [7]).
+4. Numerical coherence lengths ξmicro and ζ
+In this paragraph, we shall consider two more length
+scales. One of them, ξmicro, is computed from the
+correlation function for the spin-glass order parame
+ter (hence, ξmicro tells us about the size of the glassy
+domains). The second length scale, ζ(t1, t2), tells us
+about how the system reorganizes itself when going
+from the earlier time t1 to the later time t2.
+a. The computation of ξmicro
+For the reader’s convenience, let us recall the defi
+nition of the spatial autocorrelation function that we
+use for computing ξmicro(tw) [41]
+C4(r, t′; T ) = 〈q(a,b)(x, t′)q(a,b)(x + r, t′)〉T , (A10)
+q(a,b)(x, t′) ≡ σ(a)(x, t′)σ(b)(x, t′), (A11)
+where t′ = tw + t, the indices (a, b) label different real
+replicas and 〈· · · 〉T stands for the average over the
+thermal noise at temperature T .
+The calculation of the correlation function is com
+putationally costly since we have NR(NR − 1)/2 pos
+sible choices of the pair of replicas. Fortunately, it
+can be accelerated using the specific multispin coding
+methods explained in Ref. [48].
+Once we have C4(r, t′; T ), we compute the inte
+grals [27, 28, 41]:
+Ik(t′; T ) =
+∫∞
+0
+d3r rkC4
+(r = (r, 0, 0), t′; T ) . (A12)
+A coherence length can be computed as
+ξk,k+1(t′, T ) = Ik+1(t′, T )
+Ik(t′, T ) . (A13)
+We define ξmicro(t, tw; H) = ξ12(t, tw; H).
+b. The ζ length scale
+This length scale was studied in details in Ref. [41]
+by refining earlier suggestions [42, 43].
+Let us consider the thermal trajectory followed by
+a given replica at the two times t1 < t2. Our basic
+quantity will be the local correlation
+cx(t1, t2) = sx(t2)sx(t1) . (A14)
+Note that cx(t1, t2) = −1 if the spin at site x has
+been flipped when going from time t1 to time t2 [oth
+erwise, cx(t1, t2) = 1]. Then, the two-time, two-site
+correlation function is
+C2+2(r, t1, t2) = 1
+N
+∑
+x
+[〈cx(t1, t2)cx+r(t1, t2)〉
+− C2(t1, t2)] , (A15)
+where
+C(t1, t2) = 1
+N
+∑
+x
+〈cx(t1, t2)〉 . (A16)
+The ideal ζ(t1, t2) is defined from the long-distance
+decay of C2+2(r, t, tw):
+C2+2(r, t1, t2) ∼ 1
+rb g(r/ζ(t1, t2)) , (A17)
+where g is an unknown scaling function. We bypass
+our lack of knowledge of g exactly as we solved this
+problem for ξmicro: by using integral estimators, recall
+Eq. (A13). Note that, by construction, ζ(t1, t2) tends
+to zero when t2 approaches t1. Conversely, we expect
+ζ(t1, t2) to grow with the later time t2.
+As for the interpretation of the length scale ζ, an
+analogy with the theory of liquids is of help. We name
+a defect a site where cx(t1, t2) = −1. Let n(t1, t2) be
+the density of defects [C(t1, t2) = 1−2n(t1, t2)] and let
+g(r) be the pair-correlation function for defects: The
+conditional probability for having a defect at site x+r,
+given that a defect is present at site x, is n(t1, t2)g(r)
+(so that, at long distances, g(r) tends to one). Given
+these definitions, one easily finds that
+C2+2(r, t1, t2) = 4 n2(t1, t2) [g(r) − 1] . (A18)
+In other words, ζ is the length scale on which defects
+are correlated. Only when ζ(t2, t1) ≈ ξmicro(t1) does
+the configuration at time t2 start to differ structurally
+from the configuration at the earlier time t1.
+Finally, let us mention that a length analogous to
+ζ(t1, t2) can be obtained with the analysis tools of
+temperature chaos, see Supplementary Note IV.
+5. Computation of the chaotic parameter
+As we explained in the main text, our goal here is to
+introduce a correlation parameter that will allow us to
+compare two different thermal protocols. This com
+parison should necessarily be local in space. We adapt
+to that end the procedure introduced in Ref. [38].
+Specifically, we select Nsph = 8000 spheres of radius
+R randomly chosen inside the system and centered at
+the central points of the elementary cells of the cu
+bic lattice. Now, let us consider two identical systems
+that are subjected to two different thermal protocols,
+which we may name protocols A1 and A2. Next one
+performs a set of independent simulations (i.e., repli
+cas) for protocol A1, and another set of independent
+
+
+12
+simulations for protocol A2. Then, the correlation co
+efficient for protocols A1 and A1 as computed on the
+k-th sphere of radius R is defined as
+X k,R
+A1,A2 = 〈[qk,R
+A1,A2 ]2〉T
+√
+〈[qk,R
+A1,A1 ]2〉T 〈[qk,R
+A2,A2 ]2〉T
+. (A19)
+In the above expression, qk,R
+A1,A2 is the overlap between
+two replicas σ and τ that have undergone thermal
+protocols A1 and A2 respectively
+qk,R
+A1,A2 = 1
+Nr
+∑
+x∈BkR
+sσ,A1
+x sτ,A2
+x , (A20)
+where NR is the number of spins within the k-th
+sphere BkR of radius R.
+The interpretation of the chaotic parameter is very
+similar to a correlation coefficient: if Xk,R
+A1,A2 = 1, spin
+configurations from thermal protocols A1 and A2 are
+completely indistinguishable inside the sphere BkR (ab
+sence of chaos). Instead, Xk,R
+A1,A2 = 0 corresponds to
+completely different configurations, which is an ex
+tremely chaotic situation.
+The reader may notice from Eq. (A19) that the
+computation of Xk,R
+A1,A2 involves an exact thermal ex
+pectation value (which could be obtained in simula
+tions only if one had simulated an infinite number of
+replicas). Unfortunately, we only have N max
+R = 512
+replicas at our disposal. Our choice has been to pro
+duce different estimates of Xk,R
+A1,A2,NR by varying NR.
+Specifically, our procedure has been the following:
+1. For each NR < N max
+R we randomly order the
+N max
+R replicas and divide them in N max
+R /NR
+groups of NR replicas.
+2. In this way, we get N max
+R /NR independent esti
+mates of Xk,R
+A1,A2,NR .
+3. In order to erase the effect of the initial per
+mutation of the N max
+R replicas, we repeat this
+procedure 10 times for all NR < N max
+R.
+In a nutshell, for every sphere of radius R we obtain
+Nthermal(NR) estimates of Xk,r
+A1,A2,NR where
+Nthermal(NR < N max
+R ) = 10 × N max
+R
+NR , (A21)
+or
+Nthermal(NR = N max
+R ) = 1 . (A22)
+We average the Nthermal estimates of Xk,R
+A1 ,A2 ,NR
+for every NR and finally, in a complete analogy with
+Ref. [38], we compute the extrapolation of the chaotic
+parameter to an infinite number of replicas by means
+of a simple linear extrapolation
+X k,R
+A1,A2,NR = X k,R
+A1,A2,∞ + Ak,R
+A1 ,A2
+NR , (A23)
+whereX k,R
+A1,A2,∞ is our best estimation of Xk,R
+A1,A2 .
+More complicated extrapolations do not seem to
+present advantages (see SI in [38]). Finally, in order to explore the statistical informa
+tion carried by the Nsph = 8000 spheres, we define the
+distribution function
+F (X ̃ , A1, A2, R) = Probability[Xk,R
+A1,A2 < X ̃ ] . (A24)
+Some examples of this distribution function are dis
+played in Fig. 4 in the main text.
+ACKNOWLEDGMENTS
+We acknowledge the precious contributions and
+ideas of our dear late friend and collaborator Raffaele
+Tripiccione. The Janus project would have been im
+possible without Lele’s technical expertise, good sense
+and kindness, and we dedicate this work to him. We thank Prof. R. Orbach for discussions. This work was partly supported by grants
+No. PID2020-112936GB-I00, PID2019-103939RB-I00,
+No. PGC2018-094684-B-C21 and No. PGC2018
+094684-B-C22 funded by Ministerio de Economía y
+Competitividad, Agencia Estatal de Investigación and
+Fondo Europeo de Desarrollo Regional (FEDER)
+(Spain and European Union), by grants No. GR21014
+and No. IB20079 (partially funded by FEDER) funded
+by Junta the Extremadura (Spain), and by the Atrac
+ción de Talento program (Ref. 2019-T1/TIC-12776)
+funded by Comunidad de Madrid and Universidad
+Complutense de Madrid (Spain). This project has re
+ceived funding from the European Research Council
+under the European Union’s Horizon 2020 research
+and innovation programme (grant No. 694925,G.
+Parisi). IGAP was supported by MCIU (Spain)
+through FPU Grant No. FPU18/02665. JMG was
+supported by the Ministerio de Universidades and
+the European Union “NextGeneration EU/PRTR”
+through 2021-2023 Margarita Salas grant.
+Author contributions
+D.I. and A.T. contributed to the design of the
+Janus II project. J.M.G.-N. and D.N. contributed
+Janus II/Janus simulation software. M.B.-J., E.C.,
+A.C., L.A.F, J.M.G.-N., I.G.-A.P., A.G.-G., D.I.,
+A.M., A.M.-S., I.P., S.P.-G., S.F.S. and A.T. con
+tributed to Janus II hardware and software develop
+ment. L.A.F., E.M., V.M.-M. and I.P. suggested un
+dertaking this project. L.A.F., E.M., V.M.-M., I.-P.,
+F.R.-T. and J.J. R.-L. designed the research. J.M.-G
+and I.P. analyzed the data. M.B.-J., L.A.F., E.M.,
+V.M.-M., J.M.-G., I.P., G.P., B.S., J.J.R.-L., F.R.-T.
+and D.Y. discussed the results. L.A.F., E.M., V.M.
+M., J.M.-G., I.P., J.J.R-L., B.S., F.R.-T. and D.Y.
+wrote the paper.
+
+
+13
+Data availability
+The data contained in the figures of this pa
+per, accompanied by the gnuplot script files that
+generate these figures, are publicly available a
+https://github.com/janusII/Rejuvenation_memory.git.
+The data that support the findings of this study
+are available from the corresponding author upon
+reasonable request.
+Code availability
+The codes that support the findings of this study are
+available from the corresponding author upon reason
+able request
+
+
+Supplementary Information. Memory and rejuvenation in spin glasses:
+aging systems are ruled by more than one length-scale
+M. Baity-Jesi,1 E. Calore,2 A. Cruz,3, 4 L.A. Fernandez,5, 4 J.M. Gil-Narvion,4 I. Gonzalez-Adalid Pemartin,5
+A. Gordillo-Guerrero,6, 7, 4 D. Iñiguez,4, 8 A. Maiorano,9, 4 E. Marinari,10 V. Martin-Mayor,5, 4
+J. Moreno-Gordo,4, 3, 11, 7 A. Muñoz Sudupe,5, 4 D. Navarro,12 I. Paga,13, ∗ G. Parisi,10 S. Perez-Gaviro,3, 4
+F. Ricci-Tersenghi,10 J.J. Ruiz-Lorenzo,11, 7, 4 S.F. Schifano,14 B. Seoane,5, 4 A. Tarancon,3, 4 and D. Yllanes15, 4 (Janus Collaboration)
+1Eawag, Überlandstrasse 133, CH-8600 Dübendorf, Switzerland
+2Dipartimento di Fisica e Scienze della Terra,
+Università di Ferrara and INFN, Sezione di Ferrara, I-44122 Ferrara, Italy
+3Departamento de Física Teórica, Universidad de Zaragoza, 50009 Zaragoza, Spain
+4Instituto de Biocomputación y Física de Sistemas Complejos (BIFI), 50018 Zaragoza, Spain
+5Departamento de Física Teórica, Universidad Complutense, 28040 Madrid, Spain
+6Departamento de Ingeniería Eléctrica, Electrónica y Automática, U. de Extremadura, 10003, Cáceres, Spain
+7Instituto de Computación Científica Avanzada (ICCAEx),
+Universidad de Extremadura, 06006 Badajoz, Spain
+8Fundación ARAID, Diputación General de Aragón, 50018 Zaragoza, Spain
+9Dipartimento di Biotecnologie, Chimica e Farmacia, Università degli studi di Siena,
+53100 Siena, Italy and INFN, Sezione di Roma 1, 00185 Rome, Italy
+10Dipartimento di Fisica, Sapienza Università di Roma, and CNR-Nanotec,
+Rome unit and INFN, Sezione di Roma 1, 00185 Rome, Italy
+11Departamento de Física, Universidad de Extremadura, 06006 Badajoz, Spain
+12Departamento de Ingeniería, Electrónica y Comunicaciones and I3A, U. de Zaragoza, 50018 Zaragoza, Spain
+13Dipartimento di Fisica, Sapienza Università di Roma,
+and CNR-Nanotec, Rome unit, Sezione di Roma 1, 00185 Rome, Italy
+14Dipartimento di Scienze Chimiche e Farmaceutiche,
+Università di Ferrara e INFN Sezione di Ferrara, I-44122 Ferrara, Italy
+15Chan Zuckerberg Biohub, San Francisco, CA, 94158
+(Dated: August 31, 2022)
+SUPPLEMENTARY NOTE I. THE
+MAGNETIC RESPONSE IS SAMPLE
+INDEPENDENT
+The main quantities used in our numerical experi
+ments are the relaxation function, SZFC(t, tw; H) and
+the time at which it peaks, the so-called effective time
+teHff ∝ tw. The effective time can be treated as the
+bridge to connect the macroscopic feature of the sys
+tem to the microscopic one, see Methods. In exper
+iments, all these quantities are computed for a given
+disorder, and this is the approach we follow as well.
+However, one may wonder about the variability caused
+by the particular disorder realization one is looking at.
+This is the question that we address in this Supple
+mentary Note.
+As a particularly relevant example, let us consider
+the position of the peak of the relaxation function for
+a given magnetic field H, namely teHff . We have sim
+ulated four independent samples, i.e. disorder real
+izations, that we name Si for i = 1, 2, 3 and 4. For
+each sample, we extracted the effective time teSiff,H fol
+lowing the techniques introduced in Refs. [1, 2]. We
+specialize to the relevant case of the H-dependence of
+decay of the ratio log(teSiff,H /teSiff,H→0+ ) for i = 1, .., NS
+as computed for the native protocols at our coldest
+∗ ilaria.paga@gmail.com
+temperature (T = 0.5) and tw = t↓w + 231.25. As the
+reader can check in Fig. 1, the data for the different
+samples turned out to be statistically compatible.
+−0.3
+−0.2
+−0.1
+0
+0 (0.01)2 (0.014)2 (0.017)2
+T = 0.5, native : tw = t↓w + 231.25
+log (teff
+Si,H /teff
+Si,H →0+
+)
+H2
+S0
+S1
+S2
+S3
+FIG. 1. Logarithm of the ratio of effective times
+log(teSiff,H /teff
+Si,H→0+ ) versus squared magnetic field, as com
+puted for our four independent samples S1, S2, S3 and S4.
+The system undergoes a Zero-Field Cooled protocol (i.e. a
+native protocol) at temperature T = 0.5 and waiting time
+tw = t↓w + 231.25 (recall that tw = 231.25). For each sam
+ple, we construct the relaxation function, SZSiFC(t, tw; H),
+and extract from it the teSiff,H values. Errors are computed
+with a jackknife method applied to the 512 replicas that
+we simulate for every sample.
+arXiv:2207.06207v2 [cond-mat.dis-nn] 30 Aug 2022
+
+
+2
+SUPPLEMENTARY NOTE II. THE
+ZERO-FIELD COOLING (ZFC) NUMERICAL
+EXPERIMENT WITH A JUMP TO T2 = 0.7
+In Figure 1—main text, we have illustrated the
+thermal protocol in our numerical experiments for
+the cold temperature T2 = 0.5. Now, the reader
+may rightly wonder about how the relaxation func
+tion looks like when the temperature jump does not
+meet the temperature-chaos requirement expressed by
+Eq. (2)—main text. The answer to this question can
+be found in Fig. 2, where the same thermal protocol
+was considered, but we simulated a more modest tem
+perature jump from T1 = 0.9 to T2 = 0.7, which does
+not meet the chaos’ requirement. In agreement with the results in the main text, re
+juvenation in the jump to T2 = 0.7 turns out to be
+only partial: even for the shortest tw, the aging peak
+is visible in the form of a shoulder when jumping to
+T2 = 0.7, see Fig. 2–central panel. Instead, the aging
+peak peaks is absent in the native protocol (not even a
+shoulder is visible for tw = 210 in Fig. 2–left–bottom).
+SUPPLEMENTARY NOTE III. ON THE
+GROWTH OF THE COHERENCE LENGTH,
+ζ(t1, t2)
+As explained in the main text and in Methods, the
+length scale ζ(t1, t2) allows us to compare quantita
+tively the spin configurations at the two times t1 < t2.
+Indeed, ζ(t1, t2) is the length scale at which significant
+changes occurred. It is clear, then, that ζ is very im
+portant to rationalize the memory effect found in our
+numerical experiments. However, the time growth of
+ζ may be intricate. In this note we illustrate some
+features of this growth for the two main protocols con
+sidered in this work, namely the native protocol and
+the temperature jump protocol. In fact, for jump protocols only and in shorter
+length scales, the growth of ζ(t1=tw, t2=tw + t) was
+studied in Ref. [4]. For t tw, the time growth of
+ζ turned out to be power law, with the same expo
+nent found for ξmicro. Yet, when t approached tw it
+was found that ζ saturated at a value approximately
+equal to ξmicro(tw) [given the way we compute it, we
+expect that ζ(t1, t2) will be upper-bounded by the
+smallest of ξmicro(t1) and ξmicro(t2)]. Our aim here
+will be twofold. First, we shall check for jump proto
+cols whether or not these findings to the larger length
+scales reached in this work. Our second goal will be
+presenting, for the first time we believe, results on ζ
+as computed for temperature-jump protocols. Indeed, the two thermal protocols are compared on
+figure 3. We find rather different time-behaviours for
+both kinds of thermal histories:
+• For native protocols, the curves for the different
+tw start to significantly differ for time t ∼ tw,
+when a saturation value is approached.
+• For our jump protocols instead, the curves corre
+sponding to the different waiting time are almost
+statistically compatible.
+In other words, native protocols behave in agree
+ment with our expectations from older simulations [4].
+Indeed, Fig. 4 confirms that ζ(t1 = tw, t2 = t1 +t) sat
+urates to the ξmicro(tw) value. Instead, for the jump
+protocols, ζ(t1, t2) is significantly smaller than ξmicro
+(and, accordingly, data show no sign of saturation).
+SUPPLEMENTARY NOTE IV. RE
+OBTAINING ζ WITH THE TOOLS OF
+TEMPERATURE CHAOS
+Our goal here will be identifying the length scale
+ζ(t1, t2) discussed in the main text, in Methods and
+in the Supplementary Note II, using the analysis tools
+that we employ to discuss temperature chaos.
+The main difference will be in that in the compu
+tation of ζ(t1, t2) the spin configurations of the single
+replica are compared at times t1 and t2. Instead, here
+we shall be considering two independent replicas, one
+taken at time t1, the other at time t2. The key point
+is that the distribution function for the chaotic corre
+lation parameter X turns out to be strongly depen
+dent on the radius of the sphere (remember that X
+is computed by restricting our attention to the inte
+rior points of randomly chosen spheres of radius R,
+see Methods). Now, it will be found that the distri
+bution function extending to smaller values of X (i.e.
+the strongest chaotic signal) is found, precisely, when
+R ≈ ζ(t1, t2).
+Specifically, we shall compare configurations for dif
+ferent times tw and for different sphere radius R. In
+order to lighten the notation we give a different label
+in Table I to all the protocols used to compute the
+chaotic correlation parameter X (remember that X is
+always computed for a pair of protocols).
+In Fig. 5 we show the comparison between configu
+rations at T = 0.9 just before the temperature jump
+against configurations at T = 0.5 for several times tw
+after the temperature jump. The analogous data for
+the jump to T = 0.7 can be seen in Fig. 6. For the
+shortest tw (when ζ is very small), i.e. protocols B5
+and B7, most of the spheres have X ≈ 1. We can
+only find a tail of smaller correlation parameters for
+spheres of radius R = 1. However, at later times tw
+after the temperature jump, corresponding to config
+urations E5 and E7, the relevant scale to observe the
+chaotic signal is R = 3 for the temperature jump to
+T = 0.5 and R ∈ [3, 5] for the temperature jump to
+T = 0.7.
+In conclusion, we find that the optimal R for com
+paring the configurations right before the jump with
+configurations at time tw after the jump goes from
+R ≈ 1 for very short tw to R = 3 (for our largest tw
+in the jump to 0.9) or R ∈ [3, 5] for the temperature
+jump to T = 0.7. The comparison of these results with
+the values of ζ in Fig. 3 suggests that, indeed, the two
+
+
+3
+0.015
+0.020
+0.025
+8 16 24 32
+T = 0.9
+T = 0.7
+temperature jump
+temperature jump back
+t↓w → 231.25 MC steps at T = 0.9
+t↑w → 231.25 MC steps at T = 0.9
++ 231.25 MC steps at T = 0.7
+Rejuvenation
+Memory
+0.010
+0.015
+0.020
+0.025
+0.030
+8 16 24 32 8 16 24 32
+0.015
+0.020
+0.025
+8 16 24 32
+S(t, tw; H = 0.01)
+log2 t
+tw = 222
+tw = 226.5
+tw = 231.25
+S(t, tw; H = 0.01)
+log2 t
+tw = 210
+tw = 215.625
+tw = 223.5
+tw = 231.25
+log2 t
+tw = 210 after t↓w
+tw = 215.625 after t↓w
+tw = 223.5 after t↓w
+tw = 231.25 after t↓w
+S(t, tw; H = 0.01)
+log2 t
+tw = 210 after t↑w
+FIG. 2. The zero-field cooling (ZFC) numerical experiment at the cold temperature T2 = 0.7. (This figure
+is the analog of Figure 1—main text, but the temperature jump is T1 = 0.9 −→ T2 = 0.7). The initial random spin
+configuration is placed instantaneously at the working temperature and let relax for a time tw without field. At time
+tw, a magnetic field H = 0.01 is applied and the magnetic density, MZFC(t, tw; H), is recorded. Left panels show
+the relaxation function SZFC(t, tw; H), for the native runs at the hotter, T1 = 0.9, and colder, T2 = 0.7, temperatures
+(both below the glass temperature Tg = 1.102(3)[3]). The physically interesting peak of the SZFC(t, tw; H) is the one at
+time teHff ' tw . In our protocol (schematized by the green arrows), after a waiting time t↓w = 231.25, the temperature
+is suddenly dropped from the initial temperature T1 = 0.9 to the colder temperature T2 = 0.7. Then, the system is
+let relax at T2 for an additional time, after which the magnetic field is switched on and the function SZFC(t, tw; H)
+shown in the central-bottom panel is measured. Waiting times for these jump runs are reported in the legend. As
+we have explained in the Main, the cold temperature T2 = 0.7 does not satisfy the chaos’ requirement, and, so, the
+rejuvenation effect is weak (see Eq. (2) of the Main). In all cases, error bars are one standard deviation.
+approaches are featuring the same length scale.
+SUPPLEMENTARY NOTE V. THE
+TEMPERATURE-CHAOS VIEWPOINT ON
+MEMORY
+In this supplementary note, we show a long numer
+ical simulation that allows us to observe memory ef
+fects from the Temperature Chaos point of view.
+The studied simulation starts at temperature T =
+0.9 where it ages for t↓w = 231.25, then, the tempera
+ture of the simulation jumps to T = 0.5 where it ages
+for a time t↑w = 231.25. Finally, the temperature of
+the thermal bath in the simulation raises up again to
+T = 0.9 where it ages for a time tw = 231.
+We select spheres of radius R = 3 and we compute
+the chaotic parameter restricted to those spheres, just
+as explained in the main text.
+For the computation of the chaotic parameter, we
+select as a reference the configurations of the system
+at temperature T = 0.9 just before the temperature
+
+
+4
+2
+4
+T = 0.5
+native : triangles jump : dots
+2
+4
+6
+10 15 20 25 30
+T = 0.7
+ζ(t1, t2)
+tw = 231.25
+tw = 223.5
+log2(t)
+tw = 215.625
+tw = 210
+FIG. 3. Growth of the length scale, ζ(t1, t2), in absence
+of an external magnetic field, for native protocols (trian
+gles) and for temperature jumps (dots). In both cases,
+we present results for several waiting times tw. For native
+protocols, a fully disordered system (i.e. infinite tempera
+ture) is placed at the initial time working temperature T
+and let to evolve there (t1 = tw and t2 = t + tw for this
+protocols). Instead, in temperature jumps a fully disor
+dered system is suddenly placed at T = 0.9 where it is let
+to relax for a time t↓w. Next, the temperature is instanta
+neously lowered to T . For jump protocols, t1 = t↓w +tw and
+t2 = t1 + t. On the top, data obtained for the measuring
+temperature T = 0.5; on the bottom, data for at the hot
+temperature T = 0.7. Errors are obtained through Jack
+knife propagation of the sample-to-sample fluctuations.
+2
+4
+6
+T = 0.5
+ζ(t1, t2) : triangles ξmicro(tw, t) : dots
+2
+4
+6
+8
+10
+10 15 20 25 30
+T = 0.7
+log2(t)
+tw = 210
+tw = 215.625 tw = 223.5
+tw = 231.25
+FIG. 4. The data for ζ(t1 = tw, t2 = t + tw) (triangles)
+from Fig. 3, native protocols only, are compared with the
+lengths ξmicro(t2 = t + tw) computed for the same simula
+tions.
+jump to T = 0.5 which correspond with configuration
+A9 in Table I, and we compare them with configu
+rations spaced along the above described simulations,
+namely B5, C5, D5, E5, B9, C9, D9, and E9 in Table I. The results of these computations are shown in
+Fig. 7. The initial situation, corresponding to the pur
+ple points, represents a non-chaotic situation in which
+configurations at T = 0.9 and T = 0.5 are similar
+(i.e. X ≈ 1 for most spheres). When the color be
+comes lighter, the simulation at T = 0.5 ages, and
+the configurations differ more and more from the ref
+erence configuration at T = 0.9. Indeed, the distribu
+tion function shows a small tail at smaller values of X
+(however, even in the most extreme situation x < 0.8
+only for 1% of the spheres).
+When the temperature jumps back to T = 0.9, the
+distribution function evolves very quickly to a non
+chaotic situation. The final situation, corresponding
+to the distribution function displayed with red points,
+is a perfect example of memory effects in Spin Glasses.
+The system at this point explores the same configu
+rations that used to explore before the temperature
+jump, just as its excursion to T = 0.5 never happened.
+SUPPLEMENTARY NOTE VI. THE
+OPTIMAL SPHERE SIZE WHEN ξmicro IS
+TRULY DIFFERENT
+In the main text (specifically, in the analysis lead
+ing to Fig. 4 in the main text) we needed to face
+a problem never encountered previously in numeri
+cal simulations. Specifically, we wanted to compare
+spin configurations from a thermal protocol produc
+ing ξmicro ≈ 16.6 a0 with configurations with a proto
+col reaching ξmicro ≈ 5.8 a0.
+System T type tw
+A5 SG 0.5 native t↓w + 231.25
+B5 SG 0.5 jump t↓w + 210
+C5 SG 0.5 jump t↓w + 215.625
+D5 SG 0.5 jump t↓w + 223.5
+E5 SG 0.5 jump t↓w + 231.25
+A7 SG 0.7 native t↓w + 231.25
+B7 SG 0.7 jump t↓w + 210
+C7 SG 0.7 jump t↓w + 215.625
+D7 SG 0.7 jump t↓w + 223.5
+E7 SG 0.7 jump t↓w + 231.25
+A9 SG 0.9 native t↓w
+B9 SG 0.9 jump/back t↓w + t↑w + 210
+C9 SG 0.9 jump/back t↓w + t↑w + 215.625
+D9 SG 0.9 jump/back t↓w + t↑w + 223.5
+E9 SG 0.9 jump/back t↓w + t↑w + 231
+A’5 DIM 0.5 native 76
+B’5 DIM 0.5 jump 430 + 69
+A’7 DIM 0.7 native 197
+B’7 DIM 0.7 jump 430 + 165
+A’9 DIM 0.9 native 430
+TABLE I. Main parameters for each of the numerical
+simulations. SG stands for Spin Glass, while DIM means
+Diluted Ising Model. t↓w corresponds to 231.25 steps at
+T = 0.9, t↑w corresponds to 231.25 steps at T = 0.5 as
+appears in the main text. For details about the thermal
+protocol see the main text, in particular Fig. 1, where
+we explicit the difference between the fixed-temperature
+protocol (native), the jump protocol, and the jump-back
+protocol.
+
+
+5
+To address this problem, we computed the distri
+bution function F (X ̃ ) for various sphere radius for
+two models. One of the models is a spin glass (the
+Edwards-Anderson model considered in this work),
+the other is the Diluted Ising Model (DIM; this is a
+ferromagnetic model where temperature chaos is ab
+sent). As explained in the main text and in Methods,
+the conditions are carefully matched in both compu
+tations. Hence, we consider that a given R is safe
+to use when the DIM distribution function concen
+trates at X ≈ 1. As Fig. 8 shows, this is the case
+for R = 3 a0 and 5 a0. Yet, when R becomes sig
+nificantly larger than the smallest coherence length
+ξmicro ≈ 5.8 a0, we start finding smaller values of the
+correlation parameter X even for the chaos-free DIM.
+This suggests that including in the analysis spheres
+larger than ξmicro may produce misleading results (al
+though in all cases the spin-glass distributions have a
+much larger weight at small X). The good news are
+that, for safe sphere radius R ≤ ξmicro, the distribu
+tion function show a very weak dependence on R (see
+Fig. 8).
+[1] Q. Zhai, I. Paga, M. Baity-Jesi, E. Calore, A. Cruz,
+L. A. Fernandez, J. M. Gil-Narvion, I. Gonzalez
+Adalid Pemartin, A. Gordillo-Guerrero, D. Iñiguez,
+A. Maiorano, E. Marinari, V. Martin-Mayor,
+J. Moreno-Gordo, A. Muñoz Sudupe, D. Navarro,
+R. L. Orbach, G. Parisi, S. Perez-Gaviro, F. Ricci
+Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano, D. L.
+Schlagel, B. Seoane, A. Tarancon, R. Tripiccione, and
+D. Yllanes, Phys. Rev. Lett. 125, 237202 (2020).
+[2] I. Paga, Q. Zhai, M. Baity-Jesi, E. Calore, A. Cruz,
+L. A. Fernandez, J. M. Gil-Narvion, I. Gonzalez
+Adalid Pemartin, A. Gordillo-Guerrero, D. Iñiguez,
+A. Maiorano, E. Marinari, V. Martin-Mayor,
+J. Moreno-Gordo, A. Muñoz-Sudupe, D. Navarro,
+R. L. Orbach, G. Parisi, S. Perez-Gaviro, F. Ricci
+Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano, D. L.
+Schlagel, B. Seoane, A. Tarancon, R. Tripiccione, and
+D. Yllanes, J. Stat. Mech. 2021, 033301 (2021).
+[3] M. Baity-Jesi, R. A. Baños, A. Cruz, L. A. Fernandez,
+J. M. Gil-Narvion, A. Gordillo-Guerrero, D. Iniguez,
+A. Maiorano, F. Mantovani, E. Marinari, V. Martín
+Mayor, J. Monforte-Garcia, A. Muñoz Sudupe,
+D. Navarro, G. Parisi, S. Perez-Gaviro, M. Pivanti,
+F. Ricci-Tersenghi, J. J. Ruiz-Lorenzo, S. F. Schifano,
+B. Seoane, A. Tarancon, R. Tripiccione, and D. Yl
+lanes (Janus Collaboration), Phys. Rev. B 88, 224416
+(2013), arXiv:1310.2910.
+[4] F. Belletti, A. Cruz, L. A. Fernandez, A. Gordillo
+Guerrero, M. Guidetti, A. Maiorano, F. Manto
+vani, E. Marinari, V. Martín-Mayor, J. Monforte,
+A. Muñoz Sudupe, D. Navarro, G. Parisi, S. Perez
+Gaviro, J. J. Ruiz-Lorenzo, S. F. Schifano, D. Sciretti,
+A. Tarancon, R. Tripiccione, and D. Yllanes (Janus
+Collaboration), J. Stat. Phys. 135, 1121 (2009).
+
+
+6
+0.0001
+0.001
+0.01
+0.1
+1
+(A9,B5) (A9,C5)
+0.0001
+0.001
+0.01
+0.1
+1
+0.5 0.6 0.7 0.8 0.9
+(A9,D5)
+0.5 0.6 0.7 0.8 0.9 1
+(A9,E5)
+F(  ̃
+X)
+R=1
+R=3
+R=5
+R=7
+R=9
+R = 11
+R = 13
+R = 15
+F(  ̃
+X)
+X ̃ X ̃
+FIG. 5. Fraction of the spheres with a chaotic parameter X < X ̃ , as obtained for different pairs of protocols and different
+radius of the studied spherical regions. The compared configurations belong to the temperature jump from T = 0.9 to
+T = 0.5. Every panel shows in the title the used pair of configurations according to the notation introduced in Table I.
+0.0001
+0.001
+0.01
+0.1
+1
+(A9,B7) (A9,C7)
+0.0001
+0.001
+0.01
+0.1
+1
+0.7 0.8 0.9
+(A9,D7)
+0.7 0.8 0.9 1
+(A9,E7)
+F(  ̃
+X)
+R=1
+R=3
+R=5
+R=7
+R=9
+R = 11
+R = 13
+R = 15
+F(  ̃
+X)
+X ̃ X ̃
+FIG. 6. Fraction of the spheres with a chaotic parameter X < X ̃ , as obtained for different pairs of protocols and different
+radius of the studied spherical regions. The compared configurations belong to the temperature jump from T = 0.9 to
+T = 0.7. Every panel shows in the title the used pair of configurations according to the notation introduced in Table I.
+
+
+7
+0.0001
+0.001
+0.01
+0.1
+1
+0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1
+F(  ̃
+X)
+X ̃
+(A9, B5)
+(A9, C5)
+(A9, D5)
+(A9, E5)
+(A9, B9)
+(A9, C9)
+(A9, D9)
+(A9, E9)
+FIG. 7. Distribution function of the chaotic parameter computed in spheres of radius R = 3. We simulate a very long
+simulation experimenting two temperature jumps and we compare the last configurations before the temperature jump
+from T = 0.9 to T = 0.5 (i.e. configurations A9 in I) with several configurations along the simulation (i.e. B9,C9,D9,
+and E9 in Table I).
+0.0001
+0.001
+0.01
+0.1
+1 R=3
+0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1
+R=5
+0.0001
+0.001
+0.01
+0.1
+1
+0.4 0.5 0.6 0.7 0.8 0.9 1
+R = 10
+0.4 0.5 0.6 0.7 0.8 0.9 1 0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1
+R = 15
+F(  ̃
+X)
+SG: (A5,B5)
+SG: (A5,C5)
+SG: (A5,D5)
+SG: (A5,E5)
+DIM: (A′5,A′9)
+DIM: (A′5,B′5)
+F(  ̃
+X)
+X ̃ X ̃
+FIG. 8. Fraction of the spheres with a chaotic parameter X < X ̃ , as obtained for different pairs of protocols and different
+radius of the studied spherical regions. The compared configurations are exactly the same that appear in the top part
+of Fig. 4 in the main text (for the reader’s convenience we give as well in Table I the protocols labelling). We include in
+the plots a comparison with the Diluted Ising Model (DIM) where no temperature chaos is expected.

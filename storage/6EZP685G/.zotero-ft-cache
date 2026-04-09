@@ -1,0 +1,1250 @@
+An overview of projection methods for incompressible flows
+J.L. Guermond a,b,*,1, P. Minev c,2, Jie Shen d,3
+a LIMSI (CNRS-UPR 3251), BP 133, 91403 Orsay, France b Department of Mathematics, Texas A&M University, College Station, TX 77843-3368, USA c Department of Mathematical and Statistical Sciences, University of Alberta, Edmonton, Canada T6G 2G1 d Department of Mathematics, Purdue University, West Lafayette, IN 47907, USA
+Received 10 June 2004; received in revised form 22 August 2005; accepted 21 October 2005
+Abstract
+A series of numerical issues related to the analysis and implementation of fractional step methods for incompressible flows are addressed in this paper. These methods are often referred to in the literature as projection methods, and can be classified into three classes, namely the pressure-correction methods, the velocity-correction methods, and the consistent splitting methods. For each class of schemes, theoretical and numerical convergence results available in the literature are reviewed and open questions are discussed. The essential results are summarized in a table which could serve as a useful reference to numerical analysts and practitioners. Published by Elsevier B.V.
+MSC: 65N35; 65N22; 65F05; 35J05
+Keywords: Navier–Stokes equations; Projection methods; Fractional step methods; Incompressibility; Finite elements; Spectral approximations
+1. Introduction
+A major difficulty for the numerical simulation of incompressible flows is that the velocity and the pressure are coupled by the incompressibility constraint. The interest in using projection methods to overcome this difficulty in time-dependent viscous incompressible flows started in the late 1960s with the ground breaking work of Chorin and Temam [8,51]. The most attractive feature of projection methods is that, at each time step, one only needs to solve a sequence of decoupled elliptic equations for the velocity and the pressure, making it very efficient for large scale numerical simulations. Although projection methods can be viewed as fractional/splitting step methods, the usual methodology developed for fractional step method (see e.g., Yanenko [57] or Glowinski [13, Chap. II]) does not apply directly, since the pressure is not a dynamic variable, i.e., the Navier–Stokes equations are not of Cauchy–Kovalevskaya type. As a consequence, it is non-trivial to develop and analyze higher-order projection methods, and over the last 35 years, a large body of literature has been devoted to the construction, analysis, and implementation of projection-type schemes, and the search for optimal projection schemes has been a pre-occupation of many researchers worldwide (see e.g., Glowinski [13, Chap. VII] and Prohl [41] for reviews). Over the years many valuable results as well as a significant amount of erroneous or misleading statements
+0045-7825/$ - see front matter Published by Elsevier B.V. doi:10.1016/j.cma.2005.10.010
+* Corresponding author. Address: Department of Mathematics, Texas A&M University, College Station, TX 77843-3368, USA. Tel.: +1 979 862 4890; fax: +1 979 862 4190. E-mail addresses: guermond@math.tamu.edu, guermond@limsi.fr (J.L. Guermond), minev@ualberta.ca (P. Minev), shen@math.purdue.edu (J. Shen). 1 The work of this author has been supported by CNRS and ICES at UT under ICES Visiting Faculty Fellowships. 2 The work of this author is supported by a Discovery Grant of NSERC. 3 The work of this author is partially supported by NFS grants DMS-0243191 and DMS-0311915.
+www.elsevier.com/locate/cma
+Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+have been produced. In the last couple of years, several new developments emerged addressing many theoretical and implementation issues which had been elusive for a long time (cf. [27,24,26] among others). We now believe that a rather clear picture of the situation is emerging, and we feel that the time has come for a comprehensive overview of projection methods. The goal of this paper is fourfold: (i) to present the best approximation results available to date for each class of schemes; (ii) to review important implementation issues scarcely discussed in the literature; (iii) to correct some erroneous or misleading statements made in the literature (including some made by ourselves); and (iv) to list some open questions for future research. This paper is organized as follows. We introduce some notations and recall some preliminary results in Section 2. In Sections 3–5 we are only concerned with time discretization; we present the pressure-correction, velocity-correction, and consistent splitting schemes, respectively, and we review available results for each of them. In Sections 6–9, we discuss various issues related to space discretization. Then, in Section 10, we consider the problem with open boundary conditions. Some open questions and concluding remarks are reported in the final section.
+2. Notations and preliminaries
+We consider the time-dependent Navier–Stokes equations on a finite time interval [0,T] and in an open, connected, bounded Lipschitz domain X  Rdðd 1⁄4 2; or 3Þ. At times we shall assume that X has the H2-elliptic regularity property, meaning that for every right-hand side in L2, the solution to the Stokes problem (with zero boundary condition and zero divergence) belongs to H2 · H1. This property is known to hold if X is C1;1 or if X is convex in two dimensions (see e.g., Grisvard [16], Kellogg and Osborn [33]) and in three dimensions (see Dauge [9]). The H2-regularity hypothesis will be invoked when stating convergence results on the velocity in the L2-norm. For convergence results on the velocity in the H1-norm and on the pressure in the L2-norm, we only require X to be Lipschitz. Since the precise definition of the functional settings is very important for stating stability and convergence results, we introduce the standard Sobolev spaces Hm(X) (m = 0, ±1, . . .) whose norms are denoted by k Æ km. In particular, the norm
+and inner product of L2(X) = H0(X) are denoted by k Æ k and (Æ, Æ) respectively. To account for homogeneous Dirichlet boundary conditions we define H 1
+0ðXÞ 1⁄4 fv 2 H 1ðXÞ : vjC 1⁄4 0g. Owing to the Poincare ́ inequality, for v 2 1⁄2H 1
+0ðXÞd , k$vk is a norm equivalent to kvk1. We also have
+krvk2 1⁄4 kr  vk2 þ kr  vk2; 8v 2 1⁄2H 1
+0ðXÞd . ð2:1Þ
+We introduce two spaces of solenoidal vector fields
+H 1⁄4 fv 2 1⁄2L2ðXÞd; r  v 1⁄4 0; v  njC 1⁄4 0g; ð2:2Þ
+V 1⁄4 fv 2 1⁄2H 1ðXÞd; r  v 1⁄4 0; vjC 1⁄4 0g. ð2:3Þ
+The following well-known L2-orthogonal Helmholtz decomposition, [35],
+1⁄2L2ðXÞd 1⁄4 H  rH 1ðXÞ; ð2:4Þ
+plays a key role in the analysis of projection methods. We denote by PH the L2-orthogonal projector onto H, and recall that
+PH is stable in [Hr(X)]d, r 6 2, if X has the H2-elliptic regularity stated in the introduction of this section, (see also Remark 1.6 in [52])
+kP H ukr 6 Cðr; XÞkukr. ð2:5Þ
+Since the nonlinear term in the Navier–Stokes equations does not affect the convergence rate of the splitting error, we hereafter shall mainly be concerned with the time-dependent Stokes equations written in terms of the primitive variables, namely the velocity u and the pressure p:
+otu  mr2u þ rp 1⁄4 f in X  1⁄20; T ;
+r  u 1⁄4 0 in X  1⁄20; T ;
+ujC 1⁄4 0 in 1⁄20; T ; and ujt1⁄40 1⁄4 u0 in X;
+8>< >: ð2:6Þ
+where f is a smooth source term and u0 2 H is an initial velocity field. We emphasize that all the results stated in this paper are applicable to the full nonlinear Navier–Stokes equations provided sufficient regularity on the solution holds (see, for instance, [46,44,48,10]). Note however that when natural boundary conditions are prescribed, the nonlinear term may have a tremendous influence on the well-posedness of the problem; we shall not dwell on this difficult problem, see e.g., [28]. For the sake of simplicity, we mostly consider homogeneous Dirichlet boundary conditions on the velocity. The situation where a natural boundary condition is prescribed on a part of the boundary is considered in Section 10. Let Dt > 0 be a time step and set tk = kDt for 0 6 k 6 K = [T/Dt]. Let /0, /1, . . . , /K be some sequence of functions in a Hilbert space E. We denote by /Dt this sequence, and we define the following discrete norms:
+6012 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+k/Dtk‘2ðEÞ :1⁄4 Dt
+K X
+k1⁄40
+k/k k2
+E
+!1=2
+; k/Dtk‘1ðEÞ :1⁄4 max
+06k6K k/kkE
+ . ð2:7Þ
+We denote by c a generic constant that is independent of , Dt, and h (h being the mesh-size), but possibly depends on the data and the solution. We shall use the expression A [ B to say that there exists a generic constant c such that A 6 cB.
+3. The pressure-correction schemes
+Pressure-correction schemes are time-marching techniques composed of two sub-steps for each time step: the pressure is treated explicitly or ignored in the first sub-step and is corrected in the second one by projecting the provisional velocity onto the space H introduced in (2.2).
+3.1. The non-incremental pressure-correction scheme
+The simplest pressure-correction scheme has originally been proposed by Chorin and Temam [8,51]. Using the implicit Euler time stepping, the algorithm is as follows: Set u0 = u0, then for k P 0 compute ð~ukþ1; ukþ1; pkþ1Þ by solving
+1
+Dt ð~ukþ1  ukÞ  mr2~ukþ1 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0; ð3:1Þ
+1
+Dt ðukþ1  ~ukþ1Þ þ rpkþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0.
+8<
+: ð3:2Þ
+The first sub-step accounts for viscous effects and the second one accounts for incompressibility. The second sub-step is usually referred to as the projection step, for it is a realization of the identity
+ukþ1 1⁄4 P H ~ukþ1.
+From the point of view of accuracy, the following holds:
+Theorem 3.1. Assuming that ðu; pÞ, solving (2.6), is sufficiently smooth, the solution of (3.1), (3.2), satisfies the following error estimates:
+kuDt  uDtk‘1ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘1ð1⁄2L2ðXÞd Þ 6 cðu; p; T Þ Dt;
+kpDt  pDtk‘1ðL2ðXÞÞ þ kuDt  ~uDtk‘1ð1⁄2H1ðXÞd Þ 6 cðu; p; T ÞDt1=2.
+Proof. See, for instance, Prohl [41], Rannacher [44], and Shen [46] (the first estimate holds if X has the H2-elliptic regularity property and the second one holds if X is Lipschitz). h
+Remark 3.1
+(i) From (3.2), we observe that the boundary condition $pk+1 Æ njC = 0 is enforced on the pressure. This artificial Neumann boundary condition induces a numerical boundary layer that prevents the scheme to be fully first-order on the velocity in the H1-norm and on the pressure in the L2-norm; see Rannacher [44]. (ii) This scheme has an irreducible splitting error of order OðDtÞ. Hence, using a higher-order time stepping scheme for the operator ot  m$2 does not improve the overall accuracy.
+3.2. The standard incremental pressure-correction schemes
+Since the pressure gradient is obviously missing in (3.1), it was (probably first) observed by Goda in [14] that adding an old value of the pressure gradient, say $pk, in the first sub-step and then accordingly correcting the velocity in the second sub-step increases the accuracy. This idea was made popular by Van Kan who proposed a second-order incremental pressure-correction scheme in [54].4 Using the Backward Difference Formula of second-order (BDF2)5 to approximate the time derivative, the incremental pressure-correction scheme reads as follows:
+4 The analysis of [54] is however rather formal insofar as it shows that the error is of c(h)Dt2, the constant c(h) being a mesh-dependent factor that behaves like Oð1=h2Þ. 5 The choice of a particular time discretization is not important, throughout the paper, we shall use BDF schemes although Adams schemes are perfectly acceptable.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6013
+
+
+1
+2Dt ð3~ukþ1  4uk þ uk1Þ  mr2~ukþ1 þ rpk 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0; ð3:3Þ
+1
+2Dt ð3ukþ1  3~ukþ1Þ þ rðpkþ1  pkÞ 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0.
+8><
+>: ð3:4Þ
+The second sub-step is again a projection since it is equivalent to ukþ1 1⁄4 P H ~ukþ1. For reasons that will become clear later, we hereafter refer to this algorithm as the incremental pressure-correction scheme in standard form, the term ‘‘incremental’’ will be omitted when no confusion can arise. The scheme needs to be initialized with ð~u1; u1; p1Þ and we make the following hypothesis:
+Hypothesis 3.1. ð~u1; u1; p1Þ is computed such that the following estimates hold:
+kuðDtÞ  ~u1k0 6 cDt2;
+kuðDtÞ  ~u1k1 6 cDt3=2;
+kpðDtÞ  p1k1 6 cDt.
+8>><
+>>:
+Note that the above hypothesis holds (cf. [24]) if ð~u1; u1; p1Þ are computed as follows: Set u0 = u0 and p0 = p(0), where p(0) is determined by solving
+r2pð0Þ 1⁄4 r  f ð0Þ; onpð0ÞjC 1⁄4 ðf ð0Þ þ mr2u0Þ  njC;
+and evaluate ðu1; ~u1; p1Þ from the following first-order pressure-correction scheme:
+1
+Dt ð~u1  u0Þ  mr2~u1 þ rp0 1⁄4 f ðt1Þ; ~u1jC 1⁄4 0;
+and
+1
+Dt ðu1  ~u1Þ þ rðp1  p0Þ 1⁄4 0; r  u1 1⁄4 0; u1  njC 1⁄4 0.
+The accuracy of the above algorithm is stated in the following:
+Theorem 3.2. Under the Hypothesis (3.1), if the solution to (2.6) is smooth enough in space and time, the solution to (3.3), (3.4) satisfies the following error estimates:
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2L2ðXÞd Þ 6 cðu; p; T ÞDt2;
+kpDt  pDtk‘1ðL2ðXÞÞ þ kuDt  ~uDtk‘1ð1⁄2H1ðXÞd Þ 6 cðu; p; T ÞDt.
+Proof. See Shen [48] for the semi-discrete case using the Crank–Nicolson time stepping, E and Liu [10] for an asymptotic analysis in a periodic channel, and Guermond [19] for the fully discrete case using BDF2 to march in time. (The first estimate holds if X has the H2-elliptic regularity property and the second one holds if X is Lipschitz.) h
+Remark 3.2
+(i) Though the scheme (3.3) and (3.4) is second-order accurate on the velocity in the L2-norm, it is plagued by a numerical boundary layer that prevents it to be fully second-order on the velocity in the H1-norm and on the pressure in the L2-norm. Actually, from (3.4) we observe that $(pk+1  pk) Æ njC = 0 which implies that
+rpkþ1  njC 1⁄4 rpk  njC 1⁄4    rp0  njC. ð3:5Þ
+It is this non-physical Neumann boundary condition enforced on the pressure that introduces the numerical boundary layer referred to above and consequently limits the accuracy of the scheme. (ii) Theorem 3.2 is expected to hold if the algorithm is implemented with any A-stable second-order time stepping. Since this scheme has an irreducible splitting error of OðDt2Þ, using a higher than second-order time stepping for approximating the operator ot  m$2 does not improve the overall accuracy. A related aspect of this scheme is studied by Strikwerda and Lee [50] who used a normal mode analysis in the half-plane and showed that the pressure approximation in a standard pressure-correction scheme can be at most first-order accurate.
+6014 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+3.3. The rotational incremental pressure-correction schemes
+To overcome the difficulty caused by the artificial pressure Neumann boundary condition (3.5), Timmermans, Minev and Van De Vosse proposed in [53] to slightly modify the algorithm as follows. While retaining the viscous step (3.3) unchanged 1
+2Dt ð3~ukþ1  4uk þ uk1Þ  mr2~ukþ1 þ rpk 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0; ð3:6Þ
+they proposed to replace the second step (3.4) by
+1
+2Dt ð3ukþ1  3~ukþ1Þ þ r/kþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8<
+: ð3:7Þ
+/kþ1 1⁄4 pkþ1  pk þ mr  ~ukþ1. ð3:8Þ
+To understand why the modified scheme performs better, we take the sum of (3.6) and (3.7). Noticing from (3.7) that r  r  ~ukþ1 1⁄4 r  r  ukþ1, we obtain 1
+2Dt ð3ukþ1  4uk þ uk1Þ þ mr  r  ukþ1 þ rpkþ1 1⁄4 f ðtkþ1Þ;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0.
+8<
+: ð3:9Þ
+We observe from (3.9) that
+onpkþ1jC 1⁄4 ðf ðtkþ1Þ  mr  r  ukþ1Þ  njC;
+which, unlike (3.5), is a consistent pressure boundary condition. The splitting error now manifests itself only in the form of an inexact tangential boundary condition on the velocity. In view of (3.9), where the operator $ · $ · plays a key role, the algorithm (3.6)–(3.8) is referred to in [25,24] as the incremental pressure-correction scheme in rotational form.
+Theorem 3.3. Assume that the initialization Hypothesis 3.1 holds. Provided the solution to (2.6) is smooth enough in time and space, the solution ðuk; ~uk; pkÞ to (3.6)–(3.8) satisfies the estimates:
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2L2ðXÞd Þ K Dt2;
+kuDt  uDtk‘2ð1⁄2H1ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2H1ðXÞd Þ þ kpDt  pDtk‘2ðL2ðXÞÞ K Dt3
+2.
+Proof. See Guermond and Shen [24]. (The first estimate holds if X has the H2-elliptic regularity property and the second one holds if X is Lipschitz.) h
+Remark 3.3. In [6], Brown et al. showed, using a normal modes analysis in a semi-infinite periodic channel, that the pressure approximation in the rotational formulation of the incremental pressure-correction algorithm is second-order accurate. Numerical experiments reported in [24] show that this result is valid in a periodic channel only, and that the convergence rate of 3
+2 for the pressure is likely to be the best possible for general domains when using rotational incremental pressure-correction algorithms. In general, the normal modes analysis cannot be used to prove convergence estimates when more than one space direction is not periodic. For instance, the normal mode analysis cannot account for sharp corners in polygonal domains.
+3.4. Generalization
+The above algorithms generalize to a large class of time-marching algorithms. For instance, assuming v to be a smooth function, denote by 1
+Dt ðbqvkþ1  Pq1
+j1⁄40 bjvkjÞ the qth-order backward difference formula (BDFq) that approximates
+otv(tk+1). To simplify the notation, for any sequence /Dt :1⁄4 (/0, /1, . . .) we set
+D/kþ1 1⁄4 bq/kþ1  q X1
+j1⁄40
+bj/kj. ð3:10Þ
+In particular,
+Dvkþ1 1⁄4
+vkþ1  vk if q 1⁄4 1; 3
+2 vkþ1  2vk þ 1
+2 vk1 if q 1⁄4 2.
+8<
+: ð3:11Þ
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6015
+
+
+Likewise, we denote by
+pH;kþ1 1⁄4 r X1
+j1⁄40
+cjpkj ð3:12Þ
+the rth order extrapolation for p(tk+1) where p(t) is a smooth function. In particular,
+pH;kþ1 1⁄4
+0 if r 1⁄4 0;
+pk if r 1⁄4 1;
+2pk  pk1 if r 1⁄4 2.
+8><
+>: ð3:13Þ
+Now, the pressure-correction schemes can be rewritten into the following form:
+1
+Dt bq~ukþ1  qX1
+j1⁄40
+bjukj
+!
+ mr2~ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0; ð3:14Þ
+bq
+Dt ðukþ1  ~ukþ1Þ þ r/kþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8<
+: ð3:15Þ
+/kþ1 1⁄4 pkþ1  pH;kþ1 þ vmr  ~ukþ1; ð3:16Þ
+where v is a user-defined coefficient that may be equal to 0 or 1. The choice v = 0 yields the standard forms of the algorithm, whereas v = 1 yields the rotational forms.
+Remark 3.4. If one chooses r = q  1, then the formal consistency error for the velocity in H1-norm (resp. the pressure in L2-norm) is of order q (resp. of order r = q  1). Stability and convergence results are only available for (q, r) = (1, 0) and (2, 1).
+If one chooses r = q, then the formal consistency errors for the velocity in H1-norm and the pressure in L2-norm are both of the same order. However, stability and convergence results are only available for q = r = 1. The issues related to algorithms using r P 2 are discussed in Section 11.1.
+3.5. Implementation
+One question often raised in the literature and often clouded in controversy is: which of ~ukþ1 or uk+1 is the ‘‘correct’’ velocity? It is often argued that the end-of-step velocity, namely uk+1, should be the one to be retained in actual computations since it is divergence free. However, this argument is biased since, although uk+1 is divergence free, its tangential trace is not enforced to be zero. Hence, the situation is the following: uk+1 is divergence free but does not satisfy the appropriate boundary condition, while ~ukþ1 satisfies the Dirichlet condition but is not divergence free. When looking at Theorems 3.2 and 3.3, we realize that uDt and ~uDt yield the same error estimates; that is, from the accuracy point of view there is no objective reason for preferring one field to the other. From the implementation point of view, there are two arguments in favor of eliminating uDt. First, as argued in Guermond [18], when implementing the method using finite elements and solving the projection step as a weak Poisson problem, the discrete field ukþ1
+h is discontinuous at the interface between elements; hence, ukþ1
+h is an awkward quantity to compute. Second, the field uDt can be entirely removed from the algorithm by simple algebraic manipulations. Indeed, from (3.15) it is clear that for 0 6 j 6 k  1
+bj
+Dt ðukj  ~ukjÞ þ r bj
+bq
+/kj 1⁄4 0.
+Hence, substituting ~ukj into (3.14) yields the following algorithm:
+D
+Dt ~ukþ1  mr2~ukþ1 þ r pH;kþ1 þ q X1
+j1⁄40
+bj
+bq
+/kj
+!
+1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0; ð3:17Þ
+r2/kþ1 1⁄4 bq
+Dt r  ~ukþ1; on/kþ1jC 1⁄4 0; ð3:18Þ
+/kþ1 1⁄4 pkþ1  pH;kþ1 þ vmr  ~ukþ1; ð3:19Þ
+where D~ukþ1 is defined in (3.10). It is now clear that uDt is a field that one can completely avoid to compute. When solving the nonlinear equations, the above conclusion needs to be tempered since one faces the following alternative: which of ~uk and uk should be used to compute the nonlinear term? Three semi-implicit forms of the nonlinear term
+6016 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+are usually advocated: the so-called skew-symmetric form (introduced by Temam [51]), the so-called divergence form, and the rotational form. These forms yield unconditional stability without requiring the approximate advection field to be exactly divergence-free. It is shown in [23] that using ~uk for the advection field does not spoil the overall splitting error of the algorithm. It is shown in [1] that the same result holds if one uses a method of characteristics to evaluate the nonlinear term using ~uk. It is also shown in [20] that the asymptotic error estimates remain unchanged if, instead of ~uk, the field uk is used to compute the characteristics. Numerical tests reported in [20] show that, when using a method of characteristics, the error is somewhat smaller if, instead of ~uk, the field uk is used to approximate the characteristics.
+3.6. Relation with other schemes
+We show in this section that a scheme introduced by Kim and Moin in [34] is equivalent to the rotational form of the pressure-correction method up to an appropriate change of variables.
+3.6.1. The Kim and Moin scheme; strong setting
+Although the scheme originally proposed in [34] uses the Crank–Nicolson time stepping, we henceforth adopt the BDFq approximation of otu(tk+1) to simplify the presentation. This choice does not change our conclusions. Then, the scheme
+proposed in [34] can be written as follows: Initialize adequately (uj)j=0,. . .,q1, then for k P q  1 compute ^ukþ1 solving
+1
+Dt bq^ukþ1  q X1
+j1⁄40
+bjukj
+!
+ mr2^ukþ1 1⁄4 f ðtkþ1Þ; ^ukþ1jC 1⁄4 Dt
+bq
+rwH;kþ1jC; ð3:20Þ
+then correct ^ukþ1 by computing uk+1 and wk+1 as follows:
+bq
+Dt ðukþ1  ^ukþ1Þ þ rwkþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8<
+: ð3:21Þ
+where $ww,k+1 is some approximation of $w(tk+1), w(t) being a quantity related to the pressure p(t) via p(t) = w(t)  mDt/ bq$2w(t). Although in [34] only the case ww,k+1 = wk is considered, the following choices can be used (each of them being labeled by an integer r):
+wH;kþ1 1⁄4
+0 if r 1⁄4 0;
+wk if r 1⁄4 1;
+2wk  wk1 if r 1⁄4 2.
+8><
+>: ð3:22Þ
+The problem (3.21) is solved in practice as a Poisson equation supplemented with the Neumann boundary condition
+onwkþ1jC 1⁄4 onwH;kþ1.
+The fact that the viscous step involves the trace of a gradient as a Dirichlet condition renders the method quite inconvenient for finite element discretization. As a result, successful implementations of this method are only reported with spectral or finite difference approximations where the traces of derivatives are easily available. We now show that by rewriting the above algorithm in an adequate L2 setting, we recover the rotational form of the pressure-correction algorithms described above.
+3.6.2. The Kim–Moin scheme; L2 weak setting
+We introduce the following changes of variables
+~ukþ1 1⁄4 ^ukþ1  Dt
+bq
+rwH;kþ1; ð3:23Þ
+pkþ1 1⁄4 wkþ1  m Dt
+bq
+r2wkþ1; ð3:24Þ
+pH;kþ1 1⁄4 wH;kþ1  m Dt
+bq
+r2wH;kþ1. ð3:25Þ
+The boundary condition in (3.20) implies ~ukþ1jC 1⁄4 0. Moreover, using (3.23) to substitute ^ukþ1 into the momentum equa
+tion (3.20) and taking into account (3.25), we obtain the following boundary value problem for the new velocity ~ukþ1:
+1
+Dt bq~ukþ1  q X1
+j1⁄40
+bjukj
+!
+ mr2~ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0. ð3:26Þ
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6017
+
+
+By inspecting (3.21) and (3.23), we observe that uk+1 and ~ukþ1 differ by a gradient, hence, it is convenient to introduce a quantity /k+1 such that
+bq
+Dt ðukþ1  ~ukþ1Þ þ r/kþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0.
+8<
+: ð3:27Þ
+Subtracting (3.25) from (3.24), we get
+pkþ1  pH;kþ1 1⁄4 wkþ1  wH;kþ1  m Dt
+bq
+r2ðwkþ1  wH;kþ1Þ.
+Then, taking the divergence of (3.21) and using (3.23), we obtain
+r2ðwkþ1  wH;kþ1Þ 1⁄4 bq
+Dt r  ~ukþ1.
+That is to say pkþ1  pH;kþ1 þ mr  ~ukþ1 1⁄4 wkþ1  wH;kþ1. Moreover, substituting (3.23) into (3.21), we derive
+bq
+Dt ðukþ1  ~ukþ1Þ þ r wkþ1  wH;kþ1
+  1⁄4 0.
+By comparing (3.27) and the above equation, we infer /k+1 = wk+1  ww,k+1. This means that pk+1 and /k+1 are related by
+/kþ1 1⁄4 pkþ1  pH;kþ1 þ mr  ~ukþ1. ð3:28Þ
+Note finally that (3.24) and (3.25) together with (3.22) imply
+pH;kþ1 1⁄4
+0 if r 1⁄4 0;
+pk if r 1⁄4 1;
+2pk  pk1 if r 1⁄4 2.
+8><
+>: ð3:29Þ
+In conclusion, the algorithm (3.20)–(3.22) is equivalent to (3.26)–(3.29) up to the change of variables (3.23)–(3.25). In other words, for q = 1 and r = 0, the algorithm is equivalent to the Chorin–Temam algorithm (3.1) and (3.2). The original Kim–Moin scheme, corresponding to q = 2 and r = 1, is equivalent to the incremental pressure-correction scheme in rotational form (3.6)–(3.8).
+3.7. Numerical tests
+We illustrate in this section the convergence properties of the pressure-correction algorithm using BDF2 to march in time and the first-order extrapolation of the pressure, i.e., pw,k+1 = pk.
+3.7.1. Numerical results with spectral approximation
+We first consider a square domain X = ]1, 1[2 with Dirichlet boundary conditions on the velocity. A Legendre–Galerkin approximation [47] is used in space. Denoting by PN the space of polynomials of degree less than or equal to N, we approximate the velocity and the pressure in PN  PN and PN2, respectively. We take the exact solution (u, p) of (2.6) to be
+uðx; y; tÞ 1⁄4 p sin tðsin 2py sin2 px;  sin 2px sin2 pyÞ;
+pðx; y; tÞ 1⁄4 sin t cos px sin py. ð3:30Þ
+Then the source term f is given by f = ut  $2u + $p. In the computations reported herein, we take N = 48 so that the spatial discretization errors are negligible compared with the time discretization errors. In Fig. 1, we show the pressure error field at T = 1 for a typical time step using the standard and the rotational forms of the algorithm. We observe that for the standard form of the algorithm, a numerical boundary layer appears on the two boundaries {(x, y) : x 2 (1, 1), y = ±1} where the exact pressure is such that onp 5 0 (onp = 0 on the other two boundaries). For the rotational form, there is no numerical boundary layer, but we observe large spikes at the four corners of the domain. This test suggests that the divergence correction of the rotational form successfully cured the numerical boundary layer problem. However, the large errors at the four corners degrade the global convergence rate of the pressure approximation. To better understand why there are localized large errors at the corners of the domain, we have also implemented the standard and rotational forms of the pressure-correction scheme in a periodic channel X = (0, 2p) · (1, 1). The channel is periodic in the x direction and the velocity is subject to a Dirichlet boundary condition at y = ±1. We choose the same
+6018 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+exact solution (u, p) as that given above, and we use a Fourier–Legendre spectral approximation with 48 · 49 modes guaranteeing that the spatial discretization errors are negligible compared with the time discretization errors. In Fig. 2, we show the pressure error field at T = 1 for a typical time step. The main difference between the problem set in the square domain and that set in the periodic channel is that the former has corner singularities while the latter does not. Thus, it can be conjectured that the large errors occurring at the corners of the square domain are due to the lack of smoothness of the domain. This conclusion is confirmed by the numerical experiments using mixed finite elements reported in the next subsection.
+3.7.2. Numerical results with P2=P1 finite elements
+To further assess the influence of the smoothness of the domain boundary on the accuracy of the BDF2 rotational pressure-correction method, we have performed convergence tests using P2=P1 finite elements. The tests are performed using the following analytical solution
+u 1⁄4 ðsinðx þ tÞ sinðy þ tÞ; cosðx þ tÞ cosðy þ tÞÞ; p 1⁄4 sinðx  y þ tÞ; ð3:31Þ
+in the square domain ]0,1[2 and in the circular domain fðx; yÞ; ffiffiffiffiffiffiffiffiffiffiffiffiffiffi
+x2 þ y2
+p
+6 0:5g. We show in Fig. 3 the error fields on the pressure at time T = 1 for the square and the circular domains. The mesh-size is h = 1/40 and Dt = 0.00625. The two fields are represented using the same vertical scale. The pressure field on the circular domain is free of numerical boundary layer, whereas large errors are still present at the corners of the domain for both formulations. In Fig. 4 we show the L1-norm of the error on the pressure as a function of Dt. The error is measured at T = 2. One series of computation is made on the square and the other on the circle. The mesh-size in both computations is h = 1/80. It is clear that the errors calculated on the circular domain are OðDt2Þ, whereas those calculated on the square are only OðDt1:6Þ. This result, seems to confirm that the 3
+2 convergence rate that we established for the pressure approximation in
+Fig. 1. Pressure error field at time t = 1 in a square: (left) standard form; (right) rotational form.
+Fig. 2. Error field on pressure at time t = 1 in a channel: (left) standard form; (right) rotational form.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6019
+
+
+rotational form is the best possible for general domains. However, why the corner singularity affects the convergence rate for a smooth solution is still not well understood.
+4. The velocity-correction schemes
+We review in this section a class of schemes which are referred to as velocity-correction schemes in [25,27]. These schemes have been introduced in a somewhat different (although equivalent) form by Orszag et al. [39] and Karniadakis et al. [31]. The main idea is to switch the role of the velocity and the pressure in the pressure-correction schemes, i.e., the viscous term is treated explicitly or ignored in the first substep and the velocity is corrected accordingly in the second substep.
+4.1. The non-incremental velocity-correction scheme
+Set ~u0 1⁄4 u0, and for k P 0 compute ð~ukþ1; ukþ1; pkþ1Þ by solving
+1
+Dt ðukþ1  ~ukÞ þ rpkþ1 1⁄4 f ðtkþ1Þ;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8<
+: ð4:1Þ
+1
+Dt ð~ukþ1  ukþ1Þ  mr2~ukþ1 1⁄4 0; ~ukþ1jC 1⁄4 0. ð4:2Þ
+Fig. 4. Comparison of convergence rates on pressure in L1-norm at T = 2: (j) for the circular domain; (+) for the square.
+Fig. 3. Error field on pressure in a rectangular domain (left) and on a circular domain (right).
+6020 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+It is clear that this algorithm suffers from the dual ailments of the Chorin–Temam algorithm (3.1) and (3.2), i.e., it enforces onpkþ1jC 1⁄4 f ðtkþ1Þ  n and r2~ukþ1  njC 1⁄4 0, whereas the Chorin–Temam scheme enforces mr2~ukþ1  njC 1⁄4
+f ðtkþ1Þ  n and onpk+1jC = 0. In terms of accuracy, the two algorithms are equivalent as stated in the following theorem.
+Theorem 4.1. If the solution to (2.6) is smooth enough in space and time, the solution to (4.1) and (4.2) satisfies the following error estimates:
+kuDt  uDtk‘1ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘1ð1⁄2L2ðXÞd Þ 6 cðu; p; T ÞDt;
+kpDt  pDtk‘1ðL2ðXÞÞ þ kuDt  ~uDtk‘1ð1⁄2H1ðXÞd Þ 6 cðu; p; T ÞDt1=2.
+Proof. Since the proof is very similar to that of the Chorin–Temam algorithm, we refer the readers to Shen [46], Rannacher [44], or to the proof of second-order accuracy in Guermond and Shen [25,27]. (The first estimate holds if X has the H2elliptic regularity property and the second one holds if X is Lipschitz.) h
+4.2. The standard incremental velocity-correction schemes
+We now consider the counterpart of the incremental pressure-correction algorithm in standard form. Adopt the nota
+tion of Section 3.4, and let uH;kþ1 1⁄4 Pr1
+j1⁄40cjukj be a rth order extrapolation of u(tk+1). The standard form of the incremental
+velocity-correction method is defined as follows: set ~u0 1⁄4 u0 and choose ~u1; . . . ; ~uq1 to be suitably accurate approximations of uðDtÞ; . . . ; uðtq1Þ, then for k P q  1, compute ðukþ1; ~ukþ1; pkþ1Þ by solving
+1
+Dt bqukþ1  qX1
+j1⁄40
+bj~ukj
+!
+ mr2~uH;kþ1 þ rpkþ1 1⁄4 f ðtkþ1Þ;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8><
+>: ð4:3Þ
+bq
+Dt ð~ukþ1  ukþ1Þ  mr2ð~ukþ1  ~uH;kþ1Þ 1⁄4 0; ~ukþ1jC 1⁄4 0. ð4:4Þ
+Note that (4.3) can also be written as
+ukþ1 1⁄4 P H
+qX1
+j1⁄40
+bj
+bq
+~ukj þ Dt
+bq
+mr2~uH;kþ1 þ f ðtkþ1Þ
+ !
+.
+Hence, the method (4.3) and (4.4) falls into the class of the projection methods. Since the projection step precedes the viscous step, one could also refer to these methods as ‘‘projection–diffusion’’ methods as in [3]. Let us assume that the following initialization hypothesis holds if (q, r) = (2, 1):
+Hypothesis 4.1. ~u1 is computed such that the following estimates hold:
+kuðDtÞ  ~u1k0 6 cDt2;
+kuðDtÞ  ~u1k1 6 cDt3=2;
+kuðDtÞ  ~u1k2 6 cDt.
+8><
+>:
+Note that Hypothesis 4.1 holds if ð~u1; u1; p1Þ are calculated by replacing the BDF2 formula in (4.3) and (4.4) with the implicit Euler formula at the very first time step.
+Theorem 4.2. Under the initialization Hypothesis 4.1 and provided that the solution to (2.6) is smooth enough in time and space, the solution ðuk; ~uk; pkÞ to (4.3), (4.4) with (q, r) = (2, 1) is such that
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2L2ðXÞd Þ 6 cðu; p; T ÞDt2;
+kuDt  uDtk‘1ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘1ð1⁄2L2ðXÞd Þ 6 cðu; p; T ÞDt3
+2;
+kuDt  ~uDtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  pDtk‘1ðL2ðXÞÞ 6 cðu; p; T ÞDt.
+Proof. See Guermond and Shen [27]. (The first estimate holds if X has the H2-elliptic regularity property and the two others hold if X is Lipschitz.) h
+Remark 4.1. For r = 1, observe from (4.4) that r2ð~ukþ1  ~ukÞ  njC 1⁄4 0 which implies that
+r2~ukþ1  njC 1⁄4 r2~uk  njC 1⁄4    1⁄4 r2~u0  njC.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6021
+
+
+This in turn implies
+onpkþ1jC 1⁄4 ðf ðtkþ1Þ þ mr2~u0Þ  njC. ð4:5Þ
+This is obviously an artificial Neumann boundary condition for the pressure, which is responsible for a numerical boundary layer on the pressure that limits the accuracy of the scheme, just as in the case of incremental pressure-correction schemes in standard form.
+4.3. The rotational incremental velocity-correction schemes
+The main obstacle in proving error estimates better than first-order on the velocity in the H1-norm and on the pressure in the L2-norm comes from the fact that the algorithm (4.3) and (4.4) enforces the non-realistic pressure Neumann boundary condition (4.5). This phenomenon is reminiscent of the numerical boundary layer induced by the non-physical boundary condition onpk+1jC =    = onp0jC enforced by the pressure-correction method in its standard form. This non-physical boundary condition needs to be corrected to obtain a better approximation of the pressure. Considering the identity r2~uH;kþ1 1⁄4 rr  ~uH;kþ1  r  r  ~uH;kþ1 and the fact that we are searching for divergence-free solutions, we are led to replace r2~uH;kþ1 in (4.3) and (4.4) by r  r  ~uH;kþ1. The new scheme is as follows:
+1
+Dt bqukþ1  q X1
+j1⁄40
+bj~ukj
+!
+þ mr  r  ~uH;kþ1 þ rpkþ1 1⁄4 f ðtkþ1Þ;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8>< >: ð4:6Þ
+and
+bq
+Dt ð~ukþ1  ukþ1Þ  mr2~ukþ1  mr  r  ~uH;kþ1 1⁄4 0; ~ukþ1jC 1⁄4 0. ð4:7Þ
+This scheme, introduced by Guermond and Shen in [25,27], is referred to as the rotational form of the velocity-correction algorithm.
+The rotational form yields a better pressure approximation than the standard form as stated in the following theorem.
+Theorem 4.3. If the solution to (2.6) is smooth enough in time and space, and under the initialization Hypothesis 4.1, the solution ðuk; ~uk; pkÞ to (4.6) and (4.7) with (q, r) = (2, 1) satisfies the estimates:
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2L2ðXÞd Þ 6 cðue; pe; T ÞDt2;
+kuDt  ~uDtk‘2ð1⁄2H1ðXÞd Þ þ kpDt  pDtk‘2ðL2ðXÞÞ 6 cðue; pe; T ÞDt3=2.
+Proof. We refer to Guermond and Shen in [27]. (The first estimate holds if X has the H2-elliptic regularity property and the second one holds if X is Lipschitz.) h
+Remark 4.2. Note that for q = r = 1, Theorems 4.2 and 4.3 hold with Dt2 and Dt3
+2 replaced by Dt.
+4.4. Implementation
+Note that the projection steps (4.3) and (4.6) cannot be solved in the form of weak Poisson problems when using H1conforming finite elements since the trace of r  r  ~uH;kþ1 is not well defined when ~uH;kþ1 is in the finite element space. This difficulty can be avoided by making suitable substitutions as shown below. Observe first that by adding (4.6) and (4.7) we obtain
+D
+Dt ~ukþ1  mr2~ukþ1 þ rpkþ1 1⁄4 f ðtkþ1Þ.
+Then, we subtract from (4.6) written at time level k + 1 a linear combination of the equation above written at levels k  j, j = 0, 1, . . . , r  1, with coefficients cj, to obtain
+bq
+Dt ðukþ1  ~ukþ1Þ þ D
+Dt ~ukþ1  D
+Dt ~uH;kþ1 þ r/kþ1 1⁄4 f ðtkþ1Þ  f H;kþ1;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0;
+8<
+:
+where f H;kþ1 1⁄4 Pr1
+j1⁄40cjf ðtkjÞ is rth order extrapolation of f(tk+1). Then the projected velocity uk+1 can be entirely eliminated from the algorithm by rewriting the above equation in the form of a Poisson problem:
+6022 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+r2/kþ1 1⁄4 r  bq
+Dt ~ukþ1  D
+Dt ~ukþ1 þ D
+Dt ~uH;kþ1 þ f ðtkþ1Þ  f H;kþ1
+ ;
+on/kþ1jC 1⁄4 0;
+8>< >: ð4:8Þ
+where we have set
+/kþ1 1⁄4 pkþ1  pH;kþ1 þ vmr  ~uH;kþ1; ð4:9Þ
+where v = 0 yields the standard form of the method and v = 1 yields the rotational form. The viscous velocity ~ukþ1 is finally updated by solving
+D
+Dt ~ukþ1  mr2~ukþ1 þ rpkþ1 1⁄4 f ðtkþ1Þ ~ukþ1jC 1⁄4 0. ð4:10Þ
+Another possible implementation consists of performing an integration by parts as in (11.2).
+4.5. Numerical experiments
+The numerical convergence rates of velocity-correction schemes are similar to those of their pressure-correction counterparts. We refer to Section 3.7 and to [27,39,31] for details.
+4.6. Relation with other schemes
+In this section we show that the schemes proposed by Orszag et al. [39] and Karniadakis et al. [31] can be interpreted as the rotational form of the velocity-correction methods.
+4.6.1. The schemes in [39,31] Let us denote by 1
+Dt ðbqukþ1  Pq1
+j1⁄40 bjukjÞ the qth-order BDF approximation for otu(tk+1). Then, the scheme originally proposed in [39] and [31] (with a Adams–Moulton type scheme replaced by the BDF scheme; note that this replacement is made to simplify the presentation and does not change the error behaviors) can be written as follows: Find ^ukþ1 and pk+1 such that
+1
+Dt bq^ukþ1  q X1
+j1⁄40
+bj~ukj
+!
+þ rpkþ1 1⁄4 f ðtkþ1Þ;
+r  ^ukþ1 1⁄4 0; ^ukþ1  njC 1⁄4 Dtðmr2uÞH;kþ1  njC;
+8>><
+>>:
+ð4:11Þ
+then correct ^ukþ1 by computing ~ukþ1 as follows:
+bq
+Dt ð~ukþ1  ^ukþ1Þ  mr2~ukþ1 1⁄4 0; ~ukþ1jC 1⁄4 0; ð4:12Þ
+where ðr2uÞH;kþ1 1⁄4 Pr1
+j1⁄40cjr2ukj is a rth order extrapolated approximate value of $2u(tk+1). In particular,
+ðr2uÞH;kþ1 1⁄4
+0 if r 1⁄4 0;
+r  r  ~uk if r 1⁄4 1;
+r  r  ð2~uk  ~uk1Þ if r 1⁄4 2.
+8><
+>: ð4:13Þ
+In practice, (4.11) is solved as a Poisson equation supplemented with the Neumann boundary condition
+onpkþ1jC 1⁄4 ðf ðtkþ1Þ þ ðmr2uÞH;kþ1Þ  njC;
+which is derived from (4.11). Since second derivatives of the velocity are used in the Neumann boundary condition for the pressure, this class of methods cannot be applied directly in conjunction with a finite element method where these derivatives are usually not available. This is the main reason why successful implementations of these methods are only reported with spectral or spectral-element approximations where the trace of the second-order derivatives of the velocity are available. On the other hand, it is reasonable to suspect that, due to the explicit treatment of second derivatives of the velocity, this type of algorithms can only be conditionally stable with a stability condition like Dt 6 ch2 for finite element approximations and Dt 6 cN4 for spectral or spectral element approximations. Actually, by rewriting the above algorithms in the L2 weak framework, we discover that they are equivalent to the velocity-correction algorithms in rotational form; hence, the above schemes are indeed unconditionally stable (at least for r = 0, 1).
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6023
+
+
+4.6.2. The weak setting
+We now rewrite (4.11) and (4.12) in the standard L2 setting. By setting
+ukþ1 1⁄4 ^ukþ1 þ Dtmðr2~uÞH;kþ1; ð4:14Þ
+and observing that $ Æ uk+1 = 0 thanks to (4.13), and uk+1 Æ njC = 0, (4.11) can be rewritten as
+1
+Dt bqukþ1  q X1
+j1⁄40
+bj~ukj
+!
+ mðr2uÞH;kþ1 þ rpkþ1 1⁄4 f ðtkþ1Þ;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0.
+8><
+>: ð4:15Þ
+Now, inserting the definition of uk+1 into (4.12), we obtain
+bq
+Dt ð~ukþ1  ukþ1Þ  mr2~ukþ1 þ mðr2uÞH;kþ1 1⁄4 0; ~ukþ1jC 1⁄4 0. ð4:16Þ
+Hence, when the space is continuous and up to the change of variable (4.14), the scheme (4.15) and (4.16) is equivalent to the velocity-correction algorithm in rotational form (4.6) and (4.7).
+Remark 4.3. It is reported in [31] that the scheme (4.15) and (4.16) with q = r or q = r + 1 for q P 3 is numerically stable. However, no rigorous proof of this fact is yet available (see a discussion in Section 11.1).
+5. Consistent splitting schemes
+We review in this section the consistent splitting scheme introduced in Guermond and Shen [26] and we show that, up to an appropriate change of variables and when the space is continuous, this algorithm is equivalent to the so-called gauge method introduced in E and Liu [11] (see also Wang and Liu [55], Brown et al. [6]).
+5.1. The key idea
+By taking the L2-inner product of the momentum equation in (2.6) with $q and noticing that ðut; rqÞ 1⁄4 ðr  ut; qÞ 1⁄4 0, we obtain Z
+X
+rp  rq 1⁄4
+Z
+X
+ðf þ mr2uÞ  rq; 8q 2 H 1ðXÞ. ð5:1Þ
+Note that if u is known, (5.1) is simply the weak form of a Poisson equation for the pressure. The principle of the consistent splitting scheme is to compute the velocity and the pressure in two consecutive steps: First, compute the velocity by treating the pressure explicitly, then update the pressure using (5.1). Let us use the qth-order backward difference formula (BDFq) to approximate otv(tk+1) and the qth order extrapolation
+to approximate p(tk+1). These approximations are denoted by 1
+Dt ðbqvkþ1  Pq1
+j1⁄40 bjvkjÞ and pH;kþ1 1⁄4 Pq1
+j1⁄40 cjpkj, respectively. Of course, the present theory is not restricted to these choices. Any implicit consistent approximation of (ot  m$2)v(tk+1) and any explicit consistent approximation of p(tk+1) is acceptable. We hereafter adopt the notation introduced in (3.10) but instead of (3.13), where (q  1)th order extrapolation is used, we set
+pH;kþ1 1⁄4
+pk if q 1⁄4 1;
+2pk  pk1 if q 1⁄4 2;
+3pk  3pk1 þ pk2 if q 1⁄4 3.
+8><
+>: ð5:2Þ
+5.2. Standard splitting scheme
+A qth order decoupled approximation to (2.6) is defined as follows: Let u0 1⁄4 ujt1⁄40 and p0 = pjt=0 (which can be obtained
+by solving (5.1) at t = 0). If q P 2, then for 1 6 k 6 q  1, let (uk, pk) be the kth order approximation to ðuðkDtÞ; pðkDtÞÞ (which can be obtained recursively by using the scheme described below using BDF k and the kth order extrapolation of the pressure). Then, for k P q  1, seek uk+1 and pk+1 such that
+D
+Dt ukþ1  mr2ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ukþ1jC 1⁄4 0; ð5:3Þ
+ðrpkþ1; rqÞ 1⁄4 ðf ðtkþ1Þ þ mr2ukþ1; rqÞ; 8q 2 H 1ðXÞ. ð5:4Þ
+6024 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+Note that in the second step we need to compute $2uk+1 which may not be well defined in a finite element discretization. Hence, we shall derive an alternative formulation which does not require computing $2uk+1 and is more suitable for finite element discretizations. To this end, we take the inner product of the first step with $q and subtract the result from the second step. Then, we obtain the following equivalent formulation of (5.3) and (5.4):
+D
+Dt ukþ1  mr2ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ukþ1jC 1⁄4 0; ð5:5Þ
+ðrðpkþ1  pH;kþ1Þ; rqÞ 1⁄4 D
+Dt ukþ1; rq
+
+; 8q 2 H 1ðXÞ. ð5:6Þ
+Remark 5.1
+(i) The two schemes (5.3), (5.4) and (5.5), (5.6) are strictly equivalent when space is continuous but they yield two different implementations when the space variables are discretized (see Section 8 for further details). (ii) Neither scheme (5.3), (5.4) nor (5.5), (5.6) is a projection scheme, for the velocity approximation uk+1 is not divergence-free. Nevertheless, these algorithms are similar to the pressure-correction algorithm with the end-of-step velocity eliminated (see (3.17)–(3.19)). (iii) As in a projection scheme, one only needs to solve a set of Helmholtz-type equations for uk+1 and a Poisson Eqs. (5.4) or (5.6) (in weak form) for pk+1. (iv) Just as in a pressure-correction scheme in standard form [27], the Eq. (5.6) implies that on(pk+1  pw,k+1)joX = 0 which is an artificial Neumann boundary condition not satisfied by the exact pressure. This boundary condition induces a numerical boundary layer which, in turn, results in loss of accuracy.
+The following result holds; see [26]:
+Theorem 5.1. Provided that the solution to (2.6) is smooth enough in time and space, the solution (uDt, pDt) to (5.5), (5.6) satisfies the estimates:
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ K Dt2;
+kuDt  uDtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  pDtk‘1ðL2ðXÞÞ K Dt.
+Note that the above error estimates are of the same order as those of the second-order pressure-correction scheme in standard form, but they are less accurate than those of the second-order pressure-correction scheme in rotational form
+5.3. Consistent splitting scheme
+Similarly to pressure-correction and velocity-correction schemes, the accuracy of the above splitting schemes can be improved by replacing $2uk+1 in (5.4) by $ · $ · uk+1, leading to the following algorithm:
+D
+Dt ukþ1  mr2ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ukþ1jC 1⁄4 0; ð5:7Þ
+ðrpkþ1; rqÞ 1⁄4 ðf ðtkþ1Þ  mr  r  ukþ1; rqÞ; 8q 2 H 1ðXÞ. ð5:8Þ
+Owing to the identity $2uk+1 = $$ Æ uk+1  $ · $ · uk+1, this procedure amounts to removing the term $$ Æ uk+1 in (5.4). It is shown in [27,24] that when this strategy is applied to pressure-correction and velocity-correction schemes it yields an a priori control on the divergence of uk+1, which in turn leads to improved accuracy on the vorticity and the pressure. Once again, to avoid computing $ · $ · uk+1 explicitly in the second step, we take the inner product of (5.7) with $q and we subtract the result from (5.8). This leads to an equivalent alternative form of (5.7) and (5.8):
+Dukþ1
+Dt  mr2ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ukþ1jC 1⁄4 0; ð5:9Þ
+ðrwkþ1; rqÞ 1⁄4 D
+Dt ukþ1; rq
+
+; 8q 2 H 1ðXÞ; ð5:10Þ
+pkþ1 1⁄4 wkþ1 þ pH;kþ1  mr  ukþ1. ð5:11Þ
+Another way to implement (5.8) using the integration by parts is shown in (11.2).
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6025
+
+
+Note that the complexity of the schemes (5.7), (5.8) and (5.9)–(5.11) is the same as that of (5.3), (5.4) or (5.5), (5.6). However, as ample numerical results indicate, the pressure approximation pk+1 is no longer plagued by an artificial Neumann boundary condition and, consequently, these schemes provide truly qth order accuracy (at least for q = 1 and 2) for the velocity, vorticity and pressure. Thus, (5.7), (5.8) and (5.9)–(5.11) are henceforth referred to as consistent splitting schemes. We note that the scheme proposed in [37], where an intermediate divergence-free acceleration a :1⁄4 ou
+ot  mDu is introduced, is quite similar to (5.9)–(5.11). The analysis of the stability and the convergence of the consistent splitting scheme is more involved than that of the standard form. For the time being, only optimal convergence results with q = 1 have been proved; see [26].
+Theorem 5.2. Provided that the solution to (2.6) is smooth enough in time and space, the solution (uDt, pDt) of (5.9)–(5.11) with q = 1 is unconditionally bounded and satisfies the following error estimates:
+kuDt  uDtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  pDtk‘1ðL2ðXÞÞ K Dt.
+Conjecture 5.1. For q = 2 the following holds:
+kuDt  uDtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  pDtk‘1ðL2ðXÞÞ K Dt2.
+Although numerical tests seems to confirm the above conjecture, its proof remains elusive.
+5.4. Numerical experiments
+To demonstrate the accuracy of the consistent splitting schemes, we perform convergence tests with respect to Dt using mixed P2=P1 finite elements in space. The analytical solution is that given in (3.30). The domain is X = ]0, 1[2 and the meshsize is h  1/80. We make the tests on the range 5 · 104 6 Dt 6 101 so that the approximation error in space is far smaller than the time splitting error. We have tested the algorithms (5.5), (5.6) and (5.9)–(5.11) using q = 2 to substantiate Conjecture 5.1. The error on the velocity in the L2-norm and in the H1-norm at T = 1 is reported in Fig. 5. The error is shown as a function of Dt. The results corresponding to the standard form of the algorithm are reported in the left panel of the figure, and those corresponding to the rotational form are in the right panel. The standard form of the algorithm is second-order accurate in the L2-norm, but the convergence rate in the H1-norm is roughly 3
+2. One clearly observes in the right panel of the
+figure that the rotational form of the algorithm is second-order accurate both in the L2-norm and the H1-norm. Note that the saturations observed for very small time steps is due to the approximation error in space which becomes dominant for very small time steps. We show in Fig. 6 the error on the pressure measured in the L1-norm for both versions of the algorithm. The results clearly show that the pressure approximation in standard form is only first-order, whereas in the rotational formulation it is
+Fig. 5. Convergence tests with BDF2 and finite elements. Error on the velocity in the L2-norm and in the H1-norm at T = 1.
+6026 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+truly second-order. The poor convergence rate in the standard form can be attributed to the presence of numerical boundary layers which are induced by the fact that the boundary condition enforced by the approximate pressure, namely on(pk+1  2pk + pk1)jC = 0, is not consistent.
+5.5. Relation with the gauge method
+In the gauge formulation [11] of the Navier–Stokes equations, the pressure is replaced by a so-called gauge variable n and defining an auxiliary vector field m such that m = u + $n. Then, the Stokes problem can be reformulated as follows:
+otm  mr2m 1⁄4 f ; mjt1⁄40 1⁄4 m0; m  njC 1⁄4 0; ðm  rnÞ  njC 1⁄4 0;
+r2n 1⁄4 r  m; onnjC 1⁄4 0.
+(
+ð5:12Þ
+The velocity and the pressure are recovered by
+u 1⁄4 m  rn; p 1⁄4 otn  mr2n. ð5:13Þ
+This type of formulation has been proposed originally to get rid of the pressure and the saddle-point structure it implies. Unfortunately, this goal is not quite fulfilled since the boundary condition (m  $n) · njC = 0 implies a coupling between the m and n variables that has exactly the same complexity as that between the velocity and the pressure in the Stokes problem. We now construct a decoupled time discretization of (5.12) using BDFq. Assuming that we have initialized properly (mj)j=0,. . .,q1, for k P q  1 we compute mk+1 such that
+D
+Dt mkþ1  mr2mkþ1 1⁄4 f ðtkþ1Þ;
+mkþ1  njC 1⁄4 0; ðmkþ1  rnH;kþ1Þ  njC 1⁄4 0;
+8<
+: ð5:14Þ
+where nw,k+1 is an extrapolation for n(tk+1) such that $nw,k+1 Æ njC = 0. A natural choice is
+nH;kþ1 1⁄4 nk if q 1⁄4 1;
+2nk  nk1 if q 1⁄4 2.
+(
+ð5:15Þ
+Then, nk+1 is updated by
+r2nkþ1 1⁄4 r  mkþ1; onnkþ1jC 1⁄4 0. ð5:16Þ
+The fact that the viscous step (5.14) involves the trace of a gradient as a Dirichlet boundary condition renders the method quite inconvenient from both the theoretical and the practical point of view: a priori energy estimates are difficult to obtain in this form, and the method cannot be used with H1-conforming finite element methods. In the following we shall reformulate the scheme (5.14)–(5.16) by making a suitable change of variables to avoid this difficulty.
+Fig. 6. Convergence tests with BDF2 and finite elements. Error on the pressure in the L1-norm at T = 1 with standard splitting and consistent splitting.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6027
+
+
+5.5.1. The L2 weak setting
+To rewrite (5.14)–(5.16) in the L2 setting, we introduce the following changes of variables:
+~ukþ1 1⁄4 mkþ1  rnH;kþ1;
+ukþ1 1⁄4 mkþ1  rnkþ1;
+pkþ1 1⁄4 D
+Dt nkþ1  mr2nkþ1;
+pH;kþ1 1⁄4 D
+Dt nH;kþ1  mr2nH;kþ1.
+ð5:17Þ
+Using the definition of pw,k+1, we infer
+D
+Dt ðmkþ1  rnH;kþ1Þ  mr2ðmkþ1  rnH;kþ1Þ þ rpH;kþ1 1⁄4 f ðtkþ1Þ;
+ðmkþ1  rnH;kþ1Þ  njC 1⁄4 0; ðmkþ1  rnH;kþ1Þ  njC 1⁄4 0;
+8<
+:
+which, owing to the definition of ~ukþ1, yields
+D
+Dt ~ukþ1  mr2~ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0.
+From the definitions of uk+1 and ~ukþ1 it is clear that
+ukþ1  ~ukþ1 þ rðnkþ1  nH;kþ1Þ 1⁄4 0;
+which yields r2ðnkþ1  nH;kþ1Þ 1⁄4 r  ~ukþ1. Now, using the definitions of pk+1 and pw,k+1, we infer
+pkþ1  pH;kþ1 1⁄4 D
+Dt ðnkþ1  nH;kþ1Þ  mr2ðnkþ1  nH;kþ1Þ 1⁄4 D
+Dt ðnkþ1  nH;kþ1Þ  mr  ~ukþ1.
+Taking the Laplacian of the above equation, we find
+r2ðpkþ1  pH;kþ1 þ mr  ~ukþ1Þ 1⁄4 r2 D
+Dt ðnkþ1  nH;kþ1Þ 1⁄4 r  D
+Dt ~ukþ1.
+Thus, we have proved that, up to an appropriate change of variables and when the space is continuous, the gauge algorithm (5.14)–(5.16) is equivalent to the following:
+D~ukþ1
+Dt  mr2~ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ; ~ukþ1jC 1⁄4 0; ð5:18Þ
+r2/kþ1 1⁄4 r  D~ukþ1
+Dt ; on/kþ1jC 1⁄4 0; ð5:19Þ
+pkþ1  pH;kþ1 þ mr  ~ukþ1 1⁄4 /kþ1; ð5:20Þ
+which is exactly the consistent splitting scheme (5.9)–(5.11) owing to the definitions of pw,k+1 and nw,k+1.
+6. Inexact factorization schemes
+In this section we turn our attention to the so-called inexact algebraic factorization schemes. This class of methods have gained some popularity since they do not involve, explicitly, any artificial pressure boundary condition and are believed by some to provide better convergence rates than their PDE counterparts—pressure-correction schemes. We shall show below that the inexact factorization methods enforce weakly an artificial pressure boundary condition, and do not provide better accuracy than their PDE-based counterparts.
+6.1. The matrix setting
+Let X h  1⁄2H 1
+0ðXÞd and M h  L2
+0ðXÞ be two finite-dimensional spaces satisfying the inf–sup condition:
+Hypothesis 6.1. There exists b > 0 independent of h such that
+inf
+qh2M h
+sup
+vh2X h
+R
+X qhr  vh kqk0kvhk1
+P b. ð6:1Þ
+We also assume the following interpolation properties:
+6028 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+Hypothesis 6.2. There exist two spaces W  1⁄2H 1
+0ðXÞd , Z  L2
+0ðXÞ and two continuous functions 1(h), 2(h) vanishing at 0 such that for all v 2 W and q 2 Z
+inf
+vh2X h
+kv  vhk0 6 1ðhÞkvkW ;
+inf
+vh2X h
+kv  vhk1 6 2ðhÞkvkW ;
+inf
+qh2M h
+kq  qhk0 6 2ðhÞkqkZ.
+8>>><
+>>>:
+ð6:2Þ
+For finite elements there is usually some positive integer s such that W 1⁄4 1⁄2H 1
+0ðXÞd \ 1⁄2H sþ1ðXÞd , Z 1⁄4 L2
+0ðXÞ \ H sðXÞ,
+1(h) = hs+1, and 2(h) = hs. Many pairs of finite elements spaces satisfying the inf–sup condition are reported in BrezziFortin [5] and Girault–Raviart [12].
+Let Nu = dim(Xh), Np = dim(Mh), and let fvigi1⁄41;...;Nu , fqkgk1⁄41;...;Np be basis functions for Xh and Mh respectively. We define the following matrices:
+M1⁄4
+Z
+X
+/i  /j
+
+; K1⁄4
+Z
+X
+mr/i : r/j
+
+; D1⁄4 
+Z
+X
+qkr  /j
+
+. ð6:3Þ
+Denoting by U 2 RNu and P 2 RNp the components of uh 2 Xh and ph 2 Mh in the considered bases, using, for example, the implicit Euler time stepping for (2.6), we obtain:
+1
+Dt M þ K DT
+D0
+2
+4
+3
+5 U kþ1
+P kþ1
+"#
+1⁄4
+1
+Dt MU k þ F kþ1
+0
+2
+4
+3
+5; ð6:4Þ
+where we have set
+Fk 1⁄4
+Z
+X
+/i  f ðtkÞ
+
+. ð6:5Þ
+The main idea behind the inexact factorization is to replace the matrix in (6.4) by its incomplete block LU factorization. One of the simplest possibilities is
+1
+Dt M þ K DT
+D0
+2
+4
+3
+5
+1
+Dt M þ K 0
+D DtDM1DT
+2
+4
+3
+5 I DtM1DT
+0I
+"#
+. ð6:6Þ
+Then, (6.4) can be approximately solved as follows:
+Step 1 : 1
+Dt M þ K
+
+U~ kþ1 1⁄4 1
+DtMU k þ F kþ1;
+Step 2 : DM1DTUkþ1 1⁄4 1
+Dt DU~ kþ1;
+Step 3 : U kþ1 1⁄4 U~ kþ1  DtM1DTUkþ1;
+Step 4 : P kþ1 1⁄4 Ukþ1.
+8>>>>>><
+>>>>>>:
+ð6:7Þ
+It is easy to see that this scheme is the discrete version of the Chorin–Temam scheme (3.1) and (3.2). Using the fact that we can also write (6.4) in the form
+1
+Dt M þ K DT
+D0
+2
+4
+3
+5 U kþ1
+P kþ1  P k
+"#
+1⁄4
+1
+Dt MU k þ F kþ1  DTP k
+0
+"#
+ð6:8Þ
+and using again the incomplete block factorization (6.6), we obtain the incremental form the inexact factorization:
+Step 1 : 1
+Dt M þ K
+
+U~ kþ1 1⁄4 1
+Dt MU k þ F kþ1  DTP k;
+Step 2 : DM1DTUkþ1 1⁄4 1
+Dt DU~ kþ1;
+Step 3 : U kþ1 1⁄4 U~ kþ1  DtM1DTUkþ1;
+Step 4 : P kþ1 1⁄4 Ukþ1 þ P k;
+8>>>>>>><
+>>>>>>>:
+ð6:9Þ
+which can be viewed as a discrete counterpart of the incremental pressure-correction scheme in the standard form. These schemes and more elaborate ones have been introduced in [15,40]. This idea is also the basis for very similar works in [42,43,36].
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6029
+
+
+A seemingly magical fact is that no artificial pressure boundary condition is involved in (6.7) and (6.9). Hence, one may be led to think that this type of method is not plagued by the artificial-pressure-boundary-condition curse that afflicts the PDE-based projection methods. However, we shall show below in a series of three arguments that this claim is not correct.
+6.2. Inexact factorization enforces a Neumann B.C
+The first argument is as follows. Note that Steps 2 and 3 in (6.7) and (6.9) are equivalent to the following statement: Seek
+ukþ1
+h 2 X h and /kþ1
+h 2 M h such that 1
+Dt ðukþ1
+h  ~ukþ1
+h ; vhÞ  ð/kþ1
+h ; r  vhÞ 1⁄4 0; 8vh 2 X h;
+ðqh; r  ukþ1
+h Þ 1⁄4 0; 8qh 2 M h.
+8<
+: ð6:10Þ
+We assume for the sake of simplicity that Mh  H1(X) and the time step Dt is fixed.
+Proposition 6.1. Assuming limh!0~ukþ1
+h ! ~ukþ1 in [L2(X)]d, then, we have limh!0ukþ1
+h ! ukþ1 in [L2(X)]d and
+limh!0/kþ1
+h ! /kþ1 in H1(X), where uk+1 and /k+1 satisfy
+1
+Dt ðukþ1  ~ukþ1Þ þ r/kþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC 1⁄4 0.
+8<
+:
+Proof. It is clear that kukþ1
+h k1⁄2L2ðXÞd is bounded. Then, owing to Hypothesis 6.1, k/kþ1
+h kL2ðXÞ is also bounded. Hence, we can
+extract a subsequence, still denoted by fukþ1
+h g for simplicity, such that limh!0ukþ1
+h ! ukþ1 weakly in [L2(X)]d and
+limh!0/kþ1
+h ! /kþ1 weakly in L2(X).
+For any q 2 H1(X), let (qh)h>0 be a sequence converging to q in H1(X). Then, using the fact that ukþ1
+h 2 X h, i.e.,
+ukþ1
+h jC 1⁄4 0, we infer 0 1⁄4 limh!0  ðqh; r  ukþ1
+h Þ 1⁄4 limh!0ðrqh; ukþ1
+h Þ ! ðrq; ukþ1Þ, which implies ($q,uk+1) = 0. In other
+words, $ Æ uk+1 = 0 and uk+1 Æ njC = 0. Now, let v 2 1⁄2H 1
+0ðXÞd and let (vh)h>0 be a sequence converging to v in 1⁄2H 1
+0ðXÞd , by passing to the limit in (6.10), we infer
+1
+Dt ðukþ1  ~ukþ1; vÞ  ð/kþ1; r  vÞ 1⁄4 0; 8v 2 1⁄2H 1
+0ðXÞd .
+Since 1⁄2H 1
+0ðXÞd is dense in [L2(X)]d, the above equation implies /k+1 2 H1(X). The rest of the proof is obvious. h
+It is now clear that on/k+1jC = 0. That is to say, contrary to what is sometimes claimed, (6.7) and (6.9) do enforce, though weakly, an artificial Neumann boundary condition on the pressure.
+6.3. Inexact factorization compared to other viewpoints
+Another way of looking at this issue is to realize that (6.7) and (6.9) are just particular choices among many for writing the projection step as shown in [17,18,23]. To better appreciate this point of view, let us recall the main argument from [17,18,23]. Let us introduce the discrete divergence operator Bh : Xh ! Mh and its adjoint BT
+h : Mh ! X0
+h such that for every pair
+(vh, qh) in Xh · Mh we have ðBhvh; qhÞ 1⁄4 ðr  vh; qhÞ 1⁄4 ðvh; BT
+h qhÞ.
+Now we introduce an auxiliary space, Yh, such that Xh  Yh  [L2(X)]d, and we denote by ih the continuous injection of
+Xh into Yh. We equip Yh with the L2-norm. Furthermore, we assume that we can construct an operator Ch : Yh ! Mh such that
+Hypothesis 6.3. The operator Ch is an extension of Bh and iT
+h CT
+h 1⁄4 BT
+h ; i.e., the following diagrams commute:
+When Mh  H1(X), we also assume that CT
+h satisfies the following stability property:
+6030 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+Hypothesis 6.4. There exists c > 0 such that, for all qh in Mh,
+kCT
+h qhk0 6 ckqhk1.
+If Mh 6 H1(X), Hypothesis 6.4 can be weakened appropriately, but we omit the details here to focus on the main argument, see [17,18] for more details.
+Then, denoting by Ah : Xh ! X0
+h the operator such that (Ahuh, vh) = m($uh, $vh) for every pair (uh, vh) in Xh · Xh, we consider the following scheme:
+Step 1 : 1
+Dt þ Ah
+
+~ukþ1 1⁄4 1
+Dt uk þ f kþ1
+h  BT
+h pk
+h;
+Step 2 : ChCT
+h /kþ1
+h 1⁄41
+Dt Bh~ukþ1
+h;
+Step 3 : ukþ1
+h  ukþ1
+h  DtCT
+h /kþ1
+h; Step 4 : pkþ1
+h 1⁄4 /kþ1
+h þ pk
+h;
+8>>>>>>><
+>>>>>>>:
+ð6:11Þ
+where f kþ1
+h is the L2 projection of f(tk+1) onto Xh. Note that in the above algorithm, the choices of Yh and Ch can be quite arbitrary. This flexibility allows the users to devise many alternative methods. The most trivial choice is to take Yh = Xh and Ch = Bh. This very particular choice corresponds to the one implicitly assumed by the inexact factorization techniques introduced above, since one can easily verify that the matrix counterpart of (6.11) is exactly (6.9). Others choices for Yh can be made if we assume that Mh  H1(X). For
+instance we can consider the following space Yh = Xh + $Mh  [L2(X)]d. Then, one easily verifies that Ch defined by
+8ðvh; qhÞ 2 Y h  M h; ðChvh; qhÞ 1⁄4 ðvh; rqhÞ ð6:12Þ
+is an extension of Bh, i.e., Hypothesis 6.3 holds. It is clear also that owing to this very particular definition of Yh, CT
+h is the restriction of $ to Mh. As a result, the projection step 2 in (6.11) is nothing more than
+ðr/kþ1
+h ; rqhÞ 1⁄4  1
+Dt ðr  ~ukþ1
+h ; qhÞ; 8qh 2 Mh.
+One recognizes here the usual weak form of the Poisson problem supplemented with homogeneous Neumann boundary conditions enforced weakly. Note that if we assume Mh  H1(X), Hypothesis 6.4 is automatically satisfied for the two choices considered above for Yh. Other choices for Yh are possible and we refer to [17,18] where a third one is documented. In conclusion, the projection step 2 in (6.11) may assume various forms depending on computational efficiency or other criteria set by the users. The inexact factorization is just one among several possibilities.
+6.4. Inexact factorization is as accurate as PDE-projection
+Let us finally emphasize that, provided that Hypotheses 6.3 and 6.4 are satisfied, the error estimates are independent of the choice of Yh. To better appreciate this point, let us summarize the error estimates proved in [17,18,23,19,2] with the abstract discrete setting described above.
+Hypothesis 6.5. There exist two spaces W  1⁄2H 1
+0ðXÞd , Z 2 L2
+0ðXÞ and two continuous functions 1(h), 2(h) vanishing at 0 such that for all v 2 W and q 2 Z, the solution to the following Stokes problem:
+ðrvh; rwhÞ  ðqh; r  whÞ 1⁄4 ðrv; rwhÞ  ðq; r  whÞ; 8wh 2 X h;
+ðrh; r  vhÞ 1⁄4 ðrh; r  vÞ; 8rh 2 M h;
+
+ð6:13Þ
+satisfies the following error estimates:
+kv  vhk0 6 1ðhÞðkvkW þ kqkZÞ;
+kv  vhk1 þ kq  qhk0 6 2ðhÞðkvkW þ kqkZÞ. ð6:14Þ
+Theorem 6.1. Assuming Hypotheses 3.1, 6.3, 6.4, 6.1 and 6.5, and provided that the solution of (2.6) is regular enough in time and space, the solution of (6.11), with the Euler time stepping replaced by BDF2, satisfies the following error estimates:
+kuDt  uh;Dtk‘1ð1⁄2L2ðXÞd Þ þ kuDt  ~uh;Dtk‘1ð1⁄2L2ðXÞd Þ K Dt2 þ 1ðhÞ;
+kuDt  ~uh;Dtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  ph;Dtk‘1ðL2ðXÞÞ K Dt þ 2ðhÞ. ð6:15Þ
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6031
+
+
+Proof. See Guermond [19]. (The first estimate holds if X has the H2-elliptic regularity property and the second one holds if X is Lipschitz.) h
+Remark 6.1
+(i) In the case of the Legendre–Galerkin spectral approximation, the above results must be slightly modified to account for the dependence of the inf–sup constant on the mesh parameter h = 1/N, where N is the polynomial order, see [2]. Denoting by b(h) the inf–sup constant, the pressure estimate in the spectral case is
+kpDt  ph;Dtk‘1ðL2ðXÞÞ 6 cðu; p; T ÞbðhÞ1ðDt þ 2ðhÞÞ. ð6:16Þ
+For instance, for PN =PN2 approximation, we have bðhÞ 1⁄4 N d1
+2 , W 1⁄4 1⁄2H 1
+0ðXÞd \ 1⁄2H sðXÞd , Z 1⁄4 L2
+0ðXÞ \ H s1ðXÞ,
+1(h) = Ns, and 2(h) = N1s, see e.g., [7,4]. (ii) Note finally that the above error estimates do not depend on any particular choice of basis for Xh and Mh. If the algebraic point of view had been adopted, then the error analysis would have involved awkward basis-dependent norms and matrix norms. Working with basis-independent norms is la raison d’eˆtre of functional analysis.
+7. Interpretation of convergence tests
+Quite often a numerical scheme is proposed but no rigorous error analysis is available so one resorts to some heuristic arguments—such as normal mode analysis in 1D or with periodic boundary conditions, or other simplified techniquesalong with numerical tests. We show in this section that such a strategy may sometimes be misleading if the numerical tests are not performed very carefully.
+7.1. On the importance of norms
+Let us first recall that a convergence rate is always associated with a norm. Hence, when claiming a convergence rate for a scheme it should be mandatory to state the quantity to which it applies and the norm in which it is measured. To illustrate the above elementary statement we now describe a quite confusing phenomenon which is due to the basic fact that in finite dimensions all norms are equivalent. Assume that we are considering the convergence rate of some quantity, say e, in two different norms: jej and kek, and assume also that the following (unproved) uniform estimates hold
+jej 6 cðDtk1 þ ha1 Þ; kek 6 c0ðDtk2 þ ha2 Þ; ð7:1Þ
+with k1 > k2 > 0, and Dt, h are the time step and the meshsize, respectively. The readers may think of jej and kek as the
+velocity errors in L1(0, T; L2(X)) and L1(0, T; H1(X)), respectively. Since all norms are equivalent in finite-dimensional spaces, there exists c(h) > 0 such that kek 6 c(h)jej. Assume c(h)  hc and 0 < c < a1. Then, kek 6 cðhÞðDtk1 þ ha1 Þ. By denoting a = min(a2, a1  c), we finally infer
+kek 6 minðc1ðhÞDtk1 ; c2Dtk2 Þ þ c3ha; with k1 > k2; ð7:2Þ
+where all the exponents, k1, k2, a, are positive. The constants c2 and c3 do not depend on h, but c1(h) explodes like hc when h goes to zero. For a given mesh, though, c1(h) is fixed. The term c3ha is the consistency error in space; when the mesh is fine enough, this error is negligible. It is important to realize that numerical tests do not reveal the uniform estimates (7.1) but reveal instead the non-uniform estimates (7.2). Since k1 > k2, when Dt is sufficiently large the error behaves like c2Dtk2 , whereas when Dt is small enough the error behaves like c1ðhÞDtk1. Just by observing the numerical results obtained on a single mesh, fine enough to make sure that the consistency error is much smaller than the splitting and the time discretization error, one may conclude that, in the k Æ k-norm, the asymptotic order is k1 (i.e., the one that prevails when Dt ! 0). This conclusion is misleading since the time step for which the error switches from the low convergence rate c2Dtk2 to the higher rate c1ðhÞDtk1 depends on the meshsize h. Denoting by Dt(h) this typical time step, we have
+DtðhÞ 1⁄4 c1ðhÞ 1
+k2k1 .
+Since k1 > k2 and c1(h) ! +1, it is clear that Dt(h) converges to zero as the meshsize goes to zero. Hence, for very fine meshes, the error in the kÆk-norm is completely dominated by the (uniform) low order Oðhk2 Þ for Dt > Dt(h). Another aspect of this phenomenon is revealed when convergence tests in space are made with the time step fixed. Let us fix Dt and assume that we start the convergence analysis in space with a mesh h0, such that ha  c1ðh0ÞDtk1 < c2Dtk2 . Then, as we decrease h, we observe that the error kek grows! It grows monotonically until
+6032 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+h  Dtðk1k2Þ=c;
+and it remains equal to c2Dtk2 for finer meshes. In conclusion, claiming OðDtk1 Þ accuracy in the kÆk-norm after having performed time accuracy tests on a single mesh only is wrong.
+7.2. A numerical illustration
+To illustrate the above phenomenon, we show now numerical tests performed on the BDF2 pressure-correction scheme in standard form and in rotational form using P2=P1 finite elements. We consider the Stokes problem in the domain X = ]0, 1[2 and the source term is set so that exact solution is given in (3.31). We show in Fig. 7 the error on the pressure measured in the L1-norm versus the time step. The tests have been performed on three meshes: h 1⁄4 1
+80 ; h 1⁄4 1
+40, and h 1⁄4 1
+20. The results in the left-hand side are from the BDF2 pressure-correction scheme in standard form, whereas those on the right-hand side are from the rotational form of the algorithm. When looking only at the tests with h 1⁄4 1
+40 of the standard form of the algorithm, one may have the impression that the
+scheme is asymptotically second-order on the pressure in the L1-norm, and be tempted to conclude that the error analysis in [48,19] are suboptimal. This conclusion is wrong as one can observe that for a fixed time step (say for instance Dt = 0.002), the error grows as the mesh is refined and converges to the first-order slope. These tests confirm that the BDF2 pressure-correction scheme in standard form is uniformly OðDtÞ on the pressure in the ‘1(L1)-norm whereas the rotational form of the algorithm is OðDt3=2Þ.
+8. Effect of the inf–sup condition
+The goal of this section is to investigate whether the inf–sup condition (6.1) really needs to be satisfied for the splitting schemes described herein to work properly.
+8.1. The naive point of view
+There is an ongoing debate in the literature concerning the status of the inf–sup condition (6.1) when using splitting methods for solving (2.6). Actually, when looking at the pressure-correction algorithms (3.17)–(3.19), the velocity-correction algorithms (4.8)–(4.10), or the consistent splitting algorithms (5.9)–(5.11), we observe that each step involves either a Poisson equation or a Helmholtz-like equation. Hence, irrespective of the status of the inf–sup condition, the discrete counterparts of all these algorithms yield invertible discrete linear systems at each time step. Then, one may be drawn to the intuitive conclusion that, after all, the inf–sup condition is not needed for splitting methods. As it is shown below, however, this conclusion is not correct.
+Fig. 7. Convergence rates on the pressure in a square cavity; the error is measured in the L1-norm: (left) standard form of the BDF2 pressure correction algorithm; (right) rotational form.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6033
+
+
+To understand whether the inf–sup condition is needed or not, one must think of the underlying steady-state Stokes problem. The general rule is the following: the convergence properties of splitting methods with respect to the meshsize are the same as those of the underlying steady-state Stokes problems. In other words, the issue of the inf–sup condition is entirely controlled by the steady-state Stokes problem.
+8.1.1. Chorin–Temam algorithm
+To illustrate the above statement let us consider the Chorin–Temam algorithm (3.1), (3.2). The associated steady Stokes problem is
+mr2~u þ rp 1⁄4 f ;
+r  ~u  Dtr2p 1⁄4 0;
+~ujC 1⁄4 0; onpjC 1⁄4 0.
+8><
+>:
+The first equation in the above system is obtained by adding (3.1) to the first equation in (3.2) and by observing that at steady state uk+1 = uk. The second equation in the above system is obtained by taking the divergence of the first equation of (3.2) and using $ Æ uk+1 = 0. The boundary condition on p is obtained by taking the normal component at the boundary of the first equation in (3.2). It is clear that here Dt play the role of a pseudo-compressibility coefficient as observed in [44] and [46]. Then, using the notation of Section 6.1, the discrete counterpart of the above problem is
+mðr~uh; rvhÞ  ðph; r  vhÞ 1⁄4 ðf ; vhÞ; 8vh 2 X h;
+ðqh; r  ~uhÞ þ Dtðrph; rqhÞ 1⁄4 0 8qh 2 M h.
+
+ð8:1Þ
+This problem is well-posed irrespective of the inf–sup condition (6.1); however, the stability constant, i.e., the inf–sup constant for the system (8.1), is proportional to Dt. Hence, spurious pressure modes do not show up if Dt is not too small. This is obviously in contradiction with the requirement that Dt should be small for the algorithm to be accurate. Of course, if the inf–sup condition for the Stokes problem (6.1) is satisfied, the stability constant of the above problem becomes independent of Dt. Without invoking the inf–sup condition (6.1), the discrete counterpart of (3.2) yields krphk0 K kr  ~uhk0=Dt. Thus, even
+if optimal convergence in time is achieved on kr  ~uhk0, namely kr  ~uhk0 K Dt1
+2 þ 2ðhÞ (see Theorem 3.1) the best achiev
+able stability bound is krphk0 K Dt1
+2 þ 2ðhÞ
+Dt . If Dt is larger than 2(h), the H1-norm of the approximate pressure grows at
+most like Dt1/2. This means that the spurious modes in the pressure solution may not be visible with the naked eye. In conclusion, when using the Chorin–Temam algorithm in conjunction with a discrete setting that does not satisfy the inf–sup condition, the spurious modes may not appear if Dt is not too small. But one must bear in mind that those modes are still present and will eventually manifest themselves if Dt has to be reduced for any reason. The above arguments are detailed in Guermond and Quartapelle [22].
+8.1.2. The general case
+Let us now consider the pressure-correction scheme (either the standard or the rotational form), the velocity-correction scheme (either the standard or the rotational form), or the consistent splitting scheme (only the rotational form) with q P 1. By inspecting (3.17)–(3.19), (4.8)–(4.10), or (5.9)–(5.11) it is clear that in all cases the discrete counterpart of the associated steady-state Stokes problem is
+mðr~uh; rvhÞ  ðph; r  vhÞ 1⁄4 ðf ; vhÞ; 8vh 2 X h;
+ðqh; r  ~uÞ 1⁄4 0 8qh 2 M h.
+
+ð8:2Þ
+It is well-known that this problem is well-posed if and only if an inf–sup condition like (6.1) is satisfied with b possibly depending on h. The optimality of the error estimates depends on whether the inf–sup constant b is uniform with respect to the meshsize or not. Thus, if (2.6) has a steady-state solution as t ! +1 (assuming f is independent of t), and if the discrete steady-state problem (8.2) has spurious pressure modes, then all the algorithms (3.17)–(3.19), (4.8)–(4.10), or (5.9)–(5.11) will give at steady-state a pressure field that is defined up to an arbitrary spurious mode. The above argument is developed in more details in Guermond and Quartapelle [22], Guermond and Shen [26], and Minev [38].
+8.2. The functional analysis point of view
+From the theoretical point of view there are at least two reasons why the inf–sup condition (6.1) needs to be satisfied.
+6034 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+The first reason is the following. In general, when analyzing the convergence rate of splitting methods, the usual strategy is to derive estimates for the velocity first, then, the pressure estimates are recovered by working on the momentum equation; see e.g., (3.9) or (4.10). For instance, the discrete version of (3.9) yields
+ðpkþ1
+h ; r  vhÞ 1⁄4 f ðtkþ1Þ  D
+Dt ukþ1
+h ; vh
+
+ mðr  ~ukþ1
+h ; r  vhÞ; vh 2 X h;
+which implies
+ðpkþ1
+h ; r  vhÞ kvhk1
+K kf ðtkþ1Þk0 þ D
+Dt ukþ1
+h 0
+þ mj~ukþ1
+h j1. ð8:3Þ
+Thus, provided that stability estimates have been proved on the L2-norm of the approximate time derivative D
+Dt ukþ1
+h and on
+the H1-seminorm of ~ukþ1
+h , the inf–sup condition (6.1) yields immediately a bound on the pressure. The second argument showing that the convergence properties of splitting methods are controlled by those of the steady Stokes problem is as follows. To derive optimal L2-estimates on the velocity without using a very awkward duality argument involving a backward time-dependent Stokes problem, it is convenient to introduce the Stokes projector of the velocity and the pressure; see Wheeler [56]. In other words, one defines wh(t) 2 Xh and qh(t) 2 Mh such that
+ðrwhðtÞ; rvhÞ  ðqhðtÞ; r  vhÞ 1⁄4 ðruðtÞ; rvhÞ  ðpðtÞ; r  vhÞ; 8vh 2 X h; 8t;
+ðrh; r  whðtÞÞ 1⁄4 0; 8rh 2 M h 8t.
+
+Then, the error analysis consists of bounding from above the quantities whðtkþ1Þ  ~ukþ1
+h , whðtkþ1Þ  ukþ1
+h , and qhðtkþ1Þ  pkþ1
+h; see e.g., [18,23,19] and Theorem 6.1. The actual errors are recovered by using the triangle inequality. As a result, the space approximation properties of the splitting method are entirely controlled by the ability of wh(t) and qh(t) to properly approximate uðtÞ and pðtÞ. In other words, the space approximation properties of the splitting methods hinge on (6.1).
+8.3. Numerical illustrations
+8.3.1. P1=P1 vs. iso-P2=P1 finite elements
+To illustrate the fact that the inf–sup condition must be satisfied for the algorithms (3.17)–(3.19), (4.8)–(4.10) and (5.9)(5.11) to yield optimal convergence in space, we make convergence tests using P1=P1 (inf–sup unstable Stokes pair) and isoP2=P1 (inf–sup stable Stokes pair) finite elements. The algorithm used is the standard form of the pressure-correction scheme with BDF1 time stepping. The reference solution is given by: u1 1⁄4 sin x sinðy þ tÞ, u2 1⁄4 cos x cosðy þ tÞ, p 1⁄4 cos x sinðy þ tÞ. We show in Fig. 8 the error on the pressure measured in the L2-norm as a function of the mesh size h at T = 1. Two series of tests are performed using time steps Dt = 103 and Dt = 104. The error in the P1=P1 case depends strongly on Dt and grows when Dt decreases. The figure suggests that the space error behaves like c(Dt)h2 where c(Dt) ! 1 as
+Fig. 8. Error on pressure in the L2-norm with respect to the mesh size h at T = 1 using time steps Dt = 103, Dt = 104 and P1=P1 (left panel) and isoP2=P1 (right panel) finite elements.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6035
+
+
+Dt ! 0. Clearly, this behavior is not optimal. In contrast, the same scheme with the inf–sup stable iso-P2=P1 finite elements clearly yields an optimal error for the pressure. From the computational point of view, inf–sup stable Stokes pairs usually involve less degrees of freedom for the pressure than their inf–sup unstable counterparts. For example, the P1=P1 elements with meshsize h = 0.05 contains 441 pressure nodes in the unit square while the iso-P2  P1 elements contains only 121. As a consequence, the P1=P1 approximation leads to a significantly larger linear system for the pressure, without any improvement on the asymptotic accuracy of the approximation. Finally, using an inf–sup unstable finite element pair together with an inexact factorization scheme yields a linear system for the pressure that is singular. Indeed, upon inspecting Step 2 of (6.7) we observe that if the inf–sup condition is violated then kerðDTÞ 61⁄4 0 and therefore DM1DT is singular. Thus, the linear system for the pressure has infinitely many solutions (note that the right-hand-side is in the range of D).
+8.3.2. Spectral approximation
+An interesting situation arises when spectral approximation is used in a square or a cubic domain. Owing to a result by Sacchi-Landriani and Vandeven [45], it can be shown that irrespective of the polynomial degree N of the approximation the stability constant on the velocity for the steady Stokes problem is independent of N. In other words, equal-order polynomial spectral approximations yield optimal velocity error estimates on the velocity. This result does not hold for the pressure, i.e., it is well-known that the PN =PN setting admits spurious pressure modes. In conclusion, the splitting schemes (3.17)–(3.19), (4.8)–(4.10) and (5.9)–(5.11) should yield optimal convergence in space irrespective of the polynomial setting for the pressure. However the convergence on the pressure cannot be optimal in the PN =PN setting. To illustrate the above statement we show in Fig. 9 convergence tests on the pressure using PN =PN approximation and the BDF2 incremental pressure-correction in standard form. The reference solution is (3.30) in the square domain ]0,1[2. The error on the pressure is measured in the L2-, L1-, and H1-norm (in log scale) and is shown as a function of log(N) using Dt = 104. It is clear that the convergence rate with respect to N is not spectral, thus confirming our claim.
+9. Is the Neumann B.C. essential or natural?
+In a finite element method, the Neumann boundary condition is usually enforced naturally. However, in a spectral method (especially spectral-collocation) or a finite difference method, the Neumann boundary condition is enforced strongly in general. The question we address in this section is whether implementing the Neumann pressure boundary condition naturally or essentially (i.e., strongly enforced) matters in terms of accuracy. We recall that Theorem 6.1 indicates that, although an incompatible Neumann pressure boundary condition limits the time accuracy, it does not pollute the accuracy in space if implemented as a natural boundary condition. However, we will show that enforcing strongly the Neumann boundary condition for the pressure may yield inconsistencies at the discrete level for the standard forms of pressure-correction and velocity-corrections schemes.
+Fig. 9. Effect of the inf–sup condition: error vs. N in log–log scale. Space discretization: PN =PN ; time discretization: BDF2 pressure-correction in standard form.
+6036 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+9.1. The Neumann B.C. is a priori natural
+For all the methods considered in this paper, the pressure unknown /k+1 always comes into play in a projection step; that is to say, /k+1 is always an auxiliary unknown involved by a statement like
+ukþ1 1⁄4 P H ~ukþ1;
+where ~ukþ1 is some intermediate non-solenoidal vector field and PH is the L2-projection onto the space H. In other words,
+owing to (2.4), /k+1 and uk+1 are the unique quantities in H1(X) · H such that
+~ukþ1 1⁄4 ukþ1 þ r/kþ1;
+i.e., Z
+X
+~ukþ1  w 1⁄4
+Z
+X
+ukþ1  w þ
+Z
+X
+r/kþ1  w; 8w 2 1⁄2L2ðXÞd .
+Then, selecting tests functions in $H1(X) only and using the fact that the decomposition (2.4) is orthogonal in [L2(X)]d, we obtainZ
+X
+r/kþ1  rq 1⁄4
+Z
+X
+~ukþ1  rq; 8q 2 rH 1ðXÞ. ð9:1Þ
+This equation shows that the pressure unknown /k+1 is subject to a Poisson problem supplemented with a natural boundary condition. This is the first hint that the Neumann boundary condition on the pressure should be enforced weakly at the discrete level.
+9.2. Essential Neumann B.C. limits the convergence in standard forms
+We show in this section that enforcing strongly the Neumann boundary condition on the pressure unknown yields suboptimal convergence results in space when the standard form of the splitting algorithms is used. Let us restrict ourselves for the time being to the incremental pressure-correction scheme in standard form (6.11) with BDF2 time stepping. Theorem (6.1) gives error estimate for the fully discretized algorithm with the discrete Poisson problem solved weakly as in (9.1). Though the proof of this theorem is somewhat technical, it can be very easily reworked to account for essential Neumann boundary conditions. Let us assume that all the hypotheses of Theorem 6.1 hold. Since we want to enforce the Neumann B.C. essentially on /kþ1
+h , and /kþ1
+h is in the discrete space Mh, we have to assume that this condition is enforced on all the elements of Mh. Then, the whole proof of Theorem 6.1 is unchanged, except for the estimates (6.14) in Hypothesis 6.5 which are no longer optimal. For instance, for Pkþ1=Pk or Qkþ1=Qk finite elements, one would have
+1(h) = h5/2 instead of 1(j) = hk+2 and 2(h) = h3/2 instead of 1(j) = hk+1, which estimates are both clearly suboptimal since k P 1. For the Legendre–Galerkin PN =PN2 approximation, numerical experiments reported in Fig. 10 suggest that
+Fig. 10. Effect of the Neumann B.C. enforced essentially with the BDF2 incremental pressure-correction in standard form. Galerkin–Legendre PN =PN2 approximation. Error in various norms vs. N in log–log scale.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6037
+
+
+1ðhÞ 1⁄4 N 11=2; 1ðhÞ 1⁄4 N 9=2; bðhÞ 1⁄4 N 3=2. ð9:2Þ
+Then, the error estimates (6.15) for the velocity and (6.16) for the pressure still hold with the suboptimal error functions 1(h), 2(h). Although no spatial error analysis of the velocity-correction and consistent splitting methods in standard form are yet available in the literature, we expect that the same conclusions as those for the pressure-correction methods in standard form hold. In Fig. 10 we show convergence results for the BDF2 incremental pressure-correction in standard form using GalerkinLegendre PN =PN2 approximation. The reference solution is defined in (3.30). The Neumann boundary condition on
+the pressure unknown is enforced strongly. The time step Dt = 104 is chosen small enough so that the error induced by the time discretization is negligible with respect to that induced by the space discretization. The error on the velocity and the pressure in log-scale at T = 1 is shown in various norms as a function of log(N). These results clearly show that the convergence rates are algebraic. These results are consistent with the error estimates (6.15) and (6.16) using (9.2). The phenomenon described above made some to believe that pressure-correction methods cannot be accurate for they enforce an artificial Neumann boundary condition, see e.g., [29]. As we have shown, this is not the case if the Neumann boundary condition is enforced weakly.
+9.3. The treatment of the Neumann B.C. does not matter in rotational forms
+Although no error analysis with respect to space of the rotational forms of pressure-correction, velocity-correction, and consistent splitting algorithms have yet been published, we expect that the convergence properties of these schemes is independent of the way the Neumann B.C. is treated. When looking at the various projection steps and subsequence pressure corrections in rotational form: (3.7), (3.8), (4.8), (4.9), or (5.10), (5.11) we realize that these two steps involve different functional settings. The solution to the projection step, i.e., the pressure correction /k+1, is meant to live in H1(X) and to satisfy the Neumann boundary condition, whereas the solution to the correction step, i.e., the pressure itself pk+1 is meant to be in L2(X) only. Hence, from the discretization point of view two different discrete spaces are to be used to approximate the pressure correction /k+1 and the pressure pk+1. Let Mh be the pressure approximation space with optimal interpolation properties in L2 introduced in Hypothesis 6.2. Let
+Nh  H1(X) be another finite-dimensional space with optimal interpolation properties in H1(X). If the Neumann boundary
+condition is chosen to be enforced naturally and if Mh  H1(X), then the simplest choice is Nh = Mh. On the other hand, if
+the Neumann boundary condition is chosen to be enforced essentially in Nh, i.e., onqjC = 0 for all qh 2 Nh, then, /kþ1
+h 2 Nh
+is obtained by solving the Poisson equation in Nh, while the pressure approximation pkþ1
+h is obtained by solving the following mass equation in Mh
+ðpkþ1
+h ; qhÞ 1⁄4 ð/kþ1
+h þ pH;kþ1
+h  mr  wh; qhÞ; 8qh 2 M h;
+Fig. 11. Effect of the Neumann B.C. enforced essentially and weakly with the BDF2 incremental pressure-correction in rotational form. GalerkinLegendre PN =PN2 approximation. Error in various norms vs. Dt in log–log scale.
+6038 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+where wh 1⁄4 ~ukþ1
+h for the pressure-correction scheme, wh 1⁄4 ~uH;kþ1
+h for the velocity-correction scheme, and wh 1⁄4 ukþ1
+h for the
+consistent splitting scheme. Whether /kþ1
+h satisfies essentially the Neumann boundary condition or not, the pressure
+approximation pkþ1
+h never satisfies it thanks to the presence of the correction term m$ Æ wh. In Fig. 11 we show convergence tests on the BDF2 incremental pressure-correction in rotational form using GalerkinLegendre P80=P78 approximation. In one set of results the Neumann boundary condition on the pressure correction is treated essentially and in the other set the boundary condition is treated naturally. The graphs from both sets are indistinguishable. We observe a second-order slope on the velocity in the L2-norm and a 3
+2 slope on the pressure in the H1-norm. These results are in agreement with Theorem 4.3.
+10. Open boundary conditions
+So far we have only considered Dirichlet boundary conditions, but in many applications such as free surface problems and channel flows, one also has to deal with natural boundary conditions of the type
+1⁄2pn  mðruÞnjC 1⁄4 b. ð10:1Þ
+The ability of projection methods to treat correctly natural boundary conditions is scarcely discussed in the literature. We report in this section some recent progress made in this direction. Henceforth we assume that the boundary is partitioned into two parts C1 and C2. The homogeneous Dirichlet boundary condition is enforced on C1 and (10.1) is enforced on C2 with b = 0.
+Remark 10.1. It is also possible to enforce
+1⁄2pn  mðru þ ðruÞTÞnjC 1⁄4 b
+by replacing r2u in the momentum equation of (2.6) by r  ðru þ ðruÞTÞ. Everything that is said hereafter applies to this setting as well.
+10.1. Pressure-correction methods
+Let us restrict ourselves to pressure-correction schemes and use the same notation as in Section 3.4. We set
+pH;kþ1 1⁄4
+0 if r 1⁄4 0;
+pk if r 1⁄4 1;
+2pk  pk1 if r 1⁄4 2.
+8><
+>: ð10:2Þ
+After initializing adequately u0, . . . , uq1 and pw,q, the pressure-correction algorithm proceeds as follows:
+1
+Dt bq~ukþ1  qX1
+j1⁄40
+bjukj
+!
+ mr2~ukþ1 þ rpH;kþ1 1⁄4 f ðtkþ1Þ;
+~ukþ1jC1 1⁄4 0; pH;kþ1n  mðr~ukþ1Þn jC2 1⁄4 0;
+8>><
+>>:
+ð10:3Þ
+bq
+Dt ðukþ1  ~ukþ1Þ þ r/kþ1 1⁄4 0;
+r  ukþ1 1⁄4 0; ukþ1  njC1 1⁄4 0; /kþ1jC2 1⁄4 0;
+8><
+>: ð10:4Þ
+/kþ1 1⁄4 pkþ1  pH;kþ1 þ vmr  ~ukþ1. ð10:5Þ
+Note that a homogeneous boundary condition is enforced on the pressure correction on C2. The origin of this boundary condition can be understood in light of the following Hodge decomposition
+1⁄2L2ðXÞd 1⁄4 H  rN ; ð10:6Þ
+where
+H 1⁄4 fv 2 1⁄2L2ðXÞd ; r  v 1⁄4 0; v  njC1 1⁄4 0g; ð10:7Þ
+N 1⁄4 fq 2 H 1ðXÞ; qjC2 1⁄4 0g. ð10:8Þ
+Hence, (10.4) is no more than a realization of the identity ukþ1 1⁄4 P H ~ukþ1, i.e., uk+1 is the L2-projection of ~ukþ1 onto H. This property is essential to ensure stability of the algorithm.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6039
+
+
+For v 2 [L2(X)]d, let S(v) and R(v) be the solution to
+r2SðvÞ þ rRðvÞ 1⁄4 v;
+r  SðvÞ 1⁄4 0; SðvÞjC1 1⁄4 0; ðRðvÞn  ðrSðvÞÞnÞjC2 1⁄4 0.
+(
+Definition 10.1. We say that s is the regularity index of the Stokes operator if for all v 2 [L2(X)]d the solution to the above problem is such that
+kRðvÞkHsðXÞ K kvkL2ðXÞ. ð10:9Þ
+It is clear that 0 6 s 6 1. The case s = 0 is referred to as no regularity while the case s = 1 is referred to as full regularity. When X is a convex polygon or polyhedron, it is known that s = 1 when C2 = ;, see [9,16,33].
+The following result is proved in Guermond et al. [21].
+Theorem 10.1. If the solution to (2.6) is smooth enough in space and time, the solution to (10.3)–(10.5) with q = r + 1 = 2 satisfies the following error estimates if v = 0
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2L2ðXÞd Þ K Dtsþ1
+2 ; ð10:10Þ
+kpDt  pDtk‘1ðL2ðXÞÞ þ kuDt  ~uDtk‘1ð1⁄2H1ðXÞd Þ K Dt1
+2; ð10:11Þ
+where s is the regularity index of the Stokes operator. Moreover, if v = 1, the following error estimates hold
+kuDt  uDtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uDtk‘2ð1⁄2L2ðXÞd Þ K Dt5þs
+4 ; ð10:12Þ
+kpDt  pDtk‘2ðL2ðXÞÞ þ kuDt  ~uDtk‘2ð1⁄2H1ðXÞd Þ K Dt3þs
+4 . ð10:13Þ
+Remark 10.2. With full Stokes regularity, i.e., s = 1, the L2-norm of the error on the velocity is OðDt3
+2Þ, and the H1-norm of the error on the velocity and the L2-norm of the error on the pressure are OðDtÞ. There are some theoretical reasons to
+believe that the H1 estimates can be improved up to OðDt5
+4Þ by a sophisticated argument using weighted seminorms in time as in [44,49]. Numerical results reported in Section 10.3 seem to confirm this conjecture, at least in two dimensions.
+10.2. Inexact factorization
+It is clear that the artificial Dirichlet boundary condition in (10.4) is responsible for the poor convergence property of the algorithm (10.3)–(10.5). For instance, for the standard version of the algorithm, this yields p0jC2 1⁄4    1⁄4 pkþ1jC2 , which is obviously a spurious boundary condition. It is sometimes argued in the literature that inexact factorization can handle natural boundary conditions without suffering from spurious Neumann or Dirichlet boundary condition. We show below that this claim is misleading. Let Xh be a finite-dimensional subspace of fv 2 1⁄2H 1ðXÞd; vjC1 1⁄4 0g and Mh be a finite-dimensional subspace of L2(X). Then all the arguments of Sections 6.1 and 6.3 hold. For instance, since in step 2 of the algorithm (6.9) there is no explicit reference to Dirichlet or Neumann boundary conditions, one may be led to think that the algorithm should perform well. However, using the notation of (6.11) with Yh = Xh and Ch = Bh, the critical step overlooked by the algebraic point of view is the continuity of the operator BT
+h in step 2 of (6.11) (i.e., the projection step). In other words Hypothesis 6.4 does not hold uniformly with respect to the meshsize. To make this point clear while keeping the analysis simple, let us assume that Mh  H1(X). This hypothesis can be appropriately weakened by introducing additional non-essential technical details. The continuity of BT
+h is clarified by the following lemma.
+Lemma 10.1. For all qh in Mh we have
+kBT
+h qhk0 K ð1 þ sðhÞÞkqhk1;
+where s(h) is the constant such that
+sðhÞ 1⁄4 max
+vh2X h
+kvh kL2 ðC2 Þ
+kvhk0
+.
+Remark 10.3. Note that in general s(h) ! +1 when h ! 0 if C2 5 ;. In particular for finite elements sðhÞgh1
+2.
+Thus, using arguments similar to those in [23,19], the following result can be proved.
+6040 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+Theorem 10.2. Provided the solution to (2.6) is regular enough in time and space, the solution of (6.11) (including that of (6.9)) with BDF 2 time stepping and adequate initialization satisfies the following error estimates:
+kuDt  uh;Dtk‘2ð1⁄2L2ðXÞd Þ þ kuDt  ~uh;Dtk‘2ð1⁄2L2ðXÞd Þ K sðhÞ2Dt2 þ 1ðhÞ;
+kuDt  ~uh;Dtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  ph;Dtk‘1ðL2ðXÞÞ K sðhÞDt þ 2ðhÞ. ð10:14Þ
+Remark 10.4. Note that the error estimates are not uniform in space. For finite elements the error estimate on the velocity in the L2-norm is OðDt2=hÞ, while the error estimate is OðDt=h1=2Þ for the velocity in H1-norm and for the pressure in L2norm.
+Let us finish this section by stating a convergence result for the fully discretized case where the Dirichlet condition on the pressure correction in (10.4) is enforced essentially and the standard form of the pressure-correction algorithm is used. We assume that Mh  N, where N is defined in (10.8). Accordingly, we modify the interpolation Hypothesis 6.2 as follows.
+Hypothesis 10.1. There exist two spaces W  fv 2 1⁄2H 1ðXÞd; vjC2 1⁄4 0g, Z  L2(X) and a continuous function 02ðhÞ
+vanishing at 0 such that for all v 2 W and q 2 Z
+inf
+vh2X h
+kv  vhk1 6 0
+2ðhÞkvkW ;
+inf
+qh2M h
+kq  qhk0 6 0
+2ðhÞkqkZ. ð10:15Þ
+Remark 10.5. For finite elements we have 0
+2ðhÞgh1=2.
+In this case, the operator BT
+h is clearly continuous, but since the interpolation properties are no longer optimal the following result holds.
+Theorem 10.3. Under the Hypothesis 10.1 and provided the solution to (2.6) is sufficiently smooth and Mh  N, the solution of (6.11) satisfies the following error estimates:
+kuDt  ~uh;Dtk‘1ð1⁄2H1ðXÞd Þ þ kpDt  ph;Dtk‘1ðL2ðXÞÞ K Dt1
+2 þ 0
+2ðhÞ. ð10:16Þ
+Remark 10.6
+(i) The estimate (10.14) is in agreement with (10.11). (ii) Note that contrary to (10.14) the error estimate (10.16) is now uniform with respect to time and space, but the convergence rate is too poor to be recommendable in practice. Of course, this limitation does not hold for the rotational version of the algorithm as illustrated by (10.12) and (10.13) and in Section 10.3.
+In conclusion, whether the Dirichlet boundary condition on the pressure correction is enforced weakly as done in the socalled inexact factorization approach (the user being possibly unaware of it) or essentially, there is a price to pay for this ‘‘variational crime’’ when the standard form of the pressure-correction algorithm is used. In the first case, the price is nonuniformity of the error estimates, and in the second case it is non-optimality of the interpolation properties. Restated in other words, the inexact factorization uses an optimal pressure interpolation but involves an unbounded operator, whereas the differential formulation involves bounded operators but the pressure interpolation is suboptimal.
+10.3. Numerical results
+Let us consider a square domain X = ]0, 1[2. We take the exact solution ðu1; u2; pÞ of (2.6) to be
+u1ðx; y; tÞ 1⁄4 sin x sinðy þ tÞ; u2ðx; y; tÞ 1⁄4 cos x cosðy þ tÞ; pðx; y; tÞ 1⁄4 cos x sinðy þ tÞ. ð10:17Þ
+The source term f is set accordingly. We set C2 = {(x, y) 2 C, x = 0} and C1 = CnC2. This solution satisfies the following open boundary conditions:
+oxu2jC2 1⁄4 0; p  oxu1jC2 1⁄4 0. ð10:18Þ
+We use P2=P1 finite elements with the meshsize h = 1/80 to guarantee that the error in space is significantly smaller than the splitting error. We use the BDF2 pressure-correction algorithm in rotational form with r = 1. The convergence tests with respect to Dt are reported in Fig. 12. The convergence rate of the error on the velocity in the L2-norm is close to OðDt3=2Þ and that in the H1-norm behaves like OðDt5=4Þ, which is higher than the OðDtÞ rate predicted by Theorem 10.1
+(see Remark 10.2). The convergence rate of the error on the pressure in the L1-norm is OðDtÞ and that in the L2-norm
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6041
+
+
+is between OðDtÞ and OðDt3
+2Þ. These rates are consistent with the error estimates in Theorem 10.1. The accuracy saturation observed for small time steps comes from the spatial discretization error. The Legendre–Galerkin technique give similar results; see [21].
+11. Open questions and concluding remarks
+11.1. Stability of third- and higher-order schemes: Dirichlet boundary conditions
+A number of authors have claimed that the pressure-correction scheme (3.14)–(3.16) with (q, r) = (3, 2) is third-order accurate (for the velocity) and unconditionally stable. However, although third-order accuracy for the velocity is observed for the scheme with (q, r) = (3, 2) when Dt is not too small, there are ample numerical evidences indicating that it becomes unstable when Dt is smaller than a critical time step Dtc  h2 for finite-element discretizations and Dt  N3 for spectral discretizations when applied to the linear problem (2.6) supplemented with Dirichlet boundary conditions (see Table 1). Thus, when the scheme is applied to nonlinear Navier–Stokes equations with nonlinear terms treated explicitly, it sometimes becomes unconditionally unstable due to the two contradictory requirements: (i) Dt should be larger than Dtc, and (ii) Dt should be sufficiently small to satisfy the usual CFL condition. On the other hand, numerical tests performed on the linear problem (2.6) supplemented with Dirichlet boundary conditions using finite elements showed that the velocity-correction scheme and the consistent splitting scheme (all of them in
+Fig. 12. Rotational pressure-correction scheme: finite elements; errors at t = 1 vs. Dt (using h = 1/80). Velocity: (m) L2-norm; (+) H1-norm. Pressure: (,) L2-norm; (j) L1-norm.
+Table 1 Stability and convergence rates of rotational schemesa
+B.C. q r Order Pressure-correction Velocity-correction Consistent splitting
+Dirichlet B.C. 1 1 (1, 1) Proved Proved Proved
+2 1 2; 3
+2
+
+Proved Proved Not applicable
+2 2 (2, 2)w FE: stable if ch2 6 Dtw FE: stablew FE: stablew LG: stable if cN3 6 Dtw LG: stablew LG: stablew
+3 2 3; 5
+2
+ H
+FE: stable if ch2 6 Dtw FE: stable if ch2 6 Dtw Not applicable LG: stable if cN3 6 Dtw LG: stablew
+Open B.C. 1 1 3 þ s
+4 ;3þs
+4
+
+Proved Numerical evidences only Numerical evidences only
+2 1 5þs
+4 ;3þs
+4
+
+Proved Numerical evidences only Not applicable
+2 2 Unusable FE: stable if c1h2 6 Dt 6 c2h2w FE: stable if c1h2 6 Dt 6 c2h2w FE: stable if c1h2 6 Dt 6 c2h2w Inf–sup Needed Needed for (4.8) Needed for (5.10) Can be avoidedw for (4.6) Can be avoidedw for (5.8)
+a The first (resp. second) number in the parenthesis is the convergence rate for the velocity in the L2-norm (resp. the velocity in the H1-norm and the pressure in the L2-norm); s is the regularity index of the Stokes operator; the symbol w means numerical evidences only.
+6042 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+rotational form) are all stable with (q, r) = (2, 2). Conclusions for the rotational pressure-correction scheme with (q, r) = (2, 2) are not so clear. We carried out tests with two different finite element codes. One code gave stable and convergent results for all time steps, whereas the other code yielded stable and convergent results under the condition ch2 6 Dt. Finally, the rotational velocity-correction scheme (4.6), (4.7) with q = r or q = r + 1 for r = 2, 3 has been reported to have been used in many challenging simulations and is frequently claimed to be unconditionally stable for solving (2.6) (cf. [31,32]). However, how to prove (or disprove) rigorously the stability for any case with r P 2 is still an open problem.
+11.2. Second-order schemes for problems with open boundary conditions
+Numerical tests performed on the open boundary problem (10.18), (10.17) using finite elements show that the pressurecorrection scheme, the velocity-correction scheme, and the consistent splitting scheme (all of them in rotational form) with q 2 {1, 2} and r = 2 is stable only if the time step satisfies: c1h2 6 Dt 6 c2h2 (see Table 1).
+11.3. Stability analysis of an equivalent Stokes problem
+As already discussed in Sections 4 and 5, there are two different ways of implementing the velocity-correction and the consistent splitting algorithms. To construct finite element approximation, it is preferable to use (4.8), (4.9) instead of (4.6) and (5.10), (5.11) instead of (5.8). Then, as explained in Section 8.1.2, the associated discrete steady Stokes problem is (8.2) and it is the inf–sup condition associated with this problem that controls the convergence properties of the discrete counterparts of the above mentioned splitting schemes. On the other hand, there are two ways of implementing (4.6) and (5.8). If Xh  H2(X) and Mh  H1(X), the discrete steady Stokes problem associated with (4.6) and (5.8) can be written as follows:
+mðrukþ1
+h ; rvhÞ  ðpkþ1
+h ; r  vhÞ 1⁄4 ðf ðtkþ1Þ; vhÞ; 8vh 2 X h; ðrpkþ1
+h ; rqhÞ 1⁄4 ðf ðtkþ1Þ  mr  r  ukþ1
+h ; rqhÞ; 8qh 2 M h.
+(
+ð11:1Þ
+But if Xh is only in H1(X), as in the case of usual finite elements, and Mh  H1(X), one can integrate the second-order term by parts to give (see also [30]):
+mðrukþ1
+h ; rvhÞ  ðpkþ1
+h ; r  vhÞ 1⁄4 ðf ðtkþ1Þ; vhÞ; 8vh 2 X h; ðrpkþ1
+h ; rqhÞ 1⁄4 ðf ðtkþ1Þ; rqhÞ  m R
+Cðn  r  ukþ1
+h Þ  rqh; 8qh 2 M h.
+(
+ð11:2Þ
+Note that although (8.2), (11.1) and (11.2) converge to the same Stokes problem as h ! 0, for any fixed h the discrete problems are essentially different. Numerical experiments with Legendre–Galerkin approximation suggest that, as opposed to (8.2), (11.1) is well-posed for both the PN =PN and PN =PN2 approximations. In other words, this problem seems to be well-posed for any consistent (but not necessarily inf–sup stable) approximation spaces for velocity and pressure. However, the theoretical justification of this statement is still an open question.
+11.4. Concluding remarks
+We have reviewed in this paper available stability and convergence results for a broad range of projection schemes which we classified into three classes, namely the pressure-correction methods, the velocity-correction methods, and the consistent splitting methods. We have also clarified some controversial theoretical and implementation issues such as the role of infsup conditions, open boundary conditions, and implementations of Neumann boundary conditions. In short, for all three classes of projection schemes, their rotational versions should always be preferred over the standard versions. We now summarize in Table 1 the main results related to the rotational forms of the pressure-correction methods, velocity-correction methods, and consistent splitting methods.
+References
+[1] Y. Achdou, J.-L. Guermond, Convergence analysis of a finite element projection/Lagrange–Galerkin method for the incompressible Navier–Stokes equations, SIAM J. Numer. Anal. 37 (3) (2000) 799–826. [2] F. Auteri, J.-L. Guermond, N. Parolini, Role of the LBB condition in weak spectral projection methods, J. Comput. Phys. 174 (2001) 405–420. [3] A. Batoul, H. Khallouf, G. Labrosse, Une m ́ethode de re ́solution directe (pseudo-spectrale) du probl`eme de Stokes 2D/3D instationnaire. Application a` la cavit’e entrain ́ee carr ́ee, CR Acad. Sci. Paris, Se ́rie I 319 (1994) 1455–1461. [4] C. Bernardi, Y. Maday, Approximations spectrales de probl`emes aux limites elliptiques, Springer-Verlag, Paris, 1992. [5] F. Brezzi, M. Fortin, Mixed and Hybrid Finite Element Methods, Springer-Verlag, New York, 1991.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6043
+
+
+[6] D.L. Brown, R. Cortez, M.L. Minion, Accurate projection methods for the incompressible Navier–Stokes equations, J. Comput. Phys. 168 (2) (2001) 464–499. [7] C. Canuto, M.Y. Hussaini, A. Quarteroni, T.A. Zang, Spectral Methods in Fluid Dynamics, Springer-Verlag, New York, 1988. [8] A.J. Chorin, Numerical solution of the Navier–Stokes equations, Math. Comput. 22 (1968) 745–762. [9] M. Dauge, Stationary Stokes and Navier–Stokes systems on two- or three-dimensional domains with corners. I. Linearized equations, SIAM J. Math. Anal. 20 (1) (1989) 74–97. [10] W. E, J.G. Liu, Projection method I: Convergence and numerical boundary layers, SIAM J. Numer. Anal. 32 (1995) 1017–1057. [11] W. E, J.G. Liu, Gauge method for viscous incompressible flows, Commun. Math. Sci. 1 (2) (2003) 317–332. [12] V. Girault, P.-A. Raviart, Finite Element Methods for Navier–Stokes Equations, Springer-Verlag, Berlin, 1986, Theory and algorithms. [13] R. Glowinski, Finite element methods for incompressible viscous flow, Handbook of Numerical Analysis, vol. IX, Elsevier Science B.V., Amsterdam, 2003. [14] K. Goda, A multistep technique with implicit difference schemes for calculating two- or three-dimensional cavity flows, J. Comput. Phys. 30 (1979) 76–95. [15] P.M. Gresho, S.T. Chan, On the theory of semi-implicit projection methods for viscous incompressible flow and its implementation via finite element method that also introduces a nearly consistent mass matrix. Part I and part II, Int. J. Numer. Methods Fluids 11 (1990), 587–620, 621–659. [16] P. Grisvard, Boundary Value Problems in Non-Smooth Domains, Pitman, 1985. [17] J.-L. Guermond, Sur l’approximation des  ́equations de Navier–Stokes par une me ́thode de projection, CR Acad. Sci. Paris, Se ́rie I 319 (1994) 887892. [18] J.-L. Guermond, Some practical implementations of projection methods for Navier–Stokes equations, Mod ́el. Math. Anal. Num. 30 (1996) 637–667. [19] J.-L. Guermond, Un re ́sultat de convergence d’ordre deux en temps pour l’approximation des  ́equations de Navier–Stokes par une technique de projection incr ́ementale, M2AN Math. Model. Numer. Anal. 33 (1) (1999) 169–189; Also in CR Acad. Sci. Paris, Se ́rie I 325 (1997) 1329–1332. [20] J.-L. Guermond, P. Minev, Analysis of a projection/characteristic scheme for incompressible flow, Comm. Numer. Methods Engrg. 19 (2003) 535550. [21] J.-L. Guermond, P. Minev, J. Shen, Error analysis of pressure-correction schemes for the Navier–Stokes equations with open boundary conditions, SIAM J. Numer. Anal. 43 (1) (2005) 239–258. [22] J.-L. Guermond, L. Quartapelle, On stability and convergence of projection methods based on pressure Poisson equation, Int. J. Numer. Methods Fluids 26 (9) (1998) 1039–1053. [23] J.-L. Guermond, L. Quartapelle, On the approximation of the unsteady Navier–Stokes equations by finite element projection methods, Numer. Math. 80 (5) (1998) 207–238. [24] J.L. Guermond, J. Shen, On the error estimates for the rotational pressure-correction projection methods, Math. Comput. 73 (248) (2004) 1719–1737 (electronic). [25] J.L. Guermond, J. Shen, Quelques re ́sultats nouveaux sur les me ́thodes de projection, CR Acad. Sci. Paris, Se ́rie I 333 (2001) 1111–1116. [26] J.L. Guermond, J. Shen, A new class of truly consistent splitting schemes for incompressible flows, J. Comput. Phys. 192 (2003) 262–276. [27] J.L. Guermond, J. Shen, Velocity-correction projection methods for incompressible flows, SIAM J. Numer. Anal. 41 (1) (2003) 112–134. [28] J.G. Heywood, R. Rannacher, S. Turek, Artificial boundaries and flux and pressure conditions for the incompressible Navier–Stokes equations, Int. J. Numer. Methods Fluids 22 (5) (1996) 325–352. [29] S. Hugues, A. Randriamampianina, An improved projection scheme applied to pseudospectral methods for the incompressible Navier–Stokes equations, Int. J. Numer. Methods Fluids 28 (3) (1998) 501–521. [30] H. Johnston, J.-G. Liu, Accurate, stable and efficient Navier–Stokes solvers based on explicit treatment of the pressure term, J. Comput. Phys. 199 (1) (2004) 221–259. [31] G.E. Karniadakis, M. Israeli, S.A. Orszag, High-order splitting methods for the incompressible Navier–Stokes equations, J. Comput. Phys. 97 (1991) 414–443. [32] G.E. Karniadakis, S.J. Sherwin, Spectral/hp Element Methods for CFD, Oxford University Press, 1999. [33] R.B. Kellogg, J.E. Osborn, A regularity result for the Stokes problem in a convex polygon, J. Funct. Anal. 21 (4) (1976) 397–431. [34] J. Kim, P. Moin, Application of a fractional-step method to incompressible Navier–Stokes equations, J. Comput. Phys. 59 (2) (1985) 308–323. [35] O.A. Ladyzhenskaya, The Mathematical Theory of Viscous Incompressible flow. Second English edition, revised and enlarged. Translated from the Russian by Richard A. Silverman and John Chu, Mathematics and its Applications, vol. 2, Gordon and Breach Science Publishers, New York, 1969. [36] M.J. Lee, B.D. Oh, Y.B. Kim, Canonical fractional-step methods and consistent boundary conditions for the incompressible Navier–Stokes equations, J. Comput. Phys. 168 (2001) 73–100. [37] E. Leriche, G. Labrosse, High-order direct Stokes solvers with or without temporal splitting: numerical investigations of their comparative properties, SIAM J. Sci. Comput. 22 (4) (2000) 1386–1410 (electronic). [38] P. Minev, A stabilized incremental projection scheme for the incompressible Navier–Stokes equations, Int. J. Numer. Methods Fluids 36 (2001) 441464. [39] S.A. Orszag, M. Israeli, M. Deville, Boundary conditions for incompressible flows, J. Sci. Comput. 1 (1986) 75–111. [40] J.B. Perot, An analysis of the fractional step method, J. Comput. Phys. 108 (1) (1993) 51–58. [41] A. Prohl, Projection and quasi-compressibility methods for solving the incompressible Navier–Stokes equations, Advances in Numerical Mathematics, B.G. Teubner, Stuttgart, 1997. [42] A. Quarteroni, F. Saleri, A. Veneziani, Analysis of the Yosida method for the incompressible Navier–Stokes equations, J. Math. Pures Appl. (9) 78 (5) (1999) 473–503. [43] A. Quarteroni, F. Saleri, A. Veneziani, Factorization methods for the numerical approximation of Navier–Stokes equations, Comput. Methods Appl. Mech. Engrg. 188 (1–3) (2000) 505–526.
+[44] R. Rannacher, On Chorin’s projection method for the incompressible Navier–Stokes equations, in: Lecture Notes in Mathematics, vol. 1530, 1991. [45] G. Sacchi-Landriani, H. Vandeven, Polynomial approximation of divergence-free functions, Math. Comput. 52 (1989) 103–130. [46] J. Shen, On error estimates of the projection methods for the Navier–Stokes equations: first-order schemes, SIAM J. Numer. Anal. 29 (1992) 57–77. [47] J. Shen, Efficient spectral-Galerkin method. I. Direct solvers of second- and fourth-order equations using Legendre polynomials, SIAM J. Sci. Comput. 15 (6) (1994) 1489–1505. [48] J. Shen, On error estimates of projection methods for the Navier–Stokes equations: second-order schemes, Math. Comput. 65 (215) (1996) 1039–1065.
+6044 J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045
+
+
+[49] J. Shen, A new pseudo-compressibility method for the Navier–Stokes equations, Appl. Numer. Math. 21 (1996) 71–90. [50] J.C. Strikwerda, Y.S. Lee, The accuracy of the fractional step method, SIAM J. Numer. Anal. 37 (1) (1999) 37–47. [51] R. Temam, Sur l’approximation de la solution des e ́quations de Navier–Stokes par la me ́thode des pas fractionnaires ii, Arch. Ration. Mech. Anal. 33 (1969) 377–385. [52] R. Temam, Navier–Stokes Equations: Theory and Numerical Analysis, North-Holland, Amsterdam, 1984. [53] L.J.P. Timmermans, P.D. Minev, F.N. Van De Vosse, An approximate projection scheme for incompressible flow using spectral elements, Int. J. Numer. Methods Fluids 22 (1996) 673–688. [54] J. van Kan, A second-order accurate pressure-correction scheme for viscous incompressible flow, SIAM J. Sci. Stat. Comput. 7 (3) (1986) 870–891. [55] C. Wang, J.-G. Liu, Convergence of gauge method for incompressible flow, Math. Comput. 69 (232) (2000) 1385–1407. [56] M.F. Wheeler, A priori L2 error estimates for Galerkin approximations to parabolic partial differential equations, SIAM J. Numer. Anal. 10 (1973) 723–759. [57] N.N. Yanenko, The Method of Fractional Steps. The Solution of Problems of Mathematical Physics in Several Variables, Springer-Verlag, New York, 1971.
+J.L. Guermond et al. / Comput. Methods Appl. Mech. Engrg. 195 (2006) 6011–6045 6045

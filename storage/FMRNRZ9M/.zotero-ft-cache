@@ -1,0 +1,1879 @@
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+Cite this: DOI: 10.1039/d4fd00202d
+PAPER
+
+View Article Online
+View Journal
+
+The inﬂuence of higher order geometric terms on the asymmetry and dynamics of membranes†
+Jan Magnus Sischka, a Ingo Nitschkea and Axel Voigt *abc
+
+Received 18th December 2024, Accepted 31st January 2025 DOI: 10.1039/d4fd00202d
+We consider membranes as ﬂuid deformable surfaces and allow for higher order geometric terms in the bending energy related to the Gaussian curvature squared and the mean curvature minus the spontaneous curvature to the fourth power. The evolution equations are derived and numerically solved using surface ﬁnite elements. The two higher order geometric terms have diﬀerent eﬀects. While the Gaussian curvature squared term has a tendency to stabilize tubes and enhance the evolution towards equilibrium shapes, thereby facilitating rapid shape changes, the mean curvature minus the spontaneous curvature to the fourth power destabilizes tubes and leads to qualitatively diﬀerent equilibrium shapes but also enhances the evolution. This is demonstrated in axisymmetric settings and fully three-dimensional simulations. We therefore postulate that not only surface viscosity but also higher order geometric terms in the bending energy contribute to rapid shape changes which are relevant for morphological changes of cells.
+1 Introduction
+Membranes are ubiquitous and essential in biology; they compartmentalize biomaterials, separate the cell from its exterior and organelles from the cytoplasm, dynamically remodel and change conformation. Geometric properties of the membrane have been identied as key players for such processes.1–3 As the typical thickness of a membrane is orders of magnitude smaller than its lateral extension, treating the membrane as a two-dimensional surface embedded in a three-dimensional space is a reasonable approximation. This separation of length scales allows for a mesoscopic modeling where details related to membrane molecular structure are considered in eﬀective material parameters and geometric quantities and led to the success of the classical
+
+aFaculty Mathematics, TU Dresden, 01062 Dresden, Germany. E-mail: axel.voigt@tu-dresden.de bCenter for Systems Biology Dresden (CSBD), Pfotenhauerstr. 108, 01307 Dresden, Germany cCluster of Excellence, Physics of Life, TU Dresden, Arnoldstr. 18, 01307 Dresden, Germany † Electronic supplementary information (ESI) available. See DOI: https://doi.org/10.1039/d4fd00202d
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+Canham–HelfÐrich F BEðH ; K Þ ¼ S k2;0
+
+model,4,5 ðH À H 0Þ2
+
+þ
+
+which k2;1K dS
+
+builds on with mean
+
+a bending energy curvature H , Gaussian
+
+curvature K , bending rigidity parameters k2,0 and k2,1, a spontaneous curvature
+
+H 0 and additional (local or global) area and volume constraints. For denitions
+
+see Section 2.1. Assuming constant values of k2,1, the second term reduces to
+
+a topological measure and thus a constant as long as the topology does not
+
+change. We will therefore neglect this term.
+
+Equilibrium shapes, resulting from minimizing the bending energy F BE, have been extensively studied, see ref. 6 for a review. For H 0 = 0 and wide ranges
+
+of the reduced volume, which is the ratio of the volume and the volume of an
+
+equivalent sphere with the same area, they are dominated by prolate and oblate
+
+shapes.7 The spontaneous curvature H 0, which accounts for the asymmetry of the membrane, is able to modify these shapes.7 A wealth of studies also aims to
+
+produce tubes as minimizing shapes. Tubes are ubiquitous in membranes and
+
+play crucial roles in traﬃcking, ion transport, and cellular motility. For idealized
+
+situations this is rather simple as F BE = 0 if H = H 0, which is achieved for an innite tube of radius r and H 0 = −1/r. However, this solution is not unique, a sphere of radius 2r also leads to F BE = 0. More realistic situations with nite
+
+volume and area require further considerations, e.g., introducing a spontaneous
+
+curvature deviator.8–10 Also, various ideas have been proposed to consider higher
+
+order geometric terms in the bending energy F BE to enforce the stability of tubes.2,11–14 For example, fourth order terms proportional to K 2 seem plausible
+
+as K = 0 for tubes.
+
+Most of these studies only focus on equilibrium shapes, comparing the
+
+bending energy F BE of diﬀerent congurations and addressing their stability.
+
+But the dynamic evolution of the membrane and associated shape changes are
+
+also of interest, e.g. in the context of the formation of bulges with pinch-oﬀs,
+
+which can be associated with endocytosis and exocytosis15–17 or shape
+
+changes associated with cell motility.18–20 All these processes require additional
+
+phenomena, which are not considered in the Canham–Helfrich model. But
+
+there is growing interest in the role of membranes in these processes. One
+
+striking example where membranes at least participate are frequently forming
+
+and retracting lopodia.21 This process requires rapid shape changes in cells
+
+and according to ref. 22 the membrane and the underlying cortex act as an
+
+integrated system to globally coordinate such changes in cell shape. To facili-
+
+tate these rapid morphological changes, cells maintain an excess of membrane
+
+that is organized in membrane reservoirs and is available to the cell on the
+
+order of seconds.23 To understand such processes thus not only requires
+
+unveiling the secretes of equilibrium shapes but also to consider the ow of
+
+membranes which facilitates the rapid shape changes. To model such processes
+
+is a diﬀerent story and even if various models for the cellular cortex exist24–27
+
+and also rst attempts to couple them with membrane models to form the
+
+mentioned integrated system have been proposed,22,28 we here refrain from
+
+such couplings and only aim rst for a minimal model of the membrane alone,
+
+which facilitates rapid shape changes.
+
+Surface viscosity has been identied as a key player29 and considering
+
+membranes as uid deformable surfaces30–33 opened new perspectives on the
+
+description of the dynamics of membranes. Fluid deformable surfaces can be
+
+viewed as two-dimensional viscous uids with bending elasticity. Due to this
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+solid–uid duality, any shape change contributes to tangential ow, and vice versa, any tangential ow on a curved surface induces shape deformations. This tight coupling between shape and ow makes curvature a natural element of the governing equations. As demonstrated by numerical studies of the equations for uid deformable surfaces, surface hydrodynamics can signicantly speed up the evolution34,35 and can enhance bulging and furrow formation in membranes.17
+Combined with higher order geometric terms in the bending energy, models for uid deformable surfaces has the potential to enable the rapid shape changes in the release and formation of membrane reservoirs and the formation and retraction of lopodia. We computationally explore the eﬀect of these terms on the equilibrium shapes and the dynamics to reach them and analyze their impact to facilitate rapid shape changes. Any coupling with the cortex,22 interaction with proteins that induce curvature36 or to forces exerted on the membrane37,38 are not considered. We also neglect any interaction with the surrounding bulk phases. This results from the theoretical interest in exploring the membrane properties without any additional inuence and the limit of a large Saﬀman–Delbrück number. This number describes the relation between the viscosities of the membrane and the typically less viscous bulk uid and if large allows the decoupling of surface and bulk ows.39
+The rest of the paper is structured as follows. In Section 2 we introduce the full model and briey mention the considered numerical approach. More details on the derivation of the model and on the numerical approach including convergence studies are provided in Appendices (Model derivation, Numerical method and Validation). Computational results are described in Section 3. They contain axisymmetric and full three-dimensional computations addressing the dynamic evolution and the equilibrium shapes. In Section 4 we draw conclusions and mention possible directions to extend the described model to enable simulations of rapid morphological changes of cells.
+
+2 Model
+2.1 Notation
+The considered mesoscale model requires basic notation from diﬀerential geometry and geometric partial diﬀerential equations. Besides classical mathematical text books in these elds we refer to ref. 2 for an introduction in the
+context of membranes. We follow the same notation as in ref. 17 which is here
+repeated for convenience. We consider a time dependent smooth and oriented surface S = S (t) without boundary, embedded in R3. The enclosed volume is denoted by U = U(t). We denote by n the outward pointing surface normal, the surface projection is P = I − n5n, with I the identity matrix, the shape operator is B = −VPn, the mean curvature H = trB, and the Gaussian curvature K ¼ 1 ðH 2 À kBk2Þ. We consider time-dependent Euclidean-based n-tensor
+2 elds in TnR3jS . We call T0R3jS = T0S the space of scalar elds, T1R3jS = TR3jS the space of vector elds, and T2R3jS the space of 2-tensor elds. Important subtensor elds are tangential n-tensor elds in TnS #TnR3jS . Let p ˛ T0S be a continuously diﬀerentiable scalar eld, u ˛ TR3jS a continuously diﬀerentiable R3-vector eld, and s ˛ T2R3jS a continuously diﬀerentiable R3×3-tensor
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+eld dened on S . We dene the diﬀerent surface gradients by VP p = PVpe, VP u = PVueP and VC s = VseP, where pe, ue and se are arbitrary smooth extensions of p, u and s in the normal direction and V is the gradient of the embedding space R3. The corresponding divergence operators for a vector eld u and
+a tensor eld s are divP u = tr(VP u) and divC (sP) = trVC (sP), where tr is the trace operator. The relations to the covariant derivatives VS and the covariant divergence divS on S , with DS = divS $VS the Laplace–Beltrami operator, read VP p = VS p and divP u = divS (Pu) − (u$n)H , respectively.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+2.2 Governing equations
+
+The material velocity u ˛ TR3jS can be decomposed into u = uNn + uT, with uN = u$n and uT = Pu, the normal and the tangential part, respectively. The pressure p ˛ T0S serves as Lagrange multiplier for the inextensibility constraint. The governing
+equations for these unknowns read
+
+vtu þ Vwu ¼ ÀVS p À pH n þ R2edivCs À gu þ b À ln
+
+(1)
+
+divPu = 0
+
+(2)
+
+ð
+
+u$ndS ¼ 0;
+
+(3)
+
+S
+
+where [Vwu]i = (VS ui,w), i = 1, 2, 3, with w = u − vtX is the relative velocity and X
+
+a parameterisation of S , sðuÞ ¼
+
+1 2
+
+ðVP
+
+u
+
+þ
+
+ðVP
+
+uÞT
+
+Þ˛T
+
+2
+
+ℝ3
+
+
+S
+
+is the rate of defor-
+
+mation tensor, Re > 0 is the Reynolds number, g $ 0 is a friction coeﬃcient, l ˛ R
+
+is a Lagrange multiplier to ensure a constant enclosed volume, and b denotes
+
+a bending force, dened by
+
+
+
+
+
+
+
+b ¼ À2k2;0
+
+DS H þ ðH À H 0Þ
+
+kBk2 À
+
+1 2
+
+H
+
+ðH
+
+À H 0Þ
+
+n
+
+
+
+
+
+À12k4;0divS ðH À H 0Þ2VS H n
+
+
+
+
+
+Àk4;0 ðH À H 0Þ3ðð3H þ H 0ÞH À 8K Þ n
+
+À Àk4;2 2divS
+
+ððH
+
+P
+
+À
+
+B ÞVS
+
+K
+
+Þ
+
+þ
+
+H
+
+K
+
+2Án;
+
+(4)
+
+where H 0 is a spontaneous curvature and k2,0,k4,0,k4,2 ˛ R are bending rigidity parameters. The system of equations considers a model for uid deformable surfaces. Such models consist of incompressible surface Navier–Stokes equations
+with bending forces and a constraint on the enclosed volume. The highly nonlinear
+model accounts for the tight interplay between surface evolution, surface curvature
+and surface hydrodynamics and allows for the modelling of membranes with surface viscosity. For derivations of the model (with k4,0 = k4,2 = 0) we refer to ref. 17, 31, 34, 40 and 41. They consider diﬀerent principles and build on a nonlinear Onsager formalism,31 thin lm limits from three-dimensional models34,40 and a Lagrange–D’Alembert approach.17,41 For a comparison of derivations for b = 0 and without the constraint on the enclosed volume we refer to ref. 42–44.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+The mentioned solid–uid duality of these models, which leads to a tight coupling between shape and ow, and lets any shape change contribute to tangential ow, and vice versa, can best be seen by rewriting eqn (1)–(3) as coupled equations for uN = u$n and uT = Pu.34,42,43 One out of several of the resulting coupling terms results from eqn (2), which leads to divPu = uNH + divPuT = 0 and explicitly demonstrates the relation between the mean curvature and the
+tangential velocity. Considering the overdamped limit, formally letting g / N, leads to the
+classical dynamic equations
+
+u = −VS p − pH n + b − ln
+
+(5)
+
+divPu = 0
+
+(6)
+
+ð
+
+u$ndS ¼ 0;
+
+(7)
+
+S
+
+for an inextensible membrane with constant volume. Using (5) in (6) provides the equation for the Lagrange multiplier for the inextensibility constraint −DS p + pH 2 + l = b$nH and corresponds to previous models, if b only contains second order geometric terms.45–49 Further relaxing the constraint on inextensibility leads to the classical Canham–Helfrich models with area and volume constraints.48
+In contrast to previous approaches for uid deformable surfaces17,31,34,35,50 the bending force b also contains higher order geometric terms.
+
+2.3 Bending forces
+
+The bending force eqn (4) results from the bending energy ð
+
+F BEðH ; K Þ ¼ fBEðH ; K ÞdS
+
+(8)
+
+S
+
+with bending energy density fBE. Formally we can derive fBE via Taylor expansion at the spontaneous curvature H 0 leading to
+
+jk
+
+n
+
+XN X2
+
+fBEðH ; K Þ ¼
+
+kn;aðH À H 0ÞnÀ2aK a
+
+n¼0 a¼0
+
+¼ k0;0 þk1;0ðH À H 0Þ þk2;0ðH À H 0Þ2 þ k2;1K |{z} |ﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ{zﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ} |ﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ{zﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ}
+
+n¼0
+
+n¼1
+
+n¼2
+
+þ k3;0ðH À H 0Þ3 þ k3;1ðH À H 0ÞK |ﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ{zﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ}
+n¼3
+
+þk4;0ðH À H 0Þ4 þ k4;1ðH À H 0Þ2K þ k4;2K 2 þ. |ﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ{zﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄﬄ}
+n¼4
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+in terms of geometric orders n # N ˛ N for diﬀerent bending rigidity parameters kn,a ˛ R. This expression corresponds to the generalized form of the classical Canham–Helfrich energy (n = 2) introduced in ref. 11 and also considered in ref. 2, 12 and 13 if gradient terms are neglected. It can be simplied assuming certain
+properties of the bending energy: as we are interested in variations of the energy,
+we can omit the constant contribution k0,0. We will further not allow for topological changes, thus, we can omit the k2,1K term, applying Gauss–Bonnet’s theorem. Furthermore, we only allow for terms which guarantee boundedness
+from below. This excludes all odd geometric orders as well as k4,1. Considering these points and only contributions up to geometric order N = 4 leads to the
+following bending energy density
+
+fBE(H ,K ) = k2,0(H − H 0)2 + k4,0(H − H 0)4 + k4,2K 2,
+
+which has been considered in ref. 14 to study the stability of tubular shapes considering k2,0 > 0, k4,0 = 0 and k4,2 W 0 as parameters to stabilize cylindrical shapes (k4,2 > 0) or to enforce pearling (k4,2 < 0). The same form is also considered
+
+in ref. 12 arguing that a cylinder with radius R is stable if k2,0 < 0 and
+
+k4;0 k2,0
+
+¼ >
+
+À
+
+R2 2
+
+k2;0
+
+0, k4,0
+
+with $0
+
+k4,2 and
+
+not k4,2
+
+determined. We here $ 0. We would like
+
+restrict the to remark
+
+parameter that more
+
+space to general
+
+parameter combinations are possible, still leading to well-posed bending energies and stable solutions. However, K = 0 is a property of a tube and thus k4,2K 2
+
+seems to be the most plausible higher order extension in the bending energy to stabilize tubular structures. k4,0(H − H 0)4 is considered for completeness. In any case the bending force b is derived as the negative of the variational derivative of
+
+the bending energy (8)
+
+b ¼ ÀdFdXBE:
+
+A detailed derivation of the bending force is done in the Appendix: Model derivation.
+
+2.4 Numerical approach
+The numerical approach extends the approach used in ref. 17 and 35 which is based on surface nite elements51,52 and builds on a Taylor–Hood element for the surface Navier–Stokes equations, higher order surface parametrizations, appropriate approximations of the geometric quantities, mesh redistribution, a semi-implicit discretization in time and an iterative approach to deal with the non-local constraint on the enclosed volume. Additional challenges emerge from the higher order geometric terms. In the Appendix: Numerical method we provide a detailed description and in Appendix: Validation convergence studies for these terms. The implementation is done in DUNE/AMDiS.53,54 Throughout the paper we consider Re = 1.0 and g = 0 and only vary H 0, k2,0, k4,0 and k4,2. Numerical parameters, such as mesh size h and time step s are chosen to resolve the highest curvature values and to meet stability constraints, following ref. 35.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+3 Results
+
+3.1 Axisymmetric simulation without surface viscosity
+
+We begin by describing the membrane using cylindrical coordinates (r, q, z) and consider a rotational symmetric tube with periodic boundary conditions. With
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Fig. 1 (a) Time evolution of axisymmetric simulations for diﬀerent parameters for k4,2 and
+
+k4,0
+
+starting
+
+from
+
+the
+
+same
+
+periodic
+
+solution
+
+r0ðzÞ ¼
+
+1
+
+p sin
+
+ z
+
+þ
+
+1
+
+44
+
+at
+
+t0.
+
+The
+
+evolution
+
+goes from dark to light converging to a tube with r(z) = 0.5. The depicted time instances
+
+are marked in (b). (b) Corresponding time evolution of the bending energy for diﬀerent
+
+values of k4,2 and k4,0. Parameters are k2,0 = 0.05 and H 0 = −2.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+H ¼ qﬃﬃﬃﬃﬃﬃﬃ1ﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ 1 þ ðvzrÞ2
+
+!
+
+vzz r 1 þ ðvzrÞ2
+
+À
+
+1 r
+
+;
+
+View Article Online
+Paper
+
+K
+
+¼
+
+À r1
+
+vzz r þ ðvz
+
+rÞ2
+
+2
+
+(9)
+
+the bending energy density fBE(H ,K ) can be reformulated and considered as a function of r(z, t), the radial distance of the axisymmetric membrane from the cylindrical symmetry axis, where z measures the coordinate along that axis and t is time. For the evolution we consider the corresponding equations to eqn (5)–(7) but drop the constraints on inextensibility and volume. The resulting equation to solve reads
+
+qﬃﬃﬃﬃﬃﬃﬃ1ﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ vtr 1 þ ðvzrÞ2
+
+¼
+
+uN
+
+¼
+
+ÀdFdXBE$n
+
+¼
+
+b;
+
+(10)
+
+with b = b$n. While lengthy if fully written down, the resulting model can be solved using standard approaches. We again use nite elements in space, a semi-
+implicit discretization in time, smoothing of the geometric properties and consider DUNE/AMDiS53,54 for the realization. Fig. 1 shows the time evolution of a periodically perturbed tube for diﬀerent values of k4,2 and k4,0 together with the evolution of the bending energy F BE over time. For k4,2 = 0 and k4,0 = 0 this is a well studied problem of the stability of a tube.55–57 The parameters are chosen to
+remain within the stability region. The results clearly indicate a stronger damping
+of the perturbations for increasing values of k4,2 and k4,0. However, the behaviour slightly diﬀers with respect to the damping of the perturbations and adjustment of r(z). This diﬀerence is also seen in the decrease of the bending energy.
+Results of a linear stability analysis58 for the case of k4,2 = 0 and k4,0 = 0 but considering surface viscosity using a Stokes approximation of eqn (1) indicate
+a similar stability region as in the overdamped limit and we assume this holds
+also for k4,2 > 0 and k4,0 > 0 and the full problem.
+
+3.2 Equilibrium shape of tubular cell
+The shape of a tubular cell can be approximated by a cylinder with hemispherical caps, as shown in Fig. 2. For this simple shape, we can compute the bending energy as
+
+Fig. 2 (a) As initial surface we consider a cylinder with hemispherical caps. (b) The geometry is determined by the length of the cylinder l and the radius r of the cylinder and hemispherical caps.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Fig. 3 (a) Equilibrium shapes for k2,0 = 0.125, H 0 = −2 and k4,2 = 0. As initial condition we consider a cylinder of radius r = 0.5 with hemispherical caps and vary the length l of the cylindrical part. From left to right the lengths are l = 2, 3 and 4. The surfaces are colored by mean curvature H (upper row) and Gaussian curvature K (lower row). (b) Equatorial cuts through the equilibrium shapes for diﬀerent values of k4,2 and l, keeping k2,0 = 0.125 and H 0 = −2. (c) Equatorial cuts through the equilibrium shapes for diﬀerent values of k4,0 and l, keeping k2,0 = 0.125 and H 0 = −2.
+
+F BE ¼ k2;0
+
+
+
+2prl
+
+À1 r
+
+À
+
+H
+
+2
+0
+
+þ
+
+ 4pr2 À2
+r
+
+À
+
+H
+
+2!
+0
+
+þ k4;0
+
+ 2prl À1
+r
+
+À
+
+H
+
+4
+0
+
+þ
+
+ 4pr2 À2
+r
+
+À
+
+H
+
+4!
+0
+
+þ
+
+k4;2
+
+4p r2
+
+where r is the radius and l the length the cylindrical part vanishes and the
+
+of the cylinder. For H energy simplies to
+
+0
+
+¼
+
+À1, r
+
+the
+
+energy
+
+of
+
+
+
+
+
+F BE ¼ 4p
+
+k2;0
+
+þ
+
+k4;0 r2
+
+þ
+
+k4;2 r2
+
+:
+
+Note that this energy is independent of the length of the cylinder. We consider this shape as the initial conguration and the energy as a quantity for comparison.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Fig. 4 (a) and (b) Bending energy of the ﬁnal shape for ﬁxed values of k4,2 (a) and k4,0 (b) for diﬀerent lengths l. (c) and (d) Hausdorﬀ distance between the equilibrium shape and the initial shape for diﬀerent lengths l = 2, 3 and 4 as a function of k4,2 (c) and k4,0 (d).
+Fig. 3 shows the nal congurations achieved by solving the full problem, eqn (1)–(3), for three diﬀerent values l. In all cases, the shape deviates from the initial conguration. For k4,2 = 0 and k4,0 = 0 the resulting shapes correspond to the equilibrium prolate shapes in ref. 7. However, for k4,2 > 0 and k4,0 > 0, these shapes deviate. For k4,2 > 0 the bending energy is reduced by increasing l and the Hausdorﬀ distance dH(S ,S 0) to the idealized initial shape of a cylinder with hemispherical caps S 0 is reduced by increasing k4,2, see Fig. 4. The Hausdorﬀ distance is a measure of the distance between sets of points, in our case the discretization points of the equilibrium shape and the initial shape. For a mathematical denition and implementation issues see Appendix: Hausdorﬀ distance. The observed trends are far from being general. This can also not be expected due to the highly nonlinear coupling of the geometric terms and the considered constraints on volume and inextensibility. However, they conrm the intuition of the potential impact of k4,2K 2 in the bending energy on the emerging equilibrium shapes. The eﬀect of k4,0 > 0 diﬀers. The increased tendency to enforce H = H 0 leads to undulations with a wavelength related to −2/H 0. How well this can be achieved strongly depends on the length l. Therefore also the Hausdorﬀ distance dH(S ,S 0) to the idealized initial shape of a cylinder with hemispherical caps S 0 does not decrease but leads to a non-monotonic behaviour if considered as a function of l. The dependency of l on the bending energy F BE is negligible for the considered parameters. To summarize, within the stability region of the classical Canham–Helfrich model, higher order geometric terms related to k4,2K 2 seem to stabilize tubular shapes and terms related to k4,0(H − H 0)4 seem to destabilize these shapes.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Fig. 5 Evolution of a perturbed sphere considering parameters k2,0 = 0.125, H 0 = 0 and diﬀerent values of k4,2. (a)–(c) Time instances for the evolution for k4,2 = 0, 0.06 and 0.12, respectively. The color coding indicates movement in the normal direction (red –
+movement outwards, blue – movement inwards) and the arrows indicate the tangential
+velocity. The time evolves from left to right; the time instances except for the last one are equal and are depicted in (d). (d) Evolution of the diﬀerent energy contributions: F 2,0 and F 4,2 are the energies linked to the corresponding bending terms, F K is the kinetic energy. The bending energy is F BE = F 2,0 + F 4,2 and the total energy F = F BE + F K. Shown is the
+evolution for k4,2 = 0, 0.06 and 0.12 (from left to right). Corresponding videos to the evolution in (a)–(c) are provided in the SI† using a LIC ﬁlter for visualization of the
+tangential ﬂow.
+
+3.3 Dynamic evolution
+
+In order to further explore the inuence of the higher order geometric terms
+
+related to k4,2K 2 and k4,0(H − H 0)4 on the dynamics, we consider an initial
+
+surface S 0 as a perturbed unit sphere
+
+S
+
+0
+
+¼
+
+È 1
+
+þ
+
+r0Ylmðf;
+
+wÞ
+
+:
+
+f˛½0;p;
+
+É w˛½Àp;p ;
+
+r0 . 0;
+
+(11)
+
+sﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃﬃ
+
+Ylmðf; wÞ ¼ 2l4þpð1lðþl ÀmmÞ!Þ!Pml ðcos wÞeimf
+
+(12)
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Fig. 6 Evolution of a perturbed sphere considering parameters k2,0 = 0.125, H 0 = 0 and diﬀerent values of k4,0. (a)–(c) Time instances for the evolution for k4,0 = 0, 0.00625 and 0.0125, respectively. The color coding indicates movement in the normal direction (red –
+movement outwards, blue – movement inwards) and the arrows indicate the tangential
+velocity. The time evolves from left to right; the time instances except for the last one are equal and are depicted in (d). (d) Evolution of the diﬀerent energy contributions: F 2,0 and F 4,0 are the energies linked to the corresponding bending terms, F K is the kinetic energy. The bending energy is F BE = F 2,0 + F 4,0 and the total energy F = F BE + F K. Shown is the
+evolution for k4,0 = 0, 0.00625 and 0.0125 (from left to right). Corresponding videos to the evolution in (a)–(c) are provided in the SI† using a LIC ﬁlter for visualization of the
+tangential ﬂow.
+
+with spherical harmonics Yml and Legendre polynomials Pml and the case l = 5, m = 3 and r0 = 0.5. The velocity eld is initialized with u0 = 0. The initial surface has non-zero mean and Gaussian curvature and is out of equilibrium. It serves as
+a prototypical example to study the rapid shape changes featuring moderate
+geometric properties of a cell with membrane reservoirs. The resulting bending
+force induces shape deformations in the normal direction. However, the curvature terms also induce tangential ows, which also contribute to shape deformations. This coupling between tangential ow and shape deformations is well understood and shown to enhance the evolution towards equilibrium shapes.35 Here, we explore the evolution for diﬀerent values of k4,2 and k4,0, which are k4,2 = 0, 0.06 and 0.12 and k4,0 = 0, 0.00625 and 0.0125, respectively. Fig. 5 and 6 show snapshots of the evolutions. The color coding corresponds to shape deformations (red – movement outwards, blue – movement inwards) and the arrows indicate
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+the tangential velocity, where the length scales with the magnitude. Furthermore,
+
+the energy contributions are shown over time. Here, the bending energy is
+
+split into the diﬀerent contributions F BE = F 2,0 + F 4,0 + F 4,2 and the total energy
+
+F = F BE + F K is the sum of the bending energy and the kinetic energy
+
+F
+
+K
+
+¼
+
+Ð
+S
+
+1u2dS 2
+
+.
+
+All
+
+evolutions
+
+converge
+
+to
+
+an
+
+equilibrium
+
+shape,
+
+which
+
+for
+
+the
+
+cases k4,2 = 0 and k4,0 = 0 correspond to the associated Seifert shape,7 which here corresponds to an oblate. For k4,2 > 0 the equilibrium shapes only slightly diﬀer. The diﬀerence in orientation might result from the diﬀerent dynamics. However,
+
+due to the decoupling from the surrounding bulk phases and the considered
+
+parameter g = 0, force-free rigid body rotations are also possible.59 While the
+
+equilibrium shapes are similar, signicant changes can be observed in the
+
+dynamics. The close coupling between the bending energy F BE and the kinetic energy F K can be observed and related to signicant shape changes. But their appearance diﬀers. The plateau in F BE = F 2,0 for k4,2 = 0 between t z 2 and t z 6 is reduced for k4,2 = 0.06 and 0.12 and already ends at t z 4.5 and t z 3,
+
+respectively. It should be noted that the absolute values of the energies cannot be
+
+directly compared as k4,2 varies by denition. The situation changes for k4,0 > 0. The equilibrium shapes are prolate shapes. Besides this diﬀerence in the long
+
+time behavior, the short time evolution also changes. We observe similar behavior
+
+as for k4,2 > 0 with an enhanced inuence of the kinetic energy and a faster evolution towards intermediate shapes. The nal convergence towards the equi-
+
+librium shape at late times probably results form similar values for the local
+
+minima on the oblate and prolate branch as also known for the classical Can-
+
+ham–Helfrich model.6 Again, the absolute values of the energies cannot be
+
+directly compared as k4,0 varies in the denition.
+
+Qualitatively the higher order geometric terms further enhance the evolution
+
+and lead to alternative pathways to dissipate energy. This is most pronounced in the inlets highlighting the initial evolution; the drastic decrease of F 4,2 and F 4,0 is associated with large uctuation of F K. This behavior increases with increasing values of k4,2 and k4,0. Furthermore, while F 4,2 is roughly one order of magnitude smaller than F 2,0, the inuence on the dynamics is dramatic. This is less pronounced for F 4,0, which is at the same order as F 2,0. We expect these fast
+
+shape changes to be even enhanced for less regular real geometries of membrane
+
+reservoirs, due to the appearance of larger curvature gradients.
+
+4 Conclusions
+
+Motivated by rapid shape changes of cells, where an excess of membrane that is
+
+organized in membrane reservoirs is made available to the cell on the order of
+
+seconds,23 we formulated a minimal mesoscopic membrane model which helps to
+
+facilitate this behavior. This, on the one side, includes an extension of the clas-
+
+sical Canham–Helfrich model towards higher order geometric terms, and on the
+
+other side, includes the explicit treatment of the uid properties of the membrane
+
+tbhyecoclnassisdiecrailnbgemndeminbgreanneersgaysFu2;i0d¼deÐSfokr2m;0ÐðaHbleÀsHur0faÞ2cdeSs.
+
+The rst aspect adds , terms proportional
+
+to to
+
+the Gaussian curvature squared, F 4;2 ¼ S k4;2K 2dS , and the mean curvature
+
+minus the spontaneous curvature to the fourth power,
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+View Article Online
+
+Faraday Discussions
+
+Paper
+
+F 4;0
+
+Ð ¼ S k4;0ðH
+
+À H 0Þ4dS . The eﬀects of these higher order terms are diﬀerent.
+
+While the one related to the Gaussian curvature squared not only helps to damp
+
+perturbations of tubes, it also has a tendency to stabilize them, the term related to
+
+the mean curvature minus the spontaneous curvature to the fourth power has
+
+a tendency to destabilize tubes. Both eﬀects have been considered in idealized
+
+rotational symmetric and full three-dimensional situations by analyzing the
+
+evolution and the emerging equilibrium shapes. If combined with the second
+
+aspect, which takes the surface viscosity of the membrane into account and
+
+combines the bending in the normal direction with the properties of an inex-
+
+tensible changes.
+
+surface Already
+
+uid, as a uid for the classical
+
+deformable surface, thÐe bending energy F 2;0 ¼ S
+
+dynamic drastically k2;0ðH À H 0Þ2dS an
+
+enhanced evolution towards the equilibrium shape has been observed if the
+
+eﬀects of surface viscosity are taken into account.35 With the higher order
+
+geometric terms this is further enhanced. The considered numerical experiments
+
+for the relaxation of a perturbed sphere showed alternative pathways to dissipate
+
+energy and strong tangential ows inducing fast shape changes. However, besides
+
+enabling rapid shape changes, the evolution and also the emerging equilibrium
+
+shapes qualitatively diﬀer for the considered higher order terms. While the model
+
+with the Gaussian curvature squared term also converges to similar oblate-like
+
+shapes as the corresponding Seifert shapes6 for the classical Canham–Helfrich
+
+model, the model with the mean curvature minus the spontaneous curvature to
+
+the fourth power term converges to prolate-like shapes.
+
+However, the focus of this paper is not to classify the increased phase space of
+
+equilibrium shapes resulting from the higher order terms, but to address addi-
+
+tional mechanisms which facilitate rapid shape changes. While certainly more
+
+research is needed to fully explore the potential of the higher order geometric
+
+terms, e.g., with respect to the stability of tubes extending the analysis in ref. 58
+
+the numerical studies already clearly indicate the potential for rapid shape
+
+changes. Even if only passive contributions of a homogeneous membrane are
+
+considered, and a full model for morphological changes of a cell requires the
+
+taking of inhomogeneities, active processes of the underlying cortex, adhesion
+
+between the membrane and the cortex and probably even more phenomena into
+
+account, the study contributes to identifying underlying general mechanical
+
+principles which might help to predict and control the dynamics of cells.20 Surface
+
+viscosity and higher order geometric terms in the bending energy provide
+
+mechanical cues and probably support active processes to enable rapid shape
+
+changes of cells.
+
+A full model able to address the mentioned example of frequently forming and
+
+retracting lopodia and the associated fast shape changes of membrane reser-
+
+voirs will require the coupling of models for the cellular cortex24–27 with
+
+membrane models of the considered type, which requires additional modeling
+
+and numerical eﬀorts. One intermediate step to link this research closer to
+
+biology could be eﬀorts to resolve the dynamics of membrane reservoirs and
+
+compare them with simulations of the proposed model.
+
+Data availability
+Data are available from Zenodo at https://doi.org/10.5281/zenodo.14503545.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+Conﬂicts of interest
+There are no conicts to declare.
+
+View Article Online
+Faraday Discussions
+
+Appendices
+
+Model derivation
+
+We here compute the variational derivatives of the higher order geometric terms
+
+in the bending energy. We therefore write the bending energy as ð
+F BE ¼ k2;0fB2E;0 þ k4;0fB4E;0 þ k4;2fB4E;2dS S
+
+with
+
+bending
+
+density
+
+components
+
+f
+
+n,a BE
+
+=
+
+(H
+
+− H 0)n−2aK a. The corresponding
+
+forces bn,a ˛ TR3jS are given by
+
+(ð
+
+)
+
+hbn;a; W iL2ðTℝ3jS Þ :¼ À
+
+d dX
+
+fBnE;adS ; W
+S
+
+ð L2 Tℝ3jS Þ
+
+for
+
+all
+
+W
+
+˛
+
+TR3jS
+
+.
+
+The
+
+result
+
+for
+
+f
+
+2,0 BE
+
+is
+
+well
+
+known
+
+
+
+
+
+
+
+b2;0 ¼ À2
+
+DS H þ ðH À H 0Þ
+
+kBk2 À
+
+1 2
+
+H
+
+ðH
+
+À H 0Þ
+
+n:
+
+For the remaining terms we use the deformation derivative +W60 and obtain the
+
+deformation formula ð
+
+hbn;a; W iL2ðTℝ3jS Þ ¼ À S +WfBnE;a þ fBnE;adivCW dS :
+
+(13)
+
+Moreover,
+
+P(+WB)P = VS (n$VCW) − BVCW,
+
+(14)
+
++WH = tr(P(+WB)P) = divS (n$VCW) − B : VCW
+
+(15)
+
+are valid.60 As a consequence, the deformation formula (13) and integrations by
+
+parts result in
+
+b4;0;
+
+ W L2ðTℝ3jS
+
+Þ
+
+¼
+
+ð
+À
+S
+
+4ðH
+
+À H 0Þ3+WH
+
+þ ðH
+
+À H 0Þ4divCW dS
+
+ð ¼ 12ðH À H 0Þ2ðVSH Þ$ðn$VCWÞ
+S
+
+þðH À H 0Þ3ð4B À ðH À H 0ÞPÞ : VCWdS
+
+Another application of integrations by parts w.r.t. VC, yields 
+b4;0 ¼ À divCð12ðH À H 0Þ2n5VS H þ ðH À H 0Þ3ð4B À ðH À H 0ÞPÞ;
+where
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+divC(sP) = divS (PsP) − n$sB + (divS (n$sP) + B : s)n
+
+(16)
+
+holds for all s ˛ TR3jS .41,60 Therefore, the tangential part of b4,0 cancels out and
+
+we obtain
+
+
+
+
+
+
+
+
+
+b4;0 ¼ À 12divS ðH À H 0Þ2VS H þ ðH À H 0Þ3ðð3H þ H 0ÞH À 8K Þ n:
+
+With (14) and (15), the deformation derivative of K = 2(H 2 − ‖B‖2) reveals
+
++W K ¼ H +W H À B : +W B ¼ ðH P À BÞ : ðVS ðn$VCWÞ À BVCWÞ:
+
+As a consequence, the deformation formula (13), integrations by parts, and
+
+B2 = H B − K P, result in
+
+b4;2;
+
+ W L2ðTℝ3jS
+
+Þ
+
+¼
+
+ð
+À
+S
+
+2K
+
++WK
+
+þ K 2divCWdS
+
+ð
+
+¼ 2divS ðK ðH P À BÞÞ$ðn$VCWÞ þ K 2P : VCWdS :
+S
+
+Since divS (H P − B) = 0 holds, integrations by parts yields
+
+b4;2
+
+¼
+
+À À divC 2n5ðH
+
+P À BÞVS K
+
+þ
+
+K
+
+2
+
+Á P:
+
+Using (16), the tangential part of b4,2 cancels out and we obtain
+
+b4,2 = −(2divS ((H P − B)VS K ) + H K 2)n.
+
+Putting everything together yields eqn (4). For the derivation of the other parts of the model we refer to.17,41
+
+Numerical method
+We consider a surface nite element method (SFEM)51,52 to solve the highly nonlinear set of geometric and surface partial diﬀerential equations (1)–(3), using the approaches in ref. 17 and 35.
+We combine the system (1)–(3) with a mesh redistribution approach.61 These are equations for the parametrization
+
+vtX$n = u$n
+
+(17)
+
+H n = DCX,
+
+(18)
+
+which generate a tangential mesh movement to maintain the shape regularity and
+
+additionally provide an implicit representation of the mean curvature H . We
+
+consider
+
+a
+
+discrete
+
+k-th
+
+order
+
+approximation
+
+S
+
+k h
+
+of
+
+S
+
+,
+
+with
+
+h
+
+the
+
+size
+
+of
+
+the
+
+mesh
+
+elements, i.e. the longest edge of the mesh. We use the DUNECurvedGrid library62
+
+and consider each geometrical quantity like the normal vector nh, the shape operator
+
+Bh, the Gaussian curvature K h, and the inner products ($,$)h with respect to the S kh. In the following, we will drop the index k. We dene the discrete function spaces for scalar functions by Vk(S h) = {j ˛ C0(S h)jjjT ˛ P k(T)} and for vector elds by Vk(S [h]) = [Vk(S [h])]3. Within these denitions T is the mesh element and P k are the
+
+polynomials of order k. We consider uh,X ˛ V3(S h), H h ˛ V3(S h), and ph ˛ V2(S h),
+
+which leads to an isogeometric setting for the velocity and a P 3 − P 2 Taylor-Hood
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+element for the surface Navier–Stokes-like equations. We discretize in time using
+
+constant time stepping with step size s. In each time step we solve the surface Navier–
+
+Stokes-like equations and the mesh redistribution together. We dene a discrete surface update variable Yn = Xn − Xn−1, which is considered as unknown instead of
+
+the surface parametrization Xn. The system to solve reads: Find (unh,pnh,H nh,Yn) ˛ [V3×V2×V3×V3](S nh−1) such that:
+
+1sÀunh
+
+À
+
+unhÀ1 ;
+
+Á vh h
+
+þ
+
+ VwnhÀ1
+
+unh ;
+
+ vh
+h
+
+¼
+
+À
+
+Á
+
+pnh; divPvh h À
+
+R2eÀsÀunh
+
+Á ;
+
+VP
+
+Á vh h
+
+À
+
+À g unh
+
+;
+
+vh
+
+Á
+h
+
+ÀÀ þ 2k2;0VS
+
+H
+
+Á
+
+n h
+
+VS
+
+À vh
+
+$nnhÀ1ÁÁh
+
+ÀÀ þ 2k2;0 H
+
+n h
+
+À
+
+H
+
+nÀ1 0
+
+ÁBnÀ1
+
+nnhÀ1
+
+;
+
+Á vh h
+
+ÀÀ þ k4;0 H
+
+n h
+
+À
+
+H
+
+n0À1ÁÀH
+
+nÀ1 h
+
+À
+
+H
+
+nÀ1 Á2
+0
+
+À 4B
+
+nÀ1
+
+À
+
+À H
+
+nÀ1 h
+
+À
+
+H
+
+n0À1 ÁPÁ;
+
+Á VCvh h
+
+À þ 12k4;0 H
+
+nÀ1 h
+
+À
+
+H
+
+nÀ1 0
+
+Á2
+
+nnhÀ1
+
+5VSH
+
+;
+
+ VCvh
+h
+
+À þ 2k4;2H
+
+nh nnhÀ1
+
+À 5 PVS
+
+K
+
+nhÀ1 Á;
+
+Á VCvh h
+
+À À 2k4;2
+
+nnhÀ15ÀB
+
+nÀ1
+
+VS
+
+K
+
+nhÀ1 Á;
+
+Á VCvh h
+
+ þ k4;2
+
+À K
+
+nÀ1 Á2
+h
+
+P;
+
+VC vh
+
+
+h
+
+þlÀnnhÀ1;
+
+vh
+
+Á
+h
+
+À
+
+Á
+
+divPunhqh h ¼ 0
+
+1sÀY n $nnhÀ1 ;
+
+Á hh h
+
+¼
+
+Àunh$nnhÀ1;
+
+Á hh h
+
+À H
+
+n h
+
+nnhÀ1 ;
+
+Á Zh h
+
+þ
+
+ðVC Y n ;
+
+VC Z h Þh
+
+¼
+
+À À VC
+
+X
+
+nÀ1
+
+;
+
+Á VCZh h
+
+for
+
+all
+
+
+
+(nh,qh,hh,Zh)
+
+˛
+
+[V3×V2×V3×V3](S nh−1),
+
+BnÀ1 ¼
+
+kB
+
+nÀ1 h
+
+k2
+
+À
+
+1 2
+
+trB
+
+nÀ1 h
+
+ðtrB
+
+nÀ1 h
+
+À
+
+H
+
+0ðfnhÞÞ
+
+.
+
+where
+
+In the above formulation we used the identity (−VS pnh − pnhH nhnh,nh)h = (pnh,divPnh)h. Note that the Lagrange multiplier l is unknown, which
+
+leads to an underdetermined system. To resolve that problem, we follow the
+
+approach introduced in ref. 35. In order to fulll the volume constraint, l has to
+
+be chosen such that ð
+
+FðlÞ :¼
+
+unhðlÞ$nhdS ¼ 0:
+
+(19)
+
+S
+
+nÀ1 h
+
+We consider F(l) = 0 as an equation in l and apply a Newton iteration lj+1 = lj −
+
+F(lj)/F0(lj).
+
+Aer
+
+convergence
+
+is
+
+achieved
+
+the
+
+new
+
+surface
+
+S
+
+n h
+
+needs
+
+to
+
+be
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+computed by updating the parametrization Xn = Xn−1 + Yn, liing the solutions
+
+unh,
+
+pnh
+
+and
+
+H
+
+n h
+
+to
+
+the
+
+new
+
+surface
+
+and
+
+computing
+
+the
+
+remaining
+
+geometric
+
+quantities
+
+nnh,
+
+B nh,
+
+VS
+
+H
+
+nh,
+
+K
+
+n h
+
+and
+
+VS
+
+K
+
+n h
+
+for
+
+the
+
+new
+
+surface.
+
+While
+
+this
+
+approach
+
+showed the (expected) optimal order of convergence,35 with respect to computa-
+
+tional and numerical analysis results for the underlying surface Stokes equations on stationary surfaces63,64 for bending terms up to second order, the approach is not suﬃcient if higher order geometric terms are included.
+
+We therefore introduce a smoothing step of the surface quantities
+
+H
+
+nh,
+
+VS H
+
+nh,
+
+K
+
+n h
+
+and
+
+VS K nh.
+
+For
+
+each
+
+surface
+
+quantity
+
+or
+
+its
+
+components
+
+ah
+
+=
+
+H
+
+nh,
+
+[VS
+
+H
+
+nh]i,
+
+K
+
+n h
+
+and
+
+[VS
+
+K
+
+nh]i,
+
+i
+
+=
+
+1,
+
+2
+
+we
+
+solve
+
+one
+
+time
+
+step
+
+of
+
+the
+
+diﬀusion
+
+equation
+
+as − 3DS as = ah,
+
+where 3 > 0 is a smoothing parameter and as the smoothed surface quantity.
+
+Validation
+Instead of a full convergence study of the numerical approach we only test the smoothing of surface quantities. We consider a surface for which the surface quantities can be computed analytically. The surface is parametrized by X : [0,2p) × [0,p) / R2,
+
+Fig. 7 (a) Reference surface for the tests. Depicted are the mean curvature H and Gaussian curvature K . (b) Errors of geometric quantities with and without additional smoothing step for diﬀerent grid widths h. The orders of convergence are indicated by the dashed lines and are optimal orders for the numerical implementation.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+
+View Article Online
+
+Faraday Discussions
+
+0
+
+1
+
+Xðf;
+
+qÞ
+
+¼
+
+BBBBBB@
+
+1 þ 3cos2 44
+ cos f 1 þ
+4
+
+q sin 3cos2 4
+
+f q
+
+sin sin
+
+q  q
+
+CCCCCCA:
+
+cos q
+
+We compute the L2-error of the surface quantities H , K , VS H and VS K for diﬀerent grid widths h. The smoothing parameter 3 is chosen experimentally such that it shows optimal results. Fig. 7 shows that for this test case the surface quantities converge with the optimal orders and that the additional smoothing step for all quantities improves the approximation. Together with the convergence studies in ref. 17 and 35 these results provide enough condence in the numerical approach for the full problem including the higher order geometric terms. They require an appropriate resolution of K and VS K , which is achieved in O(h2) and O(h), respectively. This motivated the considered discrete function spaces.
+
+Hausdorﬀ distance
+
+For two sets X, Y 3 R3, we consider the Hausdorﬀ distance given by
+
+&
+
+'
+
+dHðX ; Y Þ ¼ max supdðx; Y Þ; supdðX ; yÞ ;
+
+x˛X
+
+y˛Y
+
+where d(x, M) = supm˛M‖x − m‖ and ‖$‖ is the Euclidean norm. In the implementation we use the VTK Hausdorﬀ distance point set lter65 with the target
+distance method point to cell.
+
+Acknowledgements
+We acknowledge fruitful discussions with Patrick Zager (UCSF) and Veit Krause (TUD). This work was funded by DFG within FOR3013 “Vector- and tensor-valued surface PDEs”. We further acknowledge computing resources at FZ Jülich under Grant No. MORPHO and at ZIH under Grant No. WIR.
+
+References
+1 H. T. McMahon and J. L. Gallop, Nature, 2005, 438, 590–596. 2 M. Deserno, Chem. Phys. Lipids, 2015, 185, 11–45. 3 R. Lipowsky and R. Dimova, So Matter, 2021, 17, 214–221. 4 W. Helfrich, Z. Naturforsch. C., 1973, 28, 693. 5 P. Canham, J. Theor. Biol., 1970, 26, 61. 6 U. Seifert, Adv. Phys., 1997, 46, 13–137. 7 U. Seifert, K. Berndl and R. Lipowsky, Phys. Rev. A:At., Mol., Opt. Phys., 1991, 44,
+1182–1202. 8 N. Bobrovska, W. G´o´zd´z, V. Kralj-Igliˇc and A. Igliˇc, PLoS One, 2013, 8, e73941. 9 N. Walani, J. Torres and A. Agrawal, Phys. Rev. E:Stat., Nonlinear, So Matter
+Phys., 2014, 89, 062715. 10 A. Mahapatra and P. Rangamani, So Matter, 2023, 19, 4345–4359. 11 M. D. Mitov, C. R. Acad. Bulg. Sci., 1978, 31, 513–515.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Faraday Discussions
+
+View Article Online
+Paper
+
+12 J. B. Fournier and P. Galatola, Europhys. Lett., 1997, 39, 225. 13 R. Capovilla, J. Guven and J. A. Santiago, J. Phys. A: Math. Gen., 2003, 36, 6281. 14 T. Shemesh, A. Luini, V. Malhotra, K. N. Burger and M. M. Kozlov, Biophys. J.,
+2003, 85, 3813–3827. 15 M. Kaksonen and A. Roux, Nat. Rev. Mol. Cell Biol., 2018, 19, 313–326. 16 S. C. Al-Izzi, P. Sens and M. S. Turner, Phys. Rev. Lett., 2020, 125, 018101. 17 E. Bachini, V. Krause, I. Nitschke and A. Voigt, J. Fluid Mech., 2023, 977, A41. 18 M. Arroyo, L. Heltai, D. Mill´an and A. DeSimone, Proc. Natl. Acad. Sci. U. S. A.,
+2012, 109, 17874–17879. 19 B. Winkler, I. S. Aranson and F. Ziebert, Commun. Phys., 2019, 2, 82. 20 R. K. Sadhu, A. Igliˇc and N. S. Gov, J. Cell Sci., 2023, 136, jcs260744. 21 V. T. Ruhoﬀ, N. Leijnse, A. Doostmohammadi and P. M. Bendix, Trends Cell
+Biol., 2024, 35, 129–140. 22 H. De Belly and O. D. Weiner, Curr. Opin. Cell Biol., 2024, 89, 102392. 23 H. De Belly, S. Yan, H. B. da Rocha, S. Ichbiah, J. P. Town, P. J. Zager,
+D. C. Estrada, K. Meyer, H. Turlier, C. Bustamante, et al., Cell, 2023, 186, 3049–3061. 24 S. R. Naganathan, S. Fürthauer, M. Nishikawa, F. Jülicher and S. W. Grill, eLife, 2014, 3, e04165. 25 A.-C. Reymann, F. Staniscia, A. Erzberger, G. Salbreux and S. W. Grill, eLife, 2016, 5, e17807. 26 H. B. da Rocha, J. Bleyer and H. Turlier, J. Mech. Phys. Solids, 2022, 164, 104876. 27 A. Bhatnagar, M. Nestler, P. Gross, M. Kramar, M. Leaver, A. Voigt and S. W. Grill, Curr. Biol., 2023, 33, 5096–5108. 28 T. Itoh and K. Tsujita, Curr. Opin. Cell Biol., 2023, 81, 102173. 29 H. A. Faizi, R. Dimova and P. M. Vlahovska, Biophys. J., 2022, 121, 910–918. 30 M. Arroyo and A. DeSimone, Phys. Rev. E:Stat., Nonlinear, So Matter Phys., 2009, 79, 031915. 31 A. Torres-S´anchez, D. Mill´an and M. Arroyo, J. Fluid Mech., 2019, 872, 218–271. 32 A. Voigt, J. Fluid Mech., 2019, 878, 1–4. 33 S. C. Al-Izzi and R. G. Morris, Semin. Cell Dev. Biol., 2021, 120, 44–52. 34 S. Reuther, I. Nitschke and A. Voigt, J. Fluid Mech., 2020, 900, R8. 35 V. Krause and A. Voigt, J. Comput. Phys., 2023, 486, 112097. 36 M. Simunovic, G. A. Voth, A. Callan-Jones and P. Bassereau, Trends Cell Biol., 2015, 25, 780–792. 37 I. Der´enyi, F. Jülicher and J. Prost, Phys. Rev. Lett., 2002, 88, 238101. 38 A. Roux, G. Cappello, J. Cartaud, J. Prost, B. Goud and P. Bassereau, Proc. Natl. Acad. Sci. U. S. A., 2002, 99, 5394–5399. 39 P. G. Saﬀman and M. Delbrück, Proc. Natl. Acad. Sci. U. S. A., 1975, 72, 3111– 3113. 40 I. Nitschke, S. Reuther and A. Voigt, Phys. Rev. Fluids, 2019, 4, 044002. 41 I. Nitschke and A. Voigt, Adv. Diﬀer. Equ., 2025, 30, 335–420. 42 S. Reuther and A. Voigt, Multiscale Model. Simul., 2015, 13, 632–643. 43 S. Reuther and A. Voigt, Multiscale Model. Simul., 2018, 16, 1448–1453. 44 P. Brandner, A. Reusken and P. Schwering, Interface. Free Bound., 2022, 24, 533–563. 45 T. Biben and C. Misbah, Phys. Rev. E:Stat., Nonlinear, So Matter Phys., 2003, 67, 031908. 46 Y. Kim and M.-C. Lai, J. Comput. Phys., 2010, 229, 4840–4853.
+
+Faraday Discuss.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Open Access Article. Published on 03 February 2025. Downloaded on 5/22/2025 11:01:50 AM. This article is licensed under a Creative Commons Attribution 3.0 Unported Licence.
+
+Paper
+
+View Article Online
+Faraday Discussions
+
+47 D. Salac and M. J. Miksis, J. Fluid Mech., 2012, 711, 122–146. 48 F. Haußer, W. Marth, S. Li, J. S. Lowengrub, A. R¨atz and A. Voigt, Int. J. Biomath.
+Biostat., 2013, 2, 19–48. 49 S. Aland, S. Egerer, J. Lowengrub and A. Voigt, J. Comput. Phys., 2014, 277, 32–
+47. 50 V. Krause and A. Voigt, J. R. Soc. Interface, 2024, 21, 20240056. 51 G. Dziuk and C. M. Elliott, Acta Numer., 2013, 22, 289–396. 52 M. Nestler, I. Nitschke and A. Voigt, J. Comput. Phys., 2019, 389, 48–61. 53 S. Vey and A. Voigt, Comput. Visualization Sci., 2007, 10, 57–67. 54 T. Witkowski, S. Ling, S. Praetorius and A. Voigt, Adv. Comput. Math., 2015, 41,
+1145–1177. 55 T. R. Powers, Rev. Mod. Phys., 2010, 82, 1607–1631. 56 R. E. Goldstein, P. Nelson, T. Powers and U. Seifert, J. Phys. II, 1996, 6, 767–796. 57 S. C. Al-Izzi, G. Rowlands, P. Sens and M. S. Turner, Phys. Rev. Lett., 2018, 120,
+138102. 58 M. Janssen, S. Liese, S. C. Al-Izzi and A. Carlson, Phys. Rev. E:Stat., Nonlinear,
+So Matter Phys., 2024, 109, 044403. 59 M. Nestler and A. Voigt, Proc. Appl. Math. Mech., 2023, 23, e202300044. 60 I. Nitschke, S. Sadik and A. Voigt, IMA Journal of Applied Mathematics, 2023, 88,
+917–958. 61 J. W. Barrett, H. Garcke and R. Nurnberg, SIAM J. Sci. Comput., 2008, 31, 225–
+253. 62 S. Praetorius and F. Stenger, Archive of Numerical Soware, 2022, 6, 1–27. 63 P. Brandner, T. Jankuhn, S. Praetorius, A. Reusken and A. Voigt, SIAM J. Sci.
+Comput., 2022, 44, A1807–A1832. 64 H. Hardering and S. Praetorius, IMA Journal of Numerical Analysis, 2023, 43,
+1543–1585. 65 F. Commandeur, J. Velut and O. Acosta, VTK Journal, 2011.
+
+This journal is © The Royal Society of Chemistry 2025
+
+Faraday Discuss.
+

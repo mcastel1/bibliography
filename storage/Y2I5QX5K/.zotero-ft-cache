@@ -1,0 +1,1838 @@
+J. Fluid Mech. (2025), vol. 1016, A34, doi:10.1017/jfm.2025.10327
+A curvilinear surface ALE formulation for self-evolving Navier–Stokes manifolds – general theory and analytical solutions
+Roger A. Sauer1,2,3
+1Institute for Structural Mechanics, Ruhr University Bochum, Bochum 44801, Germany
+2Department of Structural Mechanics, Gdan ́sk University of Technology, Gdan ́sk 80–233, Poland
+3Mechanical Engineering, Indian Institute of Technology Guwahati, Assam 781039, India Corresponding author: Roger A. Sauer, roger.sauer@rub.de
+(Received 28 January 2025; revised 31 May 2025; accepted 1 June 2025)
+A new arbitrary Lagrangian–Eulerian (ALE) formulation for Navier–Stokes flow on selfevolving surfaces is presented. It is based on a general curvilinear surface parameterisation that describes the motion of the ALE frame. Its in-plane part becomes fully arbitrary, while its out-of-plane part follows the material motion of the surface. This allows for the description of flows on deforming surfaces using only surface meshes. The unknown fields are the fluid density or pressure, the fluid velocity and the surface motion, where the latter two share the same normal velocity. The corresponding field equations are the continuity equation or area-incompressibility constraint, the surface Navier–Stokes equations and suitable surface mesh equations. Particularly advantageous are mesh equations based on membrane elasticity. The presentation focuses on the coupled set of strong and weak form equations, and presents several manufactured steady and transient solutions. These solutions are used together with numerical simulations to illustrate and discuss the properties of the proposed new ALE formulation. They also serve as basis for the development and verification of corresponding computational methods. The new formulation allows for a detailed study of fluidic membranes such as soap films, capillary menisci and lipid bilayers.
+Key words: membranes, thin films, Navier–Stokes equations
+© The Author(s), 2025. Published by Cambridge University Press. This is an Open Access article, distributed under the terms of the Creative Commons Attribution-NonCommercial-NoDerivatives licence (https://creativecommons.org/licenses/by-nc-nd/4.0/), which permits non-commercial re-use, distribution, and reproduction in any medium, provided that no alterations are made and the original article is properly cited. The written permission of Cambridge University Press must be obtained prior to any commercial use and/or adaptation of the article. 1016 A34-1
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+1. Introduction
+The understanding of fluid flow on evolving surfaces is important in many phenomena such as liquid films, bubbles, foams and lipid bilayers. Due to surface evolution, the flow has three spatial velocity components – two in-plane and one out-of-plane. The latter leads to shape changes, that are generally unknown. While surface changes are more commonly described in a Lagrangian frame, fluid flows are more commonly described in an Eulerian frame, as this facilitates numerical descriptions, which are the motivation behind this work. Evolving surface flows thus benefit from a combined LagrangianEulerian description. In classical computational fluid dynamics such a combination is often used in the framework of arbitrary Lagrangian–Eulerian (ALE) descriptions. ALE formulations are often presented and understood as a numerical method, but they are much more than that: they are a general and flexible way to parameterise and describe evolving domains and their partial differential equations (PDEs). What is often called the mesh velocity, is actually the velocity of the ALE frame of reference. The adaption of ALE formulations to evolving surfaces has only recently appeared, and is still not fully general. The generality aimed at here, is one that is suitable for advanced computational methods, for example in the context of geometrically accurate surface finite element methods. We therefore focus here on the development of a general theory, its weak form and corresponding analytical solutions, as these are all required for the construction and verification of a computational formulation, which is then studied in future work. ALE formulations for classical solid and fluid mechanics have a long history, cf. Donea et al. (2004) and references therein. For surface flows, the seminal work of Scriven (1960) already introduces the distinction between Lagrangian and Eulerian surface descriptions – also denoted as convected and surface-fixed coordinates, respectively. A recent discussion on the two descriptions can be found in Steigmann (2018). Many existing simulation methods for evolving surfaces use Lagrangian descriptions that can lead to large mesh distortion and require mesh stabilisation or remeshing strategies, e.g. see Brakke (1992), Ma & Klug (2008), Elliott & Stinner (2013), Mikula et al. (2014), Sauer (2014), Sauer et al. (2017) and Dharmavaram (2021). The Eulerian and ALE settings can avoid large mesh distortions, but they have been applied to surface flows only in recent years. Elliott & Styles (2012) propose a surface ALE scheme for the surface advection-diffusion equation, where the material and mesh velocity are prescribed. Rahimi & Arroyo (2012) implement a surface ALE scheme for lipid bilayer flow with interlayer sliding in an axisymmetric setting. The mesh velocity is penalised resulting in a near-Eulerian description in the tangential direction. TorresSánches et al. (2019) develop a general three-dimensional ALE formulation for cellular membranes. In their applications they advance the surface by a normal offset that is based on Rangarajan & Gao (2015). This special ALE motion leads to a near-Eulerian parameterisation that still requires remeshing in certain applications. Sahu et al. (2020) develop a general curvilinear ALE framework for fluid flow on evolving surfaces and use it to study the stability of fluid films based on an in-plane Eulerian mesh description. In-plane Eulerian mesh descriptions have also been used in the recent works of Reuther, Nitschke & Voigt (2020) and Al-Izzi & Morris (2023). These ALE works for surface Navier–Stokes, even though formulated generally, restrict their application to in-plane Eulerian or near-Eulerian surface parameterisations. Thus, a truly general surface ALE formulation for surface Navier–Stokes flow has not been fully investigated yet. Especially not for in-plane mesh motion that is unconditionally stable. The curvature-dependent mesh redistribution scheme of Barrett, Garcke & Nürnberg (2008a), recently applied to surface flows (Krause & Voigt 2023), can be expected to
+1016 A34-2
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+become unstable under mesh refinement, as the surface curvature is invariant with respect to in-plane mesh motion. The recent ALE mesh motion approach proposed by Sahu (2024), while successfully capturing tether formation and translation, is based on viscosity and hence can be expected to lose stability for decaying velocities. Another restriction of the ALE theory of Sahu et al. (2020) and Sahu (2024) is that its mesh motion is not fully general and can become unsuitable at inflow boundaries. These limitations of existing theories motivate the development of a more general ALE formulation. This is an important and timely topic, as the study of surface flows on known (fixed or prescribed) surfaces has received a lot of recent attention, using either a vorticity–streamfunction formulation (e.g. Nitschke, Voigt & Wensch 2012), or a velocity–pressure formulation (e.g. Rangamani et al. 2013). A detailed survey of existing computational approaches for surface flows will be conducted in future work. Here, we focus on theoretical developments and solutions for Navier–Stokes flows on surfaces. Three cases be distinguished: flow on stationary surfaces, flow on evolving surfaces with prescribed surface motion and flow on evolving surfaces with unknown surface motion. The third case can be further subdivided into surfaces advected by surrounding media, as in the case of free boundaries (Walkley et al. 2005) and interfaces between phases (Bothe & Prüss 2010), and self-evolving surfaces, where the unknown surface motion is driven by the overall surface flow problem. The case of known surface motion has received much attention and there are many analytical (usually manufactured) flow solutions available for various surfaces, such as spheres (Nitschke et al. 2012; Reuther & Voigt 2015; Olshanskii et al. 2018), cylinders (Lederer, Lehrenfeld & Schöberl 2020; Suchde 2021), wavy tubes (Fries 2018), ellipsoids (Gross & Atzberger 2018), toroids (Busuioc, Kusumaatmaja & Ambus ̧ 2020) and other shapes (Gross et al. 2020). For flows on fixed surfaces the unknown fluid velocity is characterised by two tangential velocity components that depend on the surface geometry. In the evolving surface case, the velocity has three unknown components that can be chosen based on a background Cartesian coordinate system instead of using tangential and normal surface components. Even though this later description greatly facilitates the description of the governing equations and their discretisation, many works use the tangential/normal decomposition for the flow equations. This is probably due to the fact that evolving surface flows are regarded as an extension of fixed surface flows, following the notion that the in-plane surface flow equations are coupled to the out-of-plane moving surface equation, e.g. see Koba, Liu & Giga (2017), Jankuhn, Olshanskii & Reusken (2018), Miura (2018), Reusken (2020) and Olshanskii, Reusken & Zhiliakov (2022) for prescribed surface motions and Reuther et al. (2020) for self-evolving surfaces. Instead of following the viewpoint of coupled component equations, the entire system can be described and solved directly by a single three-dimensional vector-valued PDE, which is simply the equation of motion following from surface momentum balance, as was already noted by Scriven (1960). Thus the surface Navier–Stokes system can be expressed more compactly if viewed as the unity that it really is. Here, it is interesting to note that there are different versions of the surface Navier–Stokes equations in the literature (Brandner, Reusken & Schwering 2022). Self-evolving solid surfaces have been studied for a long time in the context of general membrane and shell formulations – beginning with the works of Oden & Sato (1967) and Naghdi (1972). They are best described in a convected, Lagrangian parameterisation, which is much more straightforward than an Eulerian parameterisation. Self-evolving fluid surfaces have therefore attracted much less and only recent attention. Initial formulations have instead neglected tangential material flow and focussed on the shape change in a Lagrangian framework. Computational examples have thus studied droplet contact
+1016 A34-3
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+(Brown, Orr & Scriven 1980; Sauer 2014), lipid bilayer evolution (Feng & Klug 2006; Arroyo & DeSimone 2009), Willmore flow (Dziuk 2008; Barrett, Garcke & Nürnberg 2008b), phase evolution on surfaces (Elliott & Stinner 2013; Zimmermann et al. 2019), vesicles immersed in a flow (Barrett, Garcke & Nürnberg 2015) and particles floating on liquid membranes (Dharmavaram, Wan & Perotti 2022). As was mentioned already, in these works the Lagrangian description is often combined with mesh stabilisation or remeshing strategies, to remedy large mesh distortion. Eulerian descriptions for flow on evolving surfaces, on the other hand, are much rarer, and they have only been used in the already mentioned ALE works. But those lack key aspects, which are addressed here. The focus, here, is placed on area-incompressible surface flows, using a two-field, velocity–pressure description. The ALE frame deformation and its velocity – generally unknown – add another two fields to the problem, such that the resulting formulation is a four-field problem. The surface can be endowed with bending elasticity, as will be shown, but this is not a main focus of this work. Further restrictions are to consider mass-conserving surface flows, where there is no mass exchange with surrounding media, and to consider no thickness change of the surface, implying that there is no flow in thickness direction and that area incompressibility follows from volume incompressibility. Otherwise the surface deformation would need to be decomposed into elastic and inelastic contributions (Sauer, Ghaffari & Gupta 2019). Despite these restrictions, the present formulation is still very general, and is written such that it allows for future extensions. It contains free films as well as bounding interfaces, it applies to fixed as well as self-evolving surfaces and it applies to closed surfaces, as well as open ones containing evolving inflow boundaries. It also applies to arbitrary surface topologies. In summary, this work contains several important theoretical novelties:
+(i) It presents and discusses a general surface ALE formulation in curvilinear coordinates; (ii) that allows for truly arbitrary in-plane mesh motion; (iii) including mesh motion defined from membrane elasticity. (iv) It is used to formulate area-(in)compressible Navier–Stokes flow on self-evolving manifolds; (v) in vector form, without decomposition into in-plane and out-of-plane equations; (vi) and solves this for several analytical and numerical benchmark examples, including non-laminar surface flows and expanding soap bubbles with evolving inflow boundaries. (vii) They demonstrate the capabilities and advantages of the proposed ALE formulation.
+The remainder of this paper is organised as follows. The curvilinear ALE frame is introduced in § 2 and used to describe surface deformation and flow. Sections 3 and 4 then proceed with formulating the field equations and constitutive equations in the ALE frame. Their weak form is then provided and discussed in § 5. Section 6 provides several analytical and numerical solutions and uses them to study the proposed formulation. Conclusions are drawn in § 7.
+2. Surface description in the ALE frame
+This section presents the ALE formulation for evolving surfaces and their kinematical description. The formulation follows Sahu et al. (2020) but with a generalisation of the possible frame motion, and with many additions, especially in §§ 2.3–2.5. The formulation is expressed in very general terms, such that it can capture arbitrarily large deformations
+1016 A34-4
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+and motions, including arbitrary rigid body translations and rotations. The latter is confirmed by an example in § 6.4. Even though the formulation is based on a surface parameterisation, it is emphasised that all quantities without free indices are independent of the ALE frame and hence observer-invariant quantities on the evolving surface. This includes time derivatives.
+2.1. Different surface parameterisations
+The surface under consideration is denoted S and its surface points are described by the parametrisation
+x = x(ζ α, t). (2.1)
+Here, ζ α denotes a set of arbitrary surface coordinates (α = 1, 2) that is associated with the ALE frame of reference. In a computational description, this frame of reference can be taken as the computational grid or mesh. It can also be associated with an observer motion (Nitschke & Voigt 2022).
+Coordinate ζ α is generally different from the convective coordinate ξ α, which is used to track material points and which defines the material time derivative
+(.  ̇. .) = ∂. . .
+∂t
+∣∣∣∣ξ α
+. (2.2)
+It is also different from the surface-fixed coordinate θα, whose material time derivative
+defines the tangential fluid velocity, i.e. vα = θ ̇α. In other words
+x = xˆ (ξ α, t), (2.3)
+is a Lagrangian surface description (that follows the material motion), while
+x = x ̃ (θ α, t), (2.4)
+is an in-plane Eulerian surface description. (This notation slightly differs from that of Sahu et al. (2020), which places no tilde on x in (2.4), but places a check on x in (2.1). This then implies a check will appear on indices that can be written without accent here). Equation (2.1) on the other hand is an arbitrary Lagrangian–Eulerian surface description
+that contains the two special cases ζ α = ξ α and ζ α = θ α. The mappings (2.1) and (2.3)
+are illustrated in figure 1. They induce a functional relationship between ζ α and ξ α, i.e.
+ζ α = ζ α(ξ β , t) and ξ α = ξ α(ζ β , t).
+Parameterisations (2.1), (2.3) and (2.4) define the three parametric derivatives
+. . .,α := ∂. . .
+∂ζ α , . . .,αˆ := ∂. . .
+∂ξ α , . . .,α ̃ := ∂. . .
+∂θ α . (2.5)
+Applied to x, this defines the tangent vectors
+aα := x,α, aαˆ := xˆ,αˆ , aα ̃ := x ̃,α ̃ . (2.6a–c)
+Together with the normal vector
+n := a1 × a2
+‖a1 × a2‖ = a ˆ1 × a2ˆ
+‖a ˆ1 × a2ˆ ‖ = a  ̃1 × a  ̃2
+‖a ̃1 × a ̃2‖ , (2.7)
+they can be used as a basis to decompose general vectors into tangential and normal components, i.e.
+v = vα aα + v n = vαˆ aαˆ + v n = vα ̃ aα ̃ + v n. (2.8)
+1016 A34-5
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+ξα = ξα (ζβ, t) ζα = ζα (ξβ, t)
+x = x (ζα, t)
+a ˆ1
+aˆ2 a2
+a1
+ξ1
+ξ2
+ζ2
+ζ1
+P Pˆ
+S
+n
+x = xˆ (ξα, t)
+Figure 1. The ALE surface parameterisation: the surface S can be described by the ALE mapping x = x(ζ α, t)
+from the ALE parameter domain P, and the material mapping x = xˆ (ξ α, t) from the material parameter domain Pˆ . From these mappings follow the tangent vectors aα := x,α and aαˆ := xˆ,αˆ .
+Tangent vectors aα, aαˆ and aα ̃ define the surface metrics
+aαγ := aα · aγ , aαˆ γˆ := aαˆ · aγˆ , aα ̃ γ ̃ := aα ̃ · aγ ̃ , (2.9a–c)
+and the curvature tensor components
+bαγ := aα,γ · n, bαˆ γˆ := aαˆ ,γˆ · n, bα ̃ γ ̃ := aα ̃ ,γ ̃ · n. (2.10a–c)
+Through the inverse metrics
+[aαγ ] := [aαγ ]−1, [aαˆ γˆ ] := [aαˆ γˆ ]−1, [aα ̃ γ ̃ ] := [aα ̃ γ ̃ ]−1, (2.11a–c)
+the dual tangent vectors
+aα := aαγ aγ , aαˆ := aαˆ γˆ aγˆ , aα ̃ := aα ̃ γ ̃ aγ ̃ , (2.12a–c)
+are defined. (Following index notation, summation is implied on repeated indices within terms). They in turn define the Christoffel symbols
+Γαμγ := aμ · aα,γ , Γ μˆ
+αˆ γˆ := aμˆ · aαˆ ,γˆ , Γ μ ̃
+α ̃ γ ̃ := aμ ̃ · aα ̃ ,γ ̃ . (2.13a–c)
+Based on the preceding quantities, further quantities in surface differential geometry, e.g. see Sauer (2018), can be formulated in each basis. In particular, the surface gradient and surface divergence of a general scalar φ and vector v become
+∇s φ = φ,α aα = φ,αˆ aαˆ = φ,α ̃ aα ̃ , (2.14)
+∇s v = v,α ⊗ aα = v,αˆ ⊗ aαˆ = v,α ̃ ⊗ aα ̃ (2.15) and
+divs v = v,α · aα = v,αˆ · aαˆ = v,α ̃ · aα ̃ . (2.16)
+The comma here denotes the parametric derivative according to (2.5). In case of v, it applies to the full vector and not just its components.
+1016 A34-6
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+The description following in § 3 exclusively uses basis {a1, a2, n} induced by (2.1). Basis { ˆa1, ˆa2, n} induced by (2.3) and basis {  ̃a1,  ̃a2, n} induced by (2.4) are not used further, apart from some derivations. But it is important to note that they exist and provide alternative descriptions. Description (2.1) is the most general one, that contains the other two as special cases. Appendix A contains the transformation rules that can be used to adapt an expression from one parameterisation to another. They can be used to
+show that tensor invariants, such as the curvature tensor invariants H := aαβ bαβ /2 and κ := det[bαβ ]/ det[aαβ ] are invariant with respect to the choice of basis. Essentially, all quantities without free index are invariant with respect to the parametrisation, which includes its change – a property often denoted reparametrisation invariance, e.g. see Guven & Vázquez-Montejo (2018). An important aspect to note, is that the material time derivative (2.2) only commutes
+with the parametric derivative with respect to ξ α, but not with the other two parametric derivatives in (2.5). This is needed in the following.
+2.2. The ALE expressions for various material time derivatives
+The material velocity is defined as the material time derivative of x, i.e.
+v = x ̇ = ∂ xˆ
+∂t
+∣∣∣∣ξ α
+. (2.17)
+Changing to ζ α, this expands into
+v = ∂x
+∂t
+∣∣∣∣ζ α
++ ∂x
+∂ζα
+∂ζα ∂t
+∣∣∣∣ξ β
+. (2.18)
+Introducing the velocity of the ALE frame,
+vm := ∂ x
+∂t
+∣∣∣∣ζ α
+, (2.19)
+which in computational methods is also referred to as the mesh velocity, and using (2.6a), (2.18) can be rewritten into
+v = vm + ζ ̇ α aα. (2.20)
+This expression admits the two special cases:
+(i) In-plane Lagrangian description: ζ α = ξ α, for which ζ ̇ α = 0 and thus vm = v; and
+(ii) In-plane Eulerian description: ζ α = θ α, for which ζ ̇ α = vα and thus vm = vn due to (2.8).
+Due to these properties, ξ α is also referred to as the convected coordinate, while θα is referred to as the surface-fixed coordinate.
+In general, ζ ̇ α characterises the tangential velocity difference
+ζ ̇ α = aα · (v − vm), (2.21)
+according to (2.20). This leads to the following interpretation of (2.20): the (absolute) material velocity v is composed of the (absolute) mesh velocity vm plus the relative
+material velocity with respect to the mesh, ζ ̇ α aα. A graphical representation of this is shown in the example of § 6.1, see figure 2.
+1016 A34-7
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+Likewise to (2.17), the material acceleration is defined as
+v ̇ = ∂v
+∂t
+∣∣∣∣ξ α
+. (2.22)
+Changing to ζ α, this expands into
+v ̇ = ∂v
+∂t
+∣∣∣∣ζ α
++ ∂v
+∂ζα
+∂ζα ∂t
+∣∣∣∣ξ β
+. (2.23)
+Introducing
+(. . .)′ := ∂. . .
+∂t
+∣∣∣∣ζ α
+, (2.24)
+and using (2.21) and (2.15), (2.23) can be rewritten into
+v ̇ = v′ + ∇sv (v − vm), (2.25)
+which is the analogous surface version of the well-known three-dimensional ALE equation (Donea & Huerta 2003). Using (2.15), (2.25) can also be written as
+v ̇ = v′ + v,α
+(vα − vαm
+), (2.26)
+where vα := aα · v and vαm := aα · vm. It is emphasised that the temporal and spatial
+differentiation in v,α is generally not exchangeable, i.e. v,α =  ̇aα. (The identity v,α =  ̇aα, used in Rangamani et al. (2013) and Sahu et al. (2017, 2020) for the Eulerian frame, is
+not general as it relies on the special case ζ ̇,γα = 0. This is only the case for particular ALE
+descriptions such as the Lagrangian description ζ γ = ξ γ , or when ζ ̇,γα is negligibly small). Instead
+v,α =  ̇aα + ζ ̇,γα aγ , (2.27)
+see Appendix B. Here,
+ζ ̇,γα := ∂ζ ̇ γ
+∂ζα = ∂
+∂ζα
+(∂ζγ
+∂t
+)
+ξβ
+. (2.28)
+Also here the order of differentiation cannot be exchanged (i.e. ζ ̇,γα is generally not equal
+to (ζ,γα) ̇ = 0). Equation (2.27) admits the two special cases: 1. ζ α = ξ α, for which ζ ̇,γα = 0,
+and 2. ζ α = θ α, for which ζ ̇,γα = v,γα. The former case implies that
+v,αˆ =  ̇aαˆ (2.29)
+The expansion used in (2.18) and (2.23) is a fundamental relation. It generalises to
+(. . ̇ .) = (. . .)′ + . . .,α ζ ̇ α , (2.30)
+and is denoted the fundamental surface ALE equation in the following. As an example, the material time derivative of a scalar field φ, such as the density ρ, then follows as
+φ ̇ := ∂φ
+∂t
+∣∣∣∣ξ α
+= φ′ + φ,α ζ ̇ α, (2.31)
+which, in view of (2.21), leads to
+φ ̇ = φ′ + φ,α
+(vα − vαm
+), (2.32)
+1016 A34-8
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+or equivalently
+φ ̇ = φ′ + ∇sφ · (v − vm). (2.33)
+2.3. Velocity gradient
+An important object for characterising surface flows is the symmetric surface velocity gradient (also known as the rate-of-deformation tensor) d := (∇sv + ∇svT)/2, which in view of (2.15) and (2.27) becomes
+2d = v,α ⊗ aα + aα ⊗ v,α (2.34)
+and
+2d =  ̇aα ⊗ aα + aα ⊗  ̇aα + ζ ̇,γα
+(aγ ⊗ aα + aα ⊗ aγ
+). (2.35)
+From this one finds the in-plane components
+2dαβ = a ̇αβ + ζ ̇,γα aγβ + aαγ ζ ̇ γ
+,β , (2.36)
+and
+2dαβ = −a ̇ αβ + ζ ̇,αγ aγβ + aαγ ζ ̇,βγ , (2.37)
+that are connected through a ̇αβ = −aαγ a ̇γ δ aδβ . In general, d also has out-of-plane components, but those are not relevant to the constitutive models considered in § 4. The in-plane components can be arranged in the in-plane tensor
+ds := dαβ aα ⊗ aβ = dαβ aα ⊗ aβ . (2.38)
+2.4. Vorticity
+Another important object for characterising flows is the vorticity. It derives from the curl of the velocity. To characterise surface flows we thus introduce the surface curl of the velocity
+curlsv := aα × v,α, (2.39)
+analogous to the definitions of surface gradient and surface divergence in (2.15) and (2.16). The surface vorticity ω is then defined as the normal component of curlsv, i.e.
+ω := curlnv := (aα × v,α) · n. (2.40)
+It can be shown that
+curlnv = divs (v × n), (2.41)
+and
+curlnv = (n × aα) · v,α. (2.42)
+The latter identity motivates the definition of the surface curl of a scalar φ by
+curlsφ := (n × aα) φ,α = n × ∇sφ, (2.43)
+which is a vector like curlsv. The surface curl of φ can also be written as
+curlsφ = φ,α αβ aβ , (2.44)
+where [ αβ ] = [0 1; −1 0]/√det[aγ δ] is the scaled permutation (or Levi-Civita) symbol.
+1016 A34-9
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+2.5. Surface stretch
+The surface stretch J measures the local area change with respect to the initial configuration of the surface, denoted S0. The current surface point x ∈ S has the initial location X = x|t=0 ∈ S0. Based on the three parameterisations (2.1), (2.3) and (2.4), this leads to the basis vectors Aα = aα|t=0, Aαˆ = aαˆ |t=0 and Aα ̃ = aα ̃ |t=0, and the
+corresponding surface metrics Aαγ = aαγ |t=0, Aαˆ γˆ = aαˆ γˆ |t=0 and Aα ̃ γ ̃ = aα ̃ γ ̃ |t=0. The surface stretch is given by
+J = √det[aαˆ γˆ ] /√det[ Aαˆ γˆ ] . (2.45)
+It is obtained in the Lagrangian frame, since only this frame is tracking the physical material motion. The quantity
+Jm := √det[aαγ ] /√det[ Aαγ ] , (2.46)
+on the other hand, tracks (non-physical) area-changes of the ALE frame. Generally Jm = J .
+As was already mentioned, the following presentation exclusively uses basis {a1, a2, n}. Expression (2.45) therefore becomes impractical. Instead, J can be determined from the surface velocity v through the evolution law
+J ̇
+J = divs v, (2.47)
+following from (2.16) and  ̇aαˆ · aαˆ = J ̇/J , e.g. see Sauer (2018). Since divs v = tr d, one can also write
+J ̇
+J = dαβ aαβ . (2.48)
+Using (2.16), (2.27) and  ̇aα · aα = J ̇m/Jm, one can further write
+divs v = J ̇m
+Jm
++ ζ ̇,αα. (2.49)
+For area-incompressible flows, where J ̇ = 0, (2.47) leads to the velocity constraint
+divs v = 0. (2.50)
+Associated with this constraint is an unknown surface tension, the Lagrange multiplier q. It can be different to the physical surface tension γ , as is seen in § 4.2.
+3. Field equations
+In the ALE description, a field equation is required for each of the unknown fields ρ(ζ α, t),
+v(ζ α, t) and vm(ζ α, t). They follow from mass, momentum and ‘mesh’ balance as is discussed in the following. While the former two are well known, the latter is treated in a new manner here.
+3.1. Mass balance
+The surface fluid density ρ = ρ(ζ α, t) is governed by the the continuity equation
+ρ ̇ + ρ divs v = 0, (3.1)
+which follows from surface mass balance (Marsden & Hughes 1994; Sahu, Sauer &
+Mandadapu 2017). (Both references write the surface divergence of v = vα aα + v n in
+1016 A34-10
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+the form divs v = v;αα − 2H v). In the Lagrangian frame this is a first-order ordinary
+differential equation (ODE) that only requires the initial condition ρ(ζ α, 0) = ρ0(ζ α), where ρ0 is the given initial density distribution. In the ALE frame, where ρ ̇ can be expanded according to (2.32), this is a first-order PDE that additionally requires a boundary condition to capture the mass influx
+j α := ρ (vm − v) · aα, (3.2)
+on all boundaries where vm = v.
+REMARK 3.1. Inserting (2.47) into (3.1) shows that ODE (3.1) is solved by
+ρ = ρ0/J. (3.3)
+This is convenient in a Lagrangian description, where J is easily obtained from (2.45). In an ALE description, (2.45) requires reconstructing basis aαˆ . To avoid this, one can
+either solve (2.47) for J and then get ρ from (3.3), or – equivalently – solve (3.1) for ρ and then get J from (3.3).
+REMARK 3.2. If area incompressibility is assumed, as in the examples in § 6, (2.50) and (3.1) imply ρ ̇ = 0. Thus the surface density remains constant in time (ρ(t) = ρ0) and is thus known. The remaining field equation to satisfy is (2.50). It is now the field equation
+for the unknown Lagrange multiplier q(ζ α, t).
+3.2. Momentum balance
+The surface fluid velocity v = v(ζ α, t) is governed by the equation of motion
+ρ v ̇ = T ;αα + f , (3.4)
+which follows from linear surface momentum balance, see e.g. Sauer & Duong (2017). Equation (3.4) is a very general expression, that includes surface flow on fixed and evolving surfaces, as well as flows without and with bending resistance (e.g. Wilmore flows). Here,
+f = p n + fα aα is a surface load, while
+T α = σ Taα, (3.5)
+is the traction vector on a cut through S that is perpendicular to aα. It depends on the Cauchy stress
+σ = N αβ aα ⊗ aβ + Sα aα ⊗ n, (3.6)
+that has the components
+N αβ = σ αβ + bγβ Mγ α, (3.7a)
+Sα = −Mβα
+;β , (3.7b)
+for Kirchhoff–Love shells (Naghdi 1972; Steigmann 1999). Here, the in-plane membrane
+stresses σ αβ and the bending stress couples Mαβ are defined by constitution, see § 4. The
+out-of-plane shear stress Sα on the other hand, follows from Mαβ , which is a consequence of assuming Kirchhoff–Love kinematics (i.e. neglecting out-of-plane shear deformations).
+The stress σ αβ is also referred to as the effective stress (Simo & Fox 1989). On the other
+hand, N αβ corresponds to the physical stress according to Cauchy’s theorem (Sahu et al. 2017). Using (2.25) or (2.26), PDE (3.4) can be expressed in the ALE frame. In order to
+solve PDE (3.4), an initial condition and boundary conditions on v = v(ζ α, t) are needed.
+1016 A34-11
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+In PDE (3.4), one can also replace T ;αα by
+T ;αα = σ;Tα aα =: divs σ T, (3.8)
+which follows from (3.5) and σ Ta;αα = 2H σ Tn = 0, which in turn follows from a;αβ =
+bβα n, bαα = 2H and (3.6).
+In the expressions above, (. . .);α denotes the so-called covariant derivative. It is equal to the parametric derivative (. . .),α for objects without free index, such as v and σ , e.g. see Sauer (2018).
+3.3. Mesh ‘balance’
+The mesh velocity vm = vm(ζ α, t) is governed by the following set of equations. Firstly, the condition
+vm · n = v · n, (3.9)
+which states that vm must have the same normal component as v, and which essentially corresponds to an Lagrangian out-of-plane fluid description. Secondly, an equation for
+vαm(ζ α, t), the in-plane component of vm, is needed. The following options will be considered here:
+(i) Prescribed mesh motion. In this case vαm is prescribed either directly, or indirectly by
+choosing ζ α = ζ α(ξ β , t)) and then calculating vαm from (2.21). Examples for the latter choice are given in § 6. A special case is prescribing the following suboption: (ia) Zero in-plane mesh velocity. In this case
+vm · aα = 0. (3.10)
+This corresponds to an Eulerian in-plane fluid description. If desired, (3.9) and (3.10) can be combined into
+vm = (n ⊗ n) v. (3.11)
+It is noted that for evolving surfaces, an Eulerian description, just like a Lagrangian description, can lead to large mesh distortion. An example is shown in § 6.2, see figure 4.
+(ii) Mesh motion defined by membrane elasticity. In this case vαm is characterised by the membrane PDE
+σ αβ
+m ;β = 0, (3.12)
+that can be derived from (3.4) for the special choice ρ = 0, σ αβ = σmαβ , Mαβ = 0 and
+f = 0. (Contracting (3.4) by aα and using (3.6)–(3.8) immediately leads to (3.12)). A possible elasticity model for the mesh is
+σmαβ = μm
+Jm
+( Aαβ − aαβ ) ; (3.13)
+(Sauer & Duong 2017). The parameter μm is physically irrelevant, but it can be used to improve the numerical behaviour. Equation (3.12) requires boundary conditions
+for the mesh position. An example is taking vαm = 0 on the boundary. Equations (3.12)–(3.13) can then be solved at every time step for the current in-plane mesh position, see § 5.
+1016 A34-12
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+The choice of option depends on the application at hand. If the surface does not deform much, or is even fixed, the in-plane Eulerian description (option ia) is best, as it is simplest. Examples are shown in §§ 6.3 and 6.5. On the other hand, if large surface deformations occur, the Eulerian description can become very inaccurate due to large local mesh distortions, and so the elastic mesh description (option ii) is best. This is demonstrated in the examples of §§ 6.2 and 6.6.
+REMARK 3.3. If membrane elasticity is used in conjunction with a Lagrangian description (v = vm), the resulting formulation corresponds to the stabilisation scheme ‘A’ proposed in Sauer (2014) for liquid menisci.
+4. Constitutive models for area-incompressible fluid films
+This section introduces two known area-incompressible constitutive models for fluid films that either neglect or account for bending elasticity. They both are based on the additive membrane stress decomposition
+σ αβ = σ αβ
+el + σ αβ
+inel , (4.1)
+of elastic and inelastic stress components, which corresponds to a Kelvin model. For bending, only elastic behaviour is assumed. The stresses and bending moments are generally defined through the relations
+σ αβ
+el = 2
+J
+∂ Ψ0
+∂ aαβ
+, (4.2)
+Mαβ = 1
+J
+∂ Ψ0
+∂ bαβ
+, (4.3)
+and
+σ αβ
+inel dαβ ≥ 0, (4.4)
+which follow from the second law of thermodynamics, see Appendix C. Here, Ψ0 is the Helmholtz free energy per reference area.
+4.1. Pure in-plane flow
+The first case considers in-plane flow without (out-of-plane) bending resistance
+(Mαβ = 0). From Ψ0 = q g, where g := J − 1 is the area-incompressibility constraint and q its Lagrange multiplier, and the Newtonian surface fluid (sometimes also denoted a Boussinesq–Scriven surface fluid) model
+σ αβ
+inel = 2η dαβ , (4.5)
+follows
+σ αβ = q aαβ + 2η dαβ , (4.6)
+see Sauer (2016). Since Mαβ = 0, we find N αβ = σ αβ and Sα = 0 from (3.7). Hence the surface tension
+γ := 1
+2 N αβ aαβ , (4.7)
+simply is γ = q due to (2.48) and J ̇ = 0. With σ = σ αβ aα ⊗ aβ and (2.38), the tensorial form of constitutive model (4.6) becomes
+σ = γ i + 2η ds. (4.8)
+1016 A34-13
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+Here i := aα ⊗ aα is the surface identity on S. Since i,α aα = 2H n, (3.8) then yields
+T ;αα = ∇sγ + 2H γ n + 2η divs ds, (4.9)
+with divs ds = ds,α aα. This expression is used in some of the analytical examples of § 6.
+REMARK 4.1. Even though the stress σ only has in-plane components, its divergence contains the out-of-plane component 2H γ n. For flows on fixed manifolds, the out-of-plane part of the equation of motion is not needed, and hence (3.4) is projected into the tangent plane, yielding the ‘surface Navier–Stokes equations’ (Nitschke et al. 2012; Reuther & Voigt 2015; Jankuhn et al. 2018; Olshanskii et al. 2018; Lederer et al. 2020; Suchde 2021), sometimes also referred to as the ‘Navier–Stokes equations on a manifold’ (Koba et al. 2017; Fries 2018). This projection step is not necessary for the general case of evolving manifolds, as (3.4) naturally contains the out-of-plane equation of motion and its coupling to the in-plane equations of motion. Instead of splitting it into in-plane and out-of-plane contributions, which involves nonlinear projection operators and tends to yield lengthy equations, it is simplest to treat (3.4) as a compact, vector-valued PDE for the unknown surface velocity v.
+4.2. In-plane flow with bending elasticity
+The second case is like the first but with an additional out-of-plane bending energy based on the model of Helfrich (1973). In this case
+Ψ0 = q g + J (k(H − H0)2 + kg κ), g := J − 1. (4.10a,b)
+Here, k and kg are bending moduli, and H0 is the so-called spontaneous curvature – the value of the mean curvature H that is energetically favourable. From (4.1)–(4.3) and (4.5) then follow
+σ αβ = (q + k H 2 − kg κ)aαβ − 2k H bαβ + 2η dαβ , (4.11a)
+Mαβ = (k H + 2kg H ) aαβ − kg bαβ , (4.11b)
+(Sauer et al. 2017) where H := H − H0. Inserting this into (3.7a) then gives
+N αβ = (q + k H 2) aαβ − k H bαβ + 2η dαβ . (4.12)
+In this case the physical surface tension defined in (4.7) is
+γ = q − k H0 H. (4.13)
+The stress tensor can then be determined from (3.6).
+It can be shown that for a sphere, where bαβ = H aαβ , (4.8) and (4.9) are still valid (but now need to be used with the new γ ). From (4.11b) follows for a sphere
+Mαβ = (k H + kg H ) aαβ . (4.14)
+REMARK 4.2. The Helfrich model admits the model of Canham (1970) as a special case, when c := k/2 = −kg and H0 = 0 are chosen. This then leads to the simple relations Mαβ = c bαβ and γ = q.
+REMARK 4.3. In the framework of Kirchhoff–Love kinematics, the stress tensor σ can only have the out-of-plane shear component defined by (3.7b). A separate constitutive
+choice for Sα is therefore not possible. Reissner–Mindlin or Cosserat shell kinematics
+are needed for choosing Sα independently. An obvious choice would be to choose Sα proportional to the out-of-plane part of d.
+1016 A34-14
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+5. Weak form equations
+Box 1 summarises the governing strong form equations derived in the preceding two sections.
+1. PDE for the fluid velocity v = v(ζα , t ) from (3.4) and (2.26):
+where the traction T α depends on the stress σαβ and bending moment M αβ through relations (3.5)–(3.7). Those in turn depend on velocity, Lagrange multiplier and position through the constitutive model, e.g. (4.11).
+2. Either: PDE for the fluid density ρ = ρ(ζα , t ) from (3.1) and (2.32):
+for area-compressibility
+Or: PDE for the Lagrange multiplier q = q(ζα , t ) from (2.50) and (2.16):
+for area-incompressibility
+3. Either: Prescribed in-plane mesh velocity vα , e.g. as zero ( vαm = 0). Or: PDE for the in-plane mesh velocity vα = vα (ζβ , t ), e.g. from (3.12):
+, with a suitable definition of the ‘mesh stress’ σαmβ , e.g. (3.13).
+In both cases, the normal mesh velocity is constrained by
+4. ODE for the surface position x (ζα , t ) from (2.19):
+ρv + ρv,α (vα – vmα ) = T ;αα + f
+σmαβ;β = 0
+ρ + ρ,α (vα – vmα ) + ρ divs v = 0
+vm ∙ n = v ∙ n
+x = vm
+divs v = 0
+m
+mm
+,
+∙
+Box 1. Coupled strong form equations for area-compressible or area-incompressible flows on self-evolving manifolds described in the ALE frame. Four equations are needed for the four fields x, v, vm and ρ or q.
+The formulation consists of four partially coupled, nonlinear PDEs that admit the special cases:
+(i) Prescribed mesh velocity vαm: in this case the third PDE is absent and the problem
+reduces by one field. Interesting special cases are vαm = 0 (Eulerian description) and
+vαm = vα (Lagrangian description).
+(ii) Steady-state flow: in this case the time derivatives v′ and ρ′ vanish. The three PDE then only contain spatial derivatives. However, the surface still evolves in time, as long as v · n = 0, and hence the problem is still a transient one via the fourth ODE, which needs to be integrated in order to determine the current surface S. (iii) Flows on fixed surfaces: in this case v · n = 0. Using an Eulerian description, vm
+becomes zero and the fourth ODE implies x(ζ α, t) = x(ζ α, 0) = X(ζ α).
+The equations in Box 1 are characterised by the following coupling: all equations depend on the surface deformation x, either directly or through the appearing differential operators. The velocity v appears in the first and second PDE, and in the normal mesh
+1016 A34-15
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+constraint; but PDE 3 and ODE 4 do not directly dependent on it. The mesh velocity vm appears in PDE 1, PDE 2.1, ODE 4 and the normal mesh constraint, but not elsewhere.
+Density ρ affects PDE 2.1 directly and PDE 1 through stress σ αβ ; the other equations
+are independent from it. Lagrange multiplier q only affects PDE 1 through σ αβ; all other equations are independent from it. This work is motivated by providing the foundations for numerical methods, such as the finite element method (FEM). In order to numerically solve the four coupled equations of Box 1 with FEM, the weak forms of their PDEs are needed. A weak form is constructed by multiplying the PDE by suitable test functions, integrating it over the surface and using the surface divergence theorem where advantageous. The integration is either carried out over the current surface S, or the reference surface S0, depending on what is more convenient. This results in the following three weak form expressions. They are restricted to the area-incompressible case. The novelty here lies in the discussion of different choices of variations, and the weak form for mesh elasticity.
+5.1. Weak form for the fluid velocity
+Multiplying PDE (3.4) with the admissible variation δx ∈ V, integrating over the current surface and using the surface divergence theorem, leads to the weak form
+G := Gin + Gint − Gext = 0 ∀ δx ∈ V, (5.1)
+with
+Gin =
+∫
+S
+δx · ρ v ̇ da, (5.2a)
+Gint =
+∫
+S
+σ αβ δx,α · aβ da +
+∫
+S
+Mαβ δx;αβ · n da, (5.2b)
+Gext =
+∫
+S
+δx · f da +
+∫
+∂S
+δx · T ds +
+∫
+∂S
+δn · M ds, (5.2c)
+and
+δx;αβ = δx,αβ − Γ γ
+αβ δx,γ , (5.3)
+see Appendix D. Here, the integration is considered over the ALE parameterised surface
+x = x(ζ α, t) as this is required for a computational formulation in the ALE frame.
+Accordingly the surface variation δx is considered at fixed ζ α, such that δx,α = δaα,
+i.e. variation and parametric differentiation with respect to ζ α commute. Thus, variation
+δ(. . .) is mathematically equivalent to the time derivative (. . .)′. An alternative would be
+to integrate over the Lagrangian surface parameterisation x = xˆ (ξ α, t) using a surface
+variation at fixed ξ α. Such a variation would be mathematically equivalent to the material time derivative (.  ̇. .), see Appendix D.
+The second term in Gint contains second derivatives (in both Mαβ and δx;αβ ) that can only be properly captured by at least C1-continuous ansatz functions. Examples in FEMs for the Helfrich model are subdivision surfaces (Feng & Klug 2006) and NURBS – non-uniform rational B-splines (Sauer et al. 2017). NURBS are used in the example of § 6.6. Inserting (2.26), Gin can be decomposed into the transient and convective parts
+Gtrans =
+∫
+S
+δx · ρ v′ da,
+Gconv =
+∫
+S
+δx · ρ v,α
+(vα − vαm
+) da,
+(5.4)
+1016 A34-16
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+such that Gin = Gtrans + Gconv.
+If desired the integrals can be mapped to the reference configuration using da = Jm d A.
+If the fluid film does not resist bending, the internal and external bending moments Mαβ and M are excluded from (5.2b,5.2c).
+5.2. Weak form for the area-incompressibility constraint
+Multiplying the area-incompressibility constraint (2.50) with the admissible variation δq ∈ Q and integrating over the current surface leads to the weak form
+G ̄ :=
+∫
+S0
+δq divs v da = 0, ∀ δq ∈ Q. (5.5)
+5.3. Weak form for the mesh motion
+The two components of the mesh velocity generally need to be treated differently:
+(i) Out-of-plane mesh velocity: this component is defined by the strong form equation (3.9), which can either be enforced directly or converted into the weak form
+G ̃ o :=
+∫
+S0
+w n · (vm − v) d A = 0, ∀ w ∈ Wn. (5.6)
+Here, the integration is written over the reference configuration as this simplifies computations. Alternatively one can also chose to integrate over the current configuration. (ii) In-plane mesh velocity: this component can either be prescribed, e.g. as zero, see (3.10) or it can be obtained from membrane equilibrium (3.12). If (3.12) is used, it is advantageous to derive the weak form by integration over the current ALE surface using da = Jm d A. This leads to the weak form
+G ̃ iel :=
+∫
+S0
+wα;β σmαβ Jm d A = 0, ∀ wα ∈ Wα. (5.7)
+This follows from (5.2b) when δx is replaced by the test function w = wα aα, see also (187.3) in Sauer & Duong (2017). For the elastic membrane stress in (3.13), Jm can then be conveniently cancelled. If (3.10) is used, it can be either prescribed in strong form or by the weak form
+G ̃ i0 :=
+∫
+S0
+wα aα · vm d A = 0, ∀ wα ∈ Wα. (5.8)
+The last statement combines with (5.6) to
+G ̃ 0 :=
+∫
+S0
+w · (vm − (n ⊗ n) v) d A = 0, ∀ w ∈ W, (5.9)
+which is the weak form of (3.11). Combining (5.6) and (5.7), on the other hand, yields
+G ̃ el := αm
+∫
+S0
+w n · (vm − v) d A +
+∫
+S0
+wα;β τmαβ d A = 0, ∀ w ∈ W, (5.10)
+where τmαβ := Jm σmαβ . Here, the factor αm is included to ensure dimensional consistency
+between the two terms, which is needed in case τmαβ (via μm) is chosen to have units
+of membrane stress (force/length). In (5.6)–(5.10), w = wα aα + w n is the test function corresponding to mesh velocity vm.
+1016 A34-17
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+5.4. Summary
+The above weak form statements can be solved for the three fields v(ζ α, t), q(ζ α, t)
+and vm(ζ β , t). In Appendix F a stabilised FEM is outlined that uses quadratic shape functions for the spatial discretisation and the implicit trapezoidal rule for the temporal discretisation. This leads to an algebraic system of three coupled equations that can be solved monolithically using the Newton–Raphson method. If the mesh velocity is prescribed or eliminated via (3.9) and (3.10), the algebraic system only consists of two coupled equations. The fields v, q and vm, along with their variations δx, δq and w, have to be picked such that all integrals above are well defined. This is the case for piecewise polynomial functions, as are classically considered in FEMs. It is noted that in the above formulation no unknown mesh pressure appears. Such a variable can be used to enforce constraint (3.9) in the framework of Lagrange multiplier methods (Sahu 2024). It adds an extra field to the system that needs to be accounted for in the out-of-plane mesh equation. Here instead, constraint (3.9) is enforced through weak form (5.6) without introducing such an extra variable. Consequently, the out-of-plane mesh equation is not needed either.
+6. Examples
+This section presents six analytical and numerical examples for area-incompressible surface flows described in a chosen ALE frame and contrasted with Lagrangian and Eulerian descriptions. Both fixed and evolving surfaces are considered. Apart from illustrating the proposed surface ALE theory by providing concrete values to its formulae, they serve as manufactured benchmark solutions for future numerical methods. For this reason they are reported in detail.
+6.1. One-dimensional fluid flow
+The first example considers the one-dimensional fluid motion shown in figure 2. It consists of a flat fluid sheet extruded with constant velocity from the left boundary. Even though the example is very simple, it illustrates the proposed ALE formulation in the curvilinear setting. It is also a first step towards the following bubble example. The motion in figure 2 can be described by
+x = x e1 + y e2, (6.1)
+where position x = xˆ(ξ 1, t) = x(ζ 1, t) = x ̃(θ 1, t) depends on the parameterisation, while
+y is equal for all, i.e. y = ξ 2 = ζ 2 = θ 2. To shorten notation we let ξ := ξ 1, ζ := ζ 1 and
+θ = θ 1. The Lagrangian motion is given by
+x = xˆ(ξ, t) = x0(t) + (1 − ξ ) H0, (6.2)
+with
+x0(t) = vin t, (6.3)
+such that
+X (ξ ) = xˆ(ξ, 0) = (1 − ξ ) H0 (6.4)
+is the initial position. Here, length H0, inflow velocity vin and directions eα are constants. Choosing the ALE coordinate
+ζ = H0
+h0
+ξ, (6.5)
+1016 A34-18
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+0
+0.5
+1.0
+1.5
+2.0
+ζ· a1 t
+t=0
+0 10
+1
+1
+1
+0 0
+t > 0 x0
+e2
+e1
+x
+Coordinates ζ, ξ & θ
+Horizontal position x/H0
+2.0 1.5 1.0 0.5 0 –0.5 –1.0
+h0
+H0
+xˆ (ξ) x (ζ) x ̃ (θ)
+ξ
+vt
+vm t
+ξ ζ
+ζ
+(a)
+(b)
+Figure 2. One-dimensional fluid flow: (a) initial and current configuration, and illustration of (2.20). The Lagrangian and ALE surface parameterisations are shown in blue and green (coordinates ξ and ζ ), respectively. (b) Position x = xˆ(ξ ) = x(ζ ) = x ̃(θ ) for x0 = H0 (at t = H0/vin). Note that coordinates ζ , ξ and θ run from right to left here.
+leads to the ALE parametrisation
+x(ζ, t) = (1 − ζ ) h0(t), (6.6)
+with
+h0(t) := H0 + x0(t), (6.7)
+such that
+X (ζ ) = x(ζ, 0) = (1 − ζ ) H0. (6.8)
+Since h ̇0 = h′0 = x′0 = x ̇0 = vin, one finds the velocities
+v = x ̇ = vin e1, (6.9)
+vm = x′ = (1 − ζ ) vin e1 (6.10)
+and
+ζ ̇ 1 = ζ ̇ = −ζ vin
+h0
+, ζ ̇ 2 = 0, (6.11)
+from (6.1), (6.2), (6.6) and (6.5), respectively. The tangent vectors
+a1 = ∂ x
+∂ζ 1 = −h0 e1, a2 = ∂ x
+∂ζ 2 = e2, (6.12)
+then give
+ζ ̇ α aα = ζ vin e1. (6.13)
+The velocities v, vm and ζ ̇ α aα are visualised in figure 2 (by showing the displacements
+v t, vm t and ζ ̇ α aα t). It is easy to confirm that they satisfy (2.20), which states that the material velocity v is composed of the frame velocity vm and the frame-relative material
+velocity ζ ̇ α aα. From v,α = 0 and  ̇a1 = −vin e1 and  ̇a2 = 0 and
+ζ ̇,11 = − vin
+h0
+, (6.14)
+1016 A34-19
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+1
+0
+0
+0
+0
+1 1
+1
+e2
+x0
+Ψo
+ψo
+ψ
+eψ
+X0
+R
+L
+r
+e1 e1
+er
+y
+e2 y
+L
+V (t)
+xx
+ξ
+vin
+ζ
+ξ ζ
+t>0
+t=0
+(a) (b)
+Figure 3. Inflation of two-dimensional soap bubble: (a) initial and (b) current configurations. Fluid inflow is considered at the left boundary such that J ≡ 1 (i.e. divs v ≡ 0) over time. The inflation can be driven by prescribing vin or V (t) at the opening. The Lagrangian and ALE surface parameterisations are shown in blue and green (coordinates ξ and ζ ), respectively.
+one can also confirm that (2.27) is satisfied. This underlines that vα =  ̇aα here. The equality of vα and  ̇aα, used in the curvilinear ALE formulation of Sahu et al. (2020), is therefore not generally satisfied. Instead they differ here proportional to the inflow velocity vin. The Eulerian motion is given by
+x = x ̃(θ ) = (1 − θ ) H0, (6.15)
+since it leads to vm = 0. Figure 2(b) illustrates the Lagrangian, ALE and Eulerian description of motion.
+6.2. Inflation of a two-dimensional soap bubble
+Next, the inflation of a two-dimensional soap bubble as shown in figure 3 is considered. Apart from the kinematics of inflation, the example provides insight to how Lagrangian and Eulerian frame motion leads to severely distorted surface grids, even in simple flow examples, while these distortions can be avoided with the proposed ALE formulation, which then leads to superior numerical methods, as is also shown.
+6.2.1. Surface motion
+As in the example before, no flow in e3 direction occurs and we again use ξ = ξ 1, ζ = ζ 1
+and θ = θ 1 as shorthand for the main parameter, while z = ξ 2 = ζ 2 = θ 2. The motion of the bubble is described by
+x = x0 e1 + r er + z e3, (6.16)
+where the centre
+x0 = −r cos ψo, (6.17)
+and radius
+r= L
+sin ψo
+, (6.18)
+depend on the fixed opening height L and the varying opening angle ψo = ψo(t), and therefore are only functions of time, i.e. x0 = x0(t) and r = r (t). The only spatially varying objects in (6.16) are z and
+er = cos ψ e1 + sin ψ e2, 0 ≤ ψ ≤ ψo < π. (6.19a,b)
+1016 A34-20
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+The flow is fully described by the Lagrangian parameterisation of angle ψ
+ψ = ψˆ (ξ, t) = R
+r Ψo ξ, (6.20)
+where R = r (0) and Ψo = ψo(0), see figure 3. A possible ALE parameterisation that satisfies ψ(0, t) = 0 and ψ(1, t) = ψo is
+ψ = ψ(ζ, t) = ψo ζ. (6.21)
+From this follows
+ζ (ξ, t) = RΨo
+r ψo
+ξ, (6.22)
+and
+a1 = r ψo eψ , (6.23)
+where
+eψ = − sin ψ e1 + cos ψ e2, (6.24)
+and (E1) from Appendix E have been used. Basis a2 on the other hand is constant and equal to e3. The function ζ (ξ, t) defines the in-plane material motion relative to the ALE frame, just like in the example before.
+REMARK 6.1. Coordinates ξ and ζ parameterise angle ψ according to (6.20) and (6.21). Thus, they also parameterise the arc length r ψ, but are not necessarily equal to it, i.e. generally RΨo = 1 and r Ψo = 1.
+6.2.2. Surface velocity
+Since ψo, r and x0 are only functions of time, there is no difference between their time
+derivatives (.  ̇. .) and (. . .)′. Thus, not all time derivatives differ between the Lagrangian
+and ALE frame. Given ψ ̇ o (that can be prescribed to control the inflation, see below), one finds
+x ̇0 = 1
+sin ψo
+r ψ ̇ o, (6.25)
+and
+r ̇ = − cos ψo
+sin ψo
+r ψ ̇ o, (6.26)
+from (6.17) and (6.18). Further, (6.20) and (6.21) lead to
+ψ ̇ = −r ̇
+r ψ, (6.27)
+ψ′ = ψ ̇ o ζ (6.28)
+and
+ζ ̇ = ψ ̇
+ψo
+− ζ ψ ̇ o
+ψo
+. (6.29)
+It can be confirmed that (6.27)–(6.29) satisfy (2.30) as ∂ψ/∂ζ = ψo. Inserting (6.27) and
+(6.21), derivative ζ ̇ , which describes the in-plane material velocity relative to the ALE
+1016 A34-21
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+frame, can also be written as
+ζ ̇ = −  ̇
+(r ψo)
+r ψo
+ζ. (6.30)
+Using (E2), and writing
+e1 = cos ψ er − sin ψ eψ , (6.31)
+the material velocity field follows as
+v = x ̇ = (x ̇0 cos ψ + r ̇) er + (r ψ ̇ − x ̇0 sin ψ) eψ , (6.32)
+while the ALE frame velocity becomes
+vm = x′ = (x ̇0 cos ψ + r ̇) er + (r ψ′ − x ̇0 sin ψ) eψ . (6.33)
+Together with (6.23), (6.28), (6.29) and ζ ̇ 2 = 0, they correctly satisfy (2.20). As seen, v and vm share the same normal velocity component
+vr = (cos ψ − cos ψo) r ψ ̇ o
+sin ψo
+, (6.34)
+along er (as they should), while they differ in their tangential velocity components
+vψ = r ψo ζ ̇ +
+(
+ζ − sin ψ
+sin ψo
+)
+r ψ ̇ o, (6.35)
+and
+vmψ =
+(
+ζ − sin ψ
+sin ψo
+)
+r ψ ̇ o, (6.36)
+along eψ . These expressions follow from inserting (6.25)–(6.26) and (6.28)–(6.29) into (6.32)–(6.33). At the inflow, where ζ = 1 and ψ = ψo, the velocity components vmφ and vr are zero (the latter since L is fixed), while the tangential velocity −vψ is equal to the inflow velocity vin (see figure 3), giving
+vin = −r ψo ζ ̇ ∣∣ζ =1 , (6.37)
+which in light of (6.30) becomes
+vin =  ̇
+(r ψo). (6.38)
+The Lagrangian and the ALE motion are visualised in figure 4, while figure 5 shows their velocity components. Figure 4 also shows the Eulerian surface motion, which is determined from the condition vmψ = 0 for all t. This leads to a nonlinear ODE for
+ψ = ψ ̃ (θ, t) that together with (6.16) and (6.19a,b) then defines the Eulerian surface motion: setting the tangential component of (6.33) to zero and inserting (6.25) yields
+ψ′
+sin ψ = ψo′
+sin ψo
+, (6.39)
+since ψ ̇ o = ψo′ . Multiplying by dt and considering ζ = θ fixed then gives
+dψ
+sin ψ = dψo
+sin ψo
+, (6.40)
+which can be integrated on both sides to yield the ODE
+1 + cos ψ
+sin ψ = c(θ ) 1 + cos ψo
+sin ψo
+. (6.41)
+1016 A34-22
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+(a) (b) (c)
+01234
+–2
+–1
+0
+1
+2
+–2
+–1
+0
+1
+2
+–2
+–1
+0
+1
+2
+01234 01234
+Figure 4. Inflation of a two-dimensional soap bubble: (a) Lagrangian, (b) ALE and (c) Eulerian surface motion and corresponding surface velocity fields v, vm and ve. Shown is the motion of 17 initially equidistant surface points. They remain equidistant in the Lagrangian and ALE motion, but only the former maintains their original distance. In case of the Lagrangian motion, new material points are drawn in at the boundary (shown by path lines three times more spaced). The Eulerian motion, which is always normal to the surface, leads to unequal
+distances between points. The initial opening angle is chosen as Ψo = 15◦. The black lines show the bubble at
+ψo = [Ψo, 25◦, 40◦, 57.5◦, 80◦, 105◦, 125◦, 140◦, 150◦]. Here, L is used for normalising the geometry.
+1.0 0.8 0.6 0.4 0.2 0
+0
+0.2
+0.4
+0.6
+0.8
+1.0
+1 7/8 3/4 5/8 1/2 3/8 1/4 1/8 0
+0
+20
+40
+60
+80
+100
+120
+140
+160
+ALE coordinate ζ Coordinates ζ, ξ & θ
+Velocity components [vin]
+Angle ψ [deg.]
+(a) (b)
+vr – vψ – vmψ
+ψˆ (ξ) ψ (ζ) ψ ̃ (θ)
+vr2 + vψ2
+– ζ· rψo
+Figure 5. Inflation of two-dimensional soap bubble: (a) radial and tangential velocity components vr (ζ ), vψ (ζ ) and vmψ (ζ ), and (b) angle ψ in Lagrangian, ψˆ (ξ ), ALE, ψ(ζ ) and Eulerian, ψ ̃ (θ ), description. All for
+ψo = 150◦. The coordinates are running from right to left as in figure 3. The Lagrangian coordinate continues until ξ = ψo sin Ψo/(Ψo sin ψo) ≈ 5.176 according to (6.22) and (6.18). The left figure shows how the velocity
+components vary across the surface: vr is maximum at the tip, and −vψ at the inflow. Note vψ = vmψ + ζ ̇ r ψo. The circles in (b) mark the positions shown in figure 4.
+The integration constant c(θ ) follows from evaluating (6.41) at t = 0, where ψo = Ψo and ψ = Ψo θ := Ψ (θ ) according to (6.21). This gives
+c(θ) = 1 + cos Ψ (θ )
+1 + cos Ψo
+sin Ψo
+sin Ψ (θ ) . (6.42)
+Picking a θ , one can then evaluate c(θ) and solve nonlinear (6.41) for ψ = ψ ̃ (θ, t) at every t. The resulting angle ψ ̃ (θ, t) and motion x ̃ (θ, t) are shown in figure 5(b) and 4(c). As the latter figure shows, the Eulerian motion is normal to the surface, and hence it has no tangential component, i.e. the Eulerian frame velocity is ve = vr er . Due to this, grid points become widely separated at the tip of the bubble, as figure 4(c) shows. This causes
+1016 A34-23
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+problems in numerical methods as is seen in § 6.2.4 below. Also Lagrangian motion is problematic in numerical methods, as new grid points need to be drawn in at the inflow boundary, as figure 4(a) shows. On the other hand, ALE motion achieves equidistant grid points during inflation, which allows for superior accuracy in numerical methods (see § 6.2.4), which in turn allows for more accurate studies of evolving surface flows. Next the velocity gradient and its consequences are examined. From (6.32), (6.27), (E1) and ψ,1 = ψo follows
+v,1 = r ̇ ψ ψo er . (6.43)
+Further,
+ ̇a1 = r ̇ ψ ψo er + vin eψ , (6.44)
+and
+ζ ̇,1 = − vin
+r ψo
+, (6.45)
+follow from (6.23), (6.27), (6.38), (E2) and (6.30). On the other hand v,2 =  ̇a2 = 0 and
+ζ ̇,2 = 0. Equation (2.27) is thus satisfied. With
+a′1 = −r ψ ψ ̇ o er + vin eψ , (6.46)
+a1,1 = −r ψo2 er and a′2 = a1,2 = a2,2 = 0, one can also confirm that (2.30) is satisfied for
+aα. This follows from (6.21), (6.23), (6.28), (6.30), (6.38), (E1) and (E2).
+With (6.43), a1 = eψ /(r ψo) and (2.16), one can then confirm that the flow satisfies (2.50), i.e. it is area incompressible, and one can find the rate-of-deformation tensor
+2d = −ψ ̇ (er ⊗ eψ + eψ ⊗ er
+), (6.47)
+according to (2.34) and (6.27), which implies ds = 0. (Tangential velocity fields that lead to ds = 0 are sometimes referred to (Wilhelm) Killing vector fields, e.g. see Jankuhn et al. (2018)). So the stress according to constitutive model (4.8) will only consist of the surface tension γ that equilibrates the internal pressure p through the well known relation p = γ /r . Thus, if inertia is negligible and no additional surface forces act, the soap bubble remains perfectly circular during inflation.
+6.2.3. Inflation control
+The inflation can be controlled in various ways. One can prescribe inflow velocity vin, giving the opening angle change
+ψ ̇ o = sin ψo
+r (sin ψo − ψo cos ψo) vin, (6.48)
+from (6.38) and (6.26). This then specifies the bubble motion according to the equations above. Prescribing vin corresponds to pushing material into the bubble, which may not be a stable way to inflate the bubble numerically. A stable alternative is to prescribe the bubble volume (per unit depth) V since this pulls, instead of pushes, material into the bubble. V(t) is related to the opening angle ψo via
+V = r 2 (ψo − sin ψo cos ψo), (6.49)
+according to figure 3(b). Taking a time derivative of this and using (6.26) then gives
+ψ ̇ o = sin ψo
+2r 2 (sin ψo − ψo cos ψo) V ̇ . (6.50)
+1016 A34-24
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+0 5 10 15 20 25
+20
+40
+60
+80
+100
+120
+140
+160
+0 5 10 15 20 25
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+4.0
+Volume V [L3] Volume V [L3]
+Opening angle ψo [deg.]
+Radius r [L]
+(a) (b)
+Figure 6. Inflation of a two-dimensional soap bubble: (a) ψo(V ) and (b) r (ψo) vs. V (ψo). The circles mark the configurations shown in figure 4.
+Comparing (6.48) and (6.50) shows that volume and inflow velocity are related by
+V ̇ = 2r vin. Figure 6 shows the change ψo and r due to given V . Instead of the volume, the internal pressure p(t) can also be prescribed. However, in contrast to V (t), p(t) generally cannot be chosen as a monotonically increasing function. This is due to the minimum attained by r during the inflation process (see figure 6), which leads to a maximum in p for constant surface tension γ , due to the relation γ = rp. Prescribing p numerically therefore can also become unstable.
+6.2.4. Numerical solution
+It is finally shown that the equidistant grid spacing of the ALE description leads to much more accurate numerical results than the unequal grid spacing of the Eulerian description. Therefore the two-dimensional soap bubble is solved with the FE method using either Eulerian mesh motion (described by weak form (5.9)) or elastic mesh motion (described by weak form (5.10)). The latter leads to an equidistant FE mesh for this problem. Quadratic Lagrange interpolation is used for all fields as described in Appendix F. The physical
+soap bubble properties in the simulation are taken as L = 10mm, γ = 25 μN mm−1,
+η = 0.04 μN ms mm)−1 and ρ = 0.2 μNms2mm−3, while the mesh stiffness is taken as
+μm = 0.5 nN mm−2. Figure 7(a) shows the FE results for velocity components vr and vψ in comparison with the analytical result of (6.34) and (6.35). As seen, the elastic ALE result is much more accurate, even for a coarser mesh. This can also be seen in the error plot of figure 7(b): the ALE result is around 10 times more accurate for vr and more than 100 times more accurate for vψ for coarse meshes. The difference decreases for finer meshes, but it remains positive. Interesting, the convergence rate for the tangential velocity vψ decreases for finer meshes, which calls for further study. Also interesting is that the convergence behaviour of vψ in the Eulerian case is reminiscent of membrane locking in thin shells (Sauer, Zou & Hughes 2024).
+6.3. Shear flow on a sphere
+The third example considers simple shear flow on a sphere. The example provides insight into the coupling of in-plane surface flow with out-of-plane surface forces and deformations. The latter remain small here and hence the ALE mesh motion can be set to
+1016 A34-25
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+1.0 0.8 0.6 0.4 0.2 0
+0
+0.2
+0.4
+0.6
+0.8
+1.0
+103
+102
+101
+10–8
+10–6
+10–4
+10–2
+100
+4
+2
+.5
+ALE coordinate ζ Number of finite elements nel
+Eulerian vψ Eulerian vr Elastic ALE vψ Elastic ALE vr
+Velocities vr and vψ [vin]
+L2 error in vr and vψ
+(a) (b)
+vψ
+vr
+Analytical Eulerian nel = 32 Elastic ALE nel = 16
+Figure 7. Inflation of a two-dimensional soap bubble: (a) FE result and (b) FE convergence of velocity components vr and vψ for Eulerian and elastic ALE mesh motion. The latter is around 10 times more accurate in vr and over 100 times more accurate in vψ for coarse meshes. The vertical grey lines in (a) show the FE boundaries: dashed for the Eulerian mesh with 32 FE, solid for the ALE mesh with 16 FE (which is exactly the mesh in figure 4b). The initial FE convergence rate is at least O(n−2
+el ) = O(h2).
+zero here, i.e. the ALE frame coincides with an in-plane Eulerian one. It is further shown that this is a much better way to treat the example than using a Lagrangian frame.
+6.3.1. Surface description
+The spherical surface can be described by
+x = r er , (6.51)
+where radius r is now considered fixed and the direction vectors
+er := cos ζ 2 er0 + sin ζ 2 e3, − π
+2 ≤ζ2 ≤ π
+2 , (6.52a)
+er0 := cos ζ 1 e1 + sin ζ 1 e2, 0 ≤ ζ 1 ≤ 2π, (6.52b)
+generally depend on ζ α = ζ α(ξ β , t), see figure 16 in Appendix E. Here, {e1, e2, e3} is the
+basis of a fixed Cartesian reference coordinate system. Before specifying ζ α(ξ β , t), which defines the material flow relative to the ALE frame (= Eulerian frame here), one can already analyse the geometry. Introducing the local orthonormal basis {er , eφ, eθ } with
+eφ := − sin φ e1 + cos φ e2, φ := ζ 1, (6.53a)
+eθ := − sin θ er0 + cos θ e3, θ := ζ 2, (6.53b)
+and using (E4) from Appendix E, one finds the tangent vectors
+a1 = r cos θ eφ, a2 = r eθ , (6.54)
+surface metric
+[aαγ
+] =r2
+[
+cos2 θ 0
+01
+]
+, (6.55)
+dual tangent vectors
+a1 = 1
+r cos θ eφ, a2 = 1
+r eθ , (6.56)
+1016 A34-26
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+surface normal
+n = er , (6.57)
+and curvature components
+[bαγ
+] = −r
+[
+cos2 θ 0
+01
+]
+, (6.58)
+in the ALE frame. Consequently, H = −1/r and κ = 1/r2. Further, (6.51) implies vm = 0.
+6.3.2. Surface flow
+Now consider the shear flow defined by
+ζ 1 = θ 1 = ξ 1 + ω0t sin ξ 2, (6.59a)
+ζ 2 = θ 2 = ξ 2 =: θ, (6.59b)
+which leads to ζ ̇ 1 = ω0 sin θ, (6.60a)
+ζ ̇ 2 = 0, (6.60b)
+[∂ζα
+∂ξγ
+] =
+[ 1 ωt cos θ
+01
+]
+, (6.61)
+and
+[ζ ̇,αγ
+] =
+[ 0 ω0 cos θ
+00
+]
+, (6.62)
+for constant angular velocity ω0. Using (E5) from Appendix E, then leads to the frame velocities
+ ̇a1 = −r ω0 sin θ cos θ er0,  ̇a2 = −r ω0 sin2 θ eφ, (6.63)
+the material velocity
+v = r ω0 sin θ cos θ eφ (6.64)
+and the material acceleration
+v ̇ = −r ω2
+0 sin2 θ cos θ er0. (6.65)
+From v and (E4) follow v,1 = −r ω0 sin θ cos θ er0, (6.66a)
+v,2 = r ω0 (2 cos2 θ − 1) eφ, (6.66b)
+which can also be obtained equivalently from (2.27). From the preceding equations follows, that the ALE equation (2.26) decomposes into the separate equations
+v ̇ = v,α vα, v′ = v,α vαm, (6.67)
+for this example. The velocity field and its non-zero component vφ := v · eφ are visualised in figure 8 and compared with the numerical solution following in § 6.3.4. The velocity field leads to the surface vorticity
+ω = ω0 (2 sin2 θ − cos2 θ ), (6.68)
+according to definition (2.40) and relation (E3).
+1016 A34-27
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+–0.50 –0.25 0 0.25 0.50
+–90
+–60
+–30
+0
+30
+60
+90
+101
+10–10
+10–8
+10–6
+10–4
+10–2
+100
+102 103 104 105
+1
+1.5
+0.5
+0.4
+0.3
+0.2
+0.1
+0
+‖v‖/(rω0)
+Velocity vφ [rω0] Number of elements nel
+L2 error
+Latitude θ [deg.]
+v, fixed S q, fixed S v, free S q, free S vm, free S x, free S
+(a) (b)
+(d ) (e)
+(c)
+Figure 8. Shear flow on a sphere: (a) analytical and (b) numerical flow field v of a fixed surface, and (c) numerical flow field of a freely evolving surface; (d) analytical velocity profile vφ(θ ); (e) FE error for fluid velocity v, surface tension q, mesh velocity vm and surface position x, converging at optimal rates:
+O (n −1.5
+el ) = O(h3) for fixed surface v and free surface x, and O(n−1
+el ) = O(h2) otherwise.
+6.3.3. Surface forces
+From (2.34), (6.56), (6.66) and (E3) now follows the rate-of-deformation tensor
+2d = ω0 cos2 θ (eφ ⊗ eθ + eθ ⊗ eφ
+) − ω0 sin θ cos θ (eφ ⊗ er + er ⊗ eφ
+), (6.69)
+which has the in-plane part
+2ds = ω0 cos2 θ (eφ ⊗ eθ + eθ ⊗ eφ
+), (6.70)
+and results in the stress
+σ = γ i + η ω0 cos2 θ (eφ ⊗ eθ + eθ ⊗ eφ
+), (6.71)
+according to constitutive model (4.8) (that is valid for both the material models in § 4). From (4.9) then follows
+T ;αα = (γ,1 − 4η ω0 sin θ cos2 θ ) a1 + γ,2 a2 − 2γ
+r n, (6.72)
+since divs ds = ds,α aα with
+ds,1 a1 = ds,2 a2 = −ω0 sin θ cos2 θ a1, (6.73)
+1016 A34-28
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+0 0.2 0.4 0.6 0.8 1.0
+–90
+–60
+–30
+0
+30
+60
+90
+0 0.2 0.4 0.6 0.8 1.0
+(a)
+Latitude θ [deg.]
+–90
+–60
+–30
+0
+30
+60
+90
+(b)
+Shear stress σφθ and surface tension γ Surface pressure p [ρrω02]
+σφθ [ηω0]
+γ [ρr2ω02]
+Figure 9. Shear flow on a rigid sphere: (a) shear stress σφθ (θ ) and surface tension γ (θ ), and (b) surface pressure p(θ ) for case 1 considering γ0 = ρr 2ω2
+0 /4.
+in this example. Due to rotational symmetry γ,1 = 0. The equation of motion (3.4) is then satisfied for the body force components
+f1 = 4η ω0 sin θ cos2 θ, (6.74a)
+f2 = ρ r2 ω2
+0 sin3 θ cos θ − γ,2, (6.74b)
+p = 2γ
+r − ρ r ω2
+0 sin2 θ cos2 θ, (6.74c)
+that admit the two special cases:
+CASE 1: f2 = 0. Then (6.74(b)) can be integrated to yield
+γ = ρ r2 ω2
+0
+4 sin4 θ + γ0. (6.75)
+In this case, we can also write f = ηs v + p n, where ηs := 4η/r 2 can be interpreted as a viscous surface friction coefficient.
+CASE 2: γ = γ0 = const. Thus γ,2 = 0 and we can also write f = ηs v + ρ v ̇ + p0 n, where p0 = 2γ0/r . Figure 9 shows the stress components σφθ = eφ · σ eθ and γ , as well as the surface pressure p for case 1 considering γ0 = ρr 2ω2
+0/4. Equation (6.74) and its two cases provide
+two analytical solutions for the steady flow in (6.64). It is emphasised that this solution contains out-of-plane body forces. Only the precise pressure distribution of (6.74c) keeps the surface in spherical shape. Other distributions will lead to shape changes, as the following subsection shows.
+6.3.4. Numerical solution
+The flow example is solved with the FE formulation based on weak form (5.9) using the discretisation described in Appendix F. In the FE solution the surface can either be fixed, or left free to deform so that v and vm are allowed to have out-of-plane components. The flow field for 96 quadratic FE is shown in figure 8 for two cases: figure 8(b) shows the FE solution when the varying body force field from (6.74)–(6.75) is prescribed, in which case the surface remains spherical, as this is the equilibrium shape. Figure 8(c), on the other hand, shows the FE solution when the interior pressure is set to constant
+1016 A34-29
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+p = ρ r ω2
+0. Now the perfect sphere is no longer in equilibrium and deforms into the new
+equilibrium shape seen in the figure, which has smaller volume but the same surface area – it shrinks by 9.41 % vertically and expands by 2.44 % around the equator. This flow-induced deformation is well into the geometrically nonlinear regime. In the first case the FE convergence behaviour can be assessed, as the analytical solution from above
+is valid. The convergence rates are O(n−1.5
+el ) = O(h3) for x and fixed surface v, and
+O (n −1
+el ) = O(h2) for all other v, q and vm, as figure 8(c) shows. This is consistent with
+the optimal rates for nonlinear membranes and incompressible flows (Wriggers 2001; Dohrmann & Bochev 2004). For a free surface, v, q and vm depend on the surface discretisation in x, and hence converge with one order lower.
+6.3.5. Lagrangian parametrisation
+Alternatively (but not advantageously), the system can be described in the material frame. Using (E6), one finds
+aˆ1 = a1, aˆ2 = ω0t cos θ a1 + a2, (6.76)
+and
+[aαˆ γˆ
+] =r2
+[
+cos2 θ ω0t cos3 θ
+ω0t cos3 θ 1 + ω2
+0t2 cos4 θ
+]
+. (6.77)
+From this follows
+[a ̇αˆ γˆ
+] =r2
+[
+0 ω0 cos3 θ
+ω0 cos3 θ 2ω2
+0t cos4 θ
+]
+, (6.78)
+and
+[
+aαˆ γˆ ]
+=1
+r2
+[
+cos−2 θ + ω2
+0t2 cos2 θ −ω0t cos θ
+−ω0t cos θ 1
+]
+, (6.79)
+so that
+a1ˆ = 1
+r cos θ eφ − ω0t cos θ
+r eθ , aˆ2 = a2. (6.80)
+From (6.76) and (6.63) then follow
+ ̇aˆ1 = −r ω0 sin θ cos θ er0, (6.81a)
+ ̇aˆ2 = r ω0
+(
+cos2 θ − sin2 θ
+)
+eφ − r ω2
+0t sin θ cos2 θ er0. (6.81b)
+Together with (2.15), (2.29) and (6.80) this leads to the same d as in (6.69), as it is supposed to. This shows that for shear flows the Lagrangian parameterisation, although physically equivalent, is mathematically much more complicating than the ALE one.
+6.4. Spinning sphere
+The previous example can be easily modified to describe the rigid body rotation of a spinning sphere. In that case, (6.59a) needs to be simply replaced by
+ζ 1 = θ 1 = ξ 1 + ω0t, (6.82)
+1016 A34-30
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+leading to ζ ̇ 1 = ω0, ζ ̇ 2 = 0, ζ α
+,γˆ = δα
+γˆ and ζ ̇,αγ = 0. The ALE description in (6.51)–(6.58) remains unchanged. But now velocity and acceleration become
+v = r ω0 cos θ eφ
+v ̇ = −r ω2
+0 cos θ er0, (6.83)
+and lead to the gradients v,1 =  ̇a1 = −r ω cos θ er0, (6.84a)
+v,2 =  ̇a2 = −r ω sin θ eφ. (6.84b) As a consequence, the vorticity is
+ω = 2ω0 sin θ, (6.85)
+which is maximum at the poles, while the rate-of-deformation tensor becomes
+2d = −ω0 cos θ (eφ ⊗ er + er ⊗ eφ
+), (6.86)
+which has zero in-plane part (ds = 0). Therefore the stress only consists of surface tension, i.e.
+σ = γ i. (6.87)
+The body force required to equilibrate this stress under dynamic conditions now becomes
+f1 = 0, (6.88a)
+f2 = ρ r2 ω2
+0 sin θ cos θ − γ,2, (6.88b)
+p = 2γ
+r − ρ r ω2
+0 cos2 θ, (6.88c)
+since still γ,1 = 0 due to rotational symmetry. The special case f2 = 0 can then be maintained for the surface tension
+γ = ρ r2 ω2
+0
+2 sin2 θ + γ0. (6.89)
+The flow field, surface tension and surface pressure are visualised in figure 10 for the choice γ0 = ρr 2ω2
+0/4. This shows that even a simple spinning sphere requires varying
+body forces and surface tension to stay in spherical shape.
+REMARK 6.2. A general rigid body motion contains a translation c(t) apart from a rotation. Adding c to motion (6.51) results in vm =  ̇c and v =  ̇c + r ω cos θ eφ. Since c must
+be constant in ζ α, the velocity gradient and stress are the same as before. Only the body force needs the extra term ρ  ̈c to account for acceleration  ̈c in case it is non-zero.
+6.5. Octahedral vortex flow on a sphere
+The shear flow solution of § 6.3 has no φ-dependency and is steady for fixed surface and mesh. The following example therefore presents a transient example with φ-dependency. It considers eight counter-rotating vortices on a sphere arranged in the pattern of an octahedron. The example is motivated by the surface flow induced by large-scale surface budding on spherical vesicles (Sauer et al. 2017). It is adapted from a comparable example of Nitschke et al. (2012). The spherical surface is described by the same parameterisation from before, see (6.51)–(6.58). As before, φ = ζ 1 and θ = ζ 2 are used. The flow in this example is derived from a streamfunction and thus automatically satisfies the area-incompressibility constraint (2.50). The chosen streamfunction is
+ψ = v0 r sin 2φ sin θ cos2θ. (6.90)
+1016 A34-31
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+–0.50 –0.25 0 0.25 0.50 0.75 1.00
+–90
+–60
+–30
+0
+30
+60
+90
+Latitude θ [deg.]
+Velocity vφ, surface tension γ and surface pressure p
+1.0
+0.8
+0.6
+0.4
+0.2
+0
+‖v‖/(rω0)
+vφ [rω0] γ [ρr2ω02] p [ρrω02]
+(a) (b)
+Figure 10. Spinning sphere: (a) flow field v and (b) profiles of surface velocity vφ(θ ), surface tension γ (θ ) and surface pressure p(θ ) considering γ0 = ρr 2ω2
+0 /4.
+The (tangential) surface velocity then follows from the surface curl
+v = curlsψ, (6.91)
+defined in (2.43). This gives the components
+v1 = ζ ̇ 1 = v0
+r sin 2φ (2 sin2θ − cos2θ ), (6.92a)
+v2 = ζ ̇ 2 = v0
+r cos 2φ sin 2θ, (6.92b)
+in the {aα} basis, i.e. v = vα aα. They can be easily transformed into the components
+vφ = v0 sin 2φ(2 sin2θ − cos2θ ) cos θ, (6.93a) vθ = v0 cos 2φ sin 2θ, (6.93b)
+of the spherical basis {eφ, eθ } using (6.54), i.e. v = vφ eφ + vθ eθ . Figure 11 shows the magnitude and components of the flow field as well as the streamfunction ψ and surface vorticity ω. The latter follows from (2.40), which in view of (6.91) is equal to the surface Laplacian of ψ,
+ω = Δsψ = aαβ ψ;αβ , (6.94)
+and turns out to be equal to ω = −12ψ/r2 in the present example. It is noted that (6.92) is a system of ODEs from which one can reconstruct ζ α = ζ α(ξ β , t) if desired. From
+v,1 = −cθ
+[2v0 c2φ c2θ eφ + v0 s2φ
+(5cθ2 + 2sθ2
+)sθ eθ + vφ er
+], (6.95a)
+v,2 = v0 s2φ
+(7cθ2 − 2sθ2
+)sθ eφ + 2v0 c2φ c2θ eθ − vθ er , (6.95b)
+one can find the in-plane rate-of-deformation tensor
+2ds = v0
+r
+[4c2φ c2θ
+(eθ ⊗ eθ − eφ ⊗ eφ
+) + s2φ (3c2θ − 1) sθ
+(eφ ⊗ eθ + eθ ⊗ eφ
+)].
+(6.96)
+1016 A34-32
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+(a) (b)
+(c) (d)
+1.0
+0.8
+0.6
+0.4
+0.2
+0
+1.0
+0.5
+0
+–0.5
+–1.0
+1.0
+0.8
+0.6
+0.4
+0.2
+0
+1.0
+0.8
+0.6
+0.4
+0.2
+0
+ω/ωmax
+ψ/ψmax
+‖v‖/v0
+‖v‖/v0
+‖v‖/v0
+Figure 11. Octahedral vortex flow on a sphere: (a) analytical flow field v and (b) vorticity ω and streamfunction ψ normalised by their maximum values v0, ψmax and ωmax . The latter two occur at φ = π/4 and
+θ = arctan(√2/2) and are equal to ψmax = 2v0r/(3√3) and ωmax = 8v0/(√3r ). The analytical flow field in (a) is compared with the numerical flow field for a fixed (c) and free surface (d). The radial surface displacement in (d) ranges between −1.18 % and 1.13 %. It is scaled up by a factor of 10 to increase its visibility.
+Here, the abbreviations s... := sin . . . and c... := cos . . . have been used. This leads to the stress components
+σφφ = γ − 4 v0η
+r cos 2φ cos 2θ, (6.97a)
+σθθ = γ + 4 v0η
+r cos 2φ cos 2θ, (6.97b)
+σφθ = v0η
+r sin 2φ (3 cos 2θ − 1) sin θ, (6.97c)
+according to (4.8). A meaningful quantity to examine is the surface shear stress (Zimmermann et al. 2019)
+s=
+√
+σ αβ
+dev σαdβev, σ αβ
+dev := σ αβ − γ aαβ , (6.98)
+which becomes
+s=
+√
+σφdeφvσφdeφv + σθdθevσθdθev + 2σφdθevσφdθev, (6.99)
+in spherical coordinates and is shown in figure 12. It confirms the octahedral symmetry of the present flow example.
+1016 A34-33
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+0 30 60 90 120 150 180
+–2
+–1
+0
+1
+2
+3
+Longitude φ [deg.]
+Stress components [v0η/r]
+σφφ = –σθθ
+dev dev
+sσφθ
+1.0
+0.8
+0.6
+0.4
+0.2
+0
+(a) (b)
+s/smax
+Figure 12. Octahedral vortex flow on a sphere: (a) shear stress field s and (b) stress components σφdeφv, σθdθev,
+σφθ and s vs. φ for θ = 30◦. The maximum of s is smax = √32v0η/r .
+From a tedious but straightforward calculation one can find the simple relation
+ds,α aα = − 5
+v0
+v, (6.100)
+such that
+T ;αα = γ,α aα + 2H γ n − 10η
+v0
+v, (6.101)
+according to (4.9). Choosing γ = const., this satisfies PDE (3.4) for the manufactured body force
+f = ρ v ̇ + ηs v + p0 n, (6.102)
+with the viscous friction coefficient ηs := 10η/r 2 and static surface pressure p0 := 2γ /r . Taking the material time derivative of v = vφ eφ + vθ eθ , and providing v ̇φ, v ̇θ ,  ̇eφ and  ̇eθ through (6.93) and (E5), leads to the material acceleration
+v ̇ = as + an n, (6.103)
+with the components
+as = aφ eφ + aθ eφ, an = − ‖v‖2
+r , (6.104a)
+aφ = v ̇0
+v0
+vφ − 2v0 c2φ c2θ cθ φ ̇ + v0 s2φ
+(
+7cθ2 − 2sθ2
+)
+sθ θ ̇, (6.104b)
+aθ = v ̇0
+v0
+vθ + 2v0 c2φ c2θ θ ̇ − v0 s2φ
+(
+5cθ2 + 2sθ2
+)
+sθ cθ φ ̇. (6.104c)
+Comparing (6.103) with (2.26) and using (6.92) and (6.95), reveals the transient part
+v′ = v ̇0
+v0
+v + v,α vαm. (6.105)
+The acceleration v ̇ thus contains a transient part that is proportional to v ̇0 and is only in
+plane, while all the remaining terms are steady-state terms and are proportional to v2
+0. The
+acceleration becomes negligible for small v ̇0 and small v0. Figure 13 shows the steady-state
+1016 A34-34
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+0
+–0.2
+–0.4
+–0.6
+–0.8
+–1.0
+(a) (b)
+an/(v02/r)
+1.5
+1.0
+0.5
+0
+as/(v02/r)
+Figure 13. Octahedral vortex flow on a sphere: (a) normal component an and (b) magnitude of the tangential component as := ‖as ‖ of the steady-state part of the material acceleration.
+part of the in-plane and out-of-plane acceleration components. Note that an is negative, i.e. the normal acceleration an n points inward. It has to be equilibrated by the varying surface pressure p = p0 + ρ an for the surface to remain spherical. If the pressure is taken constant, the shape changes as the numerical solution in figure 11(d) shows for p = 3 p0. As seen, the surface bulges out, where the velocity is high, and in, where the velocity is small. Further, the outward bulges are shifted in flow direction, which agrees with intuition. This solution has been obtained by a FE computation using the discretisation described in Appendix F. It has been confirmed that the FE convergence rates of figure 8(e) are maintained here, both for the fixed surface solution in figure 11(c) and the free surface solution in figure 11(d). It is finally noted that the FE code used here has been debugged and verified using the analytical examples proposed above. They are characterised by increasing complexity and thus suitable for code development. They test all flow components, in-plane as well as outof-plane. The last three examples are derived with zero mesh motion, but a mesh motion can be easily superimposed for further testing. This will be discussed in future work.
+6.6. Vesicle budding
+As a final numerical example, the budding of a spherical vesicle is shown. The example uses the Helfrich bending model of § 4.2 and the hemispherical FE set-up from Sauer et al. (2017). The initial vesicle radius is taken as R = 1 μm, its bending stiffness and viscosity are taken from Omar et al. (2020), i.e. k = 0.1236 nNnm, kg = −0.83 k and η = 10−8 Ns m−1, and the mesh stiffness is chosen as μm = 10−4 k R2. As inertia is expected to play no role here, steady-state Stokes flow is considered. Budding is induced by
+prescribing the spontaneous curvature H0 at a constant rate H ̇0 = −0.05 nm s−1 within a spherical region centred around the vesicle tip. (The region has radius r = 0.4R; full H0 is applied within 2r/3 and ramped down to zero between 2r/3 and r ). Contrary to Sauer et al. (2017), who consider this region Lagrangian (i.e. fixed in the reference configuration), it is treated Eulerian here (i.e. fixed in the current configuration). Figure 14 shows the bud formation over time together with the fluid velocity and surface tension q. The local kinematics of bud formation resemble that of bubble inflation. Therefore, the Eulerian surface formulation can be expected to yield much less accurate results than an ALE surface formulation. This is confirmed by figure 15: the Eulerian formulation becomes inaccurate at the bud due to large mesh distortion. These distortions are much smaller for the proposed ALE formulation, resulting in much higher accuracy. Two cases
+1016 A34-35
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+5
+4
+3
+2
+1
+0
+‖v‖
+0q
+–1
+–2
+–3
+–4
+–5
+[μN m−1] [μm s−1]
+Figure 14. Vesicle budding: accurate reference solution for the fluid velocity ‖v‖ (a) and surface tension q (b) at time t = [40, 80, 120, 160, 200]ms (left to right), which corresponds to prescribed curvature H0 = −[2, 4, 6, 8, 10]/R. The result is obtained with 49 152 NURBS FEs.
+0 0.05 0.10 t [s] t [s]
+ALEd nel = 3072
+Reference
+ALEu nel = 3072 Euler. nel = 3072 ALEd nel = 768 ALEu nel = 768 Euler. nel = 768
+ALEd nel = 3072
+Reference
+ALEu nel = 3072 Euler. nel = 3072 ALEd nel = 768 ALEu nel = 768 Euler. nel = 768
+0.15 0.20
+–6
+–5
+–4
+–3
+–2
+–1
+0
+1
+0 0.05 0.10 0.15 0.20
+–2
+–1
+0
+Tip velocity [μm s–1]
+Tip surface tension q [μN m–1]
+1
+2
+3
+4
+5
+6
+5
+4
+3
+2
+1
+0
+‖v‖
+(a) (b) (c) (d)
+(e)
+(f )
+[μm s−1]
+Figure 15. Vesicle budding: Eulerian (a), ALEu (b) and ALEd solution (c) for nel = 3072 in comparison with the accurate reference solution (d), all for H0 = −6/R. Evolution of the tip velocity ‖v‖ (e) and tip surface tension q (f ) during budding for the different formulations and FE meshes. The dots mark the location where the relative error exceeds 2 %. As seen the two ALE formulations are much more accurate than the Eulerian one.
+are shown: uniform mesh elasticity (ALEu) and distributed mesh elasticity (ALEd – where μm is lowered to 10 % for points initially beyond 0.2R from the tip). The latter allows to reduce mesh distortions at the bud even further and hence allows to obtain highly accurate results as figure 15 shows.
+1016 A34-36
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+The example demonstrates that the proposed ALE formulation also works well in the presence of bending elasticity and large local surface deformations, and it can be tailored to them. It is interesting to note that here the chosen Eulerian prescription of H0 ensures that the bud remains axisymmetric, which is not the case for a Lagrangian prescription as is seen in Sauer et al. (2017). A more detailed study and analysis of vesicle budding, also for non-axisymmetric flows, is planned for future work.
+7. Conclusion
+This work presents a general arbitrary Lagrangian–Eulerian surface formulation suitable for transient and steady Navier–Stokes flow on self-evolving manifolds. The formulation is based on a curvilinear surface parameterisation associated with the ALE frame of reference. This frame is used to define a basis for the objective description of vectors and tensors on the surface. In-plane surface elasticity is proposed for obtaining stable mesh motion that does not affect the material flow. The presented ALE formulation applies to closed as well as open surfaces, that contain evolving inflow boundaries. This generality distinguishes it from earlier surface ALE descriptions. The theory and analytical solutions presented here serve as a basis for the development of advanced FE formulations in future work. The main theoretical, numerical and physical insights gained from this work are:
+T1. The material time derivative of the ALE coordinate, ζ ̇ α, that defines the relative inplane velocity of the material with respect to the mesh, is the essential object of the surface ALE formulation, in particular for understanding (2.30) and why v,α =  ̇aα. T2. The out-of-plane mesh motion is constrained to follow the surface motion. This constraint can be eliminated in the weak form without introducing a so-called mesh pressure in the framework of Lagrange multiplier or penalty methods.
+T3. The weak form and its variation should be derived for fixed ALE coordinate ζ α. This coordinate then directly and naturally follows from a local FE parametrisation. N1. Lagrangian mesh motion is known to be inappropriate for fluid flows. Here it is shown that also in-plane Eulerian mesh motion can become very inaccurate, especially for large surface motion. N2. A surface ALE formulation based on elastic mesh motion, on the other hand, is much more accurate, and it achieves optimal convergence rates. The velocity convergence rate for free surface motion is one order lower than for fixed surfaces. N3. The mesh elasticity parameters can be tailored to the problem: using larger mesh stiffness in regions where large mesh distortions are expected allows for further accuracy gains. N4. A stable way to control bubble inflation is to prescribe the interior volume. Prescribing the inflow velocity or the interior pressure tends to be numerically unstable. P1. The coupling between surface geometry, surface flow, mesh velocity and surface tension within the governing field equations is highlighted. P2. Non-trivial, varying body forces are required to keep a flowing surface in shape. P3. Otherwise the shape changes: in the examples of §§ 6.3 and 6.5 the surface bulges out, where the velocity is large, and in, where the velocity is small. The outward bulges are shifted in flow direction, which agrees with intuition. P4. Vesicle budding remain axisymmetric if the spontaneous curvature of the Helfrich model is prescribed in an Eulerian instead of a Lagrangian manner.
+1016 A34-37
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+The formulation here already contains the cases of area compressibility and bending elasticity, but analytical solutions for these cases are still missing. Further extensions are evolving surfaces with changing thickness and out-of-plane shear. The analytical solutions presented here all have uniform surface curvature. Also interesting would be analytical solutions with varying curvature.
+Acknowledgements. The author is grateful to K.K. Mandadapu and T.X. Duong for discussions on the topic.
+Declaration of Interests. The author reports no conflict of interest.
+Appendix A. Basis transformation rules
+This section presents formulae for the transformation between bases aα and aαˆ . Those are required to adapt a Lagrangian description, as used in Sauer & Duong (2017), Sahu et al. (2017) and Sauer et al. (2019), to an ALE description. Applying the chain rule to (2.6) gives
+aα = aγˆ
+∂ξγ
+∂ζ α and aαˆ = aγ
+∂ζγ
+∂ξ α . (A1)
+The dual basis must thus satisfy
+aα = ∂ζ α
+∂ξ γ aγˆ and aαˆ = ∂ξ α
+∂ζ γ aγ , (A2)
+to ensure orthonormality between covariant and contravariant basis vectors. Applying these formulae to the tensor
+c = cαβ aα ⊗ aβ = cαβ aα ⊗ aβ = cαˆ βˆ aαˆ ⊗ aβˆ = cαˆ βˆ aαˆ ⊗ aβˆ, (A3)
+yields the transformation rules
+cαβ = ∂ξ γ
+∂ζα
+∂ξδ
+∂ζ β cγˆ δˆ, cαˆ βˆ = ∂ζ γ
+∂ξα
+∂ζδ
+∂ξ β cγ δ, (A4a)
+cαβ = ∂ζ α
+∂ξγ
+∂ζβ
+∂ξ δ cγˆ δˆ, cαˆ βˆ = ∂ξ α
+∂ζγ
+∂ξβ
+∂ζ δ cγ δ. (A4b)
+From (A1)–(A4) corresponding transformation rules for time derivatives can be derived via the product rule. From (A1) follows, for example,
+ ̇aαˆ =
+(
+ ̇aγ + ζ ̇,βγ aβ
+) ∂ζγ
+∂ξ α , (A5)
+while (A4) gives
+c ̇αˆ βˆ =
+(
+c ̇γ δ + ζ ̇,λγ cλδ + cγ λ ζ ̇,λδ
+) ∂ζγ
+∂ξα
+∂ζδ
+∂ξ β . (A6)
+Here, we have used
+∂ ∂t
+(∂ζγ
+∂ξα
+)
+ξβ
+= ∂ζ ̇ γ
+∂ξ α = ∂ζ ̇ γ
+∂ζλ
+∂ζλ
+∂ξ α , (A7)
+since temporal and spatial differentiation can be exchanged in this case.
+1016 A34-38
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+Appendix B. Relation between v,α and  ̇aα
+There are three ways to derive relation (2.27). The simplest is to use
+v,αˆ = ∂ζ γ
+∂ξ α v,γ , (B1)
+together with v,αˆ =  ̇aαˆ and (A5). Another is to apply the parametric derivative to (2.20). This gives
+v,α = ∂
+∂ζα
+(∂x
+∂t
+)
+ζβ
++ ζ ̇ γ aγ,α + ζ ̇,γα aγ . (B2)
+In the first term, the temporal and spatial differentiation can be exchanged. Likewise, aγ,α = aα,γ . Further, applying the fundamental ALE equation (2.30) to aα gives
+ ̇aα = ∂ aα
+∂t
+∣∣∣∣ζ β
++ aα,γ ζ ̇ γ . (B3)
+Combining (B2) and (B3) then immediately leads to (2.27). Another alternative derivation is to follow Appendix A.2 of Sahu et al. (2017). There is has been shown that
+ ̇aα = ∂
+∂t
+( ∂ xˆ (ξ , t) ∂ξγ
+)
+ξβ
+∂ξγ
+∂ζ α + ∂ xˆ (ξ , t)
+∂ξγ
+∂ ∂t
+(∂ξγ
+∂ζα
+)
+ξβ
+, (B4)
+where the fixed-surface coordinate θα, originally appearing in Sahu et al. (2017), has been
+replaced by the more general ALE coordinate ζ α. As noted in Sahu et al. (2017), temporal and spatial differentiation commute in the first term, such that the first term turns out to be equal to v,α. However, the time derivative in the second term is generally not zero. Only
+for special choices of ζ α, such as ζ α = ξ α, does the second term vanish. Equation (B4) thus gives
+v,α =  ̇aα − ∂
+∂t
+(∂ξγ
+∂ζα
+)
+ξβ
+aγˆ . (B5)
+Using the fundamental ALE equation (2.30) we find
+∂ ∂t
+(∂ξγ
+∂ζα
+)
+ξβ
+=∂
+∂t
+(∂ξγ
+∂ζα
+)
+ζβ
++ ∂2ξγ
+∂ζ α ∂ζ β ζ ̇ β , (B6)
+which can be rewritten into
+∂ ∂t
+(∂ξγ
+∂ζα
+)
+ξβ
+=∂
+∂ζα
+(∂ξγ
+∂t
+∣∣∣∣ζ β
++ ∂ξγ
+∂ζ β ζ ̇ β
+)
+− ∂ξγ
+∂ζβ
+∂ζ ̇ β
+∂ζ α . (B7)
+Using the fundamental ALE equation, the term in brackets simply becomes ξ ̇ γ , which is zero by definition. Inserting (B7) into (B5) and using (A1) then yields (2.27).
+REMARK B.1. Second-order counterpart to (2.27). Applying derivative ∂ . . . /∂ζ β to
+(2.27) and using
+(  ̇aα),β =  ̇
+(aα,β ) + aα,γ ζ ̇ γ
+,β , (B8)
+which follows from applying (2.30) to aα and aα,β , gives
+v,αβ =  ̇
+(aα,β ) + ζ ̇,γα aγ,β + aα,γ ζ ̇ γ
+,β + ζ ̇ γ
+,αβ aγ . (B9)
+1016 A34-39
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+Appendix C. Constitutive laws in the ALE frame
+In Sahu et al. (2017) and Sauer (2018) it was shown that in the Lagrangian frame, the second law of thermodynamics leads to the constitutive relations
+σ αˆ γˆ
+el = 2
+J
+∂ Ψ0
+∂aαˆ γˆ
+, (C1)
+M αˆ γˆ = 1
+J
+∂ Ψ0
+∂bαˆ γˆ
+, (C2)
+and
+σ αˆ γˆ
+inel a ̇αˆ γˆ ≥ 0. (C3)
+Using a ̇αˆ γˆ = 2dαˆ γˆ , which follows from (2.36) since ζ ̇,γα = 0 for the Lagrangian case
+ζ α = ξ α, the last relation becomes
+σ αˆ γˆ
+inel dαˆ γˆ ≥ 0. (C4)
+By applying the transformation rules of (A4) to (C1), (C2) and (C4) one immediately arrives at (4.2)–(4.4).
+Appendix D. Mechanical weak form derivation
+The derivation of the mechanical weak form is analogous to the derivation of the mechanical power balance. In Sauer & Duong (2017) it was thus shown that in the Lagrangian frame the weak form for fluid films with bending resistance is given by
+Gˆ := Gˆ in + Gˆ int − Gˆ ext = 0 ∀ δxˆ ∈ V, (D1)
+with
+Gˆ in :=
+∫
+S
+δxˆ · ρ v ̇ daˆ, (D2a)
+Gˆ int := 1
+2
+∫
+S
+σ αˆ γˆ δaˆαˆ γˆ daˆ +
+∫
+S
+Mαˆ γˆ δbˆαˆ γˆ daˆ , (D2b)
+Gˆ ext :=
+∫
+S
+δxˆ · f daˆ +
+∫
+∂S
+δxˆ · T dsˆ +
+∫
+∂S
+δ ˆn · M dsˆ, (D2c)
+and
+δaˆαˆ γˆ = δ ˆaαˆ · aγˆ + aαˆ · δ ˆaγˆ , δbˆαˆ γˆ = (δ ˆaαˆ ,γˆ + Γ μˆ
+αˆ γˆ δ ˆaμˆ ) · n. (D3)
+Here, daˆ and dsˆ denote differential area and line elements associated with the Lagrangian
+surface parametrisation x = xˆ (ξ α, t). The variation δxˆ is considered at fixed Lagrangian
+coordinate ξ α, such that variation δ(. . .) and differentiation (. . .),αˆ are exchangeable,
+i.e. δxˆ ,αˆ = (δxˆ ),αˆ = δ(xˆ ,αˆ ) = δ ˆaαˆ and δxˆ ,αˆ γˆ = (δxˆ ),αˆ γˆ = δ(xˆ ,αˆ γˆ ) = δ ˆaαˆ ,γˆ . Variation δxˆ is thus analogous to time derivative x ̇ . Exploiting the symmetry of σ αˆ γˆ then leads to
+Gˆ int =
+∫
+S
+σ αˆ γˆ δxˆ ,αˆ · aγˆ daˆ +
+∫
+S
+Mαˆ γˆ δxˆ ;αˆ γˆ · n daˆ , (D4)
+with
+δxˆ ;αˆ γˆ := δxˆ ,αˆ γˆ − Γ μˆ
+αˆ γˆ δxˆ ,μˆ . (D5)
+1016 A34-40
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+The derivation in Sauer & Duong (2017) works in the same way when variation and integration are associated with the ALE frame. One thus considers the differential
+elements da and ds of the ALE surface parametrisation x = x(ζ α, t) together with
+the surface variation δx at fixed ALE coordinate ζ α, such that variation δ(. . .) and differentiation (. . .),α are exchangeable, i.e. δx,α = (δx),α = δ(x,α) = δaα and δx,αγ =
+(δx),αγ = δ(x,αγ ) = δaα,γ . Variation δx is thus analogous to time derivative x′. This then leads to the weak form (5.1). It is important to note that weak forms (5.1) and (D1) are not equal, but both valid weak forms. If desired they can be related, which is discussed briefly for the case that the ALE frame coincides with the Lagrangian frame initially, i.e. dA = dAˆ, so that daˆ = J da/Jm.
+Variations δxˆ and δx are related in the same way as x ̇ and x′ in (2.20), i.e.
+δxˆ = δx + δζ α aα, (D6)
+where δζ α is a variation of ζ α at fixed ξ β . Inserting (D6) into
+δxˆ ,αˆ = (δxˆ ),αˆ = ∂ζ γ
+∂ξ α (δxˆ ),γ (D7)
+gives
+δxˆ ,αˆ = ∂ζ γ
+∂ξα
+(
+δx,γ + δζ,βγ aβ + δζ β aβ,γ
+)
+, (D8)
+with δζ,βγ := (δζ β ),γ . Using (A1) and (A4), the first part in Gˆ int thus becomes
+∫
+S
+σ αˆ γˆ δxˆ ,αˆ · aγˆ daˆ =
+∫
+S
+σ αγ (δx,α · aγ + δζ,βα aβγ + δζ β Γαδβ aδγ
+)J
+Jm
+da. (D9)
+This, however, has no apparent advantage over the first term in (5.2b). It is just for illustrating that it makes a difference whether the weak form is based on a variation of the Lagrangian surface description or the ALE surface description. The latter is considered here, as it is the one required for a computational description in the ALE frame.
+Appendix E. Basis derivatives
+E.1. Soap bubble example
+The Cartesian basis used in § 6.2 has the ALE derivatives
+er,1 =ψo eψ , er,2 = 0, (E1a) eψ,1 = − ψo er , eψ,2 = 0, (E1b)
+and the time derivatives
+ ̇er = ψ ̇ eψ , e′r = ψ′ eψ , (E2a)
+ ̇eψ = −ψ ̇ er , e′ψ = −ψ′ er . (E2b)
+1016 A34-41
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+e2
+e1
+e3
+er0
+er
+eθ
+eφ
+φ
+θ
+Figure 16. Basis vectors used in the sphere examples of §§ 6.3–6.5.
+E.2. Shear flow examples
+The sphere examples in §§ 6.3–6.5 use the basis vectors defined in (6.52) and (6.53) and illustrated in figure 16. They satisfy
+er0 = cos θ er − sin θ eθ , (E3a)
+e3 = cos θ eθ + sin θ er , (E3b)
+and have the ALE derivatives
+er,1 = cos θ eφ, er,2 = eθ , (E4a) er0,1 = eφ, er0,2 = 0, (E4b) eφ,1 = −er0 , eφ,2 = 0, (E4c) eθ,1 = − sin θ eφ, eθ,2 = −er , (E4d)
+and the time derivatives
+ ̇er = ζ ̇ 1 cos θ eφ + ζ ̇ 2 eθ , e′r = 0, (E5a)
+ ̇er0 = ζ ̇ 1 eφ, e′r0 = 0, (E5b)
+ ̇eφ = −ζ ̇ 1 er0 e′φ = 0, (E5c)
+ ̇eφ = −ζ ̇ 1 er0 e′φ = 0, (E5d)
+ ̇eθ = −ζ ̇ 1 sin θ eφ − ζ ̇ 2 er , e′θ = 0. (E5d)
+The time derivatives simplify when ζ ̇ 2 = 0, as in §§ 6.3 and 6.4. The Lagrangian derivatives used in § 6.3 are
+er,ˆ1 = cos θ eφ, er,ˆ2 = ωt cos2 θ eφ + eθ , (E6a)
+er0,ˆ1 = eφ, er0,ˆ2 = ωt cos θ eφ, (E6b)
+eφ,ˆ1 = −er0 , eφ,ˆ2 = −ωt cos θ er0 , (E6c)
+eθ,ˆ1 = − sin θ eφ, eθ,ˆ2 = −ωt sin θ cos θ eφ − er . (E6d)
+1016 A34-42
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+Appendix F. Finite element formulation
+The three primary fields v, q and x are discretised by the FE approximations
+v(ζ α, t) ≈
+n∑e
+I =1
+NI (ζ α) vI (t), (F1a)
+q(ζ α, t) ≈
+n∑e
+I =1
+NI (ζ α) qI (t), (F1b)
+x(ζ α, t) ≈
+n∑e
+I =1
+NI (ζ α) x I (t), (F1c)
+where the latter leads to the FE mesh velocity
+vm = x′ ≈
+n∑e
+I =1
+NI x′
+I=
+n∑e
+I =1
+NI vm I . (F2)
+Here, NI = NI (ζ α) are the FE shape functions and vI , qI , x I and vm I = x′
+I the
+corresponding nodal values. Quadratic shape functions are used for all fields – quadratic Lagrange for the examples in §§ 6.2–6.5 and quadratic NURBS for the example in § 6.6. The polynomial pressure projection scheme of Dohrmann & Bochev (2004) is used to
+stabilise surface tension q. The local FE parameterisation ζ α ∈ [−1, 1] naturally provides an ALE frame of reference. Hence all the kinematic quantities and constitutive laws from §§ 2 and 4 can be evaluated using (F1a)–(F2b), and then used in turn to discretise the weak forms of § 5. The three discretised weak forms from §§ 5.1, 5.2 and 5.3 then yield three coupled ordinary differential equations for the three fields vI (t), qI (t) and x I (t) or vmI (t). They are solved in time using the implicit trapezoidal rule and the NewtonRaphson method at every time step. This requires the full linearisation of the coupled three field problem. Details on this will be reported in a forthcoming publication.
+REFERENCES
+AL-IZZI, S.C. & MORRIS, R.G. 2023 Morphodynamics of active nematic fluid surfaces. J. Fluid Mech. 957 (A4), 1–28. ARROYO, M. & DESIMONE, A. 2009 Relaxation dynamics of fluid membranes. Phys. Rev. E 79 (3), 031915. BARRETT, J.W., GARCKE, H. & NÜRNBERG, R. 2008a On the parametric finite element approximation of evolving hypersurfaces in R3. J. Comput. Phys. 227 (9), 4281–4307. BARRETT, J.W., GARCKE, H. & NÜRNBERG, R. 2008b Parametric approximation of Willmore flow and related geometric evolution equations. SIAM J. Sci. Comput. 31 (1), 225–253. BARRETT, J.W., GARCKE, H. & NÜRNBERG, R. 2015 Numerical computations of the dynamics of fluidic membranes and vesicles. Phys. Rev. E 92 (5), 052704. BOTHE, D. & PRÜSS, J. 2010 On the two-phase Navier–Stokes equations with Boussinesq–Scriven surface fluid. J. Math. Fluid. Mech. 12 (1), 133–150.
+BRAKKE, K.A. 1992 The surface evolver. Exp. Maths 1 (2), 141–165. BRANDNER, P., REUSKEN, A. & SCHWERING, P. 2022 On derivations of evolving surface Navier–Stokes equations. Interfaces Free Bound. 24 (4), 533–563. BROWN, R.A., ORR, F.M. & SCRIVEN, L.E. 1980 Static drop on an inclined plate: analysis by the finite element method. J. Colloid Interface Sci. 73 (1), 76–87. BUSUIOC, S., KUSUMAATMAJA, H. & AMBUS ̧ , V.E. 2020 Axisymmetric flows on the torus geometry. J. Fluid Mech. 901, A9–1–59.
+CANHAM, P.B. 1970 The minimum energy of bending as a possible explanation of the biconcave shape of the human red blood cell. J. Theor. Biol. 26 (1), 61–81. DHARMAVARAM, S. 2021 A gauge-fixing procedure for spherical fluid membranes and application to computations. Comput. Meth. Appl. Mech. Engng 381, 113849.
+1016 A34-43
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+R.A. Sauer
+DHARMAVARAM, S., WAN, X. & PEROTTI, L.E. 2022 A Lagrangian thin-shell finite element method for interacting particles on fluid membranes. Membranes 12 (10), 960. DOHRMANN, C.R. & BOCHEV, P.B. 2004 A stabilized finite element method for the Stokes problem based on polynomial pressure projections. Intl J. Numer. Meth. Fluids 46 (2), 183–201. DONEA, J. & HUERTA, A. 2003 Finite Element Methods for Flow Problems. Wiley.
+DONEA, J., HUERTA, A., PONTHOT, J.-P. & RODRÍGUEZ-FERRAN, A. 2004 Arbitrary Lagrangian-Eulerian methods. In Encyclopedia of Computational Mechanics (eds. E. STEIN, R. DE BORST & T.J.R. HUGHES), vol. 1: Fundamentals, Chapter14, Wiley. DZIUK, G. 2008 Computational parametric Willmore flow. Numer. Math. 111 (1), 55–80. ELLIOTT, C.M. & STINNER, B. 2013 Computation of two-phase biomembranes with phase dependent material parameters using surface finite elements. Commun. Comput. Phys. 13 (2), 325–360. ELLIOTT, C.M. & STYLES, V. 2012 An ALE ESFEM for solving PDEs on evolving surfaces. Milan J. Maths 80 (2), 469–501. FENG, F. & KLUG, W.S. 2006 Finite element modeling of lipid bilayer membranes. J. Comput. Phys. 220 (1), 394–408. FRIES, T.-P. 2018 Higher-order surface FEM for incompressible Navier–Stokes flows on manifolds. Intl J. Numer. Mech. Fluids 88 (2), 55–78.
+GROSS, B.J. & ATZBERGER, P.J. 2018 Hydrodynamic flows on curved surfaces: spectral numerical methods for radial manifold shapes. J. Comput. Phys. 371, 663–689. GROSS, B.J., TRASK, N., KUBERRY, P. & ATZBERGER, P.J. 2020 Meshfree methods on manifolds for hydrodynamic flows on curved surfaces: a generalized moving least-squares (GMLS) approach. J. Comput. Phys. 409, 109340. GUVEN, J. & VÁZQUEZ-MONTEJO, P. 2018 The geometry of fluid membranes: variational principles, symmetries and conservation laws. In CISM Advanced School On the Role of Mechanics in the Study of Lipid Bilayers (ed. D. Steigmann), pp. 167–219. Springer. HELFRICH, W. 1973 Elastic properties of lipid bilayers: theory and possible experiments. Z. Naturforsch. 28c (11–12), 693–703. JANKUHN, T., OLSHANSKII, M.A. & REUSKEN, A. 2018 Incompressible fluid problems on embedded surfaces: modeling and variational formulations. Interfaces Free Bound. 20 (3), 353–378. KOBA, H., LIU, C. & GIGA, Y. 2017 Energetic variational approaches for incompressible fluid systems on an evolving surface. Q. Appl. Maths 75 (2), 359–389. KRAUSE, V. & VOIGT, A. 2023 A numerical approach for fluid deformable surfaces with conserved enclosed volume. J. Comput. Phys. 486, 112097. LEDERER, P.L., LEHRENFELD, C. & SCHÖBERL, J. 2020 Divergence-free tangential finite element methods for incompressible flows on surfaces. Intl J. Numer. Meth. Engng 121 (11), 2503–2533. MA, L. & KLUG, W.S. 2008 Viscous regularization and r-adaptive meshing for finite element analysis of lipid membrane mechanics. J. Comput. Phys. 227 (11), 5816–5835. MARSDEN, J.E. & HUGHES, T.J.R. 1994 Mathematical foundations of elasticity. Dover. MIKULA, K., REMEŠÍKOVÁ, M., SARKOCI, P. & ŠEVCˇ OVI ˇC, D. 2014 Manifold evolution with tangential redistribution of points. SIAM J. Sci. Comput. 36 (4), A1384–A1414. MIURA, T.-H. 2018 On singular limit equations for incompressible fluids in moving thin domains. Q. Appl. Maths 76 (2), 215–251. NAGHDI, P.M. 1972 Theory of plates and shells. In Handbuch der Physik (ed. C. Truesdell), pp. 425–640, Springer. NITSCHKE, I. & VOIGT, A. 2022 Observer-invariant time derivatives on moving surfaces. J. Geom. Phys. 173, 104428. NITSCHKE, I., VOIGT, A. & WENSCH, J. 2012 A finite element approach to incompressible two-phase flow on manifolds. J. Fluid Mech. 708, 418–438. ODEN, J.T. & SATO, T. 1967 Finite strains and displacements of elastic membranes by the finite element method. Intl J. Solids Struct. 3 (4), 471–488.
+OLSHANSKII, M.A., QUAINI, A., REUSKEN, A. & YUSHUTIN, V. 2018 A finite element method for the surface Stokes problem. SIAM J. Sci. Comput. 40 (4), A2429–A2518. OLSHANSKII, M.A., REUSKEN, A. & ZHILIAKOV, A. 2022 Tangential Navier–Stokes equations on evolving surfaces: analysis and simulations. Math. Models Meth. Appl. Sci. 32 (14), 2817–2852. OMAR, Y.A.D., SAHU, A., SAUER, R.A. & MANDADAPU, K.K. 2020 Non-axisymmetric shapes of biological membranes from locally induced curvature. Biophys. J. 119 (6), 1065–1077. RAHIMI, M. & ARROYO, M. 2012 Shape dynamics, lipid hydrodynamics, and the complex viscoelasticity of bilayer membranes. Phys. Rev. E 86 (1), 011932.
+1016 A34-44
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press
+
+
+Journal of Fluid Mechanics
+RANGAMANI, P., AGRAWAL, A., MANDADAPU, K.K., OSTER, G. & STEIGMANN, D.J. 2013 Interaction between surface shape and intra-surface viscous flow on lipid membranes. Biomech. Model. Mechanobiol. 12 (4), 833–845. RANGARAJAN, R. & GAO, H. 2015 A finite element method to compute three-dimensional equilibrium configurations of fluid membranes: optimal parameterization, variational formulation and applications. J. Comput. Phys. 297, 266–294.
+REUSKEN, A. 2020 Stream function formulation of surface Stokes equations. IMA J. Numer. Anal. 40 (1), 109–139. REUTHER, S., NITSCHKE, I. & VOIGT, A. 2020 A numerical approach for fluid deformable surfaces. J. Fluid Mech. 900 (R8), 1–12. REUTHER, S. & VOIGT, A. 2015 The interplay of curvature and vortices in flow on curved surfaces. Multiscale Model. Simul. 13 (2), 632–643.
+SAHU, A. 2024 Arbitrary Lagrangian–Eulerian finite element method for lipid membranes, arXiv, 2412.07596. SAHU, A., OMAR, Y.A.D., SAUER, R.A. & MANDADAPU, K.K. 2020 Arbitrary Lagrangian–Eulerian finite element method for curved and deforming surfaces: I. General theory and application to fluid interfaces. J. Comput. Phys. 407, 109253.
+SAHU, A., SAUER, R.A. & MANDADAPU, K.K. 2017 Irreversible thermodynamics of curved lipid membranes. Phys. Rev. E 96 (4), 042409.
+SAUER, R.A. 2014 Stabilized finite element formulations for liquid membranes and their application to droplet contact. Intl J. Numer. Meth. Fluids 75 (7), 519–545.
+SAUER, R.A. 2016 A contact theory for surface tension driven systems. Math. Mech. Solids 21 (3), 305–325. SAUER, R.A. 2018 On the computational modeling of lipid bilayers using thin-shell theory. In CISM Advanced School On the Role of Mechanics in the Study of Lipid Bilayers (ed. D. Steigmann), pp. 221–286. Springer. SAUER, R.A. & DUONG, T.X. 2017 On the theoretical foundations of solid and liquid shells. Math. Mech. Solids 22 (3), 343–371. SAUER, R.A., DUONG, T.X., MANDADAPU, K.K. & STEIGMANN, D.J. 2017 A stabilized finite element formulation for liquid shells and its application to lipid bilayers. J. Comput. Phys. 330, 436–466. SAUER, R.A., GHAFFARI, R. & GUPTA, A. 2019 The multiplicative deformation split for shells with application to growth, chemical swelling, thermoelasticity, viscoelasticity and elastoplasticity. Intl J. Solids Struct. 174-175, 53–68.
+SAUER, R.A., ZOU, Z. & HUGHES, T.J.R. 2024 A simple and efficient hybrid discretization approach to alleviate membrane locking in isogeometric thin shells. Comput. Meth. Appl. Mech. Engng 424, 116869. SCRIVEN, L.E. 1960 Dynamics of a fluid interface - equations of motion for Newtonian surface fluids. Chem. Engng Sci. 12 (2), 98–108. SIMO, J.C. & FOX, D.D. 1989 On a stress resultant geometrically exact shell model. Part I: formulation and optimal parameterization. Comput. Meth. Appl. Mech. Engng 72 (3), 267–304. STEIGMANN, D. 2018 Mechanics and physics of lipid bilayers. In CISM Advanced School On the Role of Mechanics in the Study of Lipid Bilayers (ed. D. Steigmann), pp. 1–61. Springer.
+STEIGMANN, D.J. 1999 Fluid films with curvature elasticity. Arch. Ration. Mech. Anal. 150 (2), 127–152. SUCHDE, P. 2021 A meshfree Lagrangian method for flow on manifolds. Intl J. Numer. Meth. Fluids 93 (6), 1871–1894. TORRES-SÁNCHES, A., MILLÁN, D. & ARROYO, M. 2019 Modelling fluid deformable surfaces with an emphasis on biological interfaces. J. Fluid Mech. 872, 218–271. WALKLEY, M.A., GASKELL, P.H., JIMACK, P.K., KELMANSON, M.A. & SUMMERS, J.L. 2005 Finite element simulation of three-dimensional free-surface flow problems with dynamic contact lines. Intl J. Numer. Meth. Fluids 47 (10–11), 1353–1359. WRIGGERS, P. 2001 Nichtlineare Finite-Element-Methoden. Springer.
+ZIMMERMANN, C., TOSHNIWAL, D., LANDIS, C.M., HUGHES, T.J.R., MANDADAPU, K.K. & SAUER, R.A. 2019 An isogeometric finite element formulation for phase fields on deforming surfaces. Comput. Meth. Appl. Mech. Engng 351, 441–477.
+1016 A34-45
+https://doi.org/10.1017/jfm.2025.10327 Published online by Cambridge University Press

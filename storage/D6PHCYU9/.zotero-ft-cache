@@ -1,0 +1,180 @@
+Received: 15 June 2023 Revised: 19 July 2023 Accepted: 23 August 2023
+DOI: 10.1002/pamm.202300014
+RESEARCH ARTICLE
+A surface finite element method for the Navier–Stokes
+equations on evolving surfaces
+Veit Krause1 Eric Kunze1 Axel Voigt1,2,3
+1Institute of Scientific Computing, TU Dresden, Dresden, Germany
+2Center for Systems Biology Dresden (CSBD), Dresden, Germany
+3Cluster of Excellence Physics of Life (PoL), Dresden, Germany
+Correspondence
+Axel Voigt, Institute of Scientific Computing, TU Dresden, Dresden, 01062, Germany. Email: axel.voigt@tu-dresden.de
+Funding information
+German Research Foundation
+Abstract
+We introduce a surface finite element method for the numerical solution of
+Navier–Stokes equations on evolving surfaces with a prescribed deformation of
+the surface in the normal direction. The method is based on approaches for the
+full surface Navier–Stokes equations in the context of fluid-deformable surfaces
+and adds a penalization of the normal component of the velocity. Numerical
+results demonstrate the same optimal order of convergence as proposed for sur
+face (Navier–)Stokes equations on stationary surfaces. The approach is applied to
+high-resolution three-dimensional scans of clothed bodies in motion to provide
+interactive virtual fluid-like clothing.
+1 INTRODUCTION
+Fluid deformable surfaces are ubiquitous interfaces in biology, playing an essential role in processes from the subcellular to the tissue scale. For instance, lipid membranes are fluidic thin sheets that define the boundaries of cells and compartmentalize them. From a mechanical point of view, lipid membranes are soft materials exhibiting a solid–fluid duality: while they store elastic energy when stretched or bent, like solid shells, under in-plane shear, they flow as two-dimensional, viscous fluids (see [1–4]). With this solid–fluid duality any shape change contributes to tangential flow and vice versa any tangential flow on a curved surface induces shape deformations. The mathematical description of fluid deformable surfaces has been introduced in [1, 2, 5, 6] and is numerically solved in [1–4]. We here consider a simplified model with a prescribed deformation of the surface. What remains to solve is the fluid part, the Navier–Stokes equations on evolving surfaces. Two different numerical approaches exist for this problem: a surface finite element method for a vorticity-stream function formulation [7, 8] and surface or trace finite element methods in the principal variables [9–11]. Both approaches are based on a splitting of the velocity in a tangential and a normal component and solely address the resulting tangential Navier–Stokes equations. We here propose a different approach, which is based on the full problem of the velocity and penalization of the normal component to the prescribed velocity. In contrast with approaches [7–11] treating the surface Navier–Stokes equations for the tangential component, we believe that the approach, which is presented in the following, is advantageous as the formulation is simpler and we expect analytical results for stationary surfaces to be applicable. Besides the numerical features of this approach, we demonstrate the applicability of the approach for realistic virtual clothing (see Figure 1). High-resolution three-dimensional (3D) scans of clothed bodies in motion from the CAPE project [12, 13] provide the raw data for the prescribed normal velocity. This motion induces tangential flow, which is visualized to create virtual interactive clothing. For a detailed explanation of the pre- and postprocessing, we refer to [14].
+This is an open access article under the terms of the Creative Commons Attribution-NonCommercial-NoDerivs License, which permits use and distribution in any medium, provided the original work is properly cited, the use is non-commercial and no modifications or adaptations are made. © 2023 The Authors. Proceedings in Applied Mathematics & Mechanics published by Wiley-VCH GmbH.
+Proc. Appl. Math. Mech. 2023;23:e202300014. wileyonlinelibrary.com/journal/pamm 1 of 8 https://doi.org/10.1002/pamm.202300014
+
+
+KRAUSE et al. 2 of 8
+F I G U R E 1 Snapshots of a clothed body in motion with virtual fluid-like clothing. The fluid flow is induced by the motion and visualized by a line integral convolution (LIC) filter with color coding the magnitude of the tangential part of the velocity Pu.
+The paper is structured as follows. We introduce the notation and the surface operators and explain the integration of the constraint into the full surface Navier–Stokes equations in Section 2. In Section 3, we explain an approach for area conservative surface movement with mesh regularization and discretization of the model by surface finite elements . Based on this, we show numerical convergence studies and simulation results in Section 4. In Section 5, we draw conclusions.
+2 SURFACE NAVIER–STOKES EQUATIONS ON EVOLVING SURFACES
+We consider a time-dependent smooth domain Ω = Ω(t) ⊂ R3, and its boundary  = (t), which is given by a parameterization X. Related to , we denote the surface normal ν, the shape operator B = −∇Cν, the mean curvature  = tr B,
+and the surface projection P = I − ν ⊗ ν, where I is R3-identity matrix. Let u be a continuously differentiable R3-vector field and σ a continuously differentiable R3×3-tensor field defined on . As in [4, 15, 16], we define the surface tangential gradient ∇P and the componentwise surface gradient ∇C by ∇Pu = P∇ueP and ∇Cσ = ∇σeP, where ue and σe are arbi
+trary smooth extensions of u and σ in the normal direction and ∇ is the gradient of the embedding space R3. We define the corresponding divergence operators by divPu = tr(∇Pu) and divC(σP) = tr ∇C(σP), where tr is the trace operator. The last leads to a nontangential vector field even if σ is a tangential tensor field. The operator divP relates to the covariant divergence by divPu = div Pu − uν (see [16]). On the surface , we consider the material velocity u. Similar to [2–4], we use a Lagrangian description in the normal direction and an Eulerian description in the tangential direction where the material relates to the surface by ∂tXν = uν. We write the material derivative in the form ̇u = ∂tu + ∇wu where w = u − ∂tX is the relative material velocity [16, 17].
+We define the viscous stress tensor σ = 1
+2 (∇Pu + ∇PuT) as in [1, 3, 4, 15, 18] and consider the full surface Navier–Stokes
+equations [2–4, 15]
+∂tu + ∇wu = −∇ p − pν + 2
+Re divCσ + b
+divPu = 0
+(1)
+with pressure p, possible forcing term b, and Reynolds number Re. In the following, we assume that the normal velocity of the surface  is given. This leads to the constraint u ⋅ ν = . However,  cannot be arbitrary. With the identities described
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+3 of 8
+above the local inextensibility constraint divPu = 0 implies
+0 = ∫
+divPu = ∫
+div Pu −  = − ∫
+. (2)
+This leads to the condition  ∈ { ∈ H1()| ∫  = 0}. In other words, the given normal velocity  has to fulfill global area conservation. We add the constraint to the formulation of the surface Navier–Stokes equations (1) by an L2-penalization term leading to
+∂tu + ∇wu = −∇ p − pν + 2
+Re divCσ + b + β(uν − )ν
+divPu = 0
+(3)
+with β > 0 a penalization parameter. The approach has similarities with previous approaches to solve the surface NavierStokes equations or other vector-valued surface partial differential equations on stationary surfaces [2, 15, 18–24]. In these approaches, penalization of the normal component is used to ensure tangentiality of an R3-vector field u by β(u ⋅ ν − 0)ν. A general error analysis for this approach is done in [25]. Here we extend this concept for the penalization to a given scalar field and assume to obtain the same convergence results as in [25]. Compared to [7–10], where an equation for the tangential velocity is solved, a solution of Equation (3) fulfills the normal constraint only up to penalization error. We consider an experimental convergence study of this error in Section 4.
+3 NUMERICAL APPROACH
+3.1 Surface representation
+In the following, we assume a piecewise smooth approximation h of the surface . Let lin
+h be a piecewise linear reference
+surface given by shape regular triangulation  lin and X a bijective map X ∶ lin
+h →  such that  = ⋃
+̂T∈ lin X( ̂T). The construction of such maps is discussed in [18, 26].
+By the kth-order interpolation Xk = Ik(X), we get a piecewise polynomial surface h = ⋃
+̂T∈ lin Xk( ̂T). We use each
+geometrical quantity, like the normal vector νh, the shape operator Bh and the inner product (⋅, ⋅)h, with respect to h. We
+denote the size of the grid by h, that is, the longest edge of the mesh. We discretize the surface in time at timesteps tn by n
+h = h(tn), where the normal vector νh is chosen with respect to Sn
+h and we define a discrete function space Vk(n
+h) =
+{v ∈ C0(h)| v|T ∈ Pk(T)}.
+3.2 Surface evolution with area conservation
+To test our approach, we need to specify a surface evolution that fulfills the global area constraint. For a given 0() ∈ H1, we can construct a surface evolution with global area constraint by
+() = 0() − ∫ 0()
+∫  (4)
+as discussed in [27]. The surface can then be moved by ∂tX = ()ν a purely normal movement. Alternatively, the surface evolution can be combined with a numerical approach for mesh regularization as presented in [27]
+∂tXν = ()
+ν = ΔCX.
+(5)
+In addition to the normal movement of the surface, we get a tangential movement which leads to mesh regularization after surface discretization. Moreover, we get a representation of the mean curvature  which is discussed by [28–31], and
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+KRAUSE et al. 4 of 8
+it can be used for a numerically stable time discretization. The quality of this approach is discussed for mean curvature flow  =  and surface diffusion  = Δ  in [27] and used for fluid deformable surfaces in [3, 4] by  = u ⋅ ν. Here this
+approach is used for the global area conserving velocity . At each timestep tn = nτ with τ > 0, we solve Equations (5) and (4). To do so, we insert the surface update Yn+1 = Xn+1
+k − Xn
+k in Equation (5) to find Yn+1 ∈ Vk(n
+h )3 and n+1 ∈ Vk(n
+h ).
+The nonlinear system is solved by an iteration over j > 0 of the linear system
+(Yj+1νh, w) = τ
+(
+0(j+1) −
+j ∑
+l=1
+∫n Ylνhl
+τ ∫n l , w
+)
+(j+1νh, Z)h + (∇CYj+1, ∇CZ)h = −(∇CXn, ∇CZ)h
+(6)
+with appropriate test functions w and Z until the error | ∫n Yj+1νhj+1∕ ∫n j+1| < τε, with ε > 0 a small tolerance.1
+After breaking the tolerance, we set Yn+1 = Yj+1 and n+1 = j+1 and compute the new surface n+1.
+3.3 Discretization of the surface Navier–Stokes equations
+The numerical approach closely follows [3]. However, as n+1 is known we can discretize the surface Navier–Stokes equations (3) in each time step with respect to the new surface n+1 to find the new velocity un+1 ∈ Vk(n+1
+h )3 and new
+pressure pn+1 ∈ Vk−1(n+1
+h ). We consider the Taylor–Hood element with k = 3. In each timestep, we solve the linear equations
+(un+1 + τ∇wn un+1, v)h =( ̂un, v)h + (τpn+1, divPv)h − 2τ
+Re (σn+1, ∇Pv)h + (τb, v)h
++ βnτ(un+1νh − n+1, vνh)h
+(divPun+1, q)h =0,
+(7)
+where wn = ̂un − 1
+τ Yn+1, with ̂un the lift of un defined on n to n+1. We use the penalization parameter βn = β0h−2
+with β0 = 100. The scaling with mesh size h guarantees optimal order of convergence in the corresponding case for stationary surfaces [25]. Compared to the computations in [3, 4] here, the fluid velocity fulfills the inextensibility constraint divPun+1 = 0 and the normal constraint un+1 ⋅ νh = n+1 with respect to the new surface n+1 up to numerical errors.
+3.4 Comments on the implementation
+Implementation is done by the finite element framework AMDiS [32, 33] based on DUNE [34, 35] using the grid manager AluGrid [36] and the CurvedGrid library [26]. All linear systems are solved by a direct solver using the external library PETSc.
+4 RESULTS
+4.1 Flow on a perturbed sphere
+We initialize the surface  by the parameterization of the unit sphere and define the given normal velocity by 0() =
+α + sin(πt)x2
+0 + sin(2πt)x2
+1 with α = 1e − 3, which is time-periodic on the interval [0,2). The polynomial order for the
+surface and the Taylor–Hood element is k = 3. The evolution of the surface is done by Equations (6) and the NavierStokes equation by Equations (7). In Figure 2A, the evolution of the surface is shown for the initial fluid velocity u0 = 0.
+In Figure 2B, we show the kinetic energy Ekin = ∫ ‖u‖2 for different Reynolds numbers Re. The energy is independent
+1 We note a typing error in [3], which has been confirmed by the authors.
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+5 of 8
+F I G U R E 2 (A) Snapshots of the surface at t = 0, 0.25, 0.5, 0.75, 1. Visualized is the tangential velocity Pu by a LIC Filter and its magnitude by the color coding. (B) Kinetic energy Ekin over time for different Reynolds numbers. (C,D) The convergence study for the incompressible error and normal error.
+F I G U R E 3 Snapshots of the surface at t = 0, 0.25, 0.5, 0.75, 1 initialized with random initial value for different Reynolds numbers. Visualized is the tangential flow Pu by a LIC Filter and its magnitude by the color coding.
+of Re which indicates that the induced flow is independent too. By following the stream-function formulation in [7, 8], the solution of the surface Navier–Stokes equations (3) can be decomposed orthogonally into a div -free and divP-free component where the divP-free component is defined by a Laplace equation and independent from the initial value on the tangential flow or Re in the case of a given normal velocity. In Figure 3, the same simulation is done for a random initial value for the fluid flow. Compared to the results in Figure 2, there is an additional component of the fluid velocity visible and for a lower Re the fluid velocity is larger. We define the incompressibility error edivP = ‖ divPu‖L∞(L2) and the normal approximation error eN = ‖uν − ‖L∞(L2). In Figure 2, a convergence study is done which confirms third-order convergence with respect to both errors. The results as before edivP are similar to the results of [2, 3, 18, 37], and according to [25] third-order convergence of eN is optimal by using the surface normal ν in the penalization term.
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+KRAUSE et al. 6 of 8
+4.2 Fluid-like virtual clothing
+The physical coupling between normal deformation and tangential flow provides an attractive approach for interactive patterns in virtual fashion. Any body movement leads to the deformation of the clothing, which translates into “tangential flow,” which can be visualized as interactive patterns. A realization of this idea requires dressing virtual avatars and animating them with high quality. Highly realistic physical simulation of clothing on human bodies in motion is a challenging task. Therefore, we do not address this approach but instead use a data-driven approach capturing dynamic clothing on humans from four-dimensional (4D) scans (see CAPE project [12]). CAPE is a Graph-CNN based generative model for dressing 3D meshes of the human body. It is compatible with the popular body model, SMPL and can be generalized to diverse body shapes and body poses. The CAPE Dataset [13] provides SMPL mesh registration of 4D scans of people in clothing, along with registered scans of the ground truth body shapes under clothing. Using this dataset requires various preprocessing steps. The provided dataset Xn
+0 does not fulfill the global area constraint within the required accuracy. We modify the dataset using an approach similar to Equation (6). The second necessity for preprocessing results from the linear nature of the dataset. SMPL and also almost all other popular body models use flat triangles, which is not sufficient for the numerical solution of the surface Navier–Stokes equations. The considered Taylor–Hood element with k = 3 requires a surface mesh with at least order k = 3 to guarantee convergence [25]. The construction of higher order surface meshes is realized by local Gaussian smoothing. Details on these preprocessing steps are explained in [14]. With the modified data, we define n = (Xn
+k − Xn−1
+k )∕τ and compute the induced fluid flow u on the hole surface h by solving Equation (7). Figure 1 shows an example of such a dressed 3D mesh in motion with the induced tangential flow. As in the previous examples, the simulation is done with the polynomial order of the surface and the Taylor–Hood element k = 3. To only visualize the flow field on the clothing, we use a classifier φ to define the subdomain cl = {x ∈ |φ(x) > δ}. where δ is a specific threshold. The construction of such classifiers is explained in [13]. In Figure 1, the flow field is simply visualized only on cl. While this example only demonstrates the principle applicability of virtual interactive clothing, a realization of this concept in the booming market of virtual fashion requires further developments.
+5 CONCLUSIONS
+Based on numerical approaches for fluid deformable surfaces, we propose a surface finite element method to solve the surface Navier–Stokes equations on evolving surfaces with a prescribed evolution in the normal direction. Similar to the penalization of the normal component in approaches to solve vector- and tensor-valued surface partial differential equations [2, 15, 18–24], we penalize the deformation of the surface in the normal direction. The numerical results at least demonstrate the same convergence properties. However, a detailed comparison of the different approaches and an extension of the numerical analysis remains to be done. Interesting findings are the constraint on the prescribed normal velocity to be globally area conserving (see Equation (2) and the result in Figure 2 that the evolution is independent of the Reynolds number Re). The robustness of the approach allows us to apply it on more advanced surface meshes. We demonstrate the principle applicability of the approach on high-resolution 3D scans of clothed bodies in motion from the CAPE project [12, 13] to generate interactive virtual fluid-like clothes. The approach builds on a multicloth 3D model of the body and clothing. While the numerical solution requires various preprocessing steps, the approach is general and also can be applied to other body models or physical simulations of clothing. In principle, this paves the way for virtual fashion design going beyond rebuilding realistic garments in the virtual world.
+ACKNOWLEDGMENTS
+We acknowledge computing resources provided by ZIH at TU Dresden and by JSC at FZ Jülich, within projects WIR and PFAMDIS, respectively. This work was supported by the German Research Foundation (DFG) within the Research Unit “Vector- and Tensor-Valued Surface PDEs” (FOR 3013). We further acknowledge the CAPE project for providing their 3D data of clothed bodies in motion. Open access funding enabled and organized by Projekt DEAL.
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+7 of 8
+DATA AVA I L A B I L I T Y STAT E M E N T
+Data that support the findings of this study are available from the corresponding author upon reasonable request.
+ORCID
+Veit Krause https://orcid.org/0009-0006-3437-5902 Axel Voigt https://orcid.org/0000-0003-2564-3697
+REFERENCES
+1. Torres-Sánchez, A., Millán, D., & Arroyo, M. (2019). Modelling fluid deformable surfaces with an emphasis on biological interfaces. Journal of Fluid Mechanics, 872, 218–271.
+2. Reuther, S., Nitschke, I., & Voigt, A. (2020). A numerical approach for fluid deformable surfaces. Journal of Fluid Mechanics, 900, R8. 3. Krause, V., & Voigt, A. (2023). A numerical approach for fluid deformable surfaces with conserved enclosed volume. Journal of Computational Physics, 486, 112097. 4. Bachini, E., Krause, V., Nitschke, I., & Voigt, A. (2023). Derivation and simulation of a two-phase fluid deformable surface model. arXiv. https://doi.org/10.48550/arXiv.2305.15147 5. Arroyo, M., & DeSimone, A. (2009). Relaxation dynamics of fluid membranes. Physical Review E, 79, 031915. 6. Salbreux, G., & Jülicher, F. (2017). Mechanics of active surfaces. Physical Review E, 96, 032404. 7. Reuther, S., & Voigt, A. (2015). The interplay of curvature and vortices in flow on curved surfaces. Multiscale Modeling and Simulation, 13, 632–643. 8. Reuther, S., & Voigt, A. (2018). Erratum: “The interplay of curvature and vortices in flow on curved surfaces.” Multiscale Modeling and Simulation, 16, 1448–1453.
+9. Nitschke, I., Reuther, S., & Voigt, A. (2019). Hydrodynamic interactions in polar liquid crystals on evolving surfaces. Physical Review Fluids, 4, 044002.
+10. Olshanskii, M., Reusken, A., & Zhiliakov, A. (2022). Tangential Navier-Stokes equations on evolving surfaces: Analysis and simulations. arXiv. https://doi.org/10.48550/arXiv.2203.01521
+11. Olshanskii, M., Reusken, A., & Schwering, P. (2023). An Eulerian finite element method for tangential Navier-Stokes equations on evolving surfaces. arXiv. https://doi.org/10.48550/arXiv.2302.00779 12. Pons-Moll, G., Pujades, S., Hu, S., & Black, M. (2017). Clothcap: Seamless 4D clothing capture and retargeting. ACM Transactions on Graphics, (Proc. SIGGRAPH), 36, 1–15.
+13. Ma, Q., Yang, J., Ranjan, A., Pujades, S., Pons-Moll, G., Tang, S., & Black, M. J. (2020). Learning to dress 3D people in generative clothing. Computer Vision and Pattern Recognition (CVPR), 6469–6478.
+14. Kunze, E. (2023). Flexible Strukturen und indizierte Oberflächenströmungen (Master’s thesis). TU Dresden, Institute of Scientific Computing. 15. Jankuhn, T., Olshanskii, M. A., & Reusken, A. (2018). Incompressible fluid problems on embedded surfaces: Modeling and variational formulations. Interfaces and Free Boundaries, 20, 353–377. 16. Nitschke, I., Sadik, S., & Voigt, A. (2022). Tangential tensor fields on deformable surfaces – How to derive consistent L2-gradient flows. arXiv. https://doi.org/10.48550/arXiv.2209.13272
+17. Nitschke, I., & Voigt, A. (2023). Tensorial time derivatives on moving surfaces: General concepts and a specific application for surface Landaude Gennes models. arXiv. https://doi.org/10.48550/arXiv.2304.07220 18. Brandner, P., Jankuhn, T., Praetorius, S., Reusken, A., & Voigt, A. (2022). Finite element discretization methods for velocity-pressure and stream function formulations of surface Stokes equations. SIAM Journal of Scientific Computing, 44, A1807–A1832. 19. Nestler, M., Nitschke, I., Praetorius, S., & Voigt, A. (2018). Orientational order on surfaces: The coupling of topology, geometry, and dynamics. Journal of Nonlinear Science, 28, 147–191.
+20. Nitschke, I., Nestler, M., Praetorius, S., Löwen, H., & Voigt, A. (2018). Nematic liquid crystals on curved surfaces: A thin film limit. Proceedings of the Royal Society A, 474, 20170686.
+21. Reuther, S., & Voigt, A. (2018). Solving the incompressible surface Navier-Stokes equation by surface finite elements. Physics Fluids, 30, 012107. 22. Nestler, M., Nitschke, I., & Voigt, A. (2019). A finite element approach for vector- and tensor-valued surface PDEs. Journal of Computational Physics, 389, 48–61.
+23. Hansbo, P., Larson, M. G., & Larsson, K. (2020). Analysis of finite element methods for vector Laplacians on surfaces. IMA Journal of Numerical Analysis, 40, 1652–1701.
+24. Bachini, E., Brandner, P., Jankuhn, T., Nestler, M., Praetorius, S., Reusken, A., & Voigt, A. Diffusion of tangential tensor fields: Numerical issues and influence of geometric properties. Journal of Numerical Mathematics. https://doi.org/10.1515/jnma-2022-0088 25. Hardering, H., & Praetorius, S. (2023). Tangential errors of tensor surface finite elements. IMA Journal of Numerical Analysis, 43, 1543–1585. 26. Praetorius, S., & Stenger, F. (2020). DUNE-CurvedGrid–A DUNE module for surface parametrization. Archive of Numerical Software, 22, 1–22. 27. Barrett, J. W., Garcke, H., & Nürnberg, R. (2008). On the parametric finite element approximation of evolving hypersurfaces in IR3. Journal of Computational Physics, 227, 4281–4307.
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+KRAUSE et al. 8 of 8
+28. Dziuk, G. (1990). An algorithm for evolutionary surfaces. Numerische Mathematik, 58, 603–611. 29. Bänsch, E., Morin, P., & Nochetto, R. H. (2005). A finite element method for surface diffusion: the parametric case. Journal of Computational Physics, 203, 321–343.
+30. Haußer, F., & Voigt, A. (2007). A discrete scheme for parametric anisotropic surface diffusion. Journal of Scientific Computing, 30, 223–235. 31. Dziuk, G. (2008). Computational parametric Willmore flow. Numerische Mathematik, 111, 55–80. 32. Vey, S., & Voigt, A. (2007). AMDiS: adaptive multidimensional simulations. Computing and Visualization in Science, 10, 57–67. 33. Witkowski, T., Ling, S., Praetorius, S., & Voigt, A. (2015). Software concepts and numerical algorithms for a scalable adaptive parallel finite element method. Advances in Computational Mathematics, 41, 1145–1177. 34. Sander, O. (2020). Dune : The distributed and unified numerics environment. Springer Cham.
+35. Bastian, P., Blatt, M., Dedner, A., Dreier, N. A., Engwer, C., Fritze, R., Gräser, C., Grüninger, C., Kempf, D., Klöfkorn, R., Ohlberger, M., & Sander, O. (2021). The DUNE framework: Basic concepts and recent developments. Computers & Mathematics with Applications, 81, 75–112. 36. Alkämper, M., Dedner, A., Klöfkorn, R., & Nolte, M. (2016). The DUNE-ALUGrid module. Archive of Numerical Software, 4, 1–28. 37. Bachini, E., Krause, V., & Voigt, A. (2023). The interplay of geometry and coarsening in multicomponent lipid vesicles under the influence of hydrodynamics. Physics Fluids, 35, 042102.
+How to cite this article: Krause, V., Kunze, E., & Voigt, A. (2023). A surface finite element method for the Navier–Stokes equations on evolving surfaces. Proceedings in Applied Mathematics and Mechanics, 23, e202300014. https://doi.org/10.1002/pamm.202300014
+16177061, 2023, 3, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/pamm.202300014 by Bibliothèque de Sorbonne Université, Wiley Online Library on [16/09/2025]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License

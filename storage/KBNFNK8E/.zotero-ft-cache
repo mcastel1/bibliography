@@ -1,0 +1,458 @@
+Numerical Solution of the Navier-Stokes Equations Author(s): Alexandre Joel Chorin Source: Mathematics of Computation , Oct., 1968, Vol. 22, No. 104 (Oct., 1968), pp. 745762 Published by: American Mathematical Society Stable URL: https://www.jstor.org/stable/2004575 REFERENCES Linked references are available on JSTOR for this article: https://www.jstor.org/stable/2004575?seq=1&cid=pdfreference#references_tab_contents You may need to log in to JSTOR to access the linked references.
+JSTOR is a not-for-profit service that helps scholars, researchers, and students discover, use, and build upon a wide range of content in a trusted digital archive. We use information technology and tools to increase productivity and facilitate new forms of scholarship. For more information about JSTOR, please contact support@jstor.org. Your use of the JSTOR archive indicates your acceptance of the Terms & Conditions of Use, available at https://about.jstor.org/terms
+American Mathematical Society is collaborating with JSTOR to digitize, preserve and extend access to Mathematics of Computation
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+Numerical Solution of the Navier-Stokes Equations*
+By Alexandre Joel Chorin
+Abstract. A finite-difference method for solving the time-dependent NavierStokes equations for an incompressible fluid is introduced. This method uses the primitive variables, i.e. the velocities and the pressure, and is equally applicable to problems in two and three space dimensions. Test problems are solved, and an application to a three-dimensional convection problem is presented.
+Introduction. The equations of motion of an incompressible fluid are
+datui + ujju= --dip + vV2ui + Ei, (v E ) djuj =O,
+where ui are the velocity components, p is the pressure, p the components of the external forces per unit mass, v is the viscosity, t is the time, and the indices i, j refer to the space 1, 2, 3. i denotes differentiation with respect to xi, and respect to the time t. The summation convention is used i
+We write
+Ut=u 7 X d ' povU)
+where U is a reference velocity, and d a reference length. We t The equations become
+(1) 9tui + Rujajui = -aip + V2ui + Et, (2) (9j=O, where R = Ud/v is th
+difference method for or three-dimensional use of Eqs. (1) and (2) possible to solve the while achieving adequ three space variables which such claims can be made.
+Received February 5, 1968. * The work presented in this report is supported by the AEC Computing and Applied Mathe-
+matics Center, Courant Institute of Mathematical Sciences, New York University, under Contract AT(30-1)-1480 with the U. S. Atomic Energy Commission.
+745
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+746 ALEXANDRE JOEL CHORIN
+Principle of the Method. Equation (1) can be written in the form
+(1)' a tui + 9ip = 5;, where 5Yu depends on ui and E; b yield
+(2)' a0(a.u) = 0.
+The proposed method can be summarized as follows: the time t is discretized; at every time step 5 u is evaluated; it is then decomposed into the sum of a vector with zero divergence and a vector with zero curl. The component with zero divergence is a tui, which can be used to obtain ui at the next time level; the component with zero curl is Op. This decomposition exists and is uniquely determined whenever the initial value problem for the Navier-Stokes equations is well posed; it has also been extensively used in existence and uniqueness proofs for the solution of these equations (see e.g. [1]).
+Let u , p denote not only the solution of (1) and (2) but also its discrete approximation, and let Du be a difference approximation to 9juj. It is assumed that at time t = n At a velocity field uin is given, satisfying Dun = 0. The task at hand is to evaluate Uin+l from Eq. (1), SO that Dun+l 0.
+Let Tu,i bu,n+l - Bui approximate a tu i, where b is a constant and But a suitable linear combination of uin-i j > 0. An auxiliary field uZaux is first evaluated
+through
+(3) buiaux - Bui = Fiu
+where Fiu approximates 5Yju. U,aux dif and Eq. (2) have not been taken into ac plicit scheme, i.e. F,-u may depend on U u**. bu aux - Bui now approximates 5Yj
+on At.
+Let Gip approximate 9ip. To obtain ui2+l, pn+l it is necessary to perform the
+decomposition
+Fiu buiaux - Bui = Tui + Gpn?+l D(Tu) = 0.
+It is, however, assumed that DUn-i = 0, j > 0. It is necessary therefore only to perform the decomposition
+(4) uiaux - u_+l + b-lG,pn+1 where Duin+l = 0, and Uin+l satisfies the prescribed pn is usually available and is a good first guess for position (4) is probably best done by iteration. For that purpose we introduce the following iteration scheme:
+(5a) uinl,m+l = Uiaux -b-IGimp m > 1i (5b) pnfl+1 = pn+lm- XDU+l,m+l, m > 1,
+where X is a parameter, u 8n+1m+l and pn+l, m+1 are s uI+l, pn+l, and G1mp is a function of pn+lrn+l and pn+l,, w as Ipn+l, m+l - pn+l ml tends to zero. We set
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 747
+
+pn+1,1 = pn
+The iterations (5a) are to be performed in the interior of D, and the iterations (5b) in D and on its boundary.
+It is evident that (5a) tends to (4) if the iterations converge. We are using Gimp instead of Gip in (5a) so as to be able to improve the rate of convergence the iterations. This will be discussed in detail in a later section. The form of Eq. (5b) was suggested by experience with the artificial compressibility method [2] where, for the purpose of finding steady solutions of Eqs. (1) and (2), p was related to ui by the equation
+'3tp = constant (a u3).
+When for some 1 and a small predetermined constant e
+
+max ip n+1, 1+1- _n+l,11 < E
+
+we set
+
+u n+ = U n+1, 1+1 pn+l = pnl, 1+1
+
+The iterations (5) ensure that Eq. (1), including the pressure term, is satisfied inside D, and Eq. (2) is satisfied in D and on its boundary.
+The question of stability and convergence for methods of this type has not been fully investigated. I conjecture that the over-all scheme which yields u,n+1 in terms of u n is stable if the scheme
+Tut =Fu
+
+is stable. The numerical evidence lends support to this conjecture. We shall now introduce specific schemes for evaluating U,aux and specific rep-
+resentations for Du, Gip, Gimp. Many other schemes and representations can be found. The ones we shall be using are efficient, but suitable mainly for problems in which the boundary data are smooth and the domain D has a relatively simple
+shape.
+
+Evaluation of uxUX. We shall first present schemes for evaluating ulux, defined by (3).
+Equation (3) represents one step in time for the solution of the Burgers equation
+atui =iu
+which can be approximated in numerous ways. We have looked for schemes which are convenient to use, implicit, and accurate to O( At) + 0 (Ax2), where Ax is one of the space increments Axi, i = 1, 2, 3. Implicit schemes were sought because explicit ones typically require, in three space dimensions, that
+At < 6\Ax2
+which is an unduly restrictive condition. On the other hand, implicit schemes of accuracy higher than O( At) would require the solution of nonlinear equations atevery step, and make it necessary to evaluate U,aux and u!n+l simultaneously
+
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+748 ALEXANDRE JOEL CHORIN
+rather than in succession. Since we assume throughout that At = O( Ax2), the gain in accuracy would not justify the effort.
+Two schemes have been retained after some experimentation. For both of them Tu_ (U-n+l - U,n)/ At, (b-1 At, Bu, u i/ At).
+They are both variants of the alternating direction implicit method. (A) In two-dimensional problems we use a Peaceman-Rachford scheme, as
+proposed by Wilkes in [3] in a different context. This takes the form
+UI(q,r) = Ui(q,r) - 4RAxA1 t Ui(q,r) (U(q+1,r) - (q-1,O)
+- R U2(q,r) (U(q,r+l) - Ui(q,r-1))
+(6a) + 2Ax12 (uq(2+i,r + U<(ql,r) - 2Ubt(q,r))
++ 2AxE2 (u0(7 r+1) + Ui(qr-1r) - 2U0
+2At
+At * n
+Uaq~~~ (q,r= *, -R 4Ax2 U2(q, r)(U*(q+l, r)-*(1l) -
+(6b) ? A ^t 2(*z+lr)+ *(q.l, r) - U*(q,r) )
++ 2, 2 r+l) + Ui(q,r1) - 2Ue(q,r))
+At
+where u* are auxiliary fields, a4nAdX2 U(q,r) = u (q Ax, r Ax2). As usual, the onedimensional systems of algebraic equations can be solved by Gaussian elimination.
+** =U~(qr,s)- RAt
+(B) In two-dimensional and three-dimensional problems we use a variant of the alternating direction method analyzed by Samarskii in [4]. This takes the form
+U*(q,r,s) - At Ui(q,r,s) - R 2Ax1 U2(q,r,s) (Ui(q+1r,s) -i(4q1,r1s))
++ At (8X4q?i,r,s) 4 14q_ lr.s) -2U2(q,r,s))
+U(qr,S) 2AxS 2 U(q1r,s) (Ut(q1r+l,s) -U*(q,r)) + A2 (Ui.*,rl) + Uiq.,r41) - 2Uux,r*))
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-SROKES EQUATIONS 749
+
+a~ux ** - ___ ** aux
+U7i(q, r, s) =
+
+U
+
+i(q,
+
+r
+
+A\t aux aux u
++ AA (UiX (q,3 r,s2+1-q) + ,Usi(q,r,s-1) - 2uxr,s))
++ AttEi(q,,r, s)
+Ui(q,r,s) -Ui(qAxi, rAX2, SAX3) , Ei(q,r,s) =Ei (qAx1, rAX2, SAX3). ui*, ui** are auxiliary fields. These equations can be written in the symbolic form
+(I - AtQ,)U,* = Un (7) (I- AtQ2)ui** = ui* M
+(I- AtQ3)U aux gU** + AtEi,
+where I is the identity operator, and Q, involves differentiations with respect to the variable xi only.
+It can be verified that when R = 0 scheme (6) is accurate to O( At2) + O( Ax2). When R # 0 however, they are both accurate to the same order. Scheme (7) is stable in three-dimensional problems; the author does not know of a simple extension of scheme (6) to the three-dimensional case. Scheme (7) has two useful properties: It requires fewer arithmetic operations per time step than scheme (6), and because of the simple structure of the right-hand sides, the intermediate fields ui*, ui** do not have to be stored separately.
+If either scheme is to be used in a problem in which the velocities uin+1 are prescribed at the boundary, values of vi*, u **, u aux at the boundary have to be provided in advance so that the several implicit operators can be inverted. Consider the case of the scheme (7). We have
+i n+1= (I + AtQ1 + AtQ2 + AtQ3)U n + XtEi - AtG pn + O(At2)X vi*= (I + 4AtQ,)Uin + O(At2),
+i**= (I + AtQ1 + AtQ2)U n + O(At2)X Uiaux = (I + AtQ1 + AtQ2 + AtQ3)U n + AtEi + O(At2).
+From these relations it can be deduced that if we set at the boundary
+M*= U -n+l A AtQ2u n+l - AtQ3U.n+l - AtEi + At?ip, (8) Ui** - t +- AMtQ3uin+1- AtJA + AtGUp,
+U, aux = Un+l + AtGip,
+the scheme will remain accurate to O(At). Here Gi does not have to be identical with Gj; all we need is
+Gipn = G pn + 0( At).
+The reason for introducing the new operator G. is that at the boundary the normal component of Gi has to be approximated by one-sided differences, while this is not necessary in the interior of the domain D where Eq. (4) is assumed to hold.
+More accurate expressions for the auxiliary fields at the boundaries can be
+
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+750 ALEXANDRE JOEL CHORIN
+used, provided one is willing to invest the additional programming effort required to implement them on the computer. Appropriate expressions for ui*, uiauX at the boundary can be derived for use with the scheme (6).
+It should be noted that for problems in which the viscosity is negligible, it is possible to devise explicit schemes accurate to O( At2) + O( Ax2) and stable when At = O( Ax). Such schemes will be discussed elsewhere.
+The Dufort-Frankel Scheme and Successive Point Over-Relaxation. In order to explain our construction of D, Gim and our choice of X for use in (5a) and (5b),,
+we need a few facts concerning the Dufort-Frankel scheme for the heat equationand its relation to the relaxation method for solving the Laplace equation.
+Consider the equation
+(9) -V2u= =f, (2 12 +,012)
+in some nice domain D, say a rectangle. u is assumed known on the boundary of D. We approximate this equation by
+(10) -Lu f
+where L is the usual five-point approximation to the Laplacian, and u and f arenow m-component vectors. m is the number of internal nodes of the resulting difference scheme. For the sake of simplicity we assume that the mesh spacings in the. xi and X2 directions are equal, Ax, = Ax2 Ax; this implies no essential restric, tion. The operator -L is represented by an m X m matrix A.
+We write
+A-=A'-E-E'
+where E, E' are respectively strictly upper and lower triangular matrices, and 4/ is diagonal. The convergent relaxation iteration scheme for solving (10) is defined by (11) (A' - cE)un+]' =(1 - c)A' + cE'}un + wf
+(see e.g. Varga [5]). w is the relaxationi factor, 0 < co < 2, and the un are the successive iterates. The evaluation of the optimal relaxation factor wo0,t depends on the fact that A satisfies "Young's condition (A)," i.e. that there exists a permuta-. tion matrix P such that
+(12) P1AP=A-N,
+where A is diagonal, and N has the normal form
+/0 G\
+the zero submatrices being square. Under this condition
+termined. The matrix A depends on the order in which the components of un+1 are com-
+puted from un. Changing that order is equivalent to transforming A into P-'AP, where P is a permutation matrix.
+We now consider the solution of (14) to be the asymptotic steady solution of
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 751
+(13) OTU V2U + f and approximate the latter equation by the Dufort-Frankel scheme
+Uq, r - Uq,= 2A (u+q + Uq_l,r + Uq,r+i + Uq,r-1 2u' - 2n-1) + 2ArTf
+AUqx, 2r~-uAUjqAqXA,xn,TrArx2, EAr) which approximates (13) when At = o( Ax). Grouping terms, we obtain
+(1I4 1+)4 XA 2 )UT q,r -nI1U 4 Ax2n)Uiqn r + +n
+- 2 AX2 (Uq+lr + Uq-l,r +
+Since Uq, r does not appear in (14) pendent calculations on intertwined
+this is done, we can write
+Un=1 2n+1 (Un+1 has m components) .
+If we then write
+(15) 2= 8Ar/Ax
+1 + 4A1/ Ax
+we see that the iteration (14) r new components of Un+1 are c form (12). The Dufort-Frankel s ing of the over-relaxation meth
+dition (A).
+The best value of ATr, Aopt, can be determined from copt and relation (15). We find that ATopt = O( Ax), therefore for Ar = ATopt the Dufort-Frankel scheme approximates, not Eq. (13), but rather the equation
+dTU = VU _ 2 ( 2) 2U + f.
+This is the equation which Garabedian in [6] used to estimate co(pt. It can be used here to estimate Ar07pt. These remarks obviously generalize to problems where AxI - Ax2 or where there are more than two space variables.
+.The following remark will be of use: We could have approximated Eq. (13)
+by the usual explicit formula
+(16) tUq,r- Uq,rAx= A (+l,r + Ul,r + Uq,r + U,r-1 - 4uT) + A rf
+and used this formula as an iteration procedure for solving (10). The resulting iteration converges only when ATr/Ax2 < 1/4, and the convergence is very slow. The rapidly converging iteration procedure (14) can be obtained from (16) by splitting the term U' r on the right-hand side into 2 (Un+1 + un )
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+752 ALEXANDRE JOEL CHORIN
+Representation of D, Gi and G.t, and the Iteration Procedure for Determining uin1, pn+Q. For the sake of clarity we shall assume in this section that the domain D is two-dimensional and rectangular, and that the velocities are prescribed at the boundary. Extension of the procedure to three-dimensional problems is immediate, and extension to problems with other types of boundary conditions often possible. Stress-free boundaries and periodicity conditions in particular offer no difficulty. Domains of more complicated shape can be treated with the help of appropriate interpolation procedures.
+Our first task is to define D. Let 63 denote the boundary of D and e the set of mesh nodes with a neighbor in (B. In O - 63 we approximate the equation of continuity by centered differences, i.e. we set
+
+(17) Du -2LxI (U1(q+l,r) - U1(q-1,r)) + 2Ax (U2(q, r+1) - U2(q,r-1)) = 0
+At the points of 6( we use second-order one-sided differences, so that Du is accurate to O( Ax2) everywhere. Consider the boundary line X2 = 0, represented by j = 1 (Fig. 1). We have on that line
+
+(18)
+
+Du- 2 [U2(q,2) - U2(q,l1) - 4(U2(q,3) - U2(q,l))]
+Ax2
++ 2Ax (U1(q+1,1) - = 0
+
+with similar expressions at the other boundaries. Equation (17) states that the total flow of fluid into a rectangle of sides 2 Ax,, 2 Ax2 is zero. Equation (18) does not have this elementary interpretation.
+
+l(q,3)
+
+A A~~(q 12)
+(q-l,l) (q, I) (q+1 ,1 )
+FIGURE 1. Mesh Near a Boundary.
+We now define G(p at every point of D - c by
+1.
+Gip 2=x1 (Pq+,r - Pq-1,r), 1
+G2P 2=x2 (Pq,r+i - Pq,r-i) ,
+pq,r =-p(qAx, rAX2) , i.e. a ip is approximated by centered differences. It should be emphasized that these forms of Gip and Du are not the only possible ones.
+
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 753
+It is our purpose now to perform the decomposition (4). ul+' is given on the
+boundary B3, U,aux is given in D-(B (the values of U,aux on (B, used in (6) or (
+are of no further use). pn+l is to be found in 5D (including the boundary) and u+1 in D- (, so that in D - (B
+U aux = U,n+l + AtGip
+and in D (including the boundary)
+Dun+l = 0.
+This is to be done using the iterations (5), where the form of Gimp has not yet been specified.
+At a point (q, r) in D- B-C, i.e. far from the boundary, one can substitute Eq. (5a) into Eq. (5b), and obtain
+(19) pn+l,m+l - pn+l,m = _XDuaux + AtXDGmp.
+This is an iterative procedure for solving the equation
+(20) Lp = Duaux
+where Lp DGp approximates the Laplacian of p. With our choice of D and Gi, Lp is a five-point formula using a stencil whose nodes are separated by 2 Ax,, 2 AX2. Equation (20) is of course a finite-difference analogue of the equation
+(21) V2p = 0j0au,uj + ajEj,
+which can be obtained from Eq. (1) by taking its divergence. At points of (B or e if it is not possible to substitute (5a) into (5b) because at the boundary uin+1 is prescribed, Un+l,m+l = un+1 for all m, (5a) does not hold and therefore (19) is not true. Near the boundary the iterations (5) provide boundary data for (20) and ensure that the constraint of incompressibility is satisfied. We proceed as follows:
+Gimp and X are chosen so that (19) is a rapidly converging iteration for solving (20); Gimp at the boundary are then chosen so that the iterations (5) converge
+everywhere. Let (q, r) again be a node in D-U- (n+l- m and pn+l m are assumed
+known. We shall evaluate simultaneously pnlm+l and the velocity components
+involved in the equation DUn+1 = O at (q, r), i.e. un+lml, u2(+qrm+1) (Fig. 2). These velocity components depend on the value of p at (q, r) and on the values
+of p at other points. Following the spirit of the remark at the end of the last section, the value of p at (q, r) is taken to be
+1 (pn+l,m+l + p1 nm)
+while at other points we use pn+l,m. This leads to the following formulae
+(22a) pn+l,m+l -n+l,m Dun?lm+l
+(D given by (17))
+(22b()2)=nul+(qlm +l,+rl) a=uuxl(qA+tl,r(p) n-2+^l (m pq+12'r( n- +2l(,ipmq+,rl' n++plqm ,r' ))
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+754 ALEXANDRE JOEL CHORIN
+(22c) =(-l,r) Ul(q-1,r) - 2AX ((p2+lf,r+l + pq,m) - p mr)
+n+l,m+l aux At n+l,m 1 n+l,m+l n+l,m
+(22d) U2(q,rr1) = U2(q,r+1) -2Ax2 (Pq,r+2 - 2!(Pq,r pq,r
+n+l,m+l aux 'At_ I -+,++nlm n+l,m\
+(22e) U-q, r-1) = U2 (,r-1) 2 P ( 2 (Pq
+These equations define Gimp. Clearly, Gimp + t
+Equations (22) can be solved for pn+l,m+l, yielding
+(23a) pq,+r'+ = (1 + a, + aX2) [(1 - al - a)p+m - -XDu + al (pq+2,r + pq-2 r) + a2 (pq,r+1 + pq,r- )]
+where a i = X At/4 Ax j, i = 1, 2. This can be seen to be a Dufort-Frankel relaxation scheme for the solution of (20), as was to be expected. The A r of the preceding section is replaced here by X At/2. Corresponding to A-r0,t (or cwopt) we f Xopt. If p were known on (B and C, convergence of the iterations (23a) would follow from the discussion in the preceding section, and X = Xopt would lead to the highest rate of convergence.
+U2(q,r+I)
+Pq ,r
+Ui(q-i,r) (Pq X - 0U1(q+i,r)
+U2(q, r-)
+FIGURE 2. Iteration Scheme
+In (B and e formulae (22) are modified by the use of the known values of un+l at the boundary whenever necessary. This leads to the formulae, for (q, r) in e:
+(23b) pq,2' - (1+ a, + 2a2) [(1 - al 2a2)P,,2' - XDU ? ai(pn+l + pn+1m) + Ofpn+1,
+and for (q, r) on (B:
+(23/c)n+la,imj+pl q- (,1i+ aai-,[l)-1)'[r(nI+lm ,m -- DaUa1uxmy,
++ 2a2(p+l3m 4(Pq,4'i q, 2
+etc. In (23b) Du is given by (17), and in (23c) by (18). u aux iiiterpreted as uin+l. Although no proof is offered, a heuris
+numerical evidence lead us to state that the whole iteration system-Eqs. (23a),
+(23b), (23c)-converges for all X > 0 and converges fastest when X -- Xopt. Non
+of the boundary instabilities which arise in two-dimensional vorticity-stream function calculation has been observed.
+It can be seen that because our representation of Du = 0 expresses the balance
+of mass in a rectangle of sides 2 Ax j, i = 1, 2, the pressure iterations split into
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 755
+
+two calculations on intertwined meshes, coupled at the boundary. The most efficient orderings for performing the iterations are such that the resulting over-all scheme is a Dufort-Frankel scheme for each one of the intertwined meshes. This involves no particular difficulty; a possible ordering for a rectangular grid is shown in Fig. 3. The iterations are to be performed until for some 1
+max -Ipn+1,1+1 - pn+l,11 < -
+q,r
+for a predetermined e. The new velocities U,n+l, i = 1, 2, are to be evaluated using (22b), (22c), (22d),
+(22e). This has to be done only after the pn+l,m have converged. There,is no need to evaluate and store the intermediate fields U,n+l m+l. A saving in computing time can be made by evaluating Duaux at the beginning of each iteration. We notice two advantages of our iteration procedure: Dun+1 can be made as small as one wishes independently of the error in Dun; and when pn+l, 1+ and pn+,,l differ by less than E, Dun+' = 0(Ec/X); it can be seen that X)opt = O(Ax-1), hence DUn+l = O(E Ax). A gain in accuracy appears, which can be used to relax the convergence criterion for the iterations. This gain in accuracy is due to the fact that the u,n+ are evaluated using an appropriate cotnbination of pnf+ll and pn+l,l+l, rather than only the latest iterate pn+l,l+1.
+
+F J D
+
+o
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+
+E
+
+H o o 0 0
+
+B
+
+o
+
+0
+
+0
+
+0
+
+I C K G A
+
+The domain is swept in the order AB,CD,EF, GH,IJ,K
+FIGURE 3. An Ordering for the Iteration Scheme
+
+Solution of a Simple Test Problem. The proposed method was first applied to a, simple two-dimensional test problem, used as a test problem by Pearson in [7] for a vorticity-stream function. method. D is the square 0 < xi < x, i = 1, 2; E, = E2 = 0; the boundary data are
+u = -cos xi sinx2e-2t, U2 = sin xi cos x2e-2t.
+The initial data are
+
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+756 ALEXANDRE JOEL CHORIN
+ul =-cos xl sinx2, u2 =sin xlcos x2. The exact solution of the problem is
+ul = -cos xi sinx2e2t, u2 = sin xicos x2e-2t, p =-R '(cos 2x, + cos 2x2)e-4t, where R is the Reynolds number. This solution has the property
+ip = -Rujju ;
+hence curl (u ) satisfies a linear equation. Nevertheless, this problem is a fair test of our method because Duaux 0 0.
+We first evaluate Xopt. For the equation
+-Lu =f in 0, with a grid of mesh widths 2 Ax,, 2 AX2, and u known on the boundary, we have
+2
+opt =1 + (I-a 2)1/2
+where a = -1(cos 2 Ax1 + cos 2 Ax2) is the largest eigenvalue of the associated Jacobi matrix (see [5]).
+We put
+q=xot(At + At~
+2 AX12 Ax22/
+Equation (15) can be written as
+8q
+3opt = 1
+therefore
+
+q (1 -ot2)1/2
+and
+4 1
+(At/IAx12 We now assume Ax1 = Ax2 = Ax, obtaining
+2Ax2
+Xopt =At sin (2Ax) In Tables I, II, and III we display results of some sample calculations. n is the number of time steps; e(ui), i = 1, 2, are the maxima over D of the differences between the exact and the computed solutions ui. It is not clear how the error in the pressure is to be represented; pn is defined at a time intermediate between (n - 1) At and nAt; it is proportional to R in our nondimensionalization. There
+
++
+
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 757
+are errors in p due to the fact, discussed at the end of the preceding section, that the iterations can be stopped before the pnfm have truly converged. e(p) in the tables represents the maximum over the grid of the differences between the exact pressure at time n At and the computed pn, divided by R; it is given mainly for the sake of completeness. The accuracy of the scheme is to be judged by the smallness of e(ui). 1 is the number of iterations; it is to be noted that the first iteration always has to be performed in order that Eq. (1) be satisfied. "Scheme A" means that Uzaux was evaluated using Eq. (6), and "Scheme B" means Eq. (7) were used.
+TABLE I Scheme A; Ax = 7r/39; At = 2 Ax2 = 0.01397; E = Ax2; R = 1
+n e(ul). e(u2) e(p) 1
+1 2.8 X 10-4 2.6 X 10-4 0.0243 1 2 2.7 X 10-4 2.0 X 10-4 0.0136 7 3 1.5 X 10-4 1.3 X 10-4 0.0069 4 4 1.8 X 10-4 1.9 X 10-4 0.0145 4 5 1.3 X 10-4 1.7 >X 10-4 0.0089 5 6 1.3 X 10-4 1.8 X 10-4 0.0116 4 7 1.6 X 10-4 1.9 X 10-4 0.0144 4 9 1.4 X 10-4 1.7 X 10-4 0.0147 4 10 1.3 X 10-4 1.6 X 10-4 0.0156 4
+20 1.8 X 10-4 2.3 X 10-4 0.0241 4
+TABLE II
+Scheme A; Ax = 7r/39; At = 2AX2 = 0.01397; E =Ax3; R =1
+n e(ul) e(u2) e(p) I 1 8.5 X 10-5 3.8 X 10-5 0.0059 10
+2 1.0 X 10-4 5.7 X 10-5 0.0067 10 3 1.0 X 10-4 7.0 X 10-5 0.0068 10 4 1.0 X 10-4 7.8 X 10-5 0.0068 10 5 1.0 X 10-4 8.3 X 10-5 0.0069 10 6 9.7 X 10- 8.6 X 10-5 0.0070 10
+7 9.4 X 1 0- 8.7 X 10-5 0.0071 10
+8 9.0 X 10-5 8.7 X 10-5 0.0073 10 9 8.7 X 10-5 8.7 X 10-5 0.0077 10 10 8.3 X 10-5 8.5 X 10- 0.0082 10
+20 1.0 X 10-4 1.0 X 10-4 0.0216 9
+TABLE III Scheme B; Ax = 7r/39; At = 2AX2 = 0.00324; E = AX2; R = 20
+n e(ul) e(u2) e(p) 1 1 1. x 10-s 1.2 X 10-s 0.0217 15
+3 1.9 X 10- 2.1 X 10-3 0.0234 9 5 2.5 X 1I0- 2.8 X 10-3 0.0242 9
+7 3.3 X 10-3 3.2 X 10-3 0.0249 9 9 4.0 X 10- . 3.5 X 10- 0.0253 8
+20 5.8 X 10-3 3.9 X 1I0- 0.0258 8
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+758 ALEXANDRE JOEL CHORIN
+Tables I and II describe computations which differ only in the value of E. They show that e = AX2 is an adequate convergence criterion. Table III indicates that fair results can be obtained even when R At is fairly large; when R = 20, Ax = 7r/39, At = 2 AX2, we have
+R? 1.5 Ax-'. The errors are of the order of 1%. Additional computational results were p in [8].
+Application to Thermal Convection. Suppose a plane layer of fluid, in th of gravity, of thickness d and infinite lateral extent, is heated from below. The lower boundary X3 = 0 is maintained at a temperature To, the upper boundary X3 = d at a temperature T1 < To. The warmer fluid at the bottom expands and tends to move upward; this motion is inhibited by the viscous stresses.
+In the Boussinesq approximation (see e.g. [9]) the equations describing the
+possible motions are
+atui + pu = - aip + VV2ui - g(1 - (17 - 7,o))bi,
+a tT + uja3jT = kV2T, juj = o, where T is the temperature, k the coefficient of thermal conductivity, a th efficient of thermal expansion, and bi the components of the unit vector poi
+upwards. We write
+tt = (+)Ui T To t
+x;' =x d , 1 (d )2 + (Ti- To)dgx3
+and drop the primes. The equations now are
+- atui + ujQaj'U = -a9p + V2uti + (T - l)
+a tT + ujajT =-v2T, aju1 =o ,
+where R* = agd3(To - Tl)kv is the Rayleigh number, and a- = v/k the Prandtl number. The rigid boundaries are now situated at X3 = 0 and X3 = 1, where it is assumed that ui = 0, i = 1, 2, 3.
+It is known that for R* < R,*, the state of rest is stable and no steady convection can arise, where R,* = 1707.762.
+When R* = R,*, steady infinitesimal convection can first appear, and the field quantities are given by
+U3= CW(x3)4,
+ui = - (a3W(x3))a4i, i = 1, 2
+a
+T = CT(x3)q5
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 759
+where 4)= 0(x1, x2) determines the horizontal planform of the m
+(a12 + a22 + a2)0 = 0
+W(X3), T(x3) are fully determined functions of X3, a = 3.117, an
+undetermined amplitude. In two-dimensional motion u, = 0 and the motion does not depend on xi. We
+then have
+) = cos aX2.
+The motion is periodic in X2 with period 27r/a. The Nusselt number Nu is defined as the ratio of the total heat transfer to the
+heat transfer which would have occurred if no convection were present. For R* < R*, Nu = 1. In our dimensionless variables
+a 21r/a
+Nu- f (U3T -a3T)dx2.
+A similar expression holds in the three-dimensional case. When the convection is steady Nu does not depend on X3.
+When R* > RI* steady cellular convection sets in. It is of interest to determine its magnitude and its spatial configuration. The problem of its magnitude, and in particular the dependence of Nu on R* and a-, when the motion is steady, has been studied by the author in previous work [2], [10]. As to the shape of the convection cells, it is known that flows may exist in which the cells, when viewed from above, look like hexagons, or like rectangles with various ratios of length to width, or like rolls, i.e. two-dimensional convection cells (see [11]). However, only cellular structures which are stable with respect to small perturbations can persist in nature or be exhibited by our method. It has been shown, numerically by the author [10], experimentally by Koschmieder [12] and Rossby [13], theoretically, in the case of
+infinite a- and small perturbations, by Busse [14], that for R*/R,* < 10 the pre-
+ferred cellular mode is a roll. Busse showed that the rolls are stable for wave numbers in a certain range. We shall now demonstrate numerically the impermanence of hexagonal convection and the emergence of a roll.
+Consider the case R*IR,* = 2, a- = 1. We assume the motion to be periodic
+in the xl and X2 directions, with periods respectively 47r/a V, 3 and 47r/a (the first period is apparently in the range of stable periods for rolls as predicted by Busse). These are the periods of the hexagonal cells which could arise when R* = R,*. The state of rest is perturbed by adding to the temperature in the plane X3 = AX3 a multiple of the function p(x1, X2) which corresponds to a hexagonal cell, and adding a small constant to the temperature on the line xi = (3/4)(47r/a ,l 3), X2 = (3/4) (4wr/a). We then follow the evolution of the convection in time, using a net of 24 X 24 X 25, i.e.
+Ax1 = (47r/a a/ 3)/24, AX2 = (47r/a)/24, AX3 = 1/24.
+We choose E = Ax22, At = 3 Ax32. The connvection pattern is visualized as follows: the velocities in the plane X3 = 17Ax3 are examined. If U3(q,r,18) > O an * is printed, if U3(q,r,18) < 0, a 0 is printed.
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+760 ALEXANDRE JOEL CHORIN
+FIGURE 4. Evolution of a Convection Cell
+*******000000000000000** *********0000000000000** *******00000000000000000 **********000000000***** *******0000000000000**** **********0000000******* ******00000000000000*0** ********000000000******* ** **00000000000000000*** ******000000000000****** 000000000000000000000000 ***000000000000000000*** 000000000000000000000000 000000000000000000000000 000000000000000000000000 000000000*******00000000 0000000000*0*00000000000 00000** ******* * *0000000 000000000000000000000000 0000***********000000000 000000*****0*00000000000 000**********00000000000 000000000000000000000000 000********0000000000000 000000000000000000000000 0000*****000000000000000 000000000000000000000000 000000000000000000000000 000000000000000000000000 000000000000000000000000 000000000000000000000000 00000000000000*******000 0000000000000000***00000 0000000000000**** ******00 0000000000000000***00000 0000000000000****** ***00 0000000000000000***00000 0000000000000****** ***00 000000000000000000000000 00000000000000*******000 000000000000000000000000 000000000000000000000000 000000000000000000000000 00000*000000000000000000 000000000000000000000000 00*****00000000000000000 000000000000000000000000 ********0000000000000000
+4a. After 1 step (Nu = 1) 4b. After 10 steps (Nu = 1)
+**********00000000000000 **********00000000000000 ***********000000000000* ***********000000000000* ***********000000000000* ************0000000000** ***********000000000**** *************000000000**
+**************00000000** ***0000000************** **************00000000**
+***********0000000000000 00**************00000000**
+**************0000000*** *************0000000000* ************000000000000 *************00000000000 ***********0000000000000 00***00*******00000000000 0**********0000000000000 0000**0******00000000000 00********00000000000000 0000000*****000000000000 00000***0000000000000000 00000000*******000000000 0000000000 *******0000 00000000**********000000 00000000000***********00 00000000*************000 00000000000************0 00000000**************00 0000000000************** 00000000***************0
+00000000000************* 00000000*0*************0
+0000000000************** 00000000***************0 00000000000************* 000000000**************0 000000000000**********00 00000000000***********00 000000000000000000000000 000000000000000000000000
+00******0000000000000000 000000000000000000000000 0*********00000000000000 00*****00000000000000000
+4c. After 125 steps (Nu = 1.25) 4d. After 225 steps (Nu = 1.72)
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+NUMERICAL SOLUTION OF THE NAVIER-STOKES EQUATIONS 761
+0000********000000000000 0000***********000000000 00************0000000000 0000***********000000000 0**************000000000 0000***********000000000
+0***************00000000 0000************00000000 0***************00000000 000*************00000000 0***************00000000 000*************00000000 00**************00000000 000*************00000000 00*************000000000 000*************00000000 000************000000000 0000***********000000000 0000***********000000000 0000***********000000000
+00000ooo******000000000 0000o***********00000000 00000ooo******000000000 0000o***********000000000
+00000***********00000000 0000***********000000000 00000************0000000 0000***********000000000 00000*************000000 000************000000000 00000*************000000 000*************00000000
+oo6o***************ooooo 000*************00000000
+00000**************00000 000*************00000000 00000**************00000 0000***********000000000 000000************000000 0000***********000000000 0000000**********0000000 0000***********000000000 000000000******000000000 0000***********000000000 000000000000000000000000 00000*********0000000000 000000000000000000000000 00000*********0000000000
+4e. After 325 steps (Nu = 1.76) 4f. After 430 steps (Nu = 1.77)
+The evolution of the convection is shown in Figs. 4a, 4b, 4c, 4d, 4e, and 4f. The hexagonal pattern introduced into the cell is not preserved. The system evolves through various stages, and finally settles as a roll with period 47r/a V, 3. The value of Nu evaluated at the lower boundary is printed at the bottom of each figure. The steady state value for a roll is 1.76. The final configuration of the system is independent of the initial perturbation. The calculation was not pursued until a completely steady state had been achieved because that would have been excessively time consuming on the computer. It is known from previous work that steady rolls can be achieved, and that the mesh used here provides an adequate representation.
+Conclusion and Applications. The Benard convection problem is not considered to be an easy problem to solve numerically even in the two-dimensional case. The fact that with our method reliable time-dependent results can be obtained even in three space dimensions indicates that the Navier-Stokes equations do indeed lend themselves to numerical solution. A number of applications to convection problems, with or without rotation, can be contemplated; in particular, it appears to be of interest to study systematically the stability of Benard convection cells when a- 7? oo, and when the perturbations have a finite amplitude.
+Other applications should include the 'study of the finite amplitude instability of Poiseuille flow, the stability of Couette flow, and similar problems.
+Acknowledgements. The author would like to thank Professors Peter D. Lax and Herbert B. Keller for their interest and for helpful discussions and comments.
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+
+762 ALEXANDRE JOEL CHORIN New York University Courant Institute of Mathematical Sciences New York, New York 10012
+1. H. FUJITA & T. KATO, "On the Navier-Stokes initial value problem. I," Arch. Ratio Mech. Anal., v. 16, 1964, pp. 269-315. MR 29 #3774.
+2. A. J. CHORIN, "A numerical method for solving incompressible viscous flow problem J. Computational Physics, v. 2, 1967, p. 12.
+3. J. 0. WILKES, "The finite difference computation of natural convection in an enclosed cavity," Ph.D. Thesis, Univ. of Michigan, Ann Arbor, Mich., 1963.
+4. A. A. SAMARSK1I, "An efficient difference method for solving a multi-dimensional palabolic equation in an arbitrary domain," Z. Vy'cisl. Mat. i Mat. Fiz., v. 2, 1962, pp. 787-811= U.S.S.R. Comput. Math. and Math. Phys., v. 1963, 1964, no. 5, pp. 894-926. MR 32 #609.
+5. R. VARGA, Matrix Iterative Analysis, Prentice-Hall, Englewood Cliffs, N. J., 1962. 6. P. R. GARABEDIAN, "Estimation of the relaxation factor for small mesh size," Math. Comp., v. 10, 1956, pp. 183-185. MR 19, 583. 7. C. E. PEARSON, "A computational method for time dependent two dimensional incompressible viscous flow problems," Report No. SRRC-RR-64-17, Sperry Rand Research Center, Sudbury, Mass., 1964. 8. A. J. CHORIN, "The numerical solution of the Navier-Stokes equations for incompressib fluid," AEC Research and Development Report No. NYO-1480-82, New York Univ., Nov. 19 9. S. CHANDRASEKHAR, Hydrodynamic and Hydromagnetic Stability, Internat. Series of Mon graphs on Physics, Clarendon Press, Oxford, 1961. MR 23 #1270. 10. A. J. CHORIN, "Numerical study of thermal convection in a fluid layer heated from below AEC Research and Development Report No. NYO-1480-61, New York Univ., Aug. 1966. 11. P. H. RABINOWITZ, "Nonuniqueness of rectangular solutions of the Benard problem," Arch. Rational Mech. Anal. (To appear.) 12. E. L. KOSCHMIEDER, "On convection on a uniformly heated plane," Beitr. Physik. Alm.,
+v. 39, 1966, p. 1.
+13. H. T. ROSSBY, "Experimental study of Benard convection with and without rotation," Ph.D. Thesis, Massachusetts Institute of Technology, Cambridge, Mass., 1966.
+14. F. BUSSE, "On the stability of two dimensional convection in a layer heated from below J. Math. Phys., v. 46, 1967, p. 140.
+This content downloaded from 193.54.110.55 on Thu, 15 May 2025 21:02:15 UTC
+All use subject to https://about.jstor.org/terms
+

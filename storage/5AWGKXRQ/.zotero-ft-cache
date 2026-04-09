@@ -1,0 +1,3676 @@
+SIAM J. NUMER. ANAL. Vol. 41, No. 1, pp. 112–134
+
+c 2003 Society for Industrial and Applied Mathematics
+
+VELOCITY-CORRECTION PROJECTION METHODS FOR INCOMPRESSIBLE FLOWS∗
+J. L. GUERMOND† AND JIE SHEN‡
+Abstract. We introduce and study a new class of projection methods—namely, the velocitycorrection methods in standard form and in rotational form—for solving the unsteady incompressible Navier–Stokes equations. We show that the rotational form provides improved error estimates in terms of the H1-norm for the velocity and of the L2-norm for the pressure. We also show that the class of fractional-step methods introduced in [S. A. Orsag, M. Israeli, and M. Deville, J. Sci. Comput., 1 (1986), pp. 75–111] and [K. E. Karniadakis, M. Israeli, and S. A. Orsag, J. Comput. Phys., 97 (1991), pp. 414–443] can be interpreted as the rotational form of our velocity-correction methods. Thus, to the best of our knowledge, our results provide the ﬁrst rigorous proof of stability and convergence of the methods in those papers. We also emphasize that, contrary to those of the above groups, our formulations are set in the standard L2 setting, and consequently they can be easily implemented by means of any variational approximation techniques, in particular the ﬁnite element methods.
+Key words. Navier–Stokes equations, projection methods, fractional-step methods, incompressibility, ﬁnite elements, spectral approximations
+AMS subject classiﬁcations. 65M12, 35Q30, 35J05, 76D05
+PII. S0036142901395400
+
+1. Introduction. We consider in this paper the time discretization of the un-
+
+steady incompressible Navier–Stokes equations in primitive variables. For a given
+
+body force f (t) and an initial solenoidal vector ﬁeld v0, we look for u and p such that
+
+(1.1)
+
+ 
+
+∂tu − ν∇2u + u·∇u + ∇p = f ∇·u = 0 in Ω × [0, T ],
+
+
+
+u|Γ = 0, u|t=0 = v0
+
+in Ω.
+
+in Ω × [0, T ],
+
+The boundary condition on the velocity is set to zero for the sake of simplicity. The ﬂuid domain Ω is open and bounded in Rd (d = 2 or 3 in practical situations). The domain boundary Γ is assumed to be smooth; e.g., Γ is Lipschitzian and Ω is locally on one side of its boundary.
+The goal of this paper is to present a new class of fractional-step projection methods. The original projection method was introduced by Chorin [3] and Temam [15] in the late 60s. An important class of projection methods is the so-called pressurecorrection methods introduced in [5, 8]. These schemes consist of two substeps per time step: the pressure is treated explicitly in the ﬁrst substep and corrected in the second substep by projecting the intermediate velocity onto the space of divergence-free
+
+∗Received by the editors September 20, 2001; accepted for publication (in revised form) August 12, 2002; published electronically March 13, 2003.
+http://www.siam.org/journals/sinum/41-1/39540.html †LIMSI (CNRS-UPR 3152), BP 133, 91403 Orsay, France (guermond@limsi.fr). Part of this work was completed while this author was visiting Texas Institute of Computational and Applied Mathematics, Austin, TX, during the period of August, 2001, to July, 2002, under a TICAM Visiting Faculty Fellowship. ‡Department of Mathematics, Purdue University, West Lafayette, IN 47907 (shen@math. purdue.edu). The work of this author was partially supported by NSF grants DMS-9706951 and DMS-0074283.
+112
+
+PROJECTION METHODS
+
+113
+
+ﬁelds. These schemes are widely used in practice and have been rigorously analyzed in [4, 14, 7].
+The new class of projection methods that we introduce in this paper also consist of two substeps per time step: here the viscous (velocity) term is treated explicitly in the ﬁrst substep and corrected in the second one. Two versions of the method are presented: a standard form and a rotational form. We prove stability and O(δt2) convergence in the L2-norm of the velocity for both versions. We also prove improved error estimates for the rotational form, namely, O(δt3/2) convergence in the H1-norm of the velocity and the L2-norm of the pressure. Such estimates are new and, as indicated by our numerical results, appear to be the best possible under the general context considered in this paper. Since this class of projection methods can be viewed as the dual class of pressure-correction methods, we shall hereafter refer to them as velocity-correction methods.
+An interesting aspect of the new class of projection methods is its relation to a set of schemes introduced in [10] and [9]. These schemes have never been analyzed rigorously, partly because they do not ﬁt into any standard weak setting. As originally presented in [10] and [9], these schemes use normal traces of second derivatives of the velocity at the boundary, introducing formidable diﬃculties in analysis as well as in implementation. In contrast, the new schemes are set in the standard L2 weak setting and consequently can be naturally implemented and analyzed by means of ﬁnite elements or spectral methods. In fact, the schemes in [10] and [9] are formally equivalent, in the spatial continuous case, to the rotational forms of our velocitycorrection methods. Thus, to the best of our knowledge, this paper provides the ﬁrst rigorous proof of stability and convergence of the methods introduced in [10] and [9].
+The paper is organized as follows. In the next section, we introduce the velocitycorrection method in standard form and prove error estimates for both the time continuous and the time discrete versions of the method. Then, in section 3, we introduce the rotational form of the velocity-correction method and show that this version yields better convergence rates than its standard counterpart. In section 4, we present numerical results, using a ﬁnite element method and a Legendre spectral method, which are consistent with our theoretical analysis. In section 5, we examine the relation between the splitting schemes introduced in [10] and [9] and our velocitycorrection methods in rotational form. In section 6, we indicate how nonlinear terms can be treated in the velocity-correction schemes. We present concluding remarks in section 7.
+We now introduce some notation. We shall use the standard Sobolev spaces L2(Ω)d, H1(Ω)d, H−1(Ω)d, etc., whose norm will be denoted by · 0,Ω, · 1,Ω,
+· −1,Ω, etc. The L2 scalar product for scalar and vector valued functions is denoted by (·, ·). We equip H01(Ω)d with the following norm:
+
+(1.2)
+
+∀β ∈ H01(Ω)d,
+
+β
+
+1,Ω := (
+
+∇·β
+
+2 0,Ω
+
++
+
+∇×β
+
+2 0,Ω
+
+)1/2
+
+.
+
+We introduce two spaces of solenoidal vector ﬁelds
+
+(1.3) (1.4)
+
+H = {v ∈ L2(Ω)d; ∇·v = 0; v · n|Γ = 0}, V = {v ∈ H1(Ω)d; ∇·v = 0; v|Γ = 0},
+
+and we deﬁne PH to be the L2 projection onto H. We denote by dt and ∂t the time derivative and the partial derivative with respect
+to time, respectively. Let δt > 0 be a time step and set tk = kδt for 0 ≤ k ≤ K =
+
+114
+
+J. L. GUERMOND AND JIE SHEN
+
+[T /δt]. Let φ0, φ1, . . . , φK be some sequence of functions in some Banach space E. We shall use the following discrete norms:
+
+(1.5)
+
+φ l2(E) :=
+
+K
+
+δt
+
+φk
+
+2 E
+
+k=0
+
+1/2
+,
+
+φ
+
+l∞ (E )
+
+:=
+
+max
+0≤k≤K
+
+φk
+
+2 E
+
+.
+
+We denote by c a generic constant which is independent of ε and δt but possibly depends on the data and the solution, and the value of which may vary at each occurrence.
+Since the nonlinear term does not contribute in any essential way to the error analysis of projection methods, we shall carry out our analysis for the linearized equations only, so as to avoid technicalities which may obscure the essential ideas in the proof. Our proofs can be adapted to account for the nonlinearity using standard techniques (cf. [16, 14, 7]).
+2. Velocity-correction methods: Standard form.
+2.1. Introduction of the scheme. Before introducing velocity-correction methods, let us recall the second-order pressure-correction scheme. Hereafter, we take ν = 1 for simplicity and drop the nonlinear term. A second-order pressurecorrection scheme is written in the following form: set u0 = u(0), p0 = p(0), and choose u1 and p1 to be reasonable approximations of u(δt) and p(δt); then for k ≥ 1 we look for (u˜k+1; uk+1, pk+1) such that
+
+(2.1)
+
+1 2δt
+
+(3u˜k+1
+
+−
+
+4uk
+
++
+
+uk−1)
+
+−
+
+∇2u˜k+1
+
++
+
+∇pk
+
+=
+
+f (tk+1),
+
+u˜k+1|Γ = 0
+
+and (2.2)
+
+
+
+
+
+3 2δt
+
+(uk+1
+
+−
+
+u˜k+1)
+
++
+
+∇(pk+1
+
+−
+
+pk )
+
+=
+
+0,
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0,
+
+where n is the outward normal of Ω. For a rigorous analysis of this scheme and its variants, we refer to [4, 14, 7].
+Now we propose to adopt a new point of view by switching the role of pressure and velocity. We ﬁrst treat the viscous (velocity) term explicitly in the ﬁrst substep and then correct it in the second substep. The corresponding scheme is as follows: set u˜0 = v0 and choose u˜1 to be a good approximation of u(δt); then for k ≥ 1 we look for (uk+1, pk+1; u˜k+1) such that
+
+(2.3)
+
+
+
+
+
+1 2δt
+
+(3uk+1
+
+−
+
+4u˜k
+
++
+
+u˜k−1)
+
+−
+
+∇2u˜k
+
++
+
+∇pk+1
+
+=
+
+f (tk+1),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0
+
+and
+
+(2.4)
+
+3 2δt
+
+(u˜k+1
+
+−
+
+uk+1)
+
+−
+
+∇2(u˜k+1
+
+−
+
+u˜k )
+
+=
+
+0,
+
+u˜k+1|Γ = 0.
+
+PROJECTION METHODS
+
+115
+
+We shall hereafter refer to this scheme as the standard form of the velocity-correction method. Note that there is a strong similarity between the velocity-correction method and the pressure-correction method. In fact, our velocity-correction scheme can be regarded as the dual of the pressure-correction scheme.
+Note also that (2.3) can be written as
+
+uk+1 = PH
+
+4 3
+
+u˜k
+
+−
+
+1 3
+
+u˜k−1
+
++
+
+2δt 3
+
+(∇2u˜k
+
++
+
+f (tk+1))
+
+,
+
+where PH is the L2 projection onto H. Hence, the method deﬁned by (2.3)–(2.4) falls into the class of the projection methods as introduced by Chorin and Temam. Since
+the projection step precedes the viscous step, one could also refer to these methods
+as “projection–diﬀusion” methods as in [1]. We observe from (2.4) that ∇2(u˜k+1 − u˜k) · n|Γ = 0, which implies that
+
+(2.5)
+
+∇2u˜k+1 · n Γ = ∇2u˜k · n|Γ = · · · = ∇2u˜0 · n|Γ.
+
+We then derive from the above and (2.3) that
+
+(2.6)
+
+∂pk+1 ∂n
+
+=
+Γ
+
+(f (tk+1) +
+
+∇2u˜0) · n|Γ.
+
+This is obviously an artiﬁcial Neumann boundary condition for the pressure, which will introduce a numerical boundary layer on the pressure and limit the accuracy of the scheme, just as in the case of pressure-correction schemes.
+
+2.2. Implementation of the standard form. When working with H1-
+
+conformal ﬁnite elements, it is diﬃcult to solve (2.3) as a weak Poisson problem
+
+for the pressure, for there is a second derivative in the right-hand side which cannot
+
+be tested against gradients. To avoid this diﬃculty, we rewrite the algorithm in an
+
+equivalent form by making algebraic substitutions.
+
+By subtracting step (2.3) at time tk from step (2.3) at time tk+1 and by substi-
+
+tuting step (2.4) at time tk into the resulting equation, one obtains a new equivalent
+
+form of the projection step:
+
+(2.7)
+
+
+
+
+
+1 2δt
+
+(3uk+1
+
+−
+
+7u˜k
+
++
+
+5u˜k−1
+
+−
+
+u˜k−2)
+
++
+
+∇(pk+1
+
+−
+
+pk )
+
+=
+
+f
+
+(tk+1)
+
+−
+
+f
+
+(tk ),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0.
+
+Note that in this form the projection step can be solved easily as a weak Poisson problem as follows:
+
+(2.8)
+
+Find pk+1 in H1(Ω)/R such that ∀q in H1(Ω)/R
+
+(∇(pk+1
+
+−
+
+pk), ∇q)
+
+=
+
+(f (tk+1)
+
+−
+
+f (tk)
+
++
+
+1 2δt
+
+(7u˜k
+
+−
+
+5u˜k−1
+
++
+
+u˜k−2), ∇q).
+
+Once the pressure is known, the new viscous velocity u˜k+1 is evaluated by solving
+
+(2.9)
+
+1 2δt
+
+(3u˜k+1
+
+−
+
+4u˜k
+
++
+
+u˜k−1)
+
+−
+
+∇2u˜k+1
+
++
+
+∇pk+1
+
+=
+
+f (tk+1),
+
+u˜k+1|Γ = 0.
+
+Note that the projected velocity uk+1 has been completely eliminated from the algorithm (2.8)–(2.9); hence, it is not necessary to evaluate this quantity, i.e., u˜k+1 is
+the approximate velocity to be considered in practice.
+
+116
+
+J. L. GUERMOND AND JIE SHEN
+
+2.3. The time continuous version: A singularly perturbed PDE. Just as in the pressure-correction case (cf., e.g., [11, 14]), the behavior of the error for the velocity-correction scheme (2.7)–(2.9) is determined by the corresponding singularly perturbed system:
+
+(2.10) (2.11) (2.12)
+
+∂tuε − ∇2uε + ∇pε = f, ∇·(uε − ε(∇pεt − ft)) = 0, uε|t=0 = u(0), pε|t=0 = p(0).
+
+uε|Γ = 0,
+
+∂pεt ∂n
+
+−
+
+ft
+
+·
+
+n
+
+= 0,
+Γ
+
+Note that (2.11) is obtained by taking the divergence of (2.7) and letting δt → 0. Its
+
+singular
+
+nature
+
+comes
+
+from
+
+the
+
+nonphysical
+
+boundary
+
+condition
+
+(
+
+∂ pεt ∂n
+
+−
+
+ft
+
+·
+
+n)|Γ
+
+=
+
+0,
+
+which introduces a numerical boundary layer for the pressure.
+
+The following theorem characterizes the errors u − uε and p − pε.
+
+Theorem 2.1. If the solution of (1.1) is suﬃciently smooth, we have
+
+u − uε
+
+L2 (L2 )
+
++
+
+ε1 4
+
+u − uε
+
+L∞ (L2 )
+
++
+
+ε
+
+1 2
+
+(
+
+u − uε
+
+L∞(H1) +
+
+p − pε
+
+L∞(L2)) ≤ cε.
+
+Proof. We shall ﬁrst derive some a priori estimates. We denote e = u − uε and q = p − pε. Subtracting (2.10) from (1.1), we ﬁnd
+
+(2.13) et − ∇2e + ∇q = 0, e|Γ = 0, ∇·e = −ε∇·(∇pεt − ft) = ∇·∇qt − ∇·(∇∂tp − ft),
+
+(
+
+∂ pεt ∂n
+
+− ft
+
+· n)|Γ
+
+=
+
+0,
+
+with e(0) = 0 and q(0) = 0. Taking the inner product of (2.13) with (e, q), we ﬁnd
+
+1 2
+
+dt
+
+e
+
+2 0,Ω
+
++
+
+∇e
+
+2 0,Ω
+
++
+
+ε 2
+
+dt
+
+∇q
+
+2 0,Ω
+
+=
+
+ε(∇∂tp
+
+−
+
+ft,
+
+∇q)
+
+≤
+
+ε 2
+
+∇∂tp − ft
+
+2 0,Ω
+
++
+
+ε 2
+
+∇q
+
+20,Ω.
+
+Thus, an application of the Gronwall lemma leads to
+
+(2.14)
+
+t
+
+e(t)
+
+2 0,Ω
+
++
+
+ε
+
+∇q(t)
+
+2 0,Ω
+
++
+
+∇e
+
+2 0,Ω
+
+ds
+
+≤
+
+cε.
+
+0
+
+Now, noticing that e(0) = 0 and q(0) = 0 imply that et(0) = 0, we can repeat the computation above to obtain
+
+(2.15)
+
+t
+
+et(t)
+
+2 0,Ω
+
++
+
+ε
+
+∇qt(t)
+
+2 0,Ω
+
++
+
+∇et
+
+2 0,Ω
+
+ds
+
+≤
+
+cε,
+
+0
+
+which implies, in particular, that
+
+(2.16)
+
+uεt L∞(L2) + ∇pεt L∞(L2) ≤ c.
+
+We are now in position to derive the desired error estimates. Consider the fol-
+
+lowing parabolic dual problem:
+
+  wt + ∇2w + ∇r = e(s), s ∈ (0, t),
+
+(2.17)
+
+
+
+∇·w = 0, w|Γ = 0,
+
+w(t) = 0.
+
+PROJECTION METHODS
+
+117
+
+It is well known (and an easy matter to show) that
+
+(2.18)
+
+t
+
+t
+
+(
+
+w
+
+2 2,Ω
+
++
+
+∇r 20,Ω)ds ≤ c
+
+e(s)
+
+2 0,Ω
+
+ds.
+
+0
+
+0
+
+Taking the inner product of (2.17) with e(s) and using the error equation (2.13) and the fact that ∇·w = 0, we infer
+
+(2.19)
+
+e
+
+2 0,Ω
+
+= (e, wt) + (e, ∇2w) + (∇r, e)
+
+= dt(e, w) − (et, w) + (∇2e, w) − (r, ∇·e)
+
+= dt(e, w) − ε(∇r, ∇(pεt − ft)).
+
+Integrating the equation above on the interval [0, t], we ﬁnd
+
+t
+e 20,Ωds ≤ ε
+0
+
+t
+
+1 2
+
+∇r
+
+2 0,Ω
+
+ds
+
+0
+
+t
+
+1 2
+
+∇(pεt − ft) 20,Ωds .
+
+0
+
+Using this bound together with (2.16) and (2.18), we ﬁnally obtain
+
+e L2(L2) ≤ cε.
+
+Next, we consider a second parabolic dual problem:   wt + ∇2w + ∇r = et(s), s ∈ (0, t),
+
+(2.20)
+
+
+
+∇·w = 0, w|Γ = 0,
+
+w(t) = 0.
+
+Owing to (2.15), we have
+
+(2.21)
+
+t
+
+t
+
+(
+
+w
+
+2 2,Ω
+
++
+
+∇r
+
+2 0,Ω
+
+)ds
+
+≤
+
+c
+
+et(s) 20,Ωds ≤ cε.
+
+0
+
+0
+
+Taking the inner product of (2.20) with e(s), and proceeding in the same fashion as above, we ﬁnd
+
+(2.22)
+
+1 2
+
+dt
+
+e
+
+2 0,Ω
+
+=
+
+dt(e,
+
+w)
+
+−
+
+(r,
+
+∇·e)
+
+=
+
+dt(e, w)
+
+−
+
+ε(∇r,
+
+∇(pεt
+
+−
+
+ft)).
+
+Integrating this equation in time and using (2.21), we deduce
+
+e(t)
+
+2 0,Ω
+
+≤ 2ε
+
+t
+
+1 2
+
+∇r
+
+2 0,Ω
+
+ds
+
+0
+
+t
+
+1 2
+
+∇(pεt − ft) 20,Ωds
+
+≤
+
+cε
+
+3 2
+
+.
+
+0
+
+To estimate e L∞(H1), we take the inner product of the ﬁrst equation in (2.13) with et as follows:
+
+(2.23)
+
+et
+
+2 0,Ω
+
++
+
+1 2
+
+dt
+
+∇e
+
+2 0,Ω
+
+=
+
+(q,
+
+∇·et)
+
+=
+
+ε(∇q,
+
+∂t∇(pεt
+
+−
+
+ft))
+
+= εdt(∇q, ∇(pεt − ft)) − ε(∇qt, ∇(pεt − ft)).
+
+Integrating this equation in time and using the a priori estimates in (2.16), we obtain
+
+et
+
+2 L2 (L2 )
+
++
+
+∇e
+
+2 L∞ (L2 )
+
+≤
+
+C ε(
+
+∇q
+
+L∞(L2) +
+
+∇qt L2(L2)) ∇(pεt − ft) L∞(L2) ≤ cε.
+
+Finally, using the estimate above and (2.15), we derive
+
+The proof is now complete.
+
+q
+
+L∞ (L2 )
+
+≤
+
+cε
+
+1 2
+
+.
+
+118
+
+J. L. GUERMOND AND JIE SHEN
+
+2.4. Error estimates for the standard velocity-correction scheme. In this section we derive error estimates for the standard velocity-correction scheme (2.3)–(2.4). Hereafter we assume that the following nonessential initialization hypothesis holds:
+
+  u(δt) − u˜1 0,Ω ≤ cδt2,
+
+(H)
+
+
+
+u(δt) − u˜1 1,Ω ≤ cδt3/2, u(δt) − u˜1 2,Ω ≤ cδt.
+
+Remark 2.1. We point out that this hypothesis would hold, in particular, if (u˜1, u1, p1) were obtained by using a ﬁrst-order velocity-correction projection scheme. This would amount to replacing the second-order BDF (backward diﬀerence formula) time stepping in (2.3) with the backward Euler time stepping at the very ﬁrst time step.
+Theorem 2.2. Under the initialization hypothesis (H) and provided that the solution to (1.1) is smooth enough in time and space, the solution (uk, u˜k, pk) to (2.3)–(2.4) is such that
+
+u − u l2(L2(Ω)d) + u − u˜ l2(L2(Ω)d) ≤ c(u, p, T ) δt2,
+
+u − u l∞(L2(Ω)d) +
+
+u − u˜
+
+l∞(L2(Ω)d) ≤
+
+c(u,
+
+p,
+
+T
+
+)
+
+δ
+
+t
+
+3 2
+
+,
+
+u − u˜ l∞(H1(Ω)d) + p − p l∞(L2(Ω)) ≤ c(u, p, T ) δt.
+
+Note that the discrete norms in the theorem above, and subsequently in later sections, are deﬁned in (1.5). By comparing the time discrete version (2.3)–(2.4) and the time continuous version (2.10)–(2.12), one observes that ε in (2.10)–(2.12) corresponds to δt2 in (2.3)–(2.4). Thus, the results of Theorem 2.2 are fully consistent with those of Theorem 2.1.
+The proof of Theorem 2.2 follows exactly the same procedure as the proof of Theorem 2.1 but for the time discretization. The main technical diﬃculty comes from the treatment of the second-order BDF term, which will be treated in detail in the proof of Theorem 3.1. Thus, we omit the proof here to avoid unnecessary repetition.
+
+3. Velocity-correction method: Rotational form.
+
+3.1. Introduction of the scheme. The main obstacle in proving error estimates better than ﬁrst-order on the velocity in the H1-norm and the pressure in the L2-norm comes from the fact that the algorithm enforces the nonphysical pressure
+Neumann boundary condition (2.6). This phenomenon is reminiscent of the numerical boundary layer induced by the nonphysical boundary condition ∂npk+1|Γ = · · · = ∂np0|Γ enforced by the pressure-correction method in its standard form; cf. [14, 7]. Thus, in order to obtain better approximation for the pressure, we need to correct this nonphysical boundary condition. Considering the identity ∇2u˜k = ∇∇·u˜k − ∇×∇×u˜k
+and the fact that we are searching for divergence-free solutions, we are led to replace −∇2u˜k in (2.3)–(2.4) with ∇×∇×u˜k. The new scheme is as follows:
+
+(3.1)
+
+
+
+
+
+1 2δt
+
+(3uk+1
+
+−
+
+4u˜k
+
++
+
+u˜k−1)
+
++
+
+∇×∇×u˜k
+
++
+
+∇pk+1
+
+=
+
+f
+
+(tk+1),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0
+
+PROJECTION METHODS
+
+119
+
+and (3.2)
+
+3 2δt
+
+(u˜k+1
+
+−
+
+uk+1)
+
+−
+
+∇2u˜k+1
+
+−
+
+∇×∇×u˜k
+
+=
+
+0,
+
+u˜k+1|Γ = 0.
+
+This scheme is hereafter referred to as the rotational form of the velocity-correction
+algorithm. Observing from (3.2) that (∇2u˜k+1 + ∇×∇×u˜k) · n|Γ = 0, we derive from (3.1)
+that
+
+(3.3)
+
+∂pk+1 ∂n
+
+Γ
+
+= (f (tk+1) + ∇2u˜k+1) · n|Γ,
+
+which, unlike (2.6), is a consistent Neumann boundary condition for the pressure. This is the main reason why the rotational form yields a much better pressure approximation than the standard form.
+
+3.2. Implementation of the rotational form. As in the standard form of
+
+the method, the projection step (3.1) cannot be solved as a weak Poisson problem when working with H1-conformal ﬁnite elements, for there is a second derivative in
+
+the right-hand side. This diﬃculty can be solved once more by making algebraic
+
+substitutions. By subtracting step (3.1) at time tk from step (3.1) at time tk+1 and by substi-
+tuting step (3.2) at time tk into the resulting equation, a more adequate form of the
+
+projection step is obtained:
+
+(3.4)
+
+ 
+
+1 2δt
+
+(3uk+1
+
+−
+
+7u˜k
+
++
+
+5u˜k−1
+
+−
+
+u˜k−2)
+
++
+
+∇(pk+1
+
+−
+
+pk
+
++
+
+∇ · u˜k )
+
+= f (tk+1) − f (tk),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0.
+
+The new viscous velocity u˜k+1 is evaluated by solving
+
+(3.5)
+
+1 2δt
+
+(3u˜k+1
+
+−
+
+4u˜k
+
++
+
+u˜k−1)
+
+−
+
+∇2u˜k+1
+
++
+
+∇pk+1
+
+=
+
+f (tk+1),
+
+u˜k+1|Γ = 0.
+
+Note that the new form of the projection step is still not satisfactory since a second
+
+derivative remains in the form of the term ∇∇·u˜k. To remove this ﬁnal diﬃculty, we
+
+introduce an auxiliary pressure φk+1 = pk+1 − pk + ∇·u˜k. The ﬁnal algorithm is as
+
+follows: (3.6)
+
+
+
+
+
+1 2δt
+
+(3uk+1
+
+−
+
+7u˜k
+
++
+
+5u˜k−1
+
+−
+
+u˜k−2)
+
++
+
+∇φk+1
+
+=
+
+f (tk+1)
+
+−
+
+f (tk),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0,
+
+(3.7)
+
+pk+1 = φk+1 + pk − ∇·u˜k,
+
+(3.8)
+
+1 2δt
+
+(3u˜k+1
+
+−
+
+4u˜k
+
++
+
+u˜k−1)
+
+−
+
+∇2u˜k+1
+
+=
+
+f (tk+1)
+
+−
+
+∇pk+1,
+
+u˜k+1|Γ = 0.
+
+120
+
+J. L. GUERMOND AND JIE SHEN
+
+In practice, the projection step is processed as follows:
+
+(3.9)
+
+Find φk+1 in H1(Ω)/R such that ∀q in H1(Ω)/R,
+
+(∇φk+1,
+
+∇q)
+
+=
+
+(f (tk+1)
+
+−
+
+f (tk)
+
++
+
+1 2δt
+
+(7u˜k
+
+−
+
+5u˜k−1
+
++
+
+u˜k−2),
+
+∇q).
+
+Note once again that the projected velocity uk+1 has been eliminated from the algorithm.
+
+3.3. A time continuous version. We emphasize that it is informative to study the time continuous version of the scheme, since it both reveals the behavior of the splitting error and indicates the procedure to follow for obtaining stability and convergence results on the discrete system.
+By neglecting some small terms, the following can be considered an “approximate” time continuous version of the scheme (3.6)–(3.8):
+
+(3.10) (3.11) (3.12)
+
+∂tuε − ∇2uε + ∇pε = f, ∇·uε − ε∇·(∇φ − εft) = 0, φ = εpεt + ∇·uε,
+
+uε|Γ = 0, (∇φ − εft) · n|Γ = 0,
+
+with uε(0) = u(0) and pε(0) = p(0). Note that (3.10) and (3.12) correspond, re-
+
+spectively, to (3.8) and (3.7), while (3.11) corresponds to the divergence of (3.6), and
+
+ε ∼ ∆t.
+
+Without going into the full details of proving the well-posedness of (3.10)–(3.12)
+
+and providing a detailed error analysis as we did for (2.10)–(2.12), we just indicate
+
+how to derive the ﬁrst a priori estimate. This will guide us to prove the stability of
+
+the discrete scheme and will show that this scheme provides a better control on the
+
+divergence of the approximate velocity. Taking the inner product of εuεt with the time derivative of (3.10), we ﬁnd
+
+ε 2
+
+dt
+
+uεt
+
+2 0,Ω
+
++
+
+ε
+
+∇uεt
+
+2 0,Ω
+
+=
+
+ε(uεt ,
+
+ft)
+
++
+
+ε(pεt ,
+
+∇·uεt )
+
+= ε(uεt , ft) − (∇·uε − φ, ∇·uεt )
+
+=
+
+ε(uεt ,
+
+ft)
+
+−
+
+1 2
+
+dt
+
+∇·uε
+
+2 0,Ω
+
++
+
+(φ,
+
+∇·
+
+uεt ).
+
+Noting that
+
+(φ,
+
+∇·uεt )
+
+=
+
+(φ,
+
+ε∇2φt
+
+−
+
+ε2∇·ft)
+
+=
+
+−
+
+ε 2
+
+dt
+
+∇φ
+
+2 0,Ω
+
++
+
+ε2(∇φ,
+
+ft),
+
+we obtain
+
+ε 2
+
+dt
+
+uεt
+
+2 0,Ω
+
++
+
+ε
+
+∇uεt
+
+2 0,Ω
+
++
+
+1 2
+
+dt
+
+∇·uε
+
+2 0,Ω
+
++
+
+ε 2
+
+dt
+
+∇φ
+
+2 0,Ω
+
+=
+
+ε(uεt ,
+
+ft)
+
++
+
+ε2(∇φ,
+
+ft).
+
+Using the fact that the initial data are such that uεt (0) = f (0) + ∇2uε(0) − ∇pε(0) = f (0) + ∇2u(0) − ∇p(0), the Gronwall lemma yields
+
+uεt (t)
+
+2 0,Ω
+
++
+
+∇φ(t)
+
+2 0,Ω
+
++
+
+1 ε
+
+∇·uε(t)
+
+2 0,Ω
+
++
+
+t 0
+
+∇uεt
+
+2 0,Ω
+
+ds
+
+≤
+
+c,
+
+t ∈ [0, T ].
+
+Let us deﬁne e = u − uε and ψ = ε∂t(p − pε) + ∇·uε. By working with the error equation, the above results become
+
+et(t)
+
+2 0,Ω
+
++
+
+∇ψ(t)
+
+2 0,Ω
+
++
+
+1 ε
+
+∇·uε(t)
+
+2 0,Ω
+
++
+
+t 0
+
+∇et
+
+2 0,Ω
+
+ds
+
+≤
+
+cε2,
+
+t ∈ [0, T ].
+
+PROJECTION METHODS
+
+121
+
+A remarkable consequence, which is essential for obtaining improved error estimates, is that we have
+
+(3.13)
+
+∇·uε
+
+L∞ (L2 )
+
+≤
+
+cε
+
+3 2
+
+.
+
+3.4. Error analysis. We now turn our attention to the error analysis of the discrete scheme (3.1)–(3.2). The main result in this section is the following.
+Theorem 3.1. Under the initialization hypothesis (H), if (u, p), the solution to (1.1), is smooth enough in time and space, the solution (uk, u˜k, pk) to (3.1)–(3.2) satisﬁes the estimates
+
+u − u l2(L2(Ω)d) + u − u˜ l2(L2(Ω)d) ≤ c(u, p, T ) δt2, u − u˜ l2(H1(Ω)d) + p − p l2(L2(Ω)) ≤ c(u, p, T ) δt3/2.
+
+The remainder of this section is devoted to the proof of the above theorem. Let us introduce some notation. For any sequence φ0, φ1, . . . , we set
+
+δtφk = φk − φk−1, δttφk = δt(δtφk), δtttφk = δt(δttφk).
+
+For any sequence of functions in H01(Ω)d ∩ H2(Ω)d, say φ0, φ1, . . . , we set Dtφk = −∇2φk − ∇×∇×φk−1.
+
+We shall make use of the following identity:
+
+(3.14) ∀β ∈ H01(Ω)d,
+
+(Dtφk+1, β) = (∇·φk+1, ∇·β) + (∇×δtφk+1, ∇×β).
+
+Hereafter we shall make use of the following notation:
+
+(3.15)
+
+ 
+
+ek e˜k
+
+= =
+
+u(tk) − uk, u(tk) − u˜k,
+
+
+
+ψ˜k
+k
+
+= =
+
+u(tk+1) − u˜k, p(tk) − pk.
+
+The proof of Theorem 3.1 will be carried out through a sequence of estimates presented below.
+3.4.1. Stability and the improved estimate on ∇·u˜k 0,Ω. Lemma 3.1. Provided that the solution of (1.1) is smooth enough in space and time and satisﬁes the initialization hypothesis (H), then we have the following error estimates:
+∇·u˜ l∞(L2(Ω)d) ≤ c(u, p, T ) δt3/2, e˜ − e l∞(L2(Ω)d) ≤ c(u, p, T ) δt2, δte˜ − δte l2(L2(Ω)d) ≤ c(u, p, T ) δt5/2.
+Proof. The proof of this lemma follows the procedure set out in section 3.3 for the time continuous counterpart of the scheme. The critical step here consists of working with the time increments δtek+1 and δte˜k+1, which corresponds to taking the inner product of ε∂tuε with the time derivative of (3.10).
+
+122
+
+J. L. GUERMOND AND JIE SHEN
+
+Step 1: Let us ﬁrst write the equations that control the time increments of the
+
+errors. By deﬁning Rk = ∂tu(tk) − (3u(tk) − 4u(tk−1) + u(tk−2))/2δt, we have for
+
+k≥2
+
+ 
+
+1 2δt
+
+(3δt
+
+ek+1
+
+−
+
+4δte˜k
+
++
+
+δte˜k−1)
+
++
+
+Dtψ˜k
+
++
+
+∇(δt
+
+k+1 + ∇·u˜k) = δtRk+1,
+
+(3.16)
+
+
+
+∇·δtek+1 = 0, δtek+1 · n|Γ = 0,
+
+(3.17)
+
+3 2δt
+
+δt
+
+e˜k+1
+
++
+
+Dte˜k+1
+
+=
+
+3 2δt
+
+δt
+
+ek+1
+
++ Dtψ˜k,
+
+e˜k+1|Γ = 0.
+
+Step 2: Let us multiply (3.16) by 4δtδtek+1 and integrate over Ω. We obtain
+
+2(δtek+1, 3δtek+1 − 4δte˜k+ δte˜k−1) + 4δt(δtek+1, Dtψ˜k) = 4δt(δtek+1, δtRk+1)
+
+≤ 4δt( δtek+1 − δte˜k+1 0,Ω + δte˜k+1 0,Ω) δtRk+1 0,Ω
+
+≤ δt
+
+δte˜k+1
+
+2 1,Ω
+
++
+
+δt
+
+δtek+1 − δte˜k+1
+
+2 0,Ω
+
++
+
+cδt7,
+
+where we have used the Poincar´e inequality and the fact that δtRk+1 0,Ω ≤ cδt3. Note also that we have used the inequality 2ab ≤ γa2 +b2/γ, which holds for all γ > 0. We shall repeatedly use this standard trick hereafter without mentioning it anymore.
+Since the treatment of the approximate time derivative is quite involved, we show the details. Let us deﬁne
+
+I = 2(δtek+1, 3δtek+1 − 4δte˜k + δte˜k−1) = 6(δtek+1, δtek+1 − δte˜k+1) + 2(δtek+1 − δte˜k+1, 3δte˜k+1 − 4δte˜k + δte˜k−1) + 2(δte˜k+1, 3δte˜k+1 − 4δte˜k + δte˜k−1)
+
+and denote by I1, I2, and I3 the three terms in the right-hand side. Owing to the standard identities
+
+2(ak+1, ak+1 − ak) = |ak+1|2 + |ak+1 − ak|2 − |ak|2,
+
+(3.18)
+
+2(ak+1, 3ak+1 − 4ak + ak−1) = |ak+1|2 + |2ak+1 − ak|2 + |δttak+1|2 − |ak|2 − |2ak − ak−1|2,
+
+we deduce
+
+I1 = 3
+
+δtek+1
+
+2 0,Ω
+
++
+
+3
+
+δtek+1 − δte˜k+1
+
+2 0,Ω
+
+−
+
+3
+
+δte˜k+1
+
+2 0,Ω
+
+,
+
+I3 =
+
+δte˜k+1
+
+2 0,Ω
+
++
+
+2δte˜k+1 − δte˜k
+
+2 0,Ω
+
++
+
+δttte˜k+1
+
+2 0,Ω
+
+−
+
+δte˜k
+
+2 0,Ω
+
+−
+
+2δte˜k − δte˜k−1 20,Ω.
+
+For the remaining term I2, we make use of (3.17) as follows:
+
+3 2δt
+
+I2
+
+=
+
+2(Dte˜k+1
+
+−
+
+Dt ψ˜k ,
+
+3δte˜k+1
+
+−
+
+4δte˜k
+
++
+
+δte˜k−1).
+
+Using the relation ψ˜k = δtu(tk+1) + e˜k, we obtain
+
+3 2δt
+
+I2
+
+=
+
+2(Dtδte˜k+1,
+
+3δte˜k+1
+
+−
+
+4δte˜k
+
++
+
+δte˜k−1)
+
+− 2(Dtδtu(tk+1), 3δte˜k+1 − 4δte˜k + δte˜k−1).
+
+PROJECTION METHODS
+
+123
+
+By denoting as I21 and I22 the two terms in the right-hand side, and by using the identities (3.14) and (3.18), we infer
+
+I21 = 2(∇·δte˜k+1, ∇·(3δte˜k+1 − 4δte˜k + δte˜k−1))
+
++ 2(∇×δtte˜k+1, 3∇×δtte˜k+1 − ∇×δtte˜k)
+
+=
+
+∇·δte˜k+1
+
+2 0,Ω
+
++
+
+∇·(2δte˜k+1 − δte˜k)
+
+2 0,Ω
+
++
+
+∇·(δttte˜k+1)
+
+2 0,Ω
+
+−
+
+∇·δte˜k
+
+2 0,Ω
+
+−
+
+∇·(2δte˜k − δte˜k−1)
+
+2 0,Ω
+
++
+
+3
+
+∇×δtte˜k+1
+
+2 0,Ω
+
++
+
+1 3
+
+∇×(3δte˜k+1 − 4δte˜k + δte˜k−1)
+
+2 0,Ω
+
+−
+
+1 3
+
+∇×δtte˜k
+
+2 0,Ω
+
+,
+
+I22 = − 2(∇×δttu(tk+1), ∇×(3δte˜k+1 − 4δte˜k + δte˜k−1))
+
+≥
+
+−
+
+cδt4
+
+−
+
+1 6
+
+∇×(3δte˜k+1 − 4δte˜k + δte˜k−1)
+
+20,Ω.
+
+By combining all the results above, we deduce the following bound:
+
+3
+
+δtek+1
+
+20,Ω− 3
+
+δte˜k+1
+
+2 0,Ω
+
++
+
+3(1
+
+−
+
+δt)
+
+δtek+1 − δte˜k+1
+
+2 0,Ω
+
++
+
+δte˜k+1
+
+2 0,Ω
+
++
+
+2δte˜k+1 − δte˜k
+
+2 0,Ω
+
++
+
+δttte˜k+1
+
+2 0,Ω
+
++
+
+2δt 3
+
+∇·δte˜k+1
+
+2 0,Ω
+
++
+
+∇·(2δte˜k+1 − δte˜k)
+
+2 0,Ω
+
++
+
+∇·(δttte˜k+1)
+
+2 0,Ω
+
++3
+
+∇×δtte˜k+1
+
+2 0,Ω
+
++
+
+1 6
+
+∇×(3δte˜k+1 − 4δte˜k + δte˜k−1)
+
+2 0,Ω
+
++ 4δt(δtek+1, Dtψ˜k)
+
+≤
+
+δt
+
+δte˜k+1
+
+2 1,Ω
+
++
+
+δte˜k
+
+2 0,Ω
+
++
+
+2δte˜k − δte˜k−1
+
+2 0,Ω
+
++
+
+2δt 3
+
+∇·δte˜k
+
+2 0,Ω
+
++
+
+∇·(2δte˜k
+
+− δte˜k−1)
+
+2 0,Ω
+
++
+
+1 3
+
+∇×δtte˜k
+
+2 0,Ω
+
++ cδt5.
+
+Step
+
+3:
+
+By
+
+taking
+
+the
+
+square
+
+of
+
+(3.17),
+
+multiplying
+
+the
+
+result
+
+by
+
+4 3
+
+δ
+
+t2
+
+,
+
+and
+
+inte-
+
+grating over the domain, we have
+
+3 δte˜k+1
+
+20,Ω+
+
+4δt(δte˜k+1, Dte˜k+1)
+
++
+
+4δt2 3
+
+Dte˜k+1
+
+2 0,Ω
+
+= 3 δtek+1
+
+2 0,Ω
+
++
+
+4δt(δtek+1,
+
+Dt ψ˜k )
+
++
+
+4δt2 3
+
+Dtψ˜k
+
+2 0,Ω
+
+.
+
+Owing to (3.14), we deduce
+
+3
+
+δte˜k+1
+
+2 0,Ω
+
+−
+
+3
+
+δtek+1
+
+2 0,Ω
+
++
+
+2δt
+
+∇·e˜k+1
+
+2 0,Ω
+
++ 2δt
+
+∇·δte˜k+1
+
+2 0,Ω
+
++
+
+4δt
+
+∇×δte˜k+1
+
+2 0,Ω
+
++
+
+4δt2 3
+
+Dte˜k+1
+
+2 0,Ω
+
+= 2δt
+
+∇·e˜k
+
+2 0,Ω
+
++
+
+4δt(δtek+1,
+
+Dt ψ˜k )
+
++
+
+4δt2 3
+
+Dtψ˜k
+
+20,Ω.
+
+A control on
+
+Dtψ˜k
+
+2 0,Ω
+
+is obtained as follows:
+
+Dtψ˜k
+
+2 0,Ω
+
+≤
+
+Dtδtu(tk+1) 0,Ω + Dte˜k 0,Ω 2
+
+≤ cδt2 + Dte˜k 0,Ω 2 = c2δt4 + 2δtcδt Dte˜k 0,Ω +
+
+≤ c2δt4 + δt c2δt2 +
+
+Dte˜k
+
+2 0,Ω
+
++
+
+Dte˜k
+
+2 0,Ω
+
+≤ cδt3 + (1 + δt)
+
+Dte˜k
+
+2 0,Ω
+
+.
+
+Dte˜k
+
+2 0,Ω
+
+124
+
+J. L. GUERMOND AND JIE SHEN
+
+Note that it is at this very point that the splitting error spoils the optimality. Finally, we have
+
+3 δte˜k+1
+
+2 0,Ω
+
+−
+
+3
+
+δtek+1
+
+2 0,Ω
+
++
+
+2δt
+
+∇·e˜k+1
+
+2 0,Ω
+
++
+
+2δt
+
+δte˜k+1
+
+2 1,Ω
+
++
+
+4δt2 3
+
+Dte˜k+1
+
+2 0,Ω
+
+≤ 2δt
+
+∇·e˜k
+
+2 0,Ω
+
++
+
+4δt(δtek+1,
+
+Dt ψ˜k )
+
++
+
+4δt2 3
+
+(1
+
++
+
+δt)
+
+Dte˜k
+
+2 0,Ω
+
++
+
+cδt5.
+
+Step 4: By combining the bounds obtained at Steps 2 and 3, and by dropping some nonessential positive terms on the left-hand side, we ﬁnally deduce
+
+δte˜k+1
+
+2 0,Ω
+
++
+
+2δte˜k+1 − δte˜k
+
+2 0,Ω
+
++
+
+2δt
+
+∇·e˜k+1
+
+2 0,Ω
+
++
+
+4δt2 3
+
+Dte˜k+1
+
+2 0,Ω
+
++
+
+2δt 3
+
+∇·δte˜k+1
+
+2 0,Ω
+
++
+
+∇·(2δte˜k+1 − δte˜k)
+
+2 0,Ω
+
++
+
+1 3
+
+∇×δtte˜k+1
+
+2 0,Ω
+
++ 3(1 − δt)
+
+δtek+1 − δte˜k+1
+
+2 0,Ω
+
++
+
+δt
+
+δte˜k+1
+
+2 1,Ω
+
+≤
+
+δte˜k
+
+2 0,Ω
+
++
+
+2δte˜k − δte˜k−1
+
+2 0,Ω
+
++
+
+2δt
+
+∇·e˜k
+
+2 0,Ω
+
++
+
+(1
+
++
+
+δt)
+
+4δt2 3
+
+Dte˜k
+
+2 0,Ω
+
++
+
+2δt 3
+
+∇·δte˜k2 +
+
+∇·(2δte˜k − δte˜k−1)
+
+2 0,Ω
+
++
+
+1 3
+
+∇×δtte˜k
+
+2 0,Ω
+
++ cδt5.
+
+By applying the discrete Gronwall lemma and using the initialization hypothesis (H), we infer
+
+k
+
+δt
+
+∇·e˜k+1
+
+2 0,Ω
+
++
+
+δt2
+
+Dte˜k+1
+
+2 0,Ω
+
++
+
+δtel − δte˜l
+
+2 0,Ω
+
+l=0
+
+≤ c(
+
+e˜2
+
+2 0,Ω
+
++
+
+δt
+
+e˜2
+
+2 1,Ω
+
++
+
+δt2
+
+e˜2
+
+2 2,Ω
+
++
+
+δt4).
+
+Thanks to (H), it is an easy matter to show directly that
+
+e˜2
+
+2 0,Ω
+
++
+
+δt
+
+e˜2
+
+2 1,Ω
+
++
+
+δt2
+
+e˜2
+
+2 2,Ω
+
++
+
+δt4
+
+≤
+
+cδt4.
+
+Finally, noticing that
+
+3 2
+
+e˜k+1 − ek+1
+
+0,Ω = δt
+
+Dte˜k+1 + ∇×∇×δtu(tk+1)
+
+0,Ω
+
+≤ δt Dte˜k+1 0,Ω + cδt2,
+
+the desired result follows from the last three inequalities.
+
+Remark 3.1. The ﬁrst result in the above lemma, namely,
+
+∇·u˜
+
+l∞ (L2 )
+
+≤
+
+cδt
+
+3 2
+
+,
+
+is
+
+the key for obtaining error estimates that improve on those from the standard velocity-
+
+correction scheme. A remarkable property of the rotational velocity-correction scheme
+
+is that even if the time stepping in (3.1)–(3.2) is replaced by the ﬁrst-order backward
+
+Euler stepping, the estimate on ∇·u˜ still holds.
+
+3.4.2. The inverse of the Stokes operator. In this section we recall proper-
+ties of the inverse of the Stokes operator that will be useful for proving estimates in the L2-norm. This operator, which we shall denote by S : H−1(Ω)d −→ V , is deﬁned as follows. For all v in H−1(Ω)d, S(v) ∈ V is the solution to the following problem:
+
+(∇S(v), ∇w) − (r, ∇·w) = v, w (q, ∇·S(v)) = 0 ∀q ∈ L20(Ω),
+
+∀w ∈ H01(Ω)d,
+
+PROJECTION METHODS
+
+125
+
+where ·, · denotes the duality pairing between H−1(Ω)d and H01(Ω)d. Obviously, we have
+
+(3.19)
+
+∀v ∈ H−1(Ω)d,
+
+S(v) 1,Ω + r 0,Ω ≤ c v −1,Ω.
+
+We shall assume hereafter that the domain Ω is such that the following regularity property holds:
+
+(3.20)
+
+∀v ∈ L2(Ω)d,
+
+S(v) 2,Ω + r 1,Ω ≤ c v 0,Ω.
+
+The operator S has interesting properties, as listed below. Lemma 3.2. For all v in H01(Ω)d and all 0 < γ < 1 we have
+
+∀v ∈ H,
+
+(∇S(v), ∇v) ≥ (1 − γ)
+
+v
+
+2 0,Ω
+
+−
+
+c(γ)
+
+v−v
+
+2 0,Ω
+
+.
+
+In particular,
+
+∀v ∈ V,
+
+(∇S(v), ∇v) = v 20,Ω.
+
+Proof. Owing to the deﬁnition of S(v), we have
+
+(∇S(v), ∇v) = (r, ∇·v) +
+
+v
+
+2 0,Ω
+
+= (r, ∇·(v − v )) +
+
+v
+
+2 0,Ω
+
+=
+
+− (∇r, v − v ) +
+
+v
+
+2 0,Ω
+
+≥ − r 1,Ω v − v
+
+0,Ω +
+
+v
+
+2 0,Ω
+
+≥ − c(γ) v − v
+
+2 0,Ω
+
++
+
+(1
+
+−
+
+γ)
+
+v
+
+2 0,Ω
+
+,
+
+∀v ∈ H owing to (3.20).
+
+This completes the proof. Lemma 3.3. The bilinear form
+
+H−1(Ω)d × H−1(Ω)d (v, w) −→ S(v), w := (∇S(v), ∇S(w)) ∈ R
+
+induces a seminorm on H−1(Ω)d that we denote | · | , and
+
+∀v ∈ H−1(Ω)d,
+
+|v| = ∇S(v) 0,Ω ≤ c v −1,Ω.
+
+Proof. It is clear that it is symmetric S(v), w = (∇S(v), ∇S(w)) = S(w), v and
+
+positive
+
+S(v), v
+
+=
+
+∇S(v)
+
+2 0,Ω
+
+;
+
+hence,
+
+S(v), w
+
+induces a seminorm on H−1(Ω)d.
+
+Furthermore,
+
+|v|2 =
+
+S(v), v
+
+= (∇S(v), ∇S(v)) =
+
+∇S(v)
+
+2 0,Ω
+
+≤
+
+c
+
+v
+
+2 −1,Ω
+
+.
+
+The proof is complete. 3.4.3. Proof of the L2-estimate on the velocity. In this subsection we prove
+
+u − u l2(L2(Ω)d) ≤ cδt2.
+
+Proof. We begin by reconstructing the momentum equation at time tk+1 by adding the projection step to the viscous step. In terms of the errors, we obtain
+
+(3.21)
+
+3e˜k+1
+
+− 4e˜k 2δt
+
++ e˜k−1
+
+− ∇2e˜k+1
+
++∇
+
+k+1
+
+=
+
+Rk+1.
+
+126
+
+J. L. GUERMOND AND JIE SHEN
+
+By taking the L2 scalar product with 4δtS(e˜k+1), we obtain
+|e˜k+1|2 + |2e˜k+1 − e˜k|2 + |δtte˜k+1|2 + 4δt(∇S(e˜k+1), ∇e˜k+1) = 4δt(Rk+1, S(e˜k+1)) + |e˜k|2 + |2e˜k − e˜k−1|2.
+
+Owing to Lemma 3.2 and the fact that ek+1 is in H, we infer
+
+4δt(∇S(e˜k+1), ∇e˜k+1) ≥ 2δt
+
+e˜k+1
+
+2 0,Ω
+
+−
+
+cδt
+
+e˜k+1 − ek+1
+
+2 0,Ω
+
+.
+
+Thanks to (3.20), we have
+
+4δt(Rk+1, S(e˜k+1)) ≤ cδt
+
+Rk+1
+
+2 0,Ω
+
++
+
+δt
+
+e˜k+1
+
+0,Ω.
+
+As a result, we obtain
+
+|e˜k+1|2 + |2e˜k+1 − e˜k|2 + |δtte˜k+1|2 + δt
+
+e˜k+1
+
+2 0,Ω
+
+≤
+
+cδt5
+
++
+
+c
+
+δt
+
+e˜k+1 − ek+1
+
+2 0,Ω
+
++ |e˜k|2 + |2e˜k − e˜k−1|2.
+
+By applying the discrete Gronwall lemma and using the initialization hypothesis, we infer
+
+e
+
+2 l2 (L2 (Ω)d )
+
+≤c
+
+e˜ − e
+
+2 l2 (L2 (Ω)d )
+
++
+
+δt4.
+
+The desired result is now an easy consequence of Lemma 3.1.
+
+3.4.4. Proof of the H1-estimate on the velocity. First we need to prove an estimate on the approximate time derivative. For any sequence of functions φ0, φ1, . . . ,
+we set
+
+Dtφk+1
+
+=
+
+1 2
+
+(3φk+1
+
+− 4φk
+
++ φk−1).
+
+Lemma 3.4. Under the hypotheses of Theorem 3.1 we have the following error estimates:
+
+Dte˜ l2(L2(Ω)d) ≤ cδt5/2.
+
+Proof. We use the same argument as for the proof of the L2-estimate, but we use it on the time increment δte˜k+1. For k ≥ 2 we have
+
+1 2δt
+
+(3δte˜k+1
+
+−
+
+4δte˜k
+
++
+
+δte˜k−1)
+
+−
+
+∇2δte˜k+1
+
++
+
+∇δt
+
+k+1
+
+= δtRk+1.
+
+By taking the L2 scalar product with 4δtS(δte˜k+1) and repeating the same arguments as above, we obtain
+
+|δte˜k+1|2 + |2δte˜k+1 − δte˜k|2 + |δttte˜k+1|2 + δt
+
+δte˜k+1
+
+2 0,Ω
+
+≤ cδt7 + c δt
+
+δte˜k+1 − δtek+1
+
+2 0,Ω
+
++
+
+|δt e˜k |2
+
++
+
+|2δte˜k
+
+−
+
+δt e˜k−1 |2 .
+
+Owing to this inequality, the discrete Gronwall lemma, and the initialization hypotheses, we infer
+
+δte˜
+
+2 l2 (L2 (Ω)d )
+
+≤
+
+c
+
+δte˜ − δte
+
+2 l2 (L2 (Ω)d )
+
++
+
+cδt7.
+
+PROJECTION METHODS
+
+127
+
+The conclusion is an easy consequence of Lemma 3.1 together with the bound
+
+Dte˜
+
+l2(L2(Ω)d) ≤ 2
+
+δte˜
+
+2 l2
+
+(L2
+
+(Ω)d
+
+)
+
+.
+
+Now we are in position to prove the H1-estimate for the velocity approximation and the L2-estimate for the pressure approximation.
+Consider the error equation corresponding to (3.8):
+
+(3.22)
+
+1 2δt
+
+(3e˜k+1
+
+− 4e˜k
+
++ e˜k−1) − ∇2e˜k+1
+
+=
+
+Rk+1
+
+−∇
+
+k+1,
+
+e˜k+1|Γ = 0.
+
+We rewrite the above equation and (3.2) as a nonhomogeneous Stokes system for (e˜k+1, k+1):
+
+(3.23)
+
+−∇2e˜k+1 + ∇ k+1 = hk+1, e˜k+1|Γ = 0, ∇·e˜k+1 = gk+1,
+
+where we have deﬁned
+
+(3.24)
+
+hk+1
+
+=
+
+Rk+1
+
+−
+
+3ek+1
+
+− 4ek 2δt
+
++
+
+ek−1 ,
+
+gk+1 = −∇·u˜k+1.
+
+Owing to Lemma 3.1, we have
+
+(3.25)
+
+gk+1 0,Ω =
+
+∇·u˜k+1
+
+0,Ω
+
+≤
+
+cδt
+
+3 2
+
+∀k.
+
+We also have
+
+(3.26)
+
+hk+1 −1,Ω ≤ =
+
+Rk+1 −1,Ω +
+
+3e˜k+1 − 4e˜k + e˜k−1 2δt
+
+Rk+1
+
+−1,Ω
+
++
+
+1 δt
+
+Dte˜k+1
+
+−1,Ω.
+
+−1,Ω
+
+Now, the standard result for the nonhomogeneous Stokes system (3.23) leads to
+
+(3.27)
+
+e˜k+1 1,Ω + k+1 0,Ω ≤ c hk+1 −1,Ω + gk+1 0,Ω.
+
+Thanks to (3.25), (3.26), and Lemma 3.4, we derive
+
+e˜ l2(H1(Ω)d) +
+
+l2 (L2 (Ω))
+
+≤
+
+cδ
+
+t
+
+3 2
+
+.
+
+Thus, all the results in Theorem 3.1 have been proved.
+
+4. Numerical results. To test the two versions of the velocity-correction methods described above, we make convergence tests with respect to δt with ﬁnite elements and a Legendre spectral approximation.
+
+4.1. Convergence tests with ﬁnite elements. We test the ﬁnite element approximation on the Stokes problem (1.1) in Ω = ]0, 1[2. We set the source term so
+that the exact solution is
+
+p(x, y, t) = cos(πx) sin(πy) sin t, u(x, y, t) = π sin(2πy) sin2(πx) sin t, u(x, y, t) = −π sin(2πx) sin2(πy) sin t.
+
+128
+0−1 0−2 0−3
+
+Rot : L_infty norm Rot : L2 norm Std : L_infty norm Std : L2 norm Reference slopes
+
+J. L. GUERMOND AND JIE SHEN
+
+0 0
+
+Rot : L_infty norm
+
+Rot : L2 norm
+
+0−1
+
+Std : L_infty norm Std : L2 norm
+
+Reference slopes
+
+0−2
+
+0−4
+
+0−3
+
+Slope 1
+
+0−5
+
+0−4 Slope 1.5
+
+0−6
+
+0−5
+
+Slope 2
+
+Slope 2
+
+0−7
+
+0−6
+
+0.0001
+
+0.001
+
+0.01
+
+0.1 0.0001
+
+0.001
+
+0.01
+
+0.1
+
+Fig. 1. Convergence tests for the velocity-correction methods with BDF 2 and ﬁnite elements. Left: velocity; right: pressure.
+
+We use mixed P2/P1 ﬁnite elements. The mesh used in the tests is composed of 3694 triangles so that the mesh size is h ≈ 1/40. There are 1928 P1-nodes and 7549 P2nodes. We make the tests on the range 5.10−4 ≤ δt ≤ 10−1 so that the approximation error in space is far smaller than the time splitting error.
+We have tested the algorithms (2.3)–(2.4) and (3.1)–(3.2); the results are reported in the Figure 1. In the left panel we show the errors on the velocity in the L∞and L2-norms as functions of δt. The + and × symbols are for the results from the velocity-correction method in rotational form, whereas the black symbols are for the results from the standard form of the method. It is clear that for the velocity, the improvement brought by the rotational form is marginal and both schemes are second-order accurate in the L2-norm. Note, however, that for any given δt the results from the rotational form of the algorithm are systematically more accurate than their standard counterparts. The situation is somewhat diﬀerent for the pressure. The convergence results for this quantity in the L∞- and L2-norms are reported in the right panel of Figure 1, the + and × symbols being for the rotational form of the method and the black symbols for the standard form. The behavior of the errors in the L2-norm seems to be identical for both variants of the method with a slope slightly less than 2; however, the rotational form results are systematically better than the standard ones. For the L∞-norm the picture is diﬀerent. The results from the rotational form seem to behave like δt3/2, whereas those from the standard form of the algorithm behave more or less like δt.
+The diﬀerence between the standard form and the rotational form of the velocitycorrection algorithm is more spectacular when looking directly at the error ﬁelds. We show in Figure 2 the error on the pressure obtained by both algorithms at time T = 1 with δt = 0.01, using the same scale on both graphs to emphasize the diﬀerences. It is clear from this picture that the pressure ﬁeld from the standard method is polluted by a numerical boundary layer, whereas that from the rotational form is smooth.
+4.2. Legendre spectral approximation. We have also implemented the second-order standard and rotational velocity-correction schemes with a Legendre– Galerkin approximation [13] using 32 × 32 modes. We tested the same analytical
+
+PROJECTION METHODS
+
+129
+
+0.4
+
+0.4
+
+0.24
+
+0.24
+
+0.08
+
+0.08
+
+−0.08
+
+−0.08
+
+−0.24
+
+−0.24
+
+−0.04
+
+0.2
+
+0.4
+
+y
+
+0.6
+
+0.8
+
+11
+
+−0.04
+
+0.2
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+x
+
+0.4
+
+y
+
+0.6
+
+0.8
+
+11
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+x
+
+Fig. 2. Pressure error ﬁelds at T = 1 with ﬁnite elements. Left: standard form; right: rotational form.
+
+log10(error) log10(error)
+
+2
+
+2.5
+
+x : standard L- ifty error
+
++ : rotational L- ifty error
+
+3
+
+* : standard L- 2 error
+
+o : rotational L- 2 error
+
+3.5
+
+: slope 2
+
+4
+
+4.5
+
+5
+
+5.5
+
+0
+
+0.5
+
+x : standard L- ifty error
+
++ : rotational L ifty error
+
+-
+
+1
+
+* : standard L- 2 error
+
+o : rotational L 2 error
+
+-
+
+1.5
+
+: slope 2
+
+2
+
+2.5
+
+3
+
+3.5
+
+4
+
+6
+
+4.5
+
+3.4
+
+3.2
+
+3
+
+2.8
+
+2.6
+
+2.4
+
+2.2
+
+2
+
+3.4
+
+3.2
+
+3
+
+2.8
+
+2.6
+
+2.4
+
+2.2
+
+2
+
+log (dt)
+
+log (dt)
+
+10
+
+10
+
+Fig. 3. Convergence tests for the velocity-correction methods with BDF 2 and the Legendre– Galerkin method. Left: velocity; right: pressure.
+
+solution as above but with Ω = ]−1, +1[2. The convergence rates and the pressure error ﬁelds are presented in Figures 3 and 4. We observe that the results are similar to those obtained with the ﬁnite element approximation and are consistent with our theoretical analysis.
+
+5. Connection with the schemes in [10, 9]. In this section we show how
+
+the schemes proposed by Orszag, Israeli, and Deville [10] and Karniadakis, Israeli,
+
+and Orszag [9] can be interpreted as the rotational form of our velocity-correction
+
+methods.
+
+Let
+
+us
+
+denote
+
+by
+
+1 δt
+
+(βq
+
+uk+1
+
+−
+
+q−1 j=0
+
+βj uk−j )
+
+the
+
+qth-order
+
+BDF
+
+approximation
+
+for ∂tu(tk+1). Then, the scheme originally proposed in [10] and [9] (with an Adams–
+
+Moulton-type scheme replacing our BDF scheme—note that this replacement is made
+
+for the convenience of our presentation only; it does not change the essential error
+
+130
+
+J. L. GUERMOND AND JIE SHEN
+
+0.6 0.4 0.2
+0 −0.2 −0.4 −0.6
+1 0.5
+
+0 −0.5
+
+−1 −1
+
+0 −0.5
+
+1 0.5
+
+0.6 0.4 0.2
+0 −0.2 −0.4 −0.6
+1 0.5
+
+0 −0.5
+
+−1 −1
+
+0 −0.5
+
+1 0.5
+
+Fig. 4. Pressure error ﬁelds at T = 1 with a Legendre–Galerkin approximation. Left: standard form; right: rotational form.
+
+behaviors) can be written as follows:
+
+(5.1)
+
+
+
+
+
+1 δt
+
+(βq
+
+uˆk+1
+
+−
+
+q−1 j=0
+
+βj u˜k−j )
+
++
+
+∇pk+1
+
+=
+
+f (tk+1),
+
+
+
+∇·uˆk+1 = 0, uˆk+1 · n|Γ = −δt(∇2u)
+
+,k
+
+· n|Γ.
+
+We then correct the velocity uˆk+1 by computing u˜k+1 as follows:
+
+(5.2)
+
+βq δt
+
+(u˜k+1
+
+−
+
+uˆk+1)
+
+−
+
+∇2u˜k+1
+
+=
+
+0,
+
+u˜k+1|Γ = 0,
+
+where (∇2u) ,k is some approximate value of ∇2u(tk+1). The authors in [10, 9] pro-
+
+posed the followings choices:
+
+(5.3)
+
+
+
+ 0
+
+(∇2u)
+
+,k
+
+= 
+
+−∇×∇×u˜k −∇×∇×(2u˜k − u˜k−1)
+
+for O(δt) accuracy, for O(δt2) accuracy, for O(δt3) accuracy.
+
+In practice, problem (5.1) is solved as a Poisson equation with the Neumann boundary condition
+∂npk+1|Γ = (f (tk+1) + (∇2u) ,k) · n.
+These methods diﬀer from the standard pressure-correction projection methods in the sense that a consistent pressure boundary condition is enforced. Hence, in principle, these methods should achieve better convergence properties. To the best of our knowledge, no proof of stability or convergence is available in the literature for this class of methods. Furthermore, since second derivatives of the velocity are used in the Neumann boundary condition for the pressure, this class of methods cannot be applied directly with a ﬁnite element method where these derivatives are usually not available. This is the main reason why successful implementations of these methods are reported only with spectral or spectral-element approximations where the trace of the second-order derivatives of the velocity are available. On the other hand, the explicit treatment of second derivatives of the velocity leads one to suspect that this
+
+PROJECTION METHODS
+
+131
+
+type of algorithm can be only conditionally stable, with a stability condition of type δt ≤ ch2 for ﬁnite element approximations and δt ≤ cN −4 for spectral or spectral
+element approximations.
+We shall see in what follows that the boundary condition ambiguity can be removed by rewriting the algorithm in the L2 weak framework, and that the resulting
+algorithm is indeed unconditionally stable, for it is a velocity-correction algorithm.
+
+5.1. The weak setting. Let us now rewrite (5.1), (5.2) in L2. Let us assume
+
+for the time being that ∇·(∇2u˜) ,k = 0. By setting uk+1 = uˆk+1 + δt(∇2u˜) ,k and
+
+observing that ∇·uk+1 = 0 and uk+1 · n|Γ = 0, the system (5.1) can be rewritten
+
+
+
+
+
+1 δt
+
+(βq uk+1
+
+−
+
+q−1 j=0
+
+βj
+
+u˜k−j
+
+)
+
+−
+
+(∇2u˜)
+
+,k
+
++ ∇pk+1
+
+=
+
+f (tk+1),
+
+(5.4)
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0.
+
+Now, inserting the deﬁnition of uk+1 back into (5.2), we obtain
+
+(5.5)
+
+
+
+ 
+
+βq(u˜k+1 − uk+1) δt
+u˜k+1|Γ = 0.
+
+− ∇2u˜k+1 + (∇2u˜)
+
+,k
+
+= 0,
+
+Note that for q = 2 and (∇2u˜) ,k = −∇×∇×u˜k, the scheme (5.4)–(5.5) is exactly the
+velocity-correction algorithm in rotational form (3.1)–(3.2), while the case q = 2 and (∇2u˜) ,k = ∇2u˜k corresponds to the velocity-correction algorithm in standard form
+(2.3)–(2.4).
+
+5.2. First-order schemes. It is interesting to consider the case q = 1 and
+
+(∇2u˜) ,k = 0, the resulting scheme being
+
+(5.6)
+
+ 
+
+uk+1 − δt
+
+u˜k
+
++
+
+∇pk+1
+
+=
+
+f (tk+1),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0,
+
+(5.7)
+
+
+
+
+
+u˜k+1 − uk+1 δt
+
+− ∇2u˜k+1 = 0,
+
+ u˜k+1|Γ = 0.
+
+In this case, the standard version and the rotational version coincide, and this method
+can be viewed as the dual of the original Chorin–Temam method. Of course, it suﬀers from the dual ailments of the Chorin–Temam algorithm, i.e., it enforces ∂npk+1|Γ = f (tk+1)·n and ∇2u˜k+1|Γ = 0, whereas the Chorin–Temam scheme enforces ∇2u˜k+1|Γ = f (tk+1) and ∂npk+1|Γ = 0.
+From the point of view of accuracy, the two algorithms are equivalent.
+Theorem 5.1. If (u, p), the solution to (1.1), is smooth enough in space and
+time, the solution to (5.6)–(5.7) satisﬁes the following error estimates:
+
+u − u l∞(L2(Ω)d) + u − u˜ l∞(L2(Ω)d) ≤ c(u, p, T ) δt, p − p l∞(L2(Ω)) + u − u˜k l∞(H1(Ω)d) ≤ c(u, p, T ) δt1/2.
+Proof. Since the proof is very similar to that of the Chorin–Temam algorithm, we refer the reader to Shen [12], Rannacher [11], Guermond [6], or to the proof of second-order accuracy in section 3.4.
+
+132
+
+J. L. GUERMOND AND JIE SHEN
+
+6. Treatment of nonlinear terms.
+
+6.1. Semi-implicit treatment. We now describe brieﬂy how the nonlinear
+
+terms can be properly treated. Taking the second-order rotational velocity-correction
+
+scheme as an example, one way to treat the nonlinear term semi-implicitly is as fol-
+
+lows: (6.1)
+
+ 
+
+3uk+1 − 4u˜k + 2δt
++ d(2u˜k−1
+
+u˜k−1 + ν∇×∇×u˜k − u˜k−2, u˜k) + ∇pk+1
+
+=
+
+f (tk+1),
+
+
+
+∇·uk+1 = uk+1 · n|Γ
+
+0, =
+
+0
+
+and (6.2)
+
+ 
+
+3u˜k+1 − 3uk+1 2δt
+
+−
+
+ν ∇2 u˜k+1
+
++
+
+d(2u˜k
+
+−
+
+u˜k−1, u˜k+1)
+
+ u˜k|Γ+1 = 0,
+
+− ν∇×∇×u˜k − d(2u˜k−1 − u˜k−2, u˜k) = 0,
+
+where the bilinear form d accounts for the advection and can take various forms to ensure unconditional stability. For instance, we can use
+
+(6.3)
+
+d(v, w) =
+
+v · ∇w
+
++
+
+1 2
+
+(∇·
+
+v)w
+
+or
+
+(∇×v) × w,
+
+where in the second case, pk+1 is the total pressure, i.e., the kinetic energy has to be subtracted from pk+1 to get the real pressure. One can show, just as in the linear case, that the scheme (6.1)–(6.2) is unconditionally stable and that Theorem 3.1 holds.
+Note that with the presence of the nonlinear term, the projection step is once again given by (3.4) in strong form or (3.9) in weak form. By adding (6.2) to (6.1), one obtains
+
+(6.4)
+
+3u˜k+1
+
+− 4u˜k 2δt
+
++
+
+u˜k−1
+
+−
+
+ν ∇2 u˜k+1
+
++
+
+d(2u˜k
+
+−
+
+u˜k−1, u˜k+1)
+
++
+
+∇pk+1
+
+=
+
+f (tk+1),
+
+with u˜k|Γ+1 = 0, which is a linear elliptic equation for u˜k+1 that can be solved by standard procedures. As a result, a simple way to code the semi-implicit velocity-
+correction algorithm in rotational form with the projected velocity eliminated is (3.9),
+(3.7), (6.4).
+
+6.2. Explicit treatment. One can also treat the nonlinear term totally explic-
+
+itly as is done usually with spectral approximations [2]:
+
+(6.5)
+
+ 
+
+3uk+1
+
+− 4u˜k 2δt
+
++
+
+u˜k−1
+
++
+
+ν∇×∇×u˜k
+
++ (2d(u˜k, u˜k) − d(u˜k−1, u˜k−1)) + ∇pk+1 = f (tk+1),
+
+
+
+∇·uk+1 = 0, uk+1 · n|Γ = 0
+
+and (6.6)
+
+3u˜k+1 − 3uk+1 2δt
+
+−
+
+ν ∇2 u˜k+1
+
+−
+
+ν∇×∇×u˜k
+
+=
+
+0,
+
+u˜k|Γ+1 = 0.
+
+PROJECTION METHODS
+
+133
+
+In this case, the scheme is only conditionally stable with a usual CFL condition.
+In practice the projected velocity can be completely eliminated from the algorithm as follows. Upon substituting f (tk+1) into (3.9) by f (tk+1) − (2d(u˜k, u˜k) − d(u˜k−1, u˜k−1)), the projection step is still (3.9). After updating the pressure according to (3.7), the new velocity u˜k+1 is obtained by solving
+
+3u˜k+1 − 4u˜k + u˜k−1 − ν∇2u˜k+1 + (2d(u˜k, u˜k) − d(u˜k−1, u˜k−1)) + ∇pk+1 2δt
+
+(6.7)
+
+= f (tk+1)
+
+with u˜k|Γ+1 = 0.
+7. Concluding remarks. We have introduced a class of velocity-correction schemes in standard and rotational form. We proved stability and O(δt2) convergence in the L2-norm of the velocity for both versions. We also proved improved error estimates for the rotational form, i.e., O(δt3/2) convergence in the H1-norm of the velocity and the L2-norm of the pressure. Our numerical results indicate that these estimates appear to be the best possible under the general assumptions on Ω considered in this paper.
+We have also shown that the schemes introduced in [10] and [9] are formally equivalent, in the spatial continuous case, to the velocity-correction projection methods in rotational form. Thus, our results provide the ﬁrst rigorous proof of stability and convergence for these schemes. In addition, contrary to the original form of these methods which involve the normal trace of second-order derivatives of the velocity at the boundary, the new velocity-correction projection methods, being set in the standard L2 weak setting, can be easily implemented by using any variational approximation techniques, including ﬁnite element methods.
+
+REFERENCES
+[1] A. Batoul, H. Khallouf, and G. Labrosse, Une m´ethode de r´esolution directe (pseudospectrale) du probl`eme de Stokes 2D/3D instationnaire. Application a` la cavit´e entrain´ee carr´ee, C. R. Acad. Sci. Paris, S´er. I, 319 (1994), pp. 1455–1461.
+[2] C. Canuto, M. Hussaini, A. Quarteroni, and T. Zang, Spectral methods in ﬂuid dynamics, Comput. Phys., Springer-Verlag, New York, 1987.
+[3] A. J. Chorin, Numerical solution of the Navier-Stokes equations, Math. Comp., 22 (1968), pp. 745–762.
+[4] W. E and J.-G. Liu, Projection method I: Convergence and numerical boundary layers, SIAM J. Numer. Anal., 32 (1995), pp. 1017–1057.
+[5] K. Goda, A multistep technique with implicit diﬀerence schemes for calculating two- or threedimensional cavity ﬂows, J. Comput. Phys., 30 (1979), pp. 76–95.
+[6] J.-L. Guermond, Some practical implementations of projection methods for Navier–Stokes equations, M2AN Mod´el. Math. Anal. Num´er., 30 (1996), pp. 637–667.
+[7] J.-L. Guermond, Un r´esultat de convergence a` l’ordre deux en temps pour l’approximation des ´equations de Navier–Stokes par une technique de projection, M2AN Mod´el. Math. Anal. Num´er., 33 (1999), pp. 169–189.
+[8] J. van Kan, A second-order accurate pressure-correction scheme for viscous incompressible ﬂow, SIAM J. Sci. Stat. Comput., 7 (1986), pp. 870–891.
+[9] K. E. Karniadakis, M. Israeli, and S. A. Orszag, High-order splitting methods for the incompressible Navier–Stokes equations, J. Comput. Phys., 97 (1991), pp. 414–443.
+[10] S. A. Orsag, M. Israeli, and M. Deville, Boundary conditions for incompressible ﬂows, J. Sci. Comput., 1 (1986), pp. 75–111.
+[11] R. Rannacher, On Chorin’s projection method for the incompressible Navier–Stokes equations, in The Navier–Stokes Equations II. Theory and Numerical Methods, Lectures Notes in Math. 1530, Springer–Verlag, Berlin, 1992, pp. 167–183.
+
+134
+
+J. L. GUERMOND AND JIE SHEN
+
+[12] J. Shen, On error estimates of projection methods for Navier–Stokes equations: First-order schemes, SIAM J. Numer. Anal, 29 (1992), pp. 57–77.
+[13] J. Shen, Eﬃcient spectral-Galerkin method I. Direct solvers of second- and fourth-order equations using Legendre polynomials, SIAM J. Sci. Comput., 15 (1994), pp. 1489–1505.
+[14] J. Shen, On error estimates of the projection methods for Navier–Stokes equations: Secondorder schemes, Math. Comp., 65 (1996), pp. 1039–1065.
+[15] R. Temam, Sur l’approximation de la solution des ´equations de Navier-Stokes par la m´ethode des pas fractionnaires II, Arch. Ration. Mech. Anal., 33 (1969), pp. 377–385.
+[16] R. Temam, Navier–Stokes Equations, Stud. Math. Appl. 2, North-Holland, Amsterdam, 1977.
+

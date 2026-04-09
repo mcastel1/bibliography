@@ -1,0 +1,2374 @@
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+Contents lists available at ScienceDirect
+European Journal of Mechanics / B Fluids
+journal homepage: www.elsevier.com/locate/ejmflu
+
+A combined VOF-RANS approach for studying the evolution of incipient two-dimensional wind-driven waves over a viscous liquid
+Florent Burdairon, Jacques Magnaudet ∗
+Institut de Mécanique des Fluides de Toulouse (IMFT), Université de Toulouse, CNRS, Toulouse, France
+
+article info
+Article history: Received 10 April 2023 Received in revised form 26 June 2023 Accepted 6 August 2023 Available online xxxx
+Keywords: Wind-wave generation Air–liquid interface Numerical simulation Volume of fluid Turbulence model
+
+abstract
+Recent laboratory experiments have revealed that important insights into the physical processes involved in the wind-driven generation of surface waves may be obtained by varying the viscosity of the carrying liquid over several orders of magnitude. The present paper reports on the development of a companion approach aimed at studying similar phenomena through numerical simulation, a way expected to remove some of the experimental limitations, especially in the near-interface region, and to allow the relative influence of several physical processes to be assessed by disregarding or inactivating arbitrarily some of them. After reviewing available options, we select and approach based on the combination of a volume of fluid technique to track the evolution of the air–liquid interface, and a two-dimensional Reynolds-averaged version of the Navier–Stokes equations supplemented with a turbulence model to predict the velocity and pressure fields in both fluids. We examine the formal and physical frameworks in which such a time-dependent two-dimensional formulation is meaningful, and close the governing momentum equations with the one-equation Spalart–Allmaras model which directly solves a transport equation for the eddy viscosity. For this purpose, we assume the interface to behave as a rigid wall with respect to turbulent fluctuations in the air, and implement a versatile algorithm to compute the local distance to the interface whatever its shape. We first assess the performance of this model in unseparated and separated single-phase flows over a wavy rigid wall, which are of specific relevance with respect to wind-wave generation. Then, we discuss the initialization protocol used in two-phase simulations, which involves an impulse disturbance with a white noise distribution applied to the interface position. We finally present some examples of interface evolutions obtained at several wind speeds with liquids of various viscosities, and discuss the underlying physics revealed by the associated statistics of interface disturbances, streamline patterns and energy spectra.
+© 2023 Elsevier Masson SAS. All rights reserved.
+
+1. Introduction
+Understanding and predicting how wind blowing over a liquid generates waves at its surface and how the wave field in turn alters the turbulent motions above that surface and possibly below it has challenged oceanographers and fluid dynamicists for more than a century [1–3]. The manner in which turbulence influences or even governs the physical mechanisms involved in the wind-wave generation process is still in debate, although the two founding theories that attempt to rationalize these mechanisms are now two-thirds of a century old. In the first of them, Phillips [4] explored the possibility of a resonance between the turbulent pressure fluctuations in the boundary layer above the surface and the free deformation modes of that surface. This
+∗ Corresponding author.
+E-mail addresses: florent.burdairon@imft.fr (F. Burdairon), jmagnaud@imft.fr (J. Magnaudet).
+https://doi.org/10.1016/j.euromechflu.2023.08.001 0997-7546/© 2023 Elsevier Masson SAS. All rights reserved.
+
+mechanism leads to a linear growth of surface deformations, and subsequent measurements have suggested that it may be appropriate for describing the very early stages of the windwave growth [5]. Simultaneously, Miles [6] developed an inviscid theory in which surface deformations grow according to a twodimensional linear instability mechanism leading to an exponential growth. In the original version of this theory, the sole role of turbulence is to set a logarithmic mean velocity profile in the boundary layer, which results in a mean shear stress at the liquid surface. Somewhat later, Miles improved his initial model in several respects, considering among other factors the influence of viscous corrections in the air flow [7], and that of the surface viscous stress in slightly viscous liquids [8], which he showed to be significant in the generation of capillary and short gravity waves. Later, initially stimulated by Lighthill’s reinterpretation of Miles’ generic instability mechanism in terms of a ‘vortex force’ [9], several attempts were carried out to include the influence of wave-induced turbulent stresses on the energy transfer from the
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+air flow to the waves [10–15]. Turbulent stresses modelled thanks to various closures were shown to increase significantly this transfer. The predicted growth rates display a reasonable, albeit closure-dependent, agreement with experimental data for short waves, but invariably under-predict dramatically the growth of long waves.
+For obvious reasons, most of the theoretical developments and experimental measurements to date have focused on the air–water system. However, considering more viscous liquids is also of the utmost interest. First of all, it provides a stringent test to available theoretical models. For instance, the minimum wind speed beyond which waves start to emerge and propagate increases strongly with the liquid viscosity [16–18], and a consistent model has to predict properly this increase. Also, it was recently shown that specific waves taking the form of ‘viscous solitons’ develop at the surface of liquids with a viscosity several hundreds times that of water [19]. Understanding the underlying mechanisms and how the transition from regular wave trains to such viscous solitons operates is of clear interest from the point of view of pattern formation in freesurface flows [20]. From a methodological viewpoint, one may expect viscous liquids to be better candidates than water to test the predictions of two-dimensional theories because their larger viscosity reduces the velocity gradients in the horizontal direction perpendicular to wave propagation, making small-scale threedimensional turbulence-driven structures less prone to develop at their surface.
+Up to now, the few studies devoted to the generation of wind waves at the surface of viscous liquids have been experimental in nature. High-precision optical techniques have been instrumental in the detection of minute interface deformations [21], and particle image velocimetry has provided detailed access to the instantaneous velocity fields in vertical planes, both in the air and in the liquid, with the exception of the two-phase region located between the troughs and crests of the deforming interface. In air–water systems, numerical simulation has proven to efficiently complement laboratory measurements performed to unravel details of the interaction between the two fluids, especially within the crucial two-phase region where accurate measurements can hardly be achieved. Here we report on the development and application of a similar approach in the case of wind-wave generation at the surface of liquids of arbitrary viscosity. The present paper primarily aims at presenting step by step the elaboration of the corresponding computational strategy. This makes it basically methodological in nature, providing a ‘proof of concept’ rather than a physical discussion of results. An extensive presentation of these results and a detailed discussion of the underlying physical processes is deferred to a forthcoming publication.
+The paper is organized as follows. Section 2 discusses the various computational strategies developed over the last decades, and for some of them over the last few years, to simulate the evolution of wind-induced surface waves. In Section 3, we specify the modelling framework adopted in the present investigation, and discuss its potentialities and intrinsic limitations. The set of governing equations considered in this approach, including the turbulence model, is detailed in Section 4. The numerical framework and the specific issues related to the use of this turbulence model in the two-phase flow configurations of interest here are discussed in Section 5. Performances of the turbulence model in single-phase configurations directly relevant to windwave generation, especially the flow over a rigid wavy wall, are presented and analysed in Section 6. Section 7 finally considers the canonical two-phase configurations relevant to the problem of wind-wave generation over a viscous liquid. We detail the initialization protocol, a crucial aspect in this problem, and present some typical flow evolutions. We summarize the main findings of this study in Section 8.
+
+2. Review of available modelling strategies
+Simulating the evolution of wind-generated surface waves opposes major numerical difficulties. Indeed, this situation combines the need to follow the deformation (and possibly the topological changes) of a gas-liquid interface, with that of simulating a high-Reynolds-number turbulent air flow. Most numerical attempts to date dealt with the first issue by using coordinate transformations thanks to which the time-evolving interface is mapped onto a plane. In general, the underlying transformation is only performed on the vertical coordinate, so that the three coordinates in the transformed space are no longer mutually orthogonal. For this reason, numerous additional terms arise in the momentum equations [22–27]. If one is only interested in the very early stages of the wave development, the boundary conditions to be satisfied at the interface, i.e. the no-penetration (or kinematic) condition, together with the continuity of velocities and stresses, the latter including the hydrostatic and capillary contributions, may be linearized and projected onto the undeformed interface, thus avoiding the above coordinate transformation [28,29]. Of course, both approaches assume that the interface remains single-valued, which makes situations involving breaking waves out of reach. Recently, another route started to be explored by considering the potentialities offered by the volume of fluid (VOF) approach and some of its variants [30–32]. The VOF approach is routinely used in the context of two-phase flows involving drops and bubbles. In this formulation, a single set of governing equations is solved throughout the flow domain, the local fluid properties (i.e. density and viscosity) and the capillary force being determined by computing the time advancement of the local volume fraction of one of the fluids. The key advantage of this approach is that one no longer needs to make the grid evolve in order to adjust to the instantaneous position of the interface, which allows for the use of the Cartesian form of the governing equations. The difficulty is transferred to the robustness and accuracy of the numerical schemes that are required to (i) ensure volume conservation of each fluid and (ii) deal with very large gradients in the physical properties (hence, in the velocity gradients) in the interfacial region. Nevertheless, major progress has been achieved on these technical aspects over the last two decades. This is why this approach is adopted in the present work.
+The second issue is that air flows capable of generating waves at a liquid surface are necessarily turbulent. In the air–water system, tiny three-dimensional surface deformations start to be observed when the wind velocity in the bulk exceeds approximately 1.5 m s−1 [5], and the critical wind velocity beyond which regular two-dimensional waves emerge directly is close to 3.6 m s−1 [18]. More commonly, air flow characteristics relevant to wind-wave generation are expressed in terms of the friction velocity, u∗, defined as the square root of the shear stress (divided by the air density) at the interface. The above two thresholds
+correspond to u∗ ≈ 0.07 m s−1 and u∗ ≈ 0.18 m s−1, respectively.
+State-of-the-art direct numerical simulations [27,32] handle friction velocities of the order of 0.1 m s−1, and this approach looks ideal to get detailed insight into the processes involved in the early wave generation mechanisms. Nevertheless, dealing with liquids significantly more viscous than water imposes much more stringent requirements. For instance, two-dimensional waves at the surface of a liquid a hundred times more viscous than water
+only form when the air velocity exceeds ≈ 8 m s−1, i.e. the critical friction velocity is approximately u∗ = 0.35 m s−1. Hence, there is
+a factor of 4 in between the critical conditions for such a system compared with the air–water system, and this translates into a
+factor of 49/4 ≈ 23 in the number of grid points required to
+solve the entire range of turbulent motions in the air, down to
+
+151
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+the Kolmogorov scale. Although such large simulations are not out of reach nowadays, they remain extremely expensive and do not allow a parametric study of the problem at a reasonable cost.
+An appealing alternative is to turn to large eddy simulation (LES). This approach has been extensively used by several groups in connection with the coordinate transformation technique mentioned above. Such phase-resolved LES have been carried out over prescribed waves, be they periodic [33,34], or distributed in the form of a broadband spectrum [35] or a wave packet [36]. In the most recent studies, LES is employed to solve the turbulent air flow, and a potential flow solver is used to evolve the wave train over time, with a surface pressure distribution exported from the LES field at the corresponding instant of time [26]. A recent review of the various numerical techniques and subgridscale models employed in the LES approach, and of the advances it has provided in the understanding of wind-wave couplings is given in [37]. This review points out that LES has not yet been employed in conjunction with the VOF approach. The reasons are not discussed but are easy to understand. Indeed, modelling subgrid-scale transfers in regions alternately filled with liquid and air is a formidable task since, compared with single-phase turbulent flows, the filtered momentum equations involve many different second- and third-order unknown correlations for which appropriate closure laws have to be formulated [38].
+A simpler route has been employed for several decades in connection with air–water interfaces distorted by a prescribed two-dimensional periodic wave. It consists in using a Reynoldsaveraged version of the Navier–Stokes equations expressed in a reference frame travelling with the wave, coupled with a phenomenological turbulence closure relating the relevant components of the Reynolds stress tensor to the local characteristics of the flow field. A hierarchy of turbulence models has been used for this purpose, from the simplest zero-equation mixing length model [39], to the most sophisticated five-equation Reynolds-stress models [39–41], via one-equation models combining a transport equation for the turbulent kinetic energy with a prescribed distribution for the turbulent integral length scale [41,42]. An important issue encountered with this approach stands in the boundary conditions at the interface. While each Reynolds-averaged velocity component is assumed to match the corresponding orbital velocity component at the water surface, phenomenological boundary conditions are employed for the turbulent unknowns. In the above references, these conditions rely on the existence of a logarithmic velocity profile and a local equilibrium between turbulent energy production and dissipation in the logarithmic region above the interface. This ‘wall-function’ approach has the definite advantage of reducing the overall computational cost by avoiding the need for highly refined grids very close to the interface, and it appears suitable for dealing with already well-developed surface waves. Conversely, it constitutes one of the main limitations of the Reynolds-averaged approach as soon as the prediction of the evolution of small-amplitude interface deformations is concerned, since the local characteristics and the longitudinal profiles of the turbulent stresses in the viscous sublayer and the buffer layer above the interface are then expected to play a major role [13,14,43]. Therefore, in such a context, turbulence models allowing the use of ‘natural’ boundary conditions for the turbulent quantities right at the interface are mandatory.
+3. Modelling framework
+In what follows, we make use of the above Reynolds-averaged framework to represent the effects of turbulence above the air– liquid interface and possibly below it, in conjunction with a turbulence model obeying a ‘natural’ condition at the interface, the
+
+evolution of which is tracked with a VOF approach. Examining the evolution of non-periodic time-dependent interface deformations while representing effects of turbulence through a Reynoldsaveraged approach may seem contradictory at first glance. The crucial underlying issue is that of the separation between turbulent and orbital velocity and pressure fluctuations, which is an extremely complex task in the presence of a non-periodic threedimensional wave field [44–46]. Here, ‘orbital’ refers to fluctuations resulting from or correlated with any normal displacement of the interface. Obviously, the above issue simplifies drastically if a clear separation of time scales between the two components exists. Then, the response of waves evolving over ‘long’ time scales to the forcing of turbulent fluctuations covering a range of ‘short’ time scales may be studied in the framework of governing equations averaged over an intermediate time scale. However, this appealing framework is unfortunately not appropriate here, since the characteristic time scales of wind-generated interface deformations generally overlap those involved in the turbulent motion [12]. Therefore, a strict and consistent separation can only be achieved by introducing a convenient spatial averaging procedure combined with a drastic simplifying assumption on the geometry of the interface.
+This is rigorously achieved by assuming that interface dis-
+placements are two-dimensional, taking place in the (x, z) plane,
+say, and spatially averaging the governing equations in the y direction perpendicular to wave propagation [13,47,48]. Then, turbulent fluctuations being fully three-dimensional, they depend
+on both the local position X = (x, y, z) and time, t, while interface-related quantities only depend on x = (x, z), the pro-
+jection of the local position onto the vertical plane, and t. In this
+framework, any quantity Φ(X, t) may be decomposed in the form
+
+Φ(X, t) = ⟨Φ⟩(x, t) + Φ′(X, t) ,
+
+(1)
+
+where the operator ⟨·⟩ corresponds to a spatial averaging in the
+
+y direction, and Φ′(X, t) stands for the turbulent fluctuation of
+
+Φ. With this definition, ⟨Φ⟩ and Φ′ are uncorrelated, so that
+
+⟨⟨Φ
+
+⟩Φ
+
+′
+⟩
+
+≡
+
+0. The above framework implies that quantities
+
+directly related to the instantaneous position of the interface
+
+do not have a turbulent component. In the VOF approach, this
+
+position is defined with the help of the volume fraction of one of
+
+the fluids, say C . Geometrical properties of the interface, such as
+
+its local unit normal, n, and mean curvature, κ = ∇ · n, are also
+
+defined using the first and second derivatives of C in the form
+
+n = ∇C/∥∇C∥ and κ = ∇ · n, respectively. Similarly, the local
+
+density and viscosity of the two-fluid medium only depend on
+
+C and possibly on its gradients. For the above reason, C and the
+
+above geometrical or physical properties do not have a turbulent
+
+component. Hence, for instance,
+
+C(X, t) ≡ ⟨C⟩(x, t) ,
+
+(2)
+
+so that ⟨CΦ⟩ = ⟨⟨C⟩Φ⟩ = ⟨C⟩⟨Φ⟩. Note that since the operator ⟨·⟩
+acts only in the y direction, no spatial filtering is performed in the x direction along which waves propagate. Therefore, the smallest
+scales of the interface deformation in the (x, z) plane may still be
+resolved. The averaged Navier–Stokes equations based on the applica-
+tion of the operator ⟨·⟩ are similar to the classical incompressible
+Reynolds-averaged equations. In particular, turbulence only ap-
+pears through the second-order correlation tensor ⟨u′u′⟩, with u(X, t) = ⟨u⟩(x, t) + u′(X, t) being the local fluid velocity. If
+needed, x-averaged quantities, hereinafter denoted with an overbar, may be defined by integrating the quantity of interest over the appropriate distance, which has to be much larger than the lowest wavenumber present in the spectrum of C . These averaged
+
+152
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+quantities still depend on z and t, e.g., Φ(z, t), and the difference ⟨Φ⟩(x, t) − Φ(z, t) represents the orbital contribution to Φ.
+Obviously, the simplifying assumption stating that interface deformations are two-dimensional reduces severely the generality of the physical situations that may be studied in the corresponding framework. In particular, it prevents any progress in the study of the development of the longitudinal streaks and threedimensional tiny ‘wrinkles’ that deform the air–water interface at low wind speeds and/or short fetches, and may be thought of as the precursors of two-dimensional waves [5,18,49,50]. For the same reason, it also removes the possibility of examining the relevance of the intrinsically three-dimensional Phillips mechanism [4]. Despite these serious restrictions, the proposed approach is appealing in that it is potentially suitable for exploring the two-dimensional evolution of the interface in connection with Miles instability mechanism [6,7,9,51]. Indeed, this instability scenario considers the evolution of a two-dimensional interface
+z = η(x, t) subjected to pressure and shear stress distributions re-
+sulting from a prescribed u(z)-velocity profile in the air flow, set by turbulent motions in the boundary layer. Turbulence models operating in the framework of the Reynolds-averaged momentum equations have precisely be designed to predict the corresponding mean shear. After Miles established his initial ‘quasi-laminar’ theory [6], the role of wave-induced (or ‘orbital’ according to the present terminology) turbulent stresses in the wave growth was reconsidered [52], and even suggested to overcome the efficiency of the original mechanism in the growth of young waves [14]. Since then, this claim has been revised, comparisons between field data and predictions provided by a linear stability analysis incorporating several different turbulence models having led to the conclusion that orbital turbulent stresses play only a secondary role in the wave growth process [53]. This issue may also be assessed in the framework defined above. This is why one can expect that this route may provide interesting new insights into the efficiency and relevance of the Miles mechanism and its variants in the generation of wind waves at the surface of liquids of arbitrary viscosity, provided a suitable turbulence model is employed. Moreover, compared with DNS and LES approaches, the much more modest cost of VOF-RANS simulations offers two decisive benefits. First, parametric investigations implying a large number of runs may be performed (only 5 runs were carried out in the state-of-the-art DNS study reported in [32]). Second, much higher wind speeds may be considered, which is a key condition when examining the wave growth at the surface of viscous liquids. For instance, in [32] the friction velocity was set to 0.1 m s−1, while results with friction velocities up to 0.6 m s−1 will be discussed in Section 7.3.
+4. Governing equations and turbulence model
+In principle, a Reynolds stress model solving transport equa-
+tions for the four components ⟨u′2⟩, ⟨v′2⟩, ⟨w′2⟩, ⟨u′w′⟩ and for at
+least an extra scalar quantity related to the integral length scale (such as the dissipation rate) is desirable. Indeed, such models are designed to account for nonlocal and non-equilibrium effects which are expected to take place in the outer part of the boundary layer above the air–liquid surface when the latter deforms [14, 15,43]. However, designing proper near-interface modifications in the transport equation for the dissipation rate or any related scale-defining quantity is far from obvious, a difficulty most of the time circumvented through the use of a ‘wall-function’ approach. For this reason, we did not retain this type of model here and rather opted for a much simpler one-equation eddy-viscosity model. As will be shown later, despite several deficiencies, this model accurately reproduces the mean flow profile and captures most of the important aspects of air flow variations above a wavy
+
+surface in the regimes of interest here. Therefore, we consider
+
+it as a useful step to explore the potentialities of the general
+
+approach designed above, although more sophisticated models
+
+will certainly have to be considered in the future.
+
+Having selected an eddy-viscosity closure, the Reynolds stress
+
+tensor
+
+⟨u′u′⟩
+
+is
+
+related
+
+to
+
+the
+
+strain-rate
+
+tensor
+
+⟨S⟩
+
+=
+
+1 2
+
+(∇ ⟨u⟩+
+
+∇ ⟨u⟩T )
+
+in
+
+the
+
+form
+
+⟨u′u′⟩
+
+=
+
+2 3
+
+⟨k⟩I
+
+−
+
+2νt
+
+⟨S⟩,
+
+with
+
+⟨k⟩
+
+=
+
+1 2
+
+⟨u′
+
+· u′⟩
+
+the turbulent kinetic energy per unit mass, νt the eddy viscosity
+
+and I the unit tensor. In the framework of the VOF approach,
+
+the Reynolds-averaged two-phase flow is then governed by the
+
+averaged Navier–Stokes equations
+
+∂t C + ⟨u⟩ · ∇C = 0 ,
+
+(3)
+
+∇ · ⟨u⟩ = 0 ,
+
+(4)
+
+∂t (ρ⟨u⟩) + ∇ · (ρ⟨u⟩ ⟨u⟩) = ρg
+
+−∇P + 2∇ · [(µ + ρνt ) ⟨S⟩] − γ κ∇C ,
+
+(5)
+
+with ρ and µ being the local density and viscosity of the two-
+
+fluid medium (ν = µ/ρ being the kinematic viscosity), γ the
+
+surface tension, P
+
+=
+
+⟨P ⟩
+
++
+
+2 3
+
+ρ
+
+⟨k⟩
+
+the
+
+modified
+
+pressure,
+
+g
+
+denoting gravity. In (5), the capillary force is expressed using the
+
+classical formalism introduced in [54] and the mean curvature of
+
+the interface is computed as κ = ∇ ·(∇C /∥∇C ∥). The local density
+
+and viscosity are defined through the linear relations
+
+ρ(C ) = C ρl + (1 − C )ρa, µ(C ) = C µl + (1 − C )µa ,
+
+(6)
+
+with indices l and a referring to the properties of the liquid and air, respectively.
+Similar to all quantities in (3)–(5), the eddy viscosity is defined throughout the flow domain, so that no boundary condition can
+be imposed on it at the interface. Therefore, νt -variations across
+the successive subregions of the boundary layer above the in-
+terface and possibly below it have to be directly obtained via
+the turbulence model. This means that this model has to take into account in one way or another the distance to the interface to achieve the proper behaviour of the Reynolds stresses in its vicinity. In what follows, we consider that the air flow ‘feels’ the interface as a rigid wall. More specifically, what is assumed here is that the normal velocity fluctuation is zero at the interface, so that the non-diagonal component of the Reynolds stress tensor
+(⟨u′w′⟩ in the case of a flat interface located at a constant z) van-
+ishes there. This assumption is relevant given that (i) turbulence originates in the air flow, not in the liquid, and (ii) the density
+ratio ρa/ρl is very small, so that a normal velocity fluctuation in
+the air flow barely deforms the liquid surface. Obviously, the flow in the liquid may also be turbulent if entrainment by the air flow in the plane locally tangent to the interface is strong enough and the liquid has a low enough viscosity. This point will be discussed later.
+To predict the variations of the eddy viscosity, we selected the Spalart–Allmaras model [55]. This model, widely used in the context of high-Reynolds-number aerodynamic flows over complex geometries, directly solves a transport equation for the eddy viscosity, following the early proposal of [56]. More precisely, in a single-phase wall-bounded flow, the model first determines an
+auxiliary turbulent viscosity, ν˜t , by solving the transport equation
+
+∂t ν˜t
+
++
+
+⟨u⟩ · ∇ν˜t
+
+= cb1fr Ω˜ ν˜t
+
+−
+
+cw1 fw
+
+[
+
+ν˜t ℓ
+
+]2
+
+(7)
+
+1{
+
+}
+
++ σ ∇ · [(ν + ν˜t )∇ν˜t ] + cb2∇ν˜t · ∇ν˜t .
+
+In (7), ℓ is the local distance to the wall, and Ω˜ denotes a
+
+positive scalar quantity which, beyond the viscous and buffer
+
+regions, equals the local vorticity magnitude Ω = (2 Ω : Ω )1/2,
+
+with
+
+Ω
+
+=
+
+1 2
+
+( ∇
+
+⟨u⟩
+
+−
+
+∇ ⟨u⟩T )
+
+being
+
+the
+
+rotation-rate
+
+tensor.
+
+The
+
+153
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+various functions and constants in (7) are determined in such a
+way that, in a near-wall region, ν˜t ∝ ℓ and Ω˜ ∝ ℓ−1 down to the wall; see Appendix A for details. Then, the eddy viscosity νt involved in (5) is related linearly to ν˜t via an empirical damping
+function, fv1, in the form
+
+νt = fv1ν˜t .
+
+(8)
+
+a flux-limiting transport scheme split into a succession of onedimensional steps [59]. No geometrical reconstruction procedure is applied to locate the interface, which is merely defined as the
+iso-surface C = 0.5. An algebraic procedure aimed at limiting
+the spreading of volume fraction gradients in the presence of strong stretchings acting in the direction normal to the interface is available in the code [59] but was not activated in the computa-
+
+The function fv1 tends to 0 as the wall is approached and is unity far from it. This damping function allows accurate esti-
+mates of the turbulent shear stress to be obtained in near-wall
+regions, including the buffer and viscous sublayers. The various
+empirical functions and constants involved in (7)–(8) are detailed
+in Appendix A. Interestingly, in [13], Miles suggested that the
+Spalart–Allmaras model, which was brand new at that time,
+could be a good candidate to explore the influence of the orbital
+Reynolds stresses on the growth of wind-generated waves.
+The above model extends straightforwardly to the air flow in-
+volved in the two-phase configurations of interest here, provided
+that ℓ(x, t) is considered as the distance from any position located in the air flow, i.e. in the region such that 1 − C (x, t) > 0.5, to the interface. The evaluation of ℓ will be detailed in the next section. Variations of νt across the boundary layer are obtained through
+the empirical functions fw and fv1 involved in (7)–(8), plus the
+near-wall correction of the vorticity magnitude Ω˜ (see (A.2)).
+If the flow in the liquid beneath the interface is considered
+laminar, as it will be in the examples discussed in Section 7.3, this
+
+tions reported below. Indeed, in the shear-driven configurations
+
+considered here, the dominant stretching stands in the plane
+
+locally parallel to the interface. In (5), the capillary force at a
+
+location x is computed using a smoothed distribution of the
+
+volume fraction gradients, obtained by applying a weighted spa-
+
+tial averaging procedure to the distribution of C in a prescribed
+
+neighbourhood of x [59]. In (7), the production term and the
+
+nonlinear diffusion term, σ −1cb2∇ν˜t · ∇ν˜t , are treated as source
+
+terms,
+
+while
+
+the
+
+Fickian
+
+diffusion
+
+term,
+
+σ
+
+−1
+∇
+
+·
+
+[(ν
+
++
+
+ν˜t )∇ν˜t ],
+
+and
+
+the wall-destruction term are handled with the Crank–Nicolson
+
+scheme; treating this destruction term implicitly contributes to
+
+the numerical stability of the overall algorithm.
+
+In all computations reported below, the flow takes place over
+
+a rigid wall on which Dirichlet conditions
+
+⟨u⟩ = 0 , ν˜t = 0 ,
+
+(11)
+
+are imposed. The upper boundary may either be a symmetry plane or a rigid flat wall. In the former case, free-slip conditions
+
+⟨u⟩ · nu = 0 , nu · ∇[⟨u⟩ − (⟨u⟩ · nu) nu] = 0 , nu · ∇ν˜t = 0 (12)
+
+condition is straightforwardly enforced by extending (8) throughout the two-phase flow domain in the form
+
+are imposed, nu denoting the unit normal to the considered plane. The flow is periodic in the streamwise (x) direction in all cases.
+
+νt = (1 − C )fv1ν˜t> ,
+
+An important issue in the determination of the turbulent vis-
+(9) cosity is the evaluation of the distance ℓ(x, t) to the interface at a
+
+where ν˜t>(x, t) denotes the solution of (7) computed when the
+considered position x stands in the air at time t. The ‘constitutive’ Eq. (9) leaves the eddy viscosity in the air flow unchanged but sets it to zero in the liquid. In cases where the flow in the liquid is turbulent, as happens with water beyond wind speeds of a few meters per second, the model may easily be adapted to predict the eddy viscosity in the liquid. Indeed, for physical reasons discussed in Appendix B, turbulence beneath an air–liquid interface behaves differently from that close to a rigid wall. As a result, the turbulent shear stress in the liquid grows linearly with the distance to the interface, even within the viscous sublayer, just
+as ν˜t does in (7). Consequently, one merely needs to set fv1 ≡ 1
+in (8) to obtain a realistic decay of the eddy viscosity as the interface is approached from below. In such turbulent-turbulent configurations, the eddy viscosity throughout the two-phase flow becomes
+
+given position x. In the case of a single-phase wall-bounded flow,
+we compute ℓ by first building an explicit parametric representation of the wall geometry in the form xw(s) ≡ (xw(s), zw(s)) with ds = (dx2w + dzw2 )1/2 the infinitesimal arc-length element.
+Then we vary s along the wall (actually within a ‘reasonable’ finite
+interval of streamwise positions xw on both sides of x), compute
+the distance ℓs(x) = {(x − xw(s))2 + (z − zw(s))2}1/2 within this interval and set ℓ(x) = min|s(ℓs(x)). In two-phase configurations,
+assuming that the interface remains single-valued, we locate it
+using the standard SLIC technique [60]. That is, starting from
+the top of the domain, we examine the volume fraction in the
+successive grid cells encountered at a given x by decreasing z
+until we detect the first cell in which C (x, t) > 0.5. This gives
+a first approximation of the interface position at the considered
+abscissa, zi(x, t). Then, the precise position of the interface, zs(x, t),
+is obtained by requesting that the liquid volume enclosed below
+the interface equals that given by the volume fraction field, which
+
+νt = (1 − C )fv1ν˜t> + C ν˜t< ,
+
+(10) yields
+∫ zs
+
+with ν˜t<(x, t) being the local value of ν˜t computed from (7) when zs(x, t) = zi(x, t) + C (x, z′, t)dz′ .
+
+(13)
+
+the considered position stands in the liquid, i.e. C (x, t) > 0.5.
+
+zi
+
+We then compute ℓ(x, t) as in the single-phase case. However,
+
+5. Numerical framework and specific techniques
+
+it may happen, especially in long runs, that the interface does not remain single-valued, since some wave components may
+
+The governing Eqs. (3)–(7) are solved using the JADIM code developed at IMFT. This second-order finite volume code solves the Navier–Stokes equations and scalar transport equations on a staggered grid. Equations are written in general orthogonal curvilinear coordinates [57], which makes the treatment of the curved geometries considered in some test cases of Section 6 straightforward. Time-advancement is achieved with a third-order Runge– Kutta scheme for advective and source terms, and a semi-implicit Crank–Nicolson scheme for viscous terms [58]. Incompressibility is enforced to machine accuracy at the end of each time step by solving a Poisson equation for the pressure increment. Equation (3) governing the evolution of the interface is solved using
+
+overturn. In such cases, the above approach is no longer sufficient, as it only allows the uppermost position of the interface at a given abscissa to be detected. To deal with these more general situations, we employ the following strategy. We define a disc of radius R centered at the current location x, and introduce
+the index α(x′, z′) such that α = 1 at all cell positions (x′, z′) belonging to the disc, i.e. such that (x′ − x)2 + (z′ − z)2 ≤ R2, and α = 0 otherwise. Then, starting with the initial guess R = ℓ(x, t)
+provided by the above SLIC technique, we compute the average volume fraction within the disc, i.e.
+
+C(R, t)
+
+=
+
+∫
+V
+
+α(x′, z′)C (x′, z′, t)dV
+
+∫
+V
+
+α(x′,
+
+z ′ )dV
+
+.
+
+(14)
+
+154
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+We compare C(R, t) with the local volume fraction at the disc centre, C (x, t). If the relative difference between the two exceeds a
+prescribed tolerance, this is an indication that the volume fraction
+has varied within the disc, so that the distance to the interface
+is actually less than R. Therefore, we decrease R until C(R, t) becomes close enough to C (x, t). The final determination of ℓ(x, t)
+is obtained by interpolating the last two values of R involved in
+the iterative process, as the final one underestimates the distance
+to the interface while the penultimate one overestimates it.
+
+6. Preliminary tests: single-phase computations
+
+Before considering wind-wave generation, it is necessary to
+
+assess the performances and limitations of the turbulence model
+
+in relevant single-phase flows. The simplest configuration of in-
+
+terest here is presumably the fully-developed turbulent flow
+
+in a plane channel. This flow is also relevant with respect to
+
+the initialization of two-phase configurations because the corre-
+
+sponding velocity and turbulent viscosity fields are used during
+
+this stage, as will be seen in Section 7. The corresponding tests
+
+are detailed in Appendix C. It is shown that the model allows
+
+the mean velocity profile to be predicted accurately, even at high
+
+Reynolds number, with a very limited number of grid points
+
+located in the viscous sublayer. This is a good indication that
+
+the various near-wall and viscous corrections involved in (7)–(8)
+
+perform well in a zero-pressure gradient flow over a flat wall.
+
+A more complex single-phase configuration directly relevant
+
+to wind-wave generation is that of a turbulent flow over a rigid
+
+wavy wall. This configuration has been extensively studied ex-
+
+perimentally by Hanratty and coworkers, both in unseparated
+
+and separated configurations resulting from small- [61–63] and
+
+large- [64–66] amplitude undulations, respectively. The turbu-
+
+lence response to these undulations revealed several subtleties,
+
+starting with the amplitude and phase shift of the streamwise
+
+variations of the wall pressure and shear stress, and the position
+
+of the separation and reattachment points in the separated case.
+
+Measurements in the unseparated configuration established that
+
+standard mixing length-type models are unable to predict the
+
+above phase shifts for ‘long’ undulations with wavenumber k
+
+such that k+ = kδν ≲ 0.01, with δν = ν/u∗ being the
+near-wall viscous length scale. In contrast, accurate predictions
+
+were obtained whatever k+ by introducing an ad hoc ‘relaxation’
+
+of the mixing length accounting for the nonlocal influence of
+
+the streamwise pressure gradient on the thickness of the buffer
+
+layer and viscous sublayer [67]. Since then, this flow configu-
+
+ration has been extensively investigated experimentally (with
+
+large-amplitude undulations) [68–71] and computationally, be it
+
+through DNS [72–75], LES [76–79], or RANS simulations with
+
+two-equation turbulence models [71,78,80–83].
+
+Here we assess the performance of the Spalart–Allmaras model
+
+in two distinct wavy wall configurations, corresponding to un-
+
+separated and separated flows, respectively. These two cases,
+
+based on the experimental conditions of [61,63] on the one hand
+
+and [65] on the other hand, were taken as reference in a previous
+
+LES study [76], and these LES predictions are also used below
+
+for the sake of comparison. The flow domain is a wavy channel
+
+with total height H from the wave trough (z = −a) to an
+
+upper rigid flat wall (z = H − a), both walls been subjected
+
+to a no-slip condition. The shape of the wavy wall is defined as
+
+zw(x) = a cos(2π x/λ) and the wave steepness 2a/λ is 0.031 in the
+unseparated case and 0.2 in the separated one, the wavelength
+
+being close to the mean channel height Hm = H − a in both cases.
+
+The flow Reynolds number Reb based on the height Hm/2 and bulk
+
+velocity
+
+Ub
+
+=
+
+Hr−ef1
+
+∫ Hm
+0
+
+u(z ′ )dz ′
+
+is
+
+6560
+
+in
+
+the
+
+unseparated
+
+case
+
+(with Href = Hm) and 10600 in the separated one (with Href =
+
+Hm−a). The grid is curvilinear and orthogonal, with 144 cells from
+
+wall to wall and 52 cells over one wavelength. It is nonuniform
+
+across the channel, with a minimum near-wall cell size ∆zm+in = ∆zminu∗/ν close to 0.04 and 0.09 in the unseparated and sepa-
+rated cases, respectively, u∗ denoting the wavelength-averaged
+
+friction velocity on the wavy wall. Computations are carried out
+
+by prescribing the pressure gradient dP/dx and initializing the
+
+velocity and turbulent viscosity fields from z = 0 to z = Hm with
+the corresponding Poiseuille profile and the parabolic distribution
+
+ν˜t (x, t = 0) = 40 νz(Hm − z)/Hm2 , respectively. In addition, the
+initial velocity and turbulent viscosity distributions are both set
+
+to zero in the trough region −a ≤ z ≤ 0.
+
+Fig. 1 displays the pressure and shear stress distributions
+
+along the wavy wall in the unseparated case. The dimension-
+
+less wall pressure and shear stress are respectively defined as
+
+pw (x/λ)
+
+=
+
+(P(x, zw(x))
+
+−
+
+P
+
+(0,
+
+zw
+
+(0))/(
+
+1 2
+
+ρ
+
+Ub2
+
+)
+
+and
+
+τw (x/λ)
+
+=
+
+µ∂n⟨u⟩(x, zw(x))/(ρu∗2), with ∂n the normal derivative with re-
+
+spect to the wall. In line with experiments at a higher Reb and
+
+larger wave steepness [61], the wall pressure predicted by the
+
+one-equation turbulence model (subfigure (a)) is seen to exhibit
+
+a nearly harmonic response, with a maximum located slightly
+
+downstream of the trough. Although it corresponds to different
+
+flow conditions, the experimental distribution shown in the inset
+
+confirms these conclusions. In contrast, the shear stress profile
+
+(subfigure (b)) is found to be shifted ahead of the wall profile by
+
+nearly 55◦ (the angular phase shift is defined as 360 × (1 − xτ /λ), with xτ the position of the maximum of τw). As the figure shows,
+this phase shift is in good agreement with experimental results
+
+and LES predictions. However, the magnitude of the shear-stress
+
+variations is severely under-estimated, especially on the wind-
+
+ward side of the crest where the model predicts a 50% increase
+
+of the shear stress with respect to its mean value, while the
+
+experimental data and the LES result both indicate a twofold
+
+increase.
+
+The distributions of pw and τw in the separated case are
+shown in Fig. 2. Here again, the general appearance of the two
+
+distributions is correctly captured but the maxima, located 90◦
+
+and 50◦ ahead of the crest for pw and τw, respectively, are under-
+estimated by nearly 30%. The wall shear stress is predicted to
+
+become negative at x/λ ≈ 0.072 and to return to positive at
+
+x/λ ≈ 0.720, in slightly better agreement with experimen-
+
+tal measurements than the LES prediction. Nevertheless, exper-
+
+iments rather indicate that the flow detaches at x/λ ≈ 0.13 and
+
+reattaches at x/λ ≈ 0.66, so that the model actually somewhat
+
+anticipates the detachment on the leeward side of the crest and
+
+slightly delays the reattachment. Second-order models systemat-
+
+ically suffer from the same shortcomings [83]. The model predicts
+
+that the position of the pw-maximum coincides with that of the reattachment point, in line with the experimental findings of [64].
+
+In the detached region, the wall shear stress predicted by the
+
+Spalart–Allmaras model is in better agreement with the nearly
+
+flat distribution revealed by experiments than that computed in
+
+the reference LES. Predictions of the curvature-sensitized version
+
+of the model, in which the magnitude of the production term in
+
+(7) is modulated by the local ratio of the rotation and strain rates
+
+according to (A.6), exhibits marginal differences with those of the
+
+standard model. The most noticeable difference is found on the
+
+wall pressure, which increases on the leeward side of the crest
+
+when curvature effects are accounted for, making a ‘shoulder’
+
+appear in the pw-distribution, in line with that exhibited by experimental and LES results.
+
+Fig. 3 shows the streamline pattern in the separated case, and
+
+compares it with the experimental pattern determined in [71].
+
+The separated zone is seen to extend over most of the region
+
+located above the trough in both panels. Nevertheless, the re-
+
+circulating region predicted with the Spalart–Allmaras model is
+
+flatter than that observed in the experiment. For instance, in the
+
+155
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Fig. 1. Wall distributions in a non-separated flow over a wavy wall with 2a/λ ≈ 0.031, Hm/λ = 1 and Reb ≈ 6560 (Re∗ = Hmu∗/2ν = 370, k+ = π Re∗−1Hm/λ ≈ 8.5 × 10−3). —: present predictions with the standard turbulence model (fr = 1 in (7)); +: predictions with the curvature-sensitized turbulence model (fr given by (A.6)–(A.7)). (a) normalized pressure pw; the inset displays the experimental distribution determined in [61] for 2a/λ ≈ 0.05 and Reb ≈ 1.5 × 104. (b) normalized
+shear stress; •: experiments [61] (Reb ≈ 7850); —: LES prediction [76].
+
+Fig. 2. Wall distributions in a separated flow over a wavy wall with Reb ≈ 10600 (Re∗ = 1370), Hm/λ = 0.933 and 2a/λ = 0.2. For caption, see Fig. 1; experimental data are taken from [65] (Reb ≈ 12000).
+
+plane x/λ = 0.5, i.e. right above the through, the top of the recirculation stands at the altitude z/H ≈ 0, while it is detected at z/H ≈ 0.06 in the experiment. Also, the footprint of the
+disturbance induced in the distribution of the streamwise velocity
+⟨u⟩(x, z) by the wavy wall persists deeper in the bulk in the com-
+putation. Indeed, a significant bump, associated with a velocity
+minimum, is noticed in the core region (z/H ≲ 0.5), while the
+corresponding experimental distribution exhibits a much flatter profile.
+In summary, the tests performed in an unseparated turbulent flow over a wavy wall reveal that the one-equation Spalart– Allmaras model correctly predicts the phase of the wall pressure and shear stress distributions in the considered case, which cor-
+responds to k+ ≈ 8.5 × 10−3. Additional results for other k+
+are reported in Appendix D. They confirm these conclusions for larger k+ (relevant to wind-wave generation), while for smaller k+ (more relevant to swell propagation) the model fails to predict correctly the phase lag, as systematically observed with turbulence models based on the eddy viscosity concept [14,43,67]. In the separated configuration, the model predicts the position of the detachment and reattachment points fairly well, although it under-predicts the extent of the recirculating region in the
+
+direction normal to the wall. In both cases, the main deficiency of the model with respect to present purposes appears to be the
+significant under-prediction of the amplitude of the pw- and τw-
+variations, especially that of their peak values. In other terms, the turbulence model seems to ‘soften’ flow variations along the sinusoidal wall profile too much. It might be that this deficiency can be attenuated by tuning some of the empirical functions and constants of the models detailed in (A.3)–(A.5). However, these parameters have been calibrated in a number of flows in the past, and any change in one of them improving the predictions in the specific configuration considered here might be detrimental in other flows. This is why we did not attempt to tune any of these parameters. The only attempt we made consisted in setting the diffusion term (last term in the right-hand side of (7)) to zero in the streamwise direction, to favour sharper variations of the eddy viscosity along the flow direction. However, this attempt did not
+reveal any significant change in the pw- and τw-distributions, nor in those of the mean velocity field ⟨u⟩(x, z).
+The results reported in Appendix C establish that the Spalart– Allmaras model reproduces the mean shear profile across a fullydeveloped turbulent boundary layer well, even with a coarse discretization in the viscous sublayer. This makes this model
+
+156
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Fig. 3. Streamines in a separated flow over a wavy wall with Reb ≈ 10600, Hm/λ = 0.933 and 2a/λ = 0.2. (a): present results; (b): experiments (adapted from Fig. 5(b) of [71]). The colour scale corresponds to isovalues of the streamwise mean velocity ⟨u⟩(x, z). (For interpretation of the references to colour in this figure
+legend, the reader is referred to the web version of this article.)
+
+suitable for studying the initial wave growth in the spirit of Miles ‘quasi-laminar’ theory [6]. When the wave amplitude grows, so do the wave-induced Reynolds stresses. The underprediction of the pressure and shear stress variations along a wavy wall discussed above may then become an issue, especially in the unseparated regime. However, the linear stability results of [53] led to the conclusion that wave-induced Reynolds stresses affect only secondarily the wave growth in this regime. Hence the deficiency of the turbulence model is not expected to alter significantly the corresponding predictions. With further growth of the wave amplitude, the near-surface flow separates. The model predicts the positions where separation and reattachment take place quite well, but still under-predicts the peaks of the wall distributions by nearly 35%. This under-prediction has presumably sizeable effects on the characteristics of the saturated wave field. However, we are presently primarily interested in the early stages of the growth and of the interactions among the wave components. This is why the performances of the model reported in the various tests we carried out, combined with its simplicity and numerical robustness, make us confident that it is suitable for present objectives.
+7. Two-phase configurations
+7.1. Geometry and grid
+We now turn to the two-phase computations based on the complete set of Eqs. (3)–(7). The simulations are carried out in
+a rectangular domain with dimensions L × H in the streamwise
+(x) and vertical (z) directions, respectively. The flow is assumed periodic in the x-direction, while no-slip and free-slip conditions apply on the bottom and top walls, respectively. In all runs discussed below, the mean level of the interface, z0, is assumed to stand midway between the bottom and upper surfaces, which is close to the experimental conditions of [18]. Computations make use of a grid with a nonuniform cell spacing in the z-direction on both sides of the mean interface. More precisely, the cell
+spacing decreases gradually from z = 0 to z = z0 − ∆/2, stays constant within the stripe z0 − ∆/2 ≤ z ≤ z0 + ∆/2, and reincreases from z = z0 + ∆/2 to the upper free-slip wall located at z = H. We set the grid spacing in the intermediate stripe to ∆zmin ≈ 0.5δν , with δν = ν/u∗ the characteristic near-wall length
+
+Table 1
+
+Characteristic parameters of the simulations. The mean interface is located
+
+midway between the bottom wall and top symmetry plane in all cases. Lq denotes a liquid whose viscosity is q times that of water.
+
+liquid
+
+Re∗
+
+L H
+
+∆x ∆zmin
+
+∆zmax ∆zmin
+
+Nx
+
+Nz
+
+L1
+
+228
+
+1.5
+
+4.97
+
+13.72
+
+282
+
+228
+
+453
+
+1.5
+
+5.03
+
+16.91
+
+546
+
+408
+
+613
+
+1.5
+
+4.94
+
+18.78
+
+750
+
+528
+
+800
+
+1.5
+
+4.69
+
+19.29
+
+1026
+
+678
+
+1067
+
+1.5
+
+5.03
+
+19.09
+
+1290
+
+918
+
+L10
+
+613
+
+1.5
+
+4.94
+
+18.78
+
+750
+
+528
+
+1067
+
+1.5
+
+4.97
+
+19.09
+
+1290
+
+918
+
+L12 L30 L100
+
+800
+
+3.0
+
+18.46
+
+19.29
+
+522
+
+678
+
+800
+
+3.0
+
+18.46
+
+19.29
+
+522
+
+678
+
+613
+
+1.5
+
+4.94
+
+1067
+
+1.5
+
+4.97
+
+1333
+
+1.5
+
+5.10
+
+1600
+
+1.5
+
+4.99
+
+1867
+
+1.5
+
+5.06
+
+18.78 19.09 18.98 18.86 19.02
+
+750 1290 1602 1926 2240
+
+528 918 1158 1368 1608
+
+scale of the air flow. We choose a thickness ∆/H = 1/8 for the
+
+stripe, which, under most conditions, makes the refined region
+
+thick enough to track the possible development of surface waves
+
+until saturation. Since Re∗ = (H −z0)/δν and z0 = H/2, this choice
+
+yields
+
+a
+
+number
+
+of
+
+cells
+
+N∆≈
+
+∆ 0.5δν
+
+=
+
+H 4δν
+
+=
+
+1 2
+
+Re∗
+
+within
+
+this
+
+stripe. The lower and upper non-uniform regions are discretized
+
+with 0.35N∆ cells each, so that the height of the largest cells
+(adjacent to the bottom wall and upper free-slip surface), is
+
+approximately 10δν . A uniform cell spacing, ∆x, is imposed in
+the streamwise direction. To avoid excessive cell distortion in the
+
+refined region, the ratio ∆x/∆zmin is maintained close to 5 in
+
+most cases. This yields a total number of cells in the streamwise
+
+direction Nx
+
+N∆
+
+=
+
+1 2
+
+Re∗
+
+= L/∆x
+
+and
+
+∆x ∆zmin
+
+= ≈
+
+L H
+
+H ∆
+
+N∆
+
+5 one
+
+∆zmin ∆x
+
+,
+
+so
+
+that with ∆/H
+
+=
+
+1/8,
+
+has Nx ≈ 0.8Re∗L/H. Gathering
+
+the above information, the total number of cells is seen to be
+
+approximately 0.8Re∗L/H ×0.85Re∗ ≈ 0.7(L/H)Re∗2. For instance,
+
+with Re∗ = 800 and L/H = 3/2, the grid comprises a total
+
+number of 1026 × 678 cells. The flow and grid characteristics
+
+employed in the 14 runs discussed in Section 7.3 are summarized
+
+in Table 1. Obviously, the domain length L has to be chosen large
+
+enough for the growth of the relevant interfacial modes to remain
+
+unconstrained by the imposed x-periodicity. This is no problem
+
+157
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Fig. 4. Evolution of the rms interface deformation for different liquid viscosities and wind conditions. (a): water (blue), L12 (green) and L30 (red) under constant wind conditions (Re∗ = 800); (b): water for Re∗ = 613 (purple), 800 (blue), and 1067 (cyan); (c): L100 for Re∗ = 613 (purple), 1067 (blue), 1333 (green), 1600 (orange), 1867 (red). As we are mostly interested in the initial stages of the wave growth, simulations were carried out over a prescribed number of time steps. This is why waves have reached saturation in some cases while their amplitude is still growing in others. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+
+in the early stages of the growth but can become an issue in late stages if low-wavenumber modes are still developing. In such cases, the remedy consists in designing a new 2L-long grid with the same z-discretization, and continuing the run on that grid with the last fields computed on the initial L-long grid used as initial conditions. The same procedure can be repeated several times if necessary.
+
+7.2. Initialization protocol
+
+The air flow is driven by the mean pressure gradient dP/dx,
+
+and the control parameter of the simulations is the friction ve-
+
+locity at the interface, u∗, the two being related through the
+
+constraint ρau∗2
+
+=
+
+−
+
+H 2
+
+dP
+
+/dx
+
+resulting
+
+from
+
+the
+
+streamwise
+
+momentum balance. A small negative streamwise gravity com-
+
+ponent, gx, may be introduced in order to impose a zero mean flowrate in the liquid, then mimicking the experiments of [18] in
+
+which the liquid was enclosed in a rectangular tank. Indeed, the
+
+x-component of the total driving force per unit volume in the air
+
+is Ga = ρagx − dP/dx while that in the liquid is Gl = ρlgx − dP/dx. Since ρl/ρa ≫ 1, a small but nonzero gx leaves the driving force virtually unchanged in the air flow (Ga ≈ −dP/dx) but may provide the dominant contribution in the liquid (Gl ≈ ρlgx).
+As long as the flow in the liquid is considered laminar, it
+is initialized with the Poiseuille profile ul(z) = µ−l 1[Gl(z0 − z/2) + ρau∗2]z which satisfies the no-slip condition at the lower
+wall and the continuity of shear stresses at the mean interface
+
+position. In cases a zero net liquid flow rate is assumed, as it
+
+will be in all simulations discussed in Section 7.3, the condition
+
+∫ z0
+0
+
+ul (z ′ )dz ′
+
+=
+
+0 yields Gl
+
+=
+
+−
+
+3 2
+
+ρau∗2
+
+z0−1
+
+.
+
+Other prescriptions
+
+may be used for Gl. For instance, imposing Gl = −ρau∗2z0−1 yields
+
+a zero-shear-stress condition at the bottom of the liquid layer. In
+
+the case of water, the subsurface flow is turbulent under most
+
+wind conditions. Hence, the above Poiseuille flow and estimates
+
+for Gl are physically inadequate. The appropriate initialization procedure is described in Appendix B.
+
+To initialize the air flow, we perform a separate run to com-
+
+pute the single-phase turbulent flow in a plane half-channel of
+
+height H − z0, with the friction velocity at the lower wall set
+to u∗. The discretization used in this preliminary run is identical
+
+to that described above, i.e. a constant grid spacing ∆zmin = 0.5ν/u∗ is employed over a ∆/2-thick region adjacent to the
+
+wall, followed by a growing spacing up to the upper free-slip
+
+surface. Once this run has converged, the corresponding velocity
+
+and turbulent viscosity fields are pasted in the upper part of
+
+the two-phase computational domain, after the velocity of the
+
+liquid at the position of the mean interface, ui = ul(z = z0),
+has been added to the computed air velocity profile to enforce
+
+the continuity of velocities at z = z0. It is worth noting that
+
+when the flow in the liquid is laminar and the zero-flowrate
+
+condition
+
+applies,
+
+one
+
+has ui
+
+=
+
+µ−l 1[Glz0/2+ρau∗2]z0
+
+=
+
+z0 4µl
+
+ρa
+
+u∗2
+
+.
+
+Then, defining the characteristic Reynolds number in the liquid
+
+as
+
+Rel
+
+=
+
+2 3
+
+ρl
+
+ui
+
+z0
+
+/µl
+
+(the
+
+factor
+
+of 2/3 resulting from
+
+the
+
+fact that
+
+the minimum of u(z) stands at the position z = z0/3), Rel may
+
+be shown to be related to the friction Reynolds number of the
+
+air flow, Re∗
+
+=
+
+ρa(H − z0)u∗/µa, as Rel
+
+=
+
+2ρl 3ρa
+
+[
+
+z0 2(H −z0 )
+
+µa µl
+
+Re∗
+
+2
+]
+
+.
+
+Hence, considering for instance a liquid 10 times more viscous
+
+than water and a configuration with z0 = H/2 and Re∗ = 800, one has Rel ≈ 270. This estimate indicates that the flow in the liquid
+remains laminar, even though the air flow above the interface is
+
+strongly turbulent; the more viscous the liquid is, the more this
+
+conclusion holds.
+
+After the above initialization of the velocity and turbulent
+
+viscosity fields is completed, the solution of (3)–(7) starts to be
+
+advanced in time. However, to make sure that the matching of
+
+velocities and shear stresses at the interface does not introduce
+
+any disturbance in the discretized solution, we first let the simu-
+
+lation run from t = 0 to t = ∆t0 = 100ν/u∗2 without updating the volume fraction distribution, C (x, t). Then, we add an impulse
+
+disturbance, ζ0(x)δ(t − ∆t0), to the initial interface position z0, with δ(t) the Dirac delta function. In practice, the disturbance
+
+is applied during one time step. Then, we let the solution of
+
+(3)–(7), including the volume fraction and local fluid properties,
+
+evolve freely for t > ∆t0. We considered two specific disturbance shapes. One is merely the harmonic distribution ζ0(x) = a cos(kx),
+the wavenumber k being necessarily a multiple of the minimum
+
+wavenumber allowed by the length of the domain, 2π /L. To avoid
+
+prescribing a specific wavenumber, we generally rather make use
+
+of a white noise disturbance defined as
+
+N
+
+ζ0(x) = aN−1/2 ∑ cos(knx + 2π Φn) ,
+
+(15)
+
+n=1
+
+with kn = 2π n/L, kN = π /(2∆x) and Φn a random phase. This
+phase is provided by a dedicated routine guaranteeing the same
+
+158
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Fig. 5. Snapshots of the interface deformation and streamline patterns in the laboratory frame in which the bottom wall is at rest. (a): water for Re∗ = 800 at
+t+ = 6000; (b): same at t+ = 7000; (c): L100 for Re∗ = 1600 at t+ ≈ 5000. The liquid (red) and air (blue) layers are defined as the regions where the instantaneous volume fraction C (x, t) is larger or smaller than 0.5, respectively. All open streamlines are uniformly spaced. Closed streamlines are also uniformly spaced but their spacing is tighter, to better reveal the local flow structure. (For interpretation of the references to colour in this figure legend, the reader is referred to the web
+version of this article.)
+
+Φn-distribution, hence the same disturbance spectrum, in all runs performed on a given grid. An important advantage of (15) is that
+a single run allows us to observe simultaneously the growth of a
+large number of independent wavelengths, as long as effects of
+nonlinear interactions are negligibly small. More precisely, with
+L/H = 3/2 and the above estimate Nx = 0.8Re∗L/H, the number of modes evolving in the numerical domain is found to be Nx/2 ≈ 0.6Re∗.
+For a given a, the above two disturbances have identical root-
+mean square (rms) amplitudes. In both cases, we select a = 2δν , which corresponds to 4 grid cells since ∆zmin ≈ 0.5δν . Whatever the selected form of ζ (x), the perturbation of the interface posi-
+tion is translated into a volume fraction disturbance in the form
+
+C(x, z, t
+
+=
+
+∆t0)
+
+=
+
+1 2
+
+{
+
+(z
+
+1 − erf
+
+− z0 − ζ0(x) )} γd∆zmin
+
+,
+
+(16)
+
+where γd is an O(1)-parameter controlling the thickness of the
+transition region across which the volume fraction changes from
+0 above the interface to 1 in the liquid (γd = 1 in what follows).
+
+7.3. A few examples of interface evolutions
+
+We finally present some typical results for the evolution of the interface obtained thanks to the approach developed throughout the paper. An extensive discussion of the results and on their consequences with respect to the influence of the liquid viscosity on the growth of surface waves is deferred to a forthcoming publication. In what follows, the zero-flow-rate condition is enforced in the liquid in all cases, and the impulse disturbance used to trigger the generation of wind waves obeys the white noise distribution (15). To isolate effects of the liquid viscosity, the other physical properties of the liquid, namely surface tension and density, are kept constant and equal to values corresponding to water. For the same reason, the flow in the liquid is considered laminar in all runs, although in the case of water it would actually be turbulent under most wind conditions. In what follows, a liquid q times more viscous than water will be denoted as Lq. Surface deformations and times are normalized by the viscous near-wall
+scales of the air flow, δν = ν/u∗ and tν = ν/u∗2, respectively,
+and the corresponding normalized quantities are denoted with a
++ superscript.
+Fig. 4(a) shows how the same initial interface disturbance
+submitted to the same wind speed (Re∗ = 800) evolves for
+three liquids of increasing viscosity, namely water, L12 and L30.
+With water, two stages during which ζr+ms exhibits a sharp, nearly
+
+exponential increase emerge, separated by an intermediate stage
+corresponding to a milder increase from t+ ≈ 3000 to t+ ≈ 5000.
+As we shall see later, the two exponential growths are associated with disturbance components having distinct wavenumbers. At
+the end of the simulation (t+ ≈ 8000), the surface deformation is
+still growing exponentially and its rms value has already reached 50 viscous length units (see the comment in the caption of Fig. 4). In the case of L12, the interface evolution follows a different route. Here also, three distinct stages may be identified but the rms deformation now exhibits its strongest growth rate during the short intermediate period. The deformation is still growing
+at t+ = 6000 but the growth rate is decreasing and this trend persists at later stages (ζr+ms ≈ 0.5 at t+ = 12000). Therefore,
+the saturated wave amplitude is expected to be of the order of the viscous near-wall length scale in that case. Last, after having
+slightly grown up to t+ ≈ 3000, deformations at the surface of
+L30 start to decay. This trend goes on throughout the simulation
+and the rms deformation at t+ = 12000 is typically one order of magnitude weaker than the broad maximum reached at t+ ≈ 3000. Consequently, with Re∗ = 800, present simulations predict
+that large-amplitude waves develop at the surface of water, while in the case of L12 waves barely reach an amplitude of the order
+of δν , and disturbances at the surface of L30 first grow transiently
+but then experience a continuous decay. Fig. 4(b) shows how the deformation varies with the wind
+speed at the surface of water in a range of conditions corresponding approximately to dimensional bulk air velocities from 4.5 m s−1 to 8 m s−1, the latter being the highest speed considered in [18]. Not surprisingly, the higher the wind speed the stronger
+the growth rate, i.e. the larger ζr+ms at a given t+. One may also no-
+tice that the three evolutions exhibit common trends, especially the three-stage structure already noticed in Fig. 4(a), with an intermediate stage during which the growth rate is significantly weaker than at shorter and longer times. Actually, the growth rate may even vanish during that stage at low enough wind speeds,
+as the curve corresponding to Re∗ = 613 indicates. The case
+of L100 is considered in Fig. 4(c). After the initial transient, the
+rms deformation quickly decays at the lowest wind speed (Re∗ =
+613), while it stays almost constant and of the order of one-
+tenth of δν for Re∗ = 1067 (note that this is the wind condition
+yielding the largest growth for water in Fig. 4(b)). Increasing the wind speed, the interface deformation is found to exhibit a more
+consistent growth for Re∗ = 1333, but its rms value is still significantly less than δν at the end of the simulation. In contrast, the highest two wind conditions (Re∗ = 1600 and Re∗ = 1867)
+give rise to a continuous growth, with a growth rate decreasing
+
+159
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Fig. 6. Power spectral density Eζ + (k/kc ) of the wave field. (a): water for Re∗ = 800 at t+ = 2000; (b) same at t+ = 6000; (c): L100 for Re∗ = 1600 at t+ = 5000. Wavenumbers are normalized by the capillary wavenumber kc = (ρlg/γ )1/2.
+
+gradually over time and yielding amplitudes larger than 10δν at
+the end of the computation. One has to note that the three-stage structure observed with water does not exist in the case of L100, which suggests qualitative differences in the evolution of the interface deformation in the presence of low- and high-viscosity liquids.
+Some examples of the interface and streamline patterns after the interface deformation has reached a sizable amplitude are
+displayed in Fig. 5. The wavelength λ0 = L/2 is seen to dominate the wave field at such long times in the case of water (Figs. 5(a − b)), while a shorter dominant wave with λ0 = L/6 has emerged
+in the case of L100 (Fig. 5(c)). The corresponding wave steepness
+2π ζrms/λ0 is close to 0.09 and 0.10, respectively, indicating that
+waves are reaching a stage in which nonlinear effects become significant. A series of closed streamlines is seen to exist in the liquid in all cases, and stands approximately two thirds of the height of the liquid. This feature is due to the zero-flowrate condition that forces the bottom part of the liquid to recirculate. The vertical positions of the centroids of the closed streamlines almost coincide with those of the wave troughs in the case of L100, while they are slightly ahead of the positions of the crests in the case of water. Similarly, the crests and troughs of the first streamline beneath the interface nearly coincide with those of the latter in the case of water, while the undulations of this streamline and those of the interface are almost phase-opposed for L100. The reason for this difference may be qualitatively understood by
+noting that, owing to the presence of the µ−l 1 pre-factor in the
+expression of the surface mean velocity ui, the phase speed c0 of the dominant wave with wavenumber k0, roughly estimated
+as c0 = (g/k0)1/2, is approximately five times larger than ui in Fig. 5(c), while it is only one-third of it in Figs. 5(a − b). Therefore,
+a critical layer exists in the latter case while it does not in the former. Consequently, waves propagating at the surface of L100 are nearly irrotational, while those propagating over the water layer have a significant vortical component. The stream function of an irrotational monochromatic wave at a given z is known to reach its maxima below the crests and its minima below the troughs, which, when observed in the fixed laboratory frame, translates into the phase-opposed pattern displayed in Fig. 5(c). Conversely,
+since the ratio c0/ui is small in the case of water, the correspond-
+ing interface deforms slowly in the laboratory frame and is then close to a streamline. This is why the streamline distribution in
+Figs. 5(a − b) is reminiscent of the Kelvin’s cat’s eye pattern. Obviously, the streamline pattern observed in Figs. 5(a−b) would
+be significantly modified if the flow in the water were treated as turbulent, as it is in practice at the considered wind speed. In that case, the approximate model developed in Appendix B indicates that the surface current would be approximately 6 times weaker than predicted assuming laminar conditions, so that no critical layer would exist in the liquid. Influence of the laminar
+
+vs turbulent nature of the wind-driven subsurface current in the case of water will be discussed in a forthcoming paper.
+Fig. 6 shows some typical wave energy spectra, Eζ + (k/kc ), still for the two cases of water at Re∗ = 800 and L100 at Re∗ = 1600. The capillary wavenumber kc = (ρlg/γ )1/2, kept constant in all
+runs, is used to normalize wavenumbers. In the fairly early stage displayed in Fig. 6(a), several wavenumbers located in the range
+1.2 ≤ k/kc ≤ 2.8 dominate the wave field, the energy peak being reached at k0/kc ≈ 1.55, i.e. for a wavelength λ0 ≈ 0.09L. The energy contained in lower wavenumbers such that k/kc < 1 is typically two orders of magnitude weaker. Beyond k/kc ≈ 3, the
+energy density decays gradually as the wavenumber increases,
+until k/kc ≈ 10 where it is four orders of magnitude weaker
+than the peak value. Then it remains at similar levels down to the highest wavenumber allowed by the grid (not shown). As time
+proceeds, the spectral content in the range k/kc ≲ 10 changes
+dramatically. In subfigure (b), i.e. at a time instant thrice as long as in subfigure (a), a single component dominates the wave field, carrying an energy density almost three orders of magnitude larger than that found in the previously dominant wavenumber
+range. This component corresponds to k0/kc ≈ 0.285, i.e. λ0 = L/2. Therefore, the dominant wavenumber has been reduced by
+a factor of 5.55 in between the two snapshots. This wavenumber downshift is the counterpart of the well-known frequency downshift observed with spatially growing waves, especially at short fetch [84–86]. There is now a consensus to regard frequency downshift as a consequence of the Benjamin–Feir instability. Dissipative effects such as wave breaking and generation of capillary ripples were readily identified as the possible relevant sources of dissipation in mechanically-generated waves [84,87]. Nevertheless, purely conservative three-dimensional effects were later shown to strongly promote the phenomenon [88], although the possibility that they may produce the observed downshifts without the presence of any source of dissipation was debated [88,89]. With wind-generated waves, turbulence in the air and possibly in the liquid adds another obvious source of dissipation. Assuming a logarithmic velocity profile in the air and a constant eddy viscosity in both air and water, it has been shown that frequency downshifts in reasonable agreement with experimental data may be predicted in two-dimensional configurations involving both pure gravity waves [90] and gravity–capillary waves [91]. Here, three-dimensional effects are absent and wave breaking does not
+occur in the stages corresponding to Figs. 6(a − b). Moreover,
+the flow in the liquid is artificially forced to stay laminar and the corresponding viscous dissipation in the bulk is negligibly small given the low viscosity of water. Therefore the only significant source of dissipation stands in the turbulence in the air boundary layer, possibly supplemented with some viscous near-surface dissipation in water due to the presence of steep high-wavenumber capillary ripples in the trough region of the
+
+160
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+carrying gravity wave (see Fig. 5(b)). What present results show is that large downshifts take place even within this restrictive modelling framework. Comparing these predictions with laboratory observations showing how the dominant wave length grows with increasing fetch, for both water and more viscous liquids, is of course an important test for the present approach, including the selected one-equation turbulence model.
+Fig. 6(c) reveals a very different spectral distribution of the wave energy in the case of L100. Here, most of this energy is contained in a discrete series of rays consisting of a dominant
+component k0/kc ≈ 0.855, i.e. λ0 = L/6, its subharmonic k0/2, and the successive harmonics 3k0/2, 2k0, etc. Energy has decayed
+by six orders of magnitude in between the dominant component
+and the fourth harmonic k = 4k0. This energy distribution
+is a clear indication that intense subharmonic [85,92] and superharmonic [93] instabilities may affect wind-generated waves propagating over high-viscosity liquids, as is customary with nonlinear irrotational surface waves. Since the wave steepness is close to 0.1 here, the presence of already significant nonlinear effects is no surprise.
+It is worth mentioning that, in cases where the wave field has
+reached saturation (such as for instance with Re∗ = 1067 and
+1333 in Fig. 4(c)), some preliminary comparisons with available data and predictions from wave turbulence theory reveal interesting trends. In such cases, the major part of the wave field is
+made of small-amplitude capillary ripples (ζr+ms ∼ 10−1). The
+corresponding spectra (not shown) exhibit a nearly two-decade
+range of wavenumbers over which the slope is close to −6, in
+line with previous experimental and numerical findings [94,95]. Further analysis of such long runs is of course required to confirm these predictions.
+8. Summary and concluding remarks
+In this paper, we reported the successive steps of the development of a consistent numerical approach aimed at computing the evolution of the interface separating a viscous liquid layer from a turbulent air flow blowing over it. The final aim was to obtain a numerical set up capable of providing predictions for the growth of wind-driven waves developing at the surface of a liquid which may be several orders of magnitude more viscous than water, which implies high bulk velocities in the air, hence a broad spectrum of eddies within the boundary layer. After reviewing the strengths and limitations of the various available simulation approaches, these flow conditions led us to favour the combination of a one-fluid formulation of the entire time-evolving flow field, combined with a Reynolds-averaged formulation of the governing equations. Given that the time scales of the orbital and turbulent motions generally overlap, we showed that the simplest way to combine these two formulations in a consistent manner is achieved by defining the averaging operator as a spatial average in the horizontal direction perpendicular to the mean wind. We discussed the restrictions implied by the inherently two-dimensional approach resulting from this choice, especially the fact that it is unsuitable for studying the occurrence and development of tiny three-dimensional wrinkles at the interface, and to examine the relevance of Phillips resonance mechanism in the very early stages of the interface deformation. In contrast, Miles instability mechanism being primarily two-dimensional, the designed modelling framework is appropriate for assessing its relevance over a wide range of liquid viscosities and air flow conditions.
+Due to the selected Reynolds-averaged formulation, turbulent stresses appear in the resulting momentum equations. The potentialities of the proposed approach then depend to a significant extent on the choice of an appropriate turbulence closure for
+
+these stresses, and in a second step on the selected turbulence model. Although deficiencies of eddy-viscosity type closures in the outer part of the boundary layer above a wavy wall have been identified for a long time, we adopted such a closure here and selected the one-equation Spalart–Allmaras model to compute the eddy viscosity throughout the flow. Besides its simplicity and numerical robustness, this model has the advantage that the transported quantity, i.e. the eddy viscosity, vanishes at the interface since turbulent fluctuations in the air flow ‘feel’ it as a rigid wall, given the large liquid-to-air density ratio. More sophisticated alternatives, i.e. two-equation and full Reynoldsstress models, all solve a transport equation for a lengthscaledetermining quantity, such as the dissipation rate, which exhibits a more complex near-wall behaviour, a feature complicating the description of the viscous sublayer which is of special importance in the present problem.
+The reported tests of the turbulence model in single-phase wall-bounded flows revealed its strengths and weaknesses. Among the former, the model was shown to produce accurate near-wall mean velocity distributions in a fully-developed channel flow, even with a sparse number of cells in the viscous and buffer layers. In the range of wavenumbers relevant to the generation of short (i.e. young) wind waves, it also correctly predicts the phase shift of the wall pressure and shear stress distributions in the unseparated flow over a wavy wall. Similarly, it predicts quite well the location of the detachment and reattachment points in the separated flow over a large-amplitude wavy wall. The main shortcoming of the model in this type of flow appears to be a significant under-estimate of the maxima of the wall pressure and shear stress, especially that of the excess surface shear in the windward region ahead of the wave crest. Obviously, one may expect this shortcoming to have some consequences on the predicted wave field, especially in the late stages. This is an issue to be examined in detail in the next steps of this study.
+Having qualified the turbulence model in single-phase flows, we turned to two-phase configurations. In the examples we considered, the flow was assumed to be turbulent above the interface and laminar in the liquid, obeying a zero-flowrate condition in the latter. We paid special attention to the initialization procedure, to make sure that the initial composite velocity field is a stationary solution of the discretized two-phase problem as long as the interface remains flat. Then, we introduced a small impulse disturbance in the interface position, the spectral content of which corresponds either to a monochromatic wave or to a white noise distribution. We then presented a short selection of results based on evolutions of the rms disturbance, streamline and interface patterns, and energy spectra of the wave field for liquids of various viscosities. These results revealed the key influence of the liquid viscosity on the nature and structure of the observed evolutions. Obviously, for a given air friction velocity, the higher the liquid viscosity the lower the growth rate. Conversely, for a given liquid, the higher the friction velocity the stronger the growth rate. Provided that the air flow is strong enough to make waves develop at the surface of a liquid one hundred times more viscous than water, we found that the corresponding growth rate decreases continuously over time and the wave field is essentially composed of a series of rays dominated by a carrier wave, the subharmonic with a wavenumber of half, and some higher harmonics resulting from the combination of these two and from nonlinear interactions. In contrast, in the case of water, a strong wavenumber downshift takes place as the disturbance grows, resulting in two separate stages during which the corresponding dominant ray grows exponentially. This downshift, together with the growth rate and critical wind speed below which the disturbance is damped, are among the main indicators to be compared with experimental measurements in a forthcoming paper. The
+
+161
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+influence of the subsurface current, which was artificially kept laminar in the presented runs performed with water but would actually be turbulent under natural conditions, also deserves specific attention. Indeed, we observed that the large surface current resulting from the laminar assumption induces the presence of a critical layer beneath the interface, while such a feature does not exist if the subsurface current is turbulent. This difference may have consequences on the wave growth and even on the selected preferential wavenumber.
+Improvements in the numerical approach presented here will presumably mostly come from the introduction of a more accurate turbulence model. However, which model offers the best predictability with respect to the targeted problem while guaranteeing a good numerical stability is still to be determined. In particular, it seems that preserving the efficiency of the oneequation model close to the interface, which is due to the combination of the physical ingredients it incorporates and of the versatile technique we implemented to compute the local distance from an arbitrarily-shaped interface, would make sense. However, a Reynolds-stress transport model is presumably required further away from the interface to properly capture the out-of-equilibrium effects resulting from the distortion imposed by the growing waves on the large-scale turbulent eddies. A zonal approach in which these two types of models would be matched at some position lying in the logarithmic layer might offer the best compromise. An alternative and simpler possibility could be the so-called QCR (quadratic constitutive relation) correction to the Spalart–Allmaras model proposed in [96]. This correction, which goes beyond the eddy-viscosity assumption by introducing a quadratic constitutive law for the Reynolds stress tensor, is known to reproduce the anisotropy of the normal stresses in a wall-bounded shear flow well. For this reason, this quadratic extension might be a good candidate to improve the predictions obtained with the basic Spalart–Allmaras model at a modest extra cost. In any case, extensive tests will be necessary to reach a firm conclusion regarding the best turbulence modelling strategy.
+CRediT authorship contribution statement
+Florent Burdairon: Investigation, Validation, Formal analysis, Writing – original draft. Jacques Magnaudet: Conceptualization, Formal analysis, Writing – review & editing, Supervision, Funding acquisition.
+Declaration of competing interest
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+Appendix A. Detail of the turbulence model
+
+In (7), the wall-corrected vorticity magnitude Ω˜ involved in
+the production term is defined as [97]
+
+Ω˜ = Ω + Ωℓ if Ωℓ/Ω > −cv2 ,
+
+Ω˜
+
+=
+
+{ Ω 1+
+
+cv22Ω + cv3Ωℓ } (cv3 − 2cv2)Ω − Ωℓ
+
+otherwise,
+
+(A.1)
+
+with the near-wall correction Ωℓ such that
+
+Ωℓ
+
+=
+
+fv2
+
+ν˜t κ 2 ℓ2
+
+.
+
+(A.2)
+
+The damping functions fv1 (involved in (8) and (10)) and fv2 are prescribed as
+
+fv1
+
+=
+
+(ν˜t /ν)3 (ν˜t /ν)3 + cv31
+
+and
+
+fv2
+
+=
+
+1
+
++ (fv1 − 1)(ν˜t /ν) 1 + fv1(ν˜t /ν)
+
+,
+
+(A.3)
+
+so that fv1 → 1 and fv2 → 0 for large ν˜t /ν, and fv1 → 0 and fv2 → 1 when ν˜t /ν → 0. Similarly, the function fw in the wall-
+destruction term of (7) is requested to become unity at the wall
+and to vanish far from it. It is defined as
+
+fw
+
+=
+
+g
+
+(
+
+1 g6
+
++ cw6 3 + cw6 3
+
+)1/6
+
+,
+
+with g = r[1 + cw2(r5 − 1)]
+
+and r = ν˜t . κ2Ω˜ ℓ2
+
+(A.4)
+
+Last, the prescribed values for the empirical constants involved in the model are
+
+cb1 = 0.1355 , cb2 = 0.622 , σ = 2/3 ,
+
+cv1 = 7.1 , cv2 = 0.7 , cv3 = 0.9 ,
+
+cw1
+
+=
+
+cb1
+κ2
+
++
+
+1 + cb2 σ
+
+≈ 3.24 ,
+
+cw2 = 0.3 , cw3 = 2.0 ,
+
+(A.5)
+
+and the von Kármán constant κ is set to 0.41.
+
+In the original version of the model, the function fr weighting the production term in (7) is unity. Since then, the model was
+
+checked in flows involving curved streamlines [98,99] and it was
+
+suggested that its performance may be improved by making fr depend on the relative magnitude of rotation and strain effects.
+
+A simple formulation for such a correction, involving the norm
+
+of the rotation- and strain-rate tensors, was proposed in [100] in
+
+the context of a two-equation turbulence model. The idea is to
+
+()
+
+define
+
+a
+
+curvature/rotation
+
+Richardson
+
+number
+
+Ω S
+
+Ω S
+
+−
+
+1
+
+com-
+
+paring the time scales associated with the rotational and straining
+contributions to the local velocity gradient, S = (2 ⟨S⟩ : ⟨S⟩)1/2
+
+denoting the norm of the strain-rate tensor. This formulation
+
+was adapted to the Spalart–Allmaras model in [101], with the
+
+weighting function defined as
+
+Data availability
+
+fr
+
+=
+
+(1
+
++
+
+cr
+
+)
+1
+
+S
+
+2S
++Ω
+
+{ 1 − cr3
+
+tan−1
+
+[
+cr 2
+
+Ω
+
+S
+
+(Ω
+S
+
+)]} − 1 − cr1
+
+(A.6)
+
+Data will be made available on request.
+Acknowledgements
+The specific computational developments described in the paper owe much to the continuous support of P. Elyakime. F. Burdairon’s fellowship was granted by the ViscousWindWaves project of the French National Research Agency (Project No. ANR18-CE30-0003). Computations were made possible by the allocation of HPC resources in the CALMIP supercomputing meso-center under grant P22032.
+
+with
+
+cr1 = 1.0 , cr2 = 2.0 , cr3 = 1.0 .
+
+(A.7)
+
+In thin shear flows, Ω = S, so that fr = 1, which leaves the
+magnitude of the production term in (7) unchanged. In contrast,
+fr is larger than unity in strain-dominated regions (e.g. fr (Ω/S = 0.8) ≈ 1.91), increasing the magnitude of the production term, hence that of νt . Conversely, fr is smaller than unity in vorticitydominated regions and becomes negative beyond Ω/S ≈ 1.2, extinguishing turbulence in vortex cores. Since Ω/S is unity at
+the wall, so is fr . Hence, in (A.5), the relation linking cw1 to cb1,
+cb2, σ and κ remains unchanged.
+
+162
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Appendix B. Approximate characteristics of a turbulent liquid layer beneath a sheared interface
+
+3)
+
+≈
+
+U0+
+
++
+
+κ −1
+
+log
+
+Re∗l 2
+
+.
+
+Within
+
+the
+
+viscous
+
+sublayer,
+
+(B.1)
+
+reduces
+
+to dZ U + ≈ Re∗l , so that
+
+Since the viscosity ratio µl/µa is always large, even with
+water, turbulence beneath an air–liquid interface subjected to a prescribed shear stress does not obey a no-slip condition, unless the surface is contaminated by surfactants. For this reason, nonzero tangential velocity fluctuations subsist in the liquid all the way to the interface. In contrast, the normal fluctuation vanishes on it, provided the turbulence intensity is not strong enough to distort the surface. These combined behaviours yield a linear growth of the turbulent shear stress as the distance to the
+interface, z0 − z, increases. This difference with the more familiar
+situation of a no-slip wall has direct consequences on the structure of the near-surface flow. In particular, compared with the boundary layer adjacent to a no-slip wall, the viscous sublayer is almost twice as thin and the buffer layer is virtually absent [102– 104], so that the log-law for the mean velocity applies much closer to the surface. This is why setting the damping function fv1 involved in (9) and (A.3) to unity in the liquid is sufficient to obtain a realistic description of the near-interface region with the Spalart–Allmaras model. This is also why a simple approximate eddy-viscosity profile valid throughout the liquid layer can be derived.
+For this, let us first consider that the subsurface flow consists
+of a layer with kinematic viscosity νl = µl/ρl extending from the interface z = z0 at which the shear stress ρlu∗l 2 ≡ ρau∗2 applies, down to a lower plane z = δlz0 at which the shear stress
+vanishes (the index l is used to denote quantities in the liquid in cases an ambiguity may exist). Since the shear stress varies linearly in between the two planes, the streamwise momentum equation governing the vertical variations of the mean velocity
+ul(z) integrates to ρl(νl + νt )dz ul = Gl(z0 − z) + ρlu∗l 2, with Gl = −[(1 − δl)z0]−1ρlu∗l 2. We introduce the relevant friction Reynolds number Re∗l = (1 − δl)z0u∗l /νl and the dimensionless distances Z = (z − δlz0)/[(1 − δl)z0] and Z+ = (z0 − z)u∗l /νl.
+With these notations, the previous momentum balance takes the dimensionless form
+
+(1 + νt+)dZ U + = Re∗l Z ,
+
+(B.1)
+
+with νt+ = νt /νl and U + = ul/u∗l . To obtain a simple repre-
+sentation of the eddy viscosity valid throughout the subsurface
+
+flow, we start from the distribution proposed in [105,106] in the
+case of a fully-developed channel flow. This νt -profile, which was
+designed to predict the eddy viscosity down to the wall, was
+
+later proved to be accurate even in the core of the flow [107].
+
+Disregarding the viscous contributions specific to a no-slip wall,
+
+this eddy viscosity profile reduces in present notation to
+
+νt+
+
+=
+
+κ
+6
+
+Re∗l (1
+
+−
+
+Z
+
+2)(1
+
++
+
+2Z 2) .
+
+(B.2)
+
+This expression yields νt+ ≈ κRe∗l (1 − Z ) ≡ κZ+ in the limit
+
+Z → 1, with κ the Von Kármán constant. In the core, it passes
+
+through a maximum at Z
+
+=
+
+1 2
+
+,
+
+where
+
+νt+
+
+=
+
+3 16
+
+κ
+
+Re∗l
+
+,
+
+before
+
+reaching
+
+a
+
+slightly
+
+lower
+
+minimum,
+
+νt+
+
+=
+
+1 6
+
+κ
+
+Re∗l
+
+,
+
+at
+
+Z
+
+=
+
+0.
+
+Assuming νt+ ≫ 1 and inserting (B.2) into (B.1) allows the
+
+latter to be integrated, yielding the velocity profile
+
+U +(Z )
+
+=
+
+U0+
+
++
+
+1
+κ
+
+log
+
+1 + 2Z 2 1 − Z2
+
+,
+
+(B.3)
+
+with U0+ = U+(Z = 0). Eq. (B.3) is expected to predict reasonably
+well the mean velocity distribution up to the outer edge of the
+viscous sublayer located approximately at Z+ = 3, i.e. Z = 1−3Re∗l −1 [102–104]. Assuming Re∗l ≫ 1, (B.3) predicts U +(Z+ =
+
+U +(Z )
+
+=
+
+U0+
+
++
+
+κ−1 log
+
+Re∗l 2
+
++ 3 + Re∗l (Z
+
+− 1) .
+
+(B.4)
+
+The above model predicts a surface velocity U+(1) = U0+ +
+
+κ −1
+
+log
+
+Re∗l 2
+
++ 3.
+
+With
+
+Re∗l
+
+=
+
+150 and U0+
+
+=
+
+0, this yields
+
+U+(1) ≈ 13.8, which differs by less than 8% from the DNS
+
+prediction U+(1) ≈ 14.9 of [104]. Similarly, one gets U+(1) −
+
+U0+ ≈ 15.2 with Re∗l = 260, whereas the DNS results of [103]
+
+indicate U+(1) − U0+ ≈ 17.0. Integrating (B.3) from Z = 0
+
+to Z
+
+=
+
+1
+
+yields
+
+a
+
+depth-averaged
+√
+
+velocity
+√
+
+U0+
+
++
+
+Umt ,
+
+where
+
+Umt = κ−1(log 3 − 2 log 2 + 2 tan−1 2) ≈ 2.66. Integrating
+
+(B.3) only up to Z+ = 3 and considering the actual velocity profile
+
+(B.4) within the viscous sublayer results in the viscous correction
+
+9
+[2
+
+−
+
+κ−1(6 log 3
+
+−
+
+3)]Re∗l −1
+
+≈
+
+−4.5Re∗l −1,
+
+leading
+
+to
+
+the
+
+slightly
+
+more accurate estimate
+
+Umt ≈ 2.66 − 4.5Re∗l −1 .
+
+(B.5)
+
+This prediction yields Umt ≈ 2.63 for Re∗l = 150, which differs by
+6% from the value 2.48 reported in [104].
+
+The free parameters δl and U0+ of the above model may be used
+to impose approximately a zero flow rate when this constraint
+
+applies. For this purpose, we consider that, in the lower part
+
+of the liquid layer extending from z = 0 (at which a no-slip
+
+condition holds) to z = δlz0 (at which the shear stress vanishes),
+the weak remaining flow is similar to that in a half-channel with
+
+a centreline velocity Uc = U0+u∗l and a friction velocity u∗b, hence a friction Reynolds number Re∗b = u∗bδlz0/νl = kbU Re∗l , with kb = δl/(1−δl) and U = u∗b/u∗l . In such a flow, correlations for the
+friction coefficient in the turbulent regime indicate that the ap-
+
+proximate height-averaged velocity, say Umbu∗l , is close to 0.85Uc ,
+
+whereas the friction approximate law u∗b
+
+velocity u∗b
+= (0.04 +
+
+decreases with
+0.2Re∗b−1/2)|Uc |
+
+Re∗b following the [108]. Therefore,
+
+assuming that these correlations still provide reasonable esti-
+
+mates at the modest Reynolds number expected in this bottom
+
+boundary layer, the zero-flowrate condition reads approximately
+
+U0+ + Umt + kbUmb ≈ Umt + (1 + 0.85kb)U0+ = 0 .
+
+(B.6)
+
+Moreover, the total shear stress is linear throughout the entire
+liquid layer, implying U∗2 = kb, hence
+
+U0+
+
+≈
+
+−
+1
+
++
+
+25k1b/2
+5k−b 3/4(1 + kb)1/2Re∗l0−1/2
+
+,
+
+(B.7)
+
+with Rel0 = z0u∗l /νl = (1 + kb)Re∗l being the Reynolds number
+based on the friction velocity u∗l at the interface and the thickness z0 of the entire liquid layer. Using the above estimate for Umt ,
+(B.6)–(B.7) may be solved to obtain kb, hence δl and U0+. For instance, with Rel0 = 200, one finds kb ≈ 0.103, so that δl ≈
+0.093 and U0+ ≈ −2.42. Similarly, kb ≈ 0.077, δl ≈ 0.0715 and U0+ ≈ −2.49 for Rel0 = 400, revealing a decrease of δl as the wind
+speed increases.
+
+The above findings may straightforwardly be used to initialize
+
+the flow field in the liquid. If no condition has to be imposed
+
+on the flowrate, the bottom of the liquid layer is assumed to
+
+experience no shear and to be at rest. Therefore, one simply
+
+sets U0+ = 0 and δl = 0, so that the driving force per unit
+
+volume is Gl = −ρlu∗l 2/z0, with the friction velocity u∗l at the
+
+liquid surface being related to that in the
+
+(
+
+ρa ρl
+
+)1/2
+
+u∗.
+
+This
+
+friction
+
+velocity
+
+is
+
+used
+
+to
+
+air flow through u∗l =
+make (B.2) and (B.3)–
+
+(B.4) dimensional and initialize the eddy viscosity and velocity
+
+profiles with the corresponding estimates. At the bottom wall, the
+
+resolved velocity obeys a Dirichlet condition ⟨u⟩ = 0, while the
+
+163
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+Fig. C.7. Mean velocity profiles in a plane channel at three different Reynolds numbers, all computed with the same grid. (a): Re∗ = 550; (b): Re∗ = 934; (c): Re∗ = 2003. Red line: present results; blue line: DNS data from [109] (Re∗ = 550 and 934) and [110] (Re∗ = 2003). The red bullets indicate the grid points in the near-wall region z+ ≤ 10. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+
+eddy viscosity obeys the Neumann condition n · ∇νt = 0, with
+
+n the normal to the wall. If the zero-flowrate condition has to
+
+be enforced, one first makes use of (B.6)–(B.7) to estimate δl and
+
+U0+, and finally determine Gl = −[(1−δl)z0]−1ρlu∗l 2, which slowly
+
+decreases as the wind speed increases (Gl ≈ −1.10ρlu∗l 2/z0 for
+
+Re∗l0 = 200 and Gl ≈ −1.08ρlu∗l 2/z0 for Re∗l0 = 400, to be
+
+compared
+
+with
+
+Gl
+
+=
+
+−
+
+3 2
+
+ρl
+
+u∗l 2/z0
+
+in
+
+the
+
+laminar
+
+regime).
+
+Then,
+
+the
+
+plane z = δlz0 is considered as a virtual bottom sliding with speed
+
+Uc = U0+u∗l . The normal velocity, ⟨u⟩·n, and the normal derivative of the eddy viscosity, n · ∇νt , are both assumed to vanish on that virtual bottom. Last, the νt (z)- and u(z)-profiles are initialized as above throughout the layer δlz0 < z ≤ z0.
+
+Appendix C. Performance of the turbulence model in a fullydeveloped channel flow
+
+We considered the fully-developed flow in a plane channel
+
+characterized by the friction Reynolds number Re∗ = u∗H/ν,
+
+with H the channel half-height and u∗ the friction velocity re-
+
+lated to the prescribed pressure gradient dP/dx through u∗ =
+
+(−
+
+1 ρ
+
+dP dx
+
+H )1/2 .
+
+We
+
+simulated
+
+this
+
+flow
+
+for
+
+several
+
+Reynolds
+
+num-
+
+bers up to Re∗ = 2000, to compare the mean velocity profiles
+
+with the DNS data of [109,110] (available online at https://torroja.
+
+dmt.upm.es/channels/). For this purpose, we used a non-uniform
+
+grid with 64 cells from the wall to the centreline. This grid was
+
+obtained by prescribing a geometric sequence with a minimum
+
+cell size ∆ymin = 4.4 × 10−3H and a common ratio 1.035. With
+these characteristics, the height of the cell closest to the wall
+
+ranges from 0.79δν for Re∗ = 550 (Fig. C.7)(a)) to 2.88δν for Re∗ = 2003 (Fig. C.7)(c)), with δν = ν/u∗ the characteristic
+near-wall length scale. We kept the grid unchanged on purpose
+
+for all Re∗ in order to check the sensitivity of the model to
+
+grid under-resolution in the viscous sublayer. Computations were
+
+initialized with a Poiseuille velocity half-profile corresponding to
+
+the prescribed pressure gradient and a uniform nonzero turbulent
+
+viscosity ν˜t (x, t = 0) = 10 ν. Fig. C.7 shows that the computed
+profiles of u(z) are in good agreement with the DNS data what-
+
+ever Re∗. A slight underestimate of the velocity throughout the
+
+log-layer is observed at the highest Re∗, for which only one grid
+
+point stands within the viscous sublayer. Despite this poor near-
+
+wall resolution, the velocity profile is still closely approximated
+
+within the buffer layer, say up to z+ ≈ 20 (with z+ = z/δν ), and
+the difference between the two predictions at a given z+ does not
+
+exceed 3% throughout the log-layer.
+
+Fig. D.8. Variations of the phase angle (top) and amplitude (bottom) of the wall
+• stress in an unseparated turbulent flow over a wavy wall. : present predictions
+for ak = 0.097; ■: experiments from [67] with ak = 0.035; —: relaxation model [67].
+Appendix D. Influence of the relative wavelength on the performance of the turbulence model in the flow over a wavy wall
+In the framework of the test cases devoted to the flow over a wavy wall, we carried out several runs in which the relative
+wavenumber of the undulations, k+ = kν/u∗, was varied in
+order to quantify the range of k+ over which the predictions of the turbulence model may be considered accurate. Defining
+the vertical position on the wavy wall as zw(x) = a cos kx, the wall shear stress (normalized by ρu∗2) may be written in the form τw(x) = τ w + τˆ cos (kx + φˆ ). Fig. D.8 displays the variations
+
+164
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+of the phase angle φˆ and amplitude τˆ with respect to k+, and
+compares them with the experimental data gathered in [67] and the predictions of the ‘relaxation’ mixing length model proposed in the same reference. In this model, the Van Driest parameter routinely used to obtain accurate predictions of the mean velocity
+profile very close to the wall (say for z+ < 25) is modified to
+account for the influence of the streamwise pressure gradient. The relevant pressure gradient at a given streamwise position is considered to have a nonzero phase shift with respect to the actual local pressure gradient. This phase shift, which results from the non-local influence of the periodic forcing imposed to the near-wall turbulence structure by the wall undulations, is estimated through a first-order differential equation modelling the corresponding relaxation. This modified mixing length model involves two additional k+-independent parameters that were tuned to obtain the best possible agreement with experimental results over the whole range of k+. Predictions of this relaxation model are shown with a solid line in Fig. D.8. It is seen that the
+phase angle φˆ provided by the Spalart–Allmaras model agrees very well with these predictions down to k+ ≈ 8 × 10−3. In contrast, the model predicts a decrease of φˆ with k+ for k+ ≲ 6 × 10−3, while experimental data and predictions of the relax-
+ation model show that the phase angle goes on increasing as k+
+decreases, down to k+ ≈ 1.5 × 10−3. This deficiency is actually
+shared by all turbulence models based on the eddy-viscosity closure and can only be removed by turning to second-order Reynolds stress models. Indeed, the eddy-viscosity concept assumes that the off-diagonal components of the Reynolds stress tensor are directly proportional to the local strain rate of the mean flow. This local relationship holds as long as the distortion introduced by the wall undulations is fast enough, but is no longer valid beyond a certain critical wavelength at which nonlocal effects become significant [14,43]. It is this non-locality that was artificially introduced through the influence of the ‘relaxed’ pressure gradient in the modified mixing length model of [67]. Fortunately, the largest wavelengths considered in the present
+work correspond to k+ = 5 × 10−3, a position at which the one-equation model underestimates φˆ by only 10◦. Therefore, this
+deficiency is not expected to alter significantly the predictions of the growth of short wind-generated waves, such as those considered in Section 7.3. In contrast, the bottom subfigure makes it clear that the model consistently under-predicts the amplitude of shear stress variations, in line with the observations of Section 6. This is presumably its most serious limitation in the present context.
+References
+[1] G.J. Komen, M. Cavaleri, M. Donelan, K. Hasselmann, S. Hasselmann, P.A.E.M. Janssen, Dynamics and Modelling of Ocean Waves, Cambridge University Press, Cambridge, 1994.
+[2] I.S.F. Jones, Y. Toba (Eds.), Wind Stress over the Ocean, Cambridge University Press, Cambridge, 2001.
+[3] P. Janssen, The Interaction of Ocean Waves and Wind, Cambridge University Press, Cambridge, 2004.
+[4] O.M. Phillips, On the generation of waves by turbulent wind, J. Fluid Mech. 2 (1957) 417–445.
+[5] K.K. Kahma, M.A. Donelan, On the generation of waves by turbulent wind, J. Fluid Mech. 192 (1988) 339–364.
+[6] J.W. Miles, On the generation of surface waves by shear flows, J. Fluid Mech. 3 (1957) 185–204.
+[7] J.W. Miles, On the generation of surface waves by shear flows. Part 2, J. Fluid Mech. 6 (1959) 568–582.
+[8] J.W. Miles, On the generation of surface waves by shear flows. Part 4, J. Fluid Mech. 13 (1962) 423–448.
+[9] M.J. Lighthill, Physical interpretation of the mathematical theory of wave generation by wind, J. Fluid Mech. 14 (1962) 385–398.
+[10] J.W. Miles, On the generation of surface waves by shear flows. Part 5, J. Fluid Mech. 30 (1967) 163–175.
+
+[11] S.J. Jacobs, An asymptotic theory for the turbulent flow over a progressive water wave, J. Fluid Mech. 174 (1987) 69–80.
+[12] C.A. van Duin, P.A.E.M. Janssen, An analytic model of the generation of surface gravity waves by turbulent air flow, J. Fluid Mech. 236 (1992) 197–215.
+[13] J.W. Miles, Surface-wave generation revisited, J. Fluid Mech. 256 (1993) 427–441.
+[14] S.E. Belcher, J.C.R. Hunt, Turbulent shear flow over slowly moving waves, J. Fluid Mech. 251 (1993) 109–148.
+[15] J.W. Miles, Surface-wave generation: a viscoelastic model, J. Fluid Mech. 322 (1996) 131–145.
+[16] J.R.D. Francis, Wave motion and the aerodynamic drag on a free oil surface, Phil. Mag. 45 (1954) 695–702.
+[17] J.C. Gottifredi, G.J. Jameson, The growth of short waves on liquid surfaces under the action of a wind, Proc. R. Soc. Lond. Ser. A Math. Phys. Eng. Sci. 319 (1970) 373–397.
+[18] A. Paquier, F. Moisy, M. Rabaud, Viscosity effects in wind wave generation, Phys. Rev. Fluids 1 (2016) 083901.
+[19] M. Aulnette, M. Rabaud, F. Moisy, Wind-sustained viscous solitons, Phys. Rev. Fluids 4 (2019) 084003.
+[20] M. Aulnette, J. Zhang, M. Rabaud, F. Moisy, Kelvin-Helmholtz instability and formation of viscous solitons on highly viscous liquids, Phys. Rev. Fluids 7 (2022) 014003.
+[21] F. Moisy, M. Rabaud, K. Salsac, A synthetic Schlieren method for the measurement of the topography of a liquid interface, Exp. Fluids 46 (2009) 1021–1036.
+[22] M. Fulgosi, D. Lakehal, S. Banerjee, V. De Angelis, Direct numerical simulation of turbulence in a sheared air-water flow with a deformable interface, J. Fluid Mech. 482 (2003) 319–345.
+[23] S. Komori, R. Kurose, K. Iwano, T. Ukai, N. Suzuki, Direct numerical simulation of wind-driven turbulence and scalar transfer at sheared gas-liquid interfaces, J. Turbul. 11 (2010) 1–20.
+[24] D. Yang, L. Shen, Direct-simulation-based study of turbulent flow over various waving boundaries, J. Fluid Mech. 650 (2010) 131–180.
+[25] F. Zonta, A. Soldati, M. Onorato, Growth and spectra of gravity-capillary waves in countercurrent air/water turbulent flow, J. Fluid Mech. 777 (2015) 245–259.
+[26] X. Hao, L. Shen, Wind-wave coupling study using LES of wind and phase-resolved simulation of nonlinear waves, J. Fluid Mech. 874 (2019) 391–425.
+[27] T. Li, L. Shen, The principal stage in wind-wave generation, J. Fluid Mech. 934 (2022) A41.
+[28] W.T. Tsai, A numerical study of the evolution and structure of a turbulent shear layer under a free surface, J. Fluid Mech. 354 (1998) 239–276.
+[29] M. Lin, C. Moeng, W. Tsai, P.P. Sullivan, S.E. Belcher, Direct numerical simulation of wind-wave generation processes, J. Fluid Mech. 616 (2008) 1–30.
+[30] Z. Yang, B.-Q. Deng, L. Shen, Direct numerical simulation of wind turbulence over breaking waves, J. Fluid Mech. 850 (2018) 120–155.
+[31] J. Wu, L. Deike, Wind wave growth in the viscous regime, Phys. Rev. Fluids 6 (2021) 094801.
+[32] J. Wu, S. Popinet, L. Deike, Revisiting wind wave growth with fully coupled direct numerical simulations, J. Fluid Mech. 951 (2022) A18.
+[33] P.P. Sullivan, J.B. Edson, T. Hristov, J.C. McWilliams, Large-eddy simulations and observations of atmospheric marine boundary layers above nonequilibrium surface waves, J. Atmos. Sci. 65 (2008) 1225–1245.
+[34] W.-Y. Zhang, W.-X. Huang, C.-X. Xu, Very large-scale motions in turbulent flows over streamwise traveling wavy boundaries, Phys. Rev. Fluids 4 (2019) 054601.
+[35] P.P. Sullivan, J.C. McWilliams, E.G. Patton, Large-eddy simulation of marine atmospheric boundary layers above a spectrum of moving waves, J. Atmos. Sci. 71 (2014) 4001–4027.
+[36] P.P. Sullivan, M.L. Banner, R.P. Morison, W.L. Peirson, Turbulent flow over steep steady and unsteady waves under strong wind forcing, J. Phys. Oceanogr. 48 (2018) 3–27.
+[37] G. Deskos, J.C.Y. Lee, C. Draxl, M.A. Sprague, Review of wind-wave coupling models for large-eddy simulation of the marine atmospheric boundary layer, J. Atmos. Sci. 78 (2021) 3025–3045.
+[38] E. Labourasse, D. Lacanette, A. Toutant, P. Lubin, S. Vincent, O. Lebaigue, J.-P. Caltagirone, P. Sagaut, Towards large eddy simulation of isothermal two-phase flows: Governing equations and a priori tests, Int. J. Multiph. Flow. 33 (2007) 1–39.
+[39] C. Mastenbroek, V.K. Makin, M.H. Garat, J.P. Giovanangeli, Experimental evidence of the rapid distortion of turbulence in the air flow over water waves, J. Fluid Mech. 318 (1996) 273–302.
+
+165
+
+F. Burdairon and J. Magnaudet
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+
+[40] J.F. Meirink, V.K. Makin, Modelling low-Reynolds-number effects in the turbulent air flow over water waves, J. Fluid Mech. 415 (2000) 155–174.
+[41] P.Y. Li, D. Xu, P.A. Taylor, Numerical modelling of turbulent airflow over water waves, Bound.-Lay. Meteorol. 95 (2000) 397–425.
+[42] P.R. Gent, P.A. Taylor, A numerical model of the air flow above water waves, J. Fluid Mech. 77 (1976) 105–128.
+[43] S.E. Belcher, J.C.R. Hunt, Turbulent flow over hills and waves, Ann. Rev. Fluid Mech. 30 (1998) 507–538.
+[44] A.Y. Benilov, B.N. Filyushkin, Application of methods of linear filtration to an analysis of fluctuations in the surface layer of the sea, Izv. Acad. Sci. USSR, Atmos. Oceanic Phys. 6 (1970) 477–482.
+[45] L. Thais, J. Magnaudet, A triple decomposition of the fluctuating motion below laboratory wind water waves, J. Geophys. Res. 100 (1995) 741–755.
+[46] T. Hristov, C. Friehe, S. Miller, Wave-coherent fields in air flow over ocean waves: Identification of cooperative behavior buried in turbulence, Phys. Rev. Lett. 81 (1998) 5245–5248.
+[47] O.M. Phillips, The Dynamics of the Upper Ocean, Cambridge University Press, Cambridge, 1977.
+[48] A. Ayet, B. Chapron, The dynamical coupling of wind-waves and atmospheric turbulence: A review of theoretical and phenomenological models, Bound.-Lay. Meteorol. 183 (2022) 1–33.
+[49] G. Caulliez, N. Ricci, R. Dupont, The generation of the first visible wind waves, Phys. Fluids 10 (1998) 757–759.
+[50] F. Veron, W.K. Melville, Experiments on the stability and transition of wind-driven water surfaces, J. Fluid Mech. 446 (2001) 25–65.
+[51] T.B. Benjamin, Shearing flow over a wavy boundary, J. Fluid Mech. 6 (1959) 161–205.
+[52] A.A. Townsend, Flow in a deep turbulent boundary layer over a surface distorted by water waves, J. Fluid Mech. 55 (1972) 719–735.
+[53] L. Ó Náraigh, P.D.M. Spelt, T.A. Zaki, Turbulent flow over a liquid layer revisited: multi-equation turbulence modelling, J. Fluid Mech. 683 (2011) 357–394.
+[54] J. Brackbill, D. Kothe, C. Zemach, A continuum method for modeling surface tension, J. Comput. Phys. 100 (1992) 335–354.
+[55] P.R. Spalart, S. Allmaras, A one-equation turbulence model for aerodynamic flows, Rech. Aérosp. 1 (1992) 5–21.
+[56] V.W. Nee, L.S.G. Kovaznay, Simple phenomenological theory of turbulent shear flows, Phys. Fluids 12 (1969) 473–484.
+[57] J. Magnaudet, M. Rivero, J. Fabre, Accelerated flows past a rigid sphere or a spherical bubble. Part 1. Steady straining flow, J. Fluid Mech. 284 (1995) 97–135.
+[58] I. Calmet, J. Magnaudet, Large-eddy simulation of high-Schmidt number mass transfer in a turbulent channel flow, Phys. Fluids 9 (1997) 438–455.
+[59] T. Bonometti, J. Magnaudet, An interface-capturing method for incompressible two-phase flows. Validation and application to bubble dynamics, Int. J. Multiph. Flow. 33 (2007) 109–133.
+[60] W.F. Noh, P. Woodward, SLIC (simple line interface calculation), in: A.I. van Dooren, P.J. Zandbergen (Eds.), Lect. Notes Phys., Vol. 59, Springer, New York, 1976, pp. 330–340.
+[61] D.P. Zilker, G.W. Cook, T.J. Hanratty, Influence of the amplitude of a solid wavy wall on a turbulent flow. Part 1. Non-separated flows, J. Fluid Mech. 82 (1977) 29–51.
+[62] C. Thorsness, P.E. Morrisroe, T.J. Hanratty, A comparison of linear theory with measurements of the variation of shear stress along a solid wave, Chem. Eng. Sci. 33 (1978) 579–592.
+[63] K.A. Frederick, T.J. Hanratty, Velocity measurements for a turbulent nonseparated flow over solid waves, Exp. Fluids 6 (1988) 477–486.
+[64] D.P. Zilker, T.J. Hanratty, Influence of the amplitude of a solid wavy wall on a turbulent flow. Part 2. Separated flows, J. Fluid Mech. 90 (1979) 257–271.
+[65] J. Buckles, T.J. Hanratty, R.J. Adrian, Turbulent flow over large-amplitude wavy surfaces, J. Fluid Mech. 140 (1984) 27–44.
+[66] J.D. Kuzan, T.J. Hanratty, R.J. Adrian, Turbulent flows with incipient separation over solid waves, Exp. Fluids 7 (1989) 88–98.
+[67] J. Abrams, T.J. Hanratty, Relaxation effects observed for turbulent flow over a wavy surface, J. Fluid Mech. 151 (1985) 443–455.
+[68] N. Kruse, A. Günther, P.R. von Rohr, Dynamics of large-scale structures in turbulent flow over a wavy wall, J. Fluid Mech. 485 (2003) 87–96.
+[69] C. Wagner, S. Kuhn, P.R. von Rohr, Scalar transport from a point source in flows over wavy walls, Exp. Fluids 43 (2007) 261–271.
+[70] A.M. Hamed, A. Kamdar, L. Castillo, L.P. Chamorro, Turbulent boundary layer over 2D and 3D large-scale wavy walls, Phys. Fluids 27 (2015) 106601.
+[71] V.M. Segunda, S.J. Ormiston, M.F. Tachie, Experimental and numerical investigation of developing turbulent flow over a wavy wall in a horizontal channel, Eur. J. Mech. - B/Fluids 68 (2018) 128–143.
+
+[72] C. Maass, U. Schumann, Direct numerical simulation of separated turbulent flow over wavy boundary, in: E.H. Hirschel (Ed.), Notes Numer. Fluid Mech., 52, 1996, pp. 227–241.
+[73] V. De Angelis, P. Lombardi, S. Banerjee, Direct numerical simulation of turbulent flow over a wavy wall, Phys. Fluids 9 (1997) 2429–2442.
+[74] P. Cherukat, Y. Na, T.J. Hanratty, J.B. McLaughlin, Direct numerical simulation of a fully developed turbulent flow over a wavy wall, Theor. Comput. Fluid Dyn. 11 (1998) 109–134.
+[75] H.S. Yoon, O.A. El-Samni, A.T. Huynh, H.H. Chun, H.J. Kim, A.H. Pham, I.R. Park, Effect of wave amplitude on turbulent flow in a wavy channel by direct numerical simulation, Ocean Eng. 36 (2009) 697–707.
+[76] D.S. Henn, R.I. Sykes, Large-eddy simulation of flow over wavy surfaces, J. Fluid Mech. 383 (1999) 75–112.
+[77] J. Cui, V.C. Patel, C.L. Lin, Prediction of turbulent flow over rough surfaces using a force field in large eddy simulation, Trans. ASME, J. Fluids Eng. 125 (2003) 2–9.
+[78] Y.S. Chang, A. Scotti, Modeling unsteady turbulent flows over ripples: Reynolds-averaged Navier-Stokes equations (RANS) versus large-eddy simulation (LES), J. Geophys. Res.-Oceans 109 (2004) C09012.
+[79] C. Wagner, S. Kenjeres, P.R. von Rohr, Dynamic large eddy simulations of momentum and wall heat transfer in forced convection over wavy surfaces, J. Turbul. 12 (2011) 1–27.
+[80] V.C. Patel, J.T. Chon, J.Y. Yoon, Turbulent flow in a channel with a wavy wall, Trans. ASME, J. Fluids Eng. 113 (1991) 579–586.
+[81] S. Knotek, M. Jicha, Simulation of flow over a wavy solid surface: comparison of turbulence models, in: EPJ Web Conf. - EFM11, Vol. 25, 2012, p. 01040.
+[82] K. Chaib, D. Nehari, N. Sad Chemloul, CFD simulation of turbulent flow and heat transfer over rough surfaces, in: Energy Procedia, 74, 2015, pp. 909–918.
+[83] V.M. Segunda, S. Ormiston, M. Tachie, Numerical analysis of turbulent flow over a wavy wall in a channel, in: Proc. ASME 2016 Fluids Eng. Div. Summer Meet., Vol. 1A, 2016, FEDSM2016–7712, V01AT03A014.
+[84] B.M. Lake, H.C. Yuen, H. Rungaldier, W.E. Ferguson, Experiments on nonlinear instabilities and evolution of steep gravity-wave trains, J. Fluid Mech. 83 (1977) 49–74.
+[85] M.Y. Su, M. Bergin, P. Marler, R. Myrick, Experiments on nonlinear instabilities and evolution of steep gravity-wave trains, J. Fluid Mech. 124 (1982) 45–72.
+[86] N.E. Huang, S.R. Long, S. Zheng, The mechanism for frequency downshift in nonlinear wave evolution, Adv. Appl. Mech. 32 (1996) 59–117.
+[87] W.K. Melville, The instability and breaking of deep-water waves, J. Fluid Mech. 115 (1982) 165–185.
+[88] K. Trulsen, K.B. Dysthe, Frequency downshift in three-dimensional wave trains in a deep basin, J. Fluid Mech. 352 (1997) 359–373.
+[89] F. Dias, C. Kharif, Nonlinear gravity and capillary-gravity waves, Annu. Rev. Fluid Mech. 31 (1999) 301–346.
+[90] T. Hara, C.C. Mei, Frequency downshift in narrow-banded surface waves under the influence of wind, J. Fluid Mech. 230 (1991) 429–477.
+[91] T. Hara, C.C. Mei, Wind effects on the nonlinear evolution of slowly varying gravity-capillary waves, J. Fluid Mech. 267 (1994) 221–250.
+[92] M.S. Longuet-Higgins, The instabilities of gravity waves of finite amplitude in deep water. II. Subharmonics, Proc. R. Soc. Lond. Ser. A Math. Phys. Eng. Sci. 360 (1978) 489–505.
+[93] M.S. Longuet-Higgins, The instabilities of gravity waves of finite amplitude in deep water. I. Superharmonics, Proc. R. Soc. Lond. Ser. A Math. Phys. Eng. Sci. 360 (1978) 471–488.
+[94] R. Savelsberg, W. Van de Water, Turbulence of a free surface, Phys. Rev. Lett. 100 (2008) 034501.
+[95] G. Giamagas, F. Zonta, A. Roccon, A. Soldati, Propagation of capillary waves in two-layer oil-water turbulent flow, J. Fluid Mech. 960 (2023) A5.
+[96] P.R. Spalart, Strategies for turbulence modelling and simulations, Int. J. Heat Fluid Flow 21 (2000) 252–263.
+[97] S.R. Allmaras, F.T. Johnson, P.R. Spalart, Modifications and clarifications for the implementation of the Spalart-Allmaras turbulence model, in: Proc. 7th Int. Conf. Comput. Fluid Dyn., 2012, pp. ICCFD7–1902.
+[98] P.R. Spalart, M. Shur, On the sensitization of turbulence models to rotation and curvature, Aerosp. Sci. Technol. 5 (1997) 297–302.
+[99] M.L. Shur, M.K. Strelets, A.K. Travin, P.R. Spalart, Turbulence modeling in rotating and curved channels: Assessing the Spalart-Shur correction, AIAA J. 8 (2000) 784–792.
+[100] A. Hellsten, Some improvements in Menter’s k-ω SST turbulence model, in: Proc. 29th AIAA Fluid Dyn. Conf., 1998, pp. A98–32817.
+[101] Q. Zhang, Y. Yang, A new simpler rotation/curvature correction method for Spalart–Allmaras turbulence model, Chin. J. Aeronaut. 26 (2013) 326–333.
+
+166
+
+F. Burdairon and J. Magnaudet
+[102] W. McLeish, G.E. Putland, Measurements of wind-driven flow profile in the top millimeter of water, J. Phys. Oceanogr. 5 (1975) 515–518.
+[103] W.-T. Tsai, S.-M. Chen, C.-H. Moeng, A numerical study on the evolution and structure of a stress-driven free-surface turbulent shear flow, J. Fluid Mech. 545 (2005) 163–192.
+[104] L.I. Enstad, R. Nagaosa, G. Alendal, Low shear turbulence structures beneath stress-driven interface with neutral and stable stratification, Phys. Fluids 18 (2006) 055106.
+[105] R.D. Cess, A Survey of the Literature on Heat Transfer in Turbulent Tube Flow, Tech. Rep. 8-0529-R24, Westinghouse Research, 1958.
+
+European Journal of Mechanics / B Fluids 102 (2023) 150–167
+[106] W.C. Reynolds, W.G. Tiederman, Stability of turbulent channel flow, with application to Malkus’s theory, J. Fluid Mech. 27 (1967) 253–272.
+[107] S. Pirozzoli, Revisiting the mixing-length hypothesis in the outer part of turbulent wall layers: Mean flow and wall friction, J. Fluid Mech. 745 (2014) 378–397.
+[108] M.M.M. El Telbany, A.J. Reynolds, Velocity distributions in plane turbulent channel flows, J. Fluid Mech. 100 (1980) 1–29.
+[109] J.C. Del Alamo, J. Jiménez, Spectra of the very large anisotropic scales in turbulent channels, Phys. Fluids 15 (2003) L41–L44.
+[110] S. Hoyas, J. Jiménez, Scaling of the velocity fluctuations in turbulent channels up to Reτ =2003, Phys. Fluids 18 (2006) 011702.
+
+167
+

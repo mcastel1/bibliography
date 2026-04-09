@@ -1,0 +1,72 @@
+Journal of Physics A: Mathematical and General
+Multispin coding for spin glasses
+To cite this article: H Freund and P Grassberger 1988 J.Phys.A:Math.Gen. 21 L801
+View the article online for updates and enhancements.
+You may also like
+Large-scale multiconfiguration DiracHartree-Fock calculations of atomic data, Landé gj-factors and hyperfine constants of the neutral Rn-211 isotope Wa’el Salah and Ola Hassouneh
+
+Error suppression via complementary gauge choices in Reed-Muller codes Christopher Chamberland and Tomas Jochym-O’Connor
+
+A Monte Carlo study on the spin dynamics of the 2D+or-J Ising spin glass model K Hukushima and K Nemoto
+
+This content was downloaded from IP address 193.54.110.55 on 23/03/2026 at 10:55
+
+
+J. Phys. A: Math. Gen. 21 (1988) L801-L805. Printed in the U K
+LETTER TO THE EDITOR
+Multispin coding for spin glasses
+H Freund and P Grassberger
+Physics Department, University of Wuppertal, D-5600 Wuppertal 1, Gauss-Strasse 20, Federal Republic of Germany
+Received 10 March 1988, in final form 31 May 1988
+Abstract. We present a multispin coding algorithm for the 2D i J spin glass model. It is a straightforward generalisation of Vichniac’s Q2R k i n g model. In contrast to that, however, it is not strictly deterministic and energy conserving, so that no problems with ergodicity arise. Numerical results are given for the ground state reached by simulated annealing. They are in good agreement with previous results.
+Spin glasses [ I ] are a prime testing ground for optimisation methods in complex situations [2]. In particular, it is non-trivial to obtain the correct ground-state energy and entropy. Actually, it has been shown [3] that for 2~ spin glasses this requires only polynomial time, i.e. it is not an NP problem. Nevertheless, the best available estimates seem to be from the transfer matrix method [4,5] (the effort for which increases exponentially with size) and from simulated annealing. In the latter, one starts with a finite temperature, approaches thermal equilibrium at this temperature by Monte Carlo simulation, and then decreases temperature in small steps. As it was suggested [2] that simulated annealing might be very efficient also in other complex optimisation problems, it seems useful to understand it as well as possible in spin glasses. The most precise results obtained up to the present in this way [6] have used the standard Metropolis algorithm. Recently, other methods for simulating spin systems have been developed which seem to be much more efficient when applied to the standard Ising model. These include the microcanonical models of Creutz [7,8] and, as their ultimate simplification, the Q2R model of Vichniac [9]. In the Q2R model, the lattice is divided into two sublattices in a checkerboard fashion, and spins are updated alternatively on the two sublattices. The updating is such that spins are flipped if and only if the flip does not change the energy. Thus the evolution is purely deterministic, requiring no random number generators. The advantage therein is that the updating can be made simultaneously on many spins, by using only one bit of a computer word per spin, making the algorithm extremely fast [10,111. More precisely, only eight logical operations were necessary in [lo] to update one computer word. The disadvantages are on the one hand that finite-size corrections seem larger due to the exact energy conservation. On the other hand, the model is not strictly ergodic. This does not seem to pose problems close to the critical point [111, but it should lead to severe problems at low temperatures. In the present letter, we show that a simple modification of the Q2R model, preserving the advantages but avoiding the disadvantages, can be applied to the * J spin glass at low temperature. This is defined by the energy
+H = J C &ikSiSk &ik = *1 J = 1. (1)
+(ilk)
+0305-4470/88/ 160801+05$02.50 @ 1988 IOP Publishing Ltd L801
+
+
+L802 Letter to the Editor
+On an infinitely large lattice, all horizontal bonds can be arranged by a gauge transformation to be ferromagnetic. The signs of the vertical bonds remain still completely random, and each bond can be represented by one bit. Assume the computer has N-bit words and the lattice has a width L which is a multiple of 2N. Then, we need
+Ll N words for each row of spins and L / N other words for the row of vertical bonds below. To take into account the random bonds, one needs just two additional Boolean operations per N spins for each update. (The gauge setting all horizontal bonds ferromagnetic could be avoided at the expense of one more word per N spins and two more Boolean operations.) In order to improve the ergodicity, we do not flip spins each time when this would conserve energy, but only with probability f. This might seem to destroy the main advantage that simulation is faster when no random number generators are needed. But since we need only a single bit per spin set randomly to 0 or 1 , this is also very fast. We need one random integer for each update of N spins and one more logical AND. The resulting increase of the updating time is less than 50%. Up to this stage, we need 11 logical operations plus one random integer to update N spins. The last modification was to break exact energy conservation, changing thus from the microcanonical to roughly the canonical ensemble. The drawbacks of the microcanonical ensemble as described above are as follows. (a) Large finite-size corrections. This follows simply from the fact that a small system does not have the energy fluctuations it would have if it were part of a large system. In the canonical ensemble, a small system is in this way more similar to a part of an infinite one. (b) Slow relaxation due to trapping in local minima. Jumps between local minima should be enhanced if the energy can fluctuate locally in space. In the above microcanonical model, the energy in any region of space can fluctuate only by being transferred through the boundary, which is slow compared to the fluctuations in a canonical model. Since we are interested in the ground state and use non-zero temperatures only in auxiliary steps during the ‘cooling down’, we indeed do not need the exact canonical ensemble. A fast algorithm whose equilibrium state is a good approximation to the canonical ensemble is the following. When a spin flip decreases the energy, we perform it. If it leaves the energy constant, we perform it with probability as described above. Finally, if the flip would increase the energy, we do the flipping with a probability p independent of the energy increase. This probability is essentially the Boltzmann factor, p =exp(-2Jp), for the smaller of the two increases. A fast way of performing these flips consists in storing an array of bit masks with bits set to ‘1’ randomly with probability p, and making logical AND with these bit masks. In order to avoid any problems related to the finiteness of the array of bit masks, we scrambled them before each application. This needed two more random numbers and one SHIFT per updating of N spins. The final algorithm needed three random numbers and 24 logical operations for each updating of N spins. On a Cyber 1701175, one updating required 0.82 ps per spin. The final relaxation to ihe ground state at T = 0 was somewhat simpler and took only 0.44 ps. The cooling strategy was essentially the same as in [6], although different strategies have been discussed recently [12]. We started at temperature T = 1.2. In steps of AT=0.14, we went down to T=0.5. Below this temperature, thermal effects were
+
+
+Letter to the Editor L803
+estimated to be negligible within our statistics, and thus we continued with T =0. In one run, the number t of iterations at each of these seven temperatures was the same. Energies reached in this way depend evidently on the cooling rate A T / t . Results for various rates are given in figure 1 and table 1. Each data point in figure 1 is obtained from a large number of independent runs on a lattice of 240 x 240 spins. The number of runs for each t is also given in table 1. Also plotted in figure 1 are the values of [ 6 ] . In [ 6 ]it was claimed that the energies (per spin) reached in such a cooling procedure behave as
+E ( t ) = Eo+ constant x t-X (2)
+with x =0.2-0.3 and with Eo5= 1.398 being the ground-state energy. The latter agrees with the result E o = 1.40*0.01 of [12]. We found that both the data of [ 6 ] and our
+1.3
+*4
+L
+I, I 1 I I
+0 0.1 0.2 0.3 0.4 0.5 0.6 lIln(t1
+Figure 1. Energies of the ‘ground states’ reached after cooling with a rate 1/1. In view of the ansatz (3), these energies are plotted against l/ln 1. A , data of [6] (1OOx loo), 0, our results (240x240). In our data, the statistical errors are in general smaller than the size of the symbols.
+Table 1. The first column gives the inverse cooling rates f in updates per spin for each temperature (the temperatures were T = 1.2, 1.06, 0.92, 0.78, 0.64, 0.50, 0, the lattice size was 240 x 240). The second column gives the number of runs with this cooling rate and the third column gives the energy per spin reached.
+I Number of runs E
+5 10 20 50 100 200 500 1 000 2 000 5 000 10 000
+100 50 50 20 20 30 30 40 12 4 24
+1.335 75 * 0.000 24 1.349 90*0.000 33
+1.359 48 * 0.000 29 1.369 14*0.00032
+1.374 75 * 0.000 55 1.378 06*0.00040
+1.382 54 * 0.000 43 1.384 28 f0.000 29 1.385 55*0.00049
+1.387 28 * 0.000 79 1.389 34 i0.000 37
+
+
+L804 Letter to the Editor
+data are better described by (2) if a larger value x =0.35 is taken, which would then give Eo= 1.393f 0.003 for both data sets. Alternatively, it was proposed in [13] that E ( t ) converges as
+constant
+(In t ) l
+E ( t ) = E , + (3)
+with some unknown exponent f: Indeed a fit at least as good as the above was obtained with 5 = 1 . For this reason, E ( t ) is plotted against l/ln t in figure 1 . The extrapolation to t = O now gives somewhat larger values:
+-1.403f0.002 (this letter) -1.401f0.004 (see [61).
+Eo= { (4)
+This is in perfect agreement with the value Eo= -1.4024* 0.0012 found in [5] by means of the transfer matrix method. Both in [6] and in the present work, no finite-size corrections have been taken into account. We feel that we are reasonably safe due to the large lattice size (the lattices in [ 6 ]were only of size 100x 100). One possible source of finite-size corrections specific to the present letter consists in our putting all horizontal bonds to -J. On a finite lattice, there is at most one bond per line which cannot be gauged ferromagnetic. The error in the ground-state energy committed thereby can be estimated exactly as sIE01/2L=0.003. According to test runs on smaller lattices, it actually seems to be much smaller than that. Summarising, we have presented Monte Carlo results of a new algorithm for the ground state of the two-dimensional * J spin glass. It is not only very fast (indeed it seems the fastest algorithm in the literature), but it also uses very little storage. While it would not be straightforward to extend it to spin glasses with continuous distributions of bonds, the extension to three dimensions is trivial. Our numerical results improve the best previous Monte Carlo results. Their extrapolation to infinitely slow cooling agrees perfectly with the most precise results of a transfer matrix calculation [5], provided we use in this extrapolation the cooling rate dependence predicted in [13]. If we would use instead the power law conjectured in [6], our extrapolated value would disagree with that of [ 5 ] by around three standard deviations. Thus we conclude that both [ 5 ] and [13] are correct, and that a power law as proposed in [6] is ruled out.
+One of us (PG) wants to thank very much Dr P Rujan for a most interesting discussion, and for pointing out [3, 131.
+References
+Binder K and Young A P 1986 Reo. Mod. fhys. 58 801 Kirkpatrick S, Gelatt C D Jr and Vecchi M P 1983 Science 220 671 Bieche I , Maynard R, Rammal R and Uhry J P 1980 J. fhys. A: Math. Gen. 13 2553 Barahona F 1982 J. Phys. A: Math. Gen. IS 3241 Morgenstern I and Binder K 1980 fhys. Reo. B 22 288 Cheung H-F and McMillan W L 1983 J. fhys. C: Solid State fhys. 16 7027 Crest G S et a/ 1986 fhys. Reo. Lett. 56 1148 Creutz H 1983 fhys. Reo. Lett. 50 1411 Creutz 1986 Ann. fhys., N Y 167 62
+
+
+Letter to the Editor
+[9] Vichniac G Y 1984 Physicu 10D 96 [IO] Herrmann H J 1986 J. Staf. Phys. 45 145 [ l l ] Herrmann H J and Zabolitzky J G 1987 Preprinf University of Minnesota [I21 Morgenstern 1 and Wiirtz Z 1987 2.Phys. B 67 397
+[I31 Huse D A and Fisher D S 1986 Phys. Rev. Letf.57 2203
+Bernasconi J 1988 Preprint Brown Boveri
+L805

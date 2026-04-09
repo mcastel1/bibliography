@@ -1,0 +1,2349 @@
+MATHEMATICS OF COMPUTATION Volume 86, Number 305, May 2017, Pages 1037–1069 http://dx.doi.org/10.1090/mcom/3162
+Article electronically published on August 18, 2016
+FINITE ELEMENT APPROXIMATION FOR THE DYNAMICS
+OF ASYMMETRIC FLUIDIC BIOMEMBRANES
+JOHN W. BARRETT, HARALD GARCKE, AND ROBERT NU ̈ RNBERG
+Abstract. We present a parametric finite element approximation of a fluidic membrane whose evolution is governed by a surface Navier–Stokes equation coupled to bulk Navier–Stokes equations. The elastic properties of the membrane are modelled with the help of curvature energies of Willmore and Helfrich type. Forces stemming from these energies act on the surface fluid, together with a forcing from the bulk fluid. Using ideas from PDE constrained optimization, a weak formulation is derived, which allows for a stable semidiscretization. An important new feature of the present work is that we are able to also deal with spontaneous curvature and an area difference elasticity contribution in the curvature energy. This allows for the modelling of asymmetric membranes, which compared to the symmetric case lead to quite different shapes. This is demonstrated in the numerical computations presented.
+1. Introduction
+Biomembranes and vesicles typically consist of lipid bilayers, which have elastic properties that can be modelled with the help of curvature energies. Already in equilibrium one observes a variety of shapes, and we refer to the overview article [40] for a detailed account of the arising forms. The membranes typically are in a fluidic state, and they are locally incompressible. Hence the incompressible surface Navier–Stokes equations describe the flow on the membrane. These surface Navier–Stokes equations have to be coupled to bulk Navier–Stokes equations, which model the evolution of the surrounding bulk fluid. Stresses resulting from the bulk fluid act on the membrane, as well as forces stemming from the first variation of the curvature energy. The underlying elastic energy is a generalization of the Willmore energy (see [43]), which is proportional to the integral of the squared mean curvature. Due to the bilayer structure of the membrane, often a top-down asymmetry arises, which makes it necessary to generalize the Willmore curvature model. One example of such a generalized model is the spontaneous curvature model, in which the Willmore energy 1
+2
+∫
+Γ κ2 is replaced by 1
+2
+∫
+Γ(κ − κ)2 where κ is the mean curvature and κ is a given constant. This model goes back to Helfrich [24] and Canham [14], and it is by now widely used. We refer to [26, 31] for recent discussions and experiments related to this model. A typical phenomenon is that the two layers of the membrane bilayer have a different number of molecules. Since the distance d between the two layers is small,
+one can approximate the area difference between the two layers by d ∫
+Γ κ. Based on
+Received by the editor March 2, 2015 and, in revised form, October 13, 2015. 2010 Mathematics Subject Classification. Primary 65M60, 65M12, 76M10, 76Z99, 92C05, 35Q35, 76D05.
+c©2016 American Mathematical Society
+1037
+
+
+1038 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+this, in [34] a curvature model, which still assumes that the mid-plane between the two layers is incompressible, was introduced. However, the two layers themselves can slightly compress or expand under stress. The area difference between the two
+layers then leads to the fact that a certain value for ∫
+Γ κ is energetically favorable. In the area difference elasticity (ADE) model from [34] (see also [40]), a contribution
+which is proportional to (∫
+Γ κ − M0)2, where M0 is the relaxed area difference, is added to the elastic curvature energy. For more details on this curvature elasticity model we refer to the excellent overview article [40], and for more information on fluid vesicles and membranes in fluids, we refer to the recent work [1]. The overall dynamical model studied in this paper is given by the coupled bulk and surface Navier–Stokes equations, as discussed above, while taking a forcing from the curvature elasticity energy into account. Without the ADE-contribution this model goes back to [3], and a first numerical analysis of a discrete approximation of this model, in the absence of spontaneous curvature effects, has recently been given by the authors in [11]. A mathematical analysis, also considering well-posedness issues of variants of this model, has been performed in [27] and [30]. The dynamics of lipid membranes and vesicles have been studied numerically by many authors. We only refer to the works [2, 3, 6, 11–13, 16, 20, 21, 25, 28, 29, 32, 33, 35–37, 41]. The above-mentioned papers used different evolution laws (L2–gradient flow, simplified fluid models, phase field evolutions, particle-based hydrodynamic evolutions, etc.), and often simplified curvature elasticity models or substituted the curvature contributions by a spring type model. Due to the complexity of the model, results on the numerical analysis of this type of problem are limited. In a numerical method, fluid flow with an interface has to be addressed, as well as the curvature energy. In addition, these two contributions have to be coupled appropriately. For numerical aspects of fluid flow with a free boundary we refer the reader to the book [23] and to [4]. An important contribution to the numerical approximation of evolution problems involving curvature energies of Willmore type is due to Dziuk [18], who introduced a semi-discretization of the L2–gradient flow of the Willmore energy, for which he was able to show a stability result. We stress that the stability result in [11] is the only analysis available in the literature for a numerical method approximating a dynamical model of fluidic biomembranes. Extending this analysis to a model that also includes energy contributions arising from the asymmetry of the membrane, i.e. spontaneous curvature and/or area difference elasticity contributions, is the goal of this paper. The remainder of the paper is organized as follows. In Section 2 we present the mathematical model that we wish to study in detail. Using ideas from PDE constrained optimization, we are able to derive a weak formulation in Section 3, which then allows for a semi-discretization (continuous in time, discrete in space) for which we can show a stability bound; see Section 4. The discretization is based on a parametric method for the interface, which is then coupled in an unfitted way to the bulk equations. The velocity and pressure in the bulk are discretized with the help of standard Taylor–Hood type elements. In Section 5 we introduce the fully discrete and fully coupled discrete system, for which we show unique solvability under appropriate assumptions. After a discussion of possible solution methods for the resulting linear systems in Section 6, we present several numerical computations demonstrating the practicability of the method and the effect of the asymmetry in the membrane in Section 7.
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1039
+ν
+Γ(t)
+Ω−(t)
+Ω+(t)
+Figure 1. The domain Ω in the case d = 2.
+2. Governing equations
+Let Ω ⊂ Rd be a given domain, where d = 2 or d = 3. We seek a time dependent interface (Γ(t))t∈[0,T ], Γ(t) ⊂ Ω, which for all t ∈ [0, T ] separates Ω into a domain Ω+(t), occupied by the outer phase, and a domain Ω−(t) := Ω \ Ω+(t), which is occupied by the inner phase; see Figure 1 for an illustration. For later use, we assume that (Γ(t))t∈[0,T ] is a sufficiently smooth evolving hypersurface without boundary that is parameterized by x(·, t) : Υ → Rd, where Υ ⊂ Rd is a given reference manifold, i.e. Γ(t) = x(Υ, t). Then
+(2.1) V(z, t) := xt(q, t) ∀ z = x(q, t) ∈ Γ(t)
+defines the velocity of Γ(t), and V := V . ν is the normal velocity of the evolving hypersurface Γ(t), where ν(t) is the unit normal on Γ(t) pointing into Ω+(t).
+Moreover, we define the space-time surface GT := ⋃
+t∈[0,T ] Γ(t) × {t}.
+Let ρ(t) = ρ+ XΩ+(t) + ρ− XΩ−(t), with ρ± ∈ R≥0, denote the fluid densities, where here and throughout XA defines the characteristic function for a set A. Denoting by u : Ω × [0, T ] → Rd the fluid velocity, by σ : Ω × [0, T ] → Rd×d the
+stress tensor, and by f : Ω×[0, T ] → Rd a possible volume force, the incompressible Navier–Stokes equations in the two phases are given by
+(2.2a) ρ (ut + (u . ∇) u) − ∇ . σ = ρ f in Ω±(t) ,
+(2.2b) ∇ . u = 0 in Ω±(t) ,
+(2.2c) u = g on ∂1Ω ,
+(2.2d) σ n = 0 on ∂2Ω ,
+where ∂Ω = ∂1Ω ∪ ∂2Ω, with ∂1Ω ∩ ∂2Ω = ∅, denotes the boundary of Ω with outer unit normal n. Hence (2.2c) prescribes a possibly inhomogeneous Dirichlet condition for the velocity on ∂1Ω, which collapses to the standard no-slip condition when g = 0, while (2.2d) prescribes a stress-free condition on ∂2Ω. Throughout this paper we assume that Hd−1(∂1Ω) > 0. We will also assume w.l.o.g. that g is extended so that g : Ω → Rd. In addition, the stress tensor in (2.2a) is defined by
+(2.3) σ = μ (∇ u + (∇ u)T ) − p Id = 2 μ D(u) − p Id ,
+
+
+1040 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+where Id ∈ Rd×d denotes the identity matrix and D(u) := 1
+2 (∇ u + (∇ u)T ) is the
+rate-of-deformation tensor, with ∇ u = (∂xj ui
+)d
+i,j=1. Moreover, p : Ω × [0, T ] → R is the pressure and μ(t) = μ+ XΩ+(t) + μ− XΩ−(t), with μ± ∈ R>0, denotes the dynamic viscosities in the two phases. On the free surface Γ(t), the following conditions need to hold:
+[u]+
+(2.4a) − = 0 on Γ(t) ,
+ρΓ ∂•
+t u − ∇s . σΓ = [σ ν]+
+(2.4b) − + α fΓ on Γ(t) ,
+(2.4c) ∇s . u = 0 on Γ(t) ,
+(2.4d) V . ν = u . ν on Γ(t) ,
+where ρΓ ∈ R≥0 denotes the surface material density, α ∈ R>0 is the bending rigidity and the source term fΓ := fΓ ν, arising from the curvature energy of Γ(t), will be defined in (2.11b), below. In addition, ∇s . denotes the surface divergence on Γ(t), and the surface stress tensor is given by
+(2.5) σΓ = 2 μΓ Ds(u) − pΓ PΓ on Γ(t) ,
+where μΓ ∈ R≥0 is the interfacial shear viscosity and pΓ denotes the surface pressure, which acts as a Lagrange multiplier for the incompressibility condition (2.4c). Here
+(2.6a) PΓ = Id − ν ⊗ ν on Γ(t)
+and
+(2.6b) Ds(u) = 1
+2 PΓ (∇s u + (∇s u)T ) PΓ on Γ(t) ,
+where ∇s = PΓ ∇ = (∂s1, . . . , ∂sd ) denotes the surface gradient on Γ(t), and ∇s u =
+(∂sj ui
+)d
+i,j=1. Moreover, as usual, [u]+
+− := u+ − u− and [σ ν]+
+− := σ+ ν − σ− ν denote the jumps in velocity and normal stress across the interface Γ(t). Here and throughout, we employ the shorthand notation b± := b |Ω±(t) for a function
+b : Ω × [0, T ] → Rd, and similarly for scalar and matrix-valued functions. In addition,
+(2.7) ∂•
+t ζ = ζt + u . ∇ ζ ∀ ζ ∈ H1(GT )
+denotes the material time derivative of ζ on Γ(t). We compute ∂t• ζ with the help of an extension of ζ to a neighborhood of GT . Here we stress that the derivative in (2.7) is well-defined and depends only on the values of ζ on GT , even though ζt and ∇ ζ do not make sense separately for a function defined on GT ; see e.g. [19, p. 324]. The system (2.2a–d), (2.3), (2.4a–d), (2.5) is closed with the initial conditions
+(2.8) Γ(0) = Γ0 , ρ u(·, 0) = ρ u0 in Ω , ρΓ u(·, 0) = ρΓ u0 on Γ0 ,
+where Γ0 ⊂ Ω and u0 : Ω → Rd are given initial data satisfying ρ ∇ . u0 = 0 in Ω, ρΓ ∇s . u0 = 0 on Γ0 and ρ+ u0 = ρ+ g on ∂1Ω. Of course, in the case ρ− = ρ+ = ρΓ = 0 the initial data u0 is not needed. Similarly, in the case ρ− = ρ+ = 0 and ρΓ > 0 the initial data u0 is only needed on Γ0. However, for ease of exposition and in view of the unfitted nature of our numerical method, we will always assume that u0, if required, is given on all of Ω.
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1041
+It is not difficult to show that the conditions (2.2b) enforce volume preservation for the phases, while (2.4c) leads to the conservation of the total surface area Hd−1(Γ(t)); see (3.6) and (3.7) in Section 3 below for the relevant proofs. As an immediate consequence we obtain that a sphere Γ(t) remain a sphere and that a sphere Γ(t) with a zero bulk velocity is a stationary solution. In addition, in the case d = 2 the condition (2.4c) immediately implies that Ds(u) = 0 on Γ(t), which means that in two space dimensions the problem is independent of the value of μΓ. Furthermore, we note that
+∇s . σΓ = 2 μΓ ∇s . Ds(u) − ∇s . [pΓ PΓ] = 2 μΓ ∇s . Ds(u) − ∇s pΓ − κ pΓ ν .
+Here κ denotes the so-called mean curvature of Γ(t), i.e. the sum of the principal curvatures κi, i = 1, . . . , d − 1, of Γ(t), where we have adopted the sign convention that κ is negative where Ω−(t) is locally convex. In particular, it holds that
+Δs id = κ ν =: κ on Γ(t) ,
+where Δs = ∇s . ∇s is the Laplace–Beltrami operator on Γ(t). The Willmore energy of Γ(t) is given by
+(2.9) E(Γ(t)) = 1
+2
+∫
+Γ(t)
+κ2 dHd−1 = 1
+2
+∫
+Γ(t)
+|κ|2 dHd−1 ;
+see e.g. [43] for details. Realistic models for biological cell membranes lead to energies more general than (2.9). In the original derivation in [24], a possible asymmetry in the membrane, originating e.g. from a different chemical environment, was taken into account. This led Helfrich to the energy
+Eκ(Γ(t)) = 1
+2
+∫
+Γ(t)
+(κ − κ)2 dHd−1 = 1
+2
+∫
+Γ(t)
+|κ − κ ν|2 dHd−1 ,
+where κ ∈ R is the given so-called spontaneous curvature. Biological membranes consist of two layers of lipids. The number of lipid molecules is conserved and there are osmotic pressure effects, arising from the chemistry around the lipid. These both lead to constraints on the possible membrane configurations. Most models for bilayer membranes take hard constraints on the total area and the enclosed volume of the membrane into account. The fact that it is difficult to exchange molecules between the two layers implies that the total number of lipids in each layer is conserved and hence an area difference between the two layers will appear. The actual area difference can, to leading order, be described with the help of the total integrated mean curvature; see [40]. Now one can either incorporate this area difference by a hard constraint on the integrated mean curvature or penalize deviations from an optimal area difference. In the latter case, we obtain the energy
+(2.10a) Eκ,β(Γ(t)) := Eκ(Γ(t)) + β
+2 (M (Γ(t)) − M0)2
+with
+(2.10b) M (Γ(t)) =
+∫
+Γ(t)
+κ dHd−1 =
+∫
+Γ(t)
+κ . ν dHd−1
+and given constants β ∈ R≥0, M0 ∈ R. Models employing the energy (2.10a) are often called area difference elasticity (ADE) models; see [40].
+
+
+1042 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+Now the source term fΓ := fΓ ν in (2.4b) is given by the first variation of the energy (2.10a), i.e.
+(2.11a) d
+dt Eκ,β(Γ(t)) = −
+∫
+Γ(t)
+fΓ V dHd−1 = −
+∫
+Γ(t)
+fΓ . V dHd−1 ,
+where (2.11b)
+fΓ = −Δs κ−(κ−κ) |∇s ν|2+ 1
+2 (κ−κ)2 κ+β (M (Γ(t))−M0) (|∇s ν|2−κ2) on Γ(t) .
+A short derivation of (2.11a,b) can be found in [6]. We note that in the case d = 2, on account of the Gauß–Bonnet theorem, it holds that M (Γ(t)) = 2 π m(Γ(t)), where m(Γ(t)) ∈ {±1} denotes the turning number of Γ(t), which is invariant for (Γ(t))t∈[0,T ]. Hence fΓ is independent of β, which can also be seen directly from
+(2.11b) on recalling that |∇s ν|2 = ∑d−1
+i=1 κ2
+i . Moreover,
+Eκ,0(Γ(t)) = 1
+2
+∫
+Γ(t)
+κ2+κ2 dH1−κ M (Γ(t)) = 1
+2
+∫
+Γ(t)
+κ2+κ2 dH1−2 π κ m(Γ(t)) .
+As the total surface length is preserved, due to the condition (2.4c), the forcing fΓ is also independent of the spontaneous curvature in the case d = 2. Hence it only makes sense to consider nonzero values of κ and β in the case d = 3. Here we note that for β > 0, as surface area is preserved, the energy (2.10a), up to a constant, is equivalent to (2.10a) with κ replaced by zero and M0 replaced by M0 + κ
+β . Hence it is natural to assume that κ = 0 if β > 0. It does not appear possible to derive a stable discretization of the system (2.2a–d), (2.3), (2.4a–d), (2.5) based on the formulation (2.11b). In particular, for the schemes in [6], which are based on the formulation (2.11b), no stability results are available. Hence in the recent paper [11], for the case κ = β = 0, the authors made use of the stable approximation of Willmore flow introduced in [18], which is based on the identity
+1 2
+d
+dt 〈κ, κ〉Γ(t) = −
+〈
+fΓ, V
+〉
+Γ(t)
+,
+(2.12a)
+where 〈
+fΓ, χ
+〉
+Γ(t)
+= 〈∇s κ, ∇s χ〉Γ(t) + 〈∇s . κ, ∇s . χ〉Γ(t) + 1
+2
+〈
+|κ|2 ∇s id, ∇s χ
+〉
+Γ(t)
+−2
+〈
+(∇s κ)T , Ds(χ) (∇s id)T 〉
+(2.12b) Γ(t) ∀ χ ∈ [H1(Γ(t))]d .
+Here 〈·, ·〉Γ(t) denotes the L2–inner product on Γ(t). We note that the approaches in [11, 18] rely on an approximation of the curvature vector κ, and so they cannot easily consider nonzero κ or nonzero β. It is the aim of the present paper, on combining the techniques in [11] and [7], to introduce a stable numerical approximation of fluidic biomembranes in the presence of spontaneous curvature and ADE. In particular, based on the techniques in [18] and using ideas from the formal calculus of PDE constrained optimization, it is possible to extend the formulation (2.12b) to include nonzero κ and β.
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1043
+3. Weak formulations
+Before introducing our finite element approximation, we will derive an appropriate weak formulation. Here the main ingredient is to find a suitable formulation of (2.11a,b) which has the property that the source term fΓ can be written as the derivative of a suitable discrete energy. Once such a formulation is obtained, it can then be combined with the weak formulation from [11] for the coupled NavierStokes bulk/surface equations. We remark that in our weak formulation, and hence also in our discretizations, the interface will be advected with the help of the fluid velocity in both the normal and tangential directions, i.e. (2.4d) will be strengthened to V = u, and we refer to this as the fluidic approach. In other fluid flow problems with a free boundary this typically leads to distortions of the parametric surface mesh; see e.g. the discussions in [4, 9]. However, in our case the local surface area conservation enforced by (2.4c) and V = u will lead to the surface mesh quality remaining good during the evolution; see (4.17) below and Remark 4.1 in [11].
+3.1. Fluidic weak formulation for κ = β = 0. We begin by recalling the weak formulation of (2.2a–d), (2.3), (2.4a–d), (2.5) from [11]. To this end, we introduce the following function spaces for a given b ∈ [H1(Ω)]d:
+U(b) := {φ ∈ [H1(Ω)]d : φ = b on ∂1Ω} ,
+V(b) := L2(0, T ; U(b)) ∩ H1(0, T ; [L2(Ω)]d) ,
+(3.1a) VΓ(b) := {φ ∈ V(b) : φ |GT ∈ [H1(GT )]d} .
+In addition, we let P := L2(Ω) and define
+(3.1b) ̂P :=
+{
+{η ∈ P : ∫
+Ω η dLd = 0} if Hd−1(∂2Ω) = 0 ,
+P if Hd−1(∂2Ω) > 0 .
+Here and throughout, Hd−1 denotes the (d − 1)-dimensional Hausdorff measure in Rd, while Ld denotes the Lebesgue measure in Rd. Moreover, we let (·, ·) and 〈·, ·〉∂2Ω denote the L2–inner products on Ω and ∂2Ω. Similarly to (2.7) we define the following time derivative that follows the parameterization x(·, t) of Γ(t) rather than u. In particular, we let
+(3.2) ∂◦
+t ζ = ζt + V . ∇ ζ ∀ ζ ∈ H1(GT ) ,
+where we stress once again that this definition is well-defined, even though ζt and ∇ ζ do not make sense separately for a function ζ ∈ H1(GT ). On recalling (2.7) we obtain that ∂t◦ = ∂t• if V = u on Γ(t). Moreover, for later use we note that (3.3) d
+dt 〈χ, ζ〉Γ(t) = 〈∂◦
+t χ, ζ〉Γ(t) + 〈χ, ∂◦
+t ζ〉Γ(t) +
+〈
+χ ζ, ∇s . V
+〉
+Γ(t) ∀ χ, ζ ∈ H1(GT ) ;
+see [19, Lem. 5.2]. The weak formulation of (2.2a–d), (2.3), (2.4a–d), (2.5) from [11] is then given as follows. Find Γ(t) = x(Υ, t) for t ∈ [0, T ] with V ∈ [L2(GT )]d and V(·, t) ∈ [H1(Γ(t)]d for almost all t ∈ (0, T ) and functions u ∈ VΓ(g), p ∈ L2(0, T ; ̂P), pΓ ∈ L2(GT ), κ ∈ [H1(GT )]d and fΓ ∈ [L2(GT )]d such that the initial conditions
+
+
+1044 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+(2.8) hold and such that for almost all t ∈ (0, T ) it holds that
+1 2
+[d
+dt (ρ u, ξ) + (ρ ut, ξ) − (ρ u, ξt) + (ρ, [(u . ∇) u] . ξ − [(u . ∇) ξ] . u)
++ρ+
+〈
+u . n, u . ξ
+〉
+∂2 Ω
+]
++ 2 (μ D(u), D(ξ)) − (p, ∇ . ξ) + ρΓ
+〈
+∂◦
+t u, ξ
+〉
+Γ(t)
++ 2 μΓ
+〈
+Ds(u), Ds(ξ)
+〉
+Γ(t) −
+〈
+pΓ, ∇s . ξ
+〉
+Γ(t)
+= (ρ f, ξ) + α
+〈
+fΓ, ξ
+〉
+Γ(t)
+∀ ξ ∈ VΓ(0) ,
+(3.4a)
+(∇ . u, φ) = 0 ∀ φ ∈ ̂P ,
+(3.4b)
+〈∇s . u, η〉Γ(t) = 0 ∀ η ∈ L2(Γ(t)) ,
+(3.4c)
+〈
+V − u, χ
+〉
+Γ(t)
+= 0 ∀ χ ∈ [L2(Γ(t))]d ,
+(3.4d)
+〈κ, η〉Γ(t) +
+〈
+∇s id, ∇s η
+〉
+Γ(t)
+= 0 ∀ η ∈ [H1(Γ(t))]d ,
+(3.4e)
+〈
+fΓ, χ
+〉
+Γ(t)
+= 〈∇s κ, ∇s χ〉Γ(t) + 〈∇s . κ, ∇s . χ〉Γ(t) + 1
+2
+〈
+|κ|2 ∇s id, ∇s χ
+〉
+Γ(t)
+−2
+〈
+(∇s κ)T , Ds(χ) (∇s id)T 〉
+Γ(t) ∀ χ ∈ [H1(Γ(t))]d ,
+(3.4f )
+where in (3.4d) we have recalled (2.1). It is our aim to replace (3.4e,f) with a suitable reformulation of (2.12b), where the curvature energy is replaced by (2.10a,b); recall also (2.11a,b). For the case g = 0, it was shown in [11] that choosing ξ = u ∈ VΓ(0) in (3.4a), φ = p(·, t) ∈ ̂P in (3.4b) and η = pΓ(·, t) ∈ L2(Γ(t)) in (3.4c) yields that
+1 2
+d dt
+(
+‖ρ 1
+2 u‖2
+0 + ρΓ 〈u, u〉Γ(t)
+)
++ 2 ‖μ 1
+2 D(u)‖2
+0 + 2 μΓ
+〈Ds(u), Ds(u)〉
+Γ(t)
++1
+2 ρ+
+〈u . n, |u|2〉
+∂2Ω = (ρ f , u) + α
+〈
+fΓ, u
+〉
+Γ(t)
+(3.5) ,
+which, on combining with χ = fΓ in (3.4d), χ = V in (3.4f) and (2.12a,b), gives
+1 2
+d dt
+(
+‖ρ 1
+2 u‖2
+0 + ρΓ 〈u, u〉Γ(t) + α 〈κ, κ〉Γ(t)
+)
++ 2 ‖μ 1
+2 D(u)‖2
+0
++ 2 μΓ
+〈Ds(u), Ds(u)〉
+Γ(t) + 1
+2 ρ+
+〈u . n, |u|2〉
+∂2Ω = (ρ f , u) .
+Moreover, we recall from [11] that it follows from (3.3) and (3.4c,d) that
+(3.6) d
+dt Hd−1(Γ(t)) = d
+dt 〈1, 1〉Γ(t) =
+〈
+1, ∇s . V
+〉
+Γ(t)
+= 〈1, ∇s . u〉Γ(t) = 0 ,
+while [15, Lemma 2.1] and (3.4b,d) imply that
+(3.7) d
+dt Ld(Ω−(t)) =
+〈
+V, ν
+〉
+Γ(t)
+= 〈u, ν〉Γ(t) =
+∫
+Ω− (t)
+∇ . u dLd = 0 .
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1045
+3.2. The first variation of Eκ,β(Γ(t)). In this section we would like to derive a weak formulation for the first variation of Eκ,β(Γ(t)) with respect to Γ(t) = x(Υ, t). To this end, for a given χ ∈ [H1(Γ(t))]d and for ε ∈ (0, ε0), where ε0 ∈ R>0, let Ψ(·, ε) be a family of transformations such that
+Γε(t) := {Ψ(z, ε) : z ∈ Γ(t)} , where Ψ(z, 0) = z and ∂Ψ
+∂ε (z, 0) = χ(z) ∀ z ∈ Γ(t) .
+Then the first variation of Hd−1(Γ(t)) with respect to Γ(t) in the direction χ ∈ [H1(Γ(t))]d is given by
+[δ
+δΓ Hd−1(Γ(t))
+]
+(χ) = d
+dε Hd−1(Γε(t)) |ε=0
+= εli→m0
+1 ε
+[Hd−1(Γε(t)) − Hd−1(Γ(t))] =
+〈
+∇s id, ∇s χ
+〉
+Γ(t)
+(3.8) ;
+see e.g. the proof of Lemma 1 in [18]. For later use we note that generalized variants of (3.8) also hold. Namely, we have that
+[δ
+δΓ 〈w, 1〉Γ(t)
+]
+(χ) = d
+dε 〈wε, 1〉Γε(t) |ε=0=
+〈
+w ∇s id, ∇s χ
+〉
+Γ(t) ∀ w ∈ L∞(Γ(t)) ,
+(3.9)
+where wε ∈ L∞(Γε(t)), for any w ∈ L∞(Γ(t)), is defined by
+(3.10) wε(Ψ(z, ε)) = w(z) ∀ z ∈ Γ(t) ,
+and similarly for w ∈ [L∞(Γ(t))]d. This definition of wε yields that ∂ε0 w = 0, where
+(3.11) ∂0
+ε w(z) = d
+dε wε(Ψ(z, ε)) |ε=0 ∀ z ∈ Γ(t) .
+Of course, (3.9) is the first variation analogue of (3.3) with w = ψ φ and ∂ε0 ψ =
+∂ε0 φ = 0. Similarly, it holds that
+[δ
+δΓ 〈w, ν〉Γ(t)
+]
+(χ) = d
+dε 〈wε, νε〉Γε(t) |ε=0=
+〈
+(w . ν) ∇s id, ∇s χ
+〉
+Γ(t)
++ 〈w, ∂0
+ε ν〉
+Γ(t)
+(3.12) ∀ w ∈ [L∞(Γ(t))]d ,
+where ∂ε0 w = 0 and νε(t) denotes the unit normal on Γε(t). In this regard, we note the following result concerning the variation of ν, with respect to Γ(t), in the direction χ ∈ [H1(Γ(t))]d:
+∂0
+ε ν = −[∇s χ]T ν on Γ(t) ⇒ ∂◦
+(3.13) t ν = −[∇s V]T ν on Γ(t) ;
+see [39, Lemma 9]. Finally, we note that for η ∈ [H1(Γ(t))]d it holds that
+[δ
+δΓ
+〈
+∇s id, ∇s η
+〉
+Γ(t)
+]
+(χ) = d
+dε
+〈
+∇s id, ∇s ηε
+〉
+Γε(t) |ε=0= 〈∇s . η, ∇s . χ〉Γ(t)
++
+d ∑
+l, m=1
+[
+〈(ν)l (ν)m ∇s (η)m, ∇s (χ)l〉Γ(t) − 〈(∇s)m (η)l, (∇s)l (χ)m〉Γ(t)
+]
+= 〈∇s η, ∇s χ〉Γ(t) + 〈∇s . η, ∇s . χ〉Γ(t) −
+〈
+(∇s η)T , D(χ) (∇s id)T 〉
+Γ(t)
+,
+(3.14)
+where ∂ε0 η = 0; see Lemma 2 and the proof of Lemma 3 in [18]. We also refer to the remark above the proof of Lemma 3 in [18], which implies that our definition (2.6b) differs from [18, (3.14)] only by a factor of two. In addition, we observe that
+
+
+1046 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+our notation is such that ∇s χ = (∇Γ χ)T , with ∇Γ χ = (∂si χj)d
+i,j=1 defined as in [18]. It follows from (3.14) that
+d dt
+〈
+∇s id, ∇s η
+〉
+Γ(t)
+=
+〈
+∇s . η, ∇s . V
+〉
+Γ(t)
++
+〈
+∇s η, ∇s V
+〉
+Γ(t)
+−2
+〈
+(∇s η)T , Ds(V) (∇s id)T 〉
+Γ(t) ∀ η ∈ {ξ ∈ [H1(GT )]d : ∂◦
+t ξ = 0} .
+(3.15)
+We now consider the first variation of (2.10a) subject to the side constraint
+(3.16) 〈κ, η〉Γh(t) +
+〈
+∇s id, ∇s η
+〉
+Γ(t)
+= 0 ∀ η ∈ [H1(Γ(t))]d .
+To this end, we define the Lagrangian
+L(Γ(t), κ, y) = 1
+2 〈κ − κ ν, κ − κ ν〉Γ(t) + β
+2
+(
+〈κ, ν〉Γ(t) − M0
+)2
+− 〈κ, y〉Γ(t) −
+〈
+∇s id, ∇s y
+〉
+Γ(t)
+,
+where κ ∈ [H1(Γ(t))]d, with y ∈ [H1(Γ(t))]d being a Lagrange multiplier for (3.16). In order to compute the direction of steepest descent, fΓ, of Eκ,β(Γ(t)), subject to the constraint (3.16), we set the variations of L(Γ(t), κ, y) with respect to κ and y to zero. In particular, using the formal calculus of PDE constrained optimization (see e.g. [42]), we obtain that [δ
+δΓ L
+]
+(χ) = εli→m0
+1
+ε [L(Γε(t), κε, yε) − L(Γ(t), κ, y)] = −
+〈
+fΓ, χ
+〉
+Γ(t)
+,
+[δ
+δκ L
+]
+(ξ) = εli→m0
+1 ε
+[
+L(Γ(t), κ + ε ξ, y) − L(Γ(t), κ, y)
+]
+= 0,
+[δ
+δy L
+]
+(η) = εli→m0
+1
+ε [L(Γ(t), κ, y + ε η) − L(Γ(t), κ, y)] = 0 ,
+where κε, yε ∈ [H1(Γε(t))]d are defined as in (3.10). On recalling (3.9)–(3.14), this
+yields that
+〈
+fΓ, χ
+〉
+Γ(t) − 〈∇s y, ∇s χ〉Γ(t) − 〈∇s . y, ∇s . χ〉Γ(t) + 2
+〈
+(∇s y)T , Ds(χ) (∇s id)T 〉
+Γ(t)
++1
+2
+〈
+[|κ − κ ν|2 − 2 (y . κ)] ∇s id, ∇s χ
+〉
+Γ(t) − (β A − κ) 〈κ, [∇s χ]T ν〉
+Γ(t)
++βA
+〈
+(κ . ν) ∇s id, ∇s χ
+〉
+Γ(t)
+= 0 ∀ χ ∈ [H1(Γ(t))]d ,
+(3.17a)
+〈
+κ − κ ν − y, ξ
+〉
+Γ(t)
++βA
+〈
+ν, ξ
+〉
+Γ(t)
+= 0 ∀ ξ ∈ [H1(Γ(t))]d ,
+(3.17b)
+〈κ, η〉Γ(t) +
+〈
+∇s id, ∇s η
+〉
+Γ(t)
+= 0 ∀ η ∈ [H1(Γ(t))]d ,
+(3.17c)
+where
+(3.17d) A(t) = 〈κ, ν〉Γ(t) − M0 .
+Clearly, (3.17b) implies that κ + (β A − κ) ν = y. We note that (3.17a–d) collapses to (3.4e,f) in the case κ = β = 0.
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1047
+The following theorem shows that fΓ is indeed the gradient of Eκ,β(Γ(t)) with respect to Γ(t) subject to the constraint (3.16).
+Theorem 3.1. Let (fΓ, κ, y) fulfill (3.17a–d). Then we have that (3.18) d
+dt Eκ,β(Γ(t)) = d
+dt
+[
+1 2
+〈|κ − κ ν|2, 1〉
+Γ(t) + β
+2
+(
+〈κ, ν〉Γ(t) − M0
+)2]
+=−
+〈
+fΓ, V
+〉
+Γ(t)
+.
+Proof. Taking the time derivative of (3.17c), where we choose test functions with ∂t◦ η = 0, and noting (3.3) and (3.15), we obtain
+〈∂◦
+t κ, η〉Γ(t) +
+〈
+(κ . η) ∇s id, ∇s V
+〉
+Γ(t)
++
+〈
+∇s . V, ∇s . η
+〉
+Γ(t)
++
+〈
+∇s V, ∇s η
+〉
+Γ(t)
+−2
+〈
+Ds(V) (∇s id)T , (∇s η)T 〉
+Γ(t)
+= 0.
+(3.19)
+Choosing χ = V in (3.17a), η = y in (3.19) and combining yield, on noting (3.13),
+that 〈
+fΓ, V
+〉
+Γ(t)
++1
+2
+〈
+[|κ − κ ν|2 − 2 (y − β A ν) . κ] ∇s id, ∇s V
+〉
+Γ(t)
++
+〈
+(κ . y) ∇s id, ∇s V
+〉
+Γ(t)
++ (β A − κ) 〈κ, ∂◦
+t ν〉Γ(t) + 〈∂◦
+t κ, y〉Γ(t) = 0 ,
+which implies that 〈
+fΓ, V
+〉
+Γ(t)
++1
+2
+〈
+[|κ − κ ν|2 + 2 β A ν . κ] ∇s id, ∇s V
+〉
+Γ(t)
++ (β A − κ) 〈κ, ∂◦
+t ν〉Γ(t)
++ 〈∂◦
+t κ, y〉Γ(t) = 0 .
+(3.20)
+We note that, on recalling (3.17d), it holds that (3.21)
+1 2
+d dt
+[
+〈κ, ν〉Γ(t) − M0
+]2
+=A
+[〈
+(κ . ν) ∇s id, ∇s V
+〉
+Γ(t)
++ 〈∂◦
+t κ, ν〉Γ(t) + 〈κ, ∂◦
+t ν〉Γ(t)
+] .
+Hence, on noting
+1
+2 ∂◦
+t |κ − κ ν|2 = (κ − κ ν) . (∂◦
+t κ − κ ∂◦
+t ν) = (κ − κ ν) . ∂◦
+t κ − κ κ . ∂◦
+tν
+and (3.17b), one can immediately deduce from (3.20) that
+(3.22)
+〈
+fΓ, V
+〉
+Γ(t)
++1
+2
+d dt
+〈|κ − κ ν|2, 1〉
+Γ(t) + β
+2
+d dt
+(
+〈κ, ν〉Γ(t) − M0
+)2
+= 0.
+This is the desired result (3.18), on noting (2.10a,b).
+3.3. Fluidic weak formulation for general κ ∈ R and β ∈ R≥0. Combining (3.4a–d) and (3.17a–d) yields the following weak formulation of the system (2.2a–d), (2.3), (2.4a–d), (2.5). Find Γ(t) = x(Υ, t) for t ∈ [0, T ] with V ∈ [L2(GT )]d and V(·, t) ∈ [H1(Γ(t)]d for almost all t ∈ (0, T ), and functions u ∈ VΓ(g), p ∈ L2(0, T ; ̂P), pΓ ∈ L2(GT ), κ, y ∈ [H1(GT )]d and fΓ ∈ [L2(GT )]d such that the initial conditions (2.8) hold and such that (3.4a–d) and (3.17a–d) hold.
+
+
+1048 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+Combining (3.5) with (3.18), (3.4d) and (3.17a), i.e. choosing χ = fΓ in (3.4d) and χ = V in (3.17a), yields that
+1 2
+d dt
+(
+‖ρ 1
+2 u‖2
+0 + ρΓ 〈u, u〉Γ(t) + α 〈|κ − κ ν|2, 1〉
+Γ(t) + α β
+(
+〈κ, ν〉Γ(t) − M0
+)2)
++ 2 ‖μ 1
+2 D(u)‖2
+0 + 2 μΓ
+〈Ds(u), Ds(u)〉
+Γ(t) + 1
+2 ρ+
+〈u . n, |u|2〉
+∂2Ω = (ρ f , u) .
+(3.23)
+Of course, the conservation properties (3.6) and (3.7) still hold.
+4. Semidiscrete finite element approximation
+For simplicity we consider Ω to be a polyhedral domain. Then let T h be a regular partitioning of Ω into disjoint open simplices oh
+j , j = 1, . . . , JΩ. Associated with T h are the finite element spaces
+Sh
+k := {χ ∈ C(Ω) : χ |o∈ Pk(o) ∀ o ∈ T h} ⊂ H1(Ω) , k ∈ N ,
+where Pk(o) denotes the space of polynomials of degree k on o. We also introduce
+S0h, the space of piecewise constant functions on T h. Let {φh
+k,j }Kh
+k
+j=1 be the standard
+basis functions for Sh
+k , k ≥ 0. We introduce Ih
+k : [C(Ω)]d → [Sh
+k ]d, k ≥ 1, the standard interpolation operators, such that (Ih
+k η)(ph
+k,j) = η(ph
+k,j) for j = 1, . . . , Kh
+k,
+where {ph
+k,j }Kh
+k
+j=1 denotes the coordinates of the degrees of freedom of Sh
+k , k ≥ 1. In addition we define the standard projection operator I0h : L1(Ω) → S0h, such that
+(I h
+0 η) |o= 1
+Ld(o)
+∫
+o
+η dLd ∀ o ∈ T h .
+Our approximation to the velocity and pressure on T h will be based on standard finite element spaces Uh(g) ⊂ U(Ih
+k g), for some k ≥ 2, and Ph(t) ⊂ P; recall (3.1a,b). Here, for the former we assume from now on that g ∈ [C(Ω)]d. We require also the space ̂Ph(t) := Ph(t) ∩ ̂P. Here, in general, we will choose pairs of velocity/pressure finite element spaces that satisfy the LBB inf-sup condition; see e.g. [22, p. 114]. For example, we may choose the lowest order Taylor-Hood element P2–P1 for d = 2 and d = 3, the P2–P0 element or the P2–(P1+P0) element for d = 2 on setting Uh(g) = [S2h]d ∩ U(I2h g), and Ph = S1h, S0h or S1h + S0h, respectively. The parametric finite element spaces in order to approximate e.g. κ and κ are defined as follows. Similarly to [5], we introduce the following discrete spaces, based on the work of Dziuk [17]. Let Γh(t) ⊂ Rd be a (d − 1)-dimensional polyhedral surface, i.e. a union of nondegenerate (d − 1)-simplices with no hanging vertices (see [15, p. 164] for d = 3), approximating the closed surface Γ(t). In particular,
+let Γh(t) = ⋃JΓ
+j=1 σh
+j (t), where {σh
+j (t)}JΓ
+j=1 is a family of mutually disjoint open
+(d − 1)-simplices with vertices {qh
+k (t)}KΓ
+k=1. Then let
+V (Γh(t)) := {χ ∈ [C(Γh(t))]d : χ |σh
+j is linear ∀ j = 1, . . . , JΓ}
+=: [W (Γh(t))]d ⊂ [H1(Γh(t))]d ,
+where W (Γh(t)) ⊂ H1(Γh(t)) is the space of scalar continuous piecewise linear functions on Γh(t), with {χh
+k (·, t)}KΓ
+k=1 denoting the standard basis of W (Γh(t)), i.e.
+(4.1) χh
+k (qh
+l (t), t) = δkl ∀ k, l ∈ {1, . . . , KΓ} , t ∈ [0, T ] .
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1049
+For later purposes, we also introduce πh(t) : C(Γh(t)) → W (Γh(t)), the standard interpolation operator at the nodes {qh
+k (t)}KΓ
+k=1, and similarly πh(t) : [C(Γh(t))]d →
+V (Γh(t)). For scalar and vector functions η, ζ on Γh(t) we introduce the L2–inner product 〈·, ·〉Γh(t) over the polyhedral surface Γh(t) as follows:
+〈η, ζ〉Γh(t) :=
+∫
+Γh (t)
+η . ζ dHd−1 .
+In order to derive a stable numerical method, it is crucial to consider numerical integration in the discrete energy; see (4.9) below. Hence, for piecewise continuous functions v, w, with possible jumps across the edges of {σh
+j }JΓ
+j=1, we introduce the mass lumped inner product 〈·, ·〉h
+Γh(t) as
+〈η, ζ〉h
+Γh(t) := 1
+d
+J ∑Γ
+j=1
+Hd−1(σh
+j)
+∑d
+k=1
+(η . ζ)((qh
+jk )−),
+where {qh
+jk }d
+k=1 are the vertices of σh
+j and where we define η((qh
+jk )−) := lim
+σh
+j p→qh
+jk
+η(p).
+Following [19, (5.23)], we define the discrete material velocity for z ∈ Γh(t) by
+(4.2) Vh(z, t) :=
+K ∑Γ
+k=1
+[d
+dt qh
+k (t)
+]
+χh
+k(z, t) .
+Then, similarly to (3.2), we define
+∂◦,h
+t ζ = ζt + Vh . ∇ ζ ∀ ζ ∈ H1(Gh
+T ) , where Gh
+T :=
+⋃
+t∈[0,T ]
+Γh(t) × {t} .
+For later use, we also introduce the finite element spaces
+W (Gh
+T ) := {χ ∈ C(Gh
+T ) : χ(·, t) ∈ W (Γh(t)) ∀ t ∈ [0, T ]} ,
+WT (Gh
+T ) := {χ ∈ W (Gh
+T ) : ∂◦,h
+t χ ∈ C(Gh
+T )} ,
+as well as
+Vh
+Γh (g) := {φ ∈ H1(0, T ; Uh(g)) :
+∃ χ ∈ [WT (Gh
+T )]d, s.t. χ(·, t) = πh [φ |Γh(t)] ∀ t ∈ [0, T ]} .
+On differentiating (4.1) with respect to t, it immediately follows that
+(4.3) ∂◦,h
+t χh
+k = 0 ∀ k ∈ {1, . . . , KΓ} ;
+see [19, Lem. 5.5]. It follows directly from (4.3) that
+∂◦,h
+t ζ(·, t) =
+K ∑Γ
+k=1
+χh
+k(·, t) d
+dt ζk(t) on Γh(t)
+for ζ(·, t) = ∑KΓ
+k=1 ζk(t) χh
+k(·, t) ∈ W (Γh(t)), and hence ∂◦,h
+t id = Vh on Γh(t).
+
+
+1050 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+We recall from [19, Lem. 5.6] that
+d dt
+∫
+σh
+j (t)
+ζ dHd−1 =
+∫
+σh
+j (t)
+∂◦,h
+t ζ + ζ ∇s . Vh dHd−1 ∀ ζ ∈ H1(σh
+j (t)) ,
+for j = 1, . . . , JΓ, which immediately implies that (4.4) d
+dt 〈η, ζ〉Γh(t) = 〈∂◦,h
+t η, ζ〉Γh(t) +〈η, ∂◦,h
+t ζ〉Γh(t) +〈η ζ, ∇s . V h〉Γh(t) ∀ η, ζ ∈ WT (Gh
+T).
+We recall from [10, Lem. 3.1] that (4.5) d
+dt 〈η, ζ〉h
+Γh(t) = 〈∂◦,h
+t η, ζ〉h
+Γh(t) +〈η, ∂◦,h
+t ζ〉h
+Γh(t) +〈η ζ, ∇s . V h〉h
+Γh(t) ∀ η, ζ ∈ WT (Gh
+T).
+Given Γh(t), we let Ωh+(t) denote the exterior of Γh(t) and let Ωh−(t) denote the
+interior of Γh(t), so that Γh(t) = ∂Ωh−(t) = Ωh−(t) ∩ Ωh+(t). We then partition the elements of the bulk mesh T h into interior, exterior and interfacial elements as follows. Let
+Th
+− (t) := {o ∈ T h : o ⊂ Ωh
+−(t)} ,
+Th
++ (t) := {o ∈ T h : o ⊂ Ωh
++(t)} ,
+Th
+Γh (t) := {o ∈ T h : o ∩ Γh(t) = ∅} .
+Clearly T h = T−h(t) ∪ T+h(t) ∪ T h
+Γ (t) is a disjoint partition. In addition, we define the piecewise constant unit normal νh(t) to Γh(t) such that νh(t) points into Ωh+(t). Moreover, we introduce the discrete density ρh(t) ∈ S0h and the discrete viscosity
+μh(t) ∈ S0h as
+ρh(t) |o=
+⎧⎪⎨
+⎪⎩
+ρ−, o ∈ T−h(t) ,
+ρ+, o ∈ T+h(t) ,
+1
+2 (ρ− + ρ+), o ∈ T h
+Γh (t) ,
+and μh(t) |o=
+⎧⎪⎨
+⎪⎩
+μ−, o ∈ T−h(t) ,
+μ+, o ∈ T+h(t) ,
+1
+2 (μ− + μ+), o ∈ T h
+Γh (t) .
+Similarly to (2.6a,b), we introduce
+(4.6a) PΓh = Id − νh ⊗ νh on Γh(t)
+and
+(4.6b) Dh
+s (η) = 1
+2 PΓh (∇s η + (∇s η)T ) PΓh on Γh(t) ,
+where here ∇s = PΓh ∇ denotes the surface gradient on Γh(t). Moreover, we introduce the vertex normal function ωh(·, t) ∈ V (Γh(t)) with
+(4.7) ωh(qh
+k (t), t) := 1
+Hd−1(Λh
+k (t))
+∑
+j∈Θh
+k
+Hd−1(σh
+j (t)) νh |σh
+j (t) ,
+where for k = 1, . . . , Kh
+Γ we define Θh
+k := {j : qh
+k (t) ∈ σh
+j (t)} and set
+Λh
+k(t) :=
+⋃
+j∈Θh
+k
+σh
+j (t) .
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1051
+For later use we note that
+(4.8) 〈z, w νh〉h
+Γh(t) = 〈z, w ωh〉h
+Γh(t) ∀ z ∈ V (Γh(t)) , w ∈ W (Γh(t)) ,
+and so, in particular, 〈z, νh〉
+Γh(t) = 〈z, νh〉h
+Γh(t) = 〈z, ωh〉h
+Γh(t) for all z ∈ V (Γh(t)). In what follows we will introduce a finite element approximation for the free boundary problem (2.2a–d), (2.3), (2.4a–d), (2.5), which is based on the weak formulation (3.4a–d), (3.17a–d). The discretization of the former is the same as in [11]. By repeating on the discrete level the steps in §3.2, we will now derive a discrete analogue of (3.17a–d). Similarly to the continuous setting in (3.17a–c), we consider the first variation of the discrete energy
+(4.9) Eh
+κ,β (Γh(t)) := 1
+2
+〈|κh − κ νh|2, 1〉h
+Γh(t) + β
+2
+(〈κh, νh〉
+Γh(t) − M0
+)2
+subject to the side constraint
+(4.10) 〈κh, η〉h
+Γh(t) +
+〈
+∇s id, ∇s η
+〉
+Γh (t)
+= 0 ∀ η ∈ V (Γh(t)) .
+We define the Lagrangian
+Lh(Γh(t), κh, Y h) = 1
+2
+〈|κh − κ νh|2, 1〉h
+Γh(t) + β
+2
+(〈κh, νh〉
+Γh(t) − M0
+)2
+−
+〈
+κh, Y h〉h
+Γh(t) −
+〈
+∇s id, ∇s Y h〉
+Γh (t)
+,
+where κh ∈ V (Γh(t)), with Y h ∈ V (Γh(t)) being a Lagrange multiplier for (4.10). Similarly to (3.17a–d), on recalling the formal calculus of PDE constrained optimization, we obtain the gradient F h
+Γ ∈ V (Γh(t)) of Eh
+κ,β(Γh(t)) with respect to
+Γh(t) subject to the side constraint (4.10) by setting [ δ
+δΓh Lh](χ) = −
+〈
+Fh
+Γ,χ
+〉h
+Γh (t)
+for χ ∈ V (Γh(t)), [ δ
+δκh Lh](ξ) = 0 for ξ ∈ V (Γh(t)) and [ δ
+δY h Lh](η) = 0 for
+η ∈ V (Γh(t)). On noting (4.8), as well as the obvious discrete variants of (3.9)(3.14), we then obtain that 〈
+Fh
+Γ,χ
+〉h
+Γh(t) −
+〈
+∇s Y h, ∇s χ
+〉
+Γh(t) −
+〈
+∇s . Y h, ∇s . χ
+〉
+Γh (t)
++2
+〈
+(∇s Y h)T , Dh
+s (χ) (∇s id)T 〉
+Γh (t)
++1
+2
+〈
+[|κh − κ νh|2 − 2 (Y h . κh)] ∇s id, ∇s χ
+〉h
+Γh (t)
+− (β Ah − κ) 〈κh, [∇s χ]T νh〉h
+Γh(t) + β Ah 〈
+(κh . νh) ∇s id, ∇s χ
+〉h
+Γh (t)
+=0
+∀ χ ∈ V (Γh(t)) ,
+(4.11a)
+〈
+κh − κ νh − Y h, ξ
+〉h
+Γh (t)
++ β Ah 〈
+νh, ξ
+〉h
+Γh (t)
+= 0 ∀ ξ ∈ V (Γh(t)) ,
+(4.11b)
+〈κh, η〉h
+Γh(t) +
+〈
+∇s id, ∇s η
+〉
+Γh (t)
+= 0 ∀ η ∈ V (Γh(t)) ,
+(4.11c)
+
+
+1052 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+where
+(4.11d) Ah(t) = 〈κh, νh〉
+Γh(t) − M0 .
+We note that (4.11b) and (4.8) imply that κh = Y h − (β Ah − κ) ωh. The following theorem establishes that F h
+Γ is indeed the gradient of Eh
+κ,β (Γh(t)) with respect to Γh(t) subject to the side constraint (4.10). It is the direct discrete analogue of Theorem 3.1.
+Theorem 4.1. Let (F h
+Γ , κh, Y h) ∈ [V (Γh(t))]3 fulfill (4.11a–d). Then (4.12) d dt
+[
+1 2
+〈|κh − κ νh|2, 1〉h
+Γh(t) + β
+2
+(〈κh, νh〉
+Γh(t) − M0
+)2]
+=−
+〈
+Fh
+Γ , V h〉h
+Γh (t)
+.
+Proof. Taking the time derivative of (4.11c), where we choose discrete test functions η such that ∂◦,h
+t η = 0, yields that
+〈
+∂ ◦,h
+t κh, η
+〉h
+Γh (t)
++
+〈
+(κh . η) ∇s id, ∇s Vh〉h
+Γh (t)
++
+〈
+∇s . Vh, ∇s . η
+〉
+Γh (t)
++
+〈
+∇s Vh, ∇s η
+〉
+Γh(t) − 2
+〈
+Dh
+s (Vh) (∇s id)T , (∇s η)T 〉
+Γh (t)
+(4.13) = 0 ,
+where we have noted (4.5) and the discrete version of (3.15). Choosing χ = Vh in (4.11a), η = Y h in (4.13) and combining yield, on noting the discrete variant of (3.13), that
+〈
+Fh
+Γ , Vh〉h
+Γh (t)
++1
+2
+〈
+[|κh − κ νh|2 − 2 (Y h − β Ah νh) . κh] ∇s id, ∇s Vh〉h
+Γh (t)
++ (β Ah − κ)
+〈
+κh, ∂◦,h
+t νh〉h
+Γh (t)
++
+〈
+∂◦,h
+t κh, Y h〉h
+Γh (t)
++
+〈
+(κh . Y h) ∇s id, ∇s Vh〉h
+Γh (t)
+= 0,
+which implies, on recalling (4.8) and (4.11b), that
+〈
+Fh
+Γ , Vh〉h
+Γh (t)
++1
+2
+〈
+[|κh − κ νh|2 + 2 β Ah νh . κh] ∇s id, ∇s Vh〉h
+Γh (t)
++ (β Ah − κ)
+〈
+κh, ∂◦,h
+t νh〉h
+Γh (t)
++
+〈
+∂◦,h
+t κh, κh + (β Ah − κ) νh〉h
+Γh (t)
+= 0.
+(4.14)
+Similarly to (3.22), one can immediately deduce from (4.14) that the desired result (4.12) holds, where, on recalling (4.11d) and (4.8), we have observed that
+1 2
+d dt
+(〈κh, νh〉
+Γh(t) − M0
+)2
+= Ah
+[〈
+(κh . νh) ∇s id, ∇s Vh〉h
+Γh (t)
++
+〈
+∂◦,h
+t κh, νh〉h
+Γh (t)
++
+〈
+κh, ∂◦,h
+t νh〉h
+Γh (t)
+] ,
+similarly to (3.21).
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1053
+Overall, we then obtain the following semi-discrete continuous-in-time finite element approximation, which is the semi-discrete analogue of the weak formulation (3.4a–d), (3.17a–d). Given Γh(0) and U h(·, 0) ∈ Uh(g), find Γh(t) such that id |Γh(t)∈ V (Γh(t)) for t ∈ [0, T ], and functions U h ∈ Vh
+Γh (g), P h ∈ Ph
+T := {φ ∈
+L2(0, T ; ̂P) : φ(t) ∈ ̂Ph(t) for a.e. t ∈ (0, T )}, P h
+Γ ∈ W (Gh
+T ) and κh, Y h, F h
+Γ∈
+[W (Gh
+T )]d such that for almost all t ∈ (0, T ) it holds that
+1 2
+[d
+dt
+(
+ρh U h, ξ
+) +
+(
+ρh U h
+t ,ξ
+)
+− (ρh U h, ξt) + ρ+
+〈
+U h . n, U h . ξ
+〉
+∂2 Ω
+]
++2
+(
+μh D(U h), D(ξ)
+)
++1
+2
+(
+ρh, [(U h . ∇) U h] . ξ − [(U h . ∇) ξ] . U h)
+−
+(
+Ph, ∇ . ξ
+)
++ ρΓ
+〈
+∂◦,h
+t πh Uh, ξ
+〉h
+Γh (t)
++ 2 μΓ
+〈
+Dh
+s (πh U h), Dh
+s (πh ξ)
+〉
+Γh(t) −
+〈
+Ph
+Γ , ∇s . (πh ξ)
+〉
+Γh (t)
+=
+(
+ρh f h, ξ
+)
++α
+〈
+Fh
+Γ,ξ
+〉h
+Γh(t) ∀ ξ ∈ H1(0, T ; Uh(0)) ,
+(4.15a)
+(
+∇ . Uh, φ
+)
+= 0 ∀ φ ∈ ̂Ph(t) ,
+(4.15b)
+〈
+∇s . (πh U h), η
+〉
+Γh (t)
+= 0 ∀ η ∈ W (Γh(t)) ,
+(4.15c)
+〈
+Vh, χ
+〉h
+Γh (t)
+=
+〈
+Uh, χ
+〉h
+Γh(t) ∀ χ ∈ V (Γh(t)) ,
+(4.15d)
+〈
+Y h, η
+〉h
+Γh (t)
++
+〈
+∇s id, ∇s η
+〉
+Γh (t)
+= (β Ah − κ) 〈ωh, η〉h
+Γh(t) ∀ η ∈ V (Γh(t)) ,
+(4.15e)
+〈
+Fh
+Γ,χ
+〉h
+Γh (t)
+=
+〈
+∇s Y h, ∇s χ
+〉
+Γh (t)
++
+〈
+∇s . Y h, ∇s . χ
+〉
+Γh (t)
+−2
+〈
+(∇s Y h)T , Dh
+s (χ) (∇s id)T 〉
+Γh (t)
+−1
+2
+〈
+[|κh − κ νh|2 − 2 (Y h − β Ah νh) . κh] ∇s id, ∇s χ
+〉h
+Γh (t)
++ (β Ah − κ) 〈κh, [∇s χ]T νh〉h
+(4.15f) Γh(t) ∀ χ ∈ V (Γh(t)) ,
+Ah = 〈κh, νh〉
+(4.15g) Γh(t) − M0 , κh = Y h − (β Ah − κ) ωh ,
+where we recall (4.2). Here we have defined f h(·, t) := I2h f (·, t), where here and throughout we assume that f ∈ L2(0, T ; [C(Ω)]d). We note that in the special case κ = β = 0, the scheme (4.15a–g) collapses to the semi-discrete approximation (4.9a–f), with = 1, from [11]. In common with that scheme, we have used the mass lumped inner product 〈·, ·〉h
+Γh(t) in (4.15d), which collapses to Vh = πh[U h |Γh(t) ], for stability reasons; see Theorem 4.2 below. As a consequence, we require mass lumping also on the terms involving F h
+Γ in (4.15a,f). We also note that
+
+
+1054 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+(4.15e–g) is just a rewrite of (4.11a–d), which is more suitable for the fully discrete approximation considered in Section 5. In the following theorem we derive discrete analogues of (3.23) and (3.6) for the scheme (4.15a–g).
+Theorem 4.2. Let {(Γh, U h, P h, P h
+Γ , κh, Y h, F h
+Γ )(t)}t∈[0,T ] be a solution to (4.15a–g). Then, in the case g = 0, it holds that
+1 2
+d dt
+(
+‖[ρh] 1
+2 U h‖2
+0 + ρΓ
+〈
+U h, U h〉h
+Γh (t)
++ α 〈|κh − κ νh|2, 1〉h
+Γh (t)
+)
++1
+2
+d
+dt α β
+(〈κh, νh〉h
+Γh(t) − M0
+)2
++ 2 ‖[μh] 1
+2 D(U h)‖2
+0
++ 2 μΓ
+〈
+Dh
+s (πh U h), Dh
+s (πh U h)
+〉
+Γh (t)
++1
+2 ρ+
+〈
+U h . n, |U h|2〉
+∂2 Ω
+(4.16) = (ρh f h, U h) .
+Moreover, it holds that
+(4.17) d
+dt
+〈χh
+k , 1〉
+Γh(t) = 0 ∀ k ∈ {1, . . . , KΓ}
+and hence that
+(4.18) d
+dt Hd−1(Γh(t)) = 0 .
+Proof. Choosing ξ = U h in (4.15a), recall that g = 0, φ = P h in (4.15b) and η = Ph
+Γ in (4.15c) yield that
+1 2
+d
+dt ‖[ρh] 1
+2 U h‖2
+0 + 2 ‖[μh] 1
+2 D(U h)‖2
+0 + ρΓ
+〈
+∂◦,h
+t πh U h, U h〉h
+Γh (t)
++1
+2 ρ+
+〈
+U h . n, |U h|2〉
+∂2 Ω
++ 2 μΓ
+〈
+Dh
+s (πh U h), Dh
+s (πh U h)
+〉
+Γh (t)
+= (ρh f h, U h) + α
+〈
+Fh
+Γ , U h〉h
+Γh (t)
+(4.19) .
+Moreover, we note that (4.5), (4.15d) and (4.15c) with η = πh [|U h |Γh(t) |2] imply that
+1
+2 ρΓ
+d dt
+〈
+U h, U h〉h
+Γh (t)
+=1
+2 ρΓ
+〈
+∂◦,h
+t πh [|U h|2], 1
+〉h
+Γh (t)
++1
+2 ρΓ
+〈
+∇s . Vh, |U h|2〉h
+Γh (t)
+= ρΓ
+〈
+∂◦,h
+t πh U h, U h〉h
+Γh (t)
++1
+2 ρΓ
+〈
+∇s . (πh U h), |U h|2〉h
+Γh (t)
+= ρΓ
+〈
+∂◦,h
+t πh U h, U h〉h
+Γh (t)
+(4.20) .
+Choosing χ = F h
+Γ in (4.15d) and combining with (4.12) yield that 〈
+Fh
+Γ , U h〉h
+Γh (t)
+=
+〈
+Fh
+Γ , Vh〉h
+Γh (t)
+=−d
+dt
+(
+1 2
+〈|κh − κ νh|2, 1〉h
+Γh(t) + β
+2
+(〈κh, νh〉
+Γh(t) − M0
+)2) (4.21) .
+The desired result (4.16) now directly follows from combining (4.19), (4.20) and (4.21), on recalling (4.5).
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1055
+Similarly to (3.6), it immediately follows from (4.4) and (4.3), on choosing η = χh
+k
+in (4.15c) and on recalling from (4.15d) that Vh = πh [U h |Γh(t)], that
+(4.22) d
+dt
+〈χh
+k , 1〉
+Γh(t) =
+〈
+χh
+k , ∇s . Vh〉
+Γh (t)
+= 0,
+which proves the desired result (4.17). Summing (4.17) for all k = 1, . . . , KΓ then yields the desired result (4.18).
+We note that on replacing the space of continuous piecewise linear finite elements W (Γh(t)) for the surface pressure functions P h
+Γ , and for the test functions in (4.15c) with the space of discontinuous piecewise constant functions, it is possible to obtain a scheme that satisfies
+(4.23) d
+dt Hd−1(σh
+j (t)) = 0 ∀ j ∈ {1, . . . , JΓ}
+in place of (4.22). However, the fully discrete variant of this modified (4.15a–g) for d = 3 does not perform very well in practice, as the constraint (4.23) is too severe; see Remark 4.1 in [11] for more details. We observe that it does not appear possible to prove a discrete analogue of (3.7) for the scheme (4.15a–g), even if the pressure space Ph(t) is enriched by the characteristic function of the inner phase, XΩh
+−(t). But without a discrete volume conservation property, numerical simulations show large increases of the enclosed volume in practice; see Section 7 below for an example. Hence it is desirable to adjust the scheme (4.15a–g) such that it conserves the enclosed volume. This enrichment of Ph(t) with XΩh
+−(t) corresponds to the XFEMΓ approach introduced
+by the authors for the numerical approximation of two-phase flow problems in [8, 9] and leads to enforcing
+(4.24)
+〈
+Uh, νh〉
+Γh (t)
+=
+(
+∇ . U h, XΩh
+− (t)
+)
+= 0.
+The reason why this is not effective here is that χ = νh is not a valid test function in (4.15d), and so a discrete analogue of the second equality in (3.7) cannot be obtained. However, a procedure similar to the XFEMΓ approach from [8, 9] ensures that a modified variant of (4.15a–g) conserves the enclosed volumes. The key idea is to replace (4.24) with
+(4.25a)
+〈
+U h, ωh〉h
+Γh (t)
+= 0,
+where we recall from (4.8) that
+(4.25b)
+〈
+U h, ωh〉h
+Γh (t)
+=
+〈
+U h, νh〉h
+Γh (t)
+=
+〈
+πh[U h |Γh(t)], νh〉
+Γh (t)
+.
+Combining (4.25a,b) with the valid test function χ = ωh in (4.15d) then allows us to prove a discrete analogue of (3.7). As (4.25a) can no longer be interpreted in terms of enriching Ph(t), we enforce it separately with the help of a Lagrange multiplier, which we denote by P h
+sing. We are now in a position to propose the following adaptation of (4.15a–g).
+
+
+1056 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+Given Γh(0) and U h(·, 0) ∈ Uh(g), find Γh(t) such that id |Γh(t)∈ V (Γh(t)) for
+t ∈ [0, T ] and functions U h ∈ Vh
+Γh (g), P h ∈ Ph
+T, Ph
+sing ∈ L2(0, T ; R), P h
+Γ ∈ W (Gh
+T) and κh, Y h, F h
+Γ ∈ [W (Gh
+T )]d such that for almost all t ∈ (0, T ) it holds that
+1 2
+[d
+dt
+(
+ρh U h, ξ
+) +
+(
+ρh U h
+t ,ξ
+)
+− (ρh U h, ξt) + ρ+
+〈
+U h . n, U h . ξ
+〉
+∂2 Ω
+]
++2
+(
+μh D(U h), D(ξ)
+)
++1
+2
+(
+ρh, [(U h . ∇) U h] . ξ − [(U h . ∇) ξ] . U h)
+−
+(
+Ph, ∇ . ξ
+)
+− Ph
+sing
+〈
+ωh, ξ
+〉h
+Γh (t)
++ ρΓ
+〈
+∂◦,h
+t πh Uh, ξ
+〉h
+Γh (t)
++ 2 μΓ
+〈
+Dh
+s (πh U h), Dh
+s (πh ξ)
+〉
+Γh(t) −
+〈
+Ph
+Γ , ∇s . (πh ξ)
+〉
+Γh (t)
+=
+(
+ρh f h, ξ
+)
++α
+〈
+Fh
+Γ,ξ
+〉h
+(4.26a) Γh(t) ∀ ξ ∈ H1(0, T ; Uh(0)) ,
+(
+∇ . Uh, φ
+)
+= 0 ∀ φ ∈ ̂Ph(t) and
+〈
+U h, ωh〉h
+Γh (t)
+(4.26b) = 0 ,
+and (4.15c–g) hold. We now have the following result.
+Theorem 4.3. Let {(Γh, U h, P h, P h
+sing, P h
+Γ , κh, Y h, F h
+Γ )(t)}t∈[0,T ] be a solution to
+(4.26a,b), (4.15c–g). Then (4.16) holds if g = 0. In addition, (4.18) and
+(4.27) d
+dt Ld(Ωh
+−(t)) = 0
+hold.
+Proof. The proofs for (4.16) and (4.18) are analogous to the proofs in Theorem 4.2. In order to prove (4.27) we choose χ = ωh ∈ V (Γh(t)) in (4.15d) to yield that
+d
+dt Ld(Ωh
+−(t)) =
+〈
+Vh, νh〉
+Γh (t)
+=
+〈
+Vh, νh〉h
+Γh (t)
+=
+〈
+Vh, ωh〉h
+Γh (t)
+=
+〈
+U h, ωh〉h
+Γh (t)
+= 0,
+where we have used [15, Lemma 2.1], (4.8) and (4.26b).
+5. Fully discrete finite element approximation
+We consider the partitioning tm = m τ , m = 0, . . . , M , of [0, T ] into uniform time steps τ = T /M . The time discrete spatial discretizations then directly follow from the finite element spaces introduced in Section 3, where in order to allow for adaptivity in space we consider bulk finite element spaces that change in time. For all m ≥ 0, let T m be a regular partitioning of Ω into disjoint open simplices om
+j , j = 1, . . . , J m
+Ω . Associated with T m are the finite element spaces Sm
+k for
+k ≥ 0. We introduce also Im
+k : [C(Ω)]d → [Sm
+k ]d, k ≥ 1, the standard interpolation
+operators, and the standard projection operator I0m : L1(Ω) → S0m. Similarly, the parametric finite element spaces are given by
+V (Γm) := {χ ∈ [C(Γm)]d : χ |σm
+j is linear ∀ j = 1, . . . , JΓ} =: [W (Γm)]d ,
+for m = 0, . . . , M − 1. Here Γm = ⋃JΓ
+j=1 σm
+j , where {σm
+j }JΓ
+j=1 is a family of mutu
+ally disjoint open (d − 1)-simplices with vertices {qm
+k }KΓ
+k=1. We denote the standard basis of W (Γm) by {χm
+k (·, t)}KΓ
+k=1. We also introduce πm : C(Γm) → W (Γm),
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1057
+the standard interpolation operator at the nodes {qm
+k }KΓ
+k=1, and similarly πm :
+[C(Γm)]d → V (Γm). Throughout this paper, we will parameterize the new closed surface Γm+1 over Γm with the help of a parameterization Xm+1 ∈ V (Γm), i.e. Γm+1 = Xm+1(Γm). Given Γm, we let Ω+m denote the exterior of Γm and let Ω−m denote the interior of Γm, so that Γm = ∂Ω−m = Ω−m ∩Ω+m. In addition, we define the
+piecewise constant unit normal νm to Γm such that νm points into Ω+m. We then
+partition the elements of the bulk mesh T m into interior, exterior and interfacial elements as before, and we introduce ρm, μm ∈ S0m, for m ≥ 0, as
+ρm |om =
+⎧⎪⎨
+⎪⎩
+ρ−, om ∈ T−m ,
+ρ+, om ∈ T+m ,
+1
+2 (ρ− + ρ+), om ∈ T m
+Γm ,
+and μm |om =
+⎧⎪⎨
+⎪⎩
+μ−, om ∈ T−m ,
+μ+, om ∈ T+m ,
+1
+2 (μ− + μ+), om ∈ T m
+Γm .
+We also introduce the L2–inner product 〈·, ·〉Γm over the current polyhedral surface Γm, as well as the mass lumped inner product 〈·, ·〉h
+Γm . Similarly to (4.6a,b), we introduce
+PΓm = Id − νm ⊗ νm on Γm
+and
+Dm
+s (η) = 1
+2 P Γm (∇s η + (∇s η)T ) PΓm on Γm ,
+where here ∇s = PΓm ∇ denotes the surface gradient on Γm. We introduce the following pushforward operator for the discrete interfaces Γm and Γm−1, for m = 0, . . . , M . Here we set Γ−1 := Γ0. Let Πm m−1 : [C(Γm−1)]d →
+V (Γm) such that
+(5.1) (Πm
+m−1 z)(qm
+k ) = z(qm−1
+k ) , k = 1, . . . , KΓ , ∀ z ∈ [C(Γm−1)]d ,
+for m = 1, . . . , M , and set Π0−1 := π0. Analogously to (5.1) we also introduce
+Πm m−1 : C(Γm−1) → W (Γm). Similarly to (4.7), we let
+ωm :=
+K ∑Γ
+k=1
+χm
+k ωm
+k ∈ V (Γm) ,
+where for k = 1, . . . , KΓ we let Θm
+k := {j : qm
+k ∈ σm
+j } and set
+Λm
+k :=
+⋃
+j∈Θm
+k
+σm
+j and ωm
+k := 1
+Hd−1(Λm
+k)
+∑
+j∈Θm
+k
+Hd−1(σm
+j ) νm
+j.
+For the approximation to the velocity and pressure on T m we use the finite element spaces Um(g) and Pm, which are the direct time discrete analogues of Uh(g) and Ph(tm), as well as ̂Pm ⊂ ̂P. We also say that (Um(0), Pm, W (Γm), πm) satisfy the discrete LBBΓ inf-sup condition if there exists a constant C0 ∈ R>0 independent of T m and {σm
+j }JΓ
+j=1, such that
+inf
+(φ,λ,η)∈̂Pm×R×W (Γm)
+sup
+ξ∈Um (0)
+(φ, ∇ . ξ) + λ
+〈
+ωm, ξ
+〉h
+Γm +
+〈
+η, ∇s . (πm ξ |Γm )
+〉
+Γm
+(‖φ‖0 +|λ|+‖η‖0,Γm)(‖ξ‖1 +‖PΓm (πm ξ |Γm )‖1,Γm,h)
+≥ C0 ,
+(5.2)
+
+
+1058 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+where
+‖η‖2
+0,Γm := 〈η, η〉Γm and ‖η‖2
+1,Γm,h := 〈η, η〉Γm +
+J ∑Γ
+j=1
+∫
+σm
+j
+|∇s η|2 dHd−1.
+Unfortunately, it does not appear possible to prove that (5.2) holds e.g. for (Um(0), Pm) = ([S2m]d ∩ U(0), S1m), because T m and Γm are totally independent. We recall also that in the much simpler situation of the XFEMΓ approach from [8, 9], which
+corresponds to setting η = 0 in (5.2) and replacing
+〈
+ωm, ξ
+〉h
+Γm with
+〈
+νm, ξ
+〉
+Γm , the
+authors were unable to show that an LBB condition holds. In fact, in this simpler situation it is easily possible to construct a counterexample, e.g. when Pm = S0m.
+Then, if Ω−m is a union of bulk elements, i.e. Γm happens to be a union of bulk faces,
+clearly (5.2) does not hold, as XΩm
+− ∈ Pm. Hence for the choice φ = (XΩm
+− − Ld(Ωm
+−)
+Ld(Ω) )
+and λ = −1 we obtain that
+(φ, ∇ . ξ) + λ
+〈
+νm, ξ
+〉
+Γm = 0 ∀ ξ ∈ Um(0) .
+Of course, in practice this situation never occurs, because the totally independent Γm is never exactly aligned with the bulk mesh. Finally, we remark that the continuous analogue of (5.2) is given by the condition (5.3)
+inf
+(φ,η)∈̂P×L2 (Γ(t))
+sup
+ξ∈UΓ(t) (0)
+(φ, ∇ . ξ) +
+〈
+η, ∇s . ξ
+〉
+Γ(t)
+(‖φ‖0 + ‖η‖0,Γ(t)) (‖ξ‖1 + ‖PΓ ξ |Γ(t) ‖1,Γ(t)) ≥ C > 0 .
+Here we have defined the space UΓ(t)(0) := {ξ ∈ U(0) : PΓ ξ |Γ(t)∈ [H1(Γ(t))]d}, and let ‖η‖2
+1,Γ(t) := 〈η, η〉Γ(t) +〈∇s η, ∇s η〉Γ(t). In the case that the smooth hypersurface Γ(t) is not a sphere, (5.3) is shown to hold if ∂1Ω = ∂Ω is a smooth boundary in [30, p. 15]. Our proposed fully discrete equivalent of (4.26a,b), (4.15c–g) is then given as follows. Let Γ0, an approximation to Γ(0), as well as κ0, Y 0 ∈ V (Γ0), A0 ∈ R and
+U 0 ∈ U0(g) be given. For m = 0, . . . , M − 1, find U m+1 ∈ Um(g), P m+1 ∈ ̂Pm,
+P m+1
+sing ∈ R, P m+1
+Γ ∈ W (Γm), Xm+1 ∈ V (Γm), Y m+1 ∈ V (Γm) and F m+1
+Γ ∈ V (Γm) such that
+1 2
+(
+ρm U m+1 − (I0m ρm−1) I2m U m
+τ + (Im
+0 ρm−1) U m+1 − I2m U m
+τ ,ξ
+)
++2
+(
+μm D(U m+1), D(ξ)
+)
++1
+2
+(
+ρm, [(Im
+2 U m . ∇) U m+1] . ξ − [(Im
+2 U m . ∇) ξ] . U m+1)
+−
+(
+P m+1, ∇ . ξ
+)
+− P m+1
+sing
+〈
+ωm, ξ
+〉h
+Γm
++ ρΓ
+〈
+U m+1 − Πm m−1 (I2m U m) |Γm−1
+τ ,ξ
+〉h
+Γm
++ 2 μΓ
+〈
+Dm
+s (πm U m+1), Dm
+s (πm ξ)
+〉
+Γm −
+〈
+P m+1
+Γ , ∇s . (πm ξ)
+〉
+Γm
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1059
+=
+(
+ρm f m+1, ξ
+)
++α
+〈
+F m+1
+Γ ,ξ
+〉h
+Γm
+−1
+2 ρ+
+〈
+U m . n, U m . ξ
+〉
+∂2Ω ∀ ξ ∈ Um(0) ,
+(5.4a)
+(
+∇ . U m+1, φ
+)
+= 0 ∀ φ ∈ ̂Pm and
+〈
+U m+1, ωm〉h
+Γm = 0 ,
+(5.4b)
+〈
+∇s . (πm U m+1), η
+〉
+Γm = 0 ∀ η ∈ W (Γm) ,
+(5.4c)
+〈
+Xm+1 − id
+τ ,χ
+〉h
+Γm
+=
+〈
+U m+1, χ
+〉h
+Γm ∀ χ ∈ V (Γm) ,
+(5.4d)
+〈
+Y m+1, η
+〉h
+Γm +
+〈
+∇s Xm+1, ∇s η
+〉
+Γm = (β Am − κ) 〈ωm, η〉h
+Γm ∀ η ∈ V (Γm) ,
+(5.4e)
+〈
+F m+1
+Γ ,χ
+〉h
+Γm =
+〈
+∇s Y m+1, ∇s χ
+〉
+Γm +
+〈
+∇s . (Πm
+m−1 Y m), ∇s . χ
+〉
+Γm
+−2
+〈
+[∇s (Πm
+m−1 Y m)]T , Dm
+s (χ) (∇s id)T 〉
+Γm
++ (β Am − κ)
+〈
+Πm
+m−1 κm, [∇s χ]T νm〉h
+Γm
+−1
+2
+〈
+[|Πm
+m−1 κm − κ νm|2 − 2 (Πm
+m−1 Y m − β Am νm) . (Πm
+m−1 κm)] ∇s id, ∇s χ
+〉h
+Γm
+∀ χ ∈ V (Γm) ,
+(5.4f )
+and set Γm+1 = Xm+1(Γm). Moreover, set (5.5)
+κm+1 = Y m+1 − (β Am − κ) ωm ∈ V (Γm) and Am+1 = 〈κm+1, νm〉
+Γm − M0 .
+Here we have defined f m+1 := I2m f (·, tm+1). We observe that (5.4a–f) is a linear scheme in that it leads to a linear system of equations for the unknowns
+(U m+1, P m+1, P m+1
+sing , P m+1
+Γ , Xm+1, Y m+1, F m+1
+Γ ) at each time level. In the absence of the LBBΓ condition (5.2) we need to consider the reduced system (5.4a,d–f), where Um(0) in (5.4a) is replaced by U0m(0). Here we define
+Um
+0 (b) :=
+{
+U ∈ Um(b) : (∇ . U , φ) = 0 ∀ φ ∈ ̂Pm ,
+〈
+∇s . (πm U ), η
+〉
+Γm = 0 ∀ η ∈ W (Γm) and
+〈
+U , ωm〉h
+Γm = 0
+} ,
+for given data b ∈ [C(Ω)]d. In order to prove the existence of a unique solution to (5.4a–f) we make the following very mild well-posedness assumption.
+(A) We assume for m = 0, . . . , M − 1 that Hd−1(σm
+j ) > 0 for all j = 1, . . . , JΓ,
+and that Γm ⊂ Ω.
+
+
+1060 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+Theorem 5.1. Let the assumption (A) hold. If the LBBΓ condition (5.2) holds, then there exists a unique solution (U m+1, P m+1, P m+1
+sing , P m+1
+Γ , Xm+1, Y m+1,
+F m+1
+Γ ) ∈ Um(g) × ̂Pm × R × W (Γm) × [V (Γm)]3 to (5.4a–f). In all other cases,
+on assuming that U0m(g) is nonempty, there exists a unique solution (U m+1, Xm+1,
+Y m+1, F m+1
+Γ ) ∈ U0m(g) × [V (Γm)]3 to the reduced system (5.4a,d–f) with Um(0) replaced by U0m(0).
+Proof. As the system (5.4a–f) is linear, existence follows from uniqueness. In order to establish the latter, we consider the homogeneous system. Find (U , P, Psing, PΓ, X, Y , FΓ) ∈ Um(0) × ̂Pm × R × W (Γm) × [V (Γm)]3 such that
+1 2τ
+(
+(ρm + Im
+0 ρm−1) U , ξ
+)
++2
+(
+μm D(U ), D(ξ)
+) −
+(
+P, ∇ . ξ
+)
+− Psing
+〈
+ωm, ξ
+〉h
+Γm
++1
+2
+(
+ρm, [(Im
+2 U m . ∇) U ] . ξ − [(Im
+2 U m . ∇) ξ] . U
+)
++1
+τ ρΓ
+〈
+U,ξ
+〉h
+Γm + 2 μΓ
+〈
+Dm
+s (πm U ), Dm
+s (πm ξ)
+〉
+Γm
+−
+〈
+PΓ, ∇s . (πm ξ)
+〉
+Γm − α
+〈
+FΓ, ξ
+〉h
+Γm = 0 ∀ ξ ∈ Um(0) ,
+(5.6a)
+(
+∇.U,φ
+)
+= 0 ∀ φ ∈ ̂Pm and
+〈
+U , ωm〉h
+Γm = 0 ,
+(5.6b)
+〈
+∇s . (πm U ), η
+〉
+Γm = 0 ∀ η ∈ W (Γm) ,
+(5.6c)
+1 τ
+〈
+X, χ
+〉h
+Γm =
+〈
+U,χ
+〉h
+Γm ∀ χ ∈ V (Γm) ,
+(5.6d)
+〈
+Y,η
+〉h
+Γm +
+〈
+∇s X, ∇s η
+〉
+Γm = 0 ∀ η ∈ V (Γm) ,
+(5.6e)
+〈
+FΓ, χ
+〉h
+Γm −
+〈
+∇s Y , ∇s χ
+〉
+Γm = 0 ∀ χ ∈ V (Γm) .
+(5.6f )
+Choosing ξ = U in (5.6a), φ = P in (5.6b), η = PΓ in (5.6c), χ = FΓ in (5.6d), η = Y in (5.6e) and χ = X in (5.6f) yields that
+1 2
+(
+(ρm + Im
+0 ρm−1) U , U
+)
++2τ
+(
+μm D(U ), D(U )
+)
++ ρΓ
+〈
+U,U
+〉h
+Γm
++ 2 τ μΓ
+〈
+Dm
+s (πm U ), Dm
+s (πm U )
+〉
+Γm + α
+〈
+Y,Y
+〉h
+(5.7) Γm = 0 .
+It immediately follows from (5.7), Korn’s inequality and α > 0 that U = 0 ∈ Um(0) and Y = 0. (For the application of Korn’s inequality we recall that Hd−1(∂1Ω) > 0.) Hence (5.6d,f) yield that X = 0 and FΓ = 0, respectively. Finally, if (5.2) holds, then (5.6a) with U = 0 and FΓ = 0 implies that P = 0 ∈ ̂Pm, Psing = 0 and PΓ = 0 ∈ W (Γm). This shows existence and uniqueness of (U m+1, P m+1, P m+1
+sing , P m+1
+Γ,
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1061
+X m+1, Y m+1, F m+1
+Γ ) ∈ Um(g) × ̂Pm × R × W (Γm) × [V (Γm)]3 to (5.4a–f). The proof for the reduced system is very similar. The homogeneous system to consider is (5.6a,d–f) with Um(0) replaced by U0m(0). As before, we infer that (5.7) holds, which yields that U = 0 ∈ U0m(0), Y = 0, and hence X = 0 and FΓ = 0.
+We note that in practice we are always able to find discrete solutions to (5.4a–f). Even though the discrete LBBΓ is unlikely to hold (see Remark 4.2 in [11]), the space Um(g) will in general be nonempty (see Remark 5.1 in [11]).
+6. Solution methods
+Using the notation introduced in [11], the linear system (5.4a–f) can be written as ⎛
+⎜⎜⎜⎜⎜⎝
+BΩ C 0 0 −α MΓ,Ω CT 0 0 0 0 (MΓ,Ω)T 0 0 − 1
+τ MΓ 0 0 0 MΓ AΓ 0 0 0 −AΓ 0 MΓ
+⎞
+⎟⎟⎟⎟⎟⎠
+⎛
+⎜⎜⎜⎜⎜⎝
+U m+1
+P ̃m+1
+Y m+1
+δX m+1
+F m+1
+Γ
+⎞
+⎟⎟⎟⎟⎟⎠
+(6.1) = (b, 0, 0, −AΓ Xm + (β Am − κ) MΓ ωm, ZΓ Y m + AΓ,Y Xm − c)T ,
+where in addition to the matrices and b, from [11] we define
+[AΓ,Y ]kl := − 1
+2
+〈
+|Πm
+m−1 κm − κ νm|2 ∇s χm
+l , ∇s χm
+k
+〉h
+Γm Id
++
+〈
+(Πm
+m−1 Y m − β Am νm) . (Πm
+m−1 κm) ∇s χm
+l , ∇s χm
+k
+〉h
+Γm Id ,
+[MΓ]kl := 〈χm
+l , χm
+k ωm ⊗ ωm〉h
+Γm ,
+for k, l = 1, . . . , KΓ, as well as c ∈ (Rd)KΓ with
+ck =
+〈
+κ − β Am, (Πm
+m−1 κm . ∇s χm
+k ) νm〉h
+Γm .
+As the linear operator on the left hand side of (6.1) is exactly the same as in [11], the system (6.1) can be solved with the Schur complement approach introduced in [11].
+7. Numerical results
+We implemented the scheme (5.4a–f) with the help of the finite element toolbox ALBERTA; see [38]. In what follows we present numerical simulations for the scheme (5.4a–f) in the case d = 3. We recall that, on account of the Gauß–Bonnet theorem, in two space dimensions the fluidic biomembrane problem (3.4a–d), (3.17a–d) is independent of the values of κ and β. Hence for the case d = 2 we can refer to our numerical simulations in [11] for the case κ = β = 0. For the bulk mesh adaptation in our numerical computations we use the strategy from [9], which results in a fine mesh size hf around Γm and a coarse mesh size
+hc further away from it. Here hf = 2 min{H1,H2}
+Nf and hc = 2 min{H1,H2}
+Nc are given by two integer numbers Nf > Nc, where we assume from now on that the convex hull of Ω is given by ×3
+i=1(−Hi, Hi). Unless otherwise stated, we use Nf = 32 and Nc = 1 and choose uniform time steps τ = 0.01.
+
+
+1062 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+Given the initial triangulation Γ0, the initial data Y 0 ∈ V (Γ0), A0 ∈ R and κ0 ∈ V (Γ0) are always computed as
+Y 0 = κ0 + (β A0 − κ) ω0 , A0 = 〈κ0, ν0〉h
+Γ0 − M0 ,
+where κ0 ∈ V (Γ0) is the solution to
+〈κ0, η〉h
+Γ0 +
+〈
+∇s id, ∇s η
+〉
+Γ0 = 0 ∀ η ∈ V (Γ0) .
+In addition, in all computations we set (Um(0), Pm) = ([S2m]d ∩ U(0), S1m), i.e. the lowest order Taylor–Hood element P2–P1, and let U 0 = I20 u0. Unless stated otherwise we fix ∂1Ω = ∂Ω, g = 0 and u0 = 0. The volume force is always set to f = 0. Moreover, unless otherwise stated, we set the physical parameters to ρ± = μ± = μΓ = α = 1 and ρΓ = 0. Similarly, we set κ = β = 0 unless stated otherwise. At times we will discuss the discrete energy of the numerical solutions. On recalling Theorem 4.1 and (5.5) the discrete energy is defined by
+E h(Γm, Y m+1) := E h
+kin(Γm, ρm, U m+1)
++1
+2α
+[〈|κm+1 − κ νm|2, 1〉h
+Γm + β (Am)2]
+,
+where
+Eh
+kin(Γm, ρm, U m+1) := 1
+2 ‖[ρm] 1
+2 U m+1‖2
+0+ 1
+2 ρΓ
+〈
+U m+1, U m+1〉h
+Γm
+represents the kinetic part of the discrete energy. For the simulation of vesicles the reduced volume is often mentioned as a characteristic number. In the case d = 3, and for the initial discrete interface Γ0, this is defined as
+vr = 3 L3(Ω0−)
+4 π ( H2(Γ0)
+4π )3
+2
+= 6π1
+2 L3(Ω0−)
+(H2(Γ0)) 3
+2
+;
+see e.g. [44]. We consider evolutions for an initially elongated tube of total dimensions 4×1×1. The initial shape, with (KΓ, JΓ) = (1154, 2304), has a reduced volume of vr = 0.685. Here we consider the effect of spontaneous curvature. As the computational domain we choose Ω = (−2.5, 2.5)3. In Figure 2 we show the evolution of the discrete interface when κ = 0, while in Figure 3 we repeat the simulation with κ = −2. The final forms are typical prolate-like dumbbell shapes, which have axisymmetry and reflective symmetry, as discussed in [40], and they are in accordance with the phase diagrams in Figures 14 and 18 of that paper. We note that the relative surface area and volume losses for the simulation in Figure 2 are −0.07 and 0.01, respectively. These good conservation properties are observed in all our simulations. For completeness we remark that if we do not enforce volume conservation with the help of the second equation in (5.4b) (recall (4.25a,b)), the enclosed volume in the computation in Figure 2 increases from 2.84 to 4.15, an increase of more than 45%. This highlights the importance of enforcing volume conservation with the help of the second equation in (5.4b) and the associated Lagrange multiplier P m+1
+sing .
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1063
+41
+42
+43
+44
+45
+46
+47
+48
+49
+012345
+0
+0.02
+0.04
+0.06
+0.08
+0.1
+0.12
+012345
+Figure 2. Flow for an elongated tube of dimensions 4 × 1 × 1 for the scheme (5.4a–f). The triangulations of Γm at times t = 0, 1, 3, 5. The lower row shows plots of the discrete energy and the discrete kinetic energy. We note that H2(Γ0) = 12.5 and L3(Ω0−) = 2.84.
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+012345
+0
+0.02
+0.04
+0.06
+0.08
+0.1
+0.12
+0.14
+012345
+Figure 3. Same as Figure 2, but with κ = −2.
+In what follows, we numerically investigate some of the regions in the other shape diagrams in [40, Figs. 16, 17]; see also [45, Fig. 1]. Note that the parameters m0
+and α in [40, Figs. 16, 17] are such that m0 = −M0
+(π
+H2 (Γ0 )
+)
+1
+2 and β = 1.4 π
+H2 (Γ0 )
+in our notation. We begin with a cup-like (also called stomatocyte) initial shape with reduced volume vr = 0.65 and H2(Γ0) = 82.31. Here (KΓ, JΓ) = (1634, 3264). We would like to investigate the flow towards the minimizer for the choice m0/(4 π) = 0.75, which
+means that we need to set M0 = −3 (π H2(Γ0)) 1
+2 ≈ −48.24 and β = 1.4 π
+H2(Γ0) ≈
+0.053. A simulation for this initial data can be seen in Figure 4. Here we set ρΓ = 1. As a comparison, we show the same simulation with β = 0 in Figure 5. Both evolutions appear to have reached a numerical steady state, with the latter evolution having reached a typical biconcave shape with axisymmetry and reflective symmetry, i.e. a discocyte. The stomatocyte shape, which only has axisymmetry, is in accordance with the phase diagram in [40, Fig. 16], and the discocyte shape can be found in [40, Figs. 3, 14].
+Next we use a varying-diameter cigar-like shape with reduced volume vr = 0.75 and H2(Γ0) = 9.65. We would like to investigate the flow towards the minimizer for the choice m0/(4 π) = 1.52, which means that we need to set M0 = −33.5 and
+
+
+1064 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+48
+49
+50
+51
+52
+53
+54
+55
+56
+0 10 20 30 40 50
+0
+0.05
+0.1
+0.15
+0.2
+0.25
+0 10 20 30 40 50
+Figure 4. (ρΓ = 1) Flow for a cup-like shape with vr = 0.65 the scheme (5.4a–f). Cuts of the triangulations of Γm at times t = 0, 10, 20, 50. The lower row shows plots of the discrete energy and the discrete kinetic energy. We note that H2(Γ0) = 82.31 and L3(Ω0−) = 45.63. M0 = −48.24 and β = 0.053.
+45
+45.5
+46
+46.5
+47
+47.5
+48
+0 10 20 30 40 50
+0
+0.01
+0.02
+0.03
+0.04
+0.05
+0.06
+0.07
+0.08
+0.09
+0.1
+0 10 20 30 40 50
+Figure 5. Same as Figure 4, but with β = 0. Here we show the triangulations Γm and their cuts at times t = 0, 10, 20, 50.
+β = 0.46. The results from our numerical simulation can be seen in Figure 6. As a comparison, we show a simulation with β = 0 in Figure 7. The pear-shaped final membrane in Figure 6 appears in the shape diagram of [40, Fig. 16] for high m0. It is also typical that the reflective asymmetry does not appear without the ADE contribution; see Figure 7.
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1065
+51
+51.1
+51.2
+51.3
+51.4
+51.5
+51.6
+51.7
+51.8
+0 20 40 60 80 100
+0
+0.002
+0.004
+0.006
+0.008
+0.01
+0.012
+0.014
+0.016
+0 20 40 60 80 100
+Figure 6. Flow for a varying-diameter cigar-like shape with vr = 0.75 for the scheme (5.4a–f). The triangulations of Γm at times t = 0, 5, 50, 100. The lower row shows plots of the discrete energy and the discrete kinetic energy. We note that H2(Γ0) = 9.65 and L3(Ω0−) = 2.11. M0 = −33.5 and β = 0.46.
+37.35
+37.4
+37.45
+37.5
+37.55
+37.6
+37.65
+37.7
+37.75
+37.8
+0 5 10 15 20
+0
+0.002
+0.004
+0.006
+0.008
+0.01
+0.012
+0 5 10 15 20
+Figure 7. Same as Figure 6, but with β = 0.
+Finally, we consider a flat pear-like initial shape with reduced volume vr = 0.5 and H2(Γ0) = 38.58. The triangulation satisfies (KΓ, JΓ) = (1154, 2304). We would like to investigate the flow towards the minimizer for the choice m0/(4 π) = 1.3, which means that we need to set
+M0 = − 26
+5
+(π H2(Γ0)) 1
+2 ≈ −57.25 and β = 1.4 π
+H2(Γ0) ≈ 0.114.
+A simulation for this initial data can be seen in Figure 8. As a comparison, we show a simulation with β = 0 in Figure 9. Also in these two figures one observes that in the case β = 0 the evolution leads to a discocyte shape, whereas in the case β > 0 the shape maintains reflective symmetry but does not gain axisymmetry.
+
+
+1066 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+60
+62
+64
+66
+68
+70
+72
+74
+0 5 10 15 20 25 30
+0
+0.05
+0.1
+0.15
+0.2
+0.25
+0.3
+0.35
+0.4
+0 5 10 15 20 25 30
+Figure 8. Flow for a flat pear-shape for the scheme (5.4a–f). The triangulations of Γm at times t = 0, 5, 10, 30. The lower row shows plots of the discrete energy and the discrete kinetic energy. We note that H2(Γ0) = 38.58 and L3(Ω0−) = 11.26. M0 = −57.25 and β = 0.114.
+54
+56
+58
+60
+62
+64
+66
+68
+70
+0 5 10 15 20
+0
+0.05
+0.1
+0.15
+0.2
+0.25
+0.3
+0.35
+0.4
+0.45
+0 5 10 15 20
+Figure 9. Same as Figure 8, but with β = 0.
+Acknowledgements
+The authors gratefully acknowledge the support of the Deutsche Forschungsgemeinschaft via the SPP 1506 entitled “Transport processes at fluidic interfaces” and of the Regensburger Universit ̈atsstiftung Hans Vielberth.
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1067
+References
+[1] D. Abreu, M. Levant, V. Steinberg, and U. Seifert, Fluid vesicles in flow, Adv. Colloid Interface Sci. 208 (2014), 129–141, DOI 10.1016/j.cis.2014.02.004. [2] S. Aland, S. Egerer, J. Lowengrub, and A. Voigt, Diffuse interface models of locally inextensible vesicles in a viscous fluid, J. Comput. Phys. 277 (2014), 32–47, DOI 10.1016/j.jcp.2014.08.016. MR3254223 [3] M. Arroyo and A. DeSimone, Relaxation dynamics of fluid membranes, Phys. Rev. E (3) 79 (2009), no. 3, 031915, 17, DOI 10.1103/PhysRevE.79.031915. MR2497175
+[4] E. B ̈ansch, Finite element discretization of the Navier-Stokes equations with a free capillary surface, Numer. Math. 88 (2001), no. 2, 203–235, DOI 10.1007/PL00005443. MR1826211 [5] J. W. Barrett, H. Garcke, and R. N ̈urnberg, On the parametric finite element approximation of evolving hypersurfaces in R3, J. Comput. Phys. 227 (2008), no. 9, 4281–4307, DOI 10.1016/j.jcp.2007.11.023. MR2406538 [6] J. W. Barrett, H. Garcke, and R. N ̈urnberg, Parametric approximation of Willmore flow and related geometric evolution equations, SIAM J. Sci. Comput. 31 (2008), no. 1, 225–253, DOI 10.1137/070700231. MR2460777 [7] J. W. Barrett, H. Garcke, and R. N ̈urnberg, Parametric approximation of isotropic and anisotropic elastic flow for closed and open curves, Numer. Math. 120 (2012), no. 3, 489542, DOI 10.1007/s00211-011-0416-x. MR2890298
+[8] J. W. Barrett, H. Garcke, and R. N ̈urnberg, Eliminating spurious velocities with a stable approximation of viscous incompressible two-phase Stokes flow, Comput. Methods Appl. Mech. Engrg. 267 (2013), 511–530, DOI 10.1016/j.cma.2013.09.023. MR3127314 [9] J. W. Barrett, H. Garcke, and R. N ̈urnberg, A stable parametric finite element discretization of two-phase Navier-Stokes flow, J. Sci. Comput. 63 (2015), no. 1, 78–117, DOI 10.1007/s10915-014-9885-2. MR3315269 [10] J. W. Barrett, H. Garcke, and R. N ̈urnberg, On the stable numerical approximation of twophase flow with insoluble surfactant, ESAIM Math. Model. Numer. Anal. 49 (2015), no. 2, 421–458. MR3342212 [11] J. W. Barrett, H. Garcke, and R. N ̈urnberg, A stable numerical method for the dynamics of fluidic biomembranes, Numer. Math. (2016) (to appear, DOI:10.1007/s00211-015-0787-5). [12] A. Bonito, R. H. Nochetto, and M. S. Pauletti, Parametric FEM for geometric biomembranes, J. Comput. Phys. 229 (2010), no. 9, 3171–3188, DOI 10.1016/j.jcp.2009.12.036. MR2601095 [13] A. Bonito, R. H. Nochetto, and M. S. Pauletti, Dynamics of biomembranes: effect of the bulk fluid, Math. Model. Nat. Phenom. 6 (2011), no. 5, 25–43, DOI 10.1051/mmnp/20116502. MR2825221
+[14] P. B. Canham, The minimum energy of bending as a possible explanation of the biconcave shape of the human red blood cell, J. Theor. Biol. 26 (1970), no. 1, 61–81, DOI 10.1016/S00225193(70)80032-7. [15] K. Deckelnick, G. Dziuk, and C. M. Elliott, Computation of geometric partial differential equations and mean curvature flow, Acta Numer. 14 (2005), 139–232, DOI 10.1017/S0962492904000224. MR2168343
+[16] Q. Du, C. Liu, and X. Wang, A phase field approach in the numerical study of the elastic bending energy for vesicle membranes, J. Comput. Phys. 198 (2004), no. 2, 450–468, DOI 10.1016/j.jcp.2004.01.029. MR2062909 [17] G. Dziuk, An algorithm for evolutionary surfaces, Numer. Math. 58 (1991), no. 6, 603–611, DOI 10.1007/BF01385643. MR1083523 [18] G. Dziuk, Computational parametric Willmore flow, Numer. Math. 111 (2008), no. 1, 55–80, DOI 10.1007/s00211-008-0179-1. MR2448203 [19] G. Dziuk and C. M. Elliott, Finite element methods for surface PDEs, Acta Numer. 22 (2013), 289–396. MR3038698
+[20] C. M. Elliott and B. Stinner, Modeling and computation of two phase geometric biomembranes using surface finite elements, J. Comput. Phys. 229 (2010), no. 18, 6585–6612, DOI 10.1016/j.jcp.2010.05.014. MR2660322 [21] T. Franke, R. H. W. Hoppe, C. Linsenmann, L. Schmid, C. Willbold, and A. Wixforth, Numerical simulation of the motion of red blood cells and vesicles in microfluidic flows, Comput. Vis. Sci. 14 (2011), no. 4, 167–180, DOI 10.1007/s00791-012-0172-1. MR2891614
+
+
+1068 J. W. BARRETT, H. GARCKE, AND R. NU ̈ RNBERG
+[22] V. Girault and P.-A. Raviart, Finite Element Methods for Navier-Stokes Equations, Springer Series in Computational Mathematics, vol. 5, Springer-Verlag, Berlin, 1986. Theory and algorithms. MR851383
+[23] S. Gross and A. Reusken, Numerical Methods for Two-Phase Incompressible Flows, Springer Series in Computational Mathematics, vol. 40, Springer-Verlag, Berlin, 2011. MR2799400 [24] W. Helfrich, Elastic properties of lipid bilayers: Theory and possible experiments, Z. Naturforsch. 28c (1973), 693–703, DOI 10.1515/znc-1973-11-1209.
+[25] W.-F. Hu, Y. Kim, and M.-C. Lai, An immersed boundary method for simulating the dynamics of three-dimensional axisymmetric vesicles in Navier-Stokes flows. part A, J. Comput. Phys. 257 (2014), no. part A, 670–686, DOI 10.1016/j.jcp.2013.10.018. MR3129554 [26] M. M. Kamal, D. Mills, M. Grzybek, and J. Howard, Measurement of the membrane curvature preference of phospholipids reveals only weak coupling between lipid shape and leaflet curvature, Proc. Natl. Acad. Sci. USA 106 (2009), no. 52, 22245–22250, DOI 10.1073/pnas.0907354106.
+[27] M. Ko ̈hne and D. Lengeler, Local well-posedness for relaxational fluid vesicle dynamics, 2015, http://arxiv.org/abs/1512.02941.
+[28] T. Kr ̈uger, M. Gross, D. Raabe, and F. Varnik, Crossover from tumbling to tank-treadinglike motion in dense simulated suspensions of red blood cells, Soft Matter 9 (2013), no. 37, 9008–9015, DOI 10.1039/C3SM51645H. [29] A. Laadhari, P. Saramito, and C. Misbah, Computing the dynamics of biomembranes by combining conservative level set and adaptive finite element methods, J. Comput. Phys. 263 (2014), 328–352, DOI 10.1016/j.jcp.2013.12.032. MR3165700
+[30] D. Lengeler, On a Stokes-type system arising in fluid vesicle dynamics, 2015, http://arxiv.org/abs/1506.08991.
+[31] S. Martens and H. T. McMahon, Mechanisms of membrane fusion: disparate players and common principles, Nat. Rev. Mol. Cell. Biol. 9 (2008), no. 7, 543–556, DOI 10.1038/nrm2417. [32] J. L. McWhirter, H. Noguchi, and G. Gompper, Flow-induced clustering and alignment of vesicles and red blood cells in microcapillaries, Proc. Natl. Acad. Sci. USA 106 (2009), no. 15, 6039–6043, DOI 10.1073/pnas.0811484106. [33] M. Mercker, A. Marciniak-Czochra, T. Richter, and D. Hartmann, Modeling and computing of deformation dynamics of inhomogeneous biological surfaces, SIAM J. Appl. Math. 73 (2013), no. 5, 1768–1792, DOI 10.1137/120885553. MR3095724 [34] L. Miao, U. Seifert, M. Wortis, and H.-G. Do ̈bereiner, Budding transitions of fluid-bilayer vesicles: The effect of area-difference elasticity, Phys. Rev. E 49 (1994), no. 6, 5389–5407, DOI 10.1103/PhysRevE.49.5389.
+[35] M. Rahimi and M. Arroyo, Shape dynamics, lipid hydrodynamics, and the complex viscoelasticity of bilayer membranes, Phys. Rev. E 86 (2012), no. 1, 011932, DOI 10.1103/Phys RevE.86.011932. [36] D. S. Rodrigues, R. F. Ausas, F. Mut, and G. C. Buscaglia, A semi-implicit finite element method for viscous lipid membranes, J. Comput. Phys. 298 (2015), 565–584, DOI 10.1016/j.jcp.2015.06.010. MR3374565 [37] D. Salac and M. J. Miksis, Reynolds number effects on lipid vesicles, J. Fluid Mech. 711 (2012), 122–146, DOI 10.1017/jfm.2012.380. MR2996664
+[38] A. Schmidt and K. G. Siebert, Design of Adaptive Finite Element Software: The Finite Element Toolbox ALBERTA, Lecture Notes in Computational Science and Engineering, vol. 42, Springer-Verlag, Berlin, 2005. With 1 CD-ROM (Unix/Linux). MR2127659
+[39] S. Schmidt and V. Schulz, Shape derivatives for general objective functions and the incompressible Navier-Stokes equations, Control Cybernet. 39 (2010), no. 3, 677–713. MR2791367 [40] U. Seifert, Configurations of fluid membranes and vesicles, Adv. Phys. 46 (1997), no. 1, 13–137, DOI 10.1080/00018739700101488.
+[41] L. Shi, T.-W. Pan, and R. Glowinski, Three-dimensional numerical simulation of red blood cell motion in Poiseuille flows, Internat. J. Numer. Methods Fluids 76 (2014), no. 7, 397–415, DOI 10.1002/fld.3939. MR3268137
+[42] F. Tro ̈ltzsch, Optimal Control of Partial Differential Equations: Theory, Methods and Applications, Graduate Studies in Mathematics, vol. 112, American Mathematical Society, Providence, RI, 2010. Translated from the 2005 German original by J ̈urgen Sprekels. MR2583281 [43] T. J. Willmore, Riemannian Geometry, Oxford Science Publications, The Clarendon Press, Oxford University Press, New York, 1993. MR1261641
+
+
+FEA FOR THE DYNAMICS OF ASYMMETRIC FLUIDIC BIOMEMBRANES 1069
+[44] W. Wintz, H.-G. Do ̈bereiner, and U. Seifert, Starfish vesicles, Europhys. Lett. 33 (1996), no. 5, 403–408.
+[45] P. Ziherl and S. Svetina, Nonaxisymmetric phospholipid vesicles: Rackets, boomerangs, and starfish, Europhys. Lett. 70 (2005), no. 5, 690–696.
+Department of Mathematics, Imperial College London, London, SW7 2AZ, United
+Kingdom
+E-mail address: j.barrett@imperial.ac.uk
+Fakult ̈at f ̈ur Mathematik, Universit ̈at Regensburg, 93040 Regensburg, Germany
+E-mail address: harald.garcke@ur.de
+Department of Mathematics, Imperial College London, London, SW7 2AZ, United
+Kingdom
+E-mail address: robert.nurnberg@imperial.ac.uk

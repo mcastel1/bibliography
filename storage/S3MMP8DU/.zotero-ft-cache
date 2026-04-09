@@ -1,0 +1,9894 @@
+Lecture Notes: An Introduction to the Finite Element Method
+Lecture Notes:
+An Introduction to the
+Finite Element Method
+Yijun Liu
+CAE Research Laboratory Mechanical Engineering University of Cincinnati Cincinnati, OH 45221-0072, U.S.A.
+E-mail: Yijun.Liu@uc.edu Web: www.yijunliu.com
+(Last Updated: October 21, 2015)
+
+© 1997-2013 by Yijun Liu, University of Cincinnati.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+i
+
+Lecture Notes: An Introduction to the Finite Element Method
+Copyright Notice
+© 1997-2013 by Yijun Liu, University of Cincinnati.
+All rights reserved. Permissions are granted for personal and educational uses only at the University of Cincinnati. Any other uses of these lecture notes (such as for classroom lectures outside the University of Cincinnati, trainings elsewhere, and those of a commercial nature) are prohibited, unless such uses have been granted in writing by the author.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+ii
+
+Lecture Notes: An Introduction to the Finite Element Method
+Table of Contents
+Copyright Notice ............................................................................................................................. ii Table of Contents ........................................................................................................................... iii Preface .............................................................................................................................................v Chapter 1. Introduction ................................................................................................................. 1
+I. Some Basic Concepts .............................................................................................................. 1 II. Review of Matrix Algebra..................................................................................................... 6 III. Spring Element................................................................................................................... 11 IV. Summary............................................................................................................................. 20 V. Problems............................................................................................................................... 20 Chapter 2. Bar and Beam Elements............................................................................................ 21 I. Linear Static Analysis............................................................................................................ 21 II. Bar Element.......................................................................................................................... 21 III. Beam Element ..................................................................................................................... 39 IV. Summary............................................................................................................................. 54 V. Problems............................................................................................................................... 54 Chapter 3. Two-Dimensional Elasticity Problems ..................................................................... 57 I. Stress State in Structures ....................................................................................................... 57 II. 2-D (Plane) Elasticity Problems ........................................................................................... 57 III. Finite Elements for 2-D Problems ..................................................................................... 62 IV. Summary............................................................................................................................. 77 V. Problems............................................................................................................................... 78 Chapter 4. Modeling and Solution Techniques ........................................................................... 80 I. Symmetry............................................................................................................................... 80 II. Substructures (Superelements) ............................................................................................. 81 III. Equation Solving................................................................................................................. 83 IV. Nature of Finite Element Solutions .................................................................................... 85 V. Convergence of FEA Solutions............................................................................................ 86 VI. Adaptivity (h-, p-, and hp-Methods)................................................................................... 86 VII. Summary ........................................................................................................................... 87 VIII. Problems........................................................................................................................... 87
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+iii
+
+Lecture Notes: An Introduction to the Finite Element Method
+Chapter 5. Plate and Shell Elements ........................................................................................... 89 I. Plate Theory........................................................................................................................... 89 II. Plate Elements ..................................................................................................................... 97 III. Shells and Shell Elements ................................................................................................ 101 IV. Summary........................................................................................................................... 106 V. Problems............................................................................................................................. 106
+Chapter 6. Three-Dimensional Elasticity Problems .................................................................. 108 I. 3-D Elasticity Theory .......................................................................................................... 108 II. Finite Element Formulation ............................................................................................... 111 III. Typical 3-D Solid Elements.............................................................................................. 113 IV. Solids of Revolution (Axisymmetric Analysis)................................................................ 120 V. Summary ............................................................................................................................ 125 VI. Problems .......................................................................................................................... 125
+Chapter 7. Structural Vibration and Dynamics ......................................................................... 127 I. Basic Equations ................................................................................................................... 127 II. Free Vibration of Multiple DOF Systems .......................................................................... 132 III. Damping............................................................................................................................ 135 IV. Modal Equations ............................................................................................................... 136 V. Frequency Response Analysis ........................................................................................... 137 VI. Transient Response Analysis ............................................................................................ 138 VII. Summary ......................................................................................................................... 144 VIII. Problems........................................................................................................................ 144
+Chapter 8. Thermal Analysis ..................................................................................................... 146 I. Temperature Field................................................................................................................ 146 II. Thermal Stress Analysis..................................................................................................... 148 III. Summary ........................................................................................................................... 153 IV. Problems .......................................................................................................................... 153
+References for Further Studies ................................................................................................... 155
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+iv
+
+Lecture Notes: An Introduction to the Finite Element Method
+Preface
+This is a basic introduction to the finite element method (FEM) for undergraduate students in engineering or other readers who have no previous experience with the FEM. The lecture notes cover the basic concepts in the FEM using the simplest mechanics problems as examples, and lead to the discussions and applications of the one-dimensional (1-D) bar and beam, 2-D plane stress and plane strain, plate and shell, and 3-D solid elements in the analyses of structural stresses, vibrations and dynamics. The understanding of the FEM principles and procedures, and correct usage of the FEM software are emphasized throughout the notes.
+These lecture notes have been developed by the author for the undergraduate courses on the FEM in the Mechanical Engineering Department at the University of Cincinnati since 1997. The materials in these notes are aimed for students in mechanical, civil and aerospace engineering, who need a general background in the FEM so that they can apply the FEM in their design and analysis of components, structures or systems using available commercial FEM software. For students who will conduct research on the FEM, these lecture notes should only serve as an introduction and they should consult to the references listed at the end of the notes for more rigorous treatment of the subject in order to have the necessary theoretical background and programming skills in developing new capabilities in the FEM.
+The lecture notes include eight chapters and can be used for an undergraduate FEM course in one semester (15 weeks with three one-hour lectures each week) or in two quarters (20 weeks with three one-hour lectures each week, with four or five accompanying computer laboratory sessions each quarter). Chapter 1 gives a basic introduction to the concept of the FEM using the spring system as examples. It also reviews the matrix algebra that is essential for the FEM. Chapter 2 introduces the bar and beam elements and outlines the general procedures in the formulations and application of the FEM. Chapter 3 covers 2-D problems in elasticity, that is, plane stress and plane strain elements. Chapter 4 discusses various modeling techniques in the FEM and related topics, such as error indicators and how to evaluate the FEM results. Chapter 5 gives an introduction to the plate and shell elements, emphasizing the correct use of these types of elements. Chapter 6 provides the formulations and applications of the FEM in general 3-D elasticity problems. Chapter 7 is an introduction of the FEM in structural vibration and dynamics analysis, covering normal modes, harmonic and transient responses of structures using the FEM. Chapter 8 covers the basics in thermal analysis of structures using the FEM. Exercise problems and/or projects using FEM software packages are provided at the end of each chapter. Further readings are provided in the Reference section to conclude the lecture notes.
+The author thanks many of his former undergraduate and graduate students at the University of Cincinnati for their suggestions on the earlier versions of these lecture notes and for their contributions to many of the examples used in the lecture notes.
+Yijun Liu
+Cincinnati, Ohio, USA Winter 2007
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+v
+
+Lecture Notes: Introduction to the Finite Element Method
+Chapter 1. Introduction
+I. Some Basic Concepts
+A Simple Idea The finite element method (FEM), or finite element analysis (FEA), is based on the idea
+of building a complicated object with simple blocks, or, dividing a complicated object into small and manageable pieces. Application of this simple idea can be found everywhere in everyday life (see, e.g., Figure 1.1), as well as in engineering. For example, children play the toy Lego by using many small pieces of simple geometries to build various objects such as trains, ships or buildings. With more and smaller pieces, these objects often look more realistic. As another example, a digital image, which looks smooth and colorful, is in fact composed of millions of dots that just have one simple color.
+
+(a)
+
+(b)
+
+Figure 1.1. Objects built with simple and small pieces: (a) a fire engine built with Lego®; and (b) a house built with many elements – bricks, beams, columns, panels and so on.
+
+In mathematical terms, this is simply the use of the limit concept, that is, to approach or represent a smooth objects with a finite number of simple pieces and increasing the number of such pieces will increase the accuracy of this representation. For example, ancient people used this concept to estimate the area of a circle well before the formula A = πR2 was established (where R is the radius of the circle). In doing so, a circle is approximated by a polygon or divided into many triangles (Figure 1.2). The area of one triangle is given by:
+
+Si
+
+=
+
+1 2
+
+Ri Li
+
+,
+
+where Ri is the height and Li the base length of the triangle. The area A of the circle can be therefore obtained in the following manner:
+
+∑ S N
+
+=
+
+N
+Si
+i =1
+
+=
+
+N
+
+ 
+
+1 2
+
+Ri
+
+Li
+
+ 
+
+→
+
+1 2
+
+RLtotal
+
+=π R2
+
+=
+
+A,
+
+as N
+
+→∞,
+
+where N is the total number of triangles (or elements) and Ltotal = NLi is, in the limit, the circumference of the circle, which is 2πR as it is known now.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+1
+
+Lecture Notes: Introduction to the Finite Element Method
+“Element” Si
+R Li
+Ri
+Figure 1.2. Approximation of the area of a circle using a finite number of triangles.
+From the above mentioned examples, one can conclude that objects with complicated geometries can be represented by many small pieces (or elements) with simple geometries. As the number of such pieces increase, the representation becomes more accurate. This is exactly the same concept used in the development of the FEM as one will see in later chapters.
+Why the Finite Element Method? Computers have revolutionized the practice of engineering. Design of a product that used
+to be done by tedious hand drawings has been replaced by computer-aided design (CAD) using computer graphics. Analysis of a design used to be done by hand calculations and many of the testing have been replaced by computer simulations using computer-aided engineering (CAE) software. Together, CAD, CAE and CAM (computer-aided manufacturing) have dramatically changed the landscape of engineering. For example, a car, that used to take five to six years from design to product, can now be produced starting from the concept design to the manufacturing within about 18 months using the CAD/CAE/CAM technologies. A company without adopting the CAD/CAE technologies is deemed to lose ground in the competitive market place. FEM is the most widely applied simulation tool in CAE or one of the most powerful calculators available for engineering students.
+Applications of the FEM in Engineering There are numerous applications of the FEM in industries today and below is only a very
+short list: • Mechanical/Aerospace/Automobile/Civil/Electrical Engineering • Structure stress and dynamic analysis • Thermal/fluid flows • Electrostatics/Electromagnetics • Geomechanics • Biomechanics
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+2
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Figure 1.3. Modeling of gear coupling using the FEM.
+A Brief History of the FEM An account of the historical development of finite element method and the computational
+mechanics in general was given by O. C. Zienkiewicz recently, which can be found in Ref. [1]. A few major milestones are as follows:
+1943 ----- Courant (Variational methods which laid the foundation for FEM) 1956 ----- Turner, Clough, Martin and Topp (Stiffness method) 1960 ----- Clough (Coined “Finite Element”, solved plane problems) 1970s ----- Applications on “mainframe” computers 1980s ----- Microcomputers, development of pre- and postprocessors (GUI) 1990s ----- Analysis of large structural systems, nonlinear and dynamic problems
+
+Figure 1.4. Simulating a can drop with dynamic FEM.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+3
+
+Lecture Notes: Introduction to the Finite Element Method
+FEM in Structural Analysis (The Procedure in Using the FEM) • Divide structure into pieces (elements with nodes, Figure 1.5) • Describe the behavior of the physical quantities on each element • Connect (assemble) the elements at the nodes to form an approximate system of equations for the whole structure • Solve the system of equations involving unknown quantities at the nodes (for example, the displacements) • Calculate desired quantities (for example, strains and stresses) at selected elements
+
+(a)
+
+(b)
+
+Figure 1.5. (a) A plate with a hole; and (b) A FEM discretization (mesh).
+
+Computer Implementations A typical FEM software has the following three key components:
+• Preprocessor (used to build FE models, apply loads and constraints) • FEA solver (assemble and solve the FEM system of equations) • Postprocessor (sort and display the results)
+The computer graphical-user interface (GUI) of the ANSYS software is shown in Figure 1.6. Other FEM packages have similar interfaces.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+4
+
+Lecture Notes: Introduction to the Finite Element Method
+File menu
+
+Quick tool menu
+
+Main menu
+
+Figure 1.6. GUI of the ANSYS software.
+
+Graphics window
+
+Available Commercial FEM Software Packages There are many commercial FEM packages, or CAD/CAE software in general, available
+for conducting FEA in nearly all fields of engineering. The following is only a short list: • ANSYS (General purpose, PCs and workstations) • UG/NX (Complete CAD/CAM/CAE package) • NASTRAN (General purpose FEA on mainframes and PCs) • ABAQUS (Nonlinear and dynamic analyses) • COSMOS (General purpose FEA) • ALGOR (PCs and workstations) • PATRAN (Pre/Post Processor) • HyperWorks/HyperMesh (Pre/Post Processor) • Dyna-3D (Crash/impact analysis) • Others
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+5
+
+Lecture Notes: Introduction to the Finite Element Method
+Objectives of This Course • Understand the fundamental ideas of the FEM • Know the behavior and usage of each type of elements covered in this course • Be able to prepare a suitable FE model for a given problem • Can interpret and evaluate the quality of the results (know the physics of the problems) • Be aware of the limitations of the FEM (do not misuse the FEM)
+
+II. Review of Matrix Algebra
+
+Linear System of Algebraic Equations
+
+a11 x1 + a12 x2 + ... + a1n xn = b1 a 21 x1 + a 22 x2 + ... + a 2n xn = b2 ....... a n1 x1 + a n2 x2 + ... + a nn xn = bn
+where x1, x2, ..., xn are the unknowns. In matrix form:
+Ax = b
+
+where
+
+a11 a12 ... a1n 
+
+ x1 
+
+b1 
+
+[ ] A =
+
+aij
+
+= a21  ...
+
+an1
+
+a22 ... an2
+
+... ... ...
+
+a2n
+
+ ,
+
+... 
+
+a
+
+nn
+
+ 
+
+x
+
+=
+
+{xi }=
+
+  
+
+x2 :
+
+, 
+
+xn 
+
+b
+
+=
+
+{bi
+
+}=
+
+b:2
+
+  
+
+bn 
+
+A is called a n×n (square) matrix, and x and b are (column) vectors with dimension n.
+
+(1.1) (1.2) (1.3)
+
+Row and Column Vectors
+
+v = [v1
+
+v2
+
+v3 ]
+
+w
+
+=
+
+ww12
+
+  
+
+w3 
+
+(1.4)
+
+Matrix Addition and Subtraction
+For two matrices A and B, both of the same size (m×n), the addition and subtraction are defined by
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+6
+
+Lecture Notes: Introduction to the Finite Element Method
+
+C = A + B with cij = aij + bij D = A − B with dij = aij − bij
+
+(1.5)
+
+Scalar Multiplication
+
+[ ] λA = λaij
+
+(1.6)
+
+Matrix Multiplication
+
+For two matrices A (of size l×m) and B (of size m×n), the product of AB is defined by
+
+m
+∑ C = AB with cij = aikbkj k =1
+
+(1.7)
+
+where i = 1, 2, ..., l; j = 1, 2, ..., n.
+
+Note that, in general, AB ≠ BA , but (AB)C = A(BC) (associative).
+
+Transpose of a Matrix
+
+If A = [aij], then the transpose of A is
+
+[ ] AT = a ji
+
+(1.8)
+
+Notice that
+
+(AB)T = BT AT
+
+(1.9)
+
+Symmetric Matrix
+
+A square (n×n) matrix A is called symmetric, if
+
+A = AT
+
+or
+
+aij = a ji
+
+(1.10)
+
+Unit (Identity) Matrix
+
+ 1 0 ... 0 
+
+I
+
+=
+
+ 
+
+0
+
+1
+
+...
+
+0
+
+ 
+
+... ... ... ...
+
+ 
+
+0
+
+0
+
+...
+
+1
+
+ 
+
+Note that AI = A, Ix = x.
+
+(1.11)
+
+Determinant of a Matrix
+
+The determinant of square matrix A is a scalar number denoted by det A or |A|. For 2×2 and 3×3 matrices, their determinants are given by
+
+a det  c
+
+b
+
+d
+
+ 
+
+=
+
+ad
+
+−
+
+bc
+
+(1.12)
+
+and
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+7
+
+Lecture Notes: Introduction to the Finite Element Method
+
+a11 a12 a13 
+
+det a21
+
+a22
+
+a23
+
+ 
+
+=
+
+a11a 22 a 33
+
++
+
+a12 a 23 a 31
+
++
+
+a 21a 32 a13
+
+a31 a32 a33 
+
+− a13a22a31 − a12a21a33 − a23a32a11
+
+(1.13)
+
+Singular Matrix
+A square matrix A is singular if det A = 0, which indicates problems in the system (nonunique solutions, degeneracy, etc.)
+
+Matrix Inversion
+For a square and nonsingular matrix A ( det A ≠ 0 ), its inverse A-1 is constructed in such a way that
+
+AA −1 = A −1A = I
+
+(1.14)
+
+The cofactor matrix C of matrix A is defined by
+
+Cij = (−1)i+ j M ij
+
+(1.15)
+
+where Mij is the determinant of the smaller matrix obtained by eliminating the ith row and jth column of A.
+
+Thus, the inverse of A can be determined by
+
+A −1 = 1 CT det A
+
+(1.16)
+
+We can show that (AB) −1 = B −1A −1 .
+
+Examples:
+
+(A)
+
+a c
+
+b  −1
+
+d
+
+ 
+
+=
+
+(ad
+
+1 −
+
+bc)
+
+d − c
+
+− b
+
+a
+
+. 
+
+Checking:
+
+a c
+
+b−1 a d  c
+
+b d 
+
+=
+
+(ad
+
+1 −
+
+bc)
+
+d − c
+
+− ba a c
+
+b
+
+d
+
+ 
+
+=
+
+1 0
+
+0 1 .
+
+ 1 −1 0  −1
+
+3 2 1T 3 2 1
+
+(B)
+
+− 1
+
+2
+
+− 1
+
+=
+
+(4
+
+1 −2
+
+− 1)
+
+2
+
+2
+
+1
+
+= 2
+
+2
+
+1 .
+
+ 0 −1 2 
+
+1 1 1 1 1 1
+
+Checking:
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+8
+
+Lecture Notes: Introduction to the Finite Element Method
+
+ 1 −1 0 3 2 1 1 0 0 −1 2 −12 2 1 = 0 1 0 .  0 −1 2 1 1 1 0 0 1
+If det A = 0 (i.e., A is singular), A-1 does not exist.
+The solution of the linear system of equations (Eq. (1.1)) can be expressed as (assuming the coefficient matrix A is nonsingular)
+x = A−1b
+Thus, the main task in solving a linear system is to find the inverse of the coefficient matrix.
+
+Solution Techniques for Linear Systems of Equations • Gauss elimination methods • Iterative methods We will briefly review the two methods in Chapter 4.
+
+Positive Definite Matrix
+A square (n×n) matrix A is said to be positive definite, if for all nonzero vector x of dimension n,
+xT Ax > 0
+Note that positive definite matrices are nonsingular. Later on we will see that all stiffness matrices are positive definite and the above condition is a statement that the strain energy in a structure should be positive if the structure is constrained and the stiffness matrix is nonsingular.
+
+Differentiation and Integration of a Matrix
+
+Let A(t) = aij (t) , then the differentiation is defined by
+
+d dt
+
+A(t)
+
+=
+
+  
+
+daij (t) dt
+
+  
+
+and the integration by
+
+∫ A(t)dt = ∫ aij (t)dt 
+
+(1.17) (1.18)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+9
+
+Lecture Notes: Introduction to the Finite Element Method
+Types of Finite Elements We are now ready to study the various finite elements. All the elements developed in the
+FEM can be categorized into the following three types according to their geometries. 1-D (Line) Elements:
+Figure 1.6. 1-D elements: Springs, trusses, beams, pipes, etc. 2-D (Plane) Elements:
+Figure 1.7. 2-D elements: Membranes, plates, shells, etc. 3-D (Solid) Elements:
+
+Figure 1.8. 3-D elements for 3-D fields (temperature, displacement, stress, velocity, etc.).
+We will start with the 1-D spring element as an example to study the basic concept and ingredients in the FEM.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+10
+
+Lecture Notes: Introduction to the Finite Element Method
+
+III. Spring Element
+
+“Everything important is simple!”
+
+One Spring Element We first study a single spring element (Figure 1.9) and then a system of spring elements.
+
+i
+
+x
+
+j
+
+fi ui
+
+k
+
+uj fj
+
+Figure 1.9. One spring element.
+
+Two nodes:
+
+i, j
+
+Nodal displacements:
+
+ui, uj (m, mm)
+
+Nodal forces:
+
+fi, fj (Newton)
+
+Spring constant (stiffness): k (N/m, N/mm)
+
+Relationship between spring force F and elongation Δ is shown in Figure 1.10.
+
+Linear F
+
+Nonlinear
+
+k
+
+∆
+
+Figure 1.10. Force-displacement relation in a spring.
+
+We only consider linear problems in this introductory course. In the linear portion of the curve shown in Figure 1.10, we have
+
+F = k∆ ,
+
+with ∆ = u j − ui .
+
+(1.19)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+11
+
+Lecture Notes: Introduction to the Finite Element Method
+
+where k = F / ∆ (> 0) is the stiffness of the spring (the force needed to produce a unit stretch).
+
+Consider the equilibrium of forces for the spring. At node i, we have
+
+fi = −F = −k(u j − ui ) = kui − ku j
+
+fi
+
+i
+
+and at node j, f j = F = k(u j − ui ) = −kui + ku j
+
+F
+
+j
+
+In matrix form,
+
+k − k
+
+− kui
+
+k
+
+ 
+
+u
+
+j
+
+  
+
+=
+
+  
+
+fi fj
+
+  
+
+or,
+
+ku = f
+
+where
+
+k = (element) stiffness matrix
+
+u = (element) nodal displacement vector
+
+f = (element) nodal force vector
+
+F fj
+(1.20) (1.21)
+
+From the derivation, we see that the first equation in (1.20) represents the equilibrium of forces at node i, while the second equation in (1.20) that of forces at node j. Note also that k is symmetric. Is k singular or nonsingular? That is, can we solve the equation in (1.20)? If not, why?
+
+Spring System
+
+x
+
+k1
+
+k2
+
+1
+
+2
+
+3
+
+u1, F1
+
+u2, F2
+
+u3, F3
+
+Figure 1.11. A system of two spring elements.
+
+For a system of multiple spring elements, we first write down the stiffness equation for each spring and then “assemble” them together to form the stiffness equation for the whole system. For example, for the two-spring system shown in Figure 1.11, we proceed as follows:
+For element 1, we have
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+12
+
+Lecture Notes: Introduction to the Finite Element Method
+
+ k1 − k1
+
+− k1 k1
+
+  
+
+uu12
+
+  
+
+=
+
+  
+
+f11
+
+f
+
+1 2
+
+  
+
+(1.22)
+
+and for element 2,
+
+ k2
+
+ 
+
+−
+
+k
+
+2
+
+−k k2
+
+2
+
+  
+
+u2 u3
+
+  
+
+=
+
+  
+
+f12
+
+f
+
+2 2
+
+  
+
+(1.23)
+
+where fim is the (internal) force acting on local node i of element m (i = 1, 2).
+
+Assemble the stiffness matrix for the whole system:
+
+Consider the equilibrium of forces at node 1,
+
+F1 = f11
+
+at node 2,
+
+F2
+
+=
+
+f
+
+1 2
+
++
+
+f12
+
+and at node 3,
+
+F3
+
+=
+
+f
+
+2 2
+
+F1
+
+1
+
+f11
+
+f21
+
+2
+
+f12
+
+F2
+
+f22 3
+
+F3
+
+Using (1.22) and (1.23), we obtain
+
+F1 = k1u1 − k1u2 F2 = −k1u1 + (k1 + k2 )u2 − k2u3 F3 = −k2u2 + k2u3
+In matrix form, we have
+
+ k1 − k1  0
+
+− k1 k1 + k2
+− k2
+
+0 −k k2
+
+2
+
+   
+
+uu12 u3
+
+   
+
+=
+
+   
+
+F1 F2 F3
+
+   
+
+(1.24)
+
+or
+
+Ku = F
+
+(1.25)
+
+in which, K is the stiffness matrix (structure matrix) for the entire spring system.
+
+An alternative way of assembling the whole stiffness matrix:
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+13
+
+Lecture Notes: Introduction to the Finite Element Method
+
+“Enlarging” the stiffness matrices for elements 1 and 2, we have
+
+ k1 − k1  0
+
+− k1 k1 0
+
+0 0 0
+
+uu12 u3
+
+   
+
+=
+
+    
+
+f11
+
+f
+
+1 2
+
+0
+
+    
+
+,
+
+and
+
+0 0 0
+
+0 k 2 − k2
+
+0 − k2 k2
+
+   
+
+uu12 u3
+
+   
+
+=
+
+   
+
+0
+
+f12
+
+f
+
+2 2
+
+   
+
+Adding the two matrix equations (i.e., using superposition), we have
+
+ k1 − k1  0
+
+− k1 k1 + k2
+− k2
+
+0 − k2 k2
+
+   
+
+uu12 u3
+
+   
+
+=
+
+    
+
+f
+
+1 2
+
+f11
+
++
+
+f
+
+2 2
+
+f12
+
+    
+
+This is the same equation we derived by using the force equilibrium concept.
+
+Energy approach:
+
+We can also obtain the result using an energy method, for example, the principle of minimum potential energy. In fact, the energy approach is more general and considered the foundation of the FEM. To proceed, we consider the strain energy U stored in the spring system shown in Figure 1.11.
+
+U
+
+=
+
+1 2
+
+k1∆12
+
++
+
+1 2
+
+k2∆22
+
+=
+
+1 2
+
+∆1T k1∆1
+
++
+
+1 2
+
+∆
+
+T 2
+
+k
+
+2
+
+∆
+
+2
+
+However,
+
+∆1 = u2 − u1 = [− 1
+
+1]uu12
+
+ , 
+
+∆2 = u3 − u2 = [− 1
+
+1]uu23
+
+  
+
+We have
+
+U
+
+=
+
+1 2
+
+[u1
+
+u2 ]−kk1 1
+
+− k1 k1
+
+  
+
+uu12
+
+  
+
++
+
+1 2
+
+[u2
+
+u3 ]−kk2 2
+
+−k k2
+
+2
+
+  
+
+uu23
+
+  
+
+=
+
+(enlarging…)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+14
+
+Lecture Notes: Introduction to the Finite Element Method
+
+=
+
+1 2
+
+[u 1
+
+u2
+
+ k1
+u3 ]− k1
+ 0
+
+− k1 k1 + k2
+− k2
+
+0 −k k2
+
+2
+
+   
+
+uu12 u3
+
+   
+
+(1.26)
+
+The potential of the external forces is
+
+[ Ω = −F1u1 − F2u2 − F3u3 = − u1
+
+u2
+
+u3
+
+
+]
+
+F1 F2
+
+  
+
+F3 
+
+(1.27)
+
+Thus, the total potential energy of the system is
+
+Π
+
+=
+
+U
+
++
+
+Ω
+
+=
+
+1 2
+
+[u1
+
+u2
+
+ k1
+u3 ]− k1
+ 0
+
+− k1 k1 + k2
+− k2
+
+0 − k2 k2
+
+   
+
+uu12 u3
+
+   
+
+−
+
+[u1
+
+u2
+
+u3
+
+
+]
+
+F1 F2
+
+  
+
+F3 
+
+(1.28)
+
+which is a function of the three nodal displacements ( u1, u2 , u3 ). According to the principle of minimum potential energy, for a system to be in equilibrium, the total potential energy must be minimum, that is, dΠ = 0 , or equivalently,
+
+∂Π = 0, ∂u1
+
+∂Π = 0, ∂u2
+
+∂Π = 0, ∂u3
+
+which yield the same three equations as in (1.24).
+
+(1.29)
+
+Boundary and load conditions:
+
+Assuming that node 1 is fixed, and same force P is applied at node 2 and node 3, that is
+
+u1 = 0 and F2 = F3 = P
+
+we have from Eq. (1.24)
+
+ k1 − k1  0
+
+− k1 k1 + k2
+− k2
+
+0 − k2 k2
+
+ 0
+
+  
+
+u2 u3
+
+   
+
+=
+
+FP1  P
+
+   
+
+which reduces to
+
+k1 + k2
+
+ 
+
+− k2
+
+−k k2
+
+2
+
+uu23
+
+  
+
+=
+
+P P
+
+  
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+15
+
+Lecture Notes: Introduction to the Finite Element Method
+
+and
+
+F1 = −k1u2 Unknowns are
+
+U
+
+=
+
+uu23
+
+  
+
+and the reaction force F1 (if desired).
+
+Solving the equations, we obtain the displacements
+
+uu23
+
+  
+
+=
+
+ 2P
+
+2P / k1 / k1 + P
+
+/
+
+k
+
+2
+
+  
+
+and the reaction force
+
+F1 = −2P
+
+Checking the Results • Deformed shape of the structure • Equilibrium of the external forces • Order of magnitudes of the obtained values
+
+Notes About the Spring Elements • Spring elements are only suitable for stiffness analysis
+• They are not suitable for stress analysis of the spring itself
+• There are spring elements with stiffness in the lateral direction, spring elements for torsion, etc.
+
+Example 1.1
+
+k1
+
+k2 P
+
+k3
+
+1
+
+2
+
+x
+
+3
+
+4
+
+Given: For the spring system shown above,
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+16
+
+Lecture Notes: Introduction to the Finite Element Method
+
+k1 = 100 N/mm, k2 = 200 N/mm, k3 = 100 N/mm P = 500 N, u1 = u4 = 0
+
+Find: (a) the global stiffness matrix
+
+(b) displacements of nodes 2 and 3
+
+(c) the reaction forces at nodes 1 and 4
+
+(d) the force in the spring 2
+
+Solution:
+
+(a) The element stiffness matrices are (make sure to put proper unit after each number)
+
+ 100 −100
+
+k1 = − 100
+
+100
+
+ 
+
+(N/mm)
+
+ 200 − 200
+
+k2 = − 200
+
+200
+
+ 
+
+(N/mm)
+
+ 100 −100
+
+k3 = − 100
+
+100
+
+ 
+
+(N/mm)
+
+Applying the superposition concept, we obtain the global stiffness matrix for the spring system
+
+u 1
+
+ 100
+
+K = − 100 0
+
+ 
+
+0
+
+u2 − 100 100 + 200 − 200
+0
+
+u3 0 − 200 200 + 100 − 100
+
+u4
+
+0
+
+0
+
+ 
+
+− 100
+
+100
+
+ 
+
+or
+
+ 100
+
+K = −100 0
+
+ 
+
+0
+
+− 100 300 − 200 0
+
+0 − 200 300 − 100
+
+0
+
+0
+
+ 
+
+− 100
+
+100
+
+ 
+
+which is symmetric and banded.
+
+Equilibrium (FE) equation for the whole system is
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+17
+
+Lecture Notes: Introduction to the Finite Element Method
+
+ 100
+
+− 100
+
+0
+
+ 
+
+0
+
+− 100 300 − 200
+0
+
+0 − 200 300 − 100
+
+0 u1   F1 
+
+0
+
+ 
+
+− 100
+
+100
+
+ 
+
+uu23 u4
+
+   
+
+=
+
+  
+
+F2 F3
+
+F4
+
+   
+
+(b) Applying the BCs u1 = u4 = 0 , F2 = 0 and F3 = P , and “deleting” the 1st and 4th rows and columns, we have
+
+ 300 − 200
+
+−320000uu23
+
+  
+
+=
+
+0 P
+
+Solving this equation, we obtain
+
+uu23
+
+  
+
+=
+
+ P / 250  3P / 500
+
+=
+
+23(mm)
+
+(c) From the 1st and 4th equations system FE equation, we obtain the reaction forces
+
+F1 = −100u2 = −200(N) F4 = −100u3 = −300(N) (d) The FE equation for spring (element) 2 is
+
+ 200 − 200
+
+− 200ui
+
+200
+
+ 
+
+u
+
+j
+
+  
+
+=
+
+  
+
+fi fj
+
+  
+
+Here i = 2, j = 3 for element 2. Thus we can calculate the spring force as
+
+F = f j = − fi = [− 200
+
+200]uu23
+
+  
+
+=
+
+[−
+
+200
+
+200]23 = 200(N)
+
+Check the results:
+
+Draw the free-body diagram (FBD) of the system and consider the equilibrium of the forces.
+
+F1 = -200 N Equilibrium of the forces is satisfied!
+
+P = 500 N
+
+F4 = -300 N
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+18
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Example 1.2
+
+k1
+
+4
+
+1
+
+4 k4
+
+2 k2
+
+x
+
+2
+
+F1 1
+
+F2
+
+k3
+
+3
+
+3 5
+
+Problem:
+
+For the spring system with arbitrarily numbered nodes and elements, as shown above, find the global stiffness matrix.
+
+Solution: First we construct the following element connectivity table
+
+Element Connectivity Table
+
+Element
+1 2 3 4
+
+Node i (1)
+4 2 3 2
+
+Node j (2)
+2 3 5 1
+
+which specifies the global node numbers corresponding to the local node numbers for each element.
+
+Then we write the element stiffness matrix for each element
+
+u4
+
+k1
+
+=
+
+ k1 − k1
+
+u2
+
+− k1 ,
+
+k1
+
+ 
+
+u2
+
+k2
+
+=
+
+ k2 − k2
+
+u3
+
+− k2 ,
+
+k2
+
+ 
+
+u3
+
+k3
+
+=
+
+ k3 − k3
+
+u5
+
+− k3 ,
+
+k3
+
+ 
+
+u2
+
+k 4
+
+=
+
+ k4 − k4
+
+u1
+
+− k4
+
+k4
+
+ 
+
+Finally, applying the superposition method, we obtain the global stiffness matrix as follows
+
+u1
+
+u2
+
+u3
+
+u4 u5
+
+ k4
+
+− k4
+
+0
+
+0 0
+
+− k4 k1 + k2 + k4
+
+− k2
+
+− k1
+
+0
+
+ 
+
+K= 0
+
+ 
+
+0
+
+− k2
+
+k2 + k3 0 − k3
+
+− k1
+
+0
+
+k1
+
+0
+
+ 
+
+ 0
+
+0
+
+− k3
+
+0 k3 
+
+The matrix is symmetric, banded, but singular.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+19
+
+Lecture Notes: Introduction to the Finite Element Method
+
+IV. Summary
+
+In this chapter, the basic concepts in the finite element method are introduced. The spring element is used as an example to show how to establish the element stiffness matrices, to assemble the finite element equations for a system from element stiffness matrices, and to solve the FE equations. Verifying the FE results is emphasized. The concepts and procedures introduced in this chapter are very simple and yet very important for studying the finite element analyses of other problems.
+
+V. Problems
+
+Problem 1.
+
+Answer the following questions briefly:
+(a) What is the physical meaning of the FE equations (for either an element or the whole structure)?
+(b) What is the procedure in using the FEM?
+
+Problem 2.
+
+For the following given matrix and vector
+
+Find:
+
+ 1 − 2 6
+
+A
+
+=
+
+ 
+
+2
+
+2 3,
+
+− 1 3 0
+
+0 b = 3
+2
+
+(a) Determinant det A; (b) Inverse A-1;
+
+(c) Solution of the equation Ax = b; (d) Value of the quadratic form xTAx.
+
+Problem 3. A spring system is shown below 1 k1
+
+F3
+
+k3
+
+F4
+
+k2
+
+3
+
+4
+
+2 x
+
+G= iven: k1 80 N= /mm, k2 100 N= /mm, k3 160 N= /mm, F3 2= 00 N, F4 100 N , and nodes 1 and 2 are fixed;
+Find:
+(a) Global stiffness matrix;
+(b) Displacements of nodes 3 and 4;
+(c) Reaction forces at nodes 1 and 2;
+(d) Forces in springs 1 and 2.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+20
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Chapter 2. Bar and Beam Elements
+
+I. Linear Static Analysis
+
+Most structural analysis problems can be treated as linear static problems, based on the following assumptions
+1. Small deformations (loading pattern is not changed due to the deformed shape)
+2. Elastic materials (no plasticity or failures)
+3. Static loads (the load is applied to the structure in a slow or steady fashion)
+Linear analysis can provide most of the information about the behavior of a structure, and can be a good approximation for many analyses. It is also the bases of nonlinear analysis in most of the cases.
+
+II. Bar Element
+
+Consider a uniform prismatic bar:
+
+ui
+
+uj
+
+fi i
+
+x
+
+A, E
+
+L
+
+j fj
+
+Figure 2.1. Notations for a bar element.
+
+L, A, E u, ε, σ
+
+length, cross-sectional area, and elastic modulus of the beam, respectively displacement, strain, and stress, respectively (all functions of x)
+
+Strain-displacement relation:
+
+ε = du
+
+(2.1)
+
+dx
+
+Stress-strain relation:
+
+σ = Eε
+
+(2.2)
+
+Equilibrium equation:
+
+dσ + f = 0
+
+(2.3)
+
+dx
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+21
+
+Lecture Notes: Introduction to the Finite Element Method
+
+where f is the body force (force per volume, such as gravitational and magnetic forces) inside the bar.
+
+Stiffness Matrix --- Direct Method
+Assuming that the displacement u is varying linearly along the axis of the bar, that is, in terms of the two nodal values ui and u j , we can write (derive this)
+
+u( x)
+
+=
+
+1 − 
+
+x L
+
+ui
+
++
+
+x L
+
+u
+
+j
+
+(2.4)
+
+we have
+
+ε = u j − ui = ∆
+
+( ∆ = elongation)
+
+(2.5)
+
+LL
+
+σ = Eε = E∆
+
+(2.6)
+
+L
+
+We also have
+
+σ =F
+
+(F = force in bar)
+
+(2.7)
+
+A
+
+Thus, (2.6) and (2.7) lead to
+
+F = EA ∆ = k∆ L
+
+where k = EA is the stiffness of the bar. That is, the bar behaves like a spring in this case and L
+we conclude that the element stiffness matrix is
+
+k
+
+=
+
+k − k
+
+ EA
+
+−k k
+
+  
+
+=
+
+
+ −
+
+L EA
+
+L
+
+−EEALA L
+
+or
+
+k
+
+=
+
+EA L
+
+1 − 1
+
+− 1
+
+1
+
+ 
+
+(2.8)
+
+This can be verified by considering the equilibrium of the forces at the two nodes.
+
+Element equilibrium equation is
+
+EA  1 L −1
+
+− 1  ui 1 u j
+
+  
+
+=
+
+  
+
+fi fj
+
+  
+
+(2.9)
+
+Degree of Freedom (DOF): Number of components of the displacement vector at a node. For 1D bar element: one DOF at each node.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+22
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Physical Meaning of the Coefficients in k: The jth column of k (here j = 1 or 2) represents the forces applied to the bar to maintain a deformed shape with unit displacement at node j and zero displacement at the other node.
+
+Stiffness Matrix --- A Formal Approach
+
+We derive the same stiffness matrix for the bar using a formal approach which can be applied to many other more complicated situations.
+
+Define two linear shape functions as follows
+
+Ni (ξ ) = 1 − ξ ,
+
+N j (ξ ) = ξ
+
+(2.10)
+
+where
+
+ξ= x, L
+
+0≤ξ ≤1
+
+(2.11)
+
+Ni(ξ) 1
+
+Nj(ξ)
+
+i ξ = 0
+
+j
+
+ξ
+
+ξ = 1
+
+i ξ = 0
+
+Figure 2.2. The shape of the shape functions.
+
+From (2.4) we can write the displacement as
+
+u(x) = u(ξ ) = Ni (ξ )ui + N j (ξ )u j
+
+or
+
+[ ] u = N i
+
+N
+
+j
+
+ui 
+
+u
+
+j
+
+ 
+
+=
+
+Nu
+
+Strain is given by (2.1) and (2.12) as
+
+ε
+
+=
+
+du dx
+
+=
+
+d  dx
+
+Nu
+
+=
+
+Bu
+
+where B is the element strain-displacement matrix, which is
+
+[ ] [ ] B =
+
+d dx
+
+Ni (ξ )
+
+N j (ξ )
+
+=d dξ
+
+Ni (ξ )
+
+N
+
+j (ξ )
+
+•
+
+dξ dx
+
+that is,
+
+B = [−1/ L 1/ L]
+
+Stress can be written as
+
+1
+
+j
+
+ξ
+
+ξ = 1
+
+(2.12) (2.13)
+(2.14)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+23
+
+Lecture Notes: Introduction to the Finite Element Method
+
+σ = Eε = EBu Consider the strain energy stored in the bar
+
+(2.15)
+
+( ) ∫ ∫ U = 1 σ TεdV = 1 uTBTEBu dV
+
+2V
+
+2V
+
+( ) ∫ =
+
+1 2
+
+uT
+
+  V
+
+B
+
+T
+
+EB
+
+dV
+
+ u
+
+
+
+(2.16)
+
+where (2.13) and (2.15) have been used.
+
+The potential of the external forces is written as (this is by definition, and remember the negative sign)
+
+Ω = − fiui − f ju j = −uTf
+
+(2.17)
+
+The total potential of the system is Π =U +Ω
+which yields by using (2.16) and (2.17)
+
+( ) ∫ Π
+
+=
+
+1 2
+
+uT
+
+  V
+
+B
+
+T
+
+EB
+
+dV
+
+ u
+
+−
+
+u
+
+T
+
+f
+
+
+
+(2.18)
+
+Setting dΠ = 0 by the principle of minimum potential energy, we obtain (verify this)
+
+
+∫
+
+(B
+
+T
+
+EB)dV
+
+ u
+
+=
+
+f
+
+V
+
+
+
+or
+
+ku = f
+
+(2.19)
+
+where
+
+k = ∫ (BTEB)dV
+V
+
+(2.20)
+
+is the element stiffness matrix.
+
+Expression (2.20) is a general result which can be used for the construction of other types of elements.
+
+Now, we evaluate (2.20) for the bar element by using (2.14)
+
+k
+
+=
+
+L
+∫
+0
+
+−11/ /LLE[−
+
+1/
+
+L
+
+1/
+
+L]Adx=
+
+EA L
+
+1 − 1
+
+− 1 1 
+
+which is the same as we derived earlier using the direct method.
+
+Note that from (2.16) and (2.20), the strain energy in the element can be written as
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+24
+
+Lecture Notes: Introduction to the Finite Element Method
+
+U = 1 uTku 2
+
+(2.21)
+
+In the future, once we obtain an expression like (2.16), we can immediately recognize that the matrix within the square bracket is the stiffness matrix. Recall that for a spring, the strain energy can be written as
+
+U = 1 k∆2 = 1 ∆T k∆
+
+2
+
+2
+
+Thus result (2.21) goes back to the simple spring case again.
+
+Example 2.1
+
+1 2A,E
+
+2 A,E
+
+1
+
+2 P
+
+3
+
+x
+
+L
+
+L
+
+Problem:
+
+Find the stresses in the two-bar assembly which is loaded with force P, and constrained at the two ends, as shown in the above figure.
+
+Solution: Use two 1-D bar elements.
+
+For element 1,
+
+u1 u2
+
+k 1
+
+=
+
+2EA L
+
+1 − 1
+
+− 1
+
+1
+
+ 
+
+For element 2,
+
+u2 u3
+
+k 2
+
+=
+
+EA L
+
+1 − 1
+
+− 1
+
+1
+
+ 
+
+Imagine a frictionless pin at node 2, which connects the two elements. We can assemble the global FE equation as follows
+
+2
+
+EA L
+
+−
+
+2
+
+ 0
+
+−2 3 −1
+
+0 − 1 1 
+
+uu12 u3
+
+   
+
+=
+
+FF12  F3
+
+   
+
+Load and boundary conditions (BCs) are
+
+u1 = u3 = 0,
+
+F2 = P
+
+FE equation becomes
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+25
+
+Lecture Notes: Introduction to the Finite Element Method
+
+2
+
+EA L
+
+−
+
+2
+
+ 0
+
+−2 3 −1
+
+0  0
+
+− 1 1 
+
+u2  0
+
+   
+
+=
+
+  
+
+F1 P
+
+F3
+
+   
+
+“Deleting” the 1st row and column, and the 3rd row and column, we obtain
+
+EA L
+
+[3]{u2
+
+}
+
+=
+
+{P}
+
+Thus,
+
+u2
+
+=
+
+PL 3EA
+
+and
+
+uu12 u3
+
+   
+
+=
+
+PL 3EA
+
+0 1 0
+
+Stress in element 1 is
+
+σ1 = Eε1 = EB1u1 = E[− 1/ L
+
+1/
+
+L]uu12
+
+  
+
+= E u2 − u1 = E  PL − 0 = P L L  3EA  3A
+
+Similarly, stress in element 2 is
+
+σ 2 = Eε 2 = EB2u2 = E[− 1/ L
+
+1
+
+/
+
+L]uu23
+
+  
+
+= E u3 − u2 = E 0 − PL  = − P L L  3EA  3A
+
+which indicates that bar 2 is in compression.
+
+Check the results: Draw the FBD and check the equilibrium of the structures.
+
+-2P/3
+
+P
+
+-P/3
+
+Notes:
+• In this case, the calculated stresses in elements 1 and 2 are exact. It will not help if we further divide element 1 or 2 into smaller elements.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+26
+
+Lecture Notes: Introduction to the Finite Element Method
+
+• For tapered bars, averaged values of the cross-sectional areas should be used for the elements.
+• We need to find the displacements first in order to find the stresses, and thus this approach is called the displacement based FEM.
+Example 2.2
+∆
+
+1 A,E
+
+2
+
+1
+
+2 P
+
+3
+
+x
+
+L
+
+L
+
+Problem:
+
+Determine the support reaction forces at the two ends of the bar shown above, given the following
+P = 6.0×104 N, E = 2.0×104 N/mm2 , =A 250= mm2, L 150 mm, ∆ = 1.2 mm
+
+Solution:
+We first check to see if contact of the bar with the wall on the right will occur or not. To do this, we imagine the wall on the right is removed and calculate the displacement at the right end
+
+∆0
+
+=
+
+PL EA
+
+=
+
+(6.0 ×104 )(150) (2.0 ×104 )(250)
+
+=
+
+1.8mm
+
+>
+
+∆
+
+= 1.2mm
+
+Thus, contact occurs and the wall on the right should be accounted for in the analysis. The global FE equation is found to be
+
+1
+
+EA L
+
+−
+
+1
+
+ 0
+
+−1 2 −1
+
+0 − 1 1 
+
+uu12 u3
+
+   
+
+=
+
+FF12 F3
+
+   
+
+The load and boundary conditions are
+
+F2 = P = 6.0 ×104 N
+
+u1 = 0,
+
+u3 = ∆ = 1.2mm
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+27
+
+Lecture Notes: Introduction to the Finite Element Method
+
+FE equation becomes
+
+1
+
+EA L
+
+−
+
+1
+
+ 0
+
+−1 2 −1
+
+0  0 −11u∆2
+
+   
+
+=
+
+  
+
+F1 P
+
+F3
+
+   
+
+The 2nd equation gives
+
+EA [2
+L
+
+−
+
+1]u∆2
+
+  
+
+=
+
+{P}
+
+that is,
+
+EA L
+
+[2]{u2
+
+}=
+
+P 
+
++
+
+EA L
+
+∆ 
+
+Solving this, we obtain
+
+u 2
+
+=
+
+1 2
+
+ 
+
+PL EA
+
++
+
+∆  
+
+= 1.5mm
+
+and
+
+uu12
+
+  
+
+=
+
+0 1.5(mm)
+
+u3  1.2
+
+To calculate the support reaction forces, we apply the 1st and 3rd equations in the global FE equation.
+
+The 1st equation gives
+
+F 1
+
+=
+
+EA L
+
+[1
+
+−1
+
+0]uu12
+u3
+
+   
+
+=
+
+EA L
+
+(−
+
+u2
+
+)
+
+=
+
+−5.0
+
+×104 N
+
+and the 3rd equation gives,
+
+F 3
+
+=
+
+EA [0
+L
+
+−1
+
+1]uu12
+
+  
+
+u3 
+
+=
+
+EA L
+
+(− u2
+
++ u3 )
+
+=
+
+−1.0 ×104
+
+N
+
+Check the results.!
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+28
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Distributed Load
+
+q
+
+i
+
+x
+
+j
+
+fiq
+
+fjq
+
+i
+
+j
+
+Figure 2.3. Conversion of a distributed load on one element.
+
+Distributed axial load q (N/mm, N/m, lb/in) can be converted to two equivalent nodal forces using the shape functions. Consider the work done by the distributed load q,
+
+∫ ∫ [ Wq
+
+=
+
+1 2
+
+L
+u( x )q( x )dx
+0
+
+=
+
+1 2
+
+L
+(Nu)T q(x)dx
+0
+
+=
+
+1 2
+
+ui
+
+∫ = 1 uT L NT q(x)dx
+20
+
+]∫ u j
+
+L 0
+
+  
+
+N N
+
+i j
+
+(x) ( x )q(
+
+x
+
+)dx
+
+(2.22)
+
+The work done by the equivalent nodal forces are
+
+W fq
+
+=
+
+1 2
+
+f i q ui
+
++
+
+1 2
+
+f
+
+q j
+
+u
+
+j
+
+=
+
+1 2
+
+uT
+
+fq
+
+(2.23)
+
+Setting Wq = W fq and using (2.22) and (2.23), we obtain the equivalent nodal force vector
+
+∫ ∫ fq
+
+=
+
+  
+
+f f
+
+q i
+q j
+
+  
+
+=
+
+L 0
+
+NT q(x)dx
+
+=
+
+L 0
+
+  
+
+N N
+
+i j
+
+(x) ( x )
+
+q(
+
+x
+
+)dx
+
+(2.24)
+
+which is valid for any distributions of q. If q is a constant, we have
+
+L 1− x / L qL / 2
+∫ = fq q= 0  x / L  dx qL / 2
+
+(2.25)
+
+In an assembly of bar elements, equivalent forces are added at each node as shown below.
+
+q
+
+1
+
+2
+
+3
+
+qL/2 1
+
+qL
+
+qL/2
+
+2
+
+3
+
+Figure 2.4. Conversion of a distributed load on two elements.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+29
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Bar Elements in 2-D and 3-D Spaces
+
+2-D Case
+
+y
+
+j
+
+x
+
+Y
+
+ui’
+
+θ
+
+i
+
+vi
+
+ui
+
+X
+Figure 2.5. Local and global coordinates for a bar in 2-D space.
+
+Local x, y ui' ,vi' 1 DOF at each node
+
+Global X, Y ui ,vi
+2 DOFs at each node
+
+Note that lateral displacement vi’ does not contribute to the stretch of the bar within the linear theory.
+
+Transformation
+
+ui' = ui cosθ + vi sinθ = [l
+
+m]uvii
+
+  
+
+vi' = −ui sinθ + vi cosθ = [− m
+
+l
+
+]uvii
+
+  
+
+where l = cosθ ,m = sinθ .
+
+In matrix form,
+
+uvii''
+
+  
+
+=
+
+l − m
+
+mui 
+
+l
+
+ 
+
+vi
+
+ 
+
+or, ui' = T~ui
+
+where the transformation matrix
+
+(2.26)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+30
+
+Lecture Notes: Introduction to the Finite Element Method
+
+T~
+
+=
+
+l − m
+
+m
+
+l
+
+ 
+
+is orthogonal, that is, T~ −1 = T~ T .
+
+For the two nodes of the bar element, we have
+
+ui'   l m 0 0 ui 
+
+uvi''j
+
+v
+
+' j
+
+    
+
+=
+
+− m
+
+0
+
+ 
+
+0
+
+l 0 0
+
+0 l −m
+
+0
+
+ 
+
+m
+
+l
+
+ 
+
+ vi u j v j
+
+   
+
+or, u' = Tu
+
+with
+
+T
+
+=
+
+T~
+
+ 
+
+0
+
+0 T~ 
+
+The nodal forces are transformed in the same way,
+
+f ' = Tf
+
+Stiffness Matrix in the 2-D Space In the local coordinate system, we have
+
+EA  1 L −1
+
+−11uu'i'j
+
+
+ 
+
+=
+
+
+ 
+
+fi'
+
+f
+
+' j
+
+
+ 
+
+Augmenting this equation, we write
+
+1
+
+EA
+
+ 
+
+0
+
+L −1
+
+ 
+
+0
+
+0 0 0 0
+
+−1 0 1 0
+
+0 0 0 0
+
+uuvi'i''j
+
+v
+
+' j
+
+     
+
+=
+
+     
+
+fi'
+
+0
+
+f
+
+' j
+
+0
+
+     
+
+or,
+
+k'u' = f '
+
+Using transformations given in (29) and (30), we obtain
+
+k'Tu = Tf Multiplying both sides by TT and noticing that TTT = I, we obtain
+
+TT k'Tu = f
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+(2.27) (2.28) (2.29) (2.30)
+(2.31)
+31
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Thus, the element stiffness matrix k in the global coordinate system is
+
+k = TT k'T
+
+(2.32)
+
+which is a 4×4 symmetric matrix.
+
+Explicit form,
+
+ui
+
+vi
+
+uj
+
+vj
+
+ l 2 lm − l 2 − lm 
+
+k
+
+=
+
+EA
+
+ 
+
+lm
+
+m2
+
+− lm
+
+−
+
+m
+
+2
+
+ 
+
+L  − l 2 − lm l 2 lm 
+
+− lm − m2 lm
+
+m2
+
+ 
+
+(2.33)
+
+Calculation of the directional cosines l and m:
+
+l = cosθ = X j − X i , m = sinθ = Y j − Yi
+
+L
+
+L
+
+The structure stiffness matrix is assembled by using the element stiffness matrices in the usual way as in the 1-D case.
+
+Element Stress
+
+σ
+
+=
+
+Eε
+
+=
+
+EB
+
+uu'i'j
+
+
+ 
+
+=
+
+E −
+
+1 L
+
+ui 
+
+1 l
+
+m
+
+0
+
+0
+
+
+
+vi
+
+ 
+
+L 0
+
+0
+
+l
+
+m
+
+u
+
+j
+
+ 
+
+v j 
+
+That is,
+
+ui 
+
+σ = E [− l
+L
+
+−m
+
+l
+
+m]uvij
+
+   
+
+v j 
+
+(2.34)
+
+which can be used to evaluate the element stress once the nodal displacements are known.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+32
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Example 2.3
+
+3
+45o 2 P2
+
+Y
+
+2 P1
+
+1
+
+45o
+
+1
+
+X
+
+A simple plane truss is made of two identical bars (with E, A, and L), and loaded as shown in the above figure. Find:
+(a) displacement of node 2;
+(b) stress in each bar.
+Solution:
+This simple structure is used here to demonstrate the FEA procedure using the bar element in 2-D space.
+In local coordinate systems, we have
+
+k1'
+
+=
+
+EA L
+
+1 − 1
+
+− 1
+
+1
+
+ 
+
+=
+
+k
+
+' 2
+
+These two matrices cannot be assembled together, because they are in different coordinate systems. We need to convert them to global coordinate system OXY.
+
+Element 1: θ = 45o,
+
+l=m= 2 2
+
+Using formula (2.32) or (2.33), we obtain the stiffness matrix in the global system
+
+u1 v1 u2 v2
+
+ 1 1 − 1 − 1
+
+k 1
+
+=
+
+T1T k1' T1
+
+=
+
+EA 2L
+
+ 
+
+1
+
+− 1
+
+1 −1
+
+−1 1
+
+− 1 1
+
+− 1 − 1 1
+
+1
+
+ 
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+33
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Element 2: θ = 135o,
+
+l = − 2 ,m = 2
+
+2
+
+2
+
+u2 v2 u3 v3
+
+ 1 −1 −1 1 
+
+k 2
+
+=
+
+T2T
+
+k
+
+' 2
+
+T2
+
+=
+
+EA 2L
+
+− 1 − 1
+
+1 1
+
+1 − 1 1 − 1
+
+ 
+
+1
+
+−1 −1
+
+1
+
+ 
+
+Assemble the structure FE equation,
+
+u1 v1 u2 v2 u3 v3
+
+ 1 1 − 1 − 1 0 0 u1   F1X 
+
+ 
+
+1
+
+1 −1 −1 0
+
+0
+
+ 
+
+ 
+
+v1
+
+ 
+
+ 
+
+F1Y
+
+ 
+
+EA − 1 − 1 2 2L − 1 − 1 0
+
+0 2
+
+−1 1
+
+1 − 1
+
+uv22
+
+ 
+
+
+=
+
+ 
+
+
+F2 X F2Y
+
+ 
+
+
+0
+
+ 
+
+0
+
+0 0
+
+−1 1
+
+1 −1
+
+1 −1
+
+− 1
+
+1
+
+ 
+
+u3 v3
+
+  
+
+ 
+
+F3 X
+
+ 
+
+ F3Y 
+
+Load and boundary conditions (BC):
+
+u1 = v1 = u3 = v3 = 0, F2 X = P1, F2Y = P2 Condensed FE equation,
+
+EA 2 2L 0
+
+0 2
+
+uv22
+
+  
+
+=
+
+PP12
+
+  
+
+Solving this, we obtain the displacement of node 2,
+
+uv22
+
+  
+
+=
+
+L EA
+
+  
+
+P1 P2
+
+  
+
+Using formula (2.34), we calculate the stresses in the two bars,
+
+0
+
+σ 1
+
+=
+
+E L
+
+2 [−1
+2
+
+−1
+
+1
+
+1] L
+EA
+
+ 0 
+
+ 
+
+P1
+
+ 
+
+=
+
+2 2A
+
+(P1
+
++
+
+P2
+
+)
+
+P2 
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+34
+
+Lecture Notes: Introduction to the Finite Element Method
+
+P1 
+
+σ 2
+
+=
+
+E L
+
+2 [1
+2
+
+−1
+
+−1
+
+1] L
+EA
+
+P02
+
+= 
+
+2 2A
+
+(P1
+
+−
+
+P2
+
+)
+
+ 0 
+
+Check the results:
+
+Check the equilibrium conditions, symmetry, antisymmetry, etc.
+
+Example 2.4 (Multipoint Constraint)
+P 2
+
+y’ x’
+3 2
+
+L 1Y
+
+3
+
+1
+
+45o
+
+X
+
+For the plane truss shown above,
+
+P = 1000 kN, L = 1m, E = 210GPa,
+
+A = 6.0 ×10−4 m2
+
+for elements1and 2,
+
+A = 6 2 ×10−4 m2 for element 3.
+
+Determine the displacements and reaction forces.
+
+Solution:
+
+We have an inclined roller at node 3, which needs special attention in the FE solution. We first assemble the global FE equation for the truss.
+
+Element 1: θ = 90o,
+
+l = 0, m = 1
+
+u 1
+
+0
+
+k1
+
+=
+
+(210
+
+× 109
+
+)(6.0 1
+
+× 10−4
+
+)
+
+0 0
+
+0
+
+v1 u2 00 10 00 −1 0
+
+v2
+
+0
+
+− 1 (N/m) 0
+
+1
+
+ 
+
+Element 2: θ = 0o , l = 1,m = 0
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+35
+
+Lecture Notes: Introduction to the Finite Element Method
+
+u2 v2 u3 v3
+
+ 1 0 − 1 0
+
+k2
+
+=
+
+(210 ×109 )(6.0 ×10−4 ) 1
+
+ 
+
+0
+
+− 1
+
+0 0
+
+0 1
+
+0 (N/m) 0
+
+ 
+
+0
+
+0
+
+0
+
+0
+
+Element 3: θ = 45o,
+
+l = 1 ,m = 1
+
+2
+
+2
+
+u 1
+
+ 0.5
+
+k3
+
+=
+
+(210 ×109 )(6 2
+
+2
+
+× 10−4 )
+
+ 
+
+0.5
+
+− 0.5
+
+− 0.5
+
+v1 0.5 0.5 − 0.5 − 0.5
+
+u3 − 0.5 − 0.5 0.5 0.5
+
+v3
+
+− 0.5
+
+− 0.5 (N/m) 0.5 
+
+0.5
+
+ 
+
+The global FE equation is,
+
+ 0.5 0.5 0 0 − 0.5 − 0.5u1   F1X 
+
+ 
+
+1.5
+
+0
+
+−1
+
+− 0.5
+
+−
+
+0.5
+
+ 
+
+v1
+
+ 
+
+ 
+
+F1Y
+
+ 
+
+1260
+
+×
+
+105
+
+ 
+
+
+
+1 0 −1 10
+
+0 0
+
+  
+
+uv22
+
+ 
+
+
+=
+
+FF22YX
+
+ 
+
+
+ Sym.
+
+1.5
+
+0.5 0.5
+
+  
+
+u3 v3
+
+  
+
+ 
+
+F3
+
+X
+
+ 
+
+ F3Y 
+
+Load and boundary conditions (BCs):
+
+u1 = v1 = v2 = 0,and v3' = 0,
+
+F2 X = P,
+
+F3x' = 0.
+
+From the transformation relation and the BC, we have
+
+v 3'
+
+=
+
+ −
+
+
+
+2 2
+
+2 2
+
+  
+
+u3 v3
+
+  
+
+=
+
+2 2
+
+(−u3
+
++
+
+v3
+
+)
+
+=
+
+0,
+
+that is,
+
+u3 − v3 = 0 This is a multipoint constraint (MPC).
+Similarly, we have a relation for the force at node 3,
+
+F3 x '
+
+ =
+
+
+2 2
+
+2 2
+
+  
+
+FF33YX
+
+  
+
+=
+
+2 2
+
+( F3 X
+
++
+
+F3Y
+
+)
+
+=
+
+0,
+
+that is,
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+36
+
+Lecture Notes: Introduction to the Finite Element Method
+
+F3X + F3Y = 0
+Applying the load and BC’s in the structure FE equation by “deleting” the 1st, 2nd and 4th rows and columns, we have
+
+1 1260 ×105 −1
+ 0
+
+−1 1.5 0.5
+
+0 0.5 0.5
+
+uu23 v3
+
+   
+
+=
+
+P  F3 X  F3Y
+
+   
+
+Further, from the MPC and the force relation at node 3, the equation becomes,
+
+1 1260 ×105 −1
+ 0
+
+−1 1.5 0.5
+
+0 0.5 0.5
+
+uu23 u3
+
+   
+
+=
+
+P
+
+ 
+
+F3 X
+
+− F3X
+
+   
+
+which is
+
+1 1260 ×105 − 1
+ 0
+
+− 1
+
+P
+
+2 1
+
+  
+
+uu23
+
+  
+
+=
+
+ 
+
+F3 X
+
+− F3X
+
+  
+
+The 3rd equation yields, F3X = −1260 ×105 u3
+Substituting this into the 2nd equation and rearranging, we have
+
+1260
+
+×
+
+105
+
+1 − 1
+
+− 1
+
+3
+
+ 
+
+uu23
+
+  
+
+=
+
+  
+
+P 0
+
+  
+
+Solving this, we obtain the displacements,
+
+uu23
+
+  
+
+=
+
+1 2520 ×105
+
+3P
+
+ 
+
+P
+
+ 
+
+=
+
+ 0.01191  0.003968(m)
+
+From the global FE equation, we can calculate the reaction forces,
+
+F1X 
+
+0
+
+  
+
+F1Y F2Y
+
+  
+
+=
+
+1260
+
+× 105
+
+  
+
+0 0
+
+ F3 X
+
+ 
+
+− 1
+
+ F3Y 
+
+ 0
+
+− 0.5 − 0.5
+0 1.5 0.5
+
+− 0.5
+
+− 500
+
+−
+
+0.5 0
+
+uu23
+
+  
+
+=
+
+−05.000(kN)
+
+0.5
+
+ 
+
+
+
+v3
+
+
+
+− 500
+
+0.5 
+
+ 500 
+
+Check the results! A general multipoint constraint (MPC) can be described as,
+
+∑ Ajuj = 0
+j
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+37
+
+Lecture Notes: Introduction to the Finite Element Method
+
+where Aj’s are constants and uj’s are nodal displacement components. In FE software, users only need to specify this relation to the software. The software will take care of the solution process.
+
+3-D Case
+
+y Y
+
+x
+
+j
+
+i z
+X
+
+Z
+Figure 2.6. Local and global coordinates for a bar in 3-D space.
+
+Local x, y, z ui',vi' ,wi' 1 DOF at each node
+
+Global X, Y, Z ui,vi ,wi 3 DOFs at each node
+
+Element stiffness matrices are calculated in the local coordinate systems and then transformed into the global coordinate system (X, Y, Z) where they are assembled. The transformation relation is
+
+  
+
+ui' vi'
+
+wi'
+
+    
+
+=
+
+ lX mX  nX
+
+lY mY nY
+
+lZ mZ nZ
+
+   
+
+  
+
+ui vi
+
+wi
+
+   
+
+(2.35)
+
+where (lX , lY , lZ ), (mX , mY , mZ ) and (nX , nY , nZ ) are the direction cosines of the local x, y and z coordinate axis in the global coordinate system, respectively. FEM software packages will do this transformation automatically.
+
+Input data for bar elements:
+• (X, Y, Z) for each node
+• E and A for each element (Length L can be computed from the coordinates of the two nodes)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+38
+
+Lecture Notes: Introduction to the Finite Element Method
+
+III. Beam Element
+
+Simple Plane Beam Element y
+
+vi, Fi
+
+vj, Fj
+
+i θi, Mi
+
+E,I L
+
+j x
+θj, Mj
+
+Figure 2.7. Notion for a simple beam element in 2-D.
+
+L, I, E v = v(x)
+
+length, moment of inertia of the cross-sectional area and elastic modulus deflection (lateral displacement) of the neutral axis of the beam
+
+θ = dv dx
+Q = Q(x)
+
+rotation of the beam about the z-axis (internal) shear force
+
+M = M (x) (internal) bending moment about z-axis
+
+Fi , M i , Fj , M j applied (external) lateral forces and moments at node i and j, respectively
+
+Elementary Beam Theory:
+
+We have the following results from the simple beam theory
+
+EI
+
+d 2v dx 2
+
+=
+
+M (x)
+
+(2.36)
+
+dM = Q(x), dQ = q(x)
+
+dx
+
+dx
+
+(2.37)
+
+where q(x) is the distributed load in the lateral direction. Combining (2.36) and (2.37), we have
+
+EI
+
+d 4v dx 4
+
+=
+
+q( x)
+
+(2.38)
+
+Bending stress in the beam is given by
+
+σ = − My I
+
+(2.39)
+
+Simple beam theory and thus the simple beam elements are valid for “long” slender beams, for example, for beams with aspect ratios (length/height) larger than 10.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+39
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Direct Method
+
+We first apply the direct method to establish the beam stiffness matrix using the results from elementary beam theory. The FE equation for a beam takes the form
+
+k11 k12 k13 k14  vi   Fi 
+
+k21 k31 k41
+
+k 22 k32 k 42
+
+k 23 k33 k 43
+
+k 24 k34 k 44
+
+    
+
+θ v θ
+
+i j j
+
+    
+
+=
+
+ 
+
+M
+
+i
+
+ 
+
+F
+
+j
+
+M j
+
+    
+
+Recall that each column in the stiffness matrix represents the forces needed to keep the structure in a special deformed shape. For example, the first column represents the forces/moments to keep the shape with vi = 1, θi = v j = θ j = 0 as shown in Figure 2.8 (a). Thus, using the results
+from strength of materials for a cantilever beam with a force k11 and moment k21 applied at the free end, we have
+
+vi
+
+=
+
+k11L3 3EI
+
+−
+
+k21L2 2EI
+
+=1
+
+and
+
+θ i
+
+=
+
+−
+
+k11L2 2EI
+
++
+
+k21L EI
+
+=
+
+0
+
+Solving this system of equations, we obtain k11 and k21 . Using the equilibrium conditions of the beam, we obtain k31 and k41 , and thus the first column of the stiffness matrix.
+
+1
+
+0.15
+
+1
+
+0
+
+0
+
+0.5
+
+1
+
+0.1 -0.05
+
+0.5
+
+0.5
+
+0.05 -0.1
+
+0
+
+0
+
+0
+
+0
+
+0.5
+
+1
+
+0
+
+0.5
+
+1
+
+0
+
+0.5
+
+1
+
+-0.15
+
+(a) N1(x)
+
+(b) N2 (x)
+
+(c) N3 (x)
+
+(d) N4 (x)
+
+Figure 2.8. The shape of the shape function for the simple beam element.
+
+Element stiffness equation (local node: i, j or 1, 2):
+
+ 12 6L − 12 6L vi   Fi 
+
+EI
+
+ 
+
+6L
+
+L3 − 12
+
+ 
+
+6L
+
+4L2 − 6L 2L2
+
+− 6L 12 − 6L
+
+2L2
+
+ 
+
+− 6L
+
+4L2
+
+ 
+
+θi v j θ j
+
+    
+
+=
+
+ 
+
+M
+
+i
+
+ 
+
+F
+
+j
+
+M j
+
+    
+
+(2.40)
+
+Formal Approach To derive the stiffness matrix in (2.40), we introduce four shape functions (Figure 2.8),
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+40
+
+Lecture Notes: Introduction to the Finite Element Method
+
+N1( x) = 1 − 3x2 / L2 + 2x3 / L3 N2 ( x) = x − 2x2 / L + x3 / L2 N3 ( x) = 3x2 / L2 − 2x3 / L3 N 4 ( x) = −x2 / L + x3 / L2
+Then, we can represent the deflection as,
+
+(2.41)
+
+v(x) = Nu = [N1(x)
+
+N 2 ( x)
+
+N3(x)
+
+vi 
+
+N
+
+4
+
+(
+
+x
+
+)]θv ij
+
+   
+
+θ j 
+
+(2.42)
+
+which is a cubic function. Notice that,
+
+N1 + N3 = 1 N2 + N3L + N4 = x
+
+which implies that the rigid-body motion is represented correctly by the assumed deformed shape of the beam.
+
+Curvature of the beam is,
+
+d 2v dx 2
+
+=
+
+d2 dx 2
+
+Nu
+
+=
+
+Bu
+
+(2.43)
+
+where the strain-displacement matrix B is given by,
+
+[ ] B =
+
+d2 dx 2
+
+N=
+
+N1" ( x)
+
+N
+
+" 2
+
+(
+
+x)
+
+N
+
+" 3
+
+(
+
+x
+
+)
+
+N
+
+" 4
+
+(
+
+x
+
+)
+
+=
+
+−
+
+6 L2
+
++
+
+12 x L3
+
+−
+
+4 L
+
++
+
+6x L2
+
+6 L2
+
+−
+
+12 x L3
+
+−
+
+2 L
+
++
+
+6x L2 
+
+(2.44)
+
+Strain energy stored in the beam element is
+
+∫ ∫ ∫ ∫ U = 1
+
+σ T εdV = 1 L
+
+ −
+
+T
+My  
+
+1
+
+ − My dAdx =
+
+1 LMT
+
+1 Mdx
+
+2V
+
+2 0 A I  E  I 
+
+2 0 EI
+
+∫ ∫ =
+
+1 2
+
+L 0
+
+
+
+d 2v dx 2
+
+T
+  
+
+EI 
+
+d 2v dx 2
+
+dx
+
+=
+
+1 2
+
+L 0
+
+(Bu)T
+
+EI (Bu)dx
+
+∫ =
+
+1 2
+
+uT
+
+
+
+L 0
+
+BT EIBdx u 
+
+We conclude that the stiffness matrix for the simple beam element is
+
+L
+k = ∫ BT EIBdx
+0
+
+(2.45)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+41
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Applying the result in (2.44) and carrying out the integration, we arrive at the same stiffness matrix as given in (2.40).
+
+Combining the axial stiffness (from the bar element), we obtain the stiffness matrix of a general 2-D beam element,
+
+ui
+
+ EA
+
+ 
+
+L
+
+0
+
+
+
+k
+
+=
+
+   − 
+
+0 EA L
+
+0
+
+
+
+ 
+
+0
+
+vi
+
+0
+
+12EI
+L3 6EI
+L2
+
+0
+
+−
+
+12EI L3
+
+6EI
+
+L2
+
+θ i
+
+0
+
+6EI L2 4EI
+L
+
+0
+
+−
+
+6EI L2
+
+2EI
+
+L
+
+uj − EA
+L 0
+0 EA L 0
+0
+
+vj
+
+0
+
+−
+
+12EI L3
+
+−
+
+6EI L2
+
+0
+
+12EI
+
+L3
+
+−
+
+6EI L2
+
+θj
+
+0
+
+ 
+
+6EI 
+
+L2
+
+ 
+
+2EI 
+
+L
+
+ 0
+
+−
+
+6EI L2
+
+  
+
+4EI 
+
+L 
+
+(2.46)
+
+3-D Beam Element
+The element stiffness matrix is formed in the local (2-D) coordinate system first and then transformed into the global (3-D) coordinate system to be assembled. Details for 3-D beam elements can be found in the references listed at the end of the lecture notes.
+
+Example 2.5
+
+Y
+
+P
+
+M
+
+1
+
+2
+
+1
+
+E,I 2
+
+3X
+
+L
+
+L
+
+Given: Find: Solution:
+
+The beam shown above is clamped at the two ends and acted upon by the force P and moment M in the mid-span.
+The deflection and rotation at the center node and the reaction forces and moments at the two ends.
+Element stiffness matrices are
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+42
+
+Lecture Notes: Introduction to the Finite Element Method
+
+v1 θ1
+
+v2 θ2
+
+ 12 6L −12 6L 
+
+k1
+
+=
+
+EI L3
+
+ 
+
+6L
+
+− 12
+
+4L2 − 6L
+
+− 6L 12
+
+2L2
+
+ 
+
+− 6L
+
+ 
+
+6L
+
+2L2
+
+− 6L
+
+4L2
+
+ 
+
+v2 θ2 v3 θ3
+
+ 12 6L −12 6L 
+
+k2
+
+=
+
+EI L3
+
+ 
+
+6L
+
+− 12
+
+4L2 − 6L
+
+− 6L 12
+
+2L2
+
+ 
+
+− 6L
+
+ 
+
+6L
+
+2L2
+
+− 6L
+
+4L2
+
+ 
+
+Global FE equation is
+
+v1
+
+θ 1
+
+v2 θ2
+
+v3 θ3
+
+ 12 6L −12 6L 0
+
+ 
+
+6L
+
+4L2
+
+− 6L 2L2
+
+0
+
+0 v1   F1Y 
+
+0
+
+ 
+
+θ1
+
+ 
+
+ 
+
+M
+
+1
+
+ 
+
+EI −12 − 6L
+
+L3
+
+ 
+
+6L
+
+2L2
+
+24 0
+
+0 8L2
+
+− 12 − 6L
+
+6L 2L2
+
+  
+
+θv22
+
+ 
+
+
+=
+
+FM2Y2
+
+ 
+
+
+0
+
+ 
+
+0
+
+0 0
+
+− 12 6L
+
+− 6L 2L2
+
+12 − 6L
+
+− 6L
+
+4L2
+
+ 
+
+θv33
+
+  
+
+ 
+
+F3Y
+
+ 
+
+M3 
+
+Loads and constraints (BC’s) are
+
+F2Y = −P,
+
+M2 = M,
+
+v1 = v3 = θ1 = θ3 = 0
+
+Reduced FE equation
+
+EI 24 L3  0
+
+0 8L2
+
+ 
+
+θv22
+
+  
+
+=
+
+− P
+
+ 
+
+M
+
+  
+
+Solving this, we obtain
+
+θv22
+
+  
+
+=
+
+L 24EI
+
+− PL2    3M 
+
+From the global FE equation, we obtain the reaction forces and moments
+
+F1Y 
+
+ −12
+
+FM3Y1
+
+  
+
+M 3 
+
+=
+
+EI L3
+
+− 6L
+
+ −12
+
+ 
+
+6L
+
+6L 
+
+2P + 3M / L
+
+2 −
+
+L2
+
+ 
+
+6L
+
+θv22
+
+2L2
+
+ 
+
+  
+
+=
+
+1 4
+
+ PL + M  2P − 3M / L  − PL + M 
+
+Stresses in the beam at the two ends can be calculated using the formula
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+43
+
+Lecture Notes: Introduction to the Finite Element Method
+
+σ
+
+=σx
+
+=
+
+−
+
+My I
+
+Note that the FE solution is exact for this problem according to the simple beam theory, since no distributed load is present between the nodes. Recall that (Eq. (2.38))
+
+EI
+
+d 4v dx 4
+
+=
+
+q( x)
+
+If q(x)=0, then exact solution for the deflection v is a cubic function of x, which is exactly what described by the shape functions given in (2.42).
+
+Equivalent Nodal Loads of Distributed Transverse Load
+q(x)
+
+i
+
+x L
+
+j
+
+Fiq
+
+Fjq
+
+Miq i
+
+j
+
+Mjq
+
+Figure 2.9. Conversion of the distributed lateral load to nodal forces and moments.
+
+To convert a distributed load to nodal forces and moments, we consider again the work done by the distributed load q
+
+∫ ∫ ∫ Wq
+
+=
+
+1 2
+
+L 0
+
+v( x )q( x )dx
+
+=
+
+1 2
+
+L 0
+
+(Nu )T
+
+q( x )dx
+
+=
+
+1 2
+
+uT
+
+L 0
+
+NT q(x)dx
+
+The work done by the equivalent nodal forces (and moments) is
+
+ Fiq 
+
+[ W fq
+
+=
+
+1 2
+
+vi
+
+θ i
+
+vj
+
+]θ j
+
+   
+
+M
+
+q i
+
+F
+
+q j
+
+   
+
+=
+
+1 2
+
+uT fq
+
+
+
+M
+
+q j
+
+
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+44
+
+Lecture Notes: Introduction to the Finite Element Method
+
+By equating Wq = W fq , we obtain the equivalent nodal force vector as
+
+L
+∫ fq = NT q(x)dx
+0
+
+(2.47)
+
+which is valid for arbitrary distributions of q(x) . For constant q, we have the results shown in Figure 2.10 (verify this). An example of this result is given in Figure 2.11.
+
+q
+
+i
+
+x L
+
+j
+
+qL/2
+
+qL/2
+
+qL2/12 i
+
+qL2/12 j
+
+Figure 2.10. Conversion of a constant distributed lateral load to nodal forces and moments.
+
+q
+
+L
+
+L
+
+qL
+
+qL/2
+
+qL2/12
+
+L
+
+L
+
+Figure 2.11. Conversion of a constant distributed lateral load on two beam elements.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+45
+
+Lecture Notes: Introduction to the Finite Element Method
+Example 2.6
+y p
+
+1
+
+E,I
+
+2
+
+x
+
+L
+
+Given: Find:
+Solution:
+
+A cantilever beam with distributed lateral load p as shown above. The deflection and rotation at the right end, the reaction force and moment at the left end. The work-equivalent nodal loads are shown below,
+y f
+m
+
+1
+
+E,I
+
+2
+
+x
+
+L
+
+where
+
+f = pL / 2, m = pL2 / 12
+
+Applying the FE equation, we have
+
+ 12 6L − 12 6L v1  F1Y 
+
+EI
+
+ 
+
+6L
+
+L3 − 12
+
+ 
+
+6L
+
+4L2 − 6L 2L2
+
+− 6L 12 − 6L
+
+2L2
+
+ 
+
+− 6L
+
+4L2
+
+ 
+
+θv21 θ2
+
+   
+
+=
+
+FM2Y1 M 2
+
+   
+
+Load and constraints (BCs) are
+
+F2Y = − f , v1 = θ1 = 0
+Reduced equation is
+
+M2 = m
+
+EI  12 L3 − 6L
+
+− 6L
+
+4L2
+
+ 
+
+θv22
+
+  
+
+=
+
+− f
+
+ 
+
+m
+
+  
+
+Solving this, we obtain
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+46
+
+Lecture Notes: Introduction to the Finite Element Method
+
+θv22
+
+  
+
+=
+
+L 6EI
+
+− 2L2 f   − 3Lf
+
++ 3Lm
+
++ 6m
+
+ 
+
+=
+
+− −
+
+pL4 pL3
+
+/ 8EI 
+
+/
+
+6EI
+
+ 
+
+(A)
+
+These nodal values are the same as the exact solution. Note that the deflection v(x) (for 0 < x< L) in the beam by the FEM is, however, different from that by the exact solution. The exact solution by the simple beam theory is a 4th order polynomial of x, while the FE solution of v is only a 3rd order polynomial of x.
+
+If the equivalent moment m is ignored, we have,
+
+θv22
+
+  
+
+=
+
+L 6EI
+
+− 2L2 f
+
+ 
+
+−
+
+3Lf
+
+  
+
+=
+
+− −
+
+pL4 pL3
+
+/ 6EI 
+
+/
+
+4EI
+
+ 
+
+(B)
+
+The errors in (B) will decrease if more elements are used. The equivalent moment m is often ignored in the FEM applications. The FE solutions still converge as more elements are applied.
+
+From the FE equation, we can calculate the reaction force and moment as,
+
+F1Y 
+
+M
+
+1
+
+ 
+
+=
+
+EI L3
+
+ −12 − 6L
+
+6L 2L2
+
+v2
+
+ 
+
+θ
+
+2
+
+  
+
+=
+
+ 5
+
+pL pL2
+
+/2  / 12
+
+where the result in (A) has been used. This force vector gives the total effective nodal forces which include the equivalent nodal forces for the distributed lateral load p given by,
+
+ − pL / 2  − pL2 / 12
+
+The correct reaction forces can be obtained as follows,
+
+  
+
+F1Y M1
+
+  
+
+=
+
+ 5
+
+pL pL2
+
+/2  / 12
+
+−
+
+ − pL − pL2
+
+/ /
+
+2 12
+
+=
+
+  
+
+pL pL2 /
+
+ 2
+
+Check the results:
+
+Draw the FBD for the FE model (with the equivalent nodal force vector) and the check the equilibrium condition.
+
+pL/2
+
+pL/2
+
+5pL2/12
+
+pL2/12
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+47
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Example 2.7
+
+Y
+
+1
+
+E,I
+
+2 1
+
+L
+
+P
+
+2
+
+3 kX
+
+L
+
+4
+
+Given: P = 50 kN, k = 200 kN/m, L = 3 m, E = 210 GPa, I = 2×10-4 m4.
+
+Find: Deflections, rotations and reaction forces.
+
+Solution:
+
+The beam has a roller (or hinge) support at node 2 and a spring support at node 3. We use two beam elements and one spring element to solve this problem.
+
+The spring stiffness matrix is given by
+
+v3 v4
+
+ k − k
+
+k s = − k
+
+k
+
+ 
+
+Adding this stiffness matrix to the global FE equation (see Example 2.5), we have
+
+v1 θ1 v2
+
+θ2
+
+v3
+
+θ3 v4
+
+12 6L − 12 6L 0
+
+0 0 v1   F1Y 
+
+ 
+
+4L2 − 6L 2L2
+
+0
+
+0
+
+0
+
+ 
+
+θ1
+
+ 
+
+ 
+
+M
+
+1
+
+ 
+
+ EI  L3 
+   
+
+24 Symmetry
+
+0 8L2
+
+− 12 − 6L 12 + k'
+
+6L 2L2 − 6L 4L2
+
+0 0 −k 0 k'
+
+   '   
+
+v2 θ 2 v3 θv43
+
+      
+
+=
+
+ 
+
+F2Y
+
+M 2
+
+ 
+
+F3Y
+
+ 
+
+M3 F4Y
+
+      
+
+in which
+
+k' = L3 k EI
+
+is used to simplify the notation.
+
+We now apply the boundary conditions
+
+v1 = θ1 = v2 = v4 = 0,
+
+M 2 = M 3 = 0,
+
+F3Y = −P
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+48
+
+Lecture Notes: Introduction to the Finite Element Method
+
+‘Deleting’ the first three and seventh equations (rows and columns), we have the following reduced equation
+
+ 8L2
+
+EI L3
+
+− 6L  2L2
+
+− 6L 12 + k' − 6L
+
+2L2  − 6L
+
+θv32
+
+  
+
+=
+
+0 − P
+
+  
+
+4L2 θ3   0 
+
+Solving this equation, we obtain the deflection and rotations at node 2 and node 3,
+
+θ v
+
+2 3
+
+θ 3
+
+   
+
+=
+
+−
+
+PL2 EI (12 +
+
+7k'
+
+)
+
+3 7L  9 
+
+The influence of the spring k is easily seen from this result. Plugging in the given numbers, we can calculate
+
+θ v
+
+2 3
+
+  
+
+=
+
+− 0.002492
+
+ 
+
+− 0.01744
+
+rad m
+
+  
+
+θ 3  − 0.007475rad
+
+From the global FE equation, we obtain the nodal reaction forces as,
+
+F1Y   − 69.78kN 
+
+FM2Y1
+
+  
+
+=
+
+−  
+
+69.78kN ⋅ 116.2 kN
+
+m  
+
+F4Y   3.488kN 
+
+Checking the results: Draw free body diagram of the beam
+
+69.78 kN
+
+50 kN
+
+1
+
+2
+
+3
+
+69.78 kN⋅m
+
+116.2 kN
+
+3.488 kN
+
+Sum the forces and moments to verify that equilibrium of the beam is satisfied.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+49
+
+Lecture Notes: Introduction to the Finite Element Method
+
+FE Analysis of Frame Structures
+Members in a frame are considered to be rigidly connected (for example, welded together). Both forces and moments can be transmitted through their joints. We need the general beam element (combinations of bar and simple beam elements) to model frames.
+
+Example 2.8
+Y
+
+500 lb/ft
+
+3000 lb 1
+
+1
+
+E, I, A 2 3
+
+2
+
+3
+
+8 ft
+
+4
+
+X
+
+12 ft
+
+Given: E = 30 × 106 psi, I = 65 in.4 , A = 6.8in.2
+Find: Displacements and rotations of the two joints 1 and 2. Solution:
+For this example, we first convert the distributed load to its equivalent nodal loads to obtain the following FE mode.
+
+3000 lb 72000 lb-in.
+
+3000 lb
+
+3000 lb 1
+
+1
+
+2 72000 lb-in.
+
+2
+
+3
+
+3
+
+4
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+50
+
+Lecture Notes: Introduction to the Finite Element Method
+
+In local coordinate system, the stiffness matrix for a general 2-D beam element is
+
+ui
+
+ EA
+
+ 
+
+L
+
+0
+
+
+
+k
+
+=
+
+   − 
+
+0 EA L
+
+0
+
+
+
+ 
+
+0
+
+vi
+
+0
+
+12EI
+L3 6EI
+L2
+
+0
+
+−
+
+12EI L3
+
+6EI
+
+L2
+
+θ i
+
+0
+
+6EI L2 4EI
+L
+
+0
+
+−
+
+6EI L2
+
+2EI
+
+L
+
+uj − EA
+L 0
+0 EA L 0
+0
+
+vj
+
+0
+
+−
+
+12EI L3
+
+−
+
+6EI L2
+
+0
+
+12EI
+
+L3
+
+−
+
+6EI L2
+
+θj
+
+0
+
+ 
+
+6EI 
+
+L2
+
+ 
+
+2EI 
+
+L
+
+ 0
+
+−
+
+6EI L2
+
+  
+
+4EI 
+
+L 
+
+Element Connectivity Table
+
+Element 1 2 3
+
+Node i (1) 1 3 4
+
+Node j (2) 2 1 2
+
+For element 1, we have
+
+u 1
+
+ 141.7
+
+ 
+
+0
+
+k1
+
+=
+
+k1'
+
+=
+
+104
+
+×
+
+0 − 141.7
+
+0
+
+ 
+
+0
+
+v1 0 0.784 56.4 0 − 0.784 56.4
+
+θ1 0
+56.4 5417
+0 − 56.4 2708
+
+u2 − 141.7
+0 0 141.7 0 0
+
+v2 0 − 0.784 − 56.4 0 0.784 − 56.4
+
+θ2
+
+0
+
+56.4
+
+ 
+
+2708 
+
+0
+
+ 
+
+− 56.4
+
+5417
+
+ 
+
+For elements 2 and 3, the stiffness matrix in local system is
+
+ui '
+
+ 212.5
+
+ 
+
+0
+
+k2
+
+'
+
+=
+
+k3'
+
+=
+
+104
+
+×
+
+ −
+
+0 212.5
+
+0
+
+ 
+
+0
+
+vi ' 0 2.65 127 0 − 2.65 127
+
+θi ' 0 127 8125 0 − 127 4063
+
+uj' − 212.5
+0 0 212.5 0 0
+
+vj' 0 − 2.65 − 127 0 2.65 − 127
+
+θj'
+
+0
+
+127
+
+ 
+
+4063 
+
+0
+
+ 
+
+− 127
+
+8125
+
+ 
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+51
+
+Lecture Notes: Introduction to the Finite Element Method
+
+where i = 3, j = 1 for element 2, and I = 4, j = 2 for element 3.
+
+The transformation matrix T is
+
+ l m 0 0 0 0
+
+− m l 0 0 0 0
+
+ 0 0 1 0 0 0
+
+T =
+
+ 
+
+0
+
+00
+
+l
+
+m 0
+
+ 0 0 0 − m l 0
+
+ 
+
+0
+
+00
+
+0
+
+0 1
+
+We have l = 0, m = 1 for both elements 2 and 3. Thus,
+
+ 0 1 0 0 0 0
+
+−1 0 0 0 0 0
+
+ 0 0 1 0 0 0
+
+T
+
+=
+
+ 
+
+0
+
+00
+
+0
+
+1 0
+
+ 0 0 0 −1 0 0
+
+ 
+
+0
+
+00
+
+0
+
+0 1
+
+Using the transformation relation
+
+k = TT k' T
+
+we obtain the stiffness matrices in the global coordinate system for elements 2 and 3
+
+u 3
+
+ 2.65
+
+ 
+
+0
+
+k2
+
+= 104
+
+×
+
+ − 127 − 2.65
+
+0
+
+ 
+
+−
+
+127
+
+v3 0 212.5 0 0 − 212.5 0
+
+θ3 − 127
+0 8125 127
+0 4063
+
+u1 − 2.65
+0 127 2.65
+0 127
+
+v1 0 − 212.5 0 0 212.5 0
+
+θ1
+
+− 127
+
+0
+
+ 
+
+4063 
+
+127
+
+ 
+
+0
+
+8125
+
+ 
+
+and
+
+u 4
+
+ 2.65
+
+ 
+
+0
+
+k3
+
+=
+
+104
+
+×
+
+ − 127 − 2.65
+
+0
+
+ 
+
+−
+
+127
+
+v4 0 212.5 0 0 − 212.5 0
+
+θ4 − 127
+0 8125 127
+0 4063
+
+u2 − 2.65
+0 127 2.65
+0 127
+
+v2 0 − 212.5 0 0 212.5 0
+
+θ2
+
+− 127
+
+0
+
+ 
+
+4063 
+
+127
+
+ 
+
+0
+
+8125
+
+ 
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+52
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Assembling the global FE equation and noticing the following boundary conditions u=3 v=3 θ=3 u=4 v=4 θ=4 0 F1X = 3000 lb, F2X = 0, F1Y = F2Y = −3000 lb, M1 = −72000 lb ⋅in., M 2 = 72000 lb ⋅in.
+we obtain the condensed FE equation
+
+ 144.3
+
+ 
+
+0
+
+104
+
+×
+
+ −
+
+127 141.7
+
+0
+
+ 
+
+0
+
+0 213.3 56.4
+0 − 0.784
+56.4
+
+127 56.4 13542
+0 − 56.4 2708
+
+− 141.7 0 0
+144.3 0
+127
+
+0 − 0.784 − 56.4
+0 213.3 − 56.4
+
+0 u1   3000 
+
+56.4
+
+ 
+
+ 
+
+v1
+
+ 
+
+ 
+
+−
+
+3000
+
+ 
+
+2708 127
+
+  
+
+θu12
+
+ 
+
+
+=
+
+−  
+
+72000
+
+0
+
+ 
+
+− 56.4 13542
+
+v θ
+
+2 2
+
+  
+
+ − 3000 
+
+
+
+
+
+ 72000 
+
+Solving this, we obtain
+
+u1   0.092in. 
+
+ 
+
+v1
+
+ 
+
+ 
+
+− 0.00104in.
+
+ 
+
+θu12
+
+ 
+
+
+=
+
+  
+
+− 0.00139rad 0.0901in.
+
+  
+
+θv22
+
+  
+
+ − 0.0018in. 
+
+−
+
+3.88
+
+×
+
+10−
+
+5
+
+rad
+
+ 
+
+To calculate the reaction forces and moments at the two ends, we employ the element FE equations for element 2 and element 3 with known nodal displacement vectors. We obtain
+
+FF33YX
+
+  
+
+=
+
+  
+
+− 672.7lb 2210lb
+
+  
+
+ M3  60364lb ⋅ in.
+
+and
+
+  
+
+F4 X F4Y
+
+  
+
+=
+
+  
+
+− 2338lb 3825lb
+
+  
+
+ M 4  112641lb ⋅ in.
+
+Check the results:
+Draw the free-body diagram of the frame as shown below. Equilibrium is maintained with the calculated forces and moments. Recall that the problem we solved is the one with the equivalent loads, not the one with the distributed load. Thus the corresponding FBD for the FE model should be applied for verifying the results.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+53
+
+Lecture Notes: Introduction to the Finite Element Method
+3000 lb 72000 lb-in. 3000 lb
+
+3000 lb 72000 lb-in.
+
+60364 lb-in.
+
+2210 lb
+
+672.7 lb
+
+112641 lb-in.
+
+3825 lb
+
+2338 lb
+
+IV. Summary
+In this chapter, we studied the bar elements which can be used in truss analysis and the beam elements which are used in frame analysis. The concept of the shape functions is further explored and the derivations of the stiffness matrices using the energy approach are emphasized. Treatment of distributed loads is discussed and several examples are studied.
+
+V. Problems
+
+Problem 1. Problem 2.
+
+Using (2.47) derive the results of the equivalent nodal forces and moments for a beam element with uniformly distributed lateral load.
+
+The plane truss is loaded with force P as shown below. Constants E and A for each bar are as shown in the diagram. Determine:
+
+(a) the nodal displacement;
+
+(b) the reaction forces;
+
+(c) the stresses in bar elements.
+
+Y
+
+L
+
+4
+
+3
+
+E, A
+
+E,2 2A
+
+L
+
+45o
+
+45o
+
+1
+
+2
+
+E, A P
+
+X
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+54
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Problem 3.
+
+The plane truss is loaded with force P as shown below. Constants E and A for each bar are as shown in the diagram. Determine: (a) the nodal displacements, (b) the stresses in each bar elements.
+Y3 P
+
+45o
+
+E,2 2A
+
+L
+
+E, A
+
+1
+
+45o
+
+2
+
+E, A
+
+X
+
+Problem 4.
+
+The plane truss is supported as shown below. The Young’s modulus E is the same for all the bars. The cross-sectional areas are shown in the figure. Suppose that the node 2 settles by an amount of δ as shown. Determine the stresses in each bar element using the FEM.
+
+3 Y
+
+2 2A
+
+A
+
+L
+
+1
+
+A
+
+2
+
+δ L
+
+X
+
+Problem 5.
+
+The cantilever beam is supported by a spring at the end as shown in the figure. Using FEM, determine the deflection and rotation at the node 2.
+Y
+
+E,I
+1 L
+
+P
+2X k
+3
+
+Problem 6.
+
+Determine the nodal displacement, rotations and reaction forces for the propped cantilever beam shown below. The beam is assumed to have constant EI and length 2L. It is supported by a roller at midlength and is built in at the right end.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+55
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Y
+
+P
+
+1
+
+E,I
+
+2
+
+1
+
+2
+
+3
+
+X
+
+L
+
+L
+
+Problem 7.
+
+The 2-D frame is supported as shown in the figure. Constants E, A, I of the beam and the length L are given. Determine the displacement and rotation at node 2.
+Y
+
+M
+
+1
+
+L
+
+2
+
+X
+
+L
+
+3
+
+Problem 8.
+
+The plane frame is subjected to the uniformly distributed load and is fixed at the ends as shown in the figure. Assume E = 30×106 psi, A= 100 in.2 and I = 1000 in.4 for both elements of the frame. Find:
+(a) the displacement and rotation of node 2;
+(b) the reaction forces and moments at both ends.
+
+1000 lb/ft
+
+Y
+
+2
+
+3
+
+40 ft
+
+45o X 1
+30 ft
+
+Problem 9. Using an FEM software package (ANSYS, NASTRAN, or ABAQUS), solve the frame problem in Example 2.8.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+56
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Chapter 3. Two-Dimensional Elasticity Problems
+The finite element method for deformation and stress analyses of two-dimensional (2-D) structural models will be discussed in this chapter. First, the basic equations in elasticity theory (see Refs. [9, 10] for more details) for stress analysis are reviewed. Then several types of 2-D finite elements are introduced. Applications of these elements are demonstrated and their accuracies and efficiencies are discussed.
+
+I. Stress State in Structures
+
+In general, the stresses and strains in a structure consist of six components, that is (Figure 3.1),
+
+σ x ,σ y ,σ z ,τ xy ,τ yz ,τ zx
+
+for stresses,
+
+and
+
+ε x ,ε y ,ε z ,γ xy ,γ yz ,γ zx
+
+for strains.
+
+σy
+
+τ yz
+
+τ xy
+
+y
+
+τ zx
+
+σx
+
+σz
+
+x
+
+z
+
+Figure 3.1. Stress components at a point in a structure.
+
+Under certain conditions, the state of stresses and strains can be simplified. A general 3-D structure analysis can, therefore, be reduced to a 2-D analysis.
+
+II. 2-D (Plane) Elasticity Problems
+
+Plane stress
+
+In the plane stress case, any stress component related to the z direction is zero, that is,
+
+σ z =τ yz =τ zx = 0
+
+(ε z ≠ 0)
+
+(3.1)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+57
+
+Lecture Notes: Introduction to the Finite Element Method
+
+A thin planar structure with constant thickness and loading within the plane of the structure (xyplane) can be regarded as a plane stress case (Figure 3.2).
+
+y
+
+y
+
+p
+x z
+
+Figure 3.2. An example of a plane stress case.
+
+Plane strain
+
+In the plane strain case, any strain component related to the z direction is zero, that is,
+
+ε z =γ yz =γ zx = 0
+
+(σ z ≠ 0)
+
+(3.2)
+
+A long structure with a uniform cross section and transverse loading along its length (zdirection), such as a tunnel, can be regarded as a plane strain case (Figure 3.3).
+
+y
+
+y
+
+p
+xz
+
+Figure 3.3. An example of a plane strain case.
+
+Stress-Strain-Temperature (Constitutive) Relations
+For elastic and isotropic materials, we have the following stress-strain relation for 2-D cases
+
+  
+
+ε ε
+
+x y
+
+γ xy
+
+    
+
+=
+
+ 1/ E −ν / E  0
+
+−ν / E 1/ E
+0
+
+1
+
+0 0 /G
+
+   
+
+σ σ
+
+x y
+
+τ xy
+
+    
+
++
+
+ε
+
+ 
+
+ε
+
+γ
+
+x0 y0 xy 0
+
+    
+
+(3.3)
+
+or,
+
+ε = E−1σ + ε0
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+58
+
+Lecture Notes: Introduction to the Finite Element Method
+
+where ε0 is the initial strain (for example, due to a temperature change), E the Young’s modulus, ν the Poisson’s ratio and G the shear modulus. Note that
+
+G= E
+
+(3.4)
+
+2(1 +ν )
+
+which means that there are only two independent materials constants for homogeneous and isotropic materials.
+We can also express stresses in terms of strains by solving the above equation
+
+σ σ
+
+x y
+
+  
+
+τ
+
+xy
+
+ 
+
+=
+
+E 1−ν 2
+
+1 ν 0
+
+ν 1 0
+
+(1
+
+−
+
+0 0 ν
+
+)
+
+/
+
+2
+
+  
+
+ε ε
+
+x y
+
+γ xy
+
+    
+
+−
+
+  
+
+ε ε
+
+x0 y0
+
+γ xy0
+
+    
+
+  
+
+(3.5)
+
+or,
+
+σ = Eε + σ0
+
+where σ 0 = −Eε 0 is the initial stress.
+
+The above relations are valid for plane stress case. For plane strain case, we need to replace the material constants in the above equations in the following fashion
+
+E
+
+→
+
+E 1−ν
+
+2
+
+;
+
+ν→ ν ; 1−ν
+
+G→G
+
+(3.6)
+
+For example, the stress is related to strain by
+
+σ σ
+
+x y
+
+τ xy
+
+    
+
+=
+
+(1 +ν
+
+E )(1 −
+
+2ν
+
+)
+
+1 −ν
+
+ 
+
+ν
+
+ 0
+
+ν 1−ν
+0
+
+(1
+
+−
+
+0 0 2ν
+
+)
+
+/
+
+2
+
+ε
+
+ 
+
+ε
+
+γ
+
+x y xy
+
+    
+
+−
+
+ε
+
+ 
+
+ε
+
+γ
+
+x0 y0 xy 0
+
+    
+
+  
+
+in the plane strain case.
+Initial strain due to a temperature change (thermal loading) is given by the following for the plane stress case
+
+  
+
+ε ε
+
+x0 y0
+
+  
+
+=
+
+α∆T α∆T
+
+  
+
+γ
+
+xy
+
+0
+
+ 
+
+ 0 
+
+(3.7)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+59
+
+Lecture Notes: Introduction to the Finite Element Method
+
+where α is the coefficient of thermal expansion, ∆T the change of temperature. For the plane strain case, α should be replaced by (1 +ν )α in (3.7). Note that if the structure is free to deform
+under thermal loading, there will be no (elastic) stresses in the structure.
+
+Strain and Displacement Relations For small strains and small rotations, we have,
+
+εx
+
+=
+
+∂u , ∂x
+
+εy
+
+=
+
+∂v ∂y
+
+,
+
+γ xy
+
+=
+
+∂u ∂y
+
++
+
+∂v ∂x
+
+In matrix form, we write
+
+  
+
+ε ε
+
+x y
+
+γ xy
+
+    
+
+=
+
+∂
+
+ ∂
+
+/ ∂x 0 / ∂y
+
+0
+
+∂ ∂
+
+//∂∂yxuv ,
+
+or ε = Du
+
+(3.8)
+
+From this relation, we know that the strains (and thus stresses) are one order lower than the displacements, if the displacements are represented by polynomials.
+
+Equilibrium Equations
+In elasticity theory, the stresses in the structure must satisfy the following equilibrium equations
+
+∂σ x ∂x
+
++
+
+∂τ xy ∂y
+
++
+
+fx
+
+=
+
+0
+
+∂τ xy ∂x
+
++
+
+∂σ y ∂y
+
++
+
+fy
+
+=
+
+0
+
+(3.9)
+
+where fx and fy are body forces per unit volume (such as gravity forces). In the FEM, these equilibrium conditions are satisfied in an approximate sense.
+Boundary Conditions
+
+p y
+
+ty tx
+
+St
+Su x
+
+Figure 3.4. Boundary conditions for a structure.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+60
+
+Lecture Notes: Introduction to the Finite Element Method
+
+The boundary S of the body can be divided into two parts, Su and St (Figure 3.4). The boundary conditions (BCs) can be described as
+
+u = u, v = v, tx = tx, ty = ty,
+
+on Su on St
+
+(3.10)
+
+in which tx and ty are tractions (stresses on the boundary) and the barred quantities are those with known values. In the FEM, all types of loads (distributed surface loads, body forces, concentrated forces and moments, etc.) are converted to point forces acting at the nodes.
+
+Exact Elasticity Solution
+The exact solution (displacements, strains and stresses) of a given problem must satisfy the equilibrium equations (9), the given boundary conditions (10) and compatibility conditions (structures should deform in a continuous manner, no cracks or overlaps in the obtained displacement fields).
+
+Example 3.1 y
+
+p
+
+x
+
+A plate is supported and loaded with distributed force p as shown in the figure. The material constants are E and ν.
+
+The exact solution for this simple problem can be found easily as follows.
+
+Displacement:
+
+u = p x, E
+
+v = −ν p y E
+
+Strain:
+
+ε x
+
+=
+
+p E
+
+,
+
+εy
+
+=
+
+−ν
+
+p E
+
+,
+
+γ xy = 0
+
+Stress:
+
+σ x = p,
+
+σ y = 0,
+
+τ xy = 0
+
+Exact (or analytical) solutions for simple problems are numbered (suppose there is a hole in the plate or the roller support are replaced by clamped ones!). That is why we need the FEM!
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+61
+
+Lecture Notes: Introduction to the Finite Element Method
+
+III. Finite Elements for 2-D Problems
+
+A General Formula for the Stiffness Matrix
+Displacements (u, v) in a plane element are interpolated from nodal displacements (ui, vi) using shape functions Ni as follows,
+
+u1 
+
+u v
+
+  
+
+=
+
+  
+
+N1 0
+
+0 N1
+
+N2 0
+
+0 N2
+
+ 
+
+uv12
+
+  
+
+or
+
+
+
+v2
+
+ 
+
+  
+
+u = Nd
+
+(3.11)
+
+where N is the shape function matrix, u the displacement vector and d the nodal displacement vector. Here we have assumed that u depends on the nodal values of u only, and v on nodal values of v only.
+
+From strain-displacement relation (Eq.(3.8)), the strain vector is,
+
+ε = Du = DNd,
+
+or
+
+ε = Bd
+
+(3.12)
+
+where B = DN is the strain-displacement matrix.
+
+Consider the strain energy stored in an element,
+
+∫ ∫ ( ) U
+
+=
+
+1 σ T ε dV 2V
+
+=
+
+1 2V
+
+σ xε x
+
++ σ yε y
+
++ τ xyγ xy
+
+dV
+
+∫ ∫ ∫ = 1 (Eε )T ε dV = 1 ε T Eε dV = 1 dT BT EBdVd
+
+2V
+
+2V
+
+2V
+
+= 1 dT kd 2
+
+From this, we obtain the general formula for the element stiffness matrix
+
+k = ∫ BT EBdV
+V
+
+(3.13)
+
+Note that unlike the 1-D cases, E here is a matrix which is given by the stress-strain relation (e.g., Eq.(3.5) for plane stress).
+
+The stiffness matrix k defined by (3.13) is symmetric since E is symmetric. Also note that given the material property, the behavior of k depends on the B matrix only, which in turn on the shape functions. Thus, the quality of finite elements in representing the behavior of a structure is mainly determined by the choice of shape functions. Most commonly employed 2-D elements are linear or quadratic triangles and quadrilaterals.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+62
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Constant Strain Triangle (CST or T3)
+This is the simplest 2-D element (Figure 3.5), which is also called linear triangular element.
+
+v3
+
+3
+
+(x3, y3)
+
+u3
+
+v
+
+v1 (x, y) u
+
+y
+
+1 (x1, y1)
+
+u1
+
+x
+
+v2
+2 u2
+(x2, y2)
+
+Figure 3.5. Linear triangular element (T3).
+
+For this element, we have three nodes at the vertices of the triangle, which are numbered around the element in the counterclockwise direction. Each node has two degrees of freedom (can move in the x and y directions). The displacements u and v are assumed to be linear functions within the element, that is,
+
+u = b1 + b2 x + b3 y, v = b4 + b5 x + b6 y
+
+(3.14)
+
+where bi (i = 1, 2, ..., 6) are constants. From these, the strains are found to be,
+
+ε x = b2 ,
+
+ε y = b6 ,
+
+γ xy = b3 + b5
+
+(3.15)
+
+which are constant throughout the element. Thus, we have the name “constant strain triangle” (CST).
+
+Displacements given by (3.14) should satisfy the following six equations
+
+u1 = b1 + b2 x1 + b3 y1 u2 = b1 + b2 x2 + b3 y2
+ v3 = b4 + b5 x3 + b6 y3
+
+Solving these equations, we can find the coefficients b1, b2, ..., and b6 in terms of nodal displacements and coordinates. Substituting these coefficients into (3.14) and rearranging the terms, we obtain
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+63
+
+Lecture Notes: Introduction to the Finite Element Method
+
+u1 
+
+ 
+
+v1
+
+ 
+
+u 
+
+v
+
+ 
+
+=
+
+N1
+
+ 
+
+0
+
+0 N1
+
+N2 0
+
+0 N2
+
+N3 0
+
+0 N3
+
+  
+
+uv22
+
+ 
+
+
+u3
+
+ 
+
+v3 
+
+(3.16)
+
+where the shape functions (linear functions in x and y) are
+
+N1
+
+=
+
+1 2A
+
+{(
+
+x2
+
+y3
+
+−
+
+x3
+
+y2
+
+)
+
++
+
+(
+
+y2
+
+−
+
+y3 ) x
+
++
+
+( x3
+
+−
+
+x2 ) y}
+
+N2
+
+=
+
+1 2A
+
+{(
+
+x3
+
+y1
+
+−
+
+x1 y3 )
+
++
+
+(
+
+y3
+
+−
+
+y1 ) x
+
++
+
+( x1
+
+−
+
+x3) y}
+
+N3
+
+=
+
+1 2A
+
+{(
+
+x1
+
+y2
+
+−
+
+x2
+
+y1 )
+
++
+
+(
+
+y1
+
+−
+
+y2
+
+)x
+
++
+
+( x2
+
+−
+
+x1 )
+
+y}
+
+(3.17)
+
+and
+
+1
+
+A
+
+=
+
+1 2
+
+det 1
+
+x1 x2
+
+y1 
+
+y2
+
+ 
+
+1 x3 y3 
+
+(3.18)
+
+is the area of the triangle (Prove this!).
+
+Using the strain-displacement relation (3.8), results (3.16) and (3.17), we have
+
+u1 
+
+  
+
+ε ε
+
+x y
+
+γ xy
+
+    
+
+=
+
+Bd
+
+=
+
+1 2A
+
+   
+
+y23 0 x32
+
+0 x32 y23
+
+y31 0 x13
+
+0 x13 y31
+
+y12 0 x21
+
+0
+
+
+
+ 
+
+v1
+
+ 
+
+x21 y12
+
+  
+
+uv22 u3
+
+  
+
+
+
+v3 
+
+(3.19)
+
+where xij = xi - xj and yij = yi - yj (i, j = 1, 2, 3). Again, we see constant strains within the element. From stress-strain relation (Eq.( 3.5), for example), we see that stresses obtained using the CST element are also constant.
+
+Applying formula (3.13), we obtain the element stiffness matrix for the CST element
+
+∫ k = BT EBdV = tA(BT EB)
+V
+
+(3.20)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+64
+
+Lecture Notes: Introduction to the Finite Element Method
+
+in which t is the thickness of the element. Notice that k for CST is a 6 by 6 symmetric matrix.
+
+Both the expressions of the shape functions in (3.17) and their derivations are lengthy and offer little insight into the behavior of the element.
+
+η=0
+
+ξ=0 3
+ξ=a
+
+η=b η=1
+
+ξ=1 1
+
+(a, b) 2
+
+Figure 3.6. The natural coordinate system defined on the triangle.
+
+We introduce the natural coordinates (ξ ,η) on the triangle (Figure 3.6). Then the shape functions can be represented simply by
+
+N1 = ξ, N2 =η, N3 = 1−ξ −η
+
+(3.21)
+
+Notice that,
+
+N1 + N2 + N3 = 1
+
+(3.22)
+
+which ensures that the rigid-body translation is represented by the chosen shape functions. Also, as in the 1-D case,
+
+ 1, Ni = 0,
+
+at node i; at the other nodes
+
+(3.23)
+
+and varies linearly within the element. The plot for shape function N1 is shown in Figure 3.7. N2 and N3 have similar features.
+
+ξ=0 3
+N1
+ξ=1 1 2 1
+
+Figure 3.7. Plot of the shape function N1 for T3 element.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+65
+
+Lecture Notes: Introduction to the Finite Element Method
+
+We have two coordinate systems for the element: the global coordinates (x, y) and the natural (local) coordinates (ξ ,η) . The relation between the two is given by
+
+x = N1x1 + N 2 x2 + N 3 x3 y = N1 y1 + N 2 y2 + N 3 y3
+
+(3.24)
+
+or,
+
+x = x13ξ + x23η + x3 y = y13ξ + y23η + y3
+
+(3.25)
+
+where xij = xi - xj and yij = yi - yj (i, j = 1, 2, 3) as defined earlier.
+Displacement u or v on the element can be viewed as functions of (x, y) or (ξ ,η) . Using the chain rule for derivatives, we have,
+
+∂u  ∂ x
+
+∂ ∂
+
+ξ u
+
+  
+
+=
+
+  
+
+∂ ∂
+
+ξ x
+
+∂η  ∂η
+
+∂ y∂ u  ∂ u 
+
+∂ ∂
+
+ξ y
+
+  ∂∂
+
+x u
+
+  
+
+=
+
+J
+
+  
+
+∂ ∂
+
+x u
+
+  
+
+∂η ∂ y  ∂ y 
+
+(3.26)
+
+where J is called the Jacobian matrix of the transformation.
+
+From (3.25), we calculate
+
+J
+
+=
+
+ x13
+
+ 
+
+x23
+
+y13 y23
+
+, 
+
+J −1
+
+=
+
+1 2A
+
+ y23 − x23
+
+− y13 
+
+x13
+
+ 
+
+(3.27)
+
+where det J = x13 y23 − x23 y13 = 2 A has been used (A is the area of the triangle. Prove this!).
+
+From (3.26), (3.27), (3.16) and (3.21) we have
+
+∂u 
+
+ ∂  ∂
+
+x u
+
+  
+
+=
+
+1 2A
+
+ y23 − x23
+
+∂ y 
+
+∂ u 
+
+− y13 x13
+
+  
+
+∂ ∂
+
+ξ u
+
+  
+
+=
+
+1 2A
+
+ y23 − x23
+
+∂η 
+
+− y13 x13
+
+  
+
+uu12
+
+− −
+
+u3 u3
+
+  
+
+(3.28)
+
+Similarly,
+
+∂v 
+
+ ∂
+
+ 
+
+∂
+
+x v
+
+  
+
+=
+
+1 2A
+
+ y23 − x23
+
+∂ y 
+
+− y13 x13
+
+  
+
+vv12
+
+− −
+
+v3 v3
+
+  
+
+(3.29)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+66
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Using the results in (3.28) and (3.29), and the relations ε = Du = DNd = Bd , we obtain the strain-displacement matrix,
+
+B
+
+=
+
+1 2A
+
+ y23
+
+ 
+
+0
+
+0 x32
+
+y31 0
+
+0 x13
+
+y12 0
+
+0
+
+x21
+
+ 
+
+ x32 y23 x13 y31 x21 y12 
+
+(3.30)
+
+which is the same as we derived earlier in (3.19).
+
+Applications of the CST Element: • Use in areas where the strain gradient is small. • Use in mesh transition areas (fine mesh to coarse mesh). • Avoid using CST in stress concentration or other crucial areas in the structure, such as edges of holes and corners. • Recommended for quick and preliminary FE analysis of 2-D problems.
+
+Linear Strain Triangle (LST or T6)
+v6 u6 6
+v1 y
+1 u1 x
+
+v3 3
+
+u3
+v5 5
+
+4
+
+u4
+
+v4
+
+u5 v2
+2 u2
+
+Figure 3.8. Quadratic triangular element (T6).
+
+This type of elements (Figure 3.8) is also called quadratic triangular element. There are six nodes on this element: three corner nodes and three mid-side nodes. Each node has two degrees of freedom (DOFs) as before. The displacements (u, v) are assumed to be quadratic functions of (x, y),
+
+u = b1 + b2 x + b3 y + b4 x2 + b5 xy + b6 y 2 v = b7 + b8 x + b9 y + b10 x2 + b11xy + b12 y 2
+
+(3.31)
+
+where bi (i = 1, 2, ..., 12) are constants. From these, the strains are found to be
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+67
+
+Lecture Notes: Introduction to the Finite Element Method
+
+ε x = b2 + 2b4 x + b5 y ε y = b9 + b11x + 2b12 y γ xy = (b3 + b8 ) + (b5 + 2b10 )x + (2b6 + b11 ) y
+
+(3.32)
+
+which are linear functions. Thus, we have the “linear strain triangle” (LST), which provides better results than the CST.
+
+In the natural coordinate system we defined earlier, the six shape functions for the LST element are
+
+N1 = ξ (2ξ −1) N2 = η(2η −1) N3 = ζ (2ζ −1) N4 = 4ξη N5 = 4ηζ N6 = 4ζ ξ
+
+(3.33)
+
+in which ζ = 1 − ξ −η . Each of these six shape functions represents a quadratic form on the element as shown in Figure 3.9.
+
+ξ=0
+
+3
+
+ξ=1/2
+
+6
+
+5
+
+ξ=1 1
+
+N1
+
+4
+
+2
+
+1
+
+Figure 3.9. Plot of the shape function N1 for T6 element.
+
+Displacements can be written as,
+
+6
+∑ u = Niui , i =1
+
+6
+∑ v = Nivi i =1
+
+(3.34)
+
+∫ The element stiffness matrix is still given by k = BT EBdV , but here BTEB is quadratic
+V
+in x and y. In general, the integral has to be computed numerically.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+68
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Linear Quadrilateral Element (Q4)
+η
+v4
+
+η =1
+
+4 u4
+
+y η = −1
+
+v1 1
+u1
+ξ = −1
+
+v3 u3
+
+3
+
+ξ
+
+v2
+
+2
+
+u2
+
+ξ =1
+
+x Figure 3.10. Linear quadrilateral element (Q4).
+
+There are four nodes at the corners of the quadrilateral element (Figure 3.10). In the natural coordinate system (ξ ,η) , the four shape functions are,
+
+N 1
+
+=
+
+1 4
+
+(1 − ξ )(1 −η)
+
+N2
+
+=
+
+1 4
+
+(1 + ξ )(1 −η)
+
+N3
+
+=
+
+1 4
+
+(1 +
+
+ξ )(1 + η)
+
+N4
+
+=
+
+1 4
+
+(1 − ξ )(1 + η)
+
+4
+Note that ∑ Ni = 1 at any point inside the element, as expected. i =1
+
+The displacement field is given by
+
+4
+∑ u = Niui , i =1
+
+4
+∑ v = Nivi i =1
+
+(3.35) (3.36)
+
+which are bilinear functions over the element. The stress and strain fields are constant on this type of elements.
+
+Quadratic Quadrilateral Element (Q8)
+This is the most widely used element for 2-D problems due to its high accuracy in analysis and flexibility in modeling.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+69
+
+Lecture Notes: Introduction to the Finite Element Method
+
+η
+
+η =1
+
+4
+
+7
+
+3
+
+ξ
+
+8
+
+1
+
+5
+
+y η = −1
+
+ξ = −1
+
+6 2
+ξ =1
+
+x
+Figure 3.11. Quadratic quadrilateral element (Q8).
+There are eight nodes for this element (Figure 3.11), four corners nodes and four midside nodes. In the natural coordinate system (ξ ,η) , the eight shape functions are,
+
+N 1
+
+=
+
+1 4
+
+(1 − ξ )(η
+
+− 1)(ξ
+
++η
+
++ 1)
+
+N2
+
+=
+
+1 4
+
+(1 + ξ )(η
+
+− 1)(η
+
+−ξ
+
++ 1)
+
+N3
+
+=
+
+1 4
+
+(1 +
+
+ξ )(1 + η)(ξ
+
++η
+
+− 1)
+
+N4
+
+=
+
+1 4
+
+(ξ
+
+− 1)(η
+
++ 1)(ξ
+
+−η
+
++ 1)
+
+N5
+
+=
+
+1 2
+
+(1 −η)(1 −
+
+ξ
+
+2)
+
+N6
+
+=
+
+1 2
+
+(1 + ξ )(1 −η 2 )
+
+N7
+
+=
+
+1 2
+
+(1 + η)(1 − ξ 2 )
+
+N8
+
+=
+
+1 2
+
+(1 − ξ )(1 −η 2 )
+
+8
+Again, we have ∑ Ni = 1 at any point inside the element. i =1
+
+The displacement field is given by
+
+8
+∑ u = Niui , i =1
+
+8
+∑ v = Nivi i =1
+
+(3.37) (3.38)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+70
+
+Lecture Notes: Introduction to the Finite Element Method
+which are quadratic functions over the element. Strains and stresses over a quadratic quadrilateral element are linear functions, which are better representations. A model of fiberreinforced composite materials using the Q8 elements is shown in Figure 3.12. Notes:
+• Q4 and T3 are usually used together in a mesh with linear elements. • Q8 and T6 are usually applied in a mesh composed of quadratic elements. • Quadratic elements are preferred for stress analysis, because of their high accuracy and
+the flexibility in modeling complex geometry, such as curved boundaries.
+
+Figure 3.12. Analysis of composite materials (mesh and contour stress plots).
+Transformation of Loads Concentrated load (point forces), surface traction (pressure loads) and body force
+(weight) are the main types of loads applied to a structure. Both traction and body forces need to be converted to nodal forces in the FE model, since they cannot be applied to the FE model directly. The conversions of these loads are based on the same idea (the equivalent-work concept) which we have used for the cases of bar and beam elements.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+71
+
+Lecture Notes: Introduction to the Finite Element Method
+
+qB
+
+q qA
+
+fB fA
+
+s
+
+B
+
+B
+
+A
+
+L
+
+A
+
+Figure 3.13. Traction applied on the edge of a Q4 element.
+
+Suppose, for example, we have a linearly varying traction q on a Q4 element edge, as shown in the Figure 3.13. The traction is normal to the boundary. Using the local (tangential) coordinate s, we can write the work done by the traction q as
+
+∫ Wq
+
+=
+
+1 2
+
+L
+t
+0
+
+un (s)q(s)ds
+
+where t is the thickness, L the side length and un the component of displacement normal to the edge AB.
+
+For the Q4 element (linear displacement field), we have
+
+un (s) = (1 − s / L)unA + (s / L)unB
+
+The traction q(s), which is also linear, is given in a similar way
+
+q(s) = (1 − s / L)qA + (s / L)qB Thus, we have,
+
+∫ [ Wq
+
+=
+
+1 2
+
+t
+
+L 0
+
+
+
+unA
+
+unB
+
+]1
+
+
+− s
+
+s/ /L
+
+L  
+
+
+
+[1
+
+−
+
+s
+
+/
+
+L
+
+s
+
+/
+
+L]qqBA
+
+  
+
+ds
+
+∫ =
+
+1 2
+
+[unA
+
+unB
+
+]t
+
+L 0
+
+ (
+
+s
+
+(1 − s / L)2 / L)(1− s /
+
+L)
+
+(
+
+s
+
+/
+
+L)(1 − (s / L)
+
+s
+2
+
+/
+
+L)ds 
+
+q q
+
+A B
+
+  
+
+=
+
+1 2
+
+[unA
+
+unB
+
+]
+
+tL 6
+
+2 1
+
+1qA 
+
+2
+
+qB
+
+ 
+
+=
+
+1 2
+
+[unA
+
+unB
+
+]
+
+
+f f
+
+A B
+
+  
+
+and hence the equivalent nodal force vector is
+
+  
+
+f f
+
+A B
+
+  
+
+=
+
+tL 6
+
+2 1
+
+1 2
+
+qqBA
+
+  
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+72
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Note, for constant q, we have
+
+  
+
+fA fB
+
+  
+
+=
+
+qtL 2
+
+1 1
+
+For quadratic elements (either triangular or quadrilateral), the traction is converted to forces at three nodes along the edge, instead of two nodes. Traction tangent to the boundary, as well as body forces, are converted to nodal forces in a similar way.
+
+Stress Calculation The stress in an element is determined by the following relation,
+
+σ σ
+
+x y
+
+  
+
+=
+
+ε E ε
+
+x y
+
+  
+
+=
+
+EBd
+
+τ
+
+xy
+
+ 
+
+γ
+
+xy
+
+ 
+
+(3.39)
+
+where B is the strain-nodal displacement matrix and d is the nodal displacement vector which is known for each element once the global FE equation has been solved.
+Stresses can be evaluated at any point inside the element (such as the center) or at the nodes. Contour plots are usually used in FEA software packages (during post-process) for users to visually inspect the stress results.
+The von Mises Stress:
+
+The von Mises stress is the effective or equivalent stress for 2-D and 3-D stress analysis. For a ductile material, the stress level is considered to be safe, if
+σe ≤ σY
+where σ e is the von Mises stress and σY the yield stress of the material. This is a generalization of the 1-D (experimental) result to 2-D and 3-D situations.
+The von Mises stress is defined by
+
+σe =
+
+1 2
+
+(σ1 − σ 2 )2 + (σ 2 − σ 3 )2 + (σ 3 − σ1 )2
+
+(3.40)
+
+in which σ1, σ 2 and σ3 are the three principle stresses at the considered point in a structure. For 2-D problems, the two principle stresses in the plane are determined by
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+73
+
+Lecture Notes: Introduction to the Finite Element Method
+
+σ
+
+P 1
+
+=
+
+σx
+
++σy 2
+
++
+
+ σ
+
+x
+
+−σ 2
+
+y
+
+2
+  
+
++τ
+
+2 xy
+
+σ2P
+
+= σx
+
++σy 2
+
+−
+
+ σ
+
+x
+
+−σ 2
+
+y
+
+2
+  
+
++τ
+
+2 xy
+
+(3.41)
+
+Thus, we can also express the von Mises stress in terms of the stress components in the xy coordinate system. For plane stress conditions, we have,
+
+σe =
+
+(σ x
+
++σ y )2
+
+− 3(σ xσ y
+
+−
+
+τ
+
+2 xy
+
+)
+
+(3.42)
+
+Averaged Stresses:
+Stresses are usually averaged at nodes in FEA software packages to provide more accurate stress values. This option should be turned off at nodes between two materials or other geometry discontinuity locations where stress discontinuity does exist.
+
+Example 3.2 A square plate with a hole at the center is under a tension load p in x direction as shown
+in the figure.
+y
+
+p
+
+A
+x
+B
+
+The dimension of the plate is 10 in. x 10 in., thickness is 0.1 in. and radius of the hole is 1 in. Assume E = 10x106 psi, v = 0.3 and p = 100 psi. Find the maximum stress in the plate.
+FE Analysis:
+This is a plane stress case. From the knowledge of stress concentrations, we should expect the maximum stresses occur at points A and B on the edge of the hole. Value of this
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+74
+
+Lecture Notes: Introduction to the Finite Element Method
+stress should be around 3p (= 300 psi) which is the exact solution for an infinitely large plate with a circular hole.
+We use the ANSYS software to do the modeling (meshing) and analysis, using quadratic triangular (T6), linear quadrilateral (Q4) and quadratic quadrilateral (Q8) elements. The FEM results by using the three different elements are compared and their accuracies and efficiencies are discussed. One mesh plot and one stress contour plot are shown below.
+An FE mesh (T6, 1518 elements)
+
+FE stress plot and deformed shape (T6, 1518 elements)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+75
+
+Lecture Notes: Introduction to the Finite Element Method
+
+The stress calculations with several meshes are listed in the following table, along with the number of elements and DOFs used.
+
+Table. FEA stress results
+
+Elem. Type
+
+No. of Elem.
+
+Total DOFs
+
+Max. σ (psi)
+
+Q4
+
+506
+
+1102
+
+312.42
+
+Q4
+
+3352
+
+7014
+
+322.64
+
+Q4
+
+31349
+
+64106
+
+322.38
+
+...
+
+...
+
+...
+
+...
+
+T6
+
+1518
+
+6254
+
+320.18
+
+T6
+
+2562
+
+10494
+
+321.23
+
+T6
+
+24516
+
+100702
+
+322.24
+
+...
+
+...
+
+...
+
+...
+
+Q8
+
+501
+
+3188
+
+320.58
+
+Q8
+
+2167
+
+13376
+
+321.70
+
+Q8
+
+14333
+
+88636
+
+322.24
+
+The converged results are obtained with all three types of elements with the differences in the maximum stress values less than 0.05%. However, Q8 and T6 elements are more efficient and converge much faster than the Q4 elements which is a linear representation and cannot model curved boundaries accurately. If the required accuracy is set at 1%, then the mesh with 501 Q8 elements should be sufficient. Note also that we need to check the deformed shape of the plate for each model to make sure the BCs are applied correctly. Less elements should be enough to achieve the same accuracy with a better or “smarter” mesh (mapped mesh). We will redo this example in the next chapter employing the symmetry features of the problem.
+Further Discussions (a) Know the behaviors of each type of elements: T3 and Q4: linear displacement, constant strain and stress; T6 and Q8: quadratic displacement, linear strain and stress.
+(b) Choose the right type of elements for a given problem: When in doubt, use higher order elements (T6 or Q8) or a finer mesh.
+(c) Avoid elements with large aspect ratios and corner angles (Figure 3.14): Aspect ratio = Lmax / Lmin
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+76
+
+Lecture Notes: Introduction to the Finite Element Method
+where Lmax and Lmin are the largest and smallest characteristic lengths of an element, respectively.
+Elements with distorted shapes
+
+Elements with normal shapes
+
+Figure 3.14. Elements with distorted (irregular) and normal (regular) shapes.
+
+(d) Make sure the elements are connected properly:
+
+Don not leave unintended gaps or free elements in FE models (Figure 3.15).
+
+A
+
+C
+
+B
+
+D
+
+Improper connections (gaps along AB and CD)
+
+Figure 3.15. Unintended gaps in the FE mesh.
+
+IV. Summary
+2-D elements for analyzing plane stress and plane strain problems are discussed in this chapter. Linear triangular (T3) and linear quadrilateral (Q4) elements are good for deformation analysis and not accurate for stress analysis. Quadratic triangular (T6) and quadratic quadrilateral (Q8) elements are good for stress concentration problems and for models with curved boundaries. Whenever possible (as allowed by the computing resources), higher-order elements (T6 or Q8) elements should be applied in FE stress analysis of 2-D structures.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+77
+
+Lecture Notes: Introduction to the Finite Element Method
+
+V. Problems
+
+Problem 1. Problem 2.
+
+List the boundary conditions in Example 3.1. The plate shown below is constrained at the left end and loaded with a linearly varying pressure load at the right end. Constants E, v and thickness t are given.
+
+y po
+h x
+
+h
+
+L
+
+Suppose we have found the displacement field as follows:
+
+u = p0 xy, Eh
+v = − p0 (x2 + νy2 ) 2 Eh
+
+Problem 3. Problem 4.
+Problem 5.
+
+Find:
+(a) strains in the plate;
+(b) stresses in the plate;
+(c) check if or not the equilibrium equations are satisfied by the stresses;
+(d) check if or not the boundary conditions are satisfied by the solution.
+Optional: Assume E = 10x106 psi, v = 0.3, po = 100 psi, L = 12 in., h = 4 in. and thickness t = 0.1 in. Use an FEM software to check your results.
+Derive the shape functions in (3.17) for T3 elements and prove (3.18).
+From (3.27), prove det J = x13 y23 − x23 y13 = 2 A and discuss why “bad shaped” elements can cause numerical errors in the FEM.
+Using a FEM software, design a steel shelf bracket. Some dimensions of the bracket are fixed as shown in the figure, while others can be changed. The shape and topology near the lower part of the bracket can also be changed, including adding additional openings. The goal is to use as less material as possible for the bracket, while to support the given distributed load p.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+78
+
+Lecture Notes: Introduction to the Finite Element Method
+(a) For steel, use E = 200 GPa, v = 0.32, and yield stress σY = 250 MPa. (b) Use a factor of safety = 2.0 for the design. (c) Report the configuration, dimensions, and total volume of the bracket of your
+final design.
+p = 250 N/cm2
+
+R = 1 cm
+
+H = 12 cm
+
+Bracket thickness: t = 0.2 cm
+L = 20 cm
+
+Problem 6.
+
+Similar to the previous problem, design a steel bracket. Some dimensions of the bracket are fixed as shown in the figure, while others can be changed. The shape and topology of the bracket can also be changed. The goal of this design is to use least material for the bracket, while to support the given loads.
+(a) For steel, use E = 200 GPa, v = 0.32, and yield stress σY = 250 MPa.
+(b) Use a safety factor of 1.5 for the design.
+(c) Report the configuration, all dimensions, and the total volume of the bracket of your final design.
+
+Radius of all three holes: R = 10 mm; Thickness: max. 3 mm.
+
+60 mm 60 mm
+
+Bolted to a frame 200 mm
+
+300 N 300 N
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+79
+
+Lecture Notes: Introduction to the Finite Element Method
+Chapter 4. Modeling and Solution Techniques
+In this chapter, we discuss several techniques in the modeling and solution process of using the FEM. Applying these techniques can greatly improve the efficiencies and accuracies of the finite element analysis.
+I. Symmetry
+Symmetry features of a structure are the first thing one should look into and explore in the FE modeling and analysis. The model size can be cut almost in half and the solution efficiencies can be improved by several times. A structure possesses symmetry if its components are arranged in a periodic or reflective manner. Types of symmetries are (Figure 4.1):
+• Reflective (mirror, bilateral) symmetry • Axisymmetry • Rotational (cyclic) symmetry • Translational symmetry • Others (or combinations of the above)
+
+(a)
+
+(b)
+
+(c)
+
+(d)
+
+Figure 4.1. Some examples of symmetry: (a) reflective symmetry; (b) axisymmetry; (c) rotational symmetry; and (d) translational symmetry.
+
+In the FEM, symmetry properties can be applied to
+• Reduce the size of the problems and thus save CPU time, disk space, post-processing efforts, and so on
+• Simplify the modeling task
+• Check the FEM results (make sure the results are symmetrical if the geometry and loading of the structure are symmetrical)
+Symmetry properties of a structure should be fully exploited and retained in the FE model to ensure the efficiency and quality of FE solutions.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+80
+
+Lecture Notes: Introduction to the Finite Element Method
+An Example For the problem of a plate with a center hole as discussed in Example 3.2 of the previous
+chapter, we redo the FEA mesh using the symmetry features of the plate. To do this, we first model just one quarter of the plate using mapped mesh, and then reflect the model (with the mesh) twice to obtain the model and mesh for the entire plate, as shown in Figure 4.2. Only 896 Q8 elements are used in this symmetrical model and the results are comparable to those in Chapter 3 using more elements with the free mesh. The quarter model can also be applied in the analysis, if the boundary conditions are also symmetrical about the xz and yz planes.
+
+Figure 4.2. Results using symmetry features for Example 3.2 (mesh and stress contour plots).
+In vibration or buckling analysis, however, the symmetry concept should not be used in the FEA solutions (it is still applicable in the modeling stage), since symmetric structures often have antisymmetric vibration or buckling modes.
+
+II. Substructures (Superelements)
+Another very useful technique for analyzing very large FEA models of mechanical systems is to apply the concept of substructures or superelements. Substructuring is a process of analyzing a large structure as a collection of (natural) components. The FEA models for these components are called substructures or superelements (SE). The physical meaning of a substructure is simply a finite element model of a portion of the structure. Mathematically, it presents a boundary matrix which is condensed by eliminating the interior points and keeping only the exterior or boundary points of the portion of the structure. In other words, instead of solving the FEA system of equations once, one can use partitions of the matrix so that larger models can be solved on relatively smaller computers. More details of the theory and implementations of the substructures or superelements can be found in the documentation of the FEA software packages (such as ANSYS or Nastran).
+Figure 4.3 shows an FEA model of a truck used to conduct the full vehicle static or dynamic analysis. The entire model can have several millions of DOFs that can be beyond the
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+81
+
+Lecture Notes: Introduction to the Finite Element Method
+capabilities of some computers. Using the substructuring technique, one can build the FEA model for each subsystem first (such as the cab, chassis, steering system, suspension system, payload, and so on) and then condense the FEA equations to smaller ones relating only DOFs on the interfaces between the subsystems and residing on a residual structure (e.g., the chassis). The condensed system is much smaller than the original system and can be solved readily.
+
+Figure 4.3. An FEA model of a truck analyzed using substructures.
+The advantages of using the substructuring technique are: • Good for large problems (which will otherwise exceed your computer capabilities) • Less CPU time per run once the superelements have been processed (i.e., matrices have
+been condensed and saved) • Components may be modeled by different groups • Partial redesign requires only partial reanalysis (reduced cost) • Efficient for problems with local nonlinearities (such as confined plastic deformations)
+which can be placed in one superelement (residual structure) • Exact for static deformation and stress analysis
+The disadvantages of using the substructuring technique are: • Increased overhead for file management • Increased initial time for setting up the system • Matrix condensations for dynamic problems introduce new approximations
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+82
+
+Lecture Notes: Introduction to the Finite Element Method
+
+III. Equation Solving
+There are two types of solvers used in the FEA for solving the linear systems of algebraic equations, mainly, the direct methods and iterative methods.
+Direct Methods (Gauss Elimination): • Solution time proportional to NB2 (with N being the dimension of the matrix, B the bandwidth of the FEA systems) • Suitable for small to medium problems (with DOFs in the 100,000 range), or slender structures (small bandwidth) • Easy to handle multiple load cases
+
+Iterative Methods: • Solution time is unknown beforehand • Reduced storage requirement • Suitable for large problems, or bulky structures (large bandwidth, converge faster) • Need to solve the system again for different load cases
+
+An Example - Gauss Elimination:
+
+Solve the following given system of equations:
+
+8 − 2  0
+
+−2 4 −3
+
+0 − 3 3 
+
+   
+
+x 1 x2 x3
+
+   
+
+=
+
+2 − 1  3 
+
+or Ax = b .
+
+(4.1)
+
+Forward Elimination:
+
+(1)  8 − 2 0 2 
+
+Form
+
+(2) − 2 4 − 3 −1 ;
+
+(4.2)
+
+(3)  0 − 3 3 3 
+
+(1) + 4 x (2) ⇒ (2):
+
+(1) 8 − 2 0 2 
+
+(2) 0 14 −12 − 2 ;
+
+(4.3)
+
+(3) 0 − 3 3 3 
+
+(2) + 14 (3) ⇒ (3): 3
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+83
+
+Lecture Notes: Introduction to the Finite Element Method
+
+(1) 8 − 2 0 2 
+
+(2) 0 14 −12 − 2 ;
+
+(4.4)
+
+(3) 0 0 2 12 
+
+Back Substitutions (to obtain the solution):
+
+x3 = 12 / 2 = 6 x2 = (−2 + 12x3) /14 = 5 x1 = (2 + 2x2 ) / 8 = 1.5
+
+1.5
+
+or
+
+x
+
+=
+
+ 
+
+5
+
+ 
+
+.
+
+ 6 
+
+(4.5)
+
+An Example - Iterative Method:
+
+The Gauss-Seidel Method (as an example):
+
+Ax = b
+
+(A is symmetric)
+
+N
+
+or
+
+∑ aij x j = bi ,
+
+i = 1, 2,..., N.
+
+j =1
+
+Start with an estimate x( 0 ) of the solution vector and then iterate using the following:
+
+∑ ∑ x (k+1) i
+
+=
+
+1 aii
+
+ bi 
+
+−
+
+i −1
+aij x j (k +1)
+j =1
+
+−
+
+N
+
+aij
+
+x
+
+j
+
+(
+
+k
+
+)
+
+ 
+
+,
+
+j =i +1
+
+
+
+for i = 1, 2,..., N.
+
+In vector form,
+
+[ ] x(k +1)
+
+=
+
+A D−1
+
+b−
+
+A Lx(k +1)
+
+−
+
+A
+
+T L
+
+x(
+
+k
+
+)
+
+,
+
+where
+
+AD = 〈aii 〉 is the diagonal matrix of A,
+
+AL is the lower triangular matrix of A,
+
+such that
+
+A
+
+=
+
+AD
+
++
+
+AL
+
++
+
+A
+
+T L
+
+.
+
+Iterations continue until solution x converges, i.e.
+
+x(k+1) − x(k ) ≤ε,
+x(k)
+
+(4.6)
+(4.7) (4.8) (4.9) (4.10)
+
+where ε is the tolerance for convergence control.
+Iterative solvers with moderate selections of the tolerance are usually much faster than direct solvers in solving large-scale models. However, for ill-conditioned systems, direct solvers should be applied to ensure the accuracy of the solutions.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+84
+
+Lecture Notes: Introduction to the Finite Element Method
+IV. Nature of Finite Element Solutions Some observation of the FEA models and solutions:
+• FEA model – A mathematical model of the real structure, based on many approximations • Real structure -- Infinite number of nodes (physical points or particles), thus infinite
+number of DOFs • FEA model – finite number of nodes, thus finite number of DOFs
+In particular, one can argue that the displacement field is controlled (or constrained) by the values at a limited number of nodes (Figure 4.4).
+
+4
+∑ Recall that on an element: u = Nαuα α =1
+Figure 4.4. Elements in an FEA model
+Therefore, we have the so called stiffening effect: • FEA Model is stiffer than the real structure • In general, displacement results are smaller in magnitudes than the exact values
+Hence, the FEM solution of displacement is a lower bound of the exact solution.
+
+∆ (Displacement)
+
+Exact Solution
+
+FEA Solutions
+
+No. of DOFs
+Figure 4.5. Convergence of FEM solutions with exact solution That is, FEA displacement solutions approach the exact solution from below, which can be used to monitor the FEA solutions. However, this is true for the displacement based FEA.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+85
+
+Lecture Notes: Introduction to the Finite Element Method
+
+V. Convergence of FEA Solutions
+
+As the mesh in an FEA model is “refined” (with smaller and smaller elements) repeatedly, the FEA solution will converge to the exact solution of the mathematical model of the problem (the model based on bar, beam, plane stress/strain, plate, shell, or 3-D elasticity theories or assumptions). Several types of refinements have been devised in the FEA, which include:
+
+h-refinement:
+
+Reduce the size of the element (“h” refers to the typical size of the elements)
+
+p-refinement:
+
+Increase the order of the polynomials on an element (linear to quadratic, etc.; “p” refers to the highest order in a polynomial)
+
+r-refinement:
+
+Re-arrange the nodes in the mesh
+
+hp-refinement:
+
+Combination of the h- and p-refinements (to achieve better results)
+
+With any of the above type of refinements, the FEA solutions will converge to the analytical solutions of the mathematical models. Some FEA software can automate the process of refinements in the FEA solutions to achieve the so called adaptive solutions.
+
+VI. Adaptivity (h-, p-, and hp-Methods)
+
+Adaptive FEA represents the future of the FEA applications. With proper error control, automatic refinements of an FEA mesh can be generated by the program until the converged FEA solutions are obtained. With the adaptive FEA capability, users’ interactions are reduced, in the sense that a user only need to provide a good initial mesh for the model (even this step can be done by the software automatically).
+Error estimates are crucial in the adaptive FEA. Interested readers can refer to Ref. [2] for more details. In the following, we introduce one type of the error estimates.
+We first define two stress fields:
+σ --- element by element stress field (discontinuous across elements)
+σ*--- averaged or smoothed stress field (continuous across elements)
+
+Then, the error stress field can be defined as: σE = σ - σ*
+
+(4.11)
+
+Compute strain energies,
+
+M
+U = ∑Ui , i =1
+
+M
+
+∑ U * =
+
+U
+
+* i
+
+,
+
+i=1
+
+∫ U i
+
+=
+Vi
+
+1 σT E−1σdV 2
+
+;
+
+∫ U * = 1 σ*T E−1σ*dV ;
+
+i
+
+2 Vi
+
+(4.12) (4.12)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+86
+
+Lecture Notes: Introduction to the Finite Element Method
+
+M
+∑ U E = U Ei , i=1
+
+∫ U Ei
+
+=
+Vi
+
+1 2
+
+σTE
+
+E
+
+−1σ
+
+E
+
+dV
+
+;
+
+where M is the total number of elements, Vi is the volume of the element i.
+
+(4.14)
+
+One error indicator - the relative energy error, is defined as:
+
+η
+
+=
+
+ U
+
+U E +UE
+
+1/ 2 . 
+
+(0 ≤ η ≤ 1)
+
+(4.15)
+
+The indicator η is computed after each FEA solution. Refinement of the FEA model continues until, say
+
+η ≤ 0.05.
+
+When this condition is satisfied, we conclude that the converged FE solution is obtained.
+
+Some examples of using different error estimates in the FEA solutions can be found in Ref. [2].
+
+VII. Summary
+In this chapter, we briefly discussed a few modeling techniques and concepts related to FEA solutions. For symmetrical structures, the symmetry features should be explored in both modeling/meshing stage and solution stage (if the BCs are symmetrical as well). Substructuring or using superelements is a useful technique for solving large-scale problems with constrained computing resources. Convergence of the FEA solutions is the important goal in FEA and should be monitored by using the error estimates and employing the adaptive FEA capabilities in the software.
+
+VIII. Problems
+
+Problem 1.
+
+Suppose that we need to find out the in-plane effective modulus of a composite reinforced with long fibers aligned in the z-direction and distributed uniformly. A 2-D elasticity model shown below can be used for this study with the FEA. The effective modulus can be estimated by using the formula Eeff = σ x(ave) ε/ x(ave) ,
+where the averaged stress and strain are evaluated along the vertical edge on the right side of the model. Assume for the matrix E = 10 GPa, v = 0.35, and for the fibers E = 100 GPa, v = 0.3. The unit cell has a dimension of 1x1 μm2, and the radius of the fibers is 0.2 μm.
+Start with 1x1 cell, 2x2 cells, 3x3 cells, … and keep increasing the number of the cells as you can. Report the value of the effective Young’s modulus of the
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+87
+
+Lecture Notes: Introduction to the Finite Element Method
+composite in the x and y direction. Employ symmetry features of the model in generating the meshes for your analysis.
+y
+
+p
+
+x One unit cell
+
+Problem 2.
+
+Suppose that a “meshed panel” will be used in a design in order to reduce the weight. For this purpose, we need to find out the in-plane effective modulus of this panel in the x- or y-direction. A sample piece of the panel similar to the one shown below can be used for this study. Employ symmetry and study the effects of the numbers of cells used in the model on the computed moduli. Assume the panel is made of aluminum with E = 70 GPa, v = 0.35, a = 10 mm, b = 6 mm, c = 1.5 mm, and thickness t = 1 mm.
+
+y
+
+a
+
+b c
+
+p
+
+x One cell
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+88
+
+Lecture Notes: Introduction to the Finite Element Method
+Chapter 5. Plate and Shell Elements
+Many structure members can be categorized as plates and shells [11], which are extensions of the 1-D straight beams and curved beams to 2-D cases, respectively. Some of the structures that can be modeled as plates are:
+• Shear walls • Floor panels • Shelves
+While those that can be modeled as shells include: • Sea shells and egg shells (the wonder of the nature) • Various containers, pipes, and tanks • Bodies of cars, boats, aircraft, etc. • Roofs of buildings (the Superdome), etc.
+Figure 5.1 shows two recent engineering wonders that are constructed mainly using plate and shell structure members.
+
+(a) The new Boeing 787 aircraft
+
+(b) The National Grand Theatre in Beijing
+
+Figure 5.1. Examples of plate and shell structures.
+
+The advantages of using plate and shell structures are their light weight, superior loadcarrying capabilities, and sometimes, simply their artistic appeals.
+
+I. Plate Theory
+A plate has the following characteristics: • A flat surface • Applied with lateral loading • Bending behavior dominates
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+89
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Forces and Moments Acting on the Plate
+
+z ∆y
+
+∆x q(x,y)
+
+t
+
+Mx
+
+Qx x
+Mxy
+
+y My
+
+Qy
+
+Mxy
+
+Mid surface
+
+Figure 5.2. Forces and moments acting on an infinitesimally small element in a plate.
+
+Stresses in the Plate z
+
+τyz
+
+y
+
+σy
+
+τxz
+
+σx
+
+x
+
+τxy τxy
+
+Figure 5.3. Stresses acting on the infinitesimally small element in the plate.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+90
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Relations Between the Forces and Stresses: Bending moments (per unit length):
+
+t/2
+∫ M x = −t / 2σ x zdz ,
+
+(N ⋅ m / m)
+
+t/2
+∫ M y = −t / 2σ y zdz ,
+
+(N ⋅ m / m)
+
+Twisting moment (per unit length):
+t/2
+∫ M xy = −t / 2τ xy zdz ,
+
+(N ⋅ m / m)
+
+Shear Forces (per unit length):
+
+t/2
+
+∫ Qx =
+
+−t
+
+/
+
+τ
+2
+
+xz
+
+dz
+
+,
+
+t/2
+∫ Qy = −t / 2τ yz dz ,
+
+(N / m) (N / m)
+
+Maximum bending stresses:
+
+(σ x )max
+
+=
+
+±
+
+6M x t2
+
+,
+
+(σ y )max
+
+=
+
+±
+
+6M t2
+
+y
+
+.
+
+Note that: • Maximum stress is always at z = ±t / 2 • No bending stresses at midsurface (similar to the beam model)
+
+(5.1) (5.2)
+(5.3)
+(5.4) (5.5)
+(5.6)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+91
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Thin Plate Theory (Kirchhoff Plate Theory)
+Assumptions (similar to those for the simple beam theory): A straight line along the normal to the mid surface remains straight and normal to the
+deflected mid surface after loading, that is, there is no transverse shear deformation (Figure 5.4): γ xz = γ yz = 0 .
+
+∂ w
+
+z
+
+∂x
+
+w x
+Figure 5.4. Deflection and rotation after loading of a plate according to Kirchhoff plate theory.
+
+Displacement:
+
+w = w(x, y),
+
+(deflection)
+
+u = −z ∂w ,
+
+(5.7)
+
+∂x
+
+v = −z ∂w . ∂y
+
+Strains:
+
+εx
+
+=
+
+−z
+
+∂ 2w ∂x2
+
+,
+
+εy
+
+=
+
+−z
+
+∂ 2w ∂y2 ,
+
+γ xy
+
+=
+
+−2z ∂ 2w ∂x∂y
+
+.
+
+(5.8)
+
+Note that there is no stretch of the mid surface due to the deflection of the plate.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+92
+
+Lecture Notes: Introduction to the Finite Element Method
+
+Stresses (plane stress state):
+
+σ σ
+
+x y
+
+τ xy
+
+    
+
+=
+
+E 1−ν
+
+2
+
+1 ν 0
+
+ν 1 0
+
+(1
+
+0 0 −ν
+
+)
+
+/
+
+   2
+
+  
+
+ε ε
+
+x y
+
+γ xy
+
+    
+
+,
+
+or,
+
+ ∂2w 
+
+σ σ
+
+x y
+
+τ xy
+
+    
+
+=
+
+−z
+
+E 1−ν
+
+2
+
+1 ν 0
+
+ν 1 0
+
+(1
+
+0 0 −ν
+
+  )
+
+∂x2 ∂2w ∂y 2 ∂2w
+
+     
+
+.
+
+∂x∂y 
+
+Note the main variable: deflection w = w(x, y) .
+
+Governing Equation: D∇4w = q(x, y) ,
+
+where
+
+∇ 4
+
+≡
+
+∂4 (∂x4
+
++
+
+∂4 2 ∂x2∂y2
+
++
+
+∂4 ∂y 4
+
+),
+
+D
+
+=
+
+Et 3 12(1 −ν
+
+2
+
+)
+
+(the bending rigidity of the plate),
+
+q = lateral distributed load (force/area).
+
+(5.9) (5.10) (5.11) (5.12)
+
+Compare the 1-D equation for straight beam:
+
+EI
+
+d 4w dx4
+
+=
+
+q(x)
+
+.
+
+(5.13)
+
+Note: Equation (5.11) represents the equilibrium condition in the z-direction. To see this, refer to the Figure 5.2. showing all the forces on a plate element. Summing the forces in the z-direction, we have,
+
+Qx∆y + Qy∆x + q∆x∆y = 0,
+
+(5.14)
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+93
+
+Lecture Notes: Introduction to the Finite Element Method
+
+which yields, ∂Qx + ∂Qy + q(x, y) = 0 . ∂x ∂y
+
+Substituting the following relations into the above equation, we obtain Eq. (5.11): Shear forces and bending moments:
+
+Qx
+
+=
+
+∂M x ∂x
+
++
+
+∂M xy ∂y
+
+,
+
+Qy
+
+=
+
+∂M xy ∂x
+
++
+
+∂M y ∂y
+
+,
+
+Mx
+
+=
+
+D
+
+∂2w ∂x 2
+
++ν
+
+∂2w ∂y 2
+
+
+
+,
+
+My
+
+=
+
+D
+
+∂2w ∂y 2
+
++ν
+
+∂2w ∂x 2
+
+
+
+.
+
+(5.15)
+(5.16) (5.17)
+
+The fourth-order partial differential equation, given in (5.11) and in terms of the deflection w(x,y), needs to be solved under certain given boundary conditions.
+
+Boundary Conditions:
+
+Clamped:
+
+w = 0, ∂w = 0 ; ∂n
+
+(5.18)
+
+Simply supported: w = 0, M n = 0 ;
+
+(5.19)
+
+Free:
+
+Qn = 0,
+
+Mn =0;
+
+(5.20)
+
+where n is the normal direction of the boundary (Figure 5.5). Note that the given values in the boundary conditions shown above can be non-zero values as well.
+
+s
+
+n
+
+boundary Figure 5.5. The boundary of a plate.
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+94
+
+Lecture Notes: Introduction to the Finite Element Method
+Examples: A square plate (Figure 5.6) with four edges clamped or hinged, and under a uniform load
+q or a concentrated force P at the center C.
+z
+
+y
+
+C
+
+L
+
+L
+
+x
+
+Given: E, t, and ν = 0.3
+
+Figure 5.6. A square plate.
+
+For this simple geometry, Eq. (5.11) with boundary condition (5.18) or (5.19) can be solved analytically. The maximum deflections are given in the Table 5.1 for the four different cases.
+
+Table 5.1. Deflection at the Center (wc)
+
+Clamped
+
+Under uniform load q
+
+0.00126 qL4/D
+
+Under concentrated force P
+
+0.00560 PL2/D
+
+in which: D= Et3/(12(1-v2)).
+
+These values can be used to verify the FEA solutions.
+
+Simply supported 0.00406 qL4/D 0.0116 PL2/D
+
+Thick Plate Theory (Mindlin Plate Theory) If the thickness t of a plate is not “thin”, for example, when t / L ≥ 1/10 (L = a
+characteristic dimension of the plate main surface), then the thick plate theory by Mindlin should be applied. This theory accounts for the angle changes within a cross section, that is,
+γ xz ≠ 0, γ yz ≠ 0 .
+
+© 1997-2013 Yijun Liu, University of Cincinnati
+
+95
+

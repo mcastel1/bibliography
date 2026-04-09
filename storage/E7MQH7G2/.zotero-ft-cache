@@ -1,0 +1,2604 @@
+arXiv:2307.03589v2 [math.NA] 18 Jul 2023
+
+Nitsche method for Navier-Stokes equations with slip boundary conditions: Convergence analysis and VMS-LES stabilization
+Aparna Bansal, Nicol´as Alejandro Barnafi, Dwijendra Narain Pandey
+Abstract
+In this paper, we analyze the Nitsche’s method for the stationary Navier-Stokes equations on Lipschitz domains under minimal regularity assumptions. Our analysis provides a robust formulation for implementing slip (i.e. Navier) boundary conditions in arbitrarily complex boundaries. The well-posedness of the discrete problem is established using the Banach Neˇcas Babuˇska and the Banach fixed point theorems under standard small data assumptions, and we also provide optimal convergence rates for the approximation error. Furthermore, we propose a VMS-LES stabilized formulation, which allows the simulation of incompressible fluids at high Reynolds numbers. We validate our theory through several numerical tests in well established benchmark problems.
+Keywords:
+Navier-Stokes equation, Navier boundary condition, Nitsche’s Method, Banach fixed point theorem, BanachNeˇcas-Babuˇska theorem, A-Priori analysis, Variational Multiscale modeling, Large Eddy simulation.
+Mathematics Subject Classification : 65N30 · 65N12 · 65N15 · 65J15 · 76D07
+1 Introduction
+The Navier Stokes equations describe the motion of incompressible fluids, and they pose significant challenges across different disciplines. The numerical analysis community has put considerable efforts to develop robust and efficient numerical techniques for approximating their efficient numerical approximation. It is typically assumed that the fluid adheres to the walls of its recipient, which is known as the no-slip boundary condition. The accuracy of this assumption has been a subject of intense debate [Gol38]. There are many fluid flow phenomena such as inkjet printing [ML14], pipe flow [BCHS08], complex turbulent flows [GL00], and slide coating [CS89] that are better addressed using boundary conditions that allow for the fluid to slip through the walls, known also as Navier boundary conditions.
+Navier boundary conditions impose a constraint only in the normal direction, which makes their implementation not trivial. To do so, the existing approaches can be separated into (1) Lagrange Multiplier [UGF14, Lay99, Ver86, Ver91, C¸ 04] and (2) Penalty methods with regularization term [CFP17, DTU13, CL09]. Both approaches weakly enforce the slip condition into the weak formulation, which although useful, can present erratic behavior known as the Babuˇska-type paradox, which can result in a loss of convergence [GS22a]. We highlight the stabilized formulation from [ZKO16] and the non-conforming penalty formulation analyzed in [KOZ19a, ZOK21] which adequately characterizes the impact of the variational crimes. In general, penalization schemes avoid the Babuˇska paradox but require additional parameters.
+One particular method for imposing boundary conditions weakly is Nitsche’s method [Ste95], which can be regarded as an Augmented Lagrangian formulation for imposing boundary conditions with a Lagrange multiplier. A drawback of this method, as in other penalty methods, is that it requires a stabilization constant γ that must be sufficiently large. By adding a stabilization term to the weak formulation of the problem, Nitsche’s method addresses the issues that arise from the strong imposition of boundary conditions on approximate geometries, as well as allow for a natural formulation for non-trivial boundary conditions. More recently, a specific treatment of the Navier boundary condition has been studied in [WSMW18] for the Oseen problem. We also highlight the work by Gjerde and Scott for curved boundaries in [GS22a] and on kinetic instabilities [GS22b]. The convergence analysis for a stabilized finite element formulation was also very recently developed [ACC23].
+1
+
+The turbulent behavior of the Navier Stokes equations for high Reynolds numbers gives rise to numerical instabilities that make their numerical approximation very challenging and severely impact the accuracy of the finite element method approximations. These issues can be alleviated using stabilized schemes such as the Streamline Upwind Petrov Galerkin (SUPG) method, the Galerkin Least square (GLS) method and the Variational Multiscale (VMS) method (see [Sen18] for a review). In addition to the numerical instabilities, it is fundamental to approximate the unresolved scales which is done with turbulence models i.e. Reynolds Averaged Navier Stokes (RANS) and Large Eddy Simulation (LES). However, RANS are constrained and might not be workable in some real world situations due to simplifications and assumptions in representing the complex nature of turbulent flows. RANS heavily relies on turbulence modeling, which result in an over-simplification and restricts the ability to accurately anticipate complex flow phenomena, as reported in [Sot12]. In this paper, we will focus on VMS-LES due to its suitability for high Reynolds simulations [HMJ00, HOM01], which allows for more computationally efficient LES approaches to the Navier-Stokes equations. Our main contribution is twofold: on one hand, we provide a complete convergence analysis of the slip boundary conditions for the stationary Navier-Stokes equations under minimal regularity assumptions. On the other hand, we propose a robust computational framework for the simulation of the Navier boundary conditions in complex geometries with high Reynolds number. Several numerical tests validate our claims.
+
+1.1 Outline of the paper
+In Section 2, we present the Navier-Stokes equations with the slip boundary condition, and derive the weak formulation of the problem, and then discuss the solvability analysis of the continuous case. In Section 3, we introduce the Nitsche scheme, then derive the variational formulation and establish the well-posedness of the discrete Oseen problem using the Banach Neˇcas Babuˇska. The well-posedness result is extended to the Navier-Stokes equations using the Banach’s fixed point theorems in a standard way. In Section 4, we derive a priori estimate, and prove the optimal convergence of the method. In Section 5, we propose a stabilized scheme using the VMS-LES formulation to simulate fluids with high Reynolds number while taking into account the slip boundary condition. We consider the unsteady case in order to overcome the challenges associated with the stationary Navier-Stokes equations when studying numerical simulations at high Reynolds numbers. In Section 6, we perform three numerical tests to support the theory was developed. The first one validates the theoretical results of the Nitsche scheme. The second one is a benchmark problem that demonstrates the consistency of our scheme for both steady and unsteady formulations at arbitrary Reynolds numbers. The third test shows the behavior of the fluid passing through a cylinder at high Reynolds numbers, further validating the findings from Section 6.
+
+1.2 Notations and preliminaries
+
+Let Ω ⊆ Rn=2,3 be an open and bounded domain with a Lipschitz polygonal boundary Γ. The Sobolev spaces are denoted by W k,p(Ω) with k ≥ 0. They contain all Lp(Ω) with p ≥ 1 functions whose distributional derivative
+up to order k are in Lp(Ω). The norm and seminorm in W k,p(Ω) are denoted by ∥ · ∥k,p,Ω and | · |k,p,Ω. For p = 2, W k,p(Ω) is denoted by Hk(Ω) and its corresponding norm and seminorm is denoted by ∥ · ∥s,Ω := ∥ · ∥k,2,Ω and |· |k,Ω :=| ·|k,2,Ω, respectively. The space L20(Ω) represents all L2 functions with average zero condition over Ω. The vector valued Sobolev spaces will be represented using boldface letter as H k(Ω). Additionally, we will
+denote with HΓ1a (Ω) the subspace of H1(Ω) with homogeneous boundary conditions on Γa (or H01(Ω) when Γa = Γ ), for which the Friedrichs-Poincar`e inequality holds [COPn22] i.e. there exists CFP > 0 which depends
+on Ω and Γa such that
+
+∥f ∥1,Ω ≤ CFP|f |1,Ω ∀f ∈ HΓ1a (Ω).
+
+(1)
+
+The H¨older inequality is given by
+
+|f g| ≤ ∥f ∥Lp(Ω)∥g∥Lq(Ω),
+Ω
+
+∀f ∈ Lp(Ω), ∀g ∈ Lq(Ω),
+
+with
+
+11 + = 1.
+pq
+
+(2)
+
+We have that the following Sobolev embedding H1(Ω) → Lq(Ω) holds for 1 ≤ q < ∞ when n = 2 and 1 ≤ q ≤ 6
+
+when n = 3. In particular, there exists a constant CSob (q, n) > 0, that depends only on the domain, such that
+
+∥f ∥0,q,Ω ≤ CSob(q, n)∥g∥1,Ω for
+
+q ≥ 1 if n = 2, q ∈ [1, 6] if n = 3.
+
+(3)
+
+Finally, we will consider the norm of a product space V × Π to be ∥(·, ·)∥ = ∥ · ∥V + ∥ · ∥Π. Also, whenever an inequality holds for positive constants that do not depend on the mesh size, we will simply write ≲ or ≳ and omit the constants.
+
+2
+
+2 Continuous Problem
+In this section we introduce the model problem, define the weak formulation, discuss the stability properties, and finally prove the existence and uniqueness of the solution.
+
+2.1 The Model Problem
+The stationary incompressible Navier-Stokes equations is stated as follows
+
+−ν∆u + (u · ∇)u + ∇p = f in Ω,
+
+div u = 0 in Ω,
+
+u = 0 on ΓD,
+
+(4)
+
+p dx = 0,
+Ω
+posed on a spatial domain Ω ⊆ Rn, n ∈ {2, 3} with Lipschitz boundary Γ, where u is the fluid velocity, ν > 0 is the viscosity, p is the fluid pressure and f represents the external body force on Ω. The Navier boundary condition on ΓNav is defined as
+
+u · n = 0 on ΓNav,
+
+νntD(u)τ k + βu · τ k = 0 on ΓNav, k = 1, 2,
+
+(5)
+
+where the boundary Γ = ΓD ∪ ΓNav and ΓD ∩ ΓNav = ∅. The Navier boundary condition allows the fluid to slip along the boundary and requires that the tangential component of the stress vector at the boundary be proportional to the tangential velocity. The strain tensor is denoted by D(u) = ∇u + (∇u)T , and n and τ k are unit normal and tangent vectors to the boundary Γ. The friction coefficient β will require some controlled behaviour for well-posedness as shown in Lemma C. The assumption of homogeneity in the boundary conditions is made for the sake of simplifying the subsequent analysis, as the existence of lifting operators has already been established [KOZ19b]. Non-homogeneous boundary conditions are utilized in the numerical tests in Section 6.
+
+2.2 Weak Formulation of the Continuous Problem
+
+Define the spaces:
+
+V := v ∈ H1(Ω) : v · n = 0 on ΓNav, v = 0 on ΓD , Π := L20(Ω).
+
+The standard weak formulation of (4) and (5) is given by: Find (u, p) ∈ V × Π, such that
+
+A [(u, p) ; (v, q)] = F(v) ∀ (v, q) ∈ V × Π,
+
+(6)
+
+where
+
+A [(u, p)
+
+; (v,
+
+q)]
+
+:=
+
+ν (D(u),
+
+D(v))
+
++
+
+(u
+
+·
+
+∇u, v)
+
+−
+
+(p,
+
+∇
+
+·
+
+v)
+
+−
+
+(q,
+
+∇
+
+·
+
+u)
+
++
+
+β τ i · v τ i · u ds,
+
+2
+
+ΓNav
+
+i
+
+F(v) := ⟨f , v⟩,
+where ⟨·, ·⟩ represents the duality pairing between V and its dual V′. Assuming that the load function f belongs to V′, we can express (6) in the following form: Find (u, p) ∈ V × Π, such that
+
+A(u, v) + B(v, p) + c(u; u, v) = F(v) ∀v ∈ V,
+
+(7)
+
+B(u, q) = 0
+
+∀q ∈ Π,
+
+where
+
+A(u, v) := a(u, v) + a∂τ (u, v),
+
+(8)
+
+B(v, p) := b(v, p),
+
+with forms defined so that
+
+a(u, v)
+
+:=
+
+ν (D(u), D(v)),
+
+2
+
+b(v, p) := −(div v, p),
+
+3
+
+a∂τ (u, v) :=
+
+β τi ·u
+
+ΓNav
+
+i
+
+c(w; u, v) := (w · ∇u, v),
+
+F (v) := ⟨f , v⟩.
+
+τ i · v ds,
+
+The derivation of the weak formulation is detailed in [GS22a]. In what remains of this section, we will establish the continuity, ellipticity and inf-sup properties of some operators that will be instrumental for our analysis ahead.
+
+Lemma A. There exist positive constants C1, C2, and C3 such that
+
+|A (u, v)| ≤ C1 ∥u∥1,Ω ∥v∥1,Ω |c (w; u, v)| ≤ C2 ∥w∥1,Ω ∥u∥1,Ω ∥v∥1,Ω
+|B(v, p)| ≤ C3∥v∥1,Ω∥p∥0,Ω |F (v)| ≤ ∥f ∥V′ ∥v∥V
+
+∀u, v ∈ V, ∀u, v, w ∈ V, ∀v ∈ V, p ∈ Π, ∀v ∈ V.
+
+Proof. These inequalities are a direct consequence of (1), (2), (3), Cauchy Schwarz and H¨older’s inequalities. The constants C1, C2, and C3 depend on the domain Ω, ν and β.
+
+Let Z be the kernel of B, that is
+
+Z := {v ∈ V : B(v, p) = 0, ∀p ∈ Π} = {v ∈ V : (div v, p) = 0, ∀p ∈ Π} .
+
+It can be rewritten as:
+
+Z := {v ∈ V : div v = 0in Ω} .
+
+Lemma B. There exists a minimum positive constant Cb for sufficiently small values of |b| (when b < 0). Due to the boundary condition on ΓD = Γ \ ΓNav, there is a Poincar`e inequality [Sco18] of the form
+
+|v|2dx ≤ Cb
+Ω
+
+1 2
+
+|D(v)|2dx +
+Ω
+
+b |PT v|2 ds
+ΓNav
+
+∀v ∈ Z.
+
+(9)
+
+The constant Cb depends on Ω, ΓNav, and b. It is considered to be the smallest positive constant such that (9) holds. For more details on this condition, see [Sco18].
+
+The following lemma establishes the ellipticity of A on Z.
+
+Remark 2.1. We highlight that this result allows for negative values of β.
+
+Lemma C. There exist a constant ξ > 0 depends on β, ν, Ω and ΓNav such that
+
+A(v, v) ≥ ξ∥v∥1,Ω ∀v ∈ Z,
+
+(10)
+
+where
+
+ξ
+
+=
+
+. ν
+Cβ/ν
+
+Proof. Consider the bilinear form
+
+ν A(v, v) = (D(v), D(v)) +
+
+β τ i · v τ i · v ds.
+
+2
+
+ΓNav
+
+i
+
+By introducing the tangent space T and the projection PT onto the tangent space, allows the boundary term to be expressed in coordinate free form i.e. PT = I − n ⊗ n [WSMW18]. Then
+
+d−1
+τ i · v τ i · u = (PT v) · (PT u) ,
+i=1
+
+and also we use the Lemma B as follows:
+
+ν A(v, v) =
+2 ν = 4
+
+|D(v)|2dx +
+
+β |PT v|2 ds
+
+Ω
+
+ΓNav
+
+|D(v)|2dx + ν
+
+|D(v)|2dx +
+
+Ω
+
+4Ω
+
+ΓNav
+
+4β ν
+
+|PT v|2 ds
+
+4
+
+ν ≥
+
+|D(v)|2dx +
+
+ν
+
+4Ω
+
+4C4β/ν
+
+≥ ξ∥v∥1,Ω ∀v ∈ Z.
+
+|v|2dx
+Ω
+
+where
+
+ξ
+
+=
+
+min{
+
+ν 2
+
+,
+
+ν 4C4β/ν
+
+},
+
+and
+
+C4β/ν
+
+is
+
+the
+
+constant
+
+denoted
+
+as
+
+Cb
+
+with
+
+b=
+
+4β/ν.
+
+The
+
+constant
+
+Cb
+
+depends
+
+on Ω, ΓNav and b, but given that the geometry is fixed, we denote the dependence only on b. Interestingly, it
+
+was shown in [GS22b] that the function b → Cb is monotone decreasing.
+
+Next, we present the continuous inf-sup condition for the bilinear form B.
+
+Lemma D. There exist a positive constant θ >0 dependent on the shape of the domain Ω such that
+
+|B(v, q)|
+
+sup
+0̸=v∈V
+
+∥v∥1,Ω
+
+≥ θ∥q∥0,Ω
+
+∀q ∈ Π.
+
+(11)
+
+Proof. See [GR79] for a proof.
+
+2.2.1 The fixed point operator
+
+In this section, we make the assumption that the data is sufficiently small and utilize the Banach fixed point theorem to establish the existence and uniqueness of a solution for equation (7). Let us introduce the bounded set
+
+K := v ∈ V : ∥v∥1,Ω ≤ α−1∥f ∥V′ ,
+
+(12)
+
+with α is a positive constant defined in (18). Now, we define the fixed point operator as
+
+J : K → K, w → J (w) = u,
+
+(13)
+
+where given w ∈ K, u is the first component of the solution of the linearized version of problem (7): Find (u, p) ∈ V × Π, such that
+
+A(u, v) + B(v, p) + c(w; u, v) = F(v) ∀v ∈ V,
+
+B(u, q) = 0
+
+∀q ∈ Π.
+
+(14)
+
+Based on the above, we establish the following relation
+
+J (u) = u ⇔ (u, p) ∈ V × Π satisfies (7).
+
+(15)
+
+Therefore, to demonstrate the well-posedness of (7), it is sufficient to prove that the fixed point operator J possesses a unique fixed point. Let us now introduce the bilinear form as
+
+C [(u, p); (v, q)] = A(u, v) + B(u, q) + B(v, p).
+
+(16)
+
+Lemma E. There exist a positive constant α such that
+
+C [(u, p); (v, q)]
+
+sup
+
+≥ α∥(u, p)∥ ∀(u, p) ∈ V × Π,
+
+(17)
+
+0̸=(u,p)∈V×Π
+
+∥v, q)∥
+
+with
+
+ξθ
+
+α=
+
+,
+
+(18)
+
+2ξ + θ + 1
+
+where ξ and θ are the coercivity and inf-sup stability constants respectively.
+
+Proof. [EG21, Proposition 2.36] in which Lemma C and Lemma D are used.
+
+Now, it is possible to establish the well-posedness of J and thus the unisolvence of (7). These results are well-established, so we report them without proofs.
+
+5
+
+Theorem 1. Assume that
+
+2
+
+α2 ∥f ∥V′ ≤ 1.
+
+(19)
+
+Then, given w ∈ K, there exists a unique u ∈ K such that J (w) = u.
+
+Theorem 2. Let f ∈ V′ such that
+
+2
+
+α2 ∥f ∥V′ ≤ 1.
+
+(20)
+
+Then, there exists a unique (u, p) ∈ V × Π solution to (7). In addition, there exists C > 0 such that
+
+∥u∥1 + ∥p∥0,Ω ≤ C∥f ∥V′ .
+
+(21)
+
+3 Discrete Problem
+
+This section studies the solvability and convergence analysis of the Nitsche’s scheme for the problem (7). We
+assume that the polygonal computational domain Ω is discretized using a collection of regular partitions, denoted as {Th}h>0, where Ω ⊂ Rn is divided into simplices T (triangles in 2D or tetrahedra in 3D) with a diameter hT . The characteristic length of the finite element mesh Th is denoted as h := maxT ∈Th hT . For a given triangulation Th, we define Eh as the set of all faces in Th, with the following partitioning
+
+Eh := EΩ ∪ ED ∪ ENav
+
+where EΩ represents the faces lying in the interior of Ω, ENav represents the faces lying on the boundary ΓNav, and ED represents the faces lying on the boundary ΓD. Additionally, he denotes the (n−1) dimensional diameter of an face. Here faces loosely refer to the geometrical entities of co-dimension 1. Now, let us introduce the finite
+
+element pair.
+
+Vh := vh ∈ C(Ω) : vh = 0on E ∈ ED, vh|T ∈ Pk(T ) ∀T ∈ Th ,
+
+Πh := qh ∈ C(Ω) : qh|T ∈ Pk−1(T ) ∀T ∈ Th ∩ Π,
+
+where Pk(T ) is the space of polynomials of degree less than or equal to k defined on T .
+
+Remark 3.1. It is noted that Πh is a subspace of Π, but Vh is not a subspace of V. In that sense, Nitsche’s method can be considered a non-conforming finite element approximation.
+
+3.1 Nitsche’s Method
+The main objective of Nitsche’s method [Ste95, WSMW18] is to impose boundary conditions weakly so that they hold only asymptotically, which for this work will hold for the Navier boundary condition u·n = 0 only. As a result, the weak formulation with the Nitsche method can be expressed as follows: Find (uh, ph) ∈ Vh × Πh, such that
+
+Ah [(uh, ph) ; (vh, qh)] = F (vh) ∀ (vh, qh) ∈ Vh × Πh,
+
+(22)
+
+with the forms are defined as
+
+ν
+
+Ah [(uh, ph); (vh, qh)] :=
+
+2 (D(uh), D(vh)) + (uh · ∇uh, vh) − (ph, ∇ · vh) − (qh, ∇ · uh)
+
+T ∈Th
+
++
+
+− nt(νD(uh) − phI)n(n · vh)ds − nt(νD(vh) − qhI)n(n · uh)ds
+
+E∈ENav
+
+E
+
+E
+
++β
+
+τ i · vh τ i · uh ds + γ he−1(uh · n)(vh · n)ds ,
+
+Ei
+
+E
+
+F (vh) := ⟨f , vh⟩,
+and γ > 0 is a positive constant that needs to be chosen sufficiently large, as proved in Lemma H later. We can rewrite (22) as: Find (uh, ph) ∈ Vh × Πh, such that
+
+Ah(uh, vh) + Bh(vh, ph) + c(uh; uh, vh) = F (vh) ∀vh ∈ Vh,
+
+Bh(uh, qh) = 0
+
+∀qh ∈ Πh,
+
+(23)
+
+6
+
+where
+
+Ah(uh, vh) := a(uh, vh) + a∂τ (uh, vh) + a∂γ (uh, vh) − a∂c (uh, vh) − a∂c (vh, uh),
+
+(24)
+
+Bh(uh, qh) := b(uh, qh) + b∂ (uh, qh),
+
+with forms defined so that
+
+ν
+
+a(uh, vh) :=
+
+2 (D(uh), D(vh)),
+
+T ∈Th
+
+b(uh, qh) := − (div uh, qh),
+T ∈Th
+
+b∂ (uh, qh) :=
+
+qh(n · uh)ds,
+
+E∈ENav E
+
+a∂c (uh, vh) :=
+
+ntνD(uh)n(n · vh)ds,
+
+E∈ENav E
+
+a∂τ (uh, vh) :=
+
+β
+
+τ i · uh τ i · vh ds,
+
+E∈ENav E
+
+i
+
+a∂γ (uh, vh) :=
+E∈ENav
+
+γ E he (uh · n)(vh · n)ds,
+
+F (vh) := ⟨f , vh⟩,
+
+c(wh; uh, vh) := (wh · ∇uh, vh).
+
+(25)
+
+T ∈Th
+
+3.1.1 Discrete stability properties
+
+In this section, we leverage well-known inverse and trace inequalities to establish two results: the ellipticity of Ah and the inf-sup property Bh.
+
+Lemma F. Let vh ∈ Vh then for each T ∈ Th; l, m ∈ N, with 0 ≤ m ≤ l, there exists a positive constant C4, independent of T , such that
+|vh|l,T ≤ C4hTm−l |vh|m,T .
+Proof. [EG21, Lemma 12.1].
+
+Lemma G. Let vh ∈ Vh then for each T ∈ Th, E ⊂ ∂T , there exists a positive constant C5, independent of T ,
+
+such that
+
+∥vh∥0,E
+
+≤
+
+C5
+
+hT−
+
+1 2
+
+∥vh∥0,T
+
+.
+
+Proof. [WH03].
+
+We need to define the energy norm on Vh as
+
+∥vh∥21,h
+
+:=
+
+∥∇vh∥20,Ω
+
++
+
+E∈ENav
+
+1 he ∥vh
+
+·
+
+n∥20,E .
+
+(26)
+
+We highlight that this norm, in contrast to the one found in [ACC23], contains only the boundary term on the normal component. This is happens because we consider only the Navier boundary condition weakly, but indeed our proof would remain mostly unmodified if we were to consider the Dirichlet boundary conditions weakly as well. We would only require adding the missing norm for the velocity in this energy norm. All estimates would remain the same. We now state the continuity of the discrete bilinear forms in terms of this norm.
+
+Theorem 3. There exist positive constants C7, C8, and C9 independent of h such that
+
+|Ah(uh, vh)| ≤C7∥uh∥1,h∥vh∥1,h, |c (wh; uh, vh)| ≤C8 ∥wh∥1,h ∥u∥1,h∥vh∥1,h,
+|Bh(vh, qh)| ≤C9∥vh∥1,h∥qh∥0,Ω,
+
+∀uh, vh ∈ Vh, ∀wh, uh, vh ∈ Vh, ∀vh ∈ Vh, qh ∈ Πh.
+
+7
+
+Proof. The proof of above inequalities is a direct consequence of Lemmas F, G, the Sobolev embedding with r = 4, and Cauchy-Schwarz and H¨older inequalities. Moreover, it can be seen that
+ν C7 ∼ 2 + β + γ + νC5 C8 ∼ CSob(4, n) C9 ∼ 1 + C5
+i.e., above constants can bounded by a constant that depends only on the trace inequality constant C5, and on the parameters ν ,γ and β.
+The discrete kernel of Bh is defined by:
+Zh := {vh ∈ Vh : Bh (vh, ph) = 0, ∀ph ∈ Πh} .
+It can be equivalently written as
+
+Zh := vh ∈ Vh :
+
+ph∇ · vhdx −
+
+ph(n · vh)ds = 0 ∀ph ∈ Πh .
+
+T ∈Th T
+
+E∈ENav E
+
+(27)
+
+The following lemma establishes the ellipticity of A on Vh.
+
+Lemma H. There exist positive constants γ0, C0 and CS = CS (β, ν), independent on h, such that
+
+Ah(vh, vh) ≥ CS∥vh∥1,h ∀vh ∈ Zh,
+
+(28)
+
+where
+
+CS
+
+=
+
+min{ξ
+
+− νC52C0, γ
+
+−
+
+ν C0
+
+}
+
+with
+
+γ
+
+≥
+
+γ0
+
+>
+
+ν C0
+
+,
+
+C0
+
+<
+
+ξ C52
+
+ν
+
+,
+
+and
+
+ξ
+
+is
+
+the
+
+coercivity
+
+constant
+
+defined
+
+in
+
+the continuous case.
+
+Proof. For the proof, we use (24) to obtain
+
+ν
+
+Ah(vh, vh) = 2 (D(vh), D(vh)) +
+E∈ENav
+
+β
+E
+
+i
+
+τ i · vh
+
+τ i · vh ds
+
+−
+
+2
+
+E∈ENav
+
+E
+
+ntνD(vh)n(n
+
+·
+
+vh)ds
+
++
+
+γ he
+
+(vh · n)(vh · n)ds.
+E
+
+Using Lemma C, Lemma G, Cauchy Schwarz and H¨older’s inequalities, the following estimate can be established
+
+Ah(vh, vh)
+
+≥
+
+ξ∥∇vh∥20,Ω
+
+−
+
+2ν
+
+E∈ENav
+
+∥vh
+
+·
+
+n∥0,E ∥Dvhn∥0,E
+
++
+
+γ he
+
+E∈ENav
+
+∥vh
+
+·
+
+n∥20,E
+
+≥
+
+ξ∥∇vh∥20,Ω
+
+−
+
+2ν
+
+E∈ENav
+
+h−e 1/2∥vh
+
+·
+
+n∥0,E h1e/2∥Dvhn∥0,E
+
++
+
+γ he
+
+E∈ENav
+
+∥vh
+
+·
+
+n∥20,E
+
+≥ ξ∥∇vh∥20,Ω − 2ν
+E∈ENav
+
+heC0 2
+
+∥Dvh
+
+∥20,E
+
++
+
+h−e 1 2C0
+
+∥vh
+
+·
+
+n∥20,E
+
++
+
+γ he
+
+E∈ENav
+
+∥vh
+
+·
+
+n∥20,E
+
+≥
+
+ξ∥∇vh∥20,Ω
+
+−
+
+ν C52 C0
+
+K ∈Th
+
+∥Dvh∥20,K
+
+−
+
+ν C0γ
+
+E∈ENav
+
+γ he ∥vh
+
+·
+
+n∥20,E
+
++
+
+γ he
+
+E∈ENav
+
+∥vh
+
+·
+
+n∥20,E
+
+≥ ξ∥∇vh∥20,Ω − νC52C0∥∇vh∥20,Ω +
+
+ν 1−
+C0γ
+
+E∈ENav
+
+γ he ∥vh
+
+·
+
+n∥20
+
+≥ ξ − νC52C0 ∥∇vh∥20,Ω +
+
+ν γ−
+C0
+
+E∈ENav
+
+1 he ∥vh
+
+·
+
+n∥20,E
+
+≥ CS ∥vh∥1,h.
+
+By
+
+selecting
+
+the
+
+positive
+
+parameter
+
+C0
+
+that
+
+satisfies
+
+C0
+
+<
+
+ξ C52
+
+ν
+
+,
+
+we
+
+ensure
+
+that
+
+ξ − νC52C0
+
+> 0. Additionally,
+
+we
+
+define
+
+CS
+
+=
+
+min{ξ
+
+−
+
+νC52C0, γ
+
+−
+
+ν C0
+
+}
+
+with
+
+γ
+
+≥
+
+γ0
+
+>
+
+ν C0
+
+.
+
+Next, we proceed to derive the discrete version of Lemma D.
+
+8
+
+Remark 3.2. The inf-sup condition is associated with the construction of inf-sup stable elements in incompressible flow modeling. However, this condition is not automatically fulfilled and needs to be verified for specific choices of the approximation spaces Vh and Πh. It is worth mentioning that the Taylor-Hood elements are inf-sup stable, meaning they meet the necessary condition for stability. In fact, the proof can be demonstrated using any pair of inf-sup stable elements.
+Lemma I. There exists θˆ > 0 independent of h such that
+
+sup
+0̸=vh ∈Vh
+
+|Bh(vh, qh)| ∥vh∥1,h
+
+≥
+
+θˆ∥qh∥0,Ω
+
+∀q ∈ Πh.
+
+(29)
+
+Proof. Consider the Taylor-Hood Finite element spaces Vh × Πh such that the discrete inf-sup holds for the bilinear form b(vh, qh), see [ESW14, Section 5.5] i.e. there exist a positive constant θˆ > 0, independent of h such that
+
+sup
+0̸=vh ∈Vh
+
+|b(vh, qh)| ∥vh∥1,Ω
+
+≥
+
+θˆ∥qh∥0,Ω
+
+∀qh ∈ Πh.
+
+Consider the discrete space of strongly imposed Navier conditions
+
+Vh,0 = {vh ∈ Vh : vh · n = 0 on Γnav}.
+
+This space naturally yields that b∂(vh, qh) = 0 for all vh in Vh,0, so we obtain
+
+sup
+0̸=vh ∈Vh,0
+
+|Bh(vh, qh)| ∥vh∥1,h
+
+=
+
+sup
+0̸=vh ∈Vh,0
+
+|b(vh, qh)| ∥vh∥1,h
+
+=
+
+sup
+0̸=vh ∈Vh,0
+
+|b(vh, qh)| ∥vh∥1,Ω
+
+≥
+
+θˆ∥qh∥0,Ω
+
+∀qh ∈ Πh
+
+in virtue of the classical inf-sup condition. Now, use this space for a lower bound i.e.
+
+sup
+0̸=vh ∈Vh
+
+|Bh(vh, qh)| ∥vh∥1,h
+
+≥
+
+sup
+0̸=vh ∈Vh,0
+
+|Bh(vh, qh)| ∥vh∥1,h
+
+≥
+
+θˆ∥qh∥0,Ω
+
+∀qh ∈ Πh.
+
+This concludes the proof.
+
+Next, We aim to establish the well-posedness of problem (23). We will utilize a fixed-point operator linked to a linearized form of the problem and demonstrate that this operator has a unique fixed-point. Equivalently, we can prove the well-posedness of problem (23) using the Banach fixed-point theorem.
+
+3.1.2 The discrete fixed-point operator and its well-posedness
+
+Let us introduce the set
+
+Kh = vh ∈ Vh : ∥vh∥1,h ≤ αˆ−1∥f ∥V′ ,
+
+(30)
+
+with αˆ > 0 being the constant defined below in Theorem 4. Now, let us define the discrete fixed point operator as
+Jh : Kh → Kh, wh → Jh (wh) = uh,
+where given wh ∈ Kh, uh represents the first component of the solution of the linearized version of problem (24): Find (uh, ph) ∈ Vh × Πh
+
+Ah(uh, vh) + Bh(vh, ph) + c(wh; uh, vh) = F (vh) ∀vh ∈ Vh,
+
+Bh(uh, qh) = 0
+
+∀qh ∈ Πh.
+
+(31)
+
+Based on the above, we can establish the following relation
+
+Jh (uh) = uh ⇔ (uh, ph) ∈ Vh × Πh satisfies (24).
+
+(32)
+
+In order to guarantee the well-posedness of the discrete problem (24), it is enough to demonstrate the existence of a unique fixed-point for Jh within the set Kh. However, before delving into the analysis of solvability, we first need to establish the well-definedness of the operator Jh. Let us introduce the bilinear form.
+
+Ch [(uh, ph); (vh, qh)] = Ah(uh, vh) + Bh(uh, qh) + Bh(vh, ph).
+
+(33)
+
+9
+
+Theorem 4. There exist a positive constant αˆ such that
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Ch [(uh, ph) ; (vh, qh)] ∥(vh, qh)∥
+
+≥
+
+αˆ ∥(uh, ph)∥
+
+∀ (uh, ph) ∈ Vh × Πh,
+
+with
+
+αˆ
+
+=
+
+CS 2CS +
+
+θˆ θˆ
+
++
+
+1
+
+.
+
+where CS and θˆ are the coercivity and inf-sup stability constants.
+
+Proof. Owing to Theorem 3, it is clear that Ch [·; ·] is bounded. Moreover, from Lemma H, Lemma I, and [EG21, Proposition 2.36], it is not difficult to see that above inf-sup condition holds.
+
+Now, we are in position to establish the well-posedness of Jh .
+
+Theorem 5. Assume that
+
+2
+
+αˆ2 ∥f ∥V′ ≤ 1,
+
+(34)
+
+Then, given wh ∈ Kh, there exists a unique uh ∈ Kh such that Jh (wh) = uh.
+
+Proof. Given wh ∈ Kh, we begin by defining the bilinear form:
+
+Awh [(uh, ph); (vh, qh)] := Ch [(uh, ph); (vh, qh)] + c(wh; uh, vh),
+
+(35)
+
+where Ch and c are the forms defined in Theorem 4 and (25), respectively, that is
+
+Awh [(uh, ph); (vh, qh)] = Ah(uh, vh) + Bh(uh, qh) + Bh(vh, qh) + c(wh; uh, vh). Then, problem (24) can be rewritten equivalently as: Find (uh, ph) ∈ Vh × Πh, such that
+
+Awh [(uh, ph); (vh, qh)] = F (vh) ∀(vh, qh) ∈ Vh × Πh.
+
+(36)
+
+First, we establish the well-posedness of J in order to demonstrate the well posedness of problem (36) using the Banach Neˇcas Babuˇska theorem [EG21, Theorem 2.6]. Consider (uh, ph), (vˆh, qˆh) ∈ Vh × Πh with (vˆh, qˆh) ̸= 0, from Theorem 3 we can observe that
+
+sup
+
+Awh [(uh, ph); (vh, qh)] ≥ |Ch [(uh, ph); (vˆh, qˆh)] | − |c(wh; uh, vˆh)|
+
+0̸=(vh ,ph )∈Vh ×Πh
+
+∥(vh, qh)∥
+
+∥(vˆh, qˆh)∥
+
+∥(vˆh, qˆh)∥
+
+≥
+
+|Ch [(uh, ph); (vˆh, qˆh)] | ∥(vˆh, qˆh)∥
+
+−
+
+∥wh∥1,h∥(uh, ph)∥,
+
+which together with Theorem 4 and the fact that (vˆh, pˆh) is arbitrary, implies
+
+sup
+0̸=(vh ,ph )∈Vh ×Πh
+
+Awh
+
+[(uh, ph); (vh, qh)] ∥(vh, ph)∥
+
+≥
+
+(αˆ − ∥wh∥1,h) ∥(uh, ph)∥.
+
+(37)
+
+Hence, from the definition of set Kh see (30), and assumption (34), we easily get
+
+1
+
+αˆ
+
+∥wh∥1,h
+
+≤
+
+αˆ ∥f ∥V′
+
+≤
+
+, 2
+
+(38)
+
+and then, combining (37) and (38), we obtain
+
+sup
+0̸=(vh ,ph )∈Vh ×Πh
+
+Awh
+
+[(uh, ph); (vh, qh)] ∥(vh, qh)∥
+
+≥
+
+αˆ 2 ∥(uh, ph)∥
+
+∀(uh, ph) ∈ Vh × Πh.
+
+(39)
+
+On the other hand, for a given (uh, qh) ∈ Vh × Πh, we observe that
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Awh
+
+[(vh, qh); (uh,
+
+ph)]
+
+≥
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Awh
+
+[(vh, qh); (uh, ph)] ∥(vh, qh)∥
+
+=
+
+sup
+
+Ch [(vh, qh); (uh, qh)] + c(wh; vh, uh) ,
+
+0̸=(vh ,qh )∈Vh ×Πh
+
+∥(vh, qh)∥
+
+10
+
+from which,
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Awh
+
+[(vh, qh); (uh, qh)]
+
+≥
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+|Ch
+
+[(vh, qh); (uh, ph)] + c(wh; vh, uh)| ∥(vh, qh)∥
+
+≥
+
+sup
+
+|Ch [(vh, qh); (uh, ph)] | − |c(wh; vh, uh)| ,
+
+0̸=(vh ,qh )∈Vh ×Πh
+
+∥(vh, qh)∥
+
+∥(vh, qh)∥
+
+for all 0 ̸= (vh, qh) ∈ Vh × Πh, which together with Theorem 3, implies
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Awh
+
+[(vh, qh); (uh, ph)]
+
+≥
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Ch
+
+[(vh, qh); (uh, ph)] ∥(vh, qh)∥
+
+−
+
+∥wh∥1,h∥(uh, ph)∥.
+
+(40)
+
+Therefore, using the fact that Ch [·; ·] is symmetric, from the inequality in Theorem 4 and (40) we obtain
+
+sup
+
+Awh [(vh, qh); (uh, ph)] ≥ αˆ∥(uh, ph)∥ − ∥wh∥1,h∥(uh, ph)∥,
+
+0̸=(vh ,qh )∈Vh ×Πh
+
+which combined with (38), yields
+
+αˆ
+
+sup
+
+Awh [(vh, qh); (uh, ph)] ≥
+
+0̸=(vh ,qh )∈Vh ×Πh
+
+2 ∥(uh, ph)∥ > 0
+
+∀(uh, ph) ∈ Vh × Πh, (uh, ph) ̸= 0.
+
+(41)
+
+By examining (39) and (41), we can deduce that Awh (·, ·) satisfies the conditions of the Banach Neˇcas Babuˇska theorem [EG21, Theorem 2.6]. This guarantees the existence of a unique solution (uh, ph) ∈ Vh × Πh to (24), or equivalently, the existence of a unique uh ∈ Vh such that Jh(wh) = uh. Furthermore, from (39) and (36) we derive the following inequality:
+1 ∥uh∥1,h ≤ ∥(uh, ph)∥ ≤ αˆ ∥f ∥V′ .
+This concludes the proof by showing that uh ∈ Kh.
+
+3.1.3 Well-posedness of the discrete problem
+
+The subsequent theorem establishes the well-posedness of Nitsche’s scheme (24).
+
+Theorem 6. Let f ∈ V′ such that
+
+2
+
+αˆ2 ∥f ∥V′ ≤ 1.
+
+(42)
+
+Then, there exists a unique (uh, ph) ∈ Vh × Πh solution to (23). In addition, there exists C > 0, independent of h, such that
+
+∥uh∥1,h + ∥ph∥0,Ω ≤ C∥f ∥V′ .
+
+(43)
+
+Proof. According to the relations given in (32), our aim is to establish well-posedness of (23). This can be
+accomplished by demostrating that Jh possessess a unique fixed point in Kh using Banach’s fixed point theorem. The validity of Assumption (42) as shown in Theorem 5, ensures the well-definedness of Jh. Now, let wh1, wh2, uh1, uh2 ∈ Kh, be such that uh1 = Jh (wh1) and uh2 = Jh (wh2). By employing the definition of J and (36), we can conclude the existence of unique ph1, ph2 ∈ L2(Ω), satisfies the following equations:
+
+Awh1 [(uh1, ph1) ; (vh, qh)] = F (vh), and Awh2 [(uh2, ph2) ; (vh, qh)] = F (vh) ∀(vh, qh) ∈ Vh × Πh. By adding and subtracting appropriate terms, we can derive the following:
+
+Awh1 [(uh1 − uh2; ph1 − ph2) , (vh, qh)] = −c (wh1 − wh2; uh2, vh) ∀(vh, qh) ∈ Vh × Πh.
+
+Given that wh1 ∈ Kh and using (44), (39), and Theorem 3, we can deduce:
+
+αˆ 2
+
+∥uh1
+
+−
+
+uh2∥1
+
+≤
+
+sup
+0̸=(vh ,ph )∈Vh ×Πh
+
+Awh1
+
+[(uh1
+
+−
+
+uh2, ph1 − ph2) ∥(vh, qh)∥
+
+; (vh,
+
+qh)]
+
+=
+
+sup
+
+−c (wh1 − wh2; uh2, vh)
+
+0̸=(vh ,qh )∈Vh ×Πh
+
+∥(vh, qh)∥
+
+≤ ∥wh1 − wh2∥1,h ∥uh2∥1,h ,
+
+(44)
+
+11
+
+which together with the fact that uh2 ∈ Kh, implies
+1 ∥uh1 − uh2∥1,h ≤ αˆ ∥f ∥V′ ∥wh1 − wh2∥1,h
+αˆ ∥uh1 − uh2∥1,h ≤ 2 ∥wh1 − wh2∥1,h . Assumption (42) directly implies that Jh is a contraction mapping. Now, to establish the estimate (43), let uh ∈ Kh be the unique fixed point of Jh and let uh ∈ Vh be the unique solution of (23) with (uh, ph) ∈ Vh ×Πh. By the definition of Kh, it is evident that uh satisfies the following
+∥uh∥1,h ≤ αˆ−1∥f ∥V′ .
+
+Consequently, utilizing (39) on Auh , referring back to the definition of Auh given in (35), and using the fact that (uh, ph) satisfies (23), we obtain
+
+∥ph∥0,Ω
+
+≤
+
+∥(uh, ph)∥
+
+≤
+
+2 αˆ
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+Auh
+
+[(uh, ph); (vh, qh)] ∥(vh, qh)∥
+
+=
+
+2 αˆ
+
+sup
+0̸=(vh ,qh )∈Vh ×Πh
+
+F (vh) , ∥(vh, ph)∥
+
+Thus
+
+2 ∥ph∥0,Ω ≤ α ∥f ∥V′ .
+
+Let us denote Ih be the interpolator operator, Under usual assumptions, the following approximation property hold.
+
+Lemma J. Let there exists C1 > 0 and C2 > 0, independent of h, such that for each u ∈ Hl+1(T ) with
+
+0 ≤ l ≤ k, there holds
+
+∥u
+
+−
+
+Ih(u)∥L2(T )
+
+≤
+
+C1
+
+hlT+2 ρT
+
+|u|Hl+1(T )
+
+≤
+
+Cˆ1hlT+1|u|Hl+1(T )
+
+|u
+
+−
+
+Ih(u)|H1(T )
+
+≤
+
+C2
+
+hlT+2 ρ2T
+
+|u|Hl+1(T )
+
+≤
+
+Cˆ2hlT |u|Hl+1(T )
+
+where hT is the diameter of T, ρT is the diameter of the largest sphere contained in T , and k is the degree of the polynomial.
+
+Proof. See [BS08].
+
+4 A priori error bounds
+
+The objective of this section is to establish the convergence of Nitsche’s scheme (23) and determine the rate of convergence. We begin by deriving the corresponding C`ea’s estimate.
+
+Theorem 7. Assume that
+
+2
+
+1
+
+ααˆ ∥f ∥V′
+
+≤
+
+, 2
+
+(45)
+
+with α and αˆ being the positive constants in (18) and Theorem 4, respectively. Let (u, p) ∈ V × Π and (uh, ph) ∈ Vh × Πh be the unique solutions of problems (7) and (23), respectively. Then there exists Ccea > 0, independent of h, such that
+
+∥(u − uh, p − ph)∥ ≤ Ccea
+
+inf
+
+∥(u − vh, p − qh)∥ .
+
+0̸=(vh ,qh )∈Vh ×Πh
+
+(46)
+
+Proof. In order to simplify the subsequent analysis, we define eu = u − uh and ep = p − ph, and for any (zh, ζh) ∈ Vh × Πh, we write
+
+eu = ξu + χu = (u − zh) + (zh − uh) , and ep = ξp + χp = (p − ζh) + (ζh − ph) .
+
+(47)
+
+By recalling the definition of the bilinear forms C and Ch in (16) and (33), respectively, and considering (7) and (23), we can observe the validity of following identities
+
+Ch [(u, p); (v, q)] + c(u; u, v) = F (v) ∀(v, q) ∈ V × Π.
+
+12
+
+and Ch [(uh, ph) ; (vh, qh)] + c (uh; uh, vh) = F (vh) ∀ (vh, qh) ∈ Vh × Πh.
+Based on these observations, we can deduce the Galerkin orthogonality property
+
+Ch [(eu, ep); (vh, qh)] + [c (u; u, vh) − c (uh; uh, vh)] = 0 ∀ (vh, qh) ∈ Vh × Πh.
+
+(48)
+
+Subsequently, by utilizing the decompositions given in (47), the definition of Aw in (35) for discrete Awh , and the identity
+
+c (u; u, vh) = c (u − uh; u, vh) + c (uh; u, vh) .
+
+(49)
+
+Now, using (35), (49), and (48), we deduce that for all (vh, qh) ∈ Vh × Πh, the following relationship holds
+Auh [(χu, χp) ; (vh, qh)] = Ch [(χu; χp) , (vh, qh)] + c (uh; χu, vh) , = −Ch [(ξu, ξp) ; (vh, qh)] + Ch [(eu, ep) ; (vh, qh)] + c (uh; χu, vh) , = −Ch [(ξu, ξp) ; (vh, qh)] − c (u − uh; u, vh) − c (uh; u, vh) + c (uh; uh, vh) + c (uh; χu, vh) , = −Ch [(ξu, ξp) ; (vh, qh)] − c (ξu + χu; u, vh) − c (uh; ξu + χu, vh) + c (uh; χu, vh) , = −Ch [(ξu, ξp) ; (vh, qh)] − c (ξu; u, vh) − c (χu; u, vh) − c (uh; ξu, vh) ,
+
+which together with the definition of Ch given in equation (33), implies
+
+Auh [(χu, χp) ; (vh, qh)] = − Ah (ξu, vh) − Bh (ξu, qh) − Bh (vh, ξp) − c (ξu; u, vh) − c (χu; u, vh)
+
+− c (uh; ξu, vh) ,
+
+(50)
+
+for all (vh, qh) ∈ Vh × Πh. Next, utilizing the discrete inf-sup condition (41) at the left hand side of (50), and applying the continuity properties of A, B, and c stated in Theorem 3 to the right hand side of (50), we can derive the following
+
+2 ∥χu∥1,h + ∥χp∥0 ≲ αˆ∥(vh, qh)∥ ∥ξu∥1,h∥vh∥1,h + ∥ξu∥1,h∥qh∥0 + ∥ξp∥0∥vh∥1,h + ∥ξu∥1,h∥vh∥1,h∥u∥1+
+∥χu∥1,h∥vh∥1,h∥u∥1 + ∥ξu∥1,h∥vh∥1,h∥uh∥1,h ,
+2 ≲ αˆ ∥ξp∥0 + 2 + ∥uh∥1,h + ∥u∥1 ∥ξu∥1,h + ∥χu∥1,h ∥u∥1 ,
+2 ≲ αˆ ∥ξp∥0 + 2 + ∥uh∥1,h + ∥u∥1 ∥ξu∥1,h + ∥χu∥1,h ∥u∥1 ,
+
+2
+
+2
+
+∥χp∥0 + 1 − αˆ ∥u∥1 ∥χu∥1,h ≲ αˆ ∥ξp∥0 + 2 + ∥uh∥1,h + ∥u∥1 ∥ξu∥1,h .
+
+(51)
+
+Therefore, by taking into account the fact that u ∈ K and uh ∈ Kh based respectively on assumptions (45) and (51), we can conclude that
+
+∥χp∥0 + ∥χu∥1,h ≲ ∥ξp∥0 + ∥ξu∥1,h .
+
+(52)
+
+In this way, from (47), (52) and the triangle inequality we obtain
+
+∥(ep, eu)∥ ≤ ∥(χp, χu)∥ + ∥(ξp, ξu)∥ ≲ ∥(ξp, ξu)∥ .
+
+This, together with the fact that (zh, ζh) ∈ Vh × Πh is arbitrary, leads to the conclusion of the proof. Theorem 8. Let (u, p) ∈ V × Π and (uh, ph) ∈ Vh × Πh denotes the unique solutions of the continuous problem (7) and discrete problem (23), respectively, with f satisfying (45). Suppose that (u, p) ∈ (Hl+1(Ω)∩V)×(Hl(Ω)∩ Π) with l ≥ 1, Then there exists Crate > 0, independent of h, such that
+∥(u − uh, p − ph)∥ ≤ Crate hl |u|Hl+1(Ω) + |p|Hl(Ω) .
+Proof. The conclusion can be easily obtained by directly applying Theorem 7 and Lemma J.
+
+13
+
+5 Stabilized formulation for high Reynolds numbers
+
+The aim of this section is to provide a VMS-LES formulation of the Navier Stokes equations with slip boundary conditions. We validate with numerical tests the use of the Variational Multiscale (VMS) method with Nitsche in solving the Navier-Stokes equations in their standard weak form. In a time interval (0, T ] with T > 0, the model problem reads:
+
+∂u − ν∆u + (u · ∇)u + ∇p = f in Ω × (0, T ),
+∂t div u = 0 in Ω × (0, T ),
+
+u = 0 on ΓD × (0, T ),
+
+u · n = 0 on ΓNav × (0, T ),
+
+(53)
+
+νntD(u)τ k + βu · τ k = 0 on ΓNav × (0, T ), k = 1, 2,
+
+u(0) = 0 in Ω × {0},
+
+(p, 1)Ω = 0.
+
+The weak formulation of problem (53) can be written as for all t ∈ (0, T ], Find (u, p) ∈ V × Π with u(0) = 0 such that
+
+A [(u, p) ; (v, q)] = F(v) ∀ ∈ (v, q) ∈ V × Π,
+
+(54)
+
+where
+
+A [(u, p) ; (v, q)] :=
+
+∂u
+
+ν
+
+, v + (D(u), D(v))+(u · ∇u, v)−(p, ∇ · v)−(q, ∇ · u)+
+
+β
+
+τ i · v τ i · u ds,
+
+∂t
+
+2
+
+ΓNav
+
+i
+
+F(v) := ⟨f , v⟩.
+
+5.1 The VMS-LES formulation
+
+The VMS technique involves decomposing the solution into coarser and finer scales. As a result, we decompose the weak formulation of the Navier-Stokes equations (54) into two subproblems, considering the coarse scale and the fine scale. The finite element method is used to approximate the coarse scale solution, while the fine scale solution is formulated analytically. Now, we decompose the space into the direct sum of two subspaces:
+
+Y0 = V0h ⊕ V0′
+
+(55)
+
+where V0h known as coarse scale spaces, are the finite element spaces used for the numerical discretization, i.e. V0h = Vh × Πh,
+
+where V0′ are infinite dimensional, known as the fine scale spaces, and orthogonal to V0h respectively. Then, we have the following decompositions from (55):
+
+u = uh + u′, p = ph + p′,
+
+where (u, p) ∈ Y0 and this is the starting point of VMS-LES method i.e. the separation of the flow field into resolved scales (uh, ph) and unresolved scales (u′, p′). Following the approach proposed in [AR19], Performing the two-scale decomposition on the problem (54), we obtain two subproblems, one for the coarse and one for
+the fine scales:
+
+A [Vh; Uh + U′] = F (Vh)
+
+(56)
+
+A [V′; Uh + U′] = F (V′)
+
+(57)
+
+where the abbreviations U = (u, p) and V = (v, q) are used for simplicity. It should be noted that the fine scale solution is typically modeled analytically, expressed in terms of both the problem’s data and the coarse scale solution, and then substituted into the coarse scale subproblem. By projecting the fine scale solution into
+
+14
+
+the coarse scale solution, a finite dimensional system for the coarse scale solution is obtained. The solution of (57) is represented as
+
+U′ = FU(R(Uh)),
+
+(58)
+
+which can be interpreted as the unresolved scales that are derived as a function of the residual of the resolved scales. By substituting (58) into the resolved scales equation (56), a unified set of equations for the resolved scales is obtained.
+The objective is to approximate FU using models that are not dependent on the underlying physics of turbulent flows but are derived solely based on mathematical reasoning. Finally, we adopt a similar approach to [Cod02] in modeling the fine-scale velocity and pressure variables as:
+
+u′ ≃ −SM (uh) rM (uh, ph) p′ ≃ −SC (uh) rC (uh)
+
+where rM (uh, ph) and rC (uh) indicate the strong residuals of the momentum and continuity equations:
+
+rM
+
+(uh, ph)
+
+=
+
+∂uh ∂t
+
++ uh
+
+· ∇uh
+
++
+
+∇ph
+
+−
+
+ν∆uh
+
+− f,
+
+rC (uh) = ∇ · uh,
+
+respectively. Moreover, SM and SC are the stabilization parameters designed by a specific Fourier analysis applied in the framework of stabilized methods, which we choose similarly to [BCC+07] as:
+
+SM (uh) =
+
+σ2 ∆t2
+
++
+
+uh
+
+·
+
+Guh
+
++
+
+Cr ν 2 G
+
+:
+
+G
+
+−1/2
+
+SC (uh) = (SM g · g)−1
+
+(59)
+
+where ∆t denotes the time step, while σ denotes the order of the BDF (Backward Differentiation Formulas) time scheme [QSS98]. Furthermore, the constant Cr = 60 · 2r−2 is calculated using an inverse inequality which depends on the polynomial degree r associated with the velocity finite element space [FD15]. Moreover, G and
+g corresponds to the metric tensor and vector, respectively, and their definitions are defined as
+
+Gij
+
+=
+
+d k=1
+
+∂ξk ∂xi
+
+∂ξk ∂xj
+
+,
+
+gi
+
+=
+
+d k=1
+
+∂ξk , ∂xi
+
+with x = {xi}di=1 represents the coordinates of element K in physical space, ξ = {ξi}di=1 represents the
+
+coordinates
+
+of
+
+element
+
+Kˆ
+
+in
+
+parametric
+
+space,
+
+and
+
+∂ξ ∂x
+
+represents
+
+the
+
+inverse
+
+Jacobian
+
+of
+
+the
+
+element
+
+mapping
+
+between the reference and physical domains. We make the same assumptions as [BCC+07]:
+
+
+ 
+
+∂vh ∂t
+
+= 0,
+
+u′ = 0 on Γ,
+
+(60)
+
+ 
+
+(D(vh), D(u′)) = 0.
+
+By explicitly expressing the left-hand side of (56) and adding the Nitsche terms to the action of the Laplace
+
+15
+
+distribution, we arrive at the following result:
+
+A
+
+[Vh;
+
+Uh
+
++
+
+U′]
+
+=(ut,
+
+vh)
+
++
+
+ν 2
+
+(D(uh),
+
+D(vh))
+
++
+
+((uh
+
++
+
+u′)
+
+·
+
+∇(uh
+
++
+
+u′),
+
+vh)
+
+−
+
+(ph
+
++
+
+p′,
+
+∇
+
+·
+
+vh)
+
+− (qh, ∇ · (uh + u′)) +
+
+p′(n · vh)ds +
+
+q(n · u′)ds
+
+ΓNav
+
+ΓNav
+
++
+
+− nt(νD(uh) − phI)n(n · vh)ds − nt(νD(vh) − qhI)n(n · uh)ds
+
+E∈ENav
+
+E
+
+E
+
++β
+
+τ i · vh τ i · uh ds + γ he−1(uh · n)(vh · n)ds ,
+
+Ei
+
+E
+
+ν =(ut, vh) + 2 (D(uh), D(vh)) + (uh · ∇uh, vh) − (ph, ∇ · vh) − (qh, ∇ · uh)
+
++
+
+− nt(νD(uh) − phI)n(n · vh)ds − nt(νD(vh) − qhI)n(n · uh)ds
+
+E∈ENav
+
+E
+
+E
+
++β
+
+τ i · vh τ i · uh ds + γ he−1(uh · n)(vh · n)ds − (p′, ∇ · vh)
+
+Ei
+
+E
+
+− (qh, ∇ · u′) +
+
+p′(n · vh)ds +
+
+q(n · u′)ds + (uh · ∇u′, vh)
+
+ΓNav
+
+ΓNav
+
++ (u′ · ∇uh, vh) + (u′ · ∇u′, vh).
+
+Thereafter, we apply integration by parts to the fine-scale terms that appear in the coarse-scale equations, by considering the aforementioned assumption (60). This results into the semi-discrete VMS-LES formulation of the Navier-Stokes equation with Nitsche which is expressed in terms of the weak residual as follows: for all t ∈ (0, T ], Find Uh = {uh, ph} ∈ V0h with uh(0) = 0 such that
+
+H [Vh; Uh] = L (Vh)
+
+(61)
+
+for all Vh = {vh, qh} ∈ V0h, where we considered the following definitions:
+H [Vh; Uh] := GNS (Vh, Uh) + GSUPG (Vh, Uh) + GVMS (Vh, Uh) + GLES (Vh, Uh) , L (Vh) := ⟨vh, f ⟩,
+
+with
+
+GNS (Vh, Uh) =
+
+ν (ut, vh) + 2 (D(vh), D(uh)) + (vh, uh · ∇uh) − (∇ · vh, ph) − (qh, ∇ · uh) +
+
+T ∈Th
+
+− nt (νD(uh) − phI) n (n · vh) ds − nt (νD(vh) − qhI) n (n · uh) ds
+
+E∈ENav
+
+E
+
+E
+
++β
+
+τ i · vh τ i · uh ds + γ he−1 (uh · n) (vh · n) ds
+
+(62)
+
+Ei
+
+E
+
+GSUPG (Vh, Uh) =
+
+uh · ∇vh − C˜∇qh, SM (uh) rM (uh, ph) − (∇ · vh, SC (uh) rC (uh))
+
+(63)
+
+T ∈Th
+
+GVMS (Vh, Uh) =
+T ∈Th
+
+uh · (∇vh)T , SM (uh) rM (uh, ph) −
+E∈ENav
+
+SC (uh) rC (uh) (n · vh) ds
+E
+
++ qh (n · SM (uh) rM (uh, ph)) ds
+
+(64)
+
+E
+
+GLES (Vh, Uh) = −
+
+(∇vh, SM (uh) rM (uh, ph) ⊗ SM (uh) rM (uh, ph)) .
+
+(65)
+
+T ∈Th
+
+In our formulation, we introduce an additional constant C˜ in (63) to discuss two choices for finite elements. Specifically, we set C˜ = 0 when we make use of P2 − P1 inf-sup stable finite elements. Conversely, when we make use of stabilized equal order finite elements for both the velocity and pressure variables, we set C˜ = 1,
+as stated in [AR19]. We would like to highligt that (62) represents the weak formulation of the Navier-Stokes
+
+16
+
+equation with Nitsche. We conclude that (63) represents the classical Streamline Upwind Petrov Galerkin (SUPG) stabilization terms and (64) represents additional terms introduced by VMS (Variational Multiscale) method. Finally, (65) represents the LES (Large Eddy Simulation) modeling of turbulence.
+
+Remark 5.1. This formulation differs from the standard one because of the contribution of pressure terms on the boundary ΓNav.
+
+Remark 5.2. It is observed that as the time step ∆t approaches zero, the stabilization parameters in (59)
+
+behave as follows:
+
+1 SM ∼ ∆t → 0 SC ∼ ∆t → ∞.
+
+A similar behavior is also demonstrated in [Per20] i.e., the VMS-LES modelling may lose its effectiveness for small time steps. It is observed that as ∆t → 0 , the term associated with the LES modeling of turbulence (∇vh, SM (uh) rM (uh, ph) ⊗ SM (uh) rM (uh, ph)) becomes negligible, while the dominant term (∇ · vh, SC (uh) rC (uh)) fails to effectively act as a turbulence model in the semi-discrete VMS-LES weak formulation of the Navier-Stokes equations (61).
+
+5.2 Fully discrete VMS-LES formulation
+We obtain a fully discrete VMS-LES weak formulation of the Navier-Stokes equations with Nitsche by discretizing time with the BDF scheme of order σ, and the nonlinear terms in the above formulation are handled using Newton-Gregory backward polynomials [CK06]. A detailed explanation of the fully discrete VMS-LES method is provided in [Per20].
+
+Find Uh = unh+1, pnh+1 ∈ V0h : G˜NS (Vh, Uh) + G˜SUPG (Vh, Uh) + G˜VMS (Vh, Uh) + G˜LES (Vh, Uh) = ⟨vh, f n+1⟩,
+
+(66)
+
+for all Vh = {vh, qh} ∈ V0h with f n+1 = f (tn+1).
+
+The bilinear forms G˜NS (Vh, Uh) , G˜SUPG (Vh, Uh) , G˜VMS (Vh, Uh) , and G˜LES (Vh, Uh) are defined in Appendix A. These forms are modifications of the bilinear forms defined in (61).
+
+6 Numerical Experiments
+Now, computational examples are presented to demonstrate the consistency of the numerical scheme. The open-source finite element library FEniCS [ABH+15] is utilized to simulate all numerical computations. The theoretical results of Theorem 8 is numerically validated in the first example. The Nitsche method is validated in the second example by comparing with the benchmark problem found in the literature [CnGO21]. The VMS-LES approach with Nitsche at high Reynolds numbers is validated in the last two examples. A Lagrange multiplier is used to implement the average zero condition for the pressure approximation.
+
+6.1 Test 1: Convergence rates
+
+In this numerical test, we compute the convergence rate of the Nitsche method (8), considering the square
+
+domain Ω = (−1, 1)2, and a sequence of uniformly refined meshes. We present numerical test based on the
+
+following exact solution
+
+u (x1, x2) = 2x2(1 − x21), −2x1(1 − x22) T
+
+p (x1, x2) = (2x1 − 1) (2x2 − 1) .
+
+The slip boundary condition is imposed on x2 = −1 and the essential boundary condition is enforced on the rest of the boundary. We can observe that Table 1 present the approximation errors for pressure and velocity as well as the convergence rate, which are in good agreement with the theory. Table 2 presents the error in L2 norm on the slip condition on ΓNav and it shows that the larger the Nitsche parameter γ is, the smaller error on the slip condition. This happen because the error of the actual equation increases, so there is a compromise between both things. We can observe this behaviour in Table 1. Additionally, we see that the number of Newton iterations required to reach the prescribed tolerance of 10−7 is at most three. Figure 1 represents the computed velocity field. The results in Table 1 and Figure 1 were computed with β = 10, ν = 1, and γ = 10.
+
+17
+
+Table 1: Test 1: Experimental errors, iteration count, Number of degree of freedom (D.O.F.), and convergence rates for the approximate solutions uh and ph. Values are displayed for the Taylor-Hood space P2 − P1 with β = 10 and ν = 1.
+
+γ
+
+Mesh D.O.F. Newton Its ∥p − ph∥0 rate ∥∇(u − uh)∥ rate ∥u − uh∥0 rate
+
+8×8
+
+659
+
+3
+
+5.20 × 10−2 − 1.12 × 10−1 − 4.90 × 10−3 -
+
+16 × 16 2467
+
+2
+
+1.27 × 10−2 2.03 2.23 × 10−2 2.32 4.90 × 10−4 3.34
+
+1.0 32 × 32 9539
+
+2
+
+3.13 × 10−3 2.02 4.55 × 10−3 2.29 5.00 × 10−5 3.30
+
+64 × 64 37507
+
+2
+
+7.78 × 10−4 2.01 1.23 × 10−3 1.88 7.00 × 10−6 2.92
+
+128 × 128 148739
+
+2
+
+1.94 × 10−4 2.00 2.59 × 10−4 2.25 1.00 × 10−6 3.23
+
+8×8
+
+659
+
+3
+
+5.18 × 10−2 − 8.33 × 10−2 − 3.47 × 10−3 -
+
+16 × 16 2467
+
+2
+
+1.27 × 10−2 2.02 1.81 × 10−2 2.19 3.82 × 10−4 3.18
+
+10 32 × 32 9539
+
+2
+
+3.14 × 10−3 2.02 4.24 × 10−3 2.10 4.50 × 10−5 3.09
+
+64 × 64 37507
+
+2
+
+7.78 × 10−4 2.01 1.03 × 10−3 2.04 5.00 × 10−6 3.04
+
+128 × 128 148739
+
+2
+
+1.94 × 10−4 2.00 2.53 × 10−4 2.02 1.00 × 10−6 3.01
+
+8×8
+
+659
+
+3
+
+5.15 × 10−2 − 6.32 × 10−2 − 2.74 × 10−3 -
+
+16 × 16 2467
+
+2
+
+1.27 × 10−2 2.02 1.59 × 10−2 1.98 3.42 × 10−4 3.00
+
+100 32 × 32 9539
+
+2
+
+3.13 × 10−3 2.02 3.90 × 10−3 1.99 4.30 × 10−5 3.00
+
+64 × 64 37507
+
+2
+
+7.78 × 10−4 2.01 1.00 × 10−3 1.99 5.00 × 10−6 2.99
+
+128 × 128 148739
+
+2
+
+1.94 × 10−4 2.00 2.50 × 10−4 1.99 1.00 × 10−6 2.99
+
+Table 2: Test 1: Computation of ∥uh · n∥0,ΓNav for different values of γ
+
+Mesh
+8×8 16 × 16 32 × 32 64 × 64 128 × 128
+
+γ = 0.01
+1.09 × 10−2 1.32 × 10−3 2.16 × 10−4 2.20 × 10−5 3.00 × 10−6
+
+γ = 0.1
+1.10 × 10−2 1.37 × 10−3 7.35 × 10−4 1.90 × 10−5 3.00 × 10−6
+
+γ=1
+1.87 × 10−2 2.23 × 10−3 2.24 × 10−4 4.90 × 10−5 2.00 × 10−6
+
+γ = 10
+1.31 × 10−2 1.46 × 10−3 1.60 × 10−4 1.80 × 10−5 2.00 × 10−6
+
+γ = 100
+5.77 × 10−4 6.40 × 10−5 7.00 × 10−6 1.00 × 10−6 1.00 × 10−7
+
+Figure 1: Test 1: velocity field 18
+
+Re = 1
+
+Re = 500
+
+Figure 2: Test 2: Velocity streamlines f orRe = 1 and Re = 500 with mesh = 32 × 32
+
+Re = 1000
+
+Re = 5000
+
+Figure 3: Test 2: Velocity streamlines for Re = 1000 and Re = 5000 with mesh = 32 × 32 at T = 35 with ∆t = 0.035s
+
+6.2 Test 2: Lid-driven cavity test
+
+This is a lid-driven cavity test and we perform it for steady and unsteady formulations. Consider the stationary Navier-Stokes equations with slip boundary conditions. The evaluation includes modelling a planar flow of an isothermal fluid inside a cavity driven. The cavity is represented as a square domain Ω = (0, 1) × (0, 1), with negligible body force, and one moving wall. The velocity imposed on the top boundary {x2 = 1} is defined as
+
+ (10x1,
+
+0)T
+
+
+
+u = (1, 0)T
+
+(10 − 10x1, 0)T
+
+for 0.0 ⩽ x1 ⩽ 0.1 for 0.1 ⩽ x1 ⩽ 0.9 for 0.9 ⩽ x1 ⩽ 1
+
+and the homogeneous slip boundary with β = 1 and γ = 10 is enforced on the other three sides. In Figure 2, we observe the velocity streamlines for Re = 1 and Re = 500, confirming the expected behavior and aligning with the results reported in [MFMPH10].
+
+Secondly, we consider the unsteady Navier Stokes equations with the slip boundary condition and we apply the VMS-LES approach with Nitsche for validating the scheme at high Reynolds numbers. Figure 3 shows the velocity streamlines plots at Reynolds number Re = 1000 and Re = 5000 at final time T = 35 with time step ∆t = 0.035s. As the Reynolds number increases, the primary vortex migrates towards the center of the cavity or becomes more dense and the flow of the fluid is unpredictable in this region.
+
+19
+
+6.3 Test 3: Flow past through a circular cylinder
+This example is based on a standard three dimensional CFD benchmark problem: flow past through a circular cylinder. The geometrical settings of the domain is taken from [ACC23]. The computational mesh is depicted in Figure 4. In this problem, no slip boundary condition are imposed on all the lateral walls of the box, while
+
+Figure 4: Test 3: Surface view of the computational mesh
+
+do-nothing boundary conditions is imposed at the outflow plane. On the surface of the cylinder we impose the homogeneous slip condition with β = 1 and γ = 10. Finally, the inflow condition is given by
+
+uD :=
+
+16Um
+
+sin(πt/8)x2x3(H H4
+
+−
+
+x2)(H
+
+−
+
+x3)
+
+,
+
+0,
+
+0
+
+T
+
+with Um := 2.25 m/s and H = 0.41 m.
+
+The
+
+Reynolds
+
+number
+
+is
+
+given
+
+by
+
+the
+
+formula
+
+Re
+
+=
+
+UD ν
+
+where U
+
+represents the average velocity of the fluid imposed on the inflow boundary, D corresponds to the diameter of
+
+the cylinder. The mesh is depicted in Figure 4. Our objective is to represent the behavior of fluid velocity at
+
+high Reynolds numbers. The numerical solution of the streamlines of the fluid at different Reynolds numbers,
+
+including 1000; 10 000; and 50 000 are observed at time T = 1 with time step ∆t = 0.1s in Figures 5, 6 and 7. The
+
+isovalues of the pressure is presented at Reynold number 50, 000 in Figure 8. The solution exhibits oscillations
+
+at larger time intervals, specifically, the tail of the flow after the obstacle develops typical oscillations.
+
+Figure 5: Test 3: Fluid velocity streamlines tubes at Re = 1000 at T = 1 with ∆t = 0.1
+
+Figure 6: Test 3: Fluid velocity streamlines tubes at Re = 10 000 at T = 1 with ∆t = 0.1 20
+
+Figure 7: Test 3: Fluid velocity streamlines tubes at Re = 50 000 at T = 1 with ∆t = 0.1
+Figure 8: Test 3: Isovalues of the pressure at Re = 50 000 at T = 1 with ∆t = 0.1
+7 Conclusion
+In this paper, we address two main contributions. Firstly, we analyze Nitsche’s method for the stationary Navier-Stokes equations on Lipschitz domains under minimal regularity assumptions. Our analysis provides a robust formulation for implementing slip (i.e., Navier) boundary conditions in arbitrarily complex boundaries. We establish the well-posedness of the discrete problem using the Banach Neˇcas Babuˇska and the Banach fixed-point theorems under standard small data assumptions. Additionally, we provide optimal convergence rates for the approximation error. Secondly, we propose a Variational Multiscale Large Eddy Simulation (VMSLES) stabilized formulation, which enables the simulation of incompressible fluids at high Reynolds numbers. Finally, we perform three numerical tests: the first one validates the theoretical results of the Nitsche’s scheme, the second one is a benchmark problem that demonstrates the consistency of our scheme for both steady and unsteady formulations at arbitrary Reynolds numbers, and the third test shows the behavior of the fluid passing through a cylinder at high Reynolds numbers.
+Acknowledgments
+AB was supported by the Ministry of Education, Government of India - MHRD for financial assistance. NAB was supported by the ANID Grant FONDECYT de Postdoctorado N° 3230326.
+Data Availability
+Enquiries about data availability should be directed to the authors.
+Declarations
+Conflict of interest The authors have not disclosed any competing interests.
+21
+
+References
+
+[ABH+15]
+
+M.S. Alnæs, J. Blechta, J. Hake, A. Johansson, B. Kehlet, A. Logg, C. Richardson, J. Ring, M. E. Rognes, and G. N. Wells. The FEniCS project version 1.5. Arch. Numer. Softw. 3 (100)(2015), 2015.
+
+[ACC23]
+
+R. Araya, A. Caiazzo, and F. Chouly. Stokes problem with slip boundary conditions using stabilized finite elements combined with Nitsche. arXiv, April 2023.
+
+[AR19] [BCC+07]
+
+N. Ahmed and S. Rubino. Numerical comparisons of finite element stabilized methods for a 2D vortex dynamics simulation at high Reynolds number. Comput. Methods Appl. Mech. Engrg., 349:191–212, 2019.
+Y. Bazilevs, V. M. Calo, J. A. Cottrell, T. J. R. Hughes, A. Reali, and G. Scovazzi. Variational multiscale residual-based turbulence modeling for large eddy simulation of incompressible flows. Comput. Methods Appl. Mech. Engrg., 197(1-4):173–201, 2007.
+
+[BCHS08] S. Berg, A.W. Cense, J.P. Hofman, and R.M.M. Smits. Two-phase flow in porous media with slip boundary condition. Transp. Porous Media, 74:275–292, 2008.
+
+[BS08]
+
+Susanne C. Brenner and L. Ridgway Scott. The mathematical theory of finite element methods, volume 15 of Texts in Applied Mathematics. Springer, New York, third edition, 2008.
+
+[C¸ 04]
+
+A. C¸ a˘glar. Weak imposition of boundary conditions for the Navier-Stokes equations. Appl. Math. Comput., 149(1):119–145, 2004.
+
+[CFP17]
+
+M. Cremonesi, F. Ferri, and U. Perego. A basal slip model for Lagrangian finite element simulations of 3D landslides. Internat. J. Numer. Anal. Methods Geomech., 41(1):30–53, 2017.
+
+[CK06]
+
+F. E. Cellier and E. Kofman. Continuous system simulation. Springer Science & Business Media, 2006.
+
+[CL09]
+
+A. Caglar and A. Liakos. Weak imposition of boundary conditions for the Navier-Stokes equations by a penalty method. Internat. J. Numer. Methods Fluids, 61(4):411–431, 2009.
+
+[CnGO21]
+
+J. Caman˜o, C. Garc´ıa, and R. Oyarzu´a. Analysis of a momentum conservative mixed-FEM for the stationary Navier-Stokes problem. Numer. Methods Partial Differential Equations, 37(5):2895– 2923, 2021.
+
+[Cod02]
+
+R. Codina. Stabilized finite element approximation of transient incompressible flows using orthogonal subscales. Comput. Methods Appl. Mech. Engrg., 191(39-40):4295–4321, 2002.
+
+[COPn22] E. Colmenares, R. Oyarzu´a, and F. Pin˜a. A discontinuous Galerkin method for the stationary Boussinesq system. Comput. Methods Appl. Math., 22(4):797–820, 2022.
+
+[CS89]
+
+K.N. Christodoulou and L.E. Scriven. The fluid mechanics of slide coating. J. Fluid Mech., 208:321–354, 1989.
+
+[DTU13]
+
+I. Dione, C. Tibirna, and J. Urquiza. Stokes equations with penalised slip boundary conditions. Int. J. Comput. Fluid Dyn., 27(6-7):283–296, 2013.
+
+[EG21]
+
+A. Ern and J. L. Guermond. Finite elements I—Approximation and interpolation, volume 72 of Texts in Applied Mathematics. Springer, Cham, [2021] ©2021.
+
+[ESW14]
+
+Howard C. Elman, David J. Silvester, and Andrew J. Wathen. Finite elements and fast iterative solvers: with applications in incompressible fluid dynamics. Numerical Mathematics and Scientific Computation. Oxford University Press, Oxford, second edition, 2014.
+
+[FD15]
+
+D. Forti and L. Ded`e. Semi-implicit BDF time discretization of the Navier-Stokes equations with VMS-LES modeling in a high performance computing framework. Comput. & Fluids, 117:168–182, 2015.
+
+[GL00]
+
+G. P. Galdi and W. J. Layton. Approximation of the larger eddies in fluid motions. II. A model for space-filtered flow. Math. Models Methods Appl. Sci., 10(3):343–350, 2000.
+
+22
+
+[Gol38]
+
+S. Goldstein. Modern developments in fluid dynamics: an account of theory and experiment relating to boundary layers, turbulent motion and wakes, volume 2. Clarendon Press, 1938.
+
+[GR79]
+
+V. Girault and P.-A. Raviart. Finite element approximation of the Navier-Stokes equations, volume 749 of Lecture Notes in Mathematics. Springer-Verlag, Berlin-New York, 1979.
+
+[GS22a]
+
+I. G. Gjerde and L. R. Scott. Nitsche’s method for Navier-Stokes equations with slip boundary conditions. Math. Comp., 91(334):597–622, 2022.
+
+[GS22b]
+
+I.G. Gjerde and L. R. Scott. Kinetic-energy instability of flows with slip boundary conditions. J. Math. Fluid Mech., 24(4):Paper No. 97, 27, 2022.
+
+[HMJ00]
+
+T.J.R. Hughes, L. Mazzei, and K. E. Jansen. Large eddy simulation and the variational multiscale method. Comput. Vis. Sci., 3:47–59, 2000.
+
+[HOM01] T.J.R. Hughes, A. A. Oberai, and L. Mazzei. Large eddy simulation of turbulent channel flows by the variational multiscale method. Phys. Fluids, 13(6):1784–1799, 2001.
+
+[KOZ19a]
+
+T. Kashiwabara, I. Oikawa, and G. Zhou. Penalty method with Crouzeix-Raviart approximation for the Stokes equations under slip boundary condition. ESAIM Math. Model. Numer. Anal., 53(3):869–891, 2019.
+
+[KOZ19b] Kashiwabara, T., Oikawa, I., and Zhou, G. Penalty method with crouzeix-raviart approximation for the stokes equations under slip boundary condition. ESAIM: M2AN, 53(3):869–891, 2019.
+
+[Lay99]
+
+W. Layton. Weak imposition of “no-slip” conditions in finite element methods. Comput. Math. Appl., 38(5-6):129–142, 1999.
+
+[MFMPH10] A. Montlaur, S. Fernandez-Mendez, J. Peraire, and A. Huerta. Discontinuous Galerkin methods for the Navier-Stokes equations using solenoidal approximations. Internat. J. Numer. Methods Fluids, 64(5):549–564, 2010.
+
+[ML14]
+
+H. Minaki and S. Li. Multiscale modeling and simulation of dynamic wetting. Comput. Methods Appl. Mech. Engrg., 273:273–302, 2014.
+
+[Per20]
+
+S. Perdoncin. Numerical validation of a variational multiscale-LES turbulence model for blood flows. POLITesi, 2020.
+
+[QSS98] A. Quarteroni, R. Sacco, and F. Saleri. Matematica numerica. Springer-Verlag Italia, Milan, 1998.
+
+[Sco18]
+
+L. Scott. Introduction to automated modeling with FEniCS. Computational Modeling Initiative LLC, 2018.
+
+[Sen18]
+
+A. Sendur. A comparative study on stabilized finite element methods for the convection-diffusionreaction problems. J. App. Math., 2018:1–16, 2018.
+
+[Sot12]
+
+F. Sotiropoulos. Computational fluid dynamics for medical device design and evaluation: are we there yet? Cardiovasc. Eng. Technol., 3:137–138, 2012.
+
+[Ste95]
+
+R. Stenberg. On some techniques for approximating boundary conditions in the finite element method. J. Comput. Appl. Math., 63(1-3):139–148, 1995. International Symposium on Mathematical Modelling and Computational Methods Modelling 94 (Prague, 1994).
+
+[UGF14]
+
+J. M. Urquiza, A. Garon, and M.I. Farinas. Weak imposition of the slip boundary condition on curved boundaries for Stokes flow. J. Comput. Phys., 256:748–767, 2014.
+
+[Ver86]
+
+R. Verfu¨rth. Finite element approximation on incompressible Navier-Stokes equations with slip boundary condition. Numer. Math., 50:697–721, 1986.
+
+[Ver91]
+
+R. Verfu¨rth. Finite element approximation of incompressible Navier-Stokes equations with slip boundary condition. II. Numer. Math., 59(6):615–636, 1991.
+
+[WH03]
+
+T. Warburton and J.S. Hesthaven. On the constants in hp-finite element trace inverse inequalities. Comput. Methods Appl. Mech. Engrg., 192(25):2765–2773, 2003.
+
+23
+
+[WSMW18] M. Winter, B. Schott, A. Massing, and W. A. Wall. A Nitsche cut finite element method for the Oseen problem with general Navier boundary conditions. Comput. Methods Appl. Mech. Engrg., 330:220–252, 2018.
+
+[ZKO16]
+
+G. Zhou, T. Kashiwabara, and I. Oikawa. Penalty method for the stationary Navier-Stokes problems under the slip boundary condition. J. Sci. Comput., 68(1):339–374, 2016.
+
+[ZOK21]
+
+G. Zhou, I. Oikawa, and T. Kashiwabara. The Crouzeix-Raviart element for the Stokes equations with the slip boundary condition on a curved boundary. J. Comput. Appl. Math., 383:Paper No. 113123, 19, 2021.
+
+A Fully discrete VMS-LES formulation
+
+The bilinear forms appearing in the fully discrete VMS-LES formulation (cf. Section 5.2) are defined below:
+
+G˜NS (Vh, Uh) :=
+T ∈Th
+
+vh,
+
+ασunh+1 − unh,BDFσ ∆t
+
++
+
+vh, unh+1,EXT · ∇unh+1
+
+ν +
+2
+
+D(vh), D(unh+1)
+
+− ∇ · vh, pnh+1 − qh, ∇ · unh+1
+
++
+
+− nt(νD(unh+1) − pnh+1I)n(n · vh)ds
+
+E∈Ehb
+
+E
+
+− nt(νD(vh) − qhI)n(n · unh+1)ds + β
+
+τ i · vh τ i · unh+1 ds + γ he−1(unh+1 · n)(vh · n)ds
+
+E
+
+Ei
+
+E
+
+G˜SUPG (Vh, Uh) :=
+T ∈Th
+
+unh+1,EXT · ∇vh − C˜∇qh, SM (unh+1,EXT)rM (unh+1, pnh+1)
+
++ ∇ · vh, SC unh+1,EXT rC (unh+1)
+
+G˜VMS (Vh, Uh) :=
+
+unh+1,EXT · (∇vh)T , SM (unh+1,EXT)rM (unh+1, pnh+1)
+
+T ∈Th
+
+−
+E∈Ehb
+
+SC (unh+1,EXT)rC (unh+1)(n · vh)ds + qh(n · SM unh+1,EXT rM unh+1, pnh+1 )ds
+
+E
+
+E
+
+G˜LES (Vh, Uh) := −
+
+∇vh, SM (unh+1,EXT)rM (unh+1,EXT, pnh+1,EXT) ⊗ SM unh+1,EXT rM (unh+1, pnh+1)
+
+T ∈Th
+
+for all n ≥ σ − 1, given unh, . . . , unh+1−σ, where :
+
+unh+1,EXT = pnh+1,EXT =
+∂uh = ∂t unh,BDFσ =
+
+unh
+
+for σ = 1, if n ≥ 0
+
+2unh − unh−1 for σ = 2, if n ≥ 1
+
+pnh
+
+for σ = 1, if n ≥ 0
+
+2pnh − pnh−1 for σ = 2, if n ≥ 1.
+
+unh +1 −unh ∆t
+3unh+1−4unh +unh−1 2∆t
+
+for σ = 1, if n ≥ 1 for σ = 2, if n ≥ 2
+
+unh
+
+for σ = 1, if n ≥ 1
+
+2unh
+
+−
+
+1 2
+
+uhn−1
+
+for σ = 2, if n ≥ 2
+
+1 for σ = 1
+
+ασ =
+
+3 2
+
+for σ = 2
+
+rM (u, p)
+
+= ασu ∆t
+
++ unh+1,EXT
+
+· ∇u + ∇p − ν∆u −
+
+unh,BDFσ ∆t
+
+− f n+1.
+
+Remark A.1. Here, we determine the values of the residual and stabilization parameters by substituting the values of uhn+1,EXT, pnh+1,EXT, unh,BDFσ and ασ that we require in our variational formulation.
+
+24
+

@@ -1,0 +1,2948 @@
+arXiv:2412.07596v1 [physics.comp-ph] 10 Dec 2024
+
+SL
+
+More info: sahu-lab.github.io/pubs Source code: MembraneAleFem.jl Compiled: 10 December 2024
+
+Arbitrary Lagrangian–Eulerian finite element method for lipid membranes
+Amaresh Sahu ‡
+McKetta Department of Chemical Engineering, University of Texas, Austin, Texas 78712, USA
+An arbitrary Lagrangian–Eulerian finite element method and numerical implementation for curved and deforming lipid membranes is presented here. The membrane surface is endowed with a mesh whose in-plane motion need not depend on the in-plane flow of lipids. Instead, in-plane mesh dynamics can be specified arbitrarily. A new class of mesh motions is introduced, where the mesh velocity satisfies the dynamical equations of a user-specified two-dimensional material. A Lagrange multiplier constrains the out-of-plane membrane and mesh velocities to be equal, such that the mesh and material always overlap. An associated numerical inf– sup instability ensues, and is removed by adapting established techniques in the finite element analysis of fluids. In our implementation, the aforementioned Lagrange multiplier is projected onto a discontinuous space of piecewise linear functions. The new mesh motion is compared to established Lagrangian and Eulerian formulations by investigating a preeminent numerical benchmark of biological significance: the pulling of a membrane tether from a flat patch, and its subsequent lateral translation.
+Keywords: numerical simulation; finite element analysis; cell membrane
+
+1. Introduction
+In this paper, we present an arbitrary Lagrangian–Eulerian (ALE) finite element method and opensource Julia code [1] to simulate the dynamics of curved and deforming lipid membranes. Our developments build on ALE theories of biological membranes where the surface parametrization is independent of the in-plane flow of lipids [2–4]. In our simulations, we arbitrarily specify the dynamics of the discretized surface and avoid highly distorted mesh elements—all while not altering membrane dynamics. The utility of our implementation is demonstrated by analyzing a biologicallymotivated scenario that is difficult to simulate with existing numerical methods: tether formation, elongation, and subsequent translation. †
+Biological membranes are two-dimensional (2D) materials, comprised of lipids and proteins, which make up the boundary of the cell and many of its internal organelles. The lipids and proteins flow in-plane as a 2D fluid, while the membrane bends out-of-plane as an elastic shell. Such membranes play a fundamental role in many cellular processes, including endocytosis [5,6], cell migration [7], and tether network dynamics within the cell [8,9]. Lipid membranes often undergo dramatic shape changes in which their in-plane and out-of-plane dynamics are coupled. Consequently,
+‡asahu@che.utexas.edu †This manuscript bears some resemblance to the proposed second part of a prior publication [4]. However, the present ALE analysis, numerical implementation, code, and applications are not those planned in the aforementioned effort. We accordingly release this work as a stand-alone publication and source code.
+1
+
+A. Sahu
+
+2
+
+comprehensive models and advanced numerical techniques are needed to describe membrane behavior. In the early 1970’s, the seminal contributions of P. Canham [10], W. Helfrich [11], and E.A. Evans [12]—all of which can be viewed as extensions of P.M. Naghdi’s fundamental contributions to shell theory [13]—laid the foundation for theoretical developments [14–21] and analysis [22–49]. However, the general, coupled nonlinear equations governing the in-plane and out-of-plane dynamics of a single-component membrane were not obtained until 2007 [2]. These governing equations were subsequently obtained via other techniques [50–52], and extended to describe the dynamics of multi-component phase separation and chemical reactions with proteins in the surrounding fluid [52]. For our detailed perspective on the development of lipid membrane theories, see Chap. IV of Ref. [53].
+The equations governing membrane dynamics are highly nonlinear partial differential equations written on a surface which is itself arbitrarily curved and deforming over time. One cannot in general analytically solve for the time evolution of lipid flows and membrane shape changes, which are intricately coupled. However, it is also difficult to solve the full membrane equations numerically, as standard solution methods from fluid and solid mechanics struggle to capture the membrane’s inplane fluidity and out-of-plane elasticity. Many numerical studies accordingly investigated specific aspects of membrane behavior. For example, several works captured the hydrodynamics of lipid flows on vesicles with a prescribed geometry, including the effects of the surrounding fluid as well as embedded proteins and other inclusions [54–58]. These developments were recently extended with fluctuating hydrodynamics to incorporate phase separation and the discrete motion of proteins [59, 60]. Orthogonal efforts described elastic membrane deformations either (i) in the limit of no in-plane viscosity [61–68], possibly with the dynamics of the surrounding fluid [36], or (ii) with the in-plane fluidity replaced by viscoelasticity [69, 70]. In both cases, the dynamic coupling between in-plane viscous flows and shape changes is not reflected [71]. Still other works incorporated all of the aforementioned membrane complexities, but restricted their investigations to specific geometries [51, 72–74]—for which the membrane equations are simplified.
+We reiterate that many challenges arise when developing a general numerical method that truly captures in-plane viscous lipid flows, out-of-plane membrane bending, and their coupling—all on an arbitrarily curved and deforming surface. Several studies [75–78] took a Lagrangian approach, where the surface is discretized and the resulting mesh is convected with the physical, material velocity. Lagrangian implementations successfully capture membrane dynamics, but struggle to resolve inplane flows as they lead to highly distorted elements. A remeshing procedure was used to maintain element aspect ratios, though it led to unphysical oscillations in the membrane curvature [75]. An alternative approach is for the mesh to only move normal to the surface, so that it is unaffected by in-plane flows. The mesh motion is then out-of-plane Lagrangian, as it tracks the material surface, and in-plane Eulerian. Such an approach, which we refer to as Eulerian, was implemented in Ref. [79]—though the membrane geometry was updated explicitly in a piecemeal manner. Given the importance of geometry to membrane dynamics [71], numerical methods relying on explicit mesh updates could suffer from issues known to affect explicit algorithms in the study of fluids [80, 81]. Moreover, even if a fully implicit Eulerian mesh motion was implemented as in our prior work [4], scenarios arise where the method will fail [3]. We show one such example in §4.2.
+Since neither Lagrangian nor Eulerian approaches can capture commonly-observed membrane behaviors, a more general mesh motion is required. The ALE theory underlying a general mesh motion was independently derived by both others [3] and ourselves [4]. A new mesh motion was implemented in Ref. [3], in which the mesh moved only in the direction normal to a known prior configuration of the membrane. In practice, such a choice was again not sufficiently general and required remeshing steps, which introduced errors in the numerical solution. Since the aforementioned approach resembles an Eulerian mesh motion, we hypothesize that it may not work in certain
+
+ALE finite element method for lipid membranes
+
+3
+
+situations—such as the tether pulling scenario discussed in §4.2. There is thus still a need for numerical implementations of more general mesh motions, which can be specified by the user when solving for membrane dynamics in a particular scenario.
+The aforementioned limitations of numerical techniques motivate our development and implementation of a fully implicit ALE finite element method for lipid membranes. Rather than prescribing the mesh motion directly, we choose for the mesh velocity to satisfy a set of partial differential equations as if the mesh were itself another material. We then supply appropriate boundary conditions to the mesh velocity. In addition, the mesh and membrane are constrained to coincide via a Lagrange multiplier—which is understood as the mesh analog of a normal force per unit area. The presence of a scalar Lagrange multiplier coupled to vector velocities leads to a numerical instability reminiscent of that identified by O.A. Ladyzhenskaya [82], I. Babuˇska [83], and F. Brezzi [84], hereafter referred to as the LBB condition. We suppress the instability with the method of C.R. Dohrmann and P.B. Bochev [85], where the Lagrange multiplier is projected onto a space of discontinuous, piecewise linear functions.
+The remainder of the manuscript is organized as follows. In §2, we present the strong and weak formulations of all equations governing the membrane and mesh. A summary of the corresponding finite element formulation is provided in §3; additional details can be found in Appendix A. All numerical results from Lagrangian, Eulerian, and ALE simulations are presented in §4. We close with conclusions and pathways for future work in §5. Our source code is provided in the Julia package MembraneAleFem.jl [1].
+
+2. The governing equations: Strong and weak formulations
+The membrane is treated as a single 2D differentiable manifold embedded in the Euclidean space R3, for which we implicitly assume no slip between the two bilayer leaflets. In our ALE formulation, the membrane surface is parametrized by coordinates that need not follow material flows, as we detailed in Ref. [4]. Accordingly, the so-called mesh velocity vm resulting from the parametrization will in general not equal the membrane velocity v of material points. The dynamics of both the membrane and mesh are detailed in what follows; many of the results were derived in our prior work [4, 53]. The phospholipid bilayer is treated as an area-incompressible material—for which the areal density is constant and the surface tension, λ, is a Lagrange multiplier field to be solved for. Our goal is to determine the fundamental unknowns v, vm, and λ, as well as the membrane position x, over time.
+
+2.1. Surface parametrization, geometry, and kinematics
+
+We begin by reviewing the framework with which lipid membranes are described. Only the most relevant features are presented here, as Ref. [53] details our understanding of the membrane geometry and kinematics, while Ref. [4] provides the ALE theory.
+Consider an arbitrarily curved and deforming membrane surface S, of which we examine a patch P ⊂ S. At any time t, the surface position x is parametrized by two coordinates: ζˇ1 and ζˇ2. Here, as in Ref. [4], the ‘check’ accent (ˇ· ) indicates the parametrization can be arbitrarily specified. From now on, Greek indices span the set {1, 2}, such that x(ζαˇ, t) ∈ R3 denotes the position of a point on the membrane surface. As shown in Fig. 1, there is a mapping from the parametric domain Ω in the ζˇ1–ζˇ2 plane to the membrane patch P. Area integrals over the patch are thus evaluated as
+
+. . . da = . . . JΩ dΩ ,
+
+(1)
+
+P
+
+Ω
+
+A. Sahu
+
+4
+
+where JΩ is the Jacobian of the mapping. Here JΩ has dimensions of area and its functional form
+
+is provided below. At any point x(ζαˇ, t), the vectors aαˇ := ∂x/∂ζαˇ form a basis of the tangent
+
+plane to the surface, which has unit normal n = (aˇ1 × aˇ2)/|aˇ1 × aˇ2|. Covariant components of the
+
+metric and curvature tensors are respectively aαˇβˇ := aαˇ · aβˇ and bαˇβˇ := n · x,αˇβˇ = n · x;αˇβˇ. Here
+
+( · ),αˇ := ζαˇ. The
+
+∂( · )/∂ζαˇ and ( · );αˇ are respectively the partial and Jacobian JΩ appearing in Eq. (1) is expressed as JΩ
+
+co√variant derivatives with respect = det aαˇβˇ . The mean curvature
+
+to H
+
+is
+
+calculated
+
+as
+
+H
+
+=
+
+1 2
+
+aαˇβˇbαˇβˇ,
+
+where
+
+aαˇβˇ
+
+is
+
+the
+
+contravariant
+
+metric
+
+and
+
+is
+
+calculated
+
+as
+
+the
+
+matrix
+
+inverse of aαˇβˇ. In the present work, the Einstein summation convention is employed, in which
+
+repeated raised and lowered indices are summed over. The Gaussian curvature K is computed as
+
+K = det(bαˇβˇ)/ det(aαˇβˇ). Finally, at points xb on the patch boundary ∂P, additional in-plane basis vectors are defined: ν = ναˇ aαˇ = ναˇ aαˇ is the in-plane unit normal and τ = τ αˇ aαˇ = ταˇ aαˇ is the in-plane unit tangent (see Fig. 1). Line integrals over the patch boundary are calculated as
+
+. . . ds = . . . JΓ dΓ ,
+
+(2)
+
+∂P
+
+Γ
+
+where s is the arclength parametrization of ∂P and Γ := ∂Ω is the boundary of the parametric domain. In Eq. (2), JΓ = [(τ ˇ1)2 + (τ ˇ2)2]−1/2 is the Jacobian of the mapping from Γ to ∂P.
+When solving for the membrane state at a particular time, we seek the surface tension, material
+
+velocity, and mesh velocity fields on the surface. To this end, it is useful to define relevant function
+
+spaces over the parametric domain Ω. The space of square-integrable functions, L2(Ω), is expressed
+
+as
+
+L2(Ω) := u(ζαˇ) : Ω → R such that
+
+Ω u2 dΩ
+
+1/2
+<
+
+∞
+
+.
+
+(3)
+
+The Sobolev space of order k, Hk(Ω), consists of functions that are square-integrable and also have up to k partial derivatives that are square-integrable:
+
+Hk(Ω) := u(ζαˇ) : Ω → R such that u,αˇβˇ...γˇ ∈ L2(Ω) for 0 ≤ m ≤ k .
+
+(4)
+
+m derivatives
+
+ζ ˇ2 Ω
+
+Γ ζ ˇ1
+
+x = x(ζαˇ, t)
+
+z
+
+P x
+
+n aˇ2 aˇ1
+xb
+
+nτ ν
+∂P
+y
+
+x
+Figure 1: Surface geometry. A schematic of the mapping x = x(ζαˇ, t), at a single instant in time, between the parametric domain Ω and the membrane patch P. The in-plane basis vectors aαˇ and unit normal vector n are shown at a point x on the patch, as are the in-plane unit normal ν and unit tangent τ at a point xb at the patch boundary ∂P.
+
+ALE finite element method for lipid membranes
+
+5
+
+From the definitions in Eqs. (3) and (4), it is evident that H0(Ω) = L2(Ω). Moreover, since the material and mesh velocities are elements of R3, we also define
+
+Hk(Ω) := u(ζαˇ) : Ω → R3 such that uj ∈ Hk(Ω) for j = 1, 2, 3
+
+(5)
+
+as the space of functions in which each Cartesian component is an element of Hk(Ω). In Eq. (5),
+
+we denote uj := u · ej, where {ej}j=1,2,3 is the canonical Cartesian basis in R3. We close with a discussion of membrane kinematics. The membrane velocity v = dx/dt = x˙ is
+
+the material time derivative of the position, and is expanded in the {aαˇ, n} basis as v = vαˇaαˇ + vn.
+
+The mesh velocity, which is treated as a fundamental unknown independent of the material velocity,
+
+is defined to be the rate of change of position when ζαˇ is held constant—expressed as vm =
+
+(∂xˇ/∂t)|ζαˇ . In order for the material and mesh velocities to correspond to the same surface, kinematics require
+
+vm · n = v · n
+
+(6)
+
+such that the mesh motion is always out-of-plane Lagrangian [4]. Importantly, the in-plane material velocity components vαˇ and mesh velocity components vmαˇ = vm · aαˇ need not coincide, such that within our ALE framework one can dictate how the mesh evolves within the membrane surface. In
+this work, Eq. (6) is referred to as the ALE kinematic constraint.
+
+2.2. The balance of mass: Material incompressibility
+
+As lipid membranes only stretch 2–3% before tearing [86,87], we treat them as area-incompressible 2D materials. The local form of the balance of mass, also referred to as the continuity equation and incompressibility constraint, is given by
+
+aαˇ(ζγˇ, t) · v,αˇ(ζγˇ, t) = 0 ∀ ζγˇ ∈ Ω , t ∈ [0, tf ] ,
+
+(7)
+
+where tf is the end of the time interval under consideration. For notational simplicity, the functional dependence of all quantities will be suppressed, as will the domains of ζγˇ and t. The incompressibility constraint aαˇ · v,αˇ = 0 is equivalently expressed as v;αˇαˇ − 2vH = 0, and is enforced by the Lagrange multiplier field λ = λ(ζαˇ, t)—which has dimension of energy/area and acts as the membrane surface tension [53, Ch.V §6(a)–(c)].
+The weak formulation of Eq. (7) is obtained by multiplying it with an arbitrary surface tension variation δλ and integrating over the membrane area. The tension variation is assumed to be square-integrable, for which the weak form of the continuity equation is expressed as
+
+δλ aαˇ · v,αˇ JΩ dΩ = 0 ∀ δλ ∈ L2(Ω) .
+
+(8)
+
+Ω
+
+Care must be taken when discretizing Eq. (8) in the course of finite element analysis, as one could violate the LBB condition [82–84] and observe spurious surface tension oscillations in the numerical solution. A variety of techniques were developed to prevent such oscillations and numerically stabilize the system [88–91]. We choose to employ the Dohrmann–Bochev method [85], as it is based on an underlying theory and is straightforward to implement numerically [81].
+
+2.2.1. The Dohrmann–Bochev method: Numerical stabilization
+The Dohrmann–Bochev method prevents spurious surface tension oscillations by projecting the surface tension onto a space of discontinuous, piecewise linear functions. The function space,
+
+A. Sahu
+
+6
+
+denoted L˘, is defined in Eq. (64) following a discussion of the surface discretization. The L2projection of a given surface tension field λ ∈ L2(Ω) onto L˘ is denoted λ˘ and is defined through
+
+the relation [85]
+
+δλ˘ λ − λ˘ dΩ = 0 ∀ δλ˘ ∈ L˘ .
+
+(9)
+
+Ω
+
+In practice, the Dohrmann–Bochev method [85] is implemented by quadratically penalizing surface tension deviations from the space L˘, for which the quantity
+
+αDB ζ
+
+δλ − δλ˘
+Ω
+
+λ − λ˘
+
+dΩ
+
+(10)
+
+is subtracted from Eq. (8). Here, ζ is the 2D intramembrane viscosity: a material property with dimensions of energy·time/area. In addition, αDB is a user-specified numerical parameter with
+dimensions of area that guarantees Eqs. (8) and (10) have the same dimensions. The numerically
+stabilized weak formulation of the incompressibility constraint is written as
+
+Gλ = 0 ∀ δλ ∈ L2(Ω) ,
+
+(11)
+
+where Gλ is the surface tension contribution to the direct Galerkin expression [92] given by
+
+Gλ :=
+
+δλ aαˇ · v,αˇ JΩ dΩ −
+Ω
+
+αDB ζ
+
+δλ − δλ˘
+Ω
+
+λ − λ˘
+
+dΩ .
+
+(12)
+
+In Eq. (12), λ˘ and δλ˘ are understood to be the L2-projections of their respective counterparts λ and δλ onto L˘, according to Eq. (9).
+
+2.3. The balance of linear momentum: Membrane dynamics
+
+Consider a general, arbitrarily curved and deforming 2D material for which inertial effects are negligible. The local form of the balance of linear momentum for such a material is given by
+
+T;αˇαˇ + f = 0 ,
+
+(13)
+
+where T αˇ is the internal traction along a curve of constant ζαˇ on the surface and f is the net body force per unit area on the material by its surroundings. The balance of angular momentum additionally requires that the stress vectors be expressed as [53]
+
+T αˇ = σαˇβˇaβˇ − M βˇαˇ n ;βˇ .
+
+(14)
+
+Here, σαˇβˇ contains the couple-free, in-plane stress components and M αˇβˇ contains the couple-stress components. If the constitutive form of σαˇβˇ and M αˇβˇ are known, then Eqs. (13) and (14) govern the dynamics of a general 2D material.
+In lipid bilayers, the constitutive relations for σαˇβˇ and M αˇβˇ are well-known, and depend on three material parameters. The first is the intramembrane viscosity ζ, which characterizes the irreversibility of in-plane flows. The other parameters are the mean and Gaussian bending moduli, denoted kb and kg, which have dimensions of energy and respectively penalize nonzero mean and Gaussian curvatures [10–12]. We previously determined the membrane stresses and couple-stresses within the framework of irreversible thermodynamics, and found [53]
+
+M αˇβˇ = kb H aαˇβˇ + kg 2H aαˇβˇ − bαˇβˇ
+
+(15)
+
+ALE finite element method for lipid membranes
+
+7
+
+and where
+
+σαˇβˇ = kb H2 aαˇβˇ − 2H bαˇβˇ − kg K aαˇβˇ + λ aαˇβˇ + παˇβˇ , παˇβˇ = ζ v,µˇ · aαˇ aµˇβˇ + aβˇaµˇαˇ
+
+(16) (17)
+
+are the in-plane viscous stress components. The couple-stresses (15) involve only kb and kg, and thus are purely elastic, while σαˇβˇ contains bending, tensile, and viscous contributions (16).
+The in-plane and out-of-plane equations governing lipid membrane dynamics are obtained by substituting Eqs. (14)–(17) into Eq. (13) and contracting the result with aαˇ and n—which yields [53]
+
+ζ ∆svαˇ + K vαˇ + 2v,αˇ H − 2v,βˇbβαˇˇ − 2v H,αˇ + fαˇ + λ,αˇ = 0
+
+(18)
+
+and
+
+f + 2λH + ζ 2bαˇβˇvαˇ;βˇ − 8vH2 + 4vK − kb 2H3 − 2H K + ∆sH = 0 .
+
+(19)
+
+Equations (18) and (19) are respectively referred to as the in-plane and shape equations, and were independently obtained via different approaches [2, 50–52]. Here, the body force per unit area f is decomposed as f = aαˇfαˇ + f n, and ∆s( · ) := aµˇνˇ( · );µˇνˇ is the surface Laplacian operator. Note that while the membrane bends elastically, the in-plane viscosity ζ enters the shape equation (19) due to a coupling between in-plane stresses and curvature [71]. The surface tension λ and surface curvatures H and K also enter both the in-plane and shape equations, leading to nontrivial couplings between in-plane and out-of-plane dynamics.
+
+2.3.1. The boundary conditions
+
+One cannot determine a well-posed set of boundary conditions to Eqs. (18) and (19) by inspection. A series of systematic developments for elastic shells [17, 18, 93] underlie the formulation of the general lipid membrane boundary conditions [50–52, 94, 95]. In what follows, we highlight possible boundary conditions and provide their physical justification. Details of our own derivations, which reproduce earlier results, are provided in Ch.V §5(d) of Ref. [53].
+The in-plane equations governing lipid flows (18) are identical to those governing a twodimensional Newtonian fluid [96]. We thus expect the boundary conditions to be similar to those of a fluid, in which one specifies either the velocity v or (for a surface) the force per length F on the boundary. For general 2D materials, the force per length on the patch boundary is given by
+
+F = T αˇναˇ − M αˇβˇναˇ τβˇ n ,µˇ τ µˇ ,
+
+(20)
+
+which—for the case of lipid membranes—has bending, tensile, and viscous contributions. In our numerical implementation, on each edge of the membrane patch we specify a component of either the velocity v or the force per length F in each of the three Cartesian directions. We denote ΓFj and Γvj as the respective portions of the boundary where Fj := F · ej and vj := v · ej are specified. For j ∈ {1, 2, 3}, the intersection Γvj ∩ ΓFj = ∅ and the closure of the union Γvȷ ∪ ΓFȷ = Γ. The boundary conditions are expressed as
+
+vj = v¯j on Γvj
+
+and
+
+Fj = Fj on ΓFj ,
+
+(21)
+
+where v¯j and Fj are known quantities that we prescribe. The boundary conditions in Eq. (21) are necessary but not sufficient for a mathematically
+well-posed scenario. To see why, note that the membrane bending energy gives rise to the ∆sH =
+
+A. Sahu
+
+8
+
+aµˇνˇ H;µˇνˇ term in the shape equation (19). Since the mean curvature contains two spatial derivatives
+of the surface position through the curvature components bαˇβˇ = n · x,αˇβˇ, the ∆sH term contains four derivatives of the surface position. Following canonical developments in the theory of beam
+
+bending [97, 98], we expect to specify two conditions along the entire boundary: either the out-
+
+of-plane velocity or force per length, as well as either the slope of the surface or the boundary
+
+moment
+
+M := M αˇβˇναˇ νβˇ .
+
+(22)
+
+Since the velocity and force boundary conditions are already contained in Eq. (21), we need only
+
+specify one of the latter pair. More precisely, we partition the boundary into the disjoint sets Γn and ΓM , with Γn ∩ ΓM = ∅ and Γn ∪ ΓM = Γ, and prescribe
+
+n · v,αˇ ναˇ = v¯ν on Γn and M = M on ΓM ,
+
+(23)
+
+where v¯ν and M are prescribed quantities. With Eqs. (20)–(23), we have a mathematically wellposed set of boundary conditions for the governing equations.
+
+2.3.2. The weak formulation
+
+The weak formulation of the balance of linear momentum is obtained by first contracting Eq. (13) with an arbitrary velocity variation δv. At this point, we recognize the four spatial derivatives contained in the shape equation (19) through the ∆sH term will, in the subsequent weak form, yield two spatial derivatives of both the velocity variation and the surface position. It is assumed that v and x lie in the same space of functions, for which both are elements of H2(Ω). Thus, in accordance with the boundary conditions in Eqs. (21) and (23), the space of admissible material velocity variations V0 is expressed as
+
+V0 := u(ζαˇ) : Ω → R3 such that u ∈ H2(Ω), uj Γvj = 0, n · u,αˇ ναˇ Γn = 0
+
+(24)
+
+for j ∈ {1, 2, 3}. We integrate the result of the contraction over the membrane area, and substitute the general form of the stress vectors (14) to obtain
+
+δv ·
+Ω
+
+σαˇβˇaβˇ −
+
+M βˇαˇ n ;βˇ ;α JΩ dΩ +
+
+δv · f JΩ dΩ = 0
+Ω
+
+∀ δv ∈ V0 .
+
+(25)
+
+Starting with Eq. (25), a series of algebraic manipulations are required to determine the weak
+
+form of the linear momentum balance. The calculations rely on developments by Naghdi, A.E.
+
+Green, and D.J. Steigmann [17, 93], and can be found in Refs. [77, 95]. Following the notation
+
+and development of our prior efforts [53, Ch.V§5(d)], the weak formulation of the balance of linear
+
+momentum is expressed as
+
+Gv = 0 ∀ δv ∈ V0 ,
+
+(26)
+
+where ∗
+
+Gv :=
+
+1 Ω2
+
+δv,αˇ · aβˇ + δv,βˇ · aαˇ σαˇβˇ JΩ dΩ +
+
+1 Ω2
+
+δv;αˇβˇ + δv;βˇαˇ
+
+· n M αˇβˇ JΩ dΩ
+
+3
+
+−
+
+δv · f JΩ dΩ −
+
+Ω
+
+j=1
+
+ΓFj δvj Fj JΓ dΓ −
+
+δv,αˇ ναˇ · n M JΓ dΓ .
+ΓM
+
+(27)
+
+In Eq. (27), δvj := δv · ej is the jth Cartesian component of the arbitrary velocity variation. It is useful to recognize that Eq. (27) is general to any material whose stress vectors can be expressed as in Eq. (14), with the corresponding boundary conditions in Eqs. (21) and (23).
+
+∗Jump forces can arise at corners of the membrane patch and enter Eq. (27). They are assumed here to be zero.
+
+ALE finite element method for lipid membranes
+
+9
+
+2.4. The dynamics of the mesh
+
+In our ALE formulation, the material velocity v and the mesh velocity vm are independent quantities. The evolution of the position x(ζαˇ, t) of the membrane surface is dictated by the mesh velocity
+via the relations
+
+vm(ζαˇ, t) =
+
+∂ ∂t
+
+x(ζαˇ, t)
+
+(28)
+
+and
+
+t
+
+x(ζαˇ, t) = x(ζαˇ, 0) + vm(ζαˇ, t′) dt′ ,
+
+(29)
+
+0
+
+which both apply over all parametric coordinates ζαˇ ∈ Ω and for all times t ∈ [0, tf ] under consideration (see Ref. [4, §2] for additional details). As we previously recognized x ∈ H2(Ω), Eqs. (28) and (29) reveal vm ∈ H2(Ω) as well. In what follows, we discuss three mesh velocity schemes of increasing complexity, all of which are consistent with the kinematic constraint (6) such that the mesh and material always overlap. We begin with Lagrangian and Eulerian schemes, which were previously employed by both ourselves and others, and are known to suffer from limitations [4,75–79]. We then discuss a new class of ALE schemes in which the mesh velocity itself satisfies dynamical equations similar to those that govern the material velocity.
+
+2.5. The Lagrangian mesh motion
+We begin with the simplest membrane motion, namely a Lagrangian scheme. In this case, the mesh velocity is prescribed to be equal to the material velocity:
+
+vm = v .
+
+(30)
+
+In our numerical implementation, mesh velocity degrees of freedom are mapped to their material velocity counterparts such that Eq. (30) is satisfied identically over the entire surface. § The direct
+Galerkin expression in the case of a Lagrangian mesh motion is then given by
+
+GL := Gλ + Gv = 0 ∀ δλ ∈ L2(Ω) , δv ∈ V0 .
+
+(31)
+
+In Eq. (31), the superscript ‘L’ denotes a Lagrangian scheme, where vm = v throughout and mesh positions are updated according to Eq. (29). In addition, Gλ and Gv are respectively provided in Eqs. (12) and (27).
+
+2.6. The Eulerian mesh motion
+
+The second scheme we implement is in-plane Eulerian, with vm · aαˇ = 0, and out-of-plane Lagrangian, for which vm · n = v · n. The in-plane and out-of-plane conditions are expressed as the
+
+single equation
+
+vm = n ⊗ n v ,
+
+(32)
+
+where ‘⊗’ denotes the dyadic product. As there are no spatial derivatives in Eq. (32), no mesh velocity boundary conditions are to be prescribed for an Eulerian mesh motion.
+
+§One could instead treat the membrane and mesh velocities separately, and directly modify the resultant tangent diffusion matrix to satisfy Eq. (30). Details of such an approach are provided in Appendix B.7 of Ref. [4].
+
+A. Sahu
+
+10
+
+The weak form of Eq. (32) is obtained by contracting it with an arbitrary mesh velocity variation δvm ∈ H2(Ω), integrating over the membrane surface, and multiplying the result by a user-specified
+constant αmE . The weak formulation of the Eulerian mesh velocity equation is then given by [4]
+
+GmE := αmE δvm · vm − n ⊗ n v JΩ dΩ = 0 ∀ δvm ∈ H2(Ω) .
+
+(33)
+
+Ω
+
+In Eq. (33), the superscript ‘E’ signifies the scheme is Eulerian, and the constant αmE has dimensions of energy · time/length4 such that GmE has the same dimensions as Gλ and Gv. In this study, αmE = ζ/ℓ2 for all results presented, as varying αmE was not observed to affect membrane behavior (ℓ is a chosen characteristic length). The direct Galerkin expression for a scenario with an Eulerian mesh
+motion is expressed as
+
+GE := Gλ + Gv + GmE = 0 ∀ δλ ∈ L2(Ω) , δv ∈ V0 , δvm ∈ H2(Ω) .
+
+(34)
+
+2.7. The arbitrary Lagrangian–Eulerian mesh motion
+
+The final scheme we consider is neither in-plane Lagrangian nor in-plane Eulerian. Instead, the mesh is modeled as a separate 2D material with its own constitutive relations and associated dynamical equations. The mesh analogs of the stress vectors are then expressed as [cf. Eq. (14)]
+
+Tmαˇ = σmαˇβˇaβˇ − Mmβˇαˇ n ;βˇ ,
+
+(35)
+
+where σmαˇβˇ and Mmαˇβˇ are the mesh analogs of σαˇβˇ and M αˇβˇ. Here σmαˇβˇ and Mmαˇβˇ can be specified arbitrarily without altering the dynamics of the membrane, and so the mesh dynamics can be that of an elastic, viscous, or viscoelastic material. When the mesh velocity vm is determined by
+solving an arbitrary set of governing equations, it will no longer satisfy the kinematic constraint
+(6) across the membrane surface. We enforce Eq. (6) with an additional Lagrange multiplier field,
+which physically acts on the mesh as an external body force per unit area in the normal direction— hereafter referred to as the mesh pressure pm. Following the developments of §2.3, the dynamical
+equation governing the mesh dynamics is given by
+
+Tmαˇ;αˇ + pm n = 0 .
+
+(36)
+
+Upon specification of appropriate boundary conditions, Eq. (6) and the three components of Eq. (36) uniquely determine the mesh pressure pm and the three components of the mesh velocity vm. Two choices of the mesh motion, for which σmαˇβˇ and Mmαˇβˇ are prescribed, are discussed subsequently. In the first case, the mesh is area-compressible and purely viscous; in the second case it also resists
+bending. In both cases, the simplest boundary conditions for the mesh velocity are chosen. The
+investigation of more complex boundary conditions, as well as more involved mesh behaviors, is
+left to a future study.
+
+2.7.1. The weak formulation of the kinematic constraint
+The mesh pressure is an unknown Lagrange multiplier field enforcing the ALE kinematic constraint in Eq. (6). The weak form of Eq. (6) is obtained by multiplying it with an arbitrary variation δpm ∈ L2(Ω), and integrating the result over the membrane surface to obtain
+
+δpm n · vm − v JΩ dΩ = 0 ∀ δpm ∈ L2(Ω) .
+
+(37)
+
+Ω
+
+ALE finite element method for lipid membranes
+
+11
+
+Equation (37) bears some resemblance to Eq. (8), which was obtained from the incompressibility constraint. In both equations, the variation of a scalar Lagrange multiplier interacts with a vector velocity. Moreover, when Eq. (37) is discretized, our numerical simulations exhibit an instability reminiscent of the checkerboarding that arises when the LBB condition is violated. We thus hypothesize that both numerical instabilities are similar, and attempt to stabilize the mesh pressure with the Dohrmann–Bochev method. Following the results of §2.2.1, we express the weak formulation of the kinematic constraint (6) as
+
+Gp = 0 ∀ δpm ∈ L2(Ω) ,
+
+(38)
+
+where the numerically stabilized mesh pressure contribution to the direct Galerkin expression is given by [cf. Eqs. (12), (37)]
+
+Gp := − δpm n · vm − v JΩ dΩ −
+Ω
+
+αDBℓ2 ζ
+
+δpm − δp˘m
+Ω
+
+pm − p˘m
+
+dΩ .
+
+(39)
+
+In Eq. (39), p˘m and δp˘m are the L2-projections of pm and δpm onto the space L˘, as defined through Eq. (9). The factor of ℓ2, for a characteristic length ℓ, is required for dimensional consistency. Our choice to employ the Dohrmann–Bochev method to stabilize pm does not yet sit on a firm theoretical
+footing, and currently can only be justified with empirical success. We hope to investigate the mathematical nature of the stabilization of pm in a future manuscript.
+
+2.7.2. The case where the mesh dynamics are purely viscous
+For the case of purely viscous mesh dynamics, quantities are denoted with a superscript or subscript ‘v.’ The scheme is referred to as ‘ALE-viscous,’ with the shorthand ‘Av’ or ‘ALE-v.’ Since the mesh velocity field is area-compressible, the mesh motion resists both shearing and dilation.
+
+Strong formulation.—We prescribe for the mesh analog of the in-plane stresses and couplestresses to be [cf. Eqs. (15)–(17)]
+
+σmαˇβˇ,v = πmαˇβˇ := ζm v,mµˇ · aαˇ aµˇβˇ + aβˇaµˇαˇ
+
+and
+
+Mmαˇβ,ˇv = 0 ,
+
+(40)
+
+where ζm is a user-specified parameter that we refer to as the mesh viscosity. Importantly, since the mesh velocity is area-compressible, our choice in Eq. (40) resists both shear and dilation of the mesh. By substituting Eqs. (35) and (40) into Eq. (36), the dynamical equations governing the mesh are found to be [53, Ch.V§5(c)]
+
+ζm ∆svαmˇ + K vαmˇ + 2v,mαˇ H − 2v,mβˇ bβαˇˇ − 2vmH,αˇ + vm;βˇβˇ− 2vmH ;αˇ = 0
+
+(41)
+
+and
+
+pm + ζm 2bαˇβˇvαmˇ;βˇ − 8vmH2 + 4vmK = 0 .
+
+(42)
+
+The solution to Eq. (41) is independent of ζm, and the mesh pressure in Eq. (42) will adjust so
+as to satisfy the kinematic constraint (6). The mesh dynamics accordingly do not depend on the choice of ζm. In all numerical results presented, we choose ζm = ζ for simplicity.
+
+Boundary conditions.—Since the mesh velocity satisfies differential equations [see Eqs. (41) and (42)] rather than an algebraic equation [cf. Eqs. (30),(32)], boundary conditions for the mesh
+
+A. Sahu
+
+12
+
+velocity are required. To this end, we introduce the mesh analog of the force per length on the
+
+boundary:
+
+Fvm = Tmαˇ,v ναˇ = σmαˇβˇ,v ναˇ aβˇ .
+
+(43)
+
+Recalling Mmαˇβ,ˇv = 0 according to Eq. (40), the purely viscous mesh dynamics cannot sustain moments—as is the case for a fluid film [4]. Consequently, neither slope nor moment boundary conditions are required on the boundary, since the mesh analog of the moment M m = 0 identically
+throughout. With this understanding, the parametric boundary Γ is partitioned into the portions Γvmj and ΓFmj, on which vjm := vm · ej and Fjm := F m · ej are respectively specified. For simplicity in our numerical formulation, the mesh is assumed to be either static or force-free on its entire
+boundary, for which [cf. Eq. (21)]
+
+vjm = 0 on Γvmj
+
+and
+
+Fjm = 0 on ΓFmj .
+
+(44)
+
+Weak formulation.—The weak formulation of the purely viscous ALE mesh behavior is obtained by drawing analogy to the developments in §2.3.2. First, the space of arbitrary mesh velocity variations is defined as
+
+V0m,v := u(ζαˇ) : Ω → R3 such that u ∈ H2(Ω), uj Γvmj = 0 .
+
+(45)
+
+By contracting Eq. (36) with an arbitrary mesh velocity variation δvm ∈ V0m,v and repeating the steps of §2.3.2, the weak formulation of the ALE-viscous mesh motion is found to be [cf. Eqs. (26)
+
+and (27)]
+
+GmAv = 0
+
+∀ δvm ∈ V0m,v ,
+
+(46)
+
+where
+
+GmAv :=
+
+1 Ω2
+
+δv,mαˇ · aβˇ + δv,mβˇ · aαˇ
+
+σmαˇβˇ,v JΩ dΩ −
+
+δvm · pm n JΩ dΩ .
+Ω
+
+(47)
+
+In Eqs. (46) and (47), the superscript ‘Av’ refers to the choice of a purely viscous ALE mesh motion.
+
+The direct Galerkin expression for this motion is then written as
+
+GAv := Gλ + Gv + GmAv + Gp = 0 (48)
+∀ δλ ∈ L2(Ω) , δv ∈ V0 , δvm ∈ V0m,v , δpm ∈ L2(Ω) .
+
+2.7.3. The case where the mesh dynamics are viscous and resist bending
+We now consider the case where the mesh dynamics are viscous in response to in-plane shears and area dilations, and additionally resist bending. The mesh motion is referred to as ‘ALE-viscousbending,’ with shorthand ‘Avb’ or ‘ALE-vb.’ Corresponding quantities are denoted with a subscript or superscript ‘vb.’
+
+Strong formulation.—We choose for the bending resistance of the mesh to arise in the same manner as the membrane itself, with the viscous resistance identical to that of the ALE-viscous scenario. To this end, we choose [cf. Eqs. (15)–(17) and (40)]
+
+Mmαˇβ,ˇvb = kbm H aαˇβˇ + kgm 2H aαˇβˇ − bαˇβˇ
+
+(49)
+
+and
+
+σmαˇβˇ,vb = kbm H2 aαˇβˇ − 2H bαˇβˇ − kgm K aαˇβˇ + πmαˇβˇ ,
+
+(50)
+
+ALE finite element method for lipid membranes
+
+13
+
+where πmαˇβˇ is defined in Eq. (40). In Eqs. (49) and (50), kbm and kgm are user-specified parameters; we always choose kbm = kb and kgm = kg for simplicity. It is well-known that bending terms from the Helfrich free energy do not enter the in-plane equations [51], and so the in-plane dynamical
+mesh equations in the ALE-vb case are given by Eq. (41). The out-of-plane dynamical equation is
+expressed as [cf. Eqs. (19) and (42)]
+
+pm + ζm 2bαˇβˇvαˇ;βˇ − 8v H2 + 4v K − kbm 2H3 − 2H K + ∆sH = 0 .
+
+(51)
+
+Contrary to the ALE-v scenario (42), here the relative magnitude of ζm and kbm do affect the resultant mesh pressure pm. Investigating the relationship between pm, ζm, and kbm—as well as the ensuing mesh dynamics—is left to a later study.
+
+Boundary conditions.—We once again introduce the mesh analog of the force per length on the boundary, which in this case is written as [cf. Eqs. (20) and (43)]
+
+Fvmb = Tmαˇ,vb ναˇ − Mmαˇβ,ˇvb ναˇ τβˇ n ,µˇ τ µˇ .
+
+(52)
+
+In principle, one could specify boundary forces for the mesh dynamics. However, as in the ALE-
+viscous case, we choose simple boundary conditions where the mesh is either static or force-free on
+the entire boundary (44). In addition, since the mesh couple-stresses are nonzero, either slope or moment boundary conditions are required for vm—where the analog of the boundary moment is calculated as M m = Mmαˇµˇ ναˇ νµˇ [cf. Eq. (22)]. At present, we take the simpler approach and specify zero-slope conditions on the entire boundary [cf. Eq. (23)]:
+
+n · v,mαˇ ναˇ = 0 on Γ .
+
+(53)
+
+Weak formulation.—At this point, it is straightforward to write the weak formulation of the mesh dynamics. The space of arbitrary mesh variations is given by
+
+V0m,vb := u(ζαˇ) : Ω → R3 such that u ∈ H2(Ω), uj Γvmj = 0, The weak formulation is then expressed as
+
+n · u,αˇ ναˇ Γ = 0 . (54)
+
+GmAvb = 0
+
+∀ δvm ∈ V0m,vb ,
+
+(55)
+
+where we define [cf. Eq. (27)]
+
+GmAvb :=
+
+1 Ω2
+
+δv,mαˇ · aβˇ + δv,mβˇ · aαˇ
+
+σmαˇβˇ,vb JΩ dΩ
+
++
+
+1 Ω2
+
+δv;mαˇβˇ + δv;mβˇαˇ
+
+· n Mmαˇβ,ˇvb JΩ dΩ −
+
+δvm · pm n JΩ dΩ .
+Ω
+
+(56)
+
+The direct Galerkin expression for the scenario with the ALE-vb mesh motion is written as
+
+GAvb := Gλ + Gv + GmAvb + Gp = 0 (57)
+∀ δλ ∈ L2(Ω) , δv ∈ V0 , δvm ∈ V0m,vb , δpm ∈ L2(Ω) .
+
+A. Sahu
+
+14
+
+3. The finite element formulation
+With the Lagrangian, Eulerian, and ALE weak formulations, our goal is to solve for the state of the membrane over time. We seek to determine (i) the membrane velocity v, (ii) the mesh velocity vm, and (iii) the membrane tension λ—for all parametric points ζαˇ ∈ Ω and times t ∈ [0, tf ]. In doing so, the surface position is obtained from the mesh velocity through Eq. (29). We cannot solve for the highly nonlinear membrane behavior exactly, and turn to the finite element method to numerically calculate the approximate solutions vh, vhm, and λh. An overview of our solution method is presented in what follows. Further specifics can be found in Appendix A and in the MembraneAleFem.jl documentation [1].
+
+3.1. The surface discretization and space of solutions
+
+Let us begin by assuming there is a discretization Th of the parametric domain Ω into nel (number of elements) non-overlapping finite elements Ωe of characteristic length h:
+
+Th := Ω1, Ω2, . . . , Ωnel .
+
+(58)
+
+Our task is to choose the set of basis functions over each element Ωe ∈ Th—denoted {Nke(ζαˇ)}, where the index k ranges from 1 to nen (number of elemental nodes)—such that the resultant solution
+spaces are consistent with their infinite-dimensional counterparts. A complexity arises because mesh and membrane velocities belong to the space H2(Ω). Accordingly, vh and vhm are required to be continuous and have continuous first derivatives across elements. We satisfy the continuity criteria with a so-called tensor product of quadratic B-spline basis functions in each of the ζˇ1 and ζˇ2 directions [99,100]. For our purposes, the parametric domain Ω is partitioned into a rectangular
+grid of finite elements, though more advanced discretizations are now established [101–104]. The
+resultant scalar and vector finite-dimensional spaces Uh and Uh are respectively given by
+
+Uh := u(ζαˇ) : Ω → R such that u ∈ C1(Ω) ∩ H2(Ω), u Ωe ∈ Q2(Ωe) ∀ Ωe ∈ Th
+
+(59)
+
+and
+
+Uh := u(ζαˇ) : Ω → R3 such that uj ∈ Uh ,
+
+(60)
+
+for which
+
+vh ∈ Uh and vhm ∈ Uh
+
+(61)
+
+by construction. In Eq. (59), Cm(Ω) denotes the space of scalar functions on Ω with m continuous derivatives, and Qn(Ωe) denotes the tensor-product space of nth-order polynomials in the ζˇ1 and ζˇ2 directions on the finite element Ωe. The arbitrary variations δvh and δvhm are also assumed to lie in Uh, and are respectively elements of the spaces
+
+V0,h := V0 ∩ Uh
+
+and
+
+V0m,h := V0m ∩ Uh .
+
+(62)
+
+3.1.1. The membrane tension, mesh pressure, and Dohrmann–Bochev projection
+In general, the Lagrange multipliers λ and pm are elements of L2(Ω), and their finite-dimensional counterparts λh and pmh need not be restricted to lie in Uh. However, for convenience in the numerical implementation, we do in fact choose
+
+λh ∈ Uh and pmh ∈ Uh .
+
+(63)
+
+ALE finite element method for lipid membranes
+
+15
+
+Since the same basis functions are used for the velocity and surface tension, the well-known inf–
+sup condition is violated and the LBB instability arises [82–84]. We apply the Dohrmann–Bochev
+method [85] to stabilize unphysical oscillations in both the surface tension and mesh pressure. To do so, λh and pmh are projected onto the space
+
+L˘ := u(ζαˇ) : Ω → R such that u Ωe ∈ P1(Ωe) ∀ Ωe ∈ Th ,
+
+(64)
+
+where Pn(Ωe) denotes the space of polynomials of order n on Ωe. Since functions in L˘ form a plane over each rectangular element Ωe, they are discontinuous across finite elements.
+
+3.2. The method of numerical solution
+
+An overview of our numerical implementation is presented below. Additional details are provided in Appendix A and the MembraneAleFem.jl package repository [1].
+Once the parametric domain is discretized into finite elements, all membrane unknowns are expressed as the sum of B-spline basis functions multiplied by membrane degrees of freedom. The degrees of freedom are collected into a column vector and are generically denoted [u]; they are also referred to as nodal values and their dependence on time is implied. Variations of membrane unknowns are similarly decomposed, with degree-of-freedom variations collected into the column vector [δu]. Since the direct Galerkin expression G is linear in the arbitrary variations, its discretized counterpart Gh is expressed as
+
+Gh [δu], [u] = [δu]T r([u]) = 0 ∀ [δu] .
+
+(65)
+
+In Eq. (65), the residual vector [r] is defined to be
+
+r([u])
+
+:=
+
+∂ Gh [δu], [u] ∂ [δu]
+
+.
+
+(66)
+
+Since the variations [δu] in Eq. (66) are arbitrary, the membrane dynamics at any time t ∈ [0, tf ] satisfy the nonlinear equation
+
+r([u]) = [0] .
+
+(67)
+
+Equation (67) is solved with the Newton–Raphson method, where a sequence of progressively better
+
+estimates of the membrane state [u] is generated. Given the jth estimate [u]j, the (j + 1)th estimate
+
+is calculated according to
+
+[u]j+1 = [u]j − [K]−j 1 r([u]j) ,
+
+(68)
+
+where the global tangent diffusion matrix at the jth iteration is defined as
+
+∂ r([u])
+
+[K]j :=
+
+∂ [u]
+
+.
+[u]j
+
+(69)
+
+In prior studies [4, 77], the tangent diffusion matrix was calculated analytically: an involved task. In the present work, however, [K] is calculated by numerically differentiating [r] with respect to each entry of [u]. In particular, the tangent matrix (69) is calculated to machine precision by extending [r] and [u] into the complex plane, following the general developments of J.N. Lyness and C.B. Moler [105, 106] (see also e.g. Ref. [107]). We note that when calculating derivatives with respect to mesh velocity degrees of freedom, one must also perturb the surface positions, as the two are related through Eqs. (28) and (29).
+
+A. Sahu
+
+16
+
+4. The results of numerical simulations
+We now present results from numerical simulations, where our finite element implementation— including the various mesh motions discussed previously—was used to simulate the dynamics of lipid membranes. We first validate our code against a standard numerical benchmark, namely pure bending of a lipid membrane patch. We then simulate the drawing of a tube from a membrane sheet: a process known to be important in various biological phenomena, including dynamic rearrangement of the endoplasmic reticulum [8,108] and tether formation by proteins traveling along microtubules [109]. The well-known quasi-static tether pulling behavior [28] is confirmed, and the effect of pull speed on pull force is quantified. We close by laterally translating the tether across the membrane surface with our ALE scheme—a result which cannot be obtained with established Lagrangian or Eulerian methods.
+
+4.1. The pure bending of a flat patch
+
+We begin with a simple scenario: starting with a flat membrane patch, boundary moments are applied to the left and right edges to bend the membrane, as shown schematically in Fig. 2(a). For a given applied moment, the equilibrium configuration is known analytically to be a portion of a cylinder [77, 95]. The case of pure bending is thus used to validate our numerical implementation, including the three mesh motions. For a given observable, errors in the numerical result uh with respect to the known analytical solution u are calculated as
+
+1/2
+
+Ehu :=
+
+u − uh 2 dΩ
+
+,
+
+(70)
+
+Ω
+
+where h denotes the characteristic length of a finite element in the parametric domain.
+
+4.1.1. The problem set-up
+
+In our code, the membrane patch is initially a square of side length ℓ in the x–y plane. The initial velocity and position are respectively given by
+
+v(ζαˇ, t ≤ 0) = 0 and x(ζαˇ, t ≤ 0) = xex + yey ,
+
+(71)
+
+where ζαˇ ∈ Ω := [0, 1] × [0, 1] and the real-space coordinates x and y are parametrized as
+
+x(ζαˇ, t ≤ 0) = ℓ ζˇ1 and y(ζαˇ, t ≤ 0) = ℓ ζˇ2 .
+
+(72)
+
+The magnitude of the applied moment, denoted M (t), is linearly ramped up over time until t = tM— after which the boundary moment is held constant at the final value Mf [see Fig. 2(b)]:
+
+0
+
+t≤0
+
+
+
+
+
+
+
+M (t) = (t/tM) Mf 0 < t < tM
+
+(73)
+
+   Mf
+
+t ≥ tM .
+
+For times t > tM, the applied boundary moment is constant in time and the membrane is bent into a portion of a cylinder, as shown in Fig. 2(c). The boundary forces and moments of this
+stationary solution are calculated in Appendix B and summarized in Table 1. Here, rc and λ0 are respectively the cylinder radius and surface tension, the latter of which is constant in the
+
+ALE finite element method for lipid membranes
+
+17
+
+Table 1: Moments and forces on the boundary of a portion of a cylindrical membrane with radius rc, as shown in Fig. 2(c) and calculated in Appendix B. The constant surface tension λ0 is set by the net body force per area in the normal direction, f := f · n.
+
+TOP
+
+BOTTOM
+
+LEFT
+
+RIGHT
+
+M
+
+kb 2rc
+
++
+
+kg rc
+
+kb 2rc
+
++
+
+kg rc
+
+kb 2rc
+
+kb 2rc
+
+F
+
+kb 4rc2
+
++ λ0
+
+ez
+
+−
+
+kb 4rc2
+
++ λ0
+
+ez
+
+λ0
+
+−
+
+kb 4rc2
+
+eθ
+
+kb 4rc2
+
+− λ0
+
+eθ
+
+Table 2: Boundary conditions prescribed in the numerical implementation. We choose to set kg = −kb/2 and f = 0; the latter yields λ0 = kb/(4rc2). The prescribed moment M (t) is given by Eq. (73). The first three rows are repeated for v¯jm and Fjm in the case of a viscous ALE mesh motion.
+
+TOP Fx = 0 v¯y = 0 Fz = 0 M =0
+
+BOTTOM Fx = 0 v¯y = 0 Fz = 0 M =0
+
+LEFT v¯x = 0 v¯y = 0 v¯z = 0 M = M (t)
+
+RIGHT Fx = 0 Fy = 0 v¯z = 0 M = M (t)
+
+M
+
+M
+
+M (t)
+
+z
+
+Mf
+
+yx
+
+M
+
+M
+
+(a) boundary conditions
+
+tM
+
+tf t
+
+(b) time dependence
+
+(c) numerical result
+
+Figure 2: Pure bending scenario. (a) Boundary moments are applied to an initially flat patch in the x–y plane (top). The right edge is free to move in the x- and y-directions, but is constrained in the z-direction. At equilibrium, the membrane forms a portion of a cylinder (bottom). (b) Time dependence of the prescribed boundary moment, according to Eq. (73). Errors are calculated at the final time tf , as indicated by the blue arrow and circle. (c) Result of a numerical simulation on a 128 × 128 mesh. The calculated surface tension differs from the analytical solution by less than three parts in 10,000, as shown by the color bar.
+
+A. Sahu
+
+18
+
+equilibrium configuration. We choose the Gaussian bending modulus kg = −kb/2 such that M = 0
+
+on the top and bottom edges, and no body force (f = 0) such that λ0 = kb/(4rc2) and F = 0 on
+
+the left and right edges (see Table 1). In this case, the cylinder radius rc is related to the final
+
+boundary moment Mf according to
+
+rc
+
+=
+
+kb 2Mf
+
+.
+
+(74)
+
+All of the boundary conditions prescribed in our numerical implementation for Lagrangian and
+
+Eulerian mesh motions are provided in Table 2. When the mesh motion is ALE-viscous, as discussed
+in §2.7.2, boundary conditions are also required for the mesh velocity vm. In this case, the first three
+rows of Table 2 are repeated for the mesh counterparts v¯jm and Fjm. Moment boundary conditions are not required for this mesh motion, as there are no mesh couple-stresses by construction [see
+
+Eq. (40)].
+
+4.1.2. Non-dimensionalization
+
+For the case of pure bending, there are five membrane parameters: the bending modulus kb, final bending moment Mf , ramp-up time tM, patch length ℓ, and intramembrane viscosity ζ. These parameters all dimensionally consist of mass, length, and time. The pure bending scenario is thus
+completely described by two dimensionless quantities. The first is the F¨oppl–von K´arm´an number,
+which compares surface tension to bending forces [71]. For a cylinder with f = 0, the membrane surface tension is constant: λ = λ0 := kb/(4rc2) = Mf2/kb, where Eq. (74) was substituted in the last equality [110]. The F¨oppl–von K´arm´an number Γ is then given by
+
+Γ
+
+=
+
+λ0 ℓ2 kb
+
+=
+
+Mf ℓ kb
+
+2
+.
+
+(75)
+
+The second dimensionless quantity is the Scriven–Love number SL, which captures dynamical effects
+and in this scenario is set by tM [71]. As the characteristic velocity scale of membrane deformations is given by ℓ/tM, the Scriven–Love number is expressed as
+
+SL
+
+=
+
+ℓ2 ζ kb tM
+
+,
+
+(76)
+
+which can be understood as a ratio between the fundamental membrane timescale ℓ2ζ/kb and the
+ramp-up time tM. For the results presented, we run simulations with ζ = 1.0, kb = 1.0, and ℓ = 1.0. The F¨oppl–von K´arm´an and Scriven–Love numbers are then set by choosing Mf and tM, respectively.
+
+4.1.3. Results
+We simulate pure-bending scenarios where Γ = 0.25 and SL = 0.5, for which Mf = kb/(2ℓ) and tM = 2ℓ2ζ/kb [see Eqs. (75) and (76)]. Lagrangian, Eulerian, and ALE-viscous simulations are carried out on meshes ranging from 2 × 2 to 128 × 128. Other relevant parameters are αDB = ℓ2, αmE = ζ/ℓ2, ∆t = 0.1ℓ2ζ/kb, and tf = 4tM. The final configuration from one such simulation, at time tf , is shown in Fig. 2(c). The L2-error in surface tension and mean curvature, relative to the analytical solution and calculated at time tf according to Eq. (70), is plotted as a function of mesh size in Fig. 3. All three mesh motions converge towards the analytical solution upon mesh refinement, indicating our numerical implementation is working as expected. We believe the error from the Eulerian mesh motion is larger than that of the other two schemes because boundary
+
+ALE finite element method for lipid membranes
+
+19
+
+10−1
+
+10−1
+
+10−2
+
+10−2
+
+Ehλ 10−3
+
+EhH 10−3
+
+10−4 10−5
+
+E 1.5 Av
+
+L
+
+1
+
+100
+
+101
+
+102
+
+1/h
+
+10−4
+
+E
+
+Av
+
+10−5
+
+L
+
+1 1
+
+100
+
+101
+
+102
+
+1/h
+
+(a) surface tension error
+
+(b) mean curvature error
+
+Figure 3: Errors in the (a) surface tension and (b) mean curvature at the final time tf , according to Eq. (70), when the membrane patch is subjected to pure bending boundary conditions. The mesh consists of nel = 1/h2 parametric area elements, each of which is a square with side length h. Here, 1/h ranges from 21 to 27 in powers of two. The labels ‘E’, ‘Av’, and ‘L’ refer to Eulerian, ALE-viscous, and Lagrangian mesh
+motions. In all cases, the convergence of the error confirms our numerical implementation is working as
+expected. Relevant parameters are specified in §4.1.3; we also choose ζ = 1.0, kb = 1.0, and ℓ = 1.0.
+
+conditions are not prescribed for the mesh velocity. Instead, material velocity boundary conditions are prescribed and weakly communicated to the mesh velocity through Eq. (33); edges are also the location where errors are the largest [see Fig. 2(c)].
+
+4.2. The pulling of a tether from a flat sheet
+When a single point on the membrane is displaced in the direction n normal to the surface, a tent-like shape forms when deformations are small. As the point continues to be displaced, the bilayer undergoes a nontrivial morphological transition and forms a cylindrical tether [110–113]. Tethers are known to arise in biological settings, including in the endoplasmic reticulum [8, 114] and as the junction between cells [115–117]. In addition, tethers form in in vitro settings with optical tweezers [110,118] and through the polymerization of microtubules [112]—possibly with the use of molecular motors [119, 120]. Tether pulling is also commonly used in assays to probe both static and dynamic membrane properties, as one can measure the force Fp required to pull the tether [118, 121, 122]. An analysis of membrane tether pulling is thus relevant to both biological and in vitro scenarios. In what follows, we focus on the simplest case, in which a tether is pulled from an initially flat sheet.
+
+4.2.1. The problem set-up
+In numerical simulations, the membrane patch is initially a square of side length ℓ in the x–y plane, centered at the origin. We set vz = 0 on the entire patch boundary, and also pin the center node of each edge (v = 0) to remove rigid body rotations and translations. In addition, zero-slope boundary conditions are enforced by constraining vz = 0 for nodes adjacent to the boundary— hereafter referred to as inner boundary nodes. Finally, an in-plane force/length F¯∥ = λ0 ν is applied on the boundary, where ν is the in-plane unit normal at the patch boundary and λ0 is
+
+A. Sahu
+
+20
+
+Table 3: Boundary conditions prescribed in our numerical implementation to pull a tether, with Lagrangian
+(LAG), Eulerian (EUL), and ALE-viscous-bending (ALE-vb) mesh motions. Here, BDRY refers to nodes on
+the boundary, INNER refers to inner nodes adjacent to the boundary, PULL corresponds to nodes associated with the central element Ωep, and PIN refers to nodes at the center of each edge. The latter conditions are required to prevent rigid body rotations and translations. The INNER column enforces zero-slope boundary
+conditions.
+
+LAG
+
+BDRY vz = 0 F¯∥ = λ0 ν
+
+INNER vz = 0
+
+PULL v = vp(t)
+
+PIN vx = vy = 0
+
+EUL
+
+vz = 0 F¯∥ = λ0 ν
+vz = 0 vm = 0 F¯∥ = λ0 ν
+
+vz = 0
+vz = 0 vzm = 0
+
+v = vp(t)
+v = vp(t) vm = vp(t)
+
+vx = vy = 0 vxm = vym = 0 vx = vy = 0 vxm = vym = 0
+
+ALE-vb
+
+the static surface tension—which we choose. All boundary conditions are summarized in Table 3, including those for the Eulerian and ALE schemes where vm is also a fundamental unknown.
+The initial membrane state is given by
+
+v(ζαˇ, t ≤ 0) = 0 and λ(ζαˇ, t ≤ 0) = λ0 ,
+
+(77)
+
+where ζαˇ ∈ Ω := [0, 1] × [0, 1]. The corresponding membrane position is expressed as
+
+x(ζαˇ, t ≤ 0) = xex + yey ,
+
+(78)
+
+with
+
+x(ζαˇ, t ≤ 0) = ζˇ1 − 0.5 ℓ and y(ζαˇ, t ≤ 0) = ζˇ2 − 0.5 ℓ .
+
+(79)
+
+At time t = 0, we seek to vertically displace the center of the membrane patch, where x = 0 and
+y = 0. However, as shown in Appendix C, there is no unique way to specify the velocity at a single
+point given our use of B-spline basis functions, as they are not interpolatory. Instead, we vertically displace the portion of the membrane corresponding to the entire parametric element Ωep containing the point ζpαˇ := (0.5, 0.5) at the center of the parametric domain:
+
+v(ζαˇ, t ≥ 0) = vp(t) ∀ ζαˇ ∈ Ωep .
+
+(80)
+
+In Eq. (80), vp(t) is a known function of time. It is given by vp ez, for constant vp, unless otherwise specified. Following the derivations in Appendix C, Eq. (80) is enforced by setting all nodal velocity degrees of freedom associated with Ωep to vp(t). The resultant pull force Fp(t) is calculated as the sum of the corresponding components of the residual vector.
+
+ALE finite element method for lipid membranes
+
+21
+
+4.2.2. Non-dimensionalization
+
+In the scenario under consideration, there are five membrane parameters: the bending modulus
+
+kb, equilibrium surface tension λ0, two-dimensional intramembrane viscosity ζ, patch length ℓ, and
+speed of tube drawing vp. Since the five quantities dimensionally involve only mass, length, and time, two dimensionless numbers once again determine the evolution of the system. The F¨oppl–von
+
+K´arm´an number Γ is given by [71]
+
+Γ
+
+:=
+
+λ0 ℓ2 kb
+
+,
+
+(81)
+
+and can be interpreted in two ways given the morphological changes that occur when pulling a
+
+tether. First, when the membrane is nearly planar and height deflections are small, gradients
+
+in membrane shape occur over the length scale ℓ; Γ then quantifies the relative magnitude of tensile and bending forces. In our simulations, Γ −1 is small, and consequently a boundary layer of
+
+characteristic width kb/λ0 ≪ ℓ develops at the point of application of the pull force [28]. As the membrane is pulled further, a tether grows from the boundary layer region. The tether is close in
+
+shape to a cylinder, and the radius of a cylindrical membrane is well-known to be [16]
+
+rc :=
+
+kb 4λ0
+
+.
+
+(82)
+
+Equation (82) can be obtained from energetic arguments alone, or equivalently from a balance of
+
+bending and tensile forces. ♯ With Eq. (82), the F¨oppl–von K´arm´an number (81) is understood as
+
+the ratio
+
+Γ=
+
+ℓ 2rc
+
+2
+.
+
+(83)
+
+Equations (81)–(83) confirm that the F¨oppl–von K´arm´an number describes membrane energetics,
+
+as only lengths and the parameters kb and λ0—which respectively have dimensions of energy and energy per area—are involved.
+
+The second dimensionless quantity is the Scriven–Love number SL, which compares the magni-
+
+tude of viscous and bending forces in shaping the membrane [71]. In this scenario, we define the
+
+Scriven–Love number as
+
+SL
+
+:=
+
+rc ζ vp kb
+
+.
+
+(84)
+
+We chose to include rc—rather than ℓ—in Eq. (84) because we are primarily concerned with the behavior of the tether, rather than the entire patch. Upon substituting Eq. (82) into Eq. (84),
+rearranging terms, and recognizing ζ/λ0 is the fundamental timescale of lipid flows [71], we find the Scriven–Love number can be equivalently expressed as
+
+SL
+
+:=
+
+vp 4rc (ζ/λ0)−1
+
+,
+
+(85)
+
+i.e. a ratio of the speed at which the tether is pulled to the natural velocity scale of lipid flows in the tube [71]. Thus, as SL tends to zero, we approach the quasi-static limit.
+In our source code, when running tether pulling simulations, we choose ζ = 1.0, kb = 1.0, and λ0 = 0.25. Our choice yields a tube radius rc = 1.0 according to Eq. (82). The F¨oppl–von K´arm´an number Γ is altered by varying the patch size ℓ, while the Scriven–Love number SL is modified by changing the pull speed vp.
+
+♯In situations where there is a pressure jump across the membrane due to the surrounding fluid and f = f · n ̸= 0, Eqs. (82) and (86) are not valid. See the discussion in Ch. IX, §1(a) of Ref. [53].
+
+A. Sahu
+
+22
+
+4.2.3. The comparison of different mesh motions
+
+We begin by pulling a tether in a scenario with F¨oppl–von K´arm´an number Γ = 1024 and Scriven–
+
+Love number SL = 0.1. Given these dimensionless numbers, ℓ = 64rc and vp = 0.1kb/(ζ rc) according to Eqs. (83) and (84). Snapshots from tether-pulling simulations with each mesh motion are shown
+
+in Fig. 4, with corresponding videos in the MembraneAleFem.jl package repository [1]. A zoomed-
+
+in view of the late-time snapshots, with and without the underlying mesh, are shown in Fig. 5 to
+
+emphasize the advantages of the ALE scheme. In addition, Fig. 6 shows how the z-component of
+
+the pull force, Fp,z := Fp · ez, varies as a function of the vertical displacement zp. It is useful to note that in the quasi-static limit (SL → 0), the long-time, steady-state pull force is well-known to
+
+be approximated by [110]
+
+Feq
+
+:=
+
+π kb rc
+
+=
+
+2π
+
+kb λ0 .
+
+(86)
+
+Equation (86) is exact if the tether is a perfect cylinder. Since this is not the case for a tether
+
+pulled from a flat sheet [28], Eq. (86) serves only as an approximation for the tether force observed
+
+in simulations.
+
+In what follows, we comment on the efficacy of the three mesh motions: Lagrangian (LAG),
+
+Eulerian (EUL), and ALE-viscous-bending (ALE-vb). When appropriate, we compare our results to
+
+those of prior theoretical and numerical developments.
+
+Lagrangian scheme.—We first consider results from simulations with a Lagrangian mesh motion, as shown in the left column of Figs. 4 and 5. A tent-like structure develops and grows until the vertical displacement zp := vp t ≈ 8rc, for which t ≈ 80 ζ rc2/kb. Around this point, the linear relationship between Fp,z and zp breaks down, as shown in Fig. 6. The membrane undergoes a morphological transition between t ≈ 80 ζ rc2/kb and t ≈ 120 ζ rc2/kb, during which Fp,z reaches its largest value. After the shape transition, a tether continues to be drawn at an approximately constant force, which we refer to as the steady-state force Fss (see Fig. 6). However, a pronounced area of low surface tension develops in the region where the tether meets the flat patch (see Figs. 4 and 5). We comment on the unphysical nature of this development following a presentation of our ALE results.
+The majority of our findings from Lagrangian tether-pulling simulations, as well as the Lagrangian implementation itself, are not new. T.R. Powers et al. [28] provided a detailed account of the axisymmetric, quasi-static membrane shape in response to vertical displacements, and along with Ref. [123] numerically calculated the force versus displacement curve in the quasi-static limit. More recently, rate effects were included in axisymmetric simulations that focused primarily on the slip between two monolayer leaflets [124]—an effect not considered in the present work. General non-axisymmetric Lagrangian formulations were developed since then. The implementation in Ref. [75] included rate effects when pulling a tether, but the force was not provided as a function of displacement and it is unclear if the membrane underwent the morphological transition from a tent to a tube in simulations. In contrast, Ref. [77] pulled a tether from the center of an initially axisymmetric mesh and illustrated the tent-to-tube transition. While this implementation seems to be capable of capturing rate effects, the reported tether-pulling results employed a numerical stabilization scheme that did not capture the coupling between in-plane lipid flows and out-ofplane forces. Thus, to the best of our knowledge, we present the first non-axisymmetric Lagrangian simulation capturing the dynamics of a tether pulled from a membrane patch—though we do not consider the results to be novel, as Refs. [75] and [77] may have been able to do the same.
+
+Eulerian scheme.—Let us next examine results from an Eulerian mesh motion. As shown in the center column of Fig. 4, the numerical implementation fails to form a tether. In addition,
+
+ALE finite element method for lipid membranes
+
+LAG
+
+EUL
+
+23 ALE-vb
+
+t = 80
+
+t = 100
+
+t = 120
+
+t = 130
+
+t = 160
+
+t = 240
+
+λ
+Figure 4: Snapshots from tether pulling simulations with a 65 × 65 mesh, in which three different mesh motions are employed. The color bar indicates the surface tension, in units of kb/rc2, for all snapshots. Times are measured in units of ζrc2/kb. (left) Lagrangian simulations (LAG) successfully generate a tether. The morphological shape change from a tent to a tube occurs around time t = 120. Since the membrane is area-incompressible, the patch boundary must be pulled inwards to accommodate the tether surface area. (center) The Eulerian mesh motion (EUL) is not able to form a tube. Rather, the tent morphology persists and bulges outward until the method fails around time t = 143. The material velocity degrees of freedom of the central element are constrained to move upwards; no such constraint is placed on the mesh velocity degrees of freedom. (right) An ALE mesh motion that is viscous and resists bending (ALE-vb) successfully forms a tether. Both material and mesh velocities of the central element are constrained to move upwards. Since the mesh is area-compressible, the patch boundary can be constrained to remain stationary as the tether develops. For all three mesh motions, ∆t = 0.5, SL = 0.1, and Γ = 1024, for which ℓ = 64 rc and vp = 0.1 kb/(ζrc) according to Eqs. (83) and (84).
+
+A. Sahu
+
+24
+
+LAG
+
+ALE-vb
+
+λ
+
+Figure 5: Zoomed-in views of the t = 240 ζrc2/kb snapshots from Fig. 4, with the underlying mesh shown (top) and hidden (bottom). In the Lagrangian simulations (left), the mesh is drawn into the tube along with the lipids due to the areal incompressibility of the membrane. Mesh elements close to the diagonal of the square patch, where y = ±x, become highly distorted—which leads to an artificially low surface tension in the transition region between the tether and surrounding membrane. Numerical artifacts are visible in the striation of the tension. The ALE-viscous-bending result (right), in contrast, shows a less distorted mesh because the choice of mesh constitution resists both shear and dilation. No surface tension artifacts are visible, and a smooth tension gradient is observed from the flat patch into the tether.
+
+4
+
+Fp, z /(kb /rc )
+
+3
+
+Feq
+
+2
+π
+
+ln(Γ/2)
+1
+1
+
+00
+
+5 10
+
+EUL ALE-vb LAG
+15 20
+
+zp/rc
+
+Figure 6: The z-component of the pull force (Fp,z) as a function of the z-displacement. The dashed cyan line is the result from the linear theory, as presented in Eq. (89). The Eulerian simulation (blue circles, dotted line) is unable to form a tether, and is unphysical. The Lagrangian (red triangles, dashed line) and ALE (black squares, solid line) simulations capture the tent-to-tube transition, after which the Lagrangian steadystate pull force Fss is slightly larger. Both overshoot the equilibrium pull force Feq (86) due to dynamical effects from tether pulling (see §4.2.4). Numerical parameters are those specified in Fig. 4.
+
+ALE finite element method for lipid membranes
+
+25
+
+unphysical gradients develop in the surface tension, and the code fails at time t = 143 ζ rc2/kb. In what follows, we discuss why such a failure is to be expected, as a tether cannot form when the
+mesh motion is Eulerian. We begin by introducing J and Jm as the relative area dilations of the membrane and mesh,
+respectively. These dilations are related to the corresponding flow fields according to [53, Ch.V §1(c)]
+
+J˙ J
+
+=
+
+v;αˇαˇ
+
+− 2vH
+
+and
+
+J˙m Jm
+
+=
+
+vmαˇ ; αˇ
+
+− 2vmH .
+
+(87)
+
+Since the membrane is incompressible, J˙/J = 0 and v;αˇαˇ = 2vH. To understand how the mesh dilates or compresses, we recognize that vm = v and vmαˇ = 0 according to Eq. (32). We thus find
+
+J˙m Jm
+
+=
+
+−2vH
+
+̸=
+
+0.
+
+(88)
+
+At this point, we make three observations regarding the geometry and dynamics of the initial tent formation: (i) v ≥ 0 everywhere, (ii) H < 0 in a central region where the surface is concave down, and (iii) H ≥ 0 elsewhere. Accordingly, J˙m/Jm > 0 in the center of the tent, and the mesh continuously dilates. In this manner, the mesh continues to expand laterally and under-resolves the region where the morphological transition would occur. We thus believe the inability to pull a tether is a general failure of Eulerian methods, including those implemented previously [4, 79]. Moreover, since the ALE implementation of Ref. [3] employed a mesh motion that was close to Eulerian, we are unsure if it would be able to successfully pull a tether.
+
+ALE scheme.—We close by discussing the results of our ALE mesh motion. As shown in Figs.
+4–6, a tether was successfully pulled with the ALE-vb scheme, and the surface tension in the region
+where the tether meets the flat patch was approximately constant. This latter point is quantified by considering the range of surface tension values at time t = 240 ζ rc2/kb. In the ALE simulation, the lowest (dimensionless) value of the surface tension is 0.249—approximately equal to the magnitude of the in-plane force per length |F¯∥| = λ0 = 0.25 maintained on the boundary. Larger tension values, in this case up to 0.345, arise in the tether to draw in lipids during the dynamic process
+of pulling. In contrast, the minimum value of the tension in Lagrangian simulations is 0.191: well below |F¯∥| and also less than the larger values (up to 0.446) attained on the tether. Since lipids flow from regions of low to high tension, there does not seem to be a smooth flow of lipids from the
+flat patch into the tether. We thus find the ALE-viscous-bending mesh motion to be superior to
+its Lagrangian counterpart, and report only ALE-vb results for the remainder of our tether-pulling
+analysis.
+
+4.2.4. The geometry and dynamics of tether pulling
+In comparing different mesh motions in §4.2.3, all simulations were carried out at a single choice of Γ and SL. We now investigate the effects of altering the patch size relative to the tether radius, as well as changing the speed of tether pulling—which respectively modify the F¨oppl–von K´arm´an and Scriven–Love numbers. We confirm that Γ dictates the initial slope of the force versus displacement curve, as previously observed [28,77,123], while SL captures the overshoot of of the tether pull force relative to the equilibrium (or quasi-static) result.
+We first investigate the dependence of the pull force on the patch geometry. Figure 7(a) plots Fp,z as a function of zp for different values of Γ , at fixed SL = 0.1. We observe that Γ alters the initial slope of the force versus displacement curve, but does not affect the steady-state pull force after the tether is formed—the latter of which is expected to be independent of the patch size (see
+
+A. Sahu
+
+26
+
+Eq. (86) and Refs. [28, 123]). To calculate the initial dependence of Fp,z on zp, we analyze the tent-like membrane shape when deformations are small. In this limit, the shape equation (19) is decoupled from in-plane lipid flows, and identical to its quasi-static counterpart [71]. We thus take the small-deformation, quasi-static membrane tent result from Ref. [28] and calculate the pull force to be given by [cf. Eq. (86)]
+
+Fp,z kb/rc
+
+=
+
+π ln(Γ/2)
+
+·
+
+zp rc
+
+,
+
+or equivalently
+
+Fp,z Feq
+
+=
+
+1 ln(Γ/2)
+
+·
+
+zp rc
+
+,
+
+(89)
+
+which is shown as the dashed cyan line in Fig. 6. Our calculation of Eq. (89) is provided in Appendix D, and the collapse of force versus displacement curves is shown in Fig. 7(b).
+The dependence of the pull force on the speed of tether pulling is investigated next. Results from simulations with variable SL and fixed Γ = 1024 are plotted in Fig. 7(c). The observed increase in pull force with increasing Scriven–Love number can be justified as follows. During tether pulling, lipids in the surrounding region flow inwards towards the tether. A mass balance, with the assumption of axisymmetry, indicates that the flow speed is approximately vp rc/r, where r is the distance from the z-axis. Since the in-plane velocity grows as we approach the tether from its surroundings, a surface tension gradient is required to sustain the flow of lipids. As the tether is pulled more quickly, larger velocities and thus larger tension gradients ensue. A greater surface tension in the tether results, and leads to the larger pull force observed in simulations.
+At present, we are unable to determine a general functional form for the long-time, steady-state pull force as a function of SL due to the high degree of nonlinearity in the governing equations. The main difficulty is that the surface tension and membrane geometry enter both the in-plane and shape equations. Moreover, the viscous–curvature coupling forces—which arise due to the flow of lipids—lead to O(SL) changes of the membrane shape in the tent-like region. Since we are unable to approximate how the steady-state pull force depends on the Scriven–Love number, we choose not to collapse the data contained in Fig. 7(c). Instead, we plot the steady-state pull force Fss as a function of Scriven–Love number in Fig. 7(d). We expect Fss ≈ Feq when SL → 0. In the limit where SL ≪ 1, we approximate dynamical effects by calculating the change in surface tension under the assumption of no membrane shape changes. We find
+
+Fss(SL) = 1 + 2SL Feq for SL ≪ 1 ,
+
+(90)
+
+which is shown as the dotted grey line in Fig. 7(d). Evidently, Eq. (90) is a reasonable approximation when SL < 0.1.
+
+4.2.5. The lateral translation of a membrane tether
+Once a tube is pulled from a patch of membrane, a lateral force applied at the end of the tether causes it to translate relative to the surrounding region. Lipids quickly flow and readjust to accommodate the translating tether due to the in-plane fluidity of the membrane. While tether translation via a lateral force is observed in in vitro studies [125–127], the physics of tether translation remains poorly understood. A theoretical description of tether translation is difficult because the system is no longer axisymmetric, and the greatly simplified axisymmetric equations [28, 31, 33, 78, 123] no longer apply. Tether translation also cannot be captured with general, non-axisymmetric Lagrangian numerical methods—as laterally translating the tether induces a rigid body translation of the entire patch (see Appendix E). ALE finite element methods are thus required to simulate tether translation.
+In Fig. 8, we present snapshots from a simulation of tether translation, which employed the ALE-vb mesh motion. Starting with the t = 240 ζ rc2/kb configuration shown in Figs. 4 and 5, we
+
+ALE finite element method for lipid membranes
+
+27
+
+Fp, z /(kb /rc )
+
+(a)
+4 3 2 1 00
+
+Γ = 64 Γ = 256 Γ = 1024
+5 10 15 20 zp/rc
+
+(b)
+4
+
+Fp, z /(kb /rc )
+
+3
+
+2
+
+1
+
+Γ = 64
+
+Γ = 256
+
+Γ = 1024
+00 2 4 6 8 10
+
+(zp/rc) · π/ ln(Γ/2)
+
+(c)
+6
+
+Fp, z /(kb /rc )
+
+4
+
+SL−1 = 1
+
+2
+
+SL−1 = 3
+
+SL−1 = 10
+
+SL−1 = 30
+
+00 10 20 30 40
+
+zp/rc
+
+(d)
+
+1.8
+
+1
+
+Fss/Feq
+
+1.6
+2
+1.4
+1.2
+10 0.2
+
+1.18
+1.12
+1.06
+1.000 0.03 0.06 0.09
+0.4 0.6 0.8 1 SL
+
+Figure 7: The z-component of the pull force (Fp,z) as a function of zp for different values of Γ and SL. (a) When SL = 0.1 and Γ is varied, the initial slope of the force-vs-displacement curve is altered according to
+the linear theory [see Eq. (89)]. (b) By scaling the z-displacement appropriately, the data collapses—with
+the steady-state pull force independent of Γ after tether formation. The cyan line has slope one. (c) When
+Γ = 1024 and SL is varied, the initial slope of the force-vs-displacement curve is unchanged. The tent-to-tube
+transition occurs at larger displacements, and the long-time pull force increases with SL. (d) Long-time pull force, Fss, as a function of SL for Γ = 1024. The dotted grey line is the linear prediction from Eq. (90), which agrees with simulation results when SL ≪ 1—as highlighted by the zoomed-in inset. The nonlinear dependence of Fss on SL arises from the coupling between in-plane flows and out-of-plane shape deformations.
+
+A. Sahu
+
+28
+
+pull →
+
+← pull
+
+t = 300
+
+t = 300
+
+t = 280
+
+t = 320
+
+t = 260
+
+t = 340
+
+t = 240
+
+t = 360
+
+t = 380
+
+t = 400
+
+t = 420
+
+λ
+Figure 8: Tether translation in the +ex (left column) and then −ex (right column) directions. Times are measured in units of ζ rc2/kb, the pull velocity is specified in Eq. (91), and all other parameters are identical to those in Fig. 4. The vertical red lines are a visual aid to highlight the lateral translation of the tether.
+
+ALE finite element method for lipid membranes
+
+29
+
+prescribe a lateral velocity in the x-direction given by
+
+
+
+vp(t)
+
+=
+
+ +vp ex  −vp ex
+
+for 240 < t · kb/(ζ rc2) < 300 for 300 < t · kb/(ζ rc2) < 420 ,
+
+(91)
+
+where in both cases vp = 0.1kb/(ζ rc) to be consistent with our choice SL = 0.1. In this simulation, Γ = 1024 is unchanged. Our results demonstrate that ALE methods can be used in scenarios where Lagrangian methods fail, and set the stage for future investigations of the forces, geometry, and dynamics of tether translation. A video of the laterally-pulled tether simulation is provided in the software repository [1].
+
+5. Conclusions and future work
+In the present work, we (i) developed a robust ALE numerical method for lipid membranes and (ii) applied the method to a scenario where established Lagrangian and Eulerian schemes fail. In our development, the mesh is treated as a material that is independent from the membrane—with the mesh equations of motion arbitrarily prescribed by the user. Mesh and material surfaces are constrained to overlap with a Lagrange multiplier field, which enters the mesh dynamics as a force per area in the normal direction. By choosing for the mesh to resist shear and dilation (through the mesh viscosity ζm) and bending (through the mesh bending moduli kbm and kgm), we successfully pulled a tether from a flat patch and then translated it laterally across the membrane surface. In contrast, Lagrangian and Eulerian simulations are respectively unable to translate and pull a tether. Our results thus mark the first numerical demonstration of lateral tether translation. We also analyzed the dynamics of tether pulling by determining how the pull force increases monotonically with increasing pull speed. Our findings were presented in terms of the F¨oppl–von K´arm´an and Scriven–Love numbers, which define the tether-pulling scenario.
+We close by highlighting that our numerical implementation [1] is structured such that one can easily choose different constitutive relations for the mesh motion. Only purely viscous and viscous-with-bending mesh motions were considered in the present work; we aim to investigate different choices in a future study. As a consequence of the modular structure of the numerical implementation, it is straightforward to adapt the code to simulate 2D materials with different constitution. We hope to support the open-source community in doing so. We also intend to extend our method to describe additional phenomena governing biological membranes—including the coupling between lipid flows and the hydrodynamics of the surrounding fluid [36, 43, 57], the effects of embedded particles [32, 37, 39], and in-plane diffusion and phase transitions in multicomponent membrane systems [44, 46, 48, 128].
+
+Acknowledgments
+We are indebted to Prof. Kranthi Mandadapu for many scientific discussions on membrane dynamics and finite element methods within the setting of differential geometry. We are also grateful to Prof. Panos Papadopoulos and Dr. Yannick Omar for bringing important details of finite element analysis to our attention, including the Dohrmann–Bochev method [85] and numerical differentiation of the residual vector [107]. It is a pleasure to thank Dr. Jo¨el Tchoufag regarding conversations on fluid mechanics and membrane dynamics in different geometries.
+
+A. Sahu
+
+30
+
+Simulations were carried out on the Perlmutter high-performance computing (HPC) system at the National Energy Research Scientific Computing Center. Our open-source package is written in the Julia programming language [129]. Figures and videos of the simulation results were generated with the open-source Julia package Makie.jl [130].
+
+Appendix A. The finite element implementation
+
+The main novelty of the present work is the treatment of the mesh as an independent material with its own constitution, as discussed in §2.7. However, none of the finite element techniques used here are new. All fundamental unknowns, their arbitrary variations, and the surface position itself are discretized with the same basis functions—as is standard in isoparametric finite element methods. Over any element Ωe ∈ Th, we have
+
+nen
+xh(ζαˇ, t) = Nke(ζαˇ) xke(t) = [Ne(ζαˇ)] [xe(t)]
+k=1
+
+∀ ζαˇ ∈ Ωe .
+
+(A.1)
+
+In Eq. (A.1), the matrix [Ne(ζαˇ)] contains the nonzero elemental basis functions (see §3.1) and the column vector [xe(t)] collects the corresponding local degrees of freedom (or nodal positions) in the
+usual manner of finite element analysis:
+
+[Ne(ζαˇ)] := N1e(ζαˇ) [1] N2e(ζαˇ) [1] . . . Nneen(ζαˇ) [1] ,
+
+(A.2)
+
+where [1] is the 3 × 3 identity matrix in Cartesian coordinates, and
+
+ xe1(t) 
+
+[xe(t)]
+
+:=
+
+ 
+
+...
+
+ 
+
+.
+
+
+
+
+
+xenen(t)
+
+(A.3)
+
+The velocity and mesh velocity are similarly decomposed as
+
+vh(ζαˇ, t) = [Ne(ζαˇ)] [ve(t)]
+
+(A.4)
+
+and
+
+vhm(ζαˇ, t) = [Ne(ζαˇ)] [vm,e(t)]
+
+(A.5)
+
+for all ζαˇ ∈ Ωe. Since the membrane tension and mesh pressure are scalar quantities, they are respectively discretized as
+
+λh(ζαˇ, t) = [N⃗ e(ζαˇ)] [λe(t)]
+
+(A.6)
+
+and
+
+pmh (ζαˇ, t) = [N⃗ e(ζαˇ)] [pm,e(t)]
+
+(A.7)
+
+for all ζαˇ ∈ Ωe, where [N⃗ e(ζαˇ)] is the row vector of nonzero elemental basis functions given by [cf.
+
+Eq. (A.2)]
+
+[N⃗ e(ζαˇ)] := N1e(ζαˇ) N2e(ζαˇ) . . . Nneen(ζαˇ) .
+
+(A.8)
+
+ALE finite element method for lipid membranes
+
+31
+
+Assuming a known solution at time t, the temporal evolution of the membrane is obtained via the backward Euler method. In particular, the membrane surface is updated according to [cf. Eq. (28),(29)]
+
+or equivalently
+
+x(ζαˇ, t + ∆t) = x(ζαˇ, t) + ∆t vm(ζαˇ, t + ∆t) , [xe(t + ∆t)] = [xe(t)] + ∆t [vm,e(t + ∆t)] .
+
+(A.9) (A.10)
+
+As discussed in §3.2, the mesh velocity and all other unknowns satisfy the residual vector equation
+
+r([u(t + ∆t)]) = [0] ,
+
+(A.11)
+
+which is solved via the Newton–Raphson method—in which [u(t)] is used as the initial guess. We thus close our discussion of the finite element implementation by presenting the contributions to the residual vector; all details can be found in the software documentation [1].
+
+A.1. The contributions to the residual vector
+Our finite element implementation allows one to choose whether the mesh motion is Lagrangian, Eulerian, or ALE—and, in the latter case, whether the mesh dynamics are purely viscous or viscous with a bending resistance. The direct Galerkin expressions in Eqs. (31), (34), (48), and (57) dictate the residual vector for each mesh motion. In what follows, we present the local residual vector contributions—corresponding to a single finite element Ωe ∈ Th—for each fundamental unknown.
+
+A.1.1. The surface tension contribution As detailed in Ref. [4], the residual vector corresponding to Eq. (12) is given by
+
+[reλ] =
+
+[N⃗ e]T aαˇ · v,αˇ
+Ωe
+
+JΩ dΩ −
+
+αDB ζ
+
+[N⃗ e]T λ dΩ − [Ge]T [He]−1[Ge] [λe] , (A.12)
+Ωe
+
+where all quantities in curly braces arise from the Dohrmann–Bochev method [85]. The matrices [Ge] and [He] in Eq. (A.12) are constructed from the basis functions N˘ke(ζαˇ) to the space L˘ onto which surface tensions are projected. Since functions in L˘ are linear and form a plane over Ωe [see Eq. (64)], they can be expressed as a + bζˇ1 + cζˇ2 = 0 for some constants a, b, c ∈ R. In our numerical implementation, the planar basis functions over a single element are chosen to be N˘1e(ζαˇ) = 1, N˘2e(ζαˇ) = ξ(ζˇ1), and N˘3e(ζαˇ) = η(ζˇ2), where ξ and η parametrize the reference square [−1, 1] × [−1, 1] onto which Ωe is mapped. Accordingly, over any element Ωe ∈ Th we define the row vector
+
+[N˘ e(ζαˇ)] := N˘1e(ζαˇ) N˘2e(ζαˇ) N˘3e(ζαˇ) ,
+
+(A.13)
+
+with which the matrices [Ge] and [He] in Eq. (A.12) are expressed as
+
+[Ge] := [N˘ e]T[N⃗ e] dΩ and [He] := [N˘ e]T[N˘ e] dΩ .
+
+Ωe
+
+Ωe
+
+(A.14)
+
+A. Sahu
+
+32
+
+A.1.2. The material velocity contribution
+
+It is straightforward to determine the contributions to the residual vector from Eq. (27). We take advantage of the symmetry of σαˇβˇ and M αˇβˇ to obtain
+
+[rev] :=
+
+Ωe [Ne]T,αˇ aβˇ σαˇβˇ JΩ dΩ +
+
+Ωe [Ne]T;αˇβˇ n M αˇβˇ JΩ dΩ −
+
+[Ne]T f JΩ dΩ
+Ωe
+
+3
+−
+j=1
+
+[N⃗ e]T Fj
+∂ Ωe ∩ΓFj
+
+JΓ
+
+dΓ
+
+−
+
+[Ne]T,αˇ ναˇ n M JΓ dΓ .
+∂Ωe∩ΓM
+
+(A.15)
+
+In Eq. (A.15), it is understood that the x, y, and z components of the force terms are written to appropriate entries of the residual vector.
+
+A.1.3. The Eulerian mesh velocity contribution
+
+For the choice of an Eulerian mesh motion, the residual vector contribution corresponding to Eq. (33) is given by
+
+[rEm,e] := αmE [Ne]T vm − n ⊗ n v JΩ dΩ .
+Ωe
+
+(A.16)
+
+A.1.4. The ALE mesh pressure contribution
+
+When an ALE mesh motion is employed, the mesh pressure ensures the kinematic constraint (6) is satisfied. With the Dohrmann–Bochev method applied once again, the residual vector resulting from Eq. (39) is given by [cf. Eq. (A.12)]
+
+[rep] = − [N⃗ e]T n · vm − v JΩ dΩ
+Ωe
+
+−
+
+αDB ζ ℓ2
+
+[N⃗ e]T pm dΩ − [Ge]T [He]−1[Ge] [pm,e] .
+Ωe
+
+(A.17)
+
+A.1.5. The ALE mesh velocity contribution
+
+When an ALE mesh motion is employed, the residual vector contribution from the mesh velocity looks similar to that from the material velocity [cf. Eq. (A.15)]:
+
+[rAm,e] :=
+
+Ωe [Ne]T,αˇ aβˇ σmαˇβˇ JΩ dΩ +
+
+Ωe [Ne]T;αˇβˇ n Mmαˇβˇ JΩ dΩ −
+
+[Ne]T pm n JΩ dΩ .
+Ωe
+
+(A.18)
+
+In Eq. (A.18), σmαˇβˇ,v and Mmαˇβ,ˇv (resp. σmαˇβˇ,vb and Mmαˇβ,ˇvb) are substituted when the motion is ALEviscous (resp. ALE-viscous-bending).
+
+Appendix B. The static portion of a cylinder
+
+Here we consider a static membrane patch that is a portion of a cylinder—for which
+
+x(θ, z) = rc er(θ) + z ez .
+
+(B.1)
+
+In Eq. (B.1), θ and z are the canonical cylindrical coordinates and rc is the cylinder radius. With our differential geometric formulation, we arbitrarily choose to parametrize the surface as
+
+ζˇ1 := θ ∈ [0, α]
+
+and
+
+ζ ˇ2
+
+:=
+
+z ℓ
+
+∈
+
+[0, 1] ,
+
+(B.2)
+
+ALE finite element method for lipid membranes
+
+33
+
+such that
+
+x(ζαˇ) = rc er(ζˇ1) + ℓζˇ2 ez .
+
+It is then straightforward to determine [53, Ch.IX §1]
+
+(B.3)
+
+aˇ1 = rc eθ(ζˇ1) ,
+
+aˇ2 = ℓez ,
+
+n = er ,
+
+aαˇβˇ = diag rc−2, ℓ−2 ,
+
+bαˇβˇ = diag − rc, 0 ,
+
+aαˇβˇ = diag rc2, ℓ2 , bαˇβˇ = diag − rc−3, 0 ,
+
+(B.4)
+
+for which the mean and Gaussian curvatures are respectively given by
+
+H=
+
+−1 2rc
+
+and K = 0 .
+
+(B.5)
+
+The couple-stress components M αˇβˇ and couple-free in-plane stress components σαˇβˇ are calculated via Eqs. (15) and (16) as
+
+ −kb
+
+M αˇβˇ
+
+=
+
+ 
+
+2rc3
+
+ 0
+
+
+
+0
+
+
+
+−kb 2rc ℓ2
+
+−
+
+ kg  rc ℓ2
+
+(B.6)
+
+and
+
+σαˇβˇ
+
+=
+
+ 
+
+λ0 rc2
+
+−
+
+3kb 4rc4
+
+
+
+0
+
+ 0
+
+λ0 ℓ2
+
++
+
+ kb  4rc2ℓ2
+
+,
+
+(B.7)
+
+where for a static patch there are no viscous stresses—for which παˇβˇ = 0. Here λ0 denotes the
+constant surface tension, which is set by the balance of forces in the out-of-plane direction. With some additional calculations, we find the stress vectors T αˇ to be given by
+
+T ˇ1 =
+
+λ0 rc
+
+−
+
+kb 4rc3
+
+eθ
+
+and
+
+T ˇ2 =
+
+λ0 ℓ
+
++
+
+kb 4rc2 ℓ
+
+er .
+
+(B.8)
+
+We now separately consider the top and bottom edges, where ζˇ2 is fixed, and the left and right edges, where ζˇ1 is fixed.
+
+The top and bottom surfaces.—At the top (ζˇ2 = 1) and bottom (ζˇ2 = 0) edges, ν = ±ez, νˇ1 = 0, νˇ2 = ±ℓ, τ = ∓eθ, τˇ1 = ∓rc, and τˇ2 = 0. We thus determine (see §2.3.1)
+
+M
+
+=
+
+M αˇβˇναˇ νβˇ
+
+=
+
+M ˇ2ˇ2νˇ2 νˇ2
+
+=
+
+−
+
+kb 2rc
+
+−
+
+kg rc
+
+(B.9)
+
+and
+
+F = T αˇναˇ −
+
+M αˇβˇναˇ τβˇ n ,µˇ τ µˇ = T ˇ2νˇ2 = ±
+
+λ0
+
++
+
+kb 4rc2
+
+ez .
+
+(B.10)
+
+The sign of the moment in Table 1 is opposite that of Eq. (B.9) due to the difference in orientation of the unit normal with respect to the surface.
+
+The left and right surfaces.—At the left (ζˇ1 = α) and right (ζˇ1 = 0) edges, ν = ±eθ, νˇ1 = ±rc, νˇ2 = 0, τ = ±ez, τˇ1 = 0, and τˇ2 = ±ℓ. In the same manner, we calculate
+
+M
+
+=
+
+M αˇβˇναˇ νβˇ
+
+=
+
+M ˇ1ˇ1νˇ1 νˇ1
+
+=
+
+−
+
+kb 2rc
+
+(B.11)
+
+A. Sahu
+
+34
+
+and
+
+F = T αˇναˇ −
+
+M αˇβˇναˇ τβˇ n ,µˇ τ µˇ = T ˇ1νˇ1 = ±
+
+λ0
+
+−
+
+kb 4rc2
+
+eθ .
+
+(B.12)
+
+The moment in Eq. (B.11) again differs from the moment reported in Table 1 due to the choice of normal vector.
+
+Appendix C. The numerical calculation of the pull force
+In this section, we determine how to set the membrane velocity v to a desired value vp at the center of the membrane patch. Given the use of non-interpolatory basis functions, there is no unique way to do so. We thus choose to set the membrane velocity over the entire finite element containing the point of interest. The pull force Fp(t) resulting from the imposed displacement is calculated via variational arguments.
+
+C.1. The inability to uniquely displace a single point on the membrane
+
+To begin, at a chosen point (ζpˇ1, ζpˇ2) we intend for
+
+v(ζpαˇ, t) = vp(t) ,
+
+(C.1)
+
+where vp(t) is a known function. With the velocity discretization in Eq. (A.4), Eq. (C.1) can be
+
+expressed as
+
+nen
+
+Nke(ζpαˇ) vke(t) = vp(t) ,
+
+(C.2)
+
+k=1
+
+where {Nke(ζpαˇ)} and {vke} are respectively the local basis functions and nodal velocities of the finite element Ωep containing ζpαˇ. Importantly, the basis function values are set by the choice of ζpαˇ, and they are non-interpolatory [99]—and thus all nen nodal velocities contribute to Eq. (C.2). Since vp ∈ R3 and vke ∈ R3 for all k, Eq. (C.2) can be understood as a system of three scalar equations involving 3 · nen scalar unknowns. As nen = (poly + 1)2 for B-splines of polynomial order poly [99], there is no unique way to specify the {vke} in Eq. (C.2). In practice, we set
+
+vke(t) = vp(t) for k ∈ {1, 2, . . . , nen} .
+
+(C.3)
+
+Given the properties of B-spline functions [99], Eq. (C.3) results in a uniform prescribed velocity over the entire parametric element Ωep—expressed as
+
+v(ζαˇ, t) = vp(t) for all ζαˇ ∈ Ωep .
+
+(C.4)
+
+C.2. The pull force when a finite element is uniformly displaced
+
+In this section, we calculate the force Fp required to pull an entire finite element at a prescribed velocity as in Eq. (C.4). From the strong form of the governing membrane equations (18,19) we recognize the pull force is the area integral of the net body force per area f on the membrane— expressed as
+
+Fp(t) =
+
+f (ζαˇ, t)JΩ(ζαˇ, t) dΩ .
+
+Ωep
+
+(C.5)
+
+Since the prescribed velocity in Eq. (C.4) can be viewed as a constraint, f is then understood as the associated Lagrange multiplier field over the element Ωep.
+
+ALE finite element method for lipid membranes
+
+35
+
+Our task now is to determine how to calculate Fp numerically, which is accomplished by considering how the weak form would be modified if Eq. (C.4) was not satisfied directly. The principle of virtual power would then necessitate the quantity
+
+δ
+
+f (ζαˇ, t) · v(ζαˇ, t) − vp(t) JΩ(ζαˇ, t) dΩ
+
+Ωep
+
+= δv · f JΩ dΩ + δf · v − vp JΩ dΩ + f · v − vp δJΩ dΩ
+
+Ωep
+
+Ωep
+
+Ωep
+
+(C.6)
+
+be subtracted from the direct Galerkin expression, where δJΩ = ∆tJΩ aαˇ · δv,mαˇ (see Appendix C.2.1 of Ref. [4]). At this point, the fundamental unknowns and arbitrary variations are discretized as
+
+v(ζαˇ, t) = [Nep][vpe (t)] , δv(ζαˇ) = [Nep][δvpe ] ,
+
+vm(ζαˇ, t) = [Nep][vpm,e(t)] , δvm(ζαˇ) = [Nep][δvpm,e] ,
+
+f (ζαˇ, t) = [Nep][fpe(t)] , δf (ζαˇ) = [Nep][δfpe] .
+
+(C.7)
+
+In Eq. (C.7), we introduced the shorthand [Nep] := [Ne(ζαˇ)] for all ζαˇ ∈ Ωep. Upon substituting Eq. (C.7) into the second line of Eq. (C.6) and defining the elemental mass matrix [Mep] as
+
+we find the quantity
+
+[Mep] := [Nep]T [Nep] JΩ dΩ ,
+Ωep
+
+(C.8)
+
+[δvpe ]T [Mep] [fpe(t)] + [δfpe]T [Mep] [vpe (t)] −
+
+[Nep]T JΩ dΩ vp(t)
+Ωep
+
++ [δvpm,e]T [Nep]T,αˇ · aαˇ ⊗ f v − vp ∆t JΩ dΩ
+Ωep
+
+(C.9)
+
+is to be subtracted from the discretized weak Galerkin expression Gh. We now separately consider the portions of Eq. (C.9) arising from variations in the pull force, material velocity, and mesh velocity.
+
+C.2.1. The pull force contribution
+The portion of the direct Galerkin expression associated with the net force per unit area f can be expressed as
+
+Gf = [δfpe]T
+
+[Nep]T JΩ dΩ vp(t) − [δfpe]T [Mep] [vpe (t)] = 0
+
+Ωep
+
+∀ [δfpe] .
+
+(C.10)
+
+Importantly, the mass matrix [Mep] is invertible and the variation [δfpe] is arbitrary, so the nodal velocity degrees of freedom are found to be given by
+
+[vpe (t)] = [Mep]−1
+
+[Nep]T JΩ dΩ vp(t) .
+
+Ωep
+
+(C.11)
+
+It is a well-known property of B-splines [99] that if the constraint v(ζαˇ, t) = vp(t) is enforced over the entire element, then the unique solution for the nodal degrees of freedom is given by
+
+ vp(t)
+
+ [1]
+
+[vpe (t)]
+
+=
+
+ 
+
+...
+
+ 
+
+=
+
+ 
+
+...
+
+ 
+
+vp(t)
+
+.
+
+  
+
+vp(t)
+
+[1]
+
+(C.12)
+
+A. Sahu
+
+36
+
+By comparing Eqs. (C.11) and (C.12), we recognize
+
+[Mep]−1
+
+ [1]
+
+[Nep]T JΩ dΩ
+
+=
+
+ 
+
+...
+
+ 
+
+,
+
+Ωep
+
+ [1]
+
+which will be useful in our subsequent developments.
+
+(C.13)
+
+C.2.2. The material velocity contribution
+
+The material velocity portion of the discretized direct Galerkin expression Gh is given by
+
+Gv = [δv]T [rv] − [δvpe ]T [Mep] [fpe(t)] = 0 ∀ [δv] ,
+
+(C.14)
+
+where [δv] is the global variation of the nodal velocities, [δvpe ] is the velocity variation of the nen nodes associated with Ωep, and [rv] is the velocity portion of the global residual vector in the absence of a pull force. Let us imagine reordering the global velocity degrees of freedom such that those associated with Ωep appear last, and those not associated with the pull force appear first. The global velocity unknowns, their arbitrary variation, and residual vector in the absence of a pull force are
+respectively expressed as
+
+[v(t)] =
+
+[vp¯ (t)] [vpe (t)]
+
+,
+
+[δv] =
+
+[δ vp¯ ] [δvpe ]
+
+,
+
+and
+
+[rv] =
+
+[rpv¯ ] [rvp,e]
+
+.
+
+(C.15)
+
+Here, the subscript ‘p¯’ is used to signify “not p,” i.e. degrees of freedom not associated with the pulled element Ωep. Substituting Eq. (C.15) into Eq. (C.14) yields
+
+[δvp¯]T [rpv¯ ] + [δvpe ]T [rvp,e] − [δvpe ]T [Mep] [fpe(t)] = 0 ∀ [δvp¯], [δvpe ] .
+
+(C.16)
+
+Since the arbitrary variations [δvp¯] and [δvpe ] are independent of one another, Eq. (C.16) requires [rpv¯ ] = [0]—which is the equation one obtains when the nodal velocities over Ωep are set directly. Additionally, the nodal body force degrees of freedom are found to be given by
+
+[fpe(t)] = [Mep]−1 [rvp,e] .
+
+(C.17)
+
+By substituting Eqs. (C.7) and then (C.17) into Eq. (C.5), we calculate the pull force as
+
+Fp(t) =
+
+[Nep]T JΩ dΩ [fpe(t)] =
+Ωep
+
+[Nep]T JΩ dΩ [Mep]−1 [rvp,e] .
+Ωep
+
+(C.18)
+
+Finally, recognizing the mass matrix is symmetric and substituting the transpose of Eq. (C.13) into Eq. (C.18) yields
+
+Fp(t) = [1] [1] . . . [1] [rvp,e] ,
+
+(C.19)
+
+which is straightforward to calculate within finite element subroutines. Equation (C.19) is the main result of this section.
+
+ALE finite element method for lipid membranes
+
+37
+
+C.2.3. The mesh velocity contribution The mesh velocity portion of Gh can be written as
+
+Gm = [δvm]T [rm] − [δvpm,e]T [Nep]T,αˇ · aαˇ ⊗ f v − vp ∆t JΩ dΩ = 0
+Ωep
+
+(C.20)
+
+for any arbitrary variation [δvm]. By reordering global velocity degrees of freedom in the same manner as Eq. (C.15), we find
+
+[δvpm¯ ]T [rpm¯ ] + [δvpm,e]T [rmp ,e] − [δvpm,e]T [Nep]T,αˇ · aαˇ ⊗ f v − vp ∆t JΩ dΩ = 0 (C.21)
+Ωep
+
+for all independent variations [δvp¯] and [δvpe ]. Equation (C.21) requires [rpm¯ ] = [0], which solves for all mesh velocity degrees of freedom not associated with the finite element Ωep. In addition, we find
+
+[rmp ,e] = [Nep]T,αˇ · aαˇ ⊗ f v − vp ∆t JΩ dΩ ,
+Ωep
+
+(C.22)
+
+where [rmp ,e] is the mesh velocity portion of the residual vector corresponding to Ωep in the absence of a pull force. The following discussion explains why Eq. (C.22) is not used in our code.
+
+C.3. The numerical implementation
+
+In our numerical implementation, we calculate the pull force Fp(t) directly—rather than with a
+
+Lagrange multiplier field. To do so, we set the nen nodal material velocity values {vke(t)} associated
+
+with Ωep freedom
+
+directly list, the
+
+according to residual [rvp,e]
+
+Eq. (C.12). Though these nodes are is still calculated, from which the pull
+
+removed from the force is determined
+
+degree-ofaccording
+
+to Eq. (C.19). We also directly set the nen mesh velocity degrees of freedom {vkm,e(t)} associated with Ωep to be vp(t) in a similar fashion. Since the nodal mesh velocities on Ωep are known, they are
+
+removed from the degree-of-freedom list, and so the integral term in Eq. (C.22) is not evaluated in
+
+practice.
+
+Appendix D. The pull force at small deformations
+
+Consider a membrane patch which, prior to any deformation, is at the constant surface tension λ0
+and spans the region between two concentric circles in the x–y plane. We denote ℓ as the diameter
+of the outer circle and 2rp as the diameter of the inner circle. Eventually, we will take the limit as rp → 0. When a deformation is applied quasi-statically and the membrane height h = h(r, θ) above the x–y plane is small (i.e. h ≪ ℓ), the membrane shape is known to satisfy [53, Ch. VII]
+
+λ0 ∇2h
+
+−
+
+1 2
+
+kb
+
+∇4h
+
+=
+
+0
+
+,
+
+(D.1)
+
+where
+
+∇2( · )
+
+=
+
+1 r
+
+∂ ∂r
+
+r
+
+∂(·) ∂r
+
++
+
+1 r2
+
+∂(·) ∂θ
+
+(D.2)
+
+is the 2D Laplacian expressed in terms of the canonical cylindrical coordinates r and θ. In what follows, all lengths are non-dimensionalized by ℓ/2, for which
+
+h∗
+
+:=
+
+2h ℓ
+
+,
+
+r∗
+
+:=
+
+2r ℓ
+
+,
+
+and
+
+∇ˆ 2
+
+:=
+
+ℓ2 4
+
+∇2
+
+.
+
+(D.3)
+
+A. Sahu
+
+38
+
+With Eqs. (81) and (D.3), the shape equation (D.1) is presented in dimensionless form as
+
+∇ˆ 2h∗
+
+−
+
+Γ 2
+
+∇ˆ 4h∗
+
+=
+
+0
+
+.
+
+(D.4)
+
+In comparing Eq. (D.4) with the description in Ref. [28], we recognize the small parameter ϵ in the latter is given by 2/Γ in our notation. Thus, for an axisymmetric membrane with (i) prescribed displacement zp at r = rp, (ii) zero slope at r = rp, (iii) no displacement at r = ℓ/2, and (iv) no moment at r = ℓ/2, we reproduce the Powers et al. solution [28] as ∥
+
+h∗(r∗)
+
+=
+
+zp∗ ·
+
+αK1(α) ln r∗ + K0(αr∗/rp∗ ) αK1(α) ln rp∗ + K0(α)
+
+,
+
+(D.5)
+
+where
+
+α := rp∗
+
+Γ 2
+
+(D.6)
+
+is a constant parameter defined for notational convenience. In Eqs. (D.5) and (D.6), K0 and K1 are modified Bessel functions of the second kind, and zp∗ := 2zp/ℓ is the dimensionless displacement at the inner membrane boundary—which is located at r∗ = rp∗ := 2rp/ℓ.
+With the solution for the membrane shape at a given displacement in Eq. (D.5), we seek to
+
+determine the magnitude of the pull force in the ez direction: Fp,z. The pull force is related to Fz, the force per length in the ez direction at the inner boundary, via
+
+Fp,z
+
+=
+
+lim
+rp → 0
+
+2πrp Fz
+
+.
+
+(D.7)
+
+Since the membrane patch is parallel to the x–y plane at the inner boundary, we recognize [53,
+
+Ch.V §6(e)]
+
+Fz
+
+=
+
+kb
+
+∂H ∂r
+
+rp
+
+=
+
+kb 2
+
+∂ ∂r
+
+∇2h
+
+,
+rp
+
+(D.8)
+
+where the mean curvature H
+
+=
+
+1 2
+
+∇2
+
+h
+
+in
+
+the
+
+limit
+
+of
+
+small
+
+deformations.
+
+Moreover, since the
+
+membrane height is axisymmetric and has zero slope at the inner boundary, we apply Eq. (D.2)
+
+and find
+
+Fp,z
+
+=
+
+lim
+rp∗ → 0
+
+2 π kb ℓ
+
+rp∗
+
+d3 h∗ d(r∗)3
+
+rp∗
+
++
+
+d2 h∗ d(r∗)2
+
+rp∗
+
+.
+
+(D.9)
+
+With the height solution in Eq. (D.5) and properties of Bessel functions [131], the terms in paren-
+
+thesis in Eq. (D.9) are found to be
+
+d2 h∗ d(r∗)2
+
+rp∗
+
+=
+
+zp∗ (Γ/2) K0(α) αK1(α) ln rp∗ + K0(α)
+
+(D.10)
+
+and
+
+rp∗
+
+d3 h∗ d(r∗)3
+
+rp∗
+
+=
+
+−zp∗ (Γ/2) K0(α) + αK1(α) ] αK1(α) ln rp∗ + K0(α)
+
+.
+
+(D.11)
+
+Substituting Eqs. (D.10) and (D.11) into Eq. (D.9) yields
+
+Fp,z
+
+=
+
+lim
+rp∗ → 0
+
+zp∗ π kb Γ ℓ
+
+−αK1(α) αK1(α) ln rp∗ + K0(α)
+
+.
+
+(D.12)
+
+∥In our numerics, we require zero slope rather than zero moment on the outer boundary. However, when membrane deformations are small, we do not expect this choice of boundary condition to affect the pull force calculation.
+
+ALE finite element method for lipid membranes
+
+39
+
+pin all
+
+pin bottom
+
+t = 300
+
+t = 300
+
+t = 280
+
+t = 280
+
+t = 260
+
+t = 260
+
+t = 240
+
+t = 240
+
+λ
+Figure 9: Tether translation in the ex direction with a Lagrangian mesh motion. In the left column, simulation boundary conditions are those specified in the first two rows of Table 3. Twisting and tilting of the tether, along with further striation of the surface tension, ensue. In the right column, an attempt is made to remove unphysical constraints on the membrane by only pinning the center of the bottom boundary. Upon lateral pulling, the mesh rotates about the center of the bottom edge; twisting and tension striation are once again observed. Both simulations fail to capture the expected behavior shown in the left column of Fig. 8. As in the main text, times are measured in units of ζ rc2/kb, the pull velocity is specified in the first row of Eq. (91), and all other parameters are identical to those in Fig. 4. The vertical red lines are a visual aid to highlight the motion of the tether.
+
+A. Sahu
+
+40
+
+At this point, we evaluate the limit by recognizing α → 0 as rp∗ → 0. In addition, we use the Bessel function relations [131]
+
+lim
+α→0
+
+αK1(α)
+
+=
+
+1
+
+and
+
+lim
+α→0
+
+K0(α)
+
+=
+
+− ln(α)
+
+.
+
+(D.13)
+
+By substituting Eqs. (83), (D.6), and (D.13) into Eq. (D.12) and rearranging terms, we obtain the small-deformation pull force expression in Eq. (89)—presented here as
+
+Fp,z
+
+=
+
+π kb zp rc2 ln(Γ/2)
+
+.
+
+(D.14)
+
+Appendix E. The translation of a tether with a Lagrangian mesh motion
+When a pulled tether is translated laterally across a membrane surface, lipids in the surrounding patch flow in-plane to accommodate the large out-of-plane shape deformations. For a given prescribed lateral tether velocity as in Eq. (91), we do not know the corresponding velocity field v(ζαˇ, t) over the membrane patch a priori. Thus, any boundary conditions that pin certain nodes yield unphysical results, as shown in Fig. 9. If no nodes are pinned, however, a rigid body translation results—and the dynamics of lateral tether motion are not obtained. Lagrangian simulations are thus unable to capture the physics of tether translation.
+
+References
+[1] Sahu, A. MembraneAleFem.jl: Arbitrary Lagrangian–Eulerian lipid membrane finite element simulations in Julia. https://github.com/sahu-lab/MembraneAleFem.jl (2024).
+[2] Hu, D., Zhang, P. & E, W. Continuum theory of a moving membrane. Phys. Rev. E 75, 041605 (2007).
+[3] Torres-S´anchez, A., Mill´an, D. & Arroyo, M. Modelling fluid deformable surfaces with an emphasis on biological interfaces. J. Fluid Mech. 872, 218–271 (2019). arXiv:1812.02837.
+[4] Sahu, A., Omar, Y. A. D. & Mandadapu, K. K. Arbitrary Lagrangian–Eulerian finite element formulation for curved and deforming surfaces. I. General theory and application to fluid interfaces. J. Comp. Phys. 407, 109253 (2020). arXiv:1812.05086.
+[5] Higgins, M. K. & McMahon, H. T. Snap-shots of clathrin-mediated endocytosis. Trends Biochem. Sci. 27, 257–263 (2002).
+[6] McMahon, H. T. & Boucrot, E. Molecular mechanism and physiological functions of clathrin-mediated endocytosis. Nat. Rev. Mol. Cell Bio. 12, 517–533 (2011).
+[7] Lauffenburger, D. A. & Horwitz, A. F. Cell migration: A physically integrated molecular process. Cell 84, 359–369 (1996).
+[8] Terasaki, M., Chen, L. B. & Fujiwara, K. Microtubules and the endoplasmic reticulum are highly interdependent structures. J. Cell Biol. 103, 1557–1568 (1986).
+[9] Sciaky, N. et al. Golgi tubule traffic and the effects of brefeldin A visualized in living cells. J. Cell Biol. 139, 1137–1155 (1997).
+[10] Canham, P. B. The minimum energy of bending as a possible explanation of the biconcave shape of the human red blood cell. J. Theor. Biol. 26, 61–81 (1970).
+[11] Helfrich, W. Elastic properties of lipid bilayers: Theory and possible experiments. Z. Naturforsch. C 28, 693–699 (1973).
+
+ALE finite element method for lipid membranes
+
+41
+
+[12] Evans, E. A. Bending resistance and chemically induced moments in membrane bilayers. Biophys. J. 14, 923–931 (1974).
+[13] Naghdi, P. M. The theory of shells and plates. In Truesdell, C. (ed.) Linear Theories of Elasticity and Thermoelasticity: Linear and Nonlinear Theories of Rods, Plates, and Shells, 425–640 (Springer, Berlin, Heidelberg, 1973).
+[14] Evans, E. A. & Hochmuth, R. M. Mechanochemical properties of membranes. In Bronner, F. & Kleinzeller, A. (eds.) Membrane Properties: Mechanical Aspects, Receptors, Energetics and CalciumDependence of Transport, Vol. 10 of Current Topics in Membranes and Transport, 1–64 (Academic Press, 1978).
+[15] Waxman, A. M. Dynamics of a couple-stress fluid membrane. Studies Appl. Math. 70, 63–86 (1984).
+[16] Zhong-can, O.-Y. & Helfrich, W. Bending energy of vesicle membranes: General expressions for the first, second, and third variation of the shape energy and applications to spheres and cylinders. Phys. Rev. A 39, 5280–5288 (1989).
+[17] Steigmann, D. J. On the relationship between the Cosserat and Kirchhoff–Love theories of elastic shells. Math. Mech. Solids 4, 275–288 (1998).
+[18] Steigmann, D. J. Fluid films with curvature elasticity. Arch. Ration. Mech. Anal. 150, 127–152 (1999).
+[19] Capovilla, R. & Guven, J. Stresses in lipid membranes. J. Phys. A: Math. Gen. 35, 6233–6247 (2002). arXiv:cond-mat/0203148.
+[20] Guven, J. Membrane geometry with auxiliary variables and quadratic constraints. J. Phys. A: Math. Gen. 37, L313–L319 (2004). arXiv:math-ph/0404064.
+[21] Pollard, J., Al-Izzi, S. C. & Morris, R. G. Gauge freedom and objective rates in the morphodynamics of fluid deformable surfaces: The Jaumann rate vs. the material derivative . arXiv preprint (2024). arXiv:2406.18014.
+[22] Seifert, U., Berndl, K. & Lipowsky, R. Shape transformations of vesicles: Phase diagram for spontaneous-curvature and bilayer-coupling models. Phys. Rev. A 44, 1182–1202 (1991).
+[23] Seifert, U. & Langer, S. A. Viscous modes of fluid bilayer membranes. Europhys. Lett. 23, 71–76 (1993).
+[24] Bar-Ziv, R., Menes, R., Moses, E. & Safran, S. A. Local unbinding of pinched membranes. Phys. Rev. Lett. 75, 3356–3359 (1995).
+[25] Fournier, J. B. Nontopological saddle-splay and curvature instabilities from anisotropic membrane inclusions. Phys. Rev. Lett. 76, 4436–4439 (1996).
+[26] Goldstein, R. E., Nelson, P., Powers, T. & Seifert, U. Front propagation in the pearling instability of tubular vesicles. J. Phys. II 6, 767–796 (1996).
+[27] Seifert, U. Configurations of fluid membranes and vesicles. Adv. Phys. 46, 13–137 (1997).
+[28] Powers, T. R., Huber, G. & Goldstein, R. E. Fluid-membrane tethers: Minimal surfaces and elastic boundary layers. Phys. Rev. E 65, 041901 (2002). arXiv:cond-mat/0201290.
+[29] Du, Q., Liu, C. & Wang, X. A phase field approach in the numerical study of the elastic bending energy for vesicle membranes. J. Comp. Phys. 198, 450–468 (2004).
+[30] Vlahovska, P. M. & Gracia, R. S. Dynamics of a viscous vesicle in linear flows. Phys. Rev. E 75, 016313 (2007). arXiv:physics/0608039.
+[31] Agrawal, A. & Steigmann, D. J. Modeling protein-mediated morphology in biomembranes. Biomech. Model. Mechan. 8, 371–379 (2009).
+[32] Stone, H. A. Interfaces: in fluid mechanics and across disciplines. J. Fluid Mech. 645, 1–25 (2010).
+
+A. Sahu
+
+42
+
+[33] Agrawal, A. & Steigmann, D. J. A model for surface diffusion of trans-membrane proteins on lipid bilayers. Z. Angew. Math. Phys. 62, 549–563 (2011).
+[34] Rahimi, M., DeSimone, A. & Arroyo, M. Curved fluid membranes behave laterally as effective viscoelastic media. Soft Matter 9, 11033–11045 (2013).
+[35] Maitra, A., Srivastava, P., Rao, M. & Ramaswamy, S. Activating membranes. Phys. Rev. Lett. 112, 258101 (2014). arXiv:1311.5055.
+[36] Narsimhan, V., Spann, A. P. & Shaqfeh, E. S. G. Pearling, wrinkling, and buckling of vesicles in elongational flows. J. Fluid Mech. 777, 1–26 (2015).
+[37] Stone, H. A. & Masoud, H. Mobility of membrane-trapped particles. J. Fluid Mech. 781, 494–505 (2015).
+[38] Vlahovska, P. M. Dynamics of membrane-bound particles: Capsules and vesicles. In Duprat, C. & Stone, H. A. (eds.) Fluid–Structure Interactions in Low-Reynolds-Number Flows, RSC Soft Matter Series, 313–346 (The Royal Society of Chemistry, 2016).
+[39] Sabass, B. & Stone, H. A. Role of the membrane for mechanosensing by tethered channels. Phys. Rev. Lett. 116, 258101 (2016). arXiv:1603.05751.
+[40] Al-Izzi, S. C., Sens, P. & Turner, M. S. Shear-driven instabilities of membrane tubes and Dynamininduced scission. Phys. Rev. Lett. 125, 018101 (2020). arXiv:1810.05862.
+[41] Fonda, P., Al-Izzi, S. C., Giomi, L. & Turner, M. S. Measuring Gaussian rigidity using curved substrates. Phys. Rev. Lett. 125, 188002 (2020). arXiv:2005.06393.
+[42] Lin, C. et al. Vesicle dynamics in large amplitude oscillatory extensional flow. J. Fluid Mech. 929, A43 (2021). arXiv:2102.09097.
+[43] Faizi, H. A., Granek, R. & Vlahovska, P. M. Curvature fluctuations of fluid vesicles reveal hydrodynamic dissipation within the bilayer. Proc. Natl. Acad. Sci. U.S.A. 121, e2413557121 (2024). arXiv:2208.07966.
+[44] Yu, Q. & Koˇsmrlj, A. Pattern formation of phase-separated lipid domains in bilayer membranes. arXiv preprint (2023). arXiv:2309.05160.
+[45] Reboucas, R. B., Faizi, H. A., Miksis, M. J. & Vlahovska, P. M. Stationary shapes of axisymmetric vesicles beyond lowest-energy configurations. Soft Matter 20, 2258–2271 (2024). arXiv:2311.14193.
+[46] Venkatesh, A., Bhargava, A. & Narsimhan, V. Linear stability of cylindrical, multicomponent vesicles. arXiv preprint (2024). arXiv:2402.19297.
+[47] Al-Izzi, S. C., Turner, M. S. & Sens, P. Membrane tubes with active pumping: water transport, vacuole formation and osmoregulation. arXiv preprint (2024). arXiv:2409.14835.
+[48] Venkatesh, A. & Narsimhan, V. Shape dynamics of nearly spherical, multicomponent vesicles under shear flow. arXiv preprint (2024). arXiv:2409.15102.
+[49] Dharmavaram, S. & Hanna, J. A. Shear stresses in fluid and solid membranes with bending elasticity. arXiv preprint (2024). arXiv:2410.13049.
+[50] Arroyo, M. & DeSimone, A. Relaxation dynamics of fluid membranes. Phys. Rev. E 79, 31915–31931 (2009).
+[51] Rangamani, P., Agrawal, A., Mandadapu, K. K., Oster, G. & Steigmann, D. J. Interaction between surface shape and intra-surface viscous flow on lipid membranes. Biomech. Model. Mechan. 12, 833–845 (2012).
+[52] Sahu, A., Sauer, R. A. & Mandadapu, K. K. Irreversible thermodynamics of curved lipid membranes. Phys. Rev. E 96, 042409 (2017). arXiv:1701.06495.
+[53] Sahu, A. Irreversible Thermodynamics and Hydrodynamics of Biological Membranes. Ph.D. thesis, University of California at Berkeley (2022).
+
+ALE finite element method for lipid membranes
+
+43
+
+[54] Oppenheimer, N. & Diamant, H. Correlated dynamics of inclusions in a supported membrane. Phys. Rev. E 82, 041912 (2010). arXiv:1006.3569.
+[55] Oppenheimer, N. & Diamant, H. In-plane dynamics of membranes with immobile inclusions. Phys. Rev. Lett. 107, 258102 (2011). arXiv:1108.3776.
+[56] Sigurdsson, J. K. & Atzberger, P. J. Hydrodynamic coupling of particle inclusions embedded in curved lipid bilayer membranes. Soft Matter 12, 6685–6707 (2016). arXiv:1601.06461.
+[57] Gross, B. J. & Atzberger, P. J. Hydrodynamic flows on curved surfaces: Spectral numerical methods for radial manifold shapes. J. Comp. Phys. 371, 663–689 (2018). arXiv:1803.07594.
+[58] Samanta, R. & Oppenheimer, N. Vortex flows and streamline topology in curved biological membranes. Phys. Fluids 33, 051906 (2021). arXiv:2012.11962.
+[59] Rower, D. A., Padidar, M. & Atzberger, P. J. Surface fluctuating hydrodynamics methods for the driftdiffusion dynamics of particles and microstructures within curved fluid interfaces. J. Comp. Phys. 455, 110994 (2022). arXiv:1906.01146.
+[60] Tran, P. D., Blanpied, T. A. & Atzberger, P. J. Protein drift-diffusion dynamics and phase separation in curved cell membranes and dendritic spines: Hybrid discrete-continuum methods. Phys. Rev. E 106, 044402 (2022). arXiv:2110.00725.
+[61] Feng, F. & Klug, W. S. Finite element modeling of lipid bilayer membranes. J. Comp. Phys. 220, 394–408 (2006).
+[62] Barrett, J. W., Garcke, H. & Nu¨rnberg, R. On the parametric finite element approximation of evolving hypersurfaces in R3. J. Comp. Phys. 227, 4281–4307 (2008).
+[63] Barrett, J. W., Garcke, H. & Nu¨rnberg, R. Parametric approximation of Willmore flow and related geometric evolution equations. SIAM J. Sci. Comput. 31, 225–253 (2008).
+[64] Ma, L. & Klug, W. S. Viscous regularization and r-adaptive remeshing for finite element analysis of lipid membrane mechanics. J. Comp. Phys. 227, 5816–5835 (2008). arXiv:0709.0723.
+[65] Dziuk, G. Computational parametric Willmore flow. Numer. Math. 111, 55–80 (2008).
+[66] Elliott, C. M. & Stinner, B. Modeling and computation of two phase geometric biomembranes using surface finite elements. J. Comp. Phys. 229, 6585–6612 (2010).
+[67] Bonito, A., Nochetto, R. H. & Pauletti, M. S. Parametric FEM for geometric biomembranes. J. Comp. Phys. 229, 3171–3188 (2010).
+[68] Mercker, M., Marciniak-Czochra, A., Richter, T. & Hartmann, D. Modeling and computing of deformation dynamics of inhomogeneous biological surfaces. SIAM J. Appl. Math. 73, 1768–1792 (2013).
+[69] Rangarajan, R. & Gao, H. A finite element method to compute three-dimensional equilibrium configurations of fluid membranes: Optimal parameterization, variational formulation and applications. J. Comp. Phys. 297, 266–294 (2015).
+[70] Zhu, C., Lee, C. T. & Rangamani, P. Mem3DG: Modeling membrane mechanochemical dynamics in 3D using discrete differential geometry. Biophys. Rep. 2, 100062 (2022). arXiv:2111.04460.
+[71] Sahu, A., Glisman, A., Tchoufag, J. & Mandadapu, K. K. Geometry and dynamics of lipid membranes: The Scriven–Love number. Phys. Rev. E 101, 052401 (2020). arXiv:1910.10693.
+[72] Rangamani, P., Mandadapu, K. K. & Oster, G. Protein-induced membrane curvature alters local membrane tension. Biophys. J. 107, 751–762 (2014).
+[73] Walani, N., Torres, J. & Agrawal, A. Endocytic proteins drive vesicle growth via instability in high membrane tension environment. Proc. Natl. Acad. Sci. U.S.A. 112, E1423–E1432 (2015). arXiv:1502.01765v1.
+
+A. Sahu
+
+44
+
+[74] Hassinger, J. E., Oster, G., Drubin, D. G. & Rangamani, P. Design principles for robust vesiculation in clathrin-mediated endocytosis. Proc. Natl. Acad. Sci. U.S.A. 114, E1118–E1127 (2017). bioRxiv:050484v2.
+[75] Rodrigues, D. S., Ausas, R. F., Mut, F. & Buscaglia, G. C. A semi-implicit finite element method for viscous lipid membranes. J. Comp. Phys. 298, 565–584 (2015). arXiv:1409.3581.
+[76] Barrett, J. W., Garcke, H. & Nu¨rnberg, R. Numerical computations of the dynamics of fluidic membranes and vesicles. Phys. Rev. E 92, 052704 (2015). arXiv:1504.05424.
+[77] Sauer, R. A., Duong, T. X., Mandadapu, K. K. & Steigmann, D. J. A stabilized finite element formulation for liquid shells and its application to lipid bilayers. J. Comp. Phys. 330, 436–466 (2017). arXiv:1601.03907.
+[78] Omar, Y. A. D., Sahu, A., Sauer, R. A. & Mandadapu, K. K. Non-axisymmetric shapes of biological membranes from locally induced curvature. Biophys. J. 119, 1065–1077 (2020). bioRxiv:688127.
+[79] Reuther, S., Nitschke, I. & Voigt, A. A numerical approach for fluid deformable surfaces. J. Fluid Mech. 900, R8 (2020). arXiv:2003.10264.
+[80] Zienkiewicz, O. & Codina, R. A general algorithm for compressible and incompressible flow—split, characteristic-based scheme. Int. J. Numer. Methods Fluids 20, 869–885 (1995).
+[81] Zienkiewicz, O., Taylor, R. L. & Zhu, J. Z. The Finite Element Method: Its Basis and Fundamentals (Butterworth-Heinemann, London, 2013), 7th edn.
+[82] Ladyzhenskaya, O. A. The Mathematical Theory of Viscous Incompressible Flow, Vol. 2 of Mathematics and its Applications (Gordon & Breach, New York, 1969), 2nd edn.
+[83] Babuˇska, I. The finite element method with Lagrangian multipliers. Numer. Math. 20, 179–192 (1973).
+[84] Brezzi, F. On the existence, uniqueness and approximation of saddle-point problems arising from Lagrangian multipliers. Ref. Fr. Automat. Infor. 8, 129–151 (1974).
+[85] Dohrmann, C. R. & Bochev, P. B. A stabilized finite element method for the Stokes problem based on polynomial pressure projections. Int. J. Numer. Methods Fluids 46, 183–201 (2004).
+[86] Evans, E. & Skalak, R. Mechanics and Thermodynamics of Biomembranes (CRC Press, Boca Raton, 1980).
+[87] Nichol, J. A. & Hutter, O. F. Tensile strength and dilatational elasticity of giant sarcolemmal vesicles shed from rabbit muscle. J. Physiol. 493, 187–198 (1996).
+[88] Malkus, D. S. & Hughes, T. J. R. Mixed finite element methods—reduced and selective integration techniques: A unification of concepts. Comput. Methods Appl. Mech. Eng. 15, 63–81 (1978).
+[89] Brezzi, F. & Pitk¨aranta, J. On the stabilization of finite element approximations of the stokes equations. In Hackbusch, W. (ed.) Efficient Solutions of Elliptic Systems, 11–19 (Vieweg+Teubner Verlag, Wiesbaden, 1984).
+[90] Zienkiewicz, O. C. & Nakazawa, S. On variational formulation and its modifications for numerical solution. Comput. Struct. 19, 303–313 (1984).
+[91] Dortdivanlioglu, B., Krischok, A., Beir˜ao da Veiga, L. & Linder, C. Mixed isogeometric analysis of strongly coupled diffusion in porous materials. Int. J. Numer. Meth. Eng. 114, 28–46 (2018).
+[92] Zienkiewicz, O. & Taylor, R. L. The Finite Element Method for Solid and Structural Mechanics (Butterworth-Heinemann, London, 2014), 7th edn.
+[93] Green, A. E. & Naghdi, P. M. The Cosserat Surface. In Kr¨oner, E. (ed.) Mechanics of Generalized Continua, 36–48 (Springer, Berlin, Heidelberg, 1968).
+[94] Capovilla, R., Guven, J. & Santiago, J. A. Lipid membranes with an edge. Phys. Rev. E 66, 021607 (2002). arXiv:cond-mat/0203335.
+
+ALE finite element method for lipid membranes
+
+45
+
+[95] Sauer, R. A. & Duong, T. X. On the theoretical foundations of thin solid and liquid shells. Math. Mech. Solids 22, 343–371 (2017).
+[96] Scriven, L. E. Dynamics of a fluid interface: Equation of motion for Newtonian surface fluids. Chem. Eng. Sci. 12, 98–108 (1960).
+[97] Timoshenko, S. P. LXVI. On the correction for shear of the differential equation for transverse vibrations of prismatic bars . Lond. Edinb. Dubl. Phil. Mag. 41, 744–746 (1921).
+[98] Timoshenko, S. P. X. On the transverse vibrations of bars of uniform cross-section. Lond. Edinb. Dubl. Phil. Mag. 43, 125–131 (1922).
+[99] Piegl, L. & Tiller, W. The NURBS Book . Monographs in Visual Communication (Springer-Verlag, Berlin, 1997), 2nd edn.
+[100] Cottrell, J. A., Hughes, T. J. R. & Bazilevs, Y. Isogeometric Analysis: Toward Integration of CAD and FEA (John Wiley & Sons, 2009), 1st edn.
+[101] Toshniwal, D., Speleers, H. & Hughes, T. J. R. Smooth cubic spline spaces on unstructured quadrilateral meshes with particular emphasis on extraordinary points: Geometric design and isogeometric analysis considerations. Comput. Methods Appl. Mech. Engrg. 327, 411–458 (2017).
+[102] Wei, X. et al. Blended B-spline construction on unstructured quadrilateral and hexahedral meshes with optimal convergence rates in isogeometric analysis. Comput. Methods Appl. Mech. Engrg. 341, 609–639 (2018).
+[103] Paul, K. et al. An adaptive space-time phase field formulation for dynamic fracture of brittle shells based on LR NURBS. Comput. Mech. 65, 1039–1062 (2020). arXiv:1906.10679.
+[104] Koh, K. J., Toshniwal, D. & Cirak, F. An optimally convergent smooth blended B-spline construction for semi-structured quadrilateral and hexahedral meshes. Comput. Methods Appl. Mech. Engrg. 399, 115438 (2022). arXiv:2111.04401.
+[105] Lyness, J. N. & Moler, C. B. Numerical differentiation of analytic functions. SIAM J. Numer. Anal. 4, 202–210 (1967).
+[106] Lyness, J. N. Differentiation formulas for analytic functions. Math. Comp. 22, 352–362 (1968).
+[107] Tanaka, M., Fujikawa, M., Balzani, D. & Schr¨oder, J. Robust numerical calculation of tangent moduli at finite strains based on complex-step derivative approximation and its application to localization analysis. Comput. Methods Appl. Mech. Engrg. 269, 454–470 (2014).
+[108] Terasaki, M. et al. Stacked endoplasmic reticulum sheets are connected by helicoidal membrane motifs. Cell 154, 285–296 (2013).
+[109] Leduc, C. et al. Cooperative extraction of membrane nanotubes by molecular motors. Proc. Natl. Acad. Sci. U.S.A. 101, 17096–17101 (2004).
+[110] Evans, E. A. & Yeung, A. Hidden dynamics in rapid changes of bilayer shape. Chem. Phys. Lipids 73, 39–56 (1994).
+[111] Dai, J. & Sheetz, M. P. Mechanical properties of neuronal growth cone membranes studied by tether formation with laser optical tweezers. Biophys. J. 68, 988–996 (1995).
+[112] Fygenson, D. K., Marko, J. F. & Libchaber, A. Mechanics of microtubule-based membrane extension. Phys. Rev. Lett. 79, 4497–4500 (1997).
+[113] Raucher, D. & Sheetz, M. P. Characteristics of a membrane reservoir buffering membrane tension. Biophys. J. 77, 1992–2002 (1999).
+[114] Scott, Z. C., Steen, S. B., Huber, G., Westrate, L. M. & Koslover, E. F. The endoplasmic reticulum as an active liquid network. Proc. Natl. Acad. Sci. U.S.A. 121, e2409755121 (2024).
+[115] Sowinski, S. et al. Membrane nanotubes physically connect T cells over long distances presenting a novel route for HIV-1 transmission. Nat. Cell Biol. 10, 211–219 (2008).
+
+A. Sahu
+
+46
+
+[116] Dubey, G. P. et al. Architecture and characteristics of bacterial nanotubes. Dev. Cell. 36, 453–461 (2016).
+[117] Imachi, H. et al. Isolation of an archaeon at the prokaryote–eukaryote interface. Nature 577, 519–525 (2020).
+[118] Cuvelier, D., Der´enyi, I., Bassereau, P. & Nassoy, P. Coalescence of membrane tethers: Experiments, theory, and applications. Biophys. J. 88, 2714–2726 (2005).
+[119] Roux, A. et al. A minimal system allowing tubulation with molecular motors pulling on giant liposomes. Proc. Natl. Acad. Sci. U.S.A. 99, 5394–5399 (2002).
+[120] Koster, G., VanDuijn, M., Hofs, B. & Dogterom, M. Membrane tube formation from giant vesicles by dynamic association of motor proteins. Proc. Natl. Acad. Sci. U.S.A. 100, 15583–15588 (2003).
+[121] Koster, G., Cacciuto, A., Der´enyi, I., Frenkel, D. & Dogterom, M. Force barriers for membrane tube formation. Phys. Rev. Lett. 94, 068101 (2005).
+[122] Shi, Z., Graber, Z. T., Baumgart, T., Stone, H. A. & Cohen, A. E. Cell membranes resist flow. Cell 175, 1769–1779 (2018). bioRxiv:290643v1.
+[123] Der´enyi, I., Ju¨licher, F. & Prost, J. Formation and interaction of membrane tubes. Phys. Rev. Lett. 88, 238101–238104 (2002). arXiv:cond-mat/0205630.
+[124] Rahimi, M. & Arroyo, M. Shape dynamics, lipid hydrodynamics, and the complex viscoelasticity of bilayer membranes. Phys. Rev. E 86, 11932–11946 (2012).
+[125] Datar, A., Bornschl¨ogl, T., Bassereau, P., Prost, J. & Pullarkat, P. A. Dynamics of membrane tethers reveal novel aspects of cytoskeleton–membrane interactions in axons. Biophys. J. 108, 489–497 (2015).
+[126] Gomis Perez, C. et al. Rapid propagation of membrane tension at retinal bipolar neuron presynaptic terminals. Science Adv. 8, eabl4411 (2022). bioRxiv:2021.05.26.445801.
+[127] Shi, Z., Innes-Gold, S. & Cohen, A. Membrane tension propagation couples axon growth and collateral branching. Science Adv. 8, eabo1297 (2022). bioRxiv:2022.01.09.475560.
+[128] Subramaniam, A. B., Guidotti, G., Manoharan, V. N. & Stone, H. A. Glycans pattern the phase behaviour of lipid membranes. Nature Mater. 12, 128–133 (2013).
+[129] Bezanson, J., Edelman, A., Karpinski, S. & Shah, V. B. Julia: A fresh approach to numerical computing. SIAM Rev. 59, 65–98 (2017). arXiv:1411.1607.
+[130] Danisch, S. & Krumbiegel, J. Makie.jl: Flexible high-performance data visualization for Julia. J. Open Source Softw. 6, 3349 (2021).
+[131] Abramowitz, M. & Stegun, I. A. Handbook of Mathematical Functions with Formulas, Graphs, and Mathematical Tables, Vol. 55 (Dover, New York, 1964).
+

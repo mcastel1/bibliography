@@ -1,0 +1,1070 @@
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+Principles of low dissipation computing from a stochastic circuit model
+Chloe Ya Gao1 and David T. Limmer1,2,3,4,* 1Department of Chemistry, University of California, Berkeley, California 94720, USA
+2Kavli Energy NanoScience Institute, Berkeley, California 94720, USA 3Materials Science Division, Lawrence Berkeley National Laboratory, Berkeley, California 94720, USA 4Chemical Science Division, Lawrence Berkeley National Laboratory, Berkeley, California 94720, USA
+(Received 12 March 2021; accepted 20 July 2021; published 20 August 2021)
+We introduce a thermodynamically consistent, minimal stochastic model for complementary logic gates built with ﬁeld-effect transistors. We characterize the performance of such gates with tools from information theory and study the interplay between accuracy, speed, and dissipation of computations. With a few universal building blocks, such as the NOT and NAND gates, we are able to model arbitrary combinatorial and sequential logic circuits, which are modularized to implement computing tasks. We ﬁnd generically that high accuracy can be achieved provided sufﬁcient energy consumption and time to perform the computation. However, for low-energy computing, accuracy and speed are coupled in a way that depends on the device architecture and task. Our work bridges the gap between the engineering of low dissipation digital devices and theoretical developments in stochastic thermodynamics, and provides a platform to study design principles for low dissipation digital devices.
+DOI: 10.1103/PhysRevResearch.3.033169
+
+I. INTRODUCTION
+The last decade has seen an exponential growth in energy consumption associated with information, communications, and computing technologies. Such resource demands are not sustainable, and thus there is a need to design devices with reduced energetic costs. While the problem of computing efﬁciency dates back to Landauer [1,2], with modern developments in stochastic thermodynamics, this problem is actively being revisited [3,4]. The main goal of this paper is to bridge the gap between developments in nonequilibrium statistical physics and circuit engineering by proposing a model for stochastic logic circuits that is thermodynamically consistent, and thus amenable to physical analysis and constraints, but simple enough to be extendable to complex computing tasks. By treating thermal ﬂuctuations in electron transport explicitly at a mesoscopic scale, our model reproduces the behavior of a robust circuit in the low-noise limit, but describes errors accurately away from this limit. With this model we explore the consequences of carrying out computations at low thermodynamic costs and ﬁnite time, and provide design principles for low dissipation computing devices.
+State-of-the-art semiconductor devices are typically built from metal-oxide-semiconductor ﬁeld-effect transistors on the scale of a few nanometers, enabling billions of transistors
+*dlimmer@berkeley.edu
+Published by the American Physical Society under the terms of the Creative Commons Attribution 4.0 International license. Further distribution of this work must maintain attribution to the author(s) and the published article’s title, journal citation, and DOI.
+
+to be packed on a single chip. In order to mitigate heating and large energy consumption burdens, it would be advantageous to operate such small devices with small bias voltages; however, as biases approach thermal scales, ﬂuctuations increase, which necessitates a careful treatment of thermal noise [5,6]. The conventional treatment of thermal noise is largely phenomenological and involves either a correction to the power spectral density [7], or transformation of the internal noise into external independent sources [8,9]. Such models are typically valid only near equilibrium where the ﬂuctuation-dissipation theorem can be invoked to constrain their functional form [10], whereas higher-order correlations are needed in general to determine the full response [11–13]. While these models can provide insight into how thermal noise may put a physical limit on the density of transistors [14], their validity in nonlinear electrical networks operating far from equilibrium is uncertain.
+Stochastic thermodynamics provides a theoretical way to move beyond an equilibrium description of thermal noise and its impact on information processing [15]. While information theory provides limits on the accuracy of typical communication [16,17], stochastic thermodynamics provides generalized ﬂuctuation-dissipation relationships, and places limits on the work required to implement a physical process in ﬁnite time and the spectrum of its ﬂuctuations [18–22]. The link between information theory and stochastic thermodynamics has generated a wealth of expressions relating precision, speed, and dissipation, including the thermodynamic uncertainty relationships, speed limits, and ﬂuctuation theorems. For example, dissipation bounds the rate at which a system transforms between different states [23–29]. Dissipation also provides an upper bound for the precision of a current [30–32]. A universal tradeoff between power, precision, and
+
+2643-1564/2021/3(3)/033169(18)
+
+033169-1
+
+Published by the American Physical Society
+
+CHLOE YA GAO AND DAVID T. LIMMER
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+speed has been proposed for communication systems as well [33]. These theoretical results have found application in many biological processes that natively operate near thermal energy scales [34–39]. Placed in the context of artiﬁcial computing, these relationships have shed light on fundamental constraints on the design of computing devices to minimize thermodynamic costs [3,4,40–43].
+While such theoretical results are general, to apply them to the problem of computing design requires a realistic physical representation of information processing, such as bit storage, measurement, and erasure. Some success has been made with nonlinear single-electron devices and Coulomb blockade systems [44–46], where the logical states are represented by the presence of a few electrons. More recently, thermodynamically consistent stochastic models have been proposed for transistors and nonlinear electronic circuits using either the continuous or discrete degrees of freedom [47–49]. For example, two-terminal devices, such as tunnel junctions, diodes, and metal-oxide-semiconductor (MOS) transistors, have been modeled as bidirectional Poisson processes embedded in a Markovian graph representing electron transfer [49]. While such models can reproduce nonlinear current behaviors and noise characteristics, the nonlinearity has to be encoded by parametrizing the voltage dependence of the forward and backward rates. In this paper, we adopt a different approach where single logic gates are described by a tunnel junction model on the mesoscopic scale, combined with a capacitive circuit model for the charging and manipulation of the device. In this case, nonlinearity emerges from many interacting gates. Such an approach is able to describe electron transport processes consistent with the ﬂuctuation theorems [50,51], but also consistent with the complementary metaloxide-semiconductor (CMOS) circuit platform used widely in modern computing devices. Therefore, it provides an ideal platform to study circuit behaviors with the tool of stochastic thermodynamics.
+In what follows, we demonstrate principles for low dissipation computing by constructing a stochastic model for logic circuits from a bottom-up approach. By working with elementary linear components, we can build nonlinear circuits that are thermodynamically consistent. We ﬁrst introduce a model for single gates, including the NOT gate and the NAND gate, and discuss their physical properties. We then study the collective behaviors of these basic components, including spatial correlations within combinational circuits, and temporal correlations within sequential circuits, where the emphasis will be on circuit design principles. The logic circuits are ﬁnally modularized and scaled up to a computing device to illustrate how multiple components are synchronized to complete a computing task. Throughout, the thermodynamically consistent model enables a description of errors and dissipation.
+II. MODEL FOR SINGLE GATES
+Modern CMOS circuits implement logic functions by integrating two different types of transistors differentiated by their major charge carriers, so-called N-type and P-type transistors. Here we choose a mesoscopic tunnel junction model to describe electron transport in a single gate [52]. The transistors
+
+are modeled by two single-electron levels of energy i with i = N, P for the N-type and P-type transistors. The electrodes are modeled by electron reservoirs with chemical potential μ j with j = s, d, g denoting the source, drain, and gate, respectively. Electron transfer among them is described by a Markovian master equation, parametrized by transition rates k ji that describe the exchange rate of an electron from site i to j. The transition rates are chosen to satisfy a local detailed balance condition, and thus guaranteeing thermodynamical consistency,
+
+k ji = e−β(Ej −Ei ),
+
+(1)
+
+ki j
+
+where β = 1/kBT , kB is the Boltzmann constant, and T the temperature of the device. The energy is described by either the band energy for an electron in the transistor i or a chemical potential μ j for an electron in an electrode. The condition of local detailed balance is a prerequisite for the application of stochastic thermodynamics, as it ensures a correct description of dissipation away from equilibrium, and relaxation to a Boltzmann distribution at equilibrium. While local detailed balance models each microscopic transition as being thermally mediated, emergent nonlinear behaviors resulting from collections of transitions can take the system arbitrarily far from equilibrium [53].
+The energy levels of the transistors are controlled by an input voltage denoted Vin. In the case of a ﬁeld-effect transistor, Vin refers to the gate voltage that switches the transistor on and off. In the limit of high gate capacitance, Vin changes the energy levels of the transistors approximately linearly [52]
+
+P=
+
+0 P
+
++
+
+qVin,
+
+N=
+
+0 N
+
+−
+
+qVin,
+
+(2)
+
+where
+
+0 i=N,P
+
+are
+
+reference
+
+energies
+
+and
+
+q
+
+is
+
+the
+
+unit
+
+of
+
+electric
+
+charge. The sign of the slope differentiates the N- and P-
+
+type transistors with different charge carriers. In our model,
+
+a voltage also uniquely determines the energetics of the elec-
+
+trodes by modulating their chemical potentials μ j = −qVj.
+
+Throughout, we will differentiate between two different types
+
+of electrodes. The ﬁrst type, including the source and drain
+
+electrodes, is kept at ﬁxed potentials Vs and Vd , respectively. The second type, the gate electrode, satisﬁes a capacitive
+
+charging model with a ﬂuctuating voltage Vg for reading out a gate. This is justiﬁed by the fact that in CMOS circuits, the
+
+output of a single gate is usually used as the input of another
+
+gate, in which case the two are connected through a capacitor.
+
+The dynamics of Vg is described by the equation of motion
+
+Cg
+
+dVg dt
+
+=
+
+−Jg(t ),
+
+(3)
+
+where Cg is the capacitance and Jg is the electron current ﬂowing into the electrode from the transistors. The constant capacitance implies a quadratic energy for charging the electrode E = CgVg2/2.
+We adopt a semiclassical ballistic transport model for the rate of transfer of an electron from an electrode into or out of a transistor [54–56]. Such a description is valid in the weak coupling limit between a transistor and an electrode relative to the thermal energy, and for transistors that are small in scale relative to the mean-free path of the electron. We restrict our
+
+033169-2
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM …
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+analysis to single energy-level transistors, for which the cor-
+
+(a)
+
+responding transition rates between transistor i and electrode
+
+j are
+
+ki j = f j ( i ), k ji = [1 − f j ( i )],
+
+(4)
+
+where f j (x) = [eβ(x−μj ) + 1]−1 is the Fermi distribution. The
+
+prefactor is related to contact resistances and is chosen so
+
+that the timescale of electron transitions is longer than the
+
+timescale of thermal ﬂuctuation, and thus the broadening of
+
+energy levels due to the coupling is smaller than thermal ﬂuc-
+
+tuations. In making these assumptions to simplify our model,
+
+we have neglected effects such as scattering within the tran-
+
+sistor, delocalization between the electrode and the transistor,
+
+and electron correlations, each of which can be incorporated
+
+into our model as long as thermodynamical consistency is
+
+retained.
+
+Since we will be considering energy scales on the order
+
+of thermal ﬂuctuations at the room temperature, we use VT =
+
+kBT /q ≈ 26 meV and βh¯ ≈ 25 fs as our units of voltage and
+
+time, where h¯ is Planck’s constant. The voltage signal-to-noise
+
+(b)
+
+ratio Vd /VT in our model will be on the order of 10, which is
+
+the prerequisite of low dissipation in the computing process
+
+since the two are closely related. While this ratio is much
+
+lower than the current technology, and requires delicate op-
+
+eration of the device, it can be experimentally achieved by
+
+designs such as the single-electron box [57,58]. We reference
+
+potentials relative to the source voltage so that Vs = 0, and
+
+take
+
+0 P
+
+=
+
+0
+
+and
+
+0 N
+
+=
+
+1.5qVd
+
+so
+
+that
+
+there
+
+exists
+
+only
+
+one
+
+independent energy parameter Vd . The transition rate constant
+
+is chosen as βh¯ = 0.2 to ensure the weak coupling assump-
+
+tion is valid [59]. To study the dynamics of the gates, we
+
+use both the exact steady-state solution of master equation
+
+when possible, and Gillespie simulations [60] to sample indi-
+
+(c)
+
+vidual trajectories. We set Cg = 200q/VT in order to separate
+
+the timescales of capacitor charging from individual electron
+
+transfer events, simplifying the Gillespie simulations. Details
+
+of the numerical methods and the justiﬁcation of the parame-
+
+ters can be found in Appendix A.
+
+A. NOT gate
+The NOT gate, also known as the inverter, takes a single binary input X , and generates its complement as the output Y . The circuit diagram of the NOT gate, composed of two transistors, is shown in Fig. 1(a). The N-type transistor is connected to a lower source voltage Vs = 0 on its left, while the P-type transistor is connected to a higher drain voltage Vd to its right. Both transistors are controlled by an input voltage Vin as in Eq. (2), which is treated as ﬁxed in a single gate, while the output voltage Vout is measured between the two transistors from the capacitor voltage Vg, which evolves according to Eq. (3). The kinetic diagram for our Markovian model is also shown in Fig. 1(a). Electrons can move ballistically between adjacent sites in the kinetic diagram according to a master equation, the details of which can be found in Appendix A [Eq. (A4)].
+A NOT gate is typically characterized by its voltage transfer curve (VTC), shown in Fig. 1(b). The VTC reports on the average Vout in response to Vin in the long time limit. Generically, we ﬁnd increasing Vin results in a decrease in Vout in
+
+FIG. 1. Performance of a single NOT gate. (a) Circuit diagram (above) and kinetic diagram (below) of an NOT gate, which is composed of a N-type (left) and a P-type transistor (right). (b) Voltage transfer curve of a NOT gate. (c) Channel capacity improves with increasing drain voltage Vd .
+agreement with the expected response of an inverter. However, its behavior is dependent on the scale of the thermal noise relative to Vd . The limiting values of Vout approach 0 and Vd for Vin = Vd and 0, respectively, and sharpens between these limits with increasing Vd . Both features result from tuning the band energies of the two transistors in or out of resonance with their respective electrodes, as the transistor band energies depend on Vd through Eq. (2). Increasing Vd with Vin = 0 or Vd , increasingly suppresses current into the gate capacitor from Vd or Vs. In the limit that current ﬂows from only one
+
+033169-3
+
+CHLOE YA GAO AND DAVID T. LIMMER
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+electrode with ﬁxed voltage, the gate electrode would reach an equilibrium state with that same voltage. The approach to this limiting behavior is exponential, for example, for increasing Vd VT and Vin = 0, |Vout − Vd | ∼ exp[−Vd /2VT ]. The VTC is also symmetric around Vin = Vout = Vd /2, under which condition the difference between the energy level of the transistors and its connecting reservoirs is roughly the same for the N-type and P-type transistors.
+
+1. Performance as a computing unit
+
+When used as a computing unit, our ﬁrst concern is
+
+whether our model generates the correct output with high
+
+probability. We deﬁne a perfect gate or device as one that
+
+generates a deterministic output according to the truth table,
+
+e.g., Y should be the complement of X for a perfect NOT gate.
+
+However, in the presence of noise, the deterministic output
+
+becomes stochastic and subject to ﬁnite error rates. As can be
+
+anticipated from the behavior of the VTC, in the limit of high
+
+Vd /VT , or the low-noise limit, the performance of our model approaches that of a perfect not gate, whereas the behavior is
+
+nontrivial at smaller Vd .
+
+The input and output signals are given as voltages in this
+
+model, so we map them to binaries by
+
+⎧
+
+X=
+
+0, 1,
+
+Vin Vin
+
+=0 = Vd
+
+,
+
+⎨ 0, Y = ⎩∅1,,
+
+Vout αVd Vout (1 − α)Vd (5)
+otherwise
+
+where ∅ represents an invalid result that cannot be designated and α represents an error tolerance with 0 < α 1. We choose α = 0.02 so that the resultant error is below 10−10 for Vd = 40VT as comparable to current technologies, but our qualitative results are insensitive to this choice.
+To characterize the accuracy of the gate, we deﬁne the error rate ξ as the probability of observing an output different from the perfect gate in a single shot. In the case of X = 0, the
+error rate can be calculated from the empirical distribution of Vout in steady state, as ξ (X = 0) = p[Vout < (1 − α)Vd |Vin = 0] = 0.36. A comprehensive characterization of the accuracy that takes into account the error rate for both cases of X = 0/1
+is the channel capacity
+
+C = max I (X ; Y ),
+
+(6)
+
+p(X )
+
+which is the highest information rate that can be achieved with
+arbitrarily small error [16]. We compute C numerically from
+the mutual information I (X ; Y ) between the input and output
+at steady state as a function of Vd (see details in Appendix B), as shown in Fig. 1(c). For a binary channel, the capacity
+is between 0 and 1, with 1 corresponding to a perfect gate. Here the capacity is computed to be C = 0.60 for a channel operated at Vd = 5VT , given the slight difference between the error rate for X = 0 or 1. While from the VTC the mean Vout is inﬂuenced by both the source and drain electrode for ﬁnite Vd , we ﬁnd its distribution to be Gaussian with variance 1/(βCg) within the steady state Appendix A. This is expected from a
+Boltzmann distribution, reﬂecting a proximity to equilibrium
+despite the presence of persistent currents. To reach a higher
+capacity, we need the average output Vout to approach the limits 0 or Vd . This can be achieved by operating at a higher Vd so that the leakage current ﬂowing through the higher-
+
+energy level transistor is even smaller. Given the Gaussian statistics, asymptotically for large Vd the error scales as ξ ∼ exp[−βCgα2Vd2/2] 2π /βCg/αVd and the channel capacity scales as C ∼ 1 − ξ (1 − log2 ξ ), consistent with Fig. 1(c).
+2. Tradeoff among accuracy, speed, and dissipation
+While the accuracy of the gate improves dramatically for Vd VT , its performance is compromised by signiﬁcantly increasing costs in computation time and energy consumption. Upon receiving a distinct input signal, the gate requires time to charge or discharge the capacitor to reach a steady-state output signal. The average relaxation to steady state is shown in Fig. 2(a) for an initially discharged capacitor with input X = 0. The relaxation is monotonic and nearly exponential but with characteristic decay time that depends on Vd . Under this initial condition and input voltage, N μs, so that few electrons can ﬂow between the source and the capacitor. The lower-energy level P facilitates electrons to transfer from the capacitor to the drain following the concentration gradient, gradually building up a higher voltage.
+We deﬁne the time it takes for Vout to reach (1 − α)Vd , the threshold voltage for Y = 1, as the propagation delay time τp. While the threshold voltage increases linearly with Vd , the average propagation delay τp grows exponentially. The propagation delay time τp follows an inverse Gaussian distribution [61] with a long exponential tail [Fig. 8(a)]. Note that τp coincides with the time required for the error rate to decay below 0.5. Figure 2(b) shows the decay of the error rate with time for Vd = 5, 8, 10VT , scaled by the propagation delay τp for each Vd . As the distribution of Vout remains Gaussian, the time dependence of the error reﬂects the charging of the gate capacitor, and speciﬁcally follows the evolution of the mean Vout. While we consider the single-shot error, the exponential scaling of τp with Vd implies that associating an error rate with a time-averaged measurement of Vout would yield a nonmonotonic relationship between the waiting time to reach a set error threshold and Vd . For intermediate Vd , the slower decorrelation time will cause waiting times to increase with Vd , while for large Vd the suppressed ﬂuctuations will dominate and decrease waiting times.
+When the gate is used repeatedly to process a sequence of inputs X = {X1, X2, . . . , XN }, there is no need to re-initialize the gate after each computation, and the residual charge on the capacitor may help reduce the computational cost. We call this a memory effect, which introduces temporal correlation between consecutive data transmission processes. For such an information channel with memory, the accuracy can be characterized with the average information rate per data, which is a generalization of the channel capacity [62], and the detail of which can be found in Appendix C. Using this metric, we ﬁnd the memory effect plays a signiﬁcant role at intermediate τobs enhancing the robustness of transmission by up to 30% Appendix C. For times much longer than τp, the memory effect wears off and the information rate is set by the channel capacity.
+The energy consumption for a gate can be quantiﬁed with the heat dissipated to the environment. From stochastic thermodynamics, the heat dissipation of the NOT gate during a long observation time τobs can be computed by the product of
+
+033169-4
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM … (a)
+(b)
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+This second term has a similar form as the work required to quasistatically charge the capacitor from Vg = 0 to Vg ≈ Vd , and thus is close to CgVd2/2. This initial charging process is the dominant contribution to the total heat dissipation over short times, and represents the reversible limit of the NOT gate [Fig. 8(c)]. Once the system reaches the steady state, there is still a steady entropy production coming from the leakage currents through both pathways, but the entropy production rate within the steady state is much smaller and decreases exponentially with Vd Appendix A. This is because the output voltage Vout is very close to Vd , leaving the afﬁnity across the drain and the output nearly zero. Further, the corresponding leakage current from the source to the output is small due to the high-energy level N. The contributions to (τobs) from Vd implies that for each observation time τobs, there exists an optimal Vd that minimizes (τobs), as conﬁrmed in Fig. 2(c). The minimum Vd shifts to the right with increasing time as at higher Vd a larger contribution from the steady-state ﬂux counterbalances the higher heat dissipation during charging.
+
+(c)
+
+FIG. 2. Tradeoff among accuracy, speed, and dissipation for a
+single NOT gate. (a) Relaxation towards the steady state for a NOT gate initialized with Vg = 0VT and X = 0. (b) The decay of the error rate with time, scaled by propagation delay τp. (Inset) Propagation delay as a function of Vd . (c) The heat dissipation is a nonmonotonic function of Vd for ﬁnite observation time τobs. The gray dashed line is the reversible limit CgVd2/2.
+
+electron current and its conjugate afﬁnity from two separate pathways [48]:
+
+τobs
+
+(τobs ) =
+
+dt Js→N(μs − μg) + Jd→P(μd − μg), (7)
+
+0
+
+where Js→N is the electron current ﬂowing from the source to the N-type transistor, and Jd→P is the current from the drain to the P-type transistor [Eq. (A5)]. In the process described
+in Fig. 2(a), the pathway through the N-type transistor is
+essentially blocked due to the high-energy level of N, so the main contribution in Eq. (7) is the second term in the sum.
+
+B. NAND gate
+We have presented a Markovian model for the NOT gate, which reproduces the performance of a perfect gate in the limit of high Vd and for which there is a complex interplay between energy consumption and time. Within the framework presented, it is straightforward to construct an analogous model of a NAND gate. A NAND gate takes in two binary inputs XA, XB, and outputs Y = 0 only when both inputs are 1. As shown in Fig. 3(a), the kinetic diagram, similar to the circuit diagram, is composed of two P-type transistors PA, PB, and two N-type transistors NA and NB. The energy levels of PA and NA depend on the ﬁrst input voltage Vin,A, while the energy levels of PB and NB are controlled by the second input Vin,B [Eq. (D1)]. More details on the model, including the deﬁnition of the heat dissipation, can be found in Appendix D. The two-dimensional VTC for Vd = 5VT is shown in Fig. 3(b), which agrees with the truth table for a perfect NAND gate.
+While the dynamical properties of the NAND gate are very similar to the NOT gate, an asymmetry arises in the NAND gate due to the different pathways in the kinetic diagram, which is a feature absent in the NOT gate. Consider the three different inputs (XA, XB) = (0, 0), (1, 0), and (0,1) shown in Fig. 3(c) for Vd = 5VT . While for a perfect NAND gate, these three inputs should all correspond to the output Y = 1, the evolution of the error rate ξ and its converged values in the steady state are not exactly the same for ﬁnite Vd . In the case of (XA, XB) = (0, 0), as both P1 and P2 have relatively low-energy levels, there are two pathways to charge the capacitor, resulting in a faster error decay rate. For the cases (XA, XB) = (0, 1) and (1,0), one of the pathways is blocked due to the high-energy level of the P transistor, so the error rate decays much slower reﬂecting the slower charging of the capacitor. While the latter two cases also differ slightly due to the asymmetry in N1 and N2, such differences shrink drastically when we increase Vd to 8VT in Fig. 3(d). The three cases now converge to similar error rates in the steady state. In fact, as we further increase Vd , all such asymmetries vanish, another example of which can be found in Appendix D, where we plot the one-dimensional cut of the VTC along the line Vin,A = Vin,B for different Vd . As in the
+
+033169-5
+
+CHLOE YA GAO AND DAVID T. LIMMER (a)
+(b) (c)
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+functions. While any logic function can be represented in multiple ways, the topology of the circuit has an inﬂuence on its accuracy and thermodynamic costs [43]. In the following section, we ﬁrst explore spatial propagation effects arising from assembling multiple gates in a combinational circuit, and then demonstrate memory effects arising from the feedback loop in a sequential circuit. Understanding the behavior of these basic computing circuits will be crucial to building up a computing device.
+For each logic circuit, which is itself a computing module made up of multiple logic gates, while each gate has an intermediate output, we reserve the symbol Vout for the speciﬁc Vg that corresponds to the overall output Y of the module. Intermediate input and output voltages are not converted to binaries except for the ﬁnal output Vout. While the output of each gate is used as the input of the ensuing gate, we neglect the back reaction on Vout so that the occupation of the ensuing transistors does not affect Vout, which is consistent with the high-capacitance assumption made in Eq. (2). Unless speciﬁed otherwise, all gates are initialized at Vg = 0VT at the start of the computation, but no reinitialization is done afterwards. While the channel capacity is a more comprehensive characterization of the accuracy and provides the best case scenario, the much larger input space and complicated memory effects make it cumbersome to calculate in the case of logic circuits. We thus use the error rate in the ﬁnal output instead, and consider the worst case scenario in choosing the inputs to provide an upper bound for the error rate whenever possible.
+
+(d)
+FIG. 3. Dynamics of a NAND gate. (a) Circuit diagram (left) and kinetic diagram (right) of a NAND gate. (b) Two-dimensional voltage transfer curve at Vd = 5VT . (c), (d) Decay of the error rate with time under three cases: (Xin,A, Xin,B ) = (0, 0), (1, 0), and (0,1) for Vd = 5VT (c) and Vd = 8VT (d) for a NAND gate initialized with Vg = 0VT . case of the NOT gate, our model behaves as a perfect NAND gate as Vd approaches 1 eV. For clariﬁcation, we deﬁne the propagation delay τp of a NAND gate as the time required to reach the threshold αVd for the input (XA, XB) = (0, 1), which is close to τp for the NOT gate of the same Vd .
+III. LOGIC CIRCUITS Equipped with a model for the NOT and NAND gates, we now in principle have the tools to implement arbitrary logic
+
+A. Combinational circuit
+A combinational circuit maps a given set of inputs to a single output using a number of gates, such as an adder that computes the sum of inputs and a XOR gate that computes their parity. As the simplest example, we study the behavior of an array of L NOT gates indexed by i = 1, 2, . . . , L connected in the way that Vin(i) = Vg(i−1) for i > 1. A schematic of the system can be found in Fig. 4(a). The input of the circuit X determines Vin(1), and the output is measured from the last gate Vout = Vg(L). The spatial dimension adds complexity to the evolution of Vg, as illustrated in Fig. 4(b) for Vd = 5VT , X = 0. In the steady state, we expect the output voltage of the odd gates close to Vd , and the even gates close to zero. For a gate to reach its steady state, its input, which depends on the dynamics of the previous gate, must ﬁrst reach its expected value, thus the propagation delay should increase with the gate index i. As the odd gates are initialized far from their steady state, it will take a signiﬁcant amount of time to reach its expected output. For the odd gates which have not yet reached the steady state, the ensuing even gate will have a lower input voltage, resulting in the overshoot of voltage before eventually decaying to its expected lower output. The turnover in voltage of the even gates corresponds to the inﬂection point on the VTC.
+A consequence of the connectivity between gates is the corruption of initial input. While the input voltage of the ﬁrst gate is always 0VT , for ﬁnite Vd , the maximum input voltage of the second gate will be slightly lower than Vd , and thus corrupted. As the VTC of the NOT gate is a nonincreasing function, a corrupted input will inevitably cause a higher error rate in the
+
+033169-6
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM … (a) (b)
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+of high Vd , the ﬁxed-point solution can be found exactly at (Vin = 0, Vout = Vd ), which means that the input becomes uncorrupted. To summarize, the combination of gates introduces longer propagation delay and input corruption, and thus deeper layered circuit design is advised against. By operating at a higher Vd to reduce spatial correlation, the latter problem can be mitigated, but of course this is done at the cost of even longer propagation delay.
+
+(c)
+
+(d)
+
+FIG. 4. Performance of an array of NOT gates with X = 0, and
+all Vg initialized to 0VT . (a) Schematic of an array of NOT gates with a single input X and output Y . (b), (c) Evolution of Vg (b), and the steady-state error rate (c) for individual gates with Vd = 5VT . (d) Spatial propagation rate κ as a function of Vd .
+
+output, which will propagate along the array. This is shown
+
+in Fig. 4(c), where the error rate for individual gates in the
+
+steady state rises initially with gate index, before converging
+
+to a constant value after a few gates, and is always higher than
+
+that of the single gate. A similar behavior can be found in the
+
+propagation delay time, which increases sharply for the ﬁrst
+
+few gates and converges to a slower linear increase afterwards
+
+Appendix E. This implies that circuit designs with deeper
+
+layered structure are unfavorable in terms of both accuracy
+
+and propagation delay.
+
+The convergence behavior is intriguing as it implies the existence of a pair of ﬁxed points (Vo∗dd, Ve∗ven) for the intermediate outputs in the steady state. Indeed, the ﬁxed-
+
+point solution corresponds to the point on the VTC (Vin =
+
+V(Vo∗dind,=VVoue∗tve=n,
+
+Ve∗ven Vout
+
+) satisfying = Vo∗dd ) is
+
+the also
+
+condition that on the VTC.
+
+its As
+
+reﬂection the ﬁxed
+
+point is a dynamically stable solution, it does not depend
+
+on the initial input Vin(1) Appendix E, whereas the speed of
+
+approaching the ﬁxed point characterizes the spatial correla-
+
+tion in the system. We ﬁt the decay in |Vg(i) − V ∗|/VT with
+
+an exponential function exp[−κi], and report the rate κ for
+
+different Vd in Fig. 4(d). For Vd = 5VT , the spatial correlation length 1/κ is on the order of 1, which means spatial correla-
+
+tion exists between neighboring gates. As a consequence, it is
+
+more probable to observe consecutive errors along the array,
+
+which is shown by an error analysis of simulated trajectories
+
+in Appendix E. As the VTC becomes sharper with increasing
+
+Vd , the correlation length between gates decreases. In the limit
+
+B. Sequential circuit: RS latch
+While combinational circuits are typically used to carry
+out arithmetic computations, modern computing devices often
+include another type of logic circuit to handle memory: the
+sequential circuit. Figure 5(a) shows an example of such a
+circuit, known as the RS latch. The RS latch consists of two NAND gates where the output of gate 1, Vg(1), is sent as an input of gate 2, Vin(2,A) , and similarly, the output of gate 2, Vg(2), is fed back as Vin(1,B) . The remaining two inputs Vin(1,A) and Vin(2,B) correspond to the two external binary inputs XS and XR, respectively. The output of the circuit Vout, which coincides with Vg(1), depends not only on the external inputs XS and XR, but also the stored information of Vg(1) and Vg(2). This is the deﬁning characteristic of a sequential circuit, which makes it
+useful as a memory storage. More speciﬁcally, for a perfect
+RS latch, in the “set” stage where the external inputs are set as XS = 0, XR = 1 or XS = 1, XR = 0, there exists only one dynamically stable state for the system, so that we can
+unambiguously designate the memory at Vout as 1 or 0. In the “hold” stage where XS = XR = 1, however, the system is bistable and its state depends on the initialized value of Vg(1) and Vg(2). In the vicinity of the ﬁxed points, an effective Hamiltonian description of the RS latch is quartic in Vout with two minima and a maxima between them [63]. This emergent
+bistability resulting from the feedback loop allows the RS
+latch to function as a memory storage device.
+To function as a memory storage device, a circuit must
+have at least two distinguishable states in which information
+can be stored. For our stochastic model in Fig. 5(a), these
+states correspond to the steady-state solutions that satisfy the feedback condition Vin(1,B) = Vg(2), Vin(2,A) = Vg(1) under the input Vin(1,A) = Vin(2,B) = Vd . An intuitive way to ﬁnd their location is to overlap the VTC of the two NAND gates along the cut Vin(1,A) = Vd and Vin(2,B) = Vd , which are not exactly the same due to the asymmetry in the nonperfect NAND gates. We
+show a couple of scenarios at different Vd in Figs. 5(d)–5(f). At Vd = 3VT , the highly asymmetric VTCs cross merely at (Vin(1,B) , Vin(2,A) ) = (0.67VT , 2.61VT ), indicating that the system only has a single stable state and does not qualify as a mem-
+ory storage device. As Vd increases to 5VT , two dynamically stable informational states start to emerge at (Vin(1,B) , Vin(2,A) ) = (0.19VT , 4.92VT ) and (4.89VT , 0.20VT ), though the slight asymmetry suggests different dynamics around the two states. While a third intersection point is found at (Vin(1,B) , Vin(2,A) ) = (2.93VT , 2.26VT ), it corresponds to an unstable saddle point. At an even higher Vd = 40VT , the two states converge to (Vin(1,B) , Vin(2,A) ) = (0VT , 40VT ) and (40VT , 0VT ), and symmetry is restored.
+
+033169-7
+
+CHLOE YA GAO AND DAVID T. LIMMER
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+FIG. 5. (a) Circuit diagram of the RS latch. (b), (c) The evolution of the outputs Vg(1) and Vg(2) for 100 trajectories with the initialization Vg(1) = Vg(2) = Vd = 5VT , where time is scaled by the propagation delay τp of the NAND gate. The dark curve represents the average relaxation behavior. (d)–(f) The location of the stable informational states determined by overlapping the VTC for the two NAND gates at Vd = 3VT (d),
+Vd = 5VT (e), and Vd = 40VT (f).
+
+While the existence of two distinguishable informational states is guaranteed at sufﬁciently high Vd , there remains the question of whether these informational states are robust against noises. While in both the set and hold stages, Vg(1) and Vg(2) are usually sufﬁciently far from each other that it is possible to distinguish them deﬁnitively, there do exist occasions where the noise can mediate a transition. One such example is shown in Figs. 5(b) and 5(c) for the initialization Vg(1) = Vg(2) = Vd = 5VT . As the outputs of the gates evolve from their initialization towards the steady-state solution, there is a signiﬁcant overlap between the two outputs around t = 0.5τp, which leads to about 13% of the trajectories failing to retain the information and evolving to the wrong ﬁxed point. This kind of perturbation happens when the overlap region includes the unstable intersection point on the VTC, and the change of convexity of the effective Hamiltonian brings the trajectory towards a different stable state. Such an initialization error is rare to observe either in the set or hold stage, and we show additional evidence for the robustness of the circuit at Vg(1) = Vg(2) = 2.5VT and 0VT in Appendix F. In addition, at a higher Vd , as the VTC becomes sharper, not only do the two minima in the Hamiltonian become more separated, their vicinity also become steeper, both of which facilitate the differentiation between the two states and thus will drastically improve the robustness of the device.
+C. Sequential circuit: D ﬂip ﬂop
+With the RS latch as a basic computing unit, we can model a memory storage module that synchronizes with the clock generator, called the D ﬂip ﬂop. Modern computing devices typically include a pulse generator that oscillates between 0
+
+and 1, with a clock cycle τc. To see how the clock is incorporated into the D ﬂip ﬂop, we show the circuit diagram of a D
+ﬂip ﬂop in Fig. 6(a), built up from four NAND gates and one
+NOT gate. The circuit can be readily modularized as a memory
+storage unit, denoted with the symbol D, that takes in an input
+X representing the data, another input XWE synchronized with the clock, and generates an output Y . The two NAND gates
+with the feedback loop on the right-hand side constitute an
+RS latch, which is responsible for the memory storage. When the write-enable input XWE = 1, the D ﬂip ﬂop sets its output Vout in agreement with the data X , whereas when XWE = 0, the D ﬂip ﬂop holds its stored value as its output, which can
+be further processed for computing purposes. The clock cycle τc, or the clock frequency 1/τc, is an
+important parameter as it determines how fast data can be read
+and stored. In Figs. 6(b) and 6(c) we illustrate how the clock
+cycle inﬂuences the accuracy and dissipation of the data transmission process for a D ﬂip ﬂop with Vd = 8VT . We start with XWE = 1 and send in a stream of data X = {1, 0, 1, 0, . . . }. While XWE alternates between 1 and 0 every τc/2, the data input only changes every τc. This input data sequence is chosen to maximize the alternation in the output, and thus
+minimize the memory effect discussed earlier for the NOT
+gate. Therefore, the error rate and dissipation in this case are
+expected to be the highest among all possible input sequences. The error rate ξ is measured according to the output Vout at the end of each cycle, and is reported separately for the cycles with X = 1 and 0. The evolution of Vout as a function of the cycle number can be found in Appendix F.
+Similar to the behavior for the single NAND gate in Fig. 3(d), the error rate for X = 0 starts to decrease monotonically when τc is longer than the single-gate propagation delay
+
+033169-8
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM …
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+(a)
+
+cycle, the system is able to reach the steady state, in which
+
+much less dissipation is generated. The exponential scaling of
+
+τp with Vd implies that while the asymptotic error is expected
+
+to decrease when operating far from thermal energies Vd
+
+VT , the speed with which the D ﬂip ﬂop can function with that
+
+lower error is signiﬁcantly slower. Due to this lag, comparing
+
+between a lower and a higher Vd , the error is expected to be
+
+(b)
+
+much lower in the former case for a ﬁxed computing time on
+
+the order of τp of the lower Vd .
+
+(c)
+FIG. 6. (a) The symbol (left) and circuit diagram (right) of a D ﬂip ﬂop. (b), (c) Error rate (blue, with axis label on the left) and average dissipation per gate per cycle (red, with axis label on the right) as a function of the clock cycle τc, scaled by the propagation delay of the NAND gate, for cycles with input X = 1 (b) and 0 (c). All NAND gates are operated at Vd = 8VT .
+τp. The error rate for X = 1, however, ﬁrst increases with τc before eventually decreasing. This counterintuitive behavior comes from the memory retention behavior in the RS latch. Once data are stored in the RS latch, it tends to stay in the memory by inﬂuencing the transmission of the following data, and thus introduces temporal correlation between the outputs. The inﬂuence of the data can only be erased given sufﬁcient time to transmit the following data. This temporal correlation time, or memory retention time, again coincides with the propagation delay τp. In this example, as the ﬁrst input X = 1, the output retains the memory of a higher output at short τc, so the error rate for X = 1 is deceptively low, and the error rate for X = 0 is high. At τc ≈ τp, the output is stuck between the high and low outputs before reaching either steady state, so that the error rate for either cycle is high. In this regime, the average dissipation accumulated within each cycle rises fast with τc, as charging processes contribute heavily to energy costs. When τc > τp, the memory effect is eventually overcome and the error rates for both cycles start to decay. The average dissipation rate also converges to a smaller constant value as within each
+
+IV. PARITY COMPUTING DEVICE
+With the combinational circuit modularized as the arithmetic logic unit (ALU), and the sequential circuit as the memory storage device, we can combine the two components to model a computing device. We choose the task of computing the parity of a sequence of inputs X = {X1, X2, . . . , XN } of length N, which has wide applications in error detection. Such a task can be easily implemented by combining (N − 1) XOR gates in a sequential manner. However, when N is relatively large, due to the limitation in resources, it is beneﬁcial to break up the task in several steps, and store intermediate results in memory. The clock generator synchronizes the operation of different components to ensure correct sequencing.
+As an example, we consider two XOR gates as an ALU, and four D ﬂip ﬂops, D1 to D4, as a memory device to check the parity of N = 12. Figure 7(a) shows the schematic of our design, while the complete circuit diagram can be found in Appendix F. Each XOR gate takes in two binary inputs at a time, the source of which is controlled by two input two-way switches, shown in red in Fig. 7(a). When the switch is connected to terminal 1, the input comes from the data sequence X; whereas when terminal 2 is connected, the input comes from the data stored in a D ﬂip ﬂop. At the end of each XOR gate is an output two-way switch, shown in green in Fig. 7(a), which controls where to store the output. We store new data only on free D ﬂip ﬂops, where the data stored at an earlier time is already read out for postprocessing and does not need to be held any more. The total system requires modeling over 100 transistors.
+We start the computation by sending in pairs of input data from the data sequence, and computing their parities with the XOR gates. The D ﬂip ﬂops are set by outputs from the ALU (ﬁrst D1, D2 and then D3, D4), and once all D ﬂip ﬂops have been set, we free them by sending the stored information back to the ALU for further processing. The computation is terminated when all inputs are taken into account in the ﬁnal output, and the entire task can be completed in six clock cycles. A more detailed description of the protocol, and a computational tree graph that illustrates how intermediate outputs are related to the ﬁnal output can be found in Appendix F.
+As before, we are interested in the time and dissipation required to achieve a certain accuracy. In Fig. 7(b), we show the error rate for the ﬁnal output at t = 6τc, and the average dissipation per gate (averaged over the 28 gates in this device) per clock cycle ¯ as a function of τc with Vd = 8VT . Both results are averaged over more than 104 inputs, which are sequences of independent and identically distributed Bernoulli random variables with equal probability of being 0 or 1. As expected, the average error rate decays with the clock cycle
+
+033169-9
+
+CHLOE YA GAO AND DAVID T. LIMMER
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+(a)
+(b)
+FIG. 7. (a) Schematic of the parity computing device with two XOR gates and four D ﬂip ﬂops. The input of each XOR gate is controlled by two input two-way switches, shown in red. The output two-way switch, shown in green, determines which D ﬂip ﬂop is used to store the output of the XOR gate. (b) The average error rate (blue, with axis label on the left) and dissipation per gate per cycle (red, with axis label on the right) as a function of the time cycle τc, scaled by the propagation delay of a single NAND gate, averaged over different input sequences. All gates are operated at Vd = 8VT .
+until τc ≈ 3τp, as the extended spatial dimension of the circuit increases the propagation delay in the ﬁnal output. At such a high Vd , spatial correlations do not extend beyond neighboring gates, and are even weaker between different modules, especially for clock cycles longer than τp. We further analyze how the error in the ﬁnal output is correlated along its computational path in Appendix F. The average dissipation ﬁrst increases sharply and then converges to a linear growth in the limit of large τc, similar to the D ﬂip ﬂop, but slightly lower than that in Fig. 6(c) for the same τc. This is because the input sequences are randomly chosen instead of alternating between 0 and 1, and the memory effect can help shorten the charging process, which most contributes to the entropy production. Additionally, because of the synchronization, the D ﬂip ﬂops may remain at a steady state for a few cycles before they are freed to. During such periods, the dissipation is especially low as the entropy production in the steady state is minimal due to relatively small leakage currents. Therefore, computational protocols that minimize changes on the memory storage device are desirable for low dissipation computing. Taking into consideration both the accuracy and dissipation, the optimal clock cycle to operate with is τc ≈ 2τp, as lowering the speed further will only result in higher dissipation from the steady state.
+
+V. DISCUSSION AND CONCLUSION
+We have illustrated a promising model for stochastic logic gates, and demonstrated its utility in building arbitrary logical circuits. Information manipulations, such as bit storage and erasing, are represented by the charging and discharging of the capacitors, which is consistent with current data storage technology. While our model performs as a perfect logic circuit when operated in the limit of low noise, its thermodynamical consistency allows us to study the rich interplay between speed, accuracy, and dissipation in the intermediate regimes, from which we can derive some useful design principles for low dissipation computing devices. For instance, we have provided a physical origin of input corruption in the combinational circuits, as well as feedback robustness in the sequential circuits, and illustrated how each can be improved drastically by operating at a slightly higher voltage. In addition, memory effects should be exploited as much as possible to minimize dissipation. With modularization, it is straightforward to scale up our model to even larger and more complex systems, making it a useful model to study collective behaviors of circuits. It is useful to bear in mind that the signal-to-noise ratio regime that is explored in this work is two orders of magnitude lower than current technology. However, with the exponential growth of the number of computations per unit of energy dissipated, as observed by Koomey’s law [64], such a low dissipation regime will soon become relevant. While the model we propose is not intended for a direct comparison with the current CMOS technology, the fact that it can reproduce the input-output behaviors of universal logic gates makes it a promising tool to study fundamental physical limits on computations.
+One of the major motivations of this work is to enable the design of low dissipation computing devices with maximal accuracy and speed. While there exist several theoretical results that propose bounds on the thermodynamic costs of computing [4,43], understanding under what circumstances they are saturated requires a realistic model for the thermal noise. As each dynamical process in our model obeys a local detailed balance, we are able to harness the lessons of stochastic thermodynamics to deﬁne and analyze the time dependence and ﬂuctuations of the entropy production. Note that the we have referred to throughout the paper is different from the total dissipation, which is the heat released by the system, by a term T S, the change in the Shannon entropy of the system transistors times the bath temperature. Nevertheless, we have used the two terms interchangeably since for the timescales studied, the boundary term S is orders of magnitude smaller than the cumulative term , which is very large due to the large gate capacitance. This then raises the question of how to further decrease the irreversible dissipation and that associated with charging the gates. This problem is the crux of optimal control theory, and adiabatic circuit design [65,66], from which some design principles can be borrowed. For example, while we have kept the input voltage of the transistors Vin ﬁxed within each cycle, one can design optimal feedback protocol that controls it according to the state of the capacitor, in order to minimize the irreversible dissipation throughout the process. Such optimal feedback protocols already exist for simple thermodynamic engines
+
+033169-10
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM …
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+[67], and we believe our model provides an ideal testing ground for applying more advanced stochastic control algorithms [68]. Marrying our model with a framework that integrates information with thermodynamics [69,70], we hope to get a step closer to achieving a computing design that minimizes dissipation while maximizing accuracy and speed.
+VI. MATERIALS AND METHODS
+Simulations were done with both an iterative, numerically exact diagonalization of the master equation as well as Gillespie simulations [60]. In both, we employ a separation of timescales for electron transfer to or from a transistor and gate charging, afforded by the large gate capacitance. Specifically, the large capacitance means we can update Vg with discrete time step, chosen to be 10βh¯, and compute rates at ﬁxed Vg in-between these dynamical updates. More details on the models and calculations can be found in Appendices A and D.
+All our codes and data can be accessed on GitHub [71].
+
+ACKNOWLEDGMENTS
+The authors thank G. E. Crooks for suggesting this topic for study and for invaluable discussion and comments. C.Y.G. and D.T.L. are supported by the U. S. Department of Energy, Ofﬁce of Basic Energy Sciences, through the CPIMS Program Early Career Research Program under Award No. DE-FOA0002019.
+
+APPENDIX A: NOT GATE MODEL DETAIL
+
+The Markovian system is described by the occupation number of the two single-electron levels nN, nP = 0/1, and the gate voltage Vg. Electrons can jump between the transistors and the reservoirs only if the target site is empty. Denoting
+the transition rate from state i to j as k ji, the rates describing the exchange of electrons between the transistors and the
+reservoirs are given by
+
+kNs = fs( N), ksN = [1 − fs( N)],
+
+kPd = fd ( P ), kNg = fg( N ),
+
+kdP = [1 − fd ( P)], kgN = [1 − fg( N)],
+
+(A1)
+
+kPg = fg( P), kgP = [1 − fg( P)],
+
+where fi(x) = [eβ(x−μi) + 1]−1 is the Fermi distribution. The transition rate between the two transistors depends on their relative energy levels, for example, in the case of P > N,
+
+kPN = n( P − N), kNP = [1 + n( P − N)], (A2)
+
+where n(x) = [eβx − 1]−1 is the Bose-Einstein distribution. The rate constant = 0.2/βh¯ ∼ ps−1 is chosen so that electron transitions happen on a longer timescale than quantum tunneling, and the broadening of energy levels due to the coupling to electrodes is smaller than thermal ﬂuctuations.
+The dynamics of the capacitor is solved by the equation of motion
+
+1
+
+tint
+
+dVg
+
+=
+
+− Cg
+
+0
+
+Jg(t )dt ,
+
+(A3)
+
+where Cg is the capacitance and Jg is the electron current ﬂowing into the electrode from the transistors. While the
+transfer of electrons changes Vg, the capacitor is treated as an electron reservoir at constant chemical potential μg = −qVg within each time interval tint. Thus, the assumption made here is that the electron transfer within each tint is small compared to CgVT , and the electron relaxation within the capacitor is fast compared to tint. We have chosen Cg = 200q/VT , tint = 10βh¯ in order to justify these assumptions.
+To obtain a numerically exact solution to the Markovian
+dynamics, for each interval tint, we solve for the average occupation number nN , nP from the stationary solution of the master equation, which describes how the probability of the conﬁguration pnN,nP = (p0,0, p0,1, p1,0, p1,1 ) evolves with time:
+
+p˙nN,nP = W pnN,nP ,
+
+⎡ −S1
+
+W
+
+=
+
+⎢⎢⎢⎣kkNPrl
+
++ kPg + kNg
+
+0
+
+krP + kgP −S2 kNP
+kNl + kNg
+
+klN + kgN kPN −S3
+kPr + kPg
+
+⎤ 0
+
+klN krP
+
++ +
+
+kgN kgP
+
+⎥⎥⎥⎦,
+
+−S4
+
+(A4)
+
+where S j = i= j Wi j for a matrix W . Note that the transition rates concerning the gate (g) are time dependent
+through Vg, while a local equilibrium approximation is invoked within each integration interval tint. The current Jg ﬂowing into the capacitor is then computed by the sum of two
+terms
+
+JN→g/q = kgN nN − kNg(1 − nN ), JP→g/q = kgP nP − kPg(1 − nP ).
+
+(A5)
+
+In the Gillespie simulation, the electron jumping processes are modeled explicitly as chemical reactions, with M = 10 reaction rates
+
+w1 = kNs(1 − nN), w3 = kPd (1 − nP), w5 = kNg(1 − nN), w7 = kPg(1 − nP), w9 = kPNnN(1 − nP ),
+
+w2 = ksNnN, w4 = kdPnP, w6 = kgNnN, w8 = kgPnP, w10 = kNPnP(1 − nN ).
+
+(A6)
+
+We use the Monte Carlo method to simulate the probability that reaction i will happen after time t,
+
+M
+P(t , i) = wi exp − wit ,
+i=1
+
+(A7)
+
+and the currents between two sites are calculated as the discrete number of jumps between the two sites. The discretization error in voltages between the average protocol and the Gillespie simulation is on the order of q/Cg = 0.005VT . The resultant dynamics and distributions of the NOT gate are illustrated in Fig. 8. The average behavior of the dissipated heat is shown in Fig. 9 as a function of Vd .
+
+033169-11
+
+CHLOE YA GAO AND DAVID T. LIMMER
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+(a)
+
+(b)
+
+To compute the channel capacity, we numerically maximize I (X ; Y ) over the base probability distribution p(X ), where the conditional probabilities are computed using Vout in the steady state.
+
+(c)
+
+(d)
+
+FIG. 8. Dynamics of a single NOT gate with X = 0, Vd = 5VT , and Vg initialized from zero. (a) Distribution of the propagation delay τp. (b) Distribution of Vg at t = 5 × 106βh¯, where the red dashed line labels the threshold voltage for Y = 1. (c) Evolution of the total heat dissipation of 100 individual simulated trajectories (light blue) and
+their ensemble average (dark blue). (d) Distribution of the entropy
+production rate in the steady state, measured in the long-time limit where τobs = 106βh¯.
+
+APPENDIX B: COMPUTATION OF CHANNEL CAPACITY
+For the NOT gate, we observe Gaussian distributions in Vout in the steady state regardless of Vd , with the same variance 1/(βCg). Under the Gaussian assumption, the error rate is uniquely determined by the average output voltage Vout. For example, the accuracy rate for X = 0 is determined by the conditional probability
+
+p(Y = 1|X = 0) =
+
+∞
+dV
+
+βCg
+
+0.98Vd
+
+2π
+
+× exp − βCg(V − Vout)2 . 2
+
+(B1)
+
+Marginalizing the conditional probabilities, the mutual information can be computed by
+
+p(x, y)
+
+I(X ; Y )
+
+=
+
+x=0,1 y=0,1,∅
+
+p(x, y) log2
+
+. p(x ) p(y )
+
+(B2)
+
+FIG. 9. Heat dissipation as a function of Vd for a NOT gate with
+Vg initialized to 0VT . (a) The heat dissipation during the propagation delay τp (dots) for X = 0, which converges to the quadratic function CgVd2/2 (line) at high Vd . (b) The heat dissipation rate in the steady state σss decreases exponentially with Vd for both X = 0/1.
+
+APPENDIX C: COMPUTATION OF AVERAGE INFORMATION RATE
+
+For an information channel with memory, the average information rate per data is deﬁned as
+
+I¯(X; Y) =
+
+1 I
+Ndata
+
+X1, . . . , XNdata ; Y1, . . . , YNdata
+
+,
+
+(C1)
+
+which in the limit of Ndata → ∞ and upon maximizing over the input probability distribution p(X), is the generalization of the channel capacity. As an example, for Ndata = 2, the mutual information is computed by
+
+I (X1, X2; Y1, Y2 ) =
+
+x1=0,1 x2=0,1 y1=0,1,∅ y2=0,1,∅
+
+×
+
+p(x1, x2, y1, y2 ) log2
+
+p(x1, x2, y1, y2 ) p(x1, x2 )p(y1, y2
+
+)
+
+.
+
+(C2)
+
+To incorporate the memory effect, note that the probability
+
+distribution of the ith output Yi is not only a function of Xi, but also the output voltage of the previous data Voiu−t1. The
+dependence can be expressed with the conditional probability p(Voiut|xi, Voiu−t1), which we sample by Gillespie simulations of more than 107 trajectories. The dependence of I on the obser-
+vation time τobs thus comes from this conditional probability. Let Vo0ut = 0VT , and we can write the joint probability
+
+p x1, x2, Vo1ut, Vo2ut = p Vo2ut x2, Vo1ut p Vo1ut x1, Vo0ut = 0VT
+
+× p(x2)p(x1),
+
+(C3)
+
+which follows from the Markovian nature of the memory effect, and the fact that the input data xi are independent from each other. The joint distributions can then be computed by marginalization, e.g., deﬁning the mapping between Y and Vout in Eq. (5) as Y = dig(Vout),
+
+p(x1, x2, y1, y2 ) =
+
+p x1, x2, Vo1ut, Vo2ut ,
+
+y1=dig(Vo1ut ) y2=dig(Vo2ut )
+
+(C4)
+
+where the sum is over all Voiut, discrete in our simulation, that correspond to yi.
+
+As the numerical maximization is difﬁcult for large Ndata,
+
+without loss of generality, we choose as our input a se-
+
+quence of independent and identically distributed Bernoulli
+
+random inputs with equal probability of being 0 or 1. We
+
+show in Fig. 10 the average information rate at Vd = 5VT for Ndata = 1, 2, 3 as a function of τobs, the processing time for each individual data from input to output. For Ndata = 1, the information rate ﬁrst decreases at small τobs, as ξ (X = 1)
+
+inevitably increases at short time due to the initialization
+
+Vg = 0VT , and rises up sharply around the propagation delay τp, which is the time required for ξ (X = 0) to decay. As we
+
+increase Ndata, the memory effect is expected to be especially
+
+helpful when consecutive inputs share the same value, and
+
+thus should on average improve the information rate. This
+
+033169-12
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM …
+(a)
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+(b)
+
+FIG. 10. Average information rate for a repeatedly used NOT gate with Vd = 5VT as a function of the data processing time τobs.
+
+effect is not evident for extremely small τobs, where the error rate for X = 0 is too high to be corrected by the memory effect. However, the memory effect plays a signiﬁcant role,
+bringing up to 30% increase in the average information rate, at intermediate τobs. All curves eventually converge in the long-time limit as the memory effect wears off for times much
+longer than the propagation delay.
+
+APPENDIX D: NAND GATE MODEL DETAILS
+
+The NAND gate is described by four occupation numbers (nPA , nPB , nNA , nNB ) and the gate voltage Vg. The energy levels of the four transistors are determined in the same manner as in
+Eq. (2) of the main text, with NA , PA corresponding to Vin,A, and NB , PB corresponding to Vin,B:
+
+PA =
+
+0 P
+
++
+
+qVin,A,
+
+PB =
+
+0 P
+
++
+
+qVin,B,
+
+NA =
+
+0 N
+
+−
+
+qVin,A,
+
+NB =
+
+0 N
+
+−
+
+qVin,B,
+
+(D1)
+
+The transition rate between the transistors and reservoirs is
+described analogously to Eqs. (A1) and (A2). To avoid numer-
+ical issues in Eq. (A2) when the adjacent transistors have the same energy levels, we add a 10−3 regularizer in the denom-
+inator of the Bose-Einstein distribution n(x). The output Vg is again treated as a capacitor described by Eq. (A3), where the
+current Jg is the sum of JPA→g, JPB→g, and JNA→g, each deﬁned as in Eq. (A5). As in the NOT gate, both an average protocol
+
+FIG. 11. The voltage transfer curve of the NAND gate along the one dimension Vin = Vin,A = Vin,B, which becomes more symmetric as Vd increases.
+
+FIG. 12. Spatial propagation in an array of NOT gates with Vd =
+5VT and all Vg initialized to 0VT . (a) Propagation delay for the odd gates with X = 0. (b) Exponential decay of the distance between Vg and the ﬁxed point. The spatial propagation rate κ is deduced
+from the rate of the exponential decay, which is independent of the input Vin(1).
+
+and a Gillespie simulation consisting of 16 chemical reactions are used to study the dynamics. The heat dissipation during an observation time τobs is
+
+τobs
+
+(τobs ) =
+
+dt Js→NB (μs − μg)
+
+0
+
++ Jd→PA + Jd→PB (μd − μg).
+
+(D2)
+
+The resultant voltage transfer curve for the NAND gate is shown in Fig. 11.
+
+APPENDIX E: ERROR ANALYSIS IN AN ARRAY
+OF NOT GATES
+We simulate an array of NOT gates of length L with Vin(1) = 0VT , Vd = 5VT , and generate more than 108 snapshots of the system.The space time correlations for this array are illustrated in Fig. 12. For each snapshot, we ﬁrst search for regions with de = 1, 2, . . . , 16 consecutive errors, and then count the total number of such error domains, denoted by N (de). While counting, we do not account for the ﬁrst 10 gates in each array as they have not reached the ﬁxed-point solution. To characterize spatial correlation in the system, we compare the value of
+
+L=60
+
+L=160
+
+ref
+
+L=110
+
+L=210
+
+0.54
+
+N (de+1) / N (de)
+
+0.53
+
+0.52
+
+0.51
+
+0.5
+
+0.49 0 2 4 6 8 10 12 14
+de
+
+FIG. 13. The ratio N (de + 1)/N (de) as a function of de calculated for an array of NOT gates of length L = 60, 110, 160, and 210 with Vd = 5VT . The orange dots represent the reference where all gates are independent from each other, and alternate between 2ξ0ξ1/(ξ0 + ξ1) and (ξ0 + ξ1 )/2.
+
+033169-13
+
+CHLOE YA GAO AND DAVID T. LIMMER (a)
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+(b)
+
+FIG. 15. The evolution of the outputs Vg(1) and Vg(2) with the initialization Vg(1) = Vg(2) = 0VT (a) and Vg(1) = Vg(2) = 2.5VT (b) where
+Vd = 5VT . The dark curves represent the steady-state solution from
+
+the average protocol, while the lighter curves represent 100 trajecto-
+
+(c)
+
+ries. In both cases, the percentage of trajectories that end up in the
+
+other informational state (Vg(1), Vg(2) ) = (0.20VT , 4.89VT ) is less than
+
+10−5 among the 2.56 × 106 trajectories simulated.
+
+FIG. 14. Output voltage of a D ﬂip ﬂop with clock cycle τc = 2 × 106βh¯ (a), τc = 107βh¯ (b), and τc = 3 × 107βh¯ (c). The input data sequence starts from Xdata = 1 and alternates between 1 and 0. All gates are operated at Vd = 8VT , and are initialized with Vg = 0VT . We discard the ﬁrst few cycles and average over more than 50 cycles
+when computing the average error rate and dissipation in Fig. 6, so
+that their values have no dependence on the initialization.
+
+that N (de = 1) = (ξ0 + ξ1)/2 and N (de = 2) = ξ0ξ1. One can infer from this simple calculation that for independent gates, N (de + 1)/N (de) = 2ξ0ξ1/(ξ0 + ξ1) if de is odd, (ξ0 + ξ1)/2 if de is even. This result is plotted in Fig. 13 as the reference, where the zigzag behavior comes from the difference between ξ0 and ξ1. In addition, we plot in the same ﬁgure the value N (de + 1)/N (de) for our model with L = 60, 110, 160, and 210. For smaller L, as ﬁnite-size effect prevents larger error domains to emerge, the value N (de + 1)/N (de) is lower and decays with de. Such effect mitigates with increasing L, and the value of N (de + 1)/N (de) should not depend on the exact value of de other than its parity in the L → ∞ limit. The converged values of N (de + 1)/N (de), as shown in Fig. 13, are clearly higher than the reference values, indicating that
+there exists a positive correlation in errors between adjacent
+gates. In other words, given that an error occurs at gate i, the
+probability of observing another error at its neighboring gate
+is enhanced due to the spatial correlation.
+
+N (de + 1)/N (de) computed in our model with the case where all gates are independent from each other. We denote the single-gate error rate of the odd and even gates as ξ0/1. Note that to make a fair comparison, this error rate corresponds to
+the ﬁxed-point solution of the array, instead of the error rate of a single NOT gate with X = 0/1. Assuming odd and even gates are observed with equal probability, it is easy to derive
+
+APPENDIX F: PARITY COMPUTING DEVICE
+The parity computing device is constructed in part with memory storage units comprised of the RS latch and D ﬂip ﬂop. Additional characterization of the RS latch robustness to initialization is shown in Fig. 14. Evolution of the D ﬂip ﬂop’s output voltage with changing cycle time in shown in Fig. 15.
+
+033169-14
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM …
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+the clock switches to 1 and the outputs of the ALU are being written into D1 and D2. At t = τc, as the clock returns to 0, another 4 input data are sent in while the output two-way switches are connected to terminal 2 so that outputs can be sent to and stored at D3 and D4. At the end of the second cycle, when we realize that our memory devices are full and can not take in new inputs, we read out the outputs at D1 to D4 and send them back to the ALU as inputs by connecting all input two-way switches to 2. We continue the computation in this manner until all input data are taken into account and the ﬁnal output is read from D1 at t = 6τc.
+
+FIG. 16. (a) Symbol (left) and circuit diagram (right) of a XOR gate, which takes in two inputs X1, X2, and compute their parity as output Y . (b) Circuit diagram of the parity computing device with two XOR gates and four D ﬂip ﬂops.
+1. Computation protocol
+For concreteness, we consider the input sequence X = {0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0} and plot in Figs. 16(b) and 16(c) the Vout of the XOR gates, D1 and D2, for an ensemble of trajectories. Here the clock cycle is chosen as τc = 107βh¯. All gates are operated at Vd = 8VT , while all capacitors are initialized with zero charge. We highlight with red cross the time points where outputs are being read out from the D ﬂip ﬂops. At t = 0, we send in four input data, X1 to X4, by connecting all the input two-way switches to terminal 1. Since all the D ﬂip ﬂops are slack at the moment, we can store the computing results of the XOR gates into D1 and D2 by switching both output two-way switches to terminal 1 as well. The clock stays at 0 within the ﬁrst half-cycle while computations are being done at the ALU, until t = τc/2, when
+
+2. Error analysis in the parity computing device
+The computational tree graph of the computing device
+is shown in Fig. 17(a), with 12 input nodes in the zeroth
+layer representing the input data, and a single ﬁnal output l4(1) that computes the parity of the inputs. The nodes in layers 1 to 3 represent intermediate computation results. If
+an error is observed in any of the nodes whose layer is
+deeper than 0, we look further at its parent nodes to trace
+where the error originates, and its child node (if existing) to
+see how far the error propagates. We call such a record of
+error vertically along the computational tree graph an error
+path, and its length is denoted as le. In this computational tree graph, the maximum value for le is 4, which means the error propagates from layer 1 all the way to the ﬁnal output; while the minimum value for le is 1. Among the 1.28 × 104 simulations we have done with different input sequences,
+we make a histogram of the error paths with length le for different clock cycle τc, which is shown in Fig. 17(d). For the shortest clock cycle plotted τc = 5 × 106βh¯, which is too soon for the gates to reach their steady states, we observe
+an overwhelmingly high number of error paths of length le = 4. However, when τc is longer, we see an exponential decay in the number of error paths with increasing le. This exponential decay rate characterizes the temporal correlation
+between intermediate computation results. The rate increases with longer τc, indicating the diminishing correlations, or the weakening of the memory effect at longer clock cycle. With τc > 2 × 107βh¯, it is almost impossible to ﬁnd an error path with le = 4 that propagates through the computational tree graph.
+
+033169-15
+
+CHLOE YA GAO AND DAVID T. LIMMER (a)
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+(b)
+
+(c)
+
+(d)
+FIG. 17. (a) Computational tree graph of the device that computes the parity of 12 input data. The node li( j) denotes the jth output of the ith layer. The zeroth layer has 12 nodes, which represent the 12 data in the input sequence. Each child node calculates the parity of its two parent nodes. The ﬁnal output l4(1) computes the parity of all the input data. (b) For the input sequence X = {0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0}, the output of XOR 1 and its corresponding memory storage D1 for 64 individual trajectories at Vd = 8VT , τc = 107βh¯. The red crosses label points where outputs on D1 are read out for further processing. (c) The output of XOR 2 and its corresponding memory storage D2 with the same parameters as in (b). The lower plot shows the histogram of outputs at D2 at t = 4τc. The red dotted line labels the threshold under which the output corresponds to an error. (d) Histogram of error paths of length le for different clock cycle τc.
+033169-16
+
+PRINCIPLES OF LOW DISSIPATION COMPUTING FROM …
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+[1] R. Landauer, Maxwell’s Demon: Entropy, Information, Computing (Princeton University Press, Princeton, NJ, 1990).
+[2] C. H. Bennett, Notes on Landauer’s principle, reversible computation, and maxwell’s demon, Studies Hist. Philos. Mod. Phys. 34, 501 (2003).
+[3] J. M. Parrondo, J. M. Horowitz, and T. Sagawa, Thermodynamics of information, Nat. Phys. 11, 131 (2015).
+[4] D. H. Wolpert, The stochastic thermodynamics of computation, J. Phys. A: Math. Theor. 52, 193001 (2019).
+[5] J. B. Johnson, Thermal agitation of electricity in conductors, Phys. Rev. 32, 97 (1928).
+[6] H. Nyquist, Thermal agitation of electric charge in conductors, Phys. Rev. 32, 110 (1928).
+[7] A. Van Der Ziel, Noise in solid-state devices and lasers, Proc. IEEE 58, 1178 (1970).
+[8] S. Heinen, J. Kunisch, and I. Wolff, A uniﬁed framework for computer-aided noise analysis of linear and nonlinear microwave circuits, IEEE Trans. Microwave Theory Tech. 39, 2170 (1991).
+[9] V. Rizzoli and A. Neri, State of the art and present trends in nonlinear microwave cad techniques, IEEE Trans. Microwave Theory Tech. 36, 343 (1988).
+[10] C. Maes, On the second ﬂuctuation–dissipation theorem for nonequilibrium baths, J. Stat. Phys. 154, 705 (2014).
+[11] T. Speck and U. Seifert, Restoring a ﬂuctuation-dissipation theorem in a nonequilibrium steady state, Europhys. Lett. 74, 391 (2006).
+[12] C. Y. Gao and D. T. Limmer, Nonlinear transport coefﬁcients from large deviation functions, J. Chem. Phys. 151, 014101 (2019).
+[13] D. Lesnicki, C. Y. Gao, B. Rotenberg, and D. T. Limmer, FieldDependent Ionic Conductivities from Generalized FluctuationDissipation Relations, Phys. Rev. Lett. 124, 206001 (2020).
+[14] L. B. Kish, End of moore’s law: thermal (noise) death of integration in micro and nano electronics, Phys. Lett. A 305, 144 (2002).
+[15] U. Seifert, Stochastic thermodynamics, ﬂuctuation theorems and molecular machines, Rep. Prog. Phys. 75, 126001 (2012).
+[16] C. E. Shannon, A mathematical theory of communication, Bell Syst. Tech. J. 27, 379 (1948).
+[17] T. M. Cover, Elements of Information Theory (Wiley, New York, 1999).
+[18] G. Gallavotti and E. G. D. Cohen, Dynamical ensembles in stationary states, J. Stat. Phys. 80, 931 (1995).
+[19] C. Jarzynski, Nonequilibrium Equality for Free Energy Differences, Phys. Rev. Lett. 78, 2690 (1997).
+[20] G. E. Crooks, Entropy production ﬂuctuation theorem and the nonequilibrium work relation for free energy differences, Phys. Rev. E 60, 2721 (1999).
+[21] C. Jarzynski, Equalities and inequalities: Irreversibility and the second law of thermodynamics at the nanoscale, Annu. Rev. Condens. Matter Phys. 2, 329 (2011).
+[22] I. Neri, Second Law of Thermodynamics at Stopping Times, Phys. Rev. Lett. 124, 040601 (2020).
+[23] É. Roldán, I. Neri, M. Dörpinghaus, H. Meyr, and F. Jülicher, Decision Making in the Arrow of Time, Phys. Rev. Lett. 115, 250602 (2015).
+[24] N. Shiraishi, K. Funo, and K. Saito, Speed Limit for Classical Stochastic Processes, Phys. Rev. Lett. 121, 070601 (2018).
+
+[25] S. Ito, Stochastic Thermodynamic Interpretation of Information Geometry, Phys. Rev. Lett. 121, 030605 (2018).
+[26] S. Ito and A. Dechant, Stochastic Time Evolution, Information Geometry, and the Cramér-rao Bound, Phys. Rev. X 10, 021056 (2020).
+[27] G. Falasco and M. Esposito, Dissipation-Time Uncertainty Relation, Phys. Rev. Lett. 125, 120604 (2020).
+[28] B. Kuznets-Speck and D. T. Limmer, Dissipation bounds the ampliﬁcation of transition rates far from equilibrium, Proc. Natl. Acad. Sci. USA 118, e2020863118 (2021).
+[29] I. Neri, Dissipation bounds the moments of ﬁrst-passage times of dissipative currents in nonequilibrium stationary states, arXiv:2103.15007.
+[30] T. R. Gingrich, J. M. Horowitz, N. Perunov, and J. L. England, Dissipation Bounds All Steady-State Current Fluctuations, Phys. Rev. Lett. 116, 120601 (2016).
+[31] T. R. Gingrich, G. M. Rotskoff, and J. M. Horowitz, Inferring dissipation from current ﬂuctuations, J. Phys. A: Math. Theor. 50, 184004 (2017).
+[32] J. M. Horowitz and T. R. Gingrich, Proof of the ﬁnite-time thermodynamic uncertainty relation for steady-state currents, Phys. Rev. E 96, 020103(R) (2017).
+[33] S. Lahiri, J. Sohl-Dickstein, and S. Ganguli, A universal tradeoff between power, precision and speed in physical communication, arXiv:1603.07758.
+[34] A. Murugan, D. A. Huse, and S. Leibler, Speed, dissipation, and error in kinetic proofreading, Proc. Natl. Acad. Sci. USA 109, 12034 (2012).
+[35] R. Rao and L. Peliti, Thermodynamics of accuracy in kinetic proofreading: Dissipation and efﬁciency trade-offs, J. Stat. Mech.: Theory Exp. (2015) P06001.
+[36] A. C. Barato and U. Seifert, Thermodynamic Uncertainty Relation for Biomolecular Processes, Phys. Rev. Lett. 114, 158101 (2015).
+[37] K. Banerjee, A. B. Kolomeisky, and O. A. Igoshin, Elucidating interplay of speed and accuracy in biological error correction, Proc. Natl. Acad. Sci. USA 114, 5183 (2017).
+[38] W. D. Piñeros and T. Tlusty, Kinetic proofreading and the limits of thermodynamic uncertainty, Phys. Rev. E 101, 022415 (2020).
+[39] T.-L. Wang, B. Kuznets-Speck, J. Broderick, and M. Hinczewski, The price of a bit: energetic costs and the evolution of cellular signaling, https://doi.org/10.1101/2020.10.06. 327700.
+[40] M. B. Plenio and V. Vitelli, The physics of forgetting: Landauer’s erasure principle and information theory, Contemp. Phys. 42, 25 (2001).
+[41] S. Still, D. A. Sivak, A. J. Bell, and G. E. Crooks, Thermodynamics of Prediction, Phys. Rev. Lett. 109, 120604 (2012).
+[42] T. Sagawa and M. Ueda, Information thermodynamics: Maxwell’s demon in nonequilibrium dynamics, Nonequilibrium Statistical Physics of Small Systems: Fluctuation Relations and Beyond (Wiley, Weinheim, 2013), p. 181.
+[43] D. H. Wolpert and A. Kolchinsky, Thermodynamics of computing with circuits, New J. Phys. 22, 063047 (2020).
+[44] M. H. Devoret, D. Estève, H. Grabert, G.-L. Ingold, H. Pothier, and C. Urbina, Effect of the Electromagnetic Environment on the Coulomb Blockade in Ultrasmall Tunnel Junctions, Phys. Rev. Lett. 64, 1824 (1990).
+
+033169-17
+
+CHLOE YA GAO AND DAVID T. LIMMER
+
+PHYSICAL REVIEW RESEARCH 3, 033169 (2021)
+
+[45] C. Wasshuber, Computational Single-electronics (Springer, New York, 2001).
+[46] D. A. Bagrets and Y. V. Nazarov, Full counting statistics of charge transfer in coulomb blockade systems, Phys. Rev. B 67, 085316 (2003).
+[47] J. Gu and P. Gaspard, Microreversibility, ﬂuctuations, and nonlinear transport in transistors, Phys. Rev. E 99, 012137 (2019).
+[48] J. Gu and P. Gaspard, Counting statistics and microreversibility in stochastic models of transistors, J. Stat. Mech.: Theory Exp. (2020) 103206.
+[49] N. Freitas, J.-C. Delvenne, and M. Esposito, Stochastic thermodynamics of non-linear electronic circuits: A realistic framework for thermodynamics of computation, arXiv:2008.10578.
+[50] M. Esposito, U. Harbola, and S. Mukamel, Fluctuation theorem for counting statistics in electron transport through quantum junctions, Phys. Rev. B 75, 155316 (2007).
+[51] S. Nakamura, Y. Yamauchi, M. Hashisaka, K. Chida, K. Kobayashi, T. Ono, R. Leturcq, K. Ensslin, K. Saito, Y. Utsumi, et al., Fluctuation theorem and microreversibility in a quantum coherent conductor, Phys. Rev. B 83, 155431 (2011).
+[52] S. Datta, Electronic Transport in Mesoscopic Systems (Cambridge University Press, Cambridge, 1997).
+[53] A. Wachtel, R. Rao, and M. Esposito, Thermodynamically consistent coarse graining of biocatalysts beyond michaelis– menten, New J. Phys. 20, 042002 (2018).
+[54] S. Datta, A simple kinetic equation for steady-state quantum transport, J. Phys.: Condens. Matter 2, 8023 (1990).
+[55] U. Harbola, M. Esposito, and S. Mukamel, Quantum master equation for electron transport through quantum dots and single molecules, Phys. Rev. B 74, 235309 (2006).
+[56] M. Leijnse and M. R. Wegewijs, Kinetic equations for transport through single-molecule transistors, Phys. Rev. B 78, 235424 (2008).
+[57] J. Koski, T. Sagawa, O. Saira, Y. Yoon, A. Kutvonen, P. Solinas, M. Möttönen, T. Ala-Nissila, and J. Pekola, Distribution of entropy production in a single-electron box, Nat. Phys. 9, 644 (2013).
+
+[58] J. V. Koski, V. F. Maisi, T. Sagawa, and J. P. Pekola, Experimental Observation of the Role of Mutual Information in the Nonequilibrium Dynamics of a Maxwell Demon, Phys. Rev. Lett. 113, 030601 (2014).
+[59] H.-P. Breuer and F. Petruccione, The Theory of Open Quantum Systems (Oxford University Press, Oxford, 2002).
+[60] D. T. Gillespie, A general method for numerically simulating the stochastic time evolution of coupled chemical reactions, J. Comput. Phys. 22, 403 (1976).
+[61] G. E. Crooks, Field Guide to Continuous Probability Distributions (Berkeley Institute for Theoretical Sciences, Berkeley, 2019).
+[62] S. Verdu and T. S. Han, A general formula for channel capacity, IEEE Trans. Inf. Theory 40, 1147 (1994).
+[63] A. Rahman and D. Blackmore, Threshold voltage dynamics of chaotic rs ﬂip-ﬂops, Chaos, Solitons Fractals 103, 555 (2017).
+[64] J. Koomey, S. Berard, M. Sanchez, and H. Wong, Implications of historical trends in the electrical efﬁciency of computing, IEEE Ann. Hist. Computing 33, 46 (2010).
+[65] M. P. Frank, Common mistakes in adiabatic logic design and how to avoid them, Embedded Syst. Applicat. 216 (2003).
+[66] A. Zulehner, M. P. Frank, and R. Wille, Design automation for adiabatic circuits, in Proceedings of the 24th Asia and South Paciﬁc Design Automation Conference (Association for Computing Machinery, New York, 2019), pp. 669–674.
+[67] J. M. Horowitz and J. M. Parrondo, Designing optimal discretefeedback thermodynamic engines, New J. Phys. 13, 123019 (2011).
+[68] A. Das and D. T. Limmer, Variational design principles for nonequilibrium colloidal assembly, J. Chem. Phys. 154, 014107 (2021).
+[69] S. Deffner and C. Jarzynski, Information Processing and the Second Law of Thermodynamics: An Inclusive, Hamiltonian Approach, Phys. Rev. X 3, 041003 (2013).
+[70] A. C. Barato and U. Seifert, Stochastic thermodynamics with information reservoirs, Phys. Rev. E 90, 042150 (2014).
+[71] GitHub: https://github.com/chloegao12.
+
+033169-18
+

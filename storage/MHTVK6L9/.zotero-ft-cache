@@ -1,0 +1,1585 @@
+Dissertation
+submitted to the
+Combined Faculties for the Natural Sciences and for Mathematics
+of the
+Ruperto-Carola University of Heidelberg, Germany,
+for the degree of
+Doctor of Natural Sciences
+Put forward by
+Julia J ̈ager
+born in Wermelskirchen
+Oral examination: 29th July 2020
+
+
+
+
+Multiscale Modelling
+of Malaria-Infected Red Blood Cells
+Referees: Prof. Dr. Ulrich S. Schwarz
+Prof. Dr. Frauke Gra ̈ter
+
+
+
+
+Summary
+Multiscale Modelling of Malaria-Infected Red Blood Cells
+Red blood cells (RBCs) are the type of human cells that are most accessible to biophysical multiscale modelling because they feature a regular molecular cell envelope organization and lack internal organelles. Extensive previous research on how their physical properties are shaped by the actin-spectrin network and other molecular constituents provides a good basis to understand the physical consequences of becoming infected by malaria parasites, which use RBCs to hide from the immune system. After invasion, the malaria parasite rebuilds the RBC-envelope, relying on the self-assembly of parasite proteins released into the cytoplasm. Optical tweezer experiments have shown that infected RBCs (iRBCs) become stiffer. Here, the underlying mechanisms are investigated by quantitative analysis of the flickering spectrum of iRBCs. Extending the membrane Hamiltonian by anchoring points, we find that the parasite stiffens the membrane mostly by introducing more connections between the lipid bilayer and the underlying cytoskeleton. To identify the exact points of attack in the RBC-cytoskeleton, a reaction-diffusion model is developed to investigate the dynamical equilibrium of the RBC-cytoskeleton, allowing us to simulate different scenarios of parasite protein self-assembly and to compare these results with experimental data. The parasite induces protrusions to make the iRBC adhesive, thus increasing residence time in the vasculature and avoiding clearance by the spleen. The number of new transmembrane receptors incorporated into the cell membrane is estimated by quantitative analysis of fluorescence and electron microscopy data. We develop a finite element model aiming to predict the effect of these changes on the movement of iRBCs in hydrodynamic flow. Finally, as an instructive contrast to RBC-mechanics, we investigate the spreading of tissue cells onto micropatterned substrates leading to a complete change in their actin cytoskeleton. A Cellular Potts Model is used to describe this highly dynamic situation. We find that due to its focus on geometrical aspects, it predicts reliably how a family of actin stress fibres is formed, which serves as memory of the spreading process.
+
+
+
+
+Zusammenfassung
+Gr ̈oßenordnungsabh ̈angige Modellierung von Malaria-infizierten roten Blutzellen
+Die rote Blutzelle ist die am besten geeignete Zelle f ̈ur die biophysikalische Modellierung, da sie eine gleichm ̈aßige molekulare Membranstruktur besitzt und keine internen Organellen vorhanden sind. Basierend auf vorherigen Forschungsergebnissen  ̈uber die Einfl ̈usse des Aktin-Spektrin-Netzwerkes und anderer molekularer Bestandteile auf die Eigenschaften der Membran kann das Verst ̈andnis der durch die Malaria-Infektion herforgerufenen Ver ̈anderungen erweitert werden. Nach der Invasion der roten Blutzelle baut der Malaria-Parasit die Membran der roten Blutzelle um, indem er Proteinkomplexe assemblieren l ̈asst, die aus zuvor ins Zytoplasma exportierten Proteinen bestehen. Experimente mit optischen Fallen haben gezeigt, dass die rote Blutzelle durch den Malaria-Parasiten steifer wird. In dieser Arbeit werden die zugrundeliegenden Mechanismen mithilfe der quantitativen Analyse des Undulationssprektrums untersucht. Durch die Erg ̈anzung der Membran-Hamiltonian durch Ankerpunkte wird herausgefunden, dass der Parasit die Membran verh ̈artet, indem er mehr Ankerpunkte zwischen der Doppellipidschicht und dem Zytoskelett erschafft. Um die genauen Punkte zu finden, die der Parasit angreift, wird ein Reaktions-Diffusions-Modell entwickelt, durch das der dynamische Gleichgewichtszustand des Zytoskeletts modelliert werden kann. Hierdurch k ̈onnen sowohl verschiedene Varianten des Assemblierungsprozesses der Proteinkomplexe modelliert werden, als auch die Resultate mit experimentellen Daten verglichen werden. Der Parasit entwickelt hervorgew ̈olbte Strukturen auf der Oberfl ̈ache der roten Blutzelle, um diese haftf ̈ahig zu machen und dadurch die Aufenthaltsdauer im Blutfluss zu erh ̈ohen, da er ansonsten in der Milz aussortiert werden w ̈urde. Durch die quantitative Analyse von Fluoreszenz- und Elektronenmikroskopieaufnahmen wird die Anzahl der Transmembranrezeptoren pro hervorgew ̈olbter Struktur bestimmt. Um die Effekte dieses molekularen Umbaus auf die Eigenschaften der roten Blutzelle im hydrodynamischen Fluss zu bestimmen, wird eine Finite-Elemente-Simulation verwendet. Als hilfreicher Kontrast zur Struktur der roten Blutzelle werden schlussendlich Zellen auf mikrostrukturierten Substraten simuliert, in denen das Aktin-Zytoskelett dynamisch umgebaut wird. Dafu ̈r wird ein zellul ̈ares Potts-Modell verwendet. Wir folgern, dass das Modell durch die Spezialisierung auf geometrische Aspekte die Organisation der entstehenden Aktinfilamente vorhersagen kann. Die Struktur der Aktinfilamente agiert somit als Ged ̈achtnis des Ausbreitungsprozesses.
+
+
+
+
+Contents
+1 Introduction 1 1.1 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2 1.2 A Physicist’s Perspective on RBCs . . . . . . . . . . . . . . . . . . 2 1.3 The Malaria Infection . . . . . . . . . . . . . . . . . . . . . . . . . . 4 1.4 Cell Adhesion and Migration . . . . . . . . . . . . . . . . . . . . . . 8 1.5 Outline of Thesis . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2 Flickering Analysis of Red Bood Cells 11 2.1 Testing Mechanical Properties of the Infected RBC Membrane . . . 12 2.2 Theoretical Analysis of Membrane Shape and Flickering . . . . . . . 13 2.2.1 Description via Differential Geometry . . . . . . . . . . . . . 13 2.2.2 Energy Functional for a Membrane . . . . . . . . . . . . . . 14 2.2.3 Description of RBCs . . . . . . . . . . . . . . . . . . . . . . 19 2.2.4 Spherical Harmonic Approach Containing γ and H0 . . . . . 23 2.2.5 Membrane Dynamics . . . . . . . . . . . . . . . . . . . . . . 25 2.2.6 Incorporation of Active Elements . . . . . . . . . . . . . . . 27 2.3 Experimental Flickering Data for Malaria Infected RBCs . . . . . . 29 2.4 Numerical Treatment of Cytoskeleton . . . . . . . . . . . . . . . . . 32 2.4.1 Previous Applications . . . . . . . . . . . . . . . . . . . . . 33 2.4.2 Modelling Approach . . . . . . . . . . . . . . . . . . . . . . 33 2.4.3 Model for the Malaria Infected RBC Cytoskeleton . . . . . . 35 2.4.4 Examining Effects of Network Properties . . . . . . . . . . . 41 2.5 Implications for Infected RBCs . . . . . . . . . . . . . . . . . . . . 47 2.5.1 Network Destruction Decreases Confinement . . . . . . . . . 47 2.5.2 Strong Anchoring Introduces Confinement . . . . . . . . . . 47 2.6 Discussion of Malaria Induced Changes on Flickering . . . . . . . . 49
+3 Molecular Red Blood Cell Cytoskeleton Model 51 3.1 Motivation for a Molecular Model . . . . . . . . . . . . . . . . . . . 52 3.2 Components of the RBC Cytoskeleton . . . . . . . . . . . . . . . . 52 3.2.1 Cytoskeleton Structure . . . . . . . . . . . . . . . . . . . . . 52 3.2.2 Spectrin . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53 3.2.3 Shear Modulus: Experimental and Theoretical Results . . . 57 3.2.4 Dynamic Actin Junction . . . . . . . . . . . . . . . . . . . . 57 3.3 Details on Malaria Induced Changes . . . . . . . . . . . . . . . . . 61 3.3.1 Knob Associated Histidine Rich Protein . . . . . . . . . . . 61 3.3.2 Plasmodium Falciparum Erythrocyte Membrane Protein 1 . 62
+
+
+3.3.3 Actin Mining . . . . . . . . . . . . . . . . . . . . . . . . . . 64 3.3.4 Phosphorylation . . . . . . . . . . . . . . . . . . . . . . . . . 65 3.3.5 Oxidative Stress . . . . . . . . . . . . . . . . . . . . . . . . 65 3.4 Experimental Data . . . . . . . . . . . . . . . . . . . . . . . . . . . 66 3.5 Reaction-Diffusion Model for Healthy and Infected RBCs . . . . . . 69 3.5.1 Modelling Technique and Software . . . . . . . . . . . . . . 69 3.5.2 Model Details . . . . . . . . . . . . . . . . . . . . . . . . . . 71 3.5.3 Model Results . . . . . . . . . . . . . . . . . . . . . . . . . . 78 3.5.4 Analysis of KAHRP Cluster Formation . . . . . . . . . . . . 93 3.6 Examining the PfEMP1 Distribution . . . . . . . . . . . . . . . . . 95 3.6.1 Analysis of Experimental Data . . . . . . . . . . . . . . . . 96 3.6.2 Geometrical Aspects . . . . . . . . . . . . . . . . . . . . . . 98 3.7 Discussion of Molecular Structure Formation . . . . . . . . . . . . . 100
+4 Finite Element Model for Red Blood Cells in Flow 101 4.1 RBCs in Capillaries and Microfluidic Devices . . . . . . . . . . . . . 102 4.2 Models for RBCs in Flow . . . . . . . . . . . . . . . . . . . . . . . . 104 4.2.1 Hydrodynamic Theory . . . . . . . . . . . . . . . . . . . . . 104 4.2.2 Fluid-Structure Interactions . . . . . . . . . . . . . . . . . . 105 4.2.3 Existing Three-Dimensional RBC Models . . . . . . . . . . . 108 4.2.4 Two-Dimensional Approaches . . . . . . . . . . . . . . . . . 108 4.3 Experimental Microfluidic System . . . . . . . . . . . . . . . . . . . 109 4.4 A Two-Dimensional Finite Element Model . . . . . . . . . . . . . . 110 4.4.1 Previous Applications . . . . . . . . . . . . . . . . . . . . . 112 4.4.2 Equations for the RBC . . . . . . . . . . . . . . . . . . . . . 112 4.4.3 Hydrodynamic Equations . . . . . . . . . . . . . . . . . . . 115 4.4.4 Implementation in the Finite Element Software . . . . . . . 116 4.4.5 Dynamics . . . . . . . . . . . . . . . . . . . . . . . . . . . . 119 4.4.6 Model Results . . . . . . . . . . . . . . . . . . . . . . . . . . 119 4.5 Discussion of Flow Behaviour . . . . . . . . . . . . . . . . . . . . . 121
+5 Cellular Potts Model for Cells on Micropatterns 123 5.1 Modelling Cellular Spreading and Migration . . . . . . . . . . . . . 124 5.2 Biological Background . . . . . . . . . . . . . . . . . . . . . . . . . 125 5.2.1 Cell Cytoskeleton and Migration . . . . . . . . . . . . . . . . 125 5.2.2 Micropatterns in Cell Experiments . . . . . . . . . . . . . . 128 5.3 The Cellular Potts Model . . . . . . . . . . . . . . . . . . . . . . . 130 5.3.1 Energy Functional . . . . . . . . . . . . . . . . . . . . . . . 130 5.3.2 Parameter Estimation . . . . . . . . . . . . . . . . . . . . . 130 5.3.3 Tension Elasticity . . . . . . . . . . . . . . . . . . . . . . . . 131 5.3.4 Circumference and Arc Detection . . . . . . . . . . . . . . . 133 5.3.5 Stress Fibre Definition . . . . . . . . . . . . . . . . . . . . . 133 5.3.6 Fitting Parameters to Experimental Data . . . . . . . . . . . 134 5.4 Treatment of Invaginated Arcs in the Model . . . . . . . . . . . . . 134 5.4.1 Previously Implemented Method . . . . . . . . . . . . . . . 134 5.4.2 Newly Implemented Method . . . . . . . . . . . . . . . . . . 136 5.4.3 Energy Contributions During Spreading . . . . . . . . . . . 138
+
+
+5.5 Results on Stress Fibre Organisation . . . . . . . . . . . . . . . . . 140 5.5.1 Details on Experimental Data . . . . . . . . . . . . . . . . . 142 5.5.2 Comparing Area Increase . . . . . . . . . . . . . . . . . . . . 142 5.5.3 Comparing Stress Fibre Orientation . . . . . . . . . . . . . . 144 5.5.4 Blebbistatin Effects . . . . . . . . . . . . . . . . . . . . . . . 149 5.6 Disscussion of Modelling Cell Spreading . . . . . . . . . . . . . . . . 149
+6 Conclusion and Outlook 151
+Appendices 155
+A Abbreviations 157
+B Theory of Membranes 161 B.1 Spherical Geometry . . . . . . . . . . . . . . . . . . . . . . . . . . . 162 B.2 Monge Parametrization . . . . . . . . . . . . . . . . . . . . . . . . . 162 B.3 Conversion Between Fourier Modes and Spherical Harmonics . . . 163
+C Membrane Confinement from Microscopic Properties 165 C.1 Equatorial Projection of Fourier Modes . . . . . . . . . . . . . . . . 166 C.2 Numerical Calculation of Fluctuation Amplitudes . . . . . . . . . . 166 C.3 Derivation of Vertical Spring Constant . . . . . . . . . . . . . . . . 167
+D Details on Cytoskeletal Model 169 D.1 Experimental Rate Constants . . . . . . . . . . . . . . . . . . . . . 170 D.2 Rates Used in Models . . . . . . . . . . . . . . . . . . . . . . . . . . 170 D.3 Length Fluctuations at Treadmilling Concentration . . . . . . . . . 170 D.4 KAHRP Cluster Positioning . . . . . . . . . . . . . . . . . . . . . . 171 D.5 Cluster Sizes Using 500 KAHRP Particles . . . . . . . . . . . . . . 171
+Bibliography 177
+List of Manuscripts 199
+Acknowledgements 200
+
+
+
+
+Chapter 1
+Introduction
+
+
+2 Introduction
+1.1 Motivation
+This thesis aims to shed light on the biophysics of RBCs using multiscale modelling; models of the cell’s membrane, its molecular components, its shape and its dynamics on micropatterns are discussed. All these models are demonstrated to be relevant facets of a comprehensive biophysical perspective on RBCs, adding fundamentally to the foundations of malaria research.
+RBCs are very attractive models for multiscale physics because their structure is relatively stable and simplistic in the way that the membrane, a quasi twodimensional surface, determines their properties completely [1, 2]. Other types of cells cannot be accessed that easily because they possess complicated internal structures [3]. RBCs are easily accessible for biophysical modelling, so a large background of theoretical models and experiments has been built up [4, 5, 6, 7, 8]. Even more work has been done on lipid vesicles [9, 10], which are similar to RBCs but do not possess a thin polymeric network underneath the membrane. Building on this knowledge, it is possible to examine how the malaria parasite changes the RBC membrane.
+During its life-cycle, discussed in Section 1.3, the malaria parasite eventually enters RBCs. It remodels the cell completely by exporting proteins which assemble to structures within the membrane and the cytosol. Particularly, the spectrin-actin network undergoes drastic changes [11, 12]. The models applied in this thesis aim to understand this remodelling process and its consequences better.
+As a comparison of cytoskeletal structures in other cell types, the development of actin stress fibres is studied in human bone osteosarcoma epithelial cells spreading on micro patterns. In that case, the cell adapts its cytokeletal structure in order to move across non-adhesive areas [13, 14].
+It is very important that a biophysical model is validated by experimental data. Each of the presented models were developed in close collaboration with our experimental partners as it will become clear throughout the thesis. These collaborations were very fruitful since people with different backgrounds came together to develop new interdisciplinary ideas. Now, I will explain the biophysical background required to understand the rest of this thesis.
+1.2 A Physicist’s Perspective on RBCs
+Formation and Function of RBCs
+Our blood is made up of three types of cells suspended in plasma; red blood cells (RBCs) or erythrocytes (see Figure 1.1), white blood cells or leucocytes, and platelets or thrombocytes. RBCs contain haemoglobin molecules, which bind with oxygen and carbon dioxide molecules and carry them around the body (see Figure 1.1c). This process is so significant that RBCs account for 2.6·1031, or 84%, of the human body’s cells. RBCs are formed in the bone marrow and are deformed dramatically during their lifespan of 120 days due to being squeezed through very narrow capillaries. After 120 days, a RBC becomes too stiff from being continually deformed and is destroyed within the spleen.
+
+
+A Physicist’s Perspective on RBCs 3
+a
+b
+c
+Figure 1.1: a) Side view of a RBC of hight 2 μm. b) Top view of a RBC of diameter 7.5 μm. c) Artistic representation of a RBC by Prof. David S. Goodsell, the Scripps Research Institute. The red structures show the haemoglobin molecules. The plasma membrane with attached structures is drawn in purple.
+RBCs are shaped as biconcave disocytes (see Figure 1.1a) and have a diameter of 7.5 to 8.7 μm (see Figure 1.1b). Lacking the usual internal cell structures such as a nucleus, their shape is solely determined by their membrane. The RBC membrane is a composite structure, which is made up of a phospholipid bilayer containing various membrane proteins, also called the plasma membrane, and a cytoskeletal network attached to it from the cytosolic side. An illustration can be seen in Figure 1.1c with the cytoskeletal components in purple surrounded by the cytosol and the haemoglobin in red. The straight filaments are short actin filaments that build up the junctional points of the network. The flexible connections between these are two stranded helical spectrin filaments. The microscopic structure of the cytoskeleton is discussed in more detail in Chapter 3.
+The RBC’s composite structure allows for it to exhibit the properties necessary for squeezing through capillaries and yet recovering its shape. Its plasma membrane is comprised of two lipid sheets pointing their hydrocarbon chains towards each other. The membrane is kept in shape by high hydrophobic energy costs; the dense packing of the chains increases the difficulty of membrane compression. The compressibility of approximately 103 mN m−1 is necessary to prevent ion loss throughout passive transport [15]. When applying a shear, the plasma membrane behaves like a fluid within the plane as the lipids can swap places within the membrane. Here, the cytoskeleton reveals its significance, as the RBC needs to withstand shear during the frequent deformations. The spectrin filaments are elastic and are anchored to the plasma membrane mostly by band 3 and as a result the composite system gains a shear modulus of μ ≈ 0.006 mN m−1 [15].
+The RBC’s shape can be understood within the formalism of differential geometry by treating it as a thin shell and formulating a Hamiltonian mostly based on the energy cost of bending. Equivalent to the Brownian motion of small molecules, membranes also exhibit thermal motion, making the membrane move on the small scale (see Chapter 2).
+
+
+4 Introduction
+1.3 The Malaria Infection
+Although the number of deaths due to malaria has declined in recent years, around 405, 000 cases were still recorded in 2018 according to the World Health Organisation [16]. In order to fulfil the long-term goal of completely controlling this deadly disease, all stages in the life-cycle of the malaria parasite need to be understood thoroughly. This will facilitate the development of new drugs, and help to avoid problems that occur due to drug resistance. The sickle cell disease has been found to protect carriers from severe malaria symptoms, due to a mutation of the haemoglobin within the RBC. Normal haemoglobin (HbAA) is a heterotetramer, consisting of two α- and two β-globin chains. Sickle cells contain HbS, in which the β-globin is altered at position six by a glutamate to valine substitution. This substitution causes severe anaemia and is more common in countries with many malaria cases because it protects its carriers from severe malaria symptoms. A different haemoglobin mutation that protects from malaria is HbC. Heterozygotes, featuring both genes of normal haemoglobin A and mutated haemoglobin S or C, are denoted as HbAS and HBAC. In Chapter 2, the potential explanations why the sickle cell trait protects its carriers from malaria are discussed.
+The Malaria Life-Cycle
+The most virulent form of human malaria is caused by the parasite Plasmodium falciparum (Pf) which, during a blood meal, is injected into the host skin by the female Anopheles mosquito. After the skin stage, the parasite goes through three other stages before it continues to infect new mosquitoes: the liver stage, the asexual intra-erythrocyte stage and the sexual intra-erythrocyte stage as illustrated in Figure 1.2. After injection into the skin, the sporozoites travel to the liver where they replicate asexually, producing merozoites. These are released from the liver into the blood to infect RBCs functioning as hiding places. During the asexual cycle, the parasite grows inside the cell, restructures it and finally causes rupture after 48 hours, infecting more RBCs. This development can be divided into the ring (0 − 24 h), trophozoite (24 − 36 h) and schizont stages (40 − 48 h) and is accompanied by changes in elasticity and morphology of the infected RBC (iRBC). In some iRBCs, the parasite does not go through this cycle but form male or female gametocytes (sexual intra-erythrocyte cycle). When a mosquito takes up such iRBCs, the life-cycle in the human host is closed. A detailed quantitative understanding of the iRBC’s remodelling in the asexual intra-erythrocyte stage is currently lacking, despite it being central to the infection and causing most of the malaria-associated pathology [17]. Therefore, this thesis will attempt to model the iRBC during this central stage. By remodeling the spectrin network and establishing nano-scale protrusions, called knobs, on the iRBC membrane, the parasite reduces the deformability of the iRBC [18] and makes the cell approach a more spherical shape [19] (see Figure 1.3). The knobs mainly comprise of the knob-associated histidine-rich protein (KAHRP) and the membrane-embedded cytoadherence protein Pf-erythrocyte membrane protein 1 (PfEMP1). The resulting alterations lead to cytoadherence and hence sequestra
+
+
+The Malaria Infection 5
+Figure 1.2: Illustration of the malaria life-cycle within the human body. The stages taking place in the blood stream are depicted with red arrows. Graphic based on personal drawings.
+
+
+6 Introduction
+tion of iRBCs in the microvasculature. The parasite uses this as a strategy to avoid passage through the spleen, where iRBCs would be sorted out, but this structural alteration also leads to organ dysfunction in severe cases of malaria. In order to remodel the iRBC, the parasite needs to export proteins to the host cell. For example, the membrane proteins RIFIN, SEVOR and PfEMP1 are synthesized within the parasite and need to be transported across the parasite plasma membrane, the parasitophorous vacuolar membrane and the cytosol of the host cell. One way of transport out of the parasite is the complex PTEX (Plasmodium Translocon of Exported proteins) [20]. Once the proteins are in the erythrocyte cytoplasm, they still need to be delivered to the membrane. Since mature human RBCs lack a secretory machinery, which usually sorts and delivers proteins to the membrane, the parasite establishes an exomembrane system called Maurer’s clefts [21, 22]. It was shown that these Maurer’s clefts are anchored to components of the erythrocyte cytoskeleton [23]. Many details concerning the Maurer’s clefts are still unclear, but it has been found that the parasite uses them for transporting proteins to the membrane. It was further found by Cyrklaff et al. [23] that the parasite mines actin from the spectrin network underlying the host cell’s plasma membrane in order to generate actin filaments that connect the Maurer’s clefts to the developing knobs. Some proteins are thought to be transported along these actin filaments. At the end of the 48 hour asexual intra-erythrocyte stage, which is summarised in Figure 1.3c, the iRBC ruptures [25]. This process is not well understood, but it is clear that both the increase in osmotic pressure and the disruption of the spectrin network are essential. Shi et al. performed AFM-based imaging of the cytoplasmic surface of the iRBC [11] and found an increase in the spectrin network mesh size, extension of the spectrin tetramers and a decrease of spectrin abundance. It is very likely that the resulting expansion of the mesh size also facilitates rupture.
+How Physics Can Contribute to Understanding the Infec
+tion
+As the RBC is one of the best understood cellular model systems in biophysics [26], this knowledge can be exploited as a background to study the details of a malaria infection. Since the average shape and its fluctuations can be calculated for the wild-type RBC from the mechanical properties of the plasma membrane and the spectrin network (see Chapter 2), they can be used as a macroscopic readout of the molecular changes. In recent years, several studies addressed the relation between the molecular processes affected by the parasite and the large-scale changes in host cell mechanics, adhesion and shape. For example, Zhang et al. [18] developed a coarse-grained molecular dynamics model capturing the molecular structures of Pf iRBC membranes to study the origin of the changes in deformability. They found that the remodelling of the spectrin network itself contributes little to the strain-hardening properties of the iRBC, but that the knobs are responsible for the loss of deformability in several ways: not only do they act as structural strengtheners, but they also introduce strain inhomogeneities. Waldecker et al. measured the iRBC’s changes during the asexual intra
+
+
+The Malaria Infection 7
+ab
+c
+Figure 1.3: a) Confocal images of an uninfected RBC and the corresponding threedimensional reconstruction. Images taken from Ref. [19]. b) Same as in a) but for an iRBC in ring stage. c) Illustration of the 48 hour RBC cycle of the multiplying malaria parasite. The blue and purple structures are the parasite. Taken from Ref. [24].
+
+
+8 Introduction
+erythrocyte cycle in both volume and surface area [19]. Based on this data they verified that the colloid-osmotic model, which describes changes in osmotic pressure due to the new permeation pathways, can predict the iRBC approaching a spherical shape. Furthermore, biophysical models of protein assembly are crucial to thoroughly understand the membrane changes induced by the parasite. Similar models have been applied to study the assembly of viruses or cytoskeletal filaments [27, 28]. Correspondingly, in Chapter 3, I apply a reaction-diffusion model to achieve a deeper understanding of knob assembly. Finally, the behaviour of iRBCs in flow can also be analysed with biophysical models. The strength of biophysical models such as Multi-Partlicle Collision Dynamics, Dissapative Particle Dymanics or the Finite Element Method is their ability to test the cell parameters’ magnitude and importance. I chose to apply the Finite Element Method in Chapter 4 to model the hydrodynamic behaviour of RBCs in a two-dimensional approximation.
+1.4 Cell Adhesion and Migration
+Forces Contributing to Cell Movement
+In order for cells to move, they need to interact with the substrate through focal adhesions. The main drive of motion is actin polymerisation at the front of the cell and depolymerisation at the rear. A more detailed description of this process is given in Chapter 5. In this thesis I focus on the spreading of cells on micropatterns; this allows details of the process to be examined in a controlled manner in contrast to cells in unstructured environments. The micropattern consists of a printed twodimensional surface of fibronectin to which the cell can adhere; an example of such a pattern is given in Figure 1.4a. When cells spread, they need to work against the cell cortex which induces surface tension. They also need to bridge areas without adhesion possibilities (compare Figure 1.4a and b). To do so, they build up a stress fibre, made up of actin and other cross linking proteins, at the cell’s front. For detailed information on the composition of different stress fibres, see Chapter 5.
+Biophysical Approaches
+Several biophysical models have helped to get a better understanding of cell spreading, and aim to determine the properties of cellular components and their relation to cell migration. First of all, cells can be treated in the framework of continuum mechanics as first introduced by Nelson et al [30]. In this approach, the cellular properties are represented by a stiffness and a stress tensor. Such a continuum approach can determine the traction forces on the extracellular environment as in Edwards et al [31]. In an alternative approach, the cell’s internal actin fibres have been modelled using cable networks [32] which behave elastic upon extension, but cannot support compression without buckling. The model applied in Chapter 5 is a contour based model. The advantage of such a model is the reduction of a cell to its shape which decreases the modelling
+
+
+Outline of Thesis 9
+a
+b
+c
+Figure 1.4: a) Illustration showing the spreading of a cell on a micropattern. In order to bridge the non-adhesive region between the pattern legs, the cell forms stress fibres spanning the non-adhesive region. The blue oval indicates the position of the cell nucleus. b) Illustration of a cell spreading on a network of collagen fibres. On this complicated network the cell has to turn corners and spread along linear elements similar to the situaiton on micropatterns. c) Six examples of U2OS cells spreading on micorpatterns. The formation of stress fibres can be clearly seen. All images are taken from Ref. [29].
+cost. I apply a Cellular Potts Model (CPM) developed by Dr. Albert in the group of Prof. Schwarz which treats the cell as a collection of quadratic lattice sites and applies the Metropolis algorithm to sample the cell’s phase space.
+1.5 Outline of Thesis
+In Chapter 2 I treat the fluctuations of healthy and infected RBCs. After deriving the theoretical framework and extending the existing spherical harmonic approach, I explain the experimental data collected by Dr. Fro ̈hlich. Based on these experimental observations, I apply a numerical approach to the RBC membrane, treating the discrete connections to the cytoskeleton explicitly. I make a connection between the membrane parameters and the microscopic changes induced by the parasite. I find that the increase in confinement is mostly caused by the incorporation of more connectors between the bilayer and the cytoskeleton. I continue to examine the cytoskeleton, reducing scale by applying a reationdiffusion model to the molecular constituents of the cytoskeleton in Chapter 3. First, the properties of the relevant RBC and malaria associated proteins are discussed as their interactions are important for the molecular modelling approach. Second, I show experimental results from Prof. Lanzer’s group which were analysed by Dr. Patra. Patra’s analysis of protein colocalization proves to be an intriguing point of comparison to my molecular model. After explaining the details of the reaction-diffusion model and validating its applicability, I use the model to study KAHRP assembly within the RBC cytoskeleton. I find that KAHRP associates to
+
+
+10 Introduction
+the actin junctions only for a very small parameter range and that the parasite has to change binding affinities to move KAHRP away from the ankyrin junctions. Finally, the placement of PfEMP1 molecules is determined by a analytical approach, finding that the adhesion molecules are clustered towards the top of the knobs. Next, I change to a much larger scale by considering the hydrodynamic flow behaviour of RBCs. The aim of Chapter 4 is determining the shape of a RBC in a simplified two-dimensional environment. I explain how the mechanics of the viscoelastic RBC envelope can be coupled to the two dimensional Stokes flow and describe the implementation of this method in the FEniCS software. Since the implementation of the model used in this thesis does not seem to work in a numerically stable way, I point out potential problems in the implementation and show examples of calculated flow fields. Finally, I add another perspective on cytoskeletal organisation in Chapter 5 by examining the stress fibre architecture of cells spreading on micropatterns. After introducing the relevant biological structures, the Cellular Potts Model (CPM) is explained. Then, energy contributions during spreading are discussed in detail, comparing two different implementations of arc tensions. Finally, experimental data obtained by Elena Kassianidou and analysed by Dimitri Probst is compared to my simulation results. We find that the stress fibre network encodes the memory of the spreading process with a typical distance of 2.5 μm between subsequent stress fibres. The model is found to describe the experimental data very well.
+
+
+Chapter 2
+Flickering Analysis of Red Bood
+Cells
+
+
+12 Flickering Analysis of Red Bood Cells
+2.1 Testing Mechanical Properties of the Infected
+RBC Membrane
+A common technique to shed light on membrane properties is the Flickering Analysis, in which the hight profile of a membrane is detected and analysed in Fourier space. The typical size of these fluctuations is approximately 30 nm and they are both of thermal and active origin. RBCs are confined by lipid bilayers, which are two sheets of lipids being held together by hydrophobic effects. The lipids are free to flow within the membrane plane so they cannot withstand shear forces, but bending the membrane out of the plane is hindered by the lipid tails. Therefore, lipid bilayers can be understood by applying the Helfrich Hamiltonian, which takes into account curvature energy via a bending modulus κ and area conservation via the surface tension σ. The theoretical description needs to be extended in the case of RBCs, because contrary to lipid vesicles a spectrin network is anchored to the inner side of the RBC membrane and acts as an elastic layer. One way to describe the coupled system is to introduce a harmonic confinement term to the Hamiltonian on a phenomenological level. This term is quadratic in membrane displacement and is proportional to the confinement parameter γ. Thus, the cytoskeleton is treated as a rigid shell at a fixed distance [4]. In contrast to the lipid bilayer, such a shell is mostly determined by its in-plane elasticity. Subsequently, it was found that the confinement can also be explained by the discrete attachment of the spectrin network to the phospholipid bilayer [33] which has similar effects to a continuous confining potential. Building on this idea, an approach with discrete tethers was successfully applied to describe the diffusion of proteins on RBCs over large length scales [34]. The equivalence between the discrete tether approach and the continuous approach holds within the experimentally relevant parameter range corresponding to RBCs [35, 36]. Historically, the fluctuations were described by equilibrium theories, whereas an active contribution to the flickering spectrum is commonly assumed nowadays [7]. Since the origin of the active processes is not entirely resolved, we start by looking more closely at the equilibrium theories. I focus on how an alteration of the spectrin network changes the membrane properties. Specifically, I compare healthy and malaria infected ring and trophozoite RBCs. Since the parasite restructures the spectrin network drastically and exports membrane proteins, it can be assumed that the mechanical properties of the iRBC membrane are altered equally. To determine the changes on the microscopic level, we employ a numerical model on the scale of the spectrin network attachment sites. The outline of this chapter is as follows. First, I will introduce the theoretical background necessary to understand membrane fluctuations and derive a formula for harmonic confinement in spherical coordinates. Then the experimental data from Dr. Fr ̈ohlich (group of Prof. Tanaka) of malaria infected RBCs is discussed, which forms the basis for the application of my numerical model introduced in the section following this. Finally, implications for infected RBCs are discussed in detail. The experimental data and the model described in this chapter have been published in Communications Biology under the title ”Hemoglobin S and C affect
+
+
+Theoretical Analysis of Membrane Shape and Flickering 13
+biomechanical membrane properties of P. falciparum-infected erythrocytes” [37].
+2.2 Theoretical Analysis of Membrane Shape and
+Flickering
+Unlike the properties of soap bubbles, which are mainly determined from their surface tension, the most important contribution to membrane behaviour is its curvature energy. A membrane is made of a very thin lipid bilayer which is only 4 nm thick. The relevant lateral extensions are a few length scales larger, so the membrane can be treated as a two-dimensional elastic sheet. The special structure of the lipid’s hydrocarbon chains pointing towards each other makes it cost more energy to induce a curvature for it than for a soap film. Additionally, the area of such a bilayer stays approximately constant since the lipids remain densely packed due to their hydrophobic interactions.
+2.2.1 Description via Differential Geometry
+To describe surfaces in three dimensional space mathematically, some concepts from differential geometry need to be introduced. Let us denote a two dimensional surface by R(x, y), and define two tangent vectors at each point on the surface by Ri = ∂iR(x, y) with i = x, y. The unit normal to the surface at point (x, y) is defined as
+n(x, y) = ∂xR × ∂yR
+|∂xR × ∂yR| . (2.1)
+Using this, we can define two second rank tensors that describe the surface geometrically, the metric tensor gij and the curvature tensor hij:
+gij = ∂iR · ∂jR (2.2)
+hij = (∂i∂jR) · n. (2.3)
+They are known as the first and second fundamental form respectively. Using these, we can define the mean curvature H and Gaussian curvature K of a point on the surface. To illustrate the meaning of these two curvatures more clearly, they can also be expressed in terms of the two principal radii of curvature, R1 and R2, which are the maximum and minimum radii of curvature respectively at the given point:
+H = −1
+2 T r(hi
+j) = 1
+2
+(1
+R1
++1
+R2
+)
+(2.4)
+K = det(hi
+j) = 1
+R1R2
+, (2.5)
+where hi
+j = gikhkj. For example, a sphere has a mean curvature of −1/R and a Gaussian curvature of 1/R2 at every point, where R denotes the radius. For more complex objects these values will vary in space. An important question is which parametrization is chosen for the surface one
+
+
+14 Flickering Analysis of Red Bood Cells
+wants to examine since this either simplifies the problem significantly or makes it intractable. In the following sections, two parametrizations will be used: the Monge parametrization and the spherical harmonic parametrization. Therefore, a brief introduction to each of these is provided below.
+1. Monge parametrization for flat surfaces: In this parametrization the surface is described by a height function h(x, y) and we assume small variations |∇h(x, y)| ≪ 1:
+R=
+⎛
+⎝
+x y
+h(x, y)
+⎞
+⎠ , ∂xR =
+⎛
+⎝
+1 0
+hx
+⎞
+⎠ , ∂yR =
+⎛
+⎝
+0 1
+hy
+⎞
+⎠ . (2.6)
+In this parametrization det(g) ≈ 1+(∇h)2, therefore the mean and Gaussian curvatures are H ≈ ∇2h and K ≈ hxxhyy − h2
+xy. Finally, the differential area
+element, dA = √det(g) dxdy, can be approximated as
+dA ≈
+(
+1+ 1
+2 (∇h)2
+)
+dxdy. (2.7)
+2. Spherical harmonic parametrization: If the object that we want to describe is close to a sphere of radius r0, the following parametrization is useful:
+R(θ, φ) = r0(1 + u(θ, φ))rˆ with u(θ, φ) =
+∑
+l,m
+ulmYlm(θ, φ), (2.8)
+where 0 ≤ θ ≤ π and 0 ≤ φ ≤ 2π. rˆ is the unit vector pointing radially outward and Ylm(θ, φ) are the spherical harmonics weighted by coefficients
+ulm.
+In this geometry, the mean curvature is H = − 2
+r0 and the Gaussian curvature
+is K = 1
+r2
+0
+. The first and second fundamental forms are
+g = r2
+0
+(1 0
+0 sin2 θ
+)
+, h = −r0
+(1 0
+0 sin2 θ
+)
+, (2.9)
+and the area element is given by
+dA = r0 sin(θ)dθdφ. (2.10)
+2.2.2 Energy Functional for a Membrane
+Using these concepts an expression for the membrane Hamiltonian can be written down starting with only the local curvature energy, originally formulated by Canham [38] and Helfrich [39] as a surface integral:
+F=
+∫
+dA (2κH2 + κGK) . (2.11)
+
+
+Theoretical Analysis of Membrane Shape and Flickering 15
+Figure 2.1: Graphical illustrations of the energy penalties introduced by the bending modulus and the surface tension.
+The right hand side of (2.11) is an expansion in small curvatures and κ and κG are the bending rigidity and Gaussian bending rigidity respectively. The second term is often omitted since it is a constant if the topology of the described object does not change. By the Gauss-Bonnet theorem the integral over the Gaussian curvature is given by 4π(1 − g), where g is the number of handles of the object (e.g. 0 for a vesicle and 1 for a doughnut-like object). The bending modulus κ determines how much force is required to to induce a bend membrane as depicted in Figure 2.1.
+Area and volume conservation are incorporated into this expression via Lagrange multipliers, which can be identified as surface tension σ and pressure P :
+F=
+∫
+dA (2κH2 + κGK + σ) + P
+∫
+dV. (2.12)
+The surface tension is not the usual surface tension known from soap bubbles because stretching or compressing the bilayer is not possible with the relevant force ranges. Instead, σ is an effective surface tension which comes from the membrane fluctuations; this will be discussed later on. The idea is that fluctuations reduce the projected area of the membrane, so stretching it out costs energy (compare Figure 2.1). For a detailed discussion of this topic see the work of Seifert [40]. He found that the description by an effective surface tension breaks down if the vesicle approaches a sphere, in which case the excess area approaches zero.
+It was realized early on that this Hamiltonian was not sufficient to describe all vesicle shapes because it does not take into account that the sheet is made of two distinct layers which have a different lipid composition in most cases. In 1992 three groups came up with the area-difference-elasticity model [41, 42, 43] which accounts for the asymmetry of the two lipid layers by adding the following term to the Hamiltonian: καπ
+4Ad2 (∆A − ∆A0)2. (2.13)
+Here, α is a dimensionless material parameter, d is the thickness of the membrane and ∆A = 2d ∫ dA H. Prior to this, different approaches had been taken in an attempt to describe this effect, but these could be shown to be special cases of the area-difference-elasticity model. One of these is the spontaneous curvature model introduced by Helfrich [39], which can be elegantly incorporated into the above expression by considering the deviation of the mean curvature from the
+
+
+16 Flickering Analysis of Red Bood Cells
+spontaneous curvature H0:
+F=
+∫
+dA [2κ(H − H0)2 + κGK] + σ
+∫
+dA − P
+∫
+dV. (2.14)
+The concept of spontaneous curvature is problematic in the sense that in principle it will dynamically vary in space because of the fluidity of the membrane.
+Shape Equations and Fluctuations
+From the Hamiltonian, information about equilibrium shapes and fluctuations around these can be extracted. To do this, the first and second variations of functional (2.14) need to be found while neglecting the Gaussian curvature term which only contributes if the topology changes (Gauss-Bonnet-Theorem):
+δF =
+∫
+[2κH2 δ(dA) + 4κH δH dA − 4κH0H δ(dA) − 4κH0 δH dA
++2κH2
+0 δ(dA)] + σ
+∫
+δ(dA) − P
+∫
+δ(dV) (2.15)
+δ2F =
+∫
+[2κH2 δ2(dA) + 8κH δH δ(dA) + 4κH δ2H dA + 4κ (δH)2 dA
+−8κH0 δH δ(dA) − 4κH0 δ2H dA − 4κH0H δ2(dA) + 2κH2
+0 δ2(dA)]
++σ
+∫
+δ2(dA) − P
+∫
+δ2(dV). (2.16)
+In general coordinates the above variations are relatively complicated when expressed in terms of the first and second fundamental forms (see Zhong-Can and Helfrich [44]), but, using planar or spherical coordinate parametrization, they simplify dramatically. By setting the first variation to zero, we find the shape equations (EulerLagrange equations) determining the equilibrium shape of the membrane. This is a fourth order differential equation that can only be solved analytically in very special cases, but more generally can be solved numerically. A common technique is to use triangulated surfaces or the finite element method for arbitrary shapes. To study membrane fluctuation amplitudes experimentally, we need an analytical formula to fit the measured spectrum, with κ and σ acting as fit parameters. Deriving such a formula is only possible in planar or spherical geometry. Early approaches all used formulas derived from planar membranes and found these to fit reasonably well. At the length scale of the fluctuations, the vesicles can be approximated as locally flat. However, there are several studies extending the approach to nearly spherical vesicles [45, 46] and comparing the two approaches [47]. It was found that the approaches differ only for very small wave numbers. Below, we first discuss the planar approach because of its wide use. Then we do the same calculation in spherical coordinates because later an extension to the spherical harmonic approach will be made. For the planar case, the Monge parametrization will be used. Since the mean and Gaussian curvature are zero in this case, the expression for the second variation
+
+
+Theoretical Analysis of Membrane Shape and Flickering 17
+of the Hamiltonian simplifies considerably:
+δ2FMonge =
+∫ (κ
+2 (∆h)2 + σ
+2 (∇h)2)
+dA. (2.17)
+For more details see the expressions for the variations in Appendix B.1. As for most correlations, it is useful to Fourier transform this equation and work with the Fourier modes:
+hq =
+∫
+drh(r)e−iq·r ,
+h(r) = 1
+A
+∑
+q
+hq eiq·r ,
+δ2FˆMonge =
+∫
+(κq4 + σq2) hqh∗
+q dq.
+By the equipartition theorem, each mode corresponds to an energy of kBT /2 and hence we find:
+⟨hq h∗
+q⟩ = kBT
+κq4 + σq2 . (2.18)
+This equation shows that bending is important on the small scales, whereas surface tension contributes to the larger length scales.
+Let us now do the same calculation for spherical vesicles. Usually the spontaneous curvature H0 is neglected in the spherical case but here I keep terms proportional to H0 in order to examine their effects later on. The basis of the calculation for spherical membranes is the parametrization of the equilibrium shape r = r0(1 + u)ˆr with u describing deviations from the sphere. For exact expressions of the fundamental forms and curvatures see Appendix B.1. By setting the first variation to zero, we find an equation for the pressure of a spherical vesicle:
+P = 4H0κ + H2
+0r0κ + 2r0σ
+r2
+0
+, (2.19)
+which will be used to eliminate the pressure from the second variation.
+Taking this into account and plugging everything into the equation for the second variation, we find for deviations from the sphere:
+δ2F =
+∫
+dAu
+(κ
+r2
+0
+∆2 + σeff ∆ + γeff
+)
+u, (2.20)
+where
+σeff = −σ + 2κ
+r2
+0
+− 4H0κ
+r0
+− H2
+0κ/2, (2.21)
+γeff = −2σ − 8H0κ
+r0
+− H2
+0κ, (2.22)
+and ∆ is the Laplace-Beltrami operator on the surface, which in this geometry reduces to the angular part of the spherical Laplacian. Since the spherical har
+
+
+18 Flickering Analysis of Red Bood Cells
+monics are eigenfunctions of this operator, it is useful to decompose u in spherical harmonics:
+u(θ, φ) =
+∑
+l,m
+ul,mYl,m(θ, φ), (2.23)
+∆Yl,m = −l(l + 1)Yl,m. (2.24)
+One has to be careful to start the sum at l = 2 since l = 0 corresponds to the volume changes and l = 1 to the movement of the centre of mass.
+Using these, we write
+δ2F = r2
+0
+∑
+l,m
+λl,m|ul,m|2, (2.25)
+with λl,m = l(l + 1) [l(l + 1)κ/r2
+0 − σeff
+] + γeff. (2.26)
+After taking the thermal average of (2.25), the equipartition theorem can be used to fix the energy in each mode,
+kB T
+2 =1
+2 δ2Fl,m. (2.27)
+Hence, the dimensionless mean square fluctuation amplitudes of a spherical vesicle are given by:
+⟨|ul,m|2⟩ = kBT
+r2
+0 λl,m
+=1
+r2
+0
+kB T
+l(l + 1) [l(l + 1)κ/r2
+0 − σeff ] + γeff
+. (2.28)
+Notice that the right hand side does not depend on m; due to the symmetry of the geometry in question, the m modes are equally excited.
+One reason to use this more complicated approach is in spherical geometry, bending modes require tangential and normal movement, unlike in the planar case where bending and shear can be decoupled [48]. Using the formula for a planar membrane would miss this effect.
+Relation between Tension and Excess Area
+The fluctuations calculated above lead to an additional area reservoir, since the actual surface area is larger than the projected area A. In this context, the excess area is defined as:
+α = ∆A
+A≈1
+2A
+∫
+dr|∇h(r)|2, (2.29)
+where the approximation comes from using the Monge parametrization. This quantity can be evaluated by inserting the previously derived expression for ⟨|hq|⟩2
+
+
+Theoretical Analysis of Membrane Shape and Flickering 19
+from Equation (2.18):
+α= 1
+2A
+∑
+q
+q2⟨|hq|⟩2 = 1
+4π
+∫
+dqq3⟨|hq|⟩2 = 1
+4π
+∫
+dqq3 kBT
+κq4 + σq2 (2.30)
+= kBT
+8πκ
+∫ qmax
+qmin
+dq 2q
+q2 + σ/κ = kBT
+8πκ
+ln(q2
+max + σ/κ)
+ln(q2
+min + σ/κ) . (2.31)
+We see that the excess becomes zero (indicating a completely flat membrane) if either the surface tension is much larger than the bending rigidity or the ratio of bending rigidity to temperature diverges.
+2.2.3 Description of RBCs
+RBC Shapes
+The area-difference-elasticity model described above can predict all shapes of normal vesicles. However, some shapes observed experimentally for RBCs (e.g. echinocytes) are not predicted by this model, which implies that there is an aspect of the RBC structure missing. In 2002, Lim, Wortis and Mukhopadhyay [2] made a simple addition to the Hamiltonian which accounts for the missing effects. Their idea was to incorporate the stretch and shear elasticity of the RBC cytoskeleton in an extra contribution to the Hamiltonian. The results of their approach are shown in Figure 2.2 where they compare experimental shapes to those predicted by their model.
+For their calculations they used the ADE Hamiltonian Fbending and the additional elastic contribution Felastic to arrive at the following surface integrals:
+Fbending = κ
+2
+∫
+dA [2H − H0]2
++ ακ
+2
+π
+Ad2 (∆A − ∆A0)2
+Felastic = Kα
+2
+∫
+dA(α2 + a3α3 + a4α4)
++μ
+∫
+dA(β + b1αβ + b2β2),
+with the following constants:
+Kα linear elastic stretching modulus,
+ai, bi coefficients for nonlinear terms,
+μ linear elastic shear modulus,
+α, β local area and shear strain invariants.
+In this approach, the membrane is treated as a hyperelastic isotropic material. In reality the cytoskeleton is a strain hardening material, but this does not seem to play an important role for the equilibrium shapes which do not require large deformations.
+
+
+20 Flickering Analysis of Red Bood Cells
+Figure 2.2: RBC shapes produced by Wortis et al. [2] by taking into account the elasticity of the RBC cytoskeleton. They compare experimental images (column one and three) to calculated shapes (column two and four). The experimental and modelled shapes on the left are from the main stomatocyte-discocyte-echinocyte cycle and on the right other interesting shapes (not from this main cycle) are shown.
+
+
+Theoretical Analysis of Membrane Shape and Flickering 21
+RBC Membrane Fluctuations
+To describe membrane fluctuations of RBCs, the above approach is not so useful since an expression for the second deviation of the Hamiltonian needs to be found analytically. In 1975 Brochard et al. [1] first applied the Helfrich Hamiltonian approach to understand the membrane undulations of RBCs. The aim of this and follow up studies was to extract membrane specific parameters from experimental data. However, some discrepancies between the data and the theoretical description were found.
+Since healthy RBCs have a discocyte shape, some approaches tried looking at more complex membrane geometries, which turns out to be rather difficult because it is hard to find suitable parametrisations of the surface. In one approach Do ̈bereiner et al. [49] combined Monte Carlo Simulations with Flicker Spectroscopy to determine the membrane’s spontaneous curvature.
+In subsequent years it was realized that contributions from the underlying elastic spectrin network were missing in the description. It was found that large wavelength undulations were smaller than expected and the coupled nature of the membrane was very likely to be important for fixing this problem. There are two main approaches that have been explored. In one of them, the composite membrane is considered to be one entity that fluctuates with contributions from the fluid bilayer and the elastic skeleton taken together. In the other approach, the bilayer is thought to fluctuate alone, constrained by either an elastic shell at some distance or by discrete pinning sites. The most realistic approach is the latter but the former has the advantage of being analytically traceable as it treats the cytoskeleton as a continuum.
+The concept of confined fluctuations has been explored in other contexts besides the RBC membrane. People have looked at cases of two bilayers fluctuating next to each other at a fixed distance or onw bilayer fluctuating next to a rigid wall [50, 51, 52, 53]. A detailed discussion of this topic can be found in the work by Auth et al. [54], in which they consider fluid-fluid, fluid-solid and solid-solid membrane pairs being held at a constant average distance by an external pressure. They show that fluid membranes can be described by a constant bending modulus, whereas solid membranes need a wave-vector dependent modulus. When considering a fluid-solid membrane pair, they found that for small separations the system scales like a solid membrane next to a wall and for large distances the scaling of a fluid membrane next to a wall is recovered. By applying their theory to RBCs, they found that above 400 nm the membrane can be described as one effective membrane with bending and shear and below this wavelength the two layers have to be treated separately.
+Based on the idea of a confined membrane, Gov et al. [4] introduced a harmonic confinement term to the Hamiltonian to account for the cytoskeletal network beneath the bilayer:
+F≈
+∫ (κ
+2 (∆h)2 + σ
+2 (∇h)2 + γ
+2 h2)
+dA. (2.32)
+This approach is very elegant, since it simplifies the description in a way that makes it trackable analytically and yields a simple formula for analysing experimental
+
+
+22 Flickering Analysis of Red Bood Cells
+large
+small dominant
+dominant
+dominant
+large
+small
+Figure 2.3: Illustration of the different mean square displacement regimes in Fourier space. For a large wavenumber q (short wavelength) the displacements are large and κ dominates. For a small wavenumber (long wavelength) the displacements are large and the confinement dominates. In the intermediate regime the surface tension becomes important.
+data. They think of the cytoskeleton as a rigid shell at a fixed average distance. In later work, they show that such a confining potential can arise from sparce tethering by calculating the fluctuations of bilayers with additional sinosoidal and delta function potentials [33]. The Hamiltonian considered in the method above leads to the following mean squared displacement in Fourier modes:
+⟨h2
+q⟩ = kBT
+γ + σq2 + κq4 . (2.33)
+Here, we see that the confinement is mostly important for the small modes, which corresponds to large wavelengths as illustrated in Figure 2.3. Although this formula can easily be applied to experimental data, it does not give much insight into the microscopic details that lead to this confinement. There have been several approaches that have tried to better understand these details by treating the cytoskeleton explicitly by springs. This approach can be justified since spectrin is a flexible polymer which behaves like a spring in some regime (for larger extensions it has a strain hardening behaviour). One way to approach this is to treat the cytoskeleton as a two-dimensional network of springs [55] that fluctuate with the bilayer. This is similar to the approach of one composite membrane discussed above. A different approach is to only consider the attachment sites between the bilayer and the cytoskeleton, and model these by springs. Merath et al. [35] have shown that this is a valid approach to calculate fluctuation amplitudes. They add a sum over the discrete springs to the Hamiltonian and use the approach of Lin et al. [56] to calculate the mean squared displacements. For weak springs their effects can be described by an equivalent confinement parameter γ, but for very strong pinning a negative surface tension would be necessary to describe the amplitudes.
+Derivation of Confinement in Spherical Harmonics
+As explained in the last section, Gov et al. introduced the confinement parameter γ to the Hamiltonian in Monge parameterization in order to explain the contribution of the spectrin network to the fluctuations of RBC membranes. Here, I show
+
+
+Theoretical Analysis of Membrane Shape and Flickering 23
+how the same confinement parameter can be implemented into the spherical harmonic approach. The motivation for this comes from considering length scales; it has been shown that the planar and spherical approaches only differ for small wavenumbers [47], but this is exactly the same regime where γ contributes.
+I start by adding the term γr2
+0u2 to the second variation of the energy, such that deviations in u are harmonically damped. The difference to the planar case is the deviation u points in the radial direction. Using the same notation as above, we see the new term just needs to be added to γeff (compare with Equation (2.20)):
+δ2F =
+∫
+dAu
+(κ
+r2
+0
+∆2 + σeff ∆ + γeff
+)
+u, (2.34)
+where
+σeff = −σ + 2κ
+r2
+0
+− 4H0κ
+r0
+− H2
+0κ/2, (2.35)
+γeff = γr2
+0 − 2σ − 8H0κ
+r0
+− H2
+0κ. (2.36)
+The mean squared deviations of the spherical harmonic modes can be derived, giving
+⟨|ul,m|2⟩ = kBT
+r2
+0 λl,m
+=1
+r2
+0
+kB T
+l(l + 1) [l(l + 1)κ/r2
+0 − σeff ] + γeff
+. (2.37)
+For H0 = 0, this reduces to
+⟨|ul,m|2⟩ = kBT
+γr4
+0 + (l − 1)l(l + 1)(l + 2)κ + (−2 + l + l2)r2
+0σ . (2.38)
+2.2.4 Spherical Harmonic Approach Containing γ and H0
+Now we can examine how the spherical description differs from the planar case in the presence of the spontaneous curvature H0 and the confinement parameter gamma. In order to compare the two descriptions, the spherical harmonic modes ul,m need to be written in terms of the Fourier mode q. For a detailed description on how this is done, see Appendix B.3. The ratios of the planar mean squared amplitudes to the spherical ones are plotted in Figure 2.4.
+In the case of γ = H0 = 0, the spherical approach yields slightly larger fluctuations than the planar approach for small wavenumber and slightly smaller fluctuations for high wavenumber. This means when using the planar approximation we very slightly overestimate the size of fluctuations at short wavelengths, whereas for long wavelengths we underestimate their size. The plots in Figure 2.4 show that γ and H0 increase the difference between the two approaches at long wavelengths but to not affect the short wavelengths. Note that for a negative spontaneous curvature the planar fluctuations are always higher than the spherical ones.
+However, the differences discussed above are small enough in magnitude that they should not matter for the application to experimental data, as the experimental noise will be larger than these deviations. This is the reason why applying the planar approach has been so successful.
+
+
+24 Flickering Analysis of Red Bood Cells
+γ=0 Jm−4
+γ=4 107 Jm−4
+γ=8 107 Jm−4
+γ=12 107 Jm−4
+0 10 000 000 20 000 000 30 000 000
+0.92
+0.94
+0.96
+0.98
+1.
+1.02
+q in m−1
+planar/spherical MSD
+H0=-2/r0
+H0=-1/r0
+H0=0
+H0=1/r0
+H0=2/r0
+0 10 000 000 20 000 000 30 000 000
+0.94
+0.96
+0.98
+1.
+1.02
+1.04
+1.06
+q in m−1
+planar/spherical MSD
+Figure 2.4: Comparison of the mean square displacements (MSD) calculated for a planar and a spherical membrane. In the left graph the confinement is varied while keeping H0 = 0 and on the right the spontaneous curvature is varied while keeping γ = 0.
+
+
+Theoretical Analysis of Membrane Shape and Flickering 25
+2.2.5 Membrane Dynamics
+In order to extract values for the viscosity inside the RBC, it is necessary to look at the dynamics of the RBC membrane and derive an expression for the power spectral density. For this it is essential to incorporate the fluid on either side of the membrane and since inertia is negligible for such small systems (due to having a low Reynolds number), the hydrodynamic flow is described by the Stokes equation [57] −∇p(r) + η∆v(r) = −f (r). (2.39)
+Here, p(r) is the pressure, η is the viscosity, v(r) is the fluid velocity and f (r) is the force on the fluid. Additionally, the continuity equation, ∇ · v(r) = 0, has to hold. A common approach used to solve these types of equations is by using a Green’s function. In this approach the point-like force f (r) is related to the induced velocity field by a Green’s function Λ(r):
+v(r) =
+∫
+d3r′Λ(r − r′)f (r′). (2.40)
+In this context, the Green’s function is also known as the Oseen tensor. A no-slip condition is required at the membrane, therefore the fluid and membrane velocity are equivalent at the interface. As before, we consider out of plane movement of a flat membrane using Monge parametrisation. For this system, embedded in an infinite homogeneous fluid with viscosity η, the Oseen tensor in real and Fourier space is given by
+Λ(r) = 1
+8πη|r| and Λ(q) = 1
+4η|q| , (2.41)
+respectively. Usually this simple function is sufficient to analyse experimental data, but when looking at time correlation functions the importance on hydrodynamic effects has also been described in several studies [58, 34]. Furthermore, the Green’s function has been found for several other more involved cases. Gov et al. [59] treated the case of a permeable and impermeable wall next to the membrane. In the case of two different viscosities at either side of the membrane, η is replaced by their average as discussed in Ref. [34]. It is also clear that in general the presence of a wall slows the relaxation of the membrane because of the trapped water. It has been found, that this hydrodynamic damping by another surface is very important for fluctuations in time, but not so much for the spacial analysis [60].
+Since we identified the fluid movement at the interface with the membrane movement, we can now write down an overdamped Langevin dynamics equation for the membrane
+∂h(r, t)
+∂t =
+∫
+dr′Λ(r − r′)
+[
+− ∂F
+∂h(r′, t) + ξ(r′, t)
+]
+, (2.42)
+where ξ(r′, t) is a thermal random force. This equation is more easily treated in
+
+
+26 Flickering Analysis of Red Bood Cells
+Fourier space because the convolution is removed:
+∂hq(t)
+∂t = [−ωqhq(t) + λqξq(t)] , (2.43)
+ωq = λq(κq4 + σq2) = κq3 + σq
+4η , (2.44)
+where the correlations of the thermal noise are given by
+⟨ξq(t)⟩ = 0 (2.45)
+⟨ξq(t)ξq′(t′)⟩ = 2kBT AΛ−1
+q δq,−q′δ(t − t′). (2.46)
+We can identify these equations as Ornstein-Uhlenbeck processes and therefore can write down the solution for the time correlations functions:
+⟨hq(t)hq′(0)⟩ = kbT
+κq4 + σq2 e−ωqtδq,−q′. (2.47)
+The autocorrelation function is given by the Fourier transform of the time correlation function:
+⟨|hq(ω)|2⟩ = 2kBT λq
+ω2 + ωq2
+. (2.48)
+The power spectral density is now given by the integral over all Fourier modes:
+⟨|h(ω)|2⟩ =
+∫ dq
+(2π)2
+2kBT λq
+ω2 + ωq2
+= 4ηkBT
+π
+∫ qmax
+qmin
+dq
+(4ηω)2 + (κq3 + σq)2 . (2.49)
+If we assume qmin = 0 and qmax = ∞, the scaling of the power spectral density with ω can be found for the limit ω → 0 and ω → ∞:
+lωi→m0⟨|h(ω)|2⟩ = kBT
+2σω , (2.50)
+ωli→m∞⟨|h(ω)|2⟩ = kBT
+6π(2η2κ)1/3ω5/3 . (2.51)
+For small frequencies the power spectral density is dominated by tension and does not depend on viscosity directly. Indirectly it still does because for a more viscous fluid the frequency goes down. Betz et al. [6] found that by using the planar approach the power spectral density is altered in the low frequency regime, leading to a systematic overestimation of tension. Calculating the power spectral density in the spherical harmonic parametrisation yields
+⟨|u(ω)|2⟩ =
+lmax ∑
+l=2
+⟨|ulm|2⟩r2 ωl
+ω2
+l + ω2
+2l + 1
+2π , (2.52)
+ωl = κ(l + 2)(l − 1)l(l + 1) + σr(l + 2)(l − 1)
+ηr3Z(l) , (2.53)
+Z(l) = (2l + 1)(2l2 + 2l − 1)
+l(l + 1) . (2.54)
+
+
+Theoretical Analysis of Membrane Shape and Flickering 27
+2.2.6 Incorporation of Active Elements
+All the analysis described so far is based on equilibrium physics. For living cells, however, it is expected that active processes will play a role as well. In the case of RBCs there have been various attempts to identify non-equilibrium processes in the membrane and incorporate these in the theory. Although it is clear that there are active processes taking place, it is still not understood what microscopic processes they originate from and how exactly the RBC fluctuations are influenced. In this section I will give an overview of the ideas that have been implemented and what we can learn from the different approaches. The theories can roughly be divided into two categories; activity induced by active membrane proteins, and activity applied to the membrane by the cytoskeleton.
+Evans et al. [61] used shallow shell theory to take into account the RBC’s discocyte shape when calculating the membrane fluctuations. They were able to show that active processes are not necessary to explain the experimental fluctuation data, but singular curves on the surface and regions with alternating Gaussian curvature lead to an altered fluctuation spectrum. Although this is an aspect that has not been taken into account before, it does not exclude that active processes are relevant. There have been experiments that show changes in membrane behaviour upon switching on activity [62]. In reality both aspects will play a role, but an important question to consider is under specific situations, which one has the bigger effect.
+Activity Through Membrane Proteins
+The first incorporation of active channels was done by Prost et al. [63] by incorporating freely diffusing ion channels into the membrane description. They did this by introducing on/off states whose switching is exponentially correlated and which contribute a force f if they are activated. Therefore, an active noise is added to the Langevin equation:
+ξactive
+k (t) = f
+∑
+j
+Sj(t)eiq·Rj(t), (2.55)
+where Sk is either zero or one with the correlation time τa and Rj(t) is the location of the ion channel. An estimate for the average channel force was given in Ref. [64]. The authors arrive at a force of 1-10 pN by accounting for a transit time of a single ion of 10−7 s.
+As we can see in Figure 2.5, the activity due to the ion pumps introduces a shift and alters the scaling properties of the mean squared displacement. Subsequently, this model was extended to take into account coupling between the pump activity and the membrane’s curvature, which can lead to instabilities and travelling waves [65, 66].
+It was proposed in several studies that the activity can be accounted for by an increased effective temperature [67, 68]. However, the issue is more complicated depending on the source of the activity, and can depend on modes and frequencies [69].
+
+
+28 Flickering Analysis of Red Bood Cells
+only κ
+active
+with σ and γ
+106 107 108 109
+10-38
+10-33
+10-28
+10-23
+10-18
+q in m−1
+MSD in m2
+Figure 2.5: Mean squared displacements are plotted for different models as indicated in the legend.
+Activity Through Cytoskeletal Effects
+Based on the idea that cytoskeleton components can push on the membrane like polymerising actin in cell protrusion, cytoskeleton induced active fluctuations have been investigated. The first such model was developed by Gov et al. [67] who considered spectrin actin dissociation events as force kicks on the membrane. The biological foundation for this treatment is the phosphorylation of protein 4.1 through the consumption of ATP, which induced the dissociation of the spectrin end from the actin junction. They managed to reproduce the ATP dependent experimental data with their model and found that these processes can be described by an increased effective temperature. A similar approach was shown to reproduce ATP-dependent experimental data more recently [70].
+In a simulation study, Zhang et al. [71] treated the bilayer as a continuous sheet that is tethered by entropic springs representing the connections between the cytoskeleton and the bilayer. In their simulations they account for the diffusion of these anchor sites and for dissociation events similar to the approach discussed above. These simulations confirm that experimental data can be reproduced by this approach.
+A slightly different approach has been developed by Turlier et al. [7]. In their study they show that RBC fluctuations contradict the fluctuation-dissipation theorem and therefore are not of pure thermal origin. The activity enters their theoretical and computational model through a local modulation of the shear modulus.
+Overall, it is clear that activity plays an important role in the dynamical behaviour of the RBC membrane. In the following work, we decided to neglect this effect because the focus is on the alterations of the RBC membrane throughout the malaria infection. Since the exact source of the RBC membrane activity is not clear, even less is known about how it would change during a malaria infection. This is a topic that could be treated in the future.
+
+
+Experimental Flickering Data for Malaria Infected RBCs 29
+2.3 Experimental Flickering Data for Malaria In
+fected RBCs
+As part of the SFB 1129 Integrative of Pathogen Replication and Spread, a collaboration was established between the groups of Prof. Lanzer, Prof. Tanaka and Prof. Schwarz. The model discussed in the next section was developed to explain the data produced by Benjamin Fr ̈ohlich from the group of Prof. Tanaka. In this section, the experimental data is shown and its analysis explained. The aim of the experiments was to measure the mean squared fluctuations and the power spectral density of RBC membranes.
+The experiments were conducted with uninfected (HbAA) RBCs as well as ring and throphozoite stage (HbAA) iRBCs in order to see changes during the infection. The analysis was repeated for HBAS and HBAC RBCs, which are known to exhibit differences in their development and the same experiments were also done for knobless parasite mutants.
+In the experiments, the Plasmodium falciparum strain FCR3 was used and the RBC cultures were synchronized within a time window of six hours. The cells were kept in an RPMI-1640 medium supplemented with bovine serum albumin at a haematocrit of 0.1% at 37◦ C. The images of the RBCs were taken with a phase contrast microscope and the cells’ rims were detected by a Gaussian fit on the gradient images, so that the Fourier modes of the height spectrum could be extracted. From this the mean squared displacement for the membrane height could be calculated.
+As described in the previous section a theoretical model can be fit to the experimental data. Here we choose the formula derived from the Hamiltonian including a confining potential [4]:
+H=
+∫
+dA
+[1
+2 κ(∇2h)2 + 1
+2 σ(∇h)2 + 1
+2 γh2
+]
+. (2.56)
+Previously, I showed how the mean squared fluctuations are derived in Fourier space but that formula was derived for deviations of a two dimensional sheet from the flat reference state. Here, the expression needs to be modified to fit the experimental limitation that only fluctuations in the y = 0 plane are measured. A derivation of the following formula is shown in Appendix C.1:
+⟨h(qx, y = 0)2⟩ = kBT
+L
+⏐ ⏐ ⏐ ⏐ ⏐ ⏐
+√κ
+2(σ2 − 4κγ)
+⎡
+⎣
+1
+√
+2κqx2 + σ − √σ2 − 4κγ
+−1
+√
+2κqx2 + σ + √σ2 − 4κγ
+⎤
+⎦
+⏐ ⏐ ⏐ ⏐ ⏐ ⏐
+, (2.57)
+where L is the size of the membrane patch. By applying this formula to the data, fits for κ, σ and γ can be extracted and compared for the different infection stages as can be seen in Figure 2.6.
+
+
+30 Flickering Analysis of Red Bood Cells
+Figure 2.6: a) Bending modulus κ, b) surface tension σ, and c) confinement γ calculated for HbAA cells at uninfected (U), ring (R), and trophozoite stage (T) using (2.57). In a) gradient images are presented of the corresponding infection stages with the parasite marked by the dotted lines. The scale bar indicates 5 μm. d) Corresponding cytoplasmic viscosity ηRBC calculated by a fit with Eq. (2.52) (Welch t-test: x no significant difference, ∗p < 0.05, ∗∗p < 0.001). This Figure was produced by Benjamin Fr ̈ohlich.
+
+
+Experimental Flickering Data for Malaria Infected RBCs 31
+Figure 2.7: a) Bending modulus κ, b) surface tension σ, and c) confinement γ calculated using (2.57) for hemoglobinopathies HbAS and HbAC at the trophozoite stage of infection. Red lines correspond to the median values of HbAA at the identical parasite stage for the respective mechanical parameter. Welch t-test was performed against HbAA (symbols top row) and among the hemoglobinopathies (x no significant difference, ∗p < 0.05, ∗∗p < 0.001). This Figure was produced by Benjamin Fro ̈hlich.
+Figure 2.8: a) SEM images of the knobless phenotype (top) and a representative gradient image calculated from phase contrast (bottom). The Scale bar indicates 2 μm. b) Bending modulus κ, c) surface tension σ, and d) confinement γ calculated using (2.57) for the knobless phenotype at trophozoite stage HbAA iRBCs. Red lines correspond to the median values of HbAA for the respective mechanical parameter. (Welch t-test: x no significant difference, ∗p < 0.05, ∗∗p < 0.001). This Figure was produced by Benjamin Fro ̈hlich.
+
+
+32 Flickering Analysis of Red Bood Cells
+For the bending modulus, κ, we see an increase from
+⟨κ⟩AA,U = (2.7 ± 0.6) × 10−19 J to ⟨κ⟩AA,T = (3.4 ± 1.4) × 10−19 J,
+for the uninfected cells and the trophozoite cells respectively, where the ring stage is not significantly modulated. The surface tension already doubles its value from
+⟨σ⟩AA,U = (0.7 ± 0.2) × 10−6 N m−1 to ⟨σ⟩AA,R = (1.3 ± 0.5) × 10−6 N m−1,
+for an uninfected cell and a cell in the ring stage respectively, and reaches five times the uninfected value in the trophozoite stage. Finally, the confinement factor γ changes the most. From the uninfected stage to the ring stage γ increases from
+⟨γ⟩AA,U = (0.5 ± 0.2) × 106 Nm−4 to ⟨γ⟩AA,R = (1.9 ± 1.5) × 106 Nm−4
+and reaches a ten-fold higher value in the trophozoite stage than in the uninfected stage. A value for the viscosity could be extracted from a fit to the power spectral density using Formula (2.49) derived from the spherical harmonic treatment of the cell as explained in Chapter 2.2.5. This analysis has been attempted for healthy RBCs before but it is a known issue that this method overestimates the viscosity values. Similar to these studies, a relatively high value of 11.2 × 10−3 Pa s was found for healthy RBCs (the viscosity should be on the order of a few mPa s for the haemoglobin solution inside the RBC [72], compare the viscosity of water at 20◦C which is 1 · 10−3 Pa s). Nevertheless, an increase in viscosity can be measured with parasite development. The viscosity at the ring stage
+⟨ηRBC⟩AA,R = (19.1 ± 10.8) × 10−3 Pa s
+is 1.7 times larger and the viscosity at trophozoite stage is 7.5 times larger than in the uninfected cell. The mechanical parameters were also measured for HbAS and HbAC RBCs at the different stages. If we focus on the trophozoite stage and compare the values to the HbAA cells (red lines), we can see in Figure 2.7 that the bending modulus κ is slightly higher for both HbAS and HbAC. The surface tension σ only increases for HbAC cells by a factor of 1.27 where there is no change for HbAS cells. In the case of the confinement parameter, the value seems to decrease for HbAS cells and increase by a factor of 1.13 for HbAC cells. In a final set of experiments, the parameters were also determined for a knobless phenotype which is a result of a chromosomal truncation. For these cells no change in the bending modulus could be detected whereas both σ and γ were found to be smaller than for comparable infected HbAA cells (see Figure 2.8).
+2.4 Numerical Treatment of Cytoskeleton
+One important difference between the different infection stages in HbAA cells and the hemoglobinopathies is the arrangement of the spectrin network that underlies the RBC membrane. To find out more about the relation between the nature
+
+
+Numerical Treatment of Cytoskeleton 33
+of the network and the flickering parameters, we treat the exact structure of the network in a numerical manner as has been done previously for healthy RBCs [73, 56, 74, 35]. It is important to keep in mind, that the spectrin network is not necessarily the only cause for changes in membrane parameters. Another possible change could be an altered activity of the membrane which we do not consider within the following calculations.
+2.4.1 Previous Applications
+Frank L. H. Brown developed a framework to simulate fluctuations of membranes that interact with an underlying structure, such as the RBC cytoskeleton, which he termed Fourier Space Brownian Dynamics (FSBD). Using these simulations he treated pinned membranes in variable detail where the effect of different hydrodynamic kernels was also examined [34]. In another application intermembrane junctions were identified as a source for surface tension [5]. For a general anchoring potential, the simulation method just mentioned needs to be applied. However, in the case of a purely harmonic anchoring, a detailed simulation is not necessary but a transformation to normal modes can by applied. Hence, it is possible to calculate the exact time evolution by a matrix inversion (which is done numerically), similar to the transformations that are made in crystals [75] and polyatomic molecules [76]. The normal mode approach yields average membrane shapes, fluctuations about this average and time correlation functions without conducting lengthy simulations. This is the approach that we will use in the following calculations and has also been verified to apply to RBCs by Merath et al. [35].
+2.4.2 Modelling Approach
+We describe the RBC membrane by a Hamiltonian consisting of two distinct contributions; an elastic continuum part and a discrete part modelling the connections between the lipid bilayer and the spectrin network as individual springs. The elastic contribution is given by the Canham-Helfrich Hamiltonian in Monge gauge which takes into account the bending of the bilayer (κ) and a surface tension σ which enters the equation to ensure area conservation:
+Helastic =
+∫ Lx
+0
+dx
+∫ Ly
+0
+dy
+(κ
+2 [∇2h(r)]2 + σ
+2 [∇h(r)]2)
+, (2.58)
+where h(r) is the normal displacement (in the z-direction) of the membrane from its equilibrium position in the xy-plane. The expression needs to be integrated over the whole membrane patch with dimensions Lx and Ly. The contribution from the springs consists of a sum over the discrete attachment sites (α = 1, ..., N ):
+Hspring =
+N
+∑
+α=1
+kα
+2 h2(rα), (2.59)
+where kα is the spring constant at position rα. For simplicity the spring constants kα are assumed to be equal (k) for a given realization. I also define two dimen
+
+
+34 Flickering Analysis of Red Bood Cells
+ab
+Figure 2.9: a) Normalized mean square fluctuation amplitude as a function of
+Fourier mode number nq plotted for different values of the ratio q∆2
+κ where ∆ is the spring lattice constant. b) Average hight of an anchored membrane patch in real space. Anchor points are indicated by the red spheres.
+sionless quantities, Γ = γ(LxLy)2
+kBT and K = kLxLy
+kBT which fix the strength of the
+confinement parameter and the spring constant relative to the size and thermal energy of the system.
+After Fourier transforming the above equations, an expression for the mean square amplitudes can be derived using the equipartition theorem. Details about the calculation can be found in Appendix C.2 or in the work by Lin and Brown [34, 5]. An analytic expression can be derived for the purely elastic part since only diagonal elements contribute. However, when considering discrete springs, the problem needs to be treated numerically, since off-diagonal terms are introduced. This numerical treatment limits the size of the membrane patch that can be considered. Here I calculate the fluctuations for square patches of approximately 1 × 1 μm2 in size with a resolution of 10 nm. The calculations are done using a self-written C++ code.
+Reproduction of Results of Merath et al. [35]
+As validation of the code, I started with reproducing the results of Merath et al. who focused on a square array of springs with varying spring constant. They find that the flickering spectrum of a discretely tethered membrane can be described by the commonly used continuous harmonic confinement term for weak enough tethers (see yellow, black and blue lines in Figure 2.9a). However, for very strong tethers the system deviates from the continuum approach and would need a negative surface tension to explain the data (red and green lines). Figure 2.9b shows the average fluctuation spectrum of a small patch after converting back to real space. The approach used here only calculates the average fluctuation amplitudes of the membrane; one would have to implement a dynamic simulation to access real instantaneous membrane shapes.
+
+
+Numerical Treatment of Cytoskeleton 35
+2.4.3 Model for the Malaria Infected RBC Cytoskeleton
+We need to look more closely at the RBC cytoskeleton to understand the approach chosen here. The cytoskeleton consists of spectrin filaments that are connected via short actin filaments. In various studies it was found that the network is in a prestressed state. However, the spectrin filaments are also not stretched out fully, such that the network needs to be thought of as a layer of finite thickness. Cryo-electron tomography has shown that the real thickness inside the RBC lies between 54 nm and 110 nm which corresponds to the stretched out and crumpled up states, respectively [77]. Hence, it seems plausible to treat the spectrin network as an elastic shell, and only consider the attachment points between the bilayer and the spectrin nodes. In Figure 2.10a, a schematic of the membrane is shown, with the spectrin filaments in yellow and the main anchor points at the actin junctions in blue. The large structure on the right corresponds to a knob which is a large structure of KAHRP molecules induced by the malaria parasite. To see how we translate this into our numerical model, a graphic containing the corresponding springs is shown below. As mentioned before, we replace the discrete connections between bilayer and spectrin mesh by springs with a lattice constant a as shown in the Figure. Hence, the attachment is modelled by an array of springs that confines the bilayer at z = 0. A natural way to model a knob would be to introduce a cluster of springs as it is also shown in the schematic. Since we only consider the discrete connection points, we need to know the spring constant at the junction points in the direction perpendicular to the network. A graphic representation of this problem is shown in Figure 2.10b. The junctional complex indicated in orange attaches to a number of spectrin filaments (an average of 4.2 for healthy RBCs [77]) which have a spring constant of ksp along their extension axis. In order to determine the out of plane spring constant several factors need to be accounted for. In general we are most interested in the contribution from the spectrin filaments since these are altered dramatically during the malaria life cycle. Nevertheless, a spring constant will be associated with the junctional complex itself. The actual connection to the bilayer is mediated via a transmembrane protein which can move within the lipid bilayer and hence contributes to the spring stiffness. Additionally, the anchor complex, consisting of several proteins, also behaves spring like and contributes to the overall spring constant. In Appendix C.3, a formula is derived which shows how the spring constant of the junctional complex depends on the spring constant of the individual spectrin filaments that for simplicity all have the same spring constant. The formula predicts a non-linear dependence on the displacement z in the direction perpendicular to the network:
+k = nksp
+z2
+2a2 , (2.60)
+where n is the number of filaments attached to the complex and a the distance to the next anchor point. In principle, we now know how to calculate the spring constant, so the last piece of information needed is the 2D distribution of the springs. The anchor points in
+
+
+36 Flickering Analysis of Red Bood Cells
+ab
+c
+a = 30 nm
+a
+a = 62 nm a = 110 nm a = 140 nm
+Band 3
+Ankyrin
+PfEMP1
+Knob spiral structure
+Spectrin
+Glycophorin C
+Actin
+aa
+KAHRP
+Actin
+aaaa
+k k sp
+k sp
+k sp
+Figure 2.10: a) Molecular components of the RBC membrane are shown with a model schematic introducing springs as anchor points below; the latter have a strength k. The distance between springs is the triangular lattice constant a of the underlying 2D spring distribution. b) The structure of one anchoring point is shown with the connection to the bilayer in orange and the spectrins in yellow. The whole complex can be modelled by a vertical spring with spring constant k. c) The springs’ positions are shown for square membrane patches of 1 μm2. The triangular lattice constants are as indicated and the network is thinned out systematically.
+
+
+Numerical Treatment of Cytoskeleton 37
+average spectrin average mesh size length (in nm) (in μm2) uninfected 43 0.0035 ring 48 0.0035 trophozoite 64 0.0067 shizont 75 0.0071
+Table 2.1: Data describing the spectrin network architecture for the uninfected RBC and the three infected stages taken from Shi et al. [11].
+the spectrin network are known to form a triangular (hexagonal) lattice with some naturally occurring defects. Natural parameters are identified to be the lattice constant a, which corresponds to the end-to-end distance of a spectrin tetramer, the number of defects in the lattice and the spring constant for each spring. An example for varying a can be seen in Figure 2.10c.
+The motivation for varying mesh size comes from observations of the different stages of the malaria infection. An AFM study of the cytoplasmic side of malaria infected RBCs [11] found that the end-to-end length as well as the mesh size increases over time which can be seen in Figure 2.11. The authors also extracted values from the images, which are summarised in Table 2.1.
+One reason for this development might be the mining of actin from the RBC skeleton by the parasite. Cyrklaff et al. [23] found that the parasite utilizes the host actin to build long actin fibres that start at the knobs and terminate at the Maurer’s clefts. Therefore, there might be less junctional points at later stages of the infection. Another development that takes place, is the formation of knobs, which mediate cytoadhesion via the protein PfEMP1 and have an underlying spiral structure that incorporates the protein KAHRP. These knobs are approximately 100 nm large and act as very strong anchor points between the bilayer and the spectrin network. By modelling the connections between the bilayer and the cytoskeleton explicitly, I will show what effects these observations have on the membrane properties.
+Modelling Results
+The numerical calculations described above produce two dimensional data sets for the mean square displacements in Fourier modes. An azimuthal average is taken to plot the data as a function of q, because the peaks in the Fourier spectrum clearly show the geometry of very regular lattices and so are different depending on the direction chosen. Therefore, a reasonable approach is to average all values for a given |q|, such that the lattice geometry becomes unimportant. An example of data sets can be seen in the points in Figure 2.12 a and b. To compare the data more easily, we fit the three parameters of the continuum description
+⟨h2
+q⟩ = kBT
+LxLy
+1
+γ + σq2 + κq4 , (2.61)
+
+
+38 Flickering Analysis of Red Bood Cells
+Mid Trophozoite Late Trophozoite Schizont
+Uninfected Ring Early Trophozoite
+Figure 2.11: AFM images with the corresponding skeletonisation of the RBC’s cytoplasmic side. The white arrows point at knobs and the scale bars correspond to 500 nm. The figure is adapted from Ref. [11].
+
+
+Numerical Treatment of Cytoskeleton 39
+Figure 2.12: a) Simulated mean square displacements as a function of the wave number q for the different lattice constants (see Figure 2.10c) (fixed k = 9.210−5 N m−1) and b) for different spring constants k (fixed N = 423). The discrete data points represent the results from the numerical calculations and the continuous lines are a fit of the continuum theory. c) Here the dimensionless confinement parameter Γ is plotted against the number of springs N and d) the dimensionless spring constant K. The red dashed lines indicate the fit for the exponents.
+which manages to describe the data well as can be seen in the solid lines in the plots. The formula is fitted to the data by a least square algorithm within MatLab.
+In the case of evenly distributed equally strong springs, one expects the following relation between γ, the spring constant K and the number of springs N from dimensional analysis of the Hamiltonian:
+γ ≈ kBT
+(LxLy)2 N K. (2.62)
+For our uneven networks, we will use the approach to keep either the number of springs or the spring constants fixed in order to find the dependence on the relevant parameter. Examples are shown in Figure 2.12 c and d. The linear scaling on the log-log plot in the relevant regimes indicates the following relations
+Γ ∝ Kα
+Γ ∝ Nβ,
+where the exponents α and β can be extracted from the slopes of the red lines.
+
+
+40 Flickering Analysis of Red Bood Cells
+To examine the effects of spring density and sprint constant, I varied the lattice spacint, a, from 30 nm to 140 nm while keeping the spring constant fixed, then varied the spring constant, k, from 0.92 · 10−6 N m−1 to 0.92 · 10−2 N m−1 while keeping the lattice spacing fixed (see Figure 2.10). The results of these calculations are shown in Figure 2.12, where the different colours in Figure 2.12a indicate different lattice spacings and in Figure 2.12b they indicate different spring constants. The solid lines show the fits of the analytical formula containing the three parameters κ, σ and γ. In Figure 2.12c and d the dimensionless parameter Γ, which was extracted from the fits, is plotted as a function of spring number and dimensionless spring constant K respectively.
+From the slope of the log-log plots in Figure 2.12c and d the scaling of Γ with the two parameters can be extracted. For a very high spring constant in d) a plateau regime can be seen which corresponds to an effectively pinned membrane. Otherwise the scaling behaviour is given by
+Γ ∝ N 0.9552 (2.63)
+Γ ∝ K0.96. (2.64)
+The exponents are close to one but they actually depend on the underlying lattice geometry as will be shown later on.
+Parameters
+To compare the simulated parameter ranges to the values that describe a membrane patch of a healthy RBC, we make the following estimations. First, we neglect the strain hardening property of the spectrin filaments and model it as a simple spring. An individual spectrin filament has a spring constant of approximately ksp = 2 · 10−6 N m−1 [78] when extended along its contour length. As explained previously, we can approximate the out of plane spring constant by the formula derived in Appendix C.3, such that
+k ≈ 4ksp
+z2
+2a2 ≈ 8.8 · 10−9N m−1, (2.65)
+where a = 43 nm is the rest length of the spectrin filament. We approximate z/a by 2/43 = 0.0465, since the typical out of plane motion has an order of magnitude of a few nm. This leads to a dimensionless KRBC = 2.3 for the simulated membrane patch. Furthermore, we find NRBC = 378 for a square membrane patch of A = 1 μm2 , an average mesh size of 3500 μm2 and a lattice constant of a = 43 nm. Figure 2.12c and d show where these values are located within the simulated parameter ranges. It can be seen that the experimentally relevant parameter space is located far below the pinned membrane regime, so that changes in N and K will indeed have an effect on γ.
+Now we would like to predict the value of γ from these microscopic quantities and use the previously verified formula. Our analysis suggests the formula
+γ ≈ kBT
+(LxLy)2 N βKα (2.66)
+
+
+Numerical Treatment of Cytoskeleton 41
+ab
+1
+1
+1
+1
+Figure 2.13: a) Examples of a Delauney lattice for dmin = 1 nm and b) dmin = 30 nm.
+will do this. For a RBC area of A = 2.2 · 10−10 m2 , a spring density of N/A = 408 μm−2 and a spectrin spring constant of ksp = 2 · 10−6 N m−1 the harmonic confinement parameter is calculated to be γ = 1.7 · 106 Jm−4. The microscopic quantities used for this estimation could only be approximated based on previous knowledge. Nevertheless, the final value for γ is close to the measured value of ⟨γ⟩AA,U = (0.5 ± 0.2) · 106 Jm−4 for an uninfected cell.
+2.4.4 Examining Effects of Network Properties
+We numerically analysed several different underlying network structures. Specifically, we looked at the effects of the network geometry, homogeneity, system size and also considered a membrane covering a sphere but this approach is limited to a small radius.
+Geometry Effects
+Firstly, we wanted to see how the confinement depends on the underlying network structure. The simplest case is a square lattice for the pinning sites. Alternatively, a triangular lattice with defects can be applied to mimic the network structure of the RBC skeleton as described above and can be seen in Figure 2.10c. As a third option a Delauney lattice was used, where the minimum distance between two junctions, dmin, determines how regular the lattice is. Two examples of such lattices can be seen in Figure 2.13a and b. For all of these cases, we extracted the scaling exponents α and β as described above. The results are summarized in Table 2.2. In general, the values are very close to 1 so that the scaling is nearly linear. Nevertheless, the error of the values is very small which shows that the different geometries induce small changes on the scaling exponents. The strongest deviation occurs for the scaling of γ with the spring number N of the square lattice. This is likely due to the averaging over azimuthal angles. Next, we examined the effects of the homogeneity of the network by gradually
+
+
+42 Flickering Analysis of Red Bood Cells
+Exponent of spring number N (β) Exponent of spring constant K (α)
+Square (k = 9.2 · 10−5) 0.9292 Square (N = 400) 0.9671
+Hexagonal (k = 9.2 · 10−5) 0.9552 Hexagonal (N = 423) 0.9600
+Hexagonal (k = 9.2 · 10−8) 0.9480 Hexagonal (N = 379) 0.9754
+Delauney (k = 9.2 · 10−5) 1.0173 Delauney (N = 423) 0.9447
+Table 2.2: Scaling exponents extracted from the fit to the analytical formula for varying N on the left and K on the right. The different lattice geometries are compared and dmin = 1 for the Delauney runs.
+Figure 2.14: The blue data points show the mean spring constant k as a function of dmin and the red data points depict the corresponding calculated confinement γ.
+changing the value of the parameter dmin of the Delauney lattice. In these calculations, the different lengths of the spectrin tetramers are also accounted for. Real spectrin molecules change their stiffness as a function of extension in a complicated manner where different domains can unfold. By approximating the filaments as semi-flexible polymers, a reasonable force extension curve can be found, that predicts the spring constant to be very high for large extensions. Hence, the spring constant for each lattice point is calculated according to the attached filaments and their length. The results are shown in Figure 2.14, where a small dmin corresponds to irregular lattices and a large dmin produces an evenly spaced out distribution of springs.
+Small values of dmin, implying an irregular lattice, produce a larger average spring constant k and therefore a larger confinement γ. The data is quite noisy because each Delauney lattice is quite different to another Delauney lattice with the same dmin.
+
+
+Numerical Treatment of Cytoskeleton 43
+0 100 200 300 400 500
+# of springs in knobs
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+knobs of size 13 knobs of size 25 knobs of size 49 knobs of size 85
+1
+1
+1
+a
+b
+c
+Figure 2.15: a) Example of an array of springs that shows dense regions of springs which resemble the parasite induced knobs. b) The confinement parameter Γ/Γ0 is plotted as a function of knob density (since two different sizes of knobs exist, it is more convenient to use the number of springs in knobs as parameter). Γ0 corresponds to the system without knobs and only the springs corresponding to the spectrin network. The hollow points show the data for all springs being equally strong, where the full points correspond to the situation where the springs that lie within knobs are double as strong as the others. Black points correspond to small knobs (25 springs per knob) and red points to large knobs (50 springs per knob).
+Effects of Clustering into Knobs
+Since the parasite establishes an adhesive system which consists of knob structures that strongly connect the membrane to the spectrin network, we analyse the effects of clusters of springs on the confinement parameter. Since a knob has a diameter of approximately 100 nm, its size is similar to a whole unit of the spectrin network. Hence, it can be modelled by introducing a dense region of springs of the appropriate size as can be seen in Figure 2.15 on the left.
+It was found that one of the differences between HbAA and HbAS/HbAC cells is the knob size. Hence, we consider two cases in the calculations, many small knobs (black data) or a smaller number of large knobs (red data), where we keep the total number of springs constant. For example, we would compare 4 small knobs to 2 large knobs with double the number of springs each. For all spring arrays we calculate the corresponding confinement factor as before and plot the result on the right of Figure 2.15. Γ is scaled by Γ0 of the system without knobs and only with the springs corresponding to the spectrin network.
+In all cases we find that the large knobs are less effective in inducing confine
+
+
+44 Flickering Analysis of Red Bood Cells
+ment than the small knobs. This makes sense since a completely homogeneous distribution is most effective. As mentioned before, the overall number of springs is kept constant, such that individual springs are only moved around. Therefore, the confinement goes down (hollow points in Figure 2.15), when we start clustering springs into knobs for the same reason why large knobs are less effective than many small knobs.
+However, in the real system, the knob areas seem to be strongly connected to the spectrin network by parasite induced proteins like KAHRP. This motivates the choice to make springs belonging to a knob double as strong as the other springs of the background network. The data for these calculations is shown in the full circles in Figure 2.15. Considering the large knobs, the data ranges from a knob density of zero to four knobs per square micrometer, which corresponds to the appropriate range for the iRBCs. For a knob density of 4 μm−2 an increase of confinement of 30 % can be reached.
+Effects of System Size
+To check if the results of our calculations are scalable with system size, we compare a membrane patch of 1 μm2 with one of size 25 μm2. Assuming the exponents α and β to be 1, we would expect that the confinement parameter γ only depends on the spring density and the microscopic spring constant as seen in the relation
+γ ≈ kBT
+(LxLy)2 N K (2.67)
+=N
+LxLy
+k, (2.68)
+where N
+LxLy is the spring density and K the dimensionless spring constant. As
+seen in one of the previous sections, α and β can slightly deviate from 1 depending on the underlying network structure but to test the effects of system size, it is sufficient to make this approximation.
+To test the prediction, I take the membrane patches of the different sizes and choose the same spring density and constant in both cases. This should lead to the same confinement parameter. The results of the calculations can be seen in Figure 2.16; it should be noted that the mean squared displacement had to be scaled by the system size to compare the data. This scaling introduces a prefactor which shifts the curve as a whole but does not affect the relevant parameters.
+The blue and yellow data points show the mean squared displacement for a weak spring constant of k = 1.3 · 10−5 N m−1. The red and green data points are the results for the same spring density but a stronger spring constant of k = 1.3 · 10−5 N m−1. It can be seen that in each case the two system sizes yield similar results. In the weak confinement case the data for the small system in yellow is not sufficient to properly fit a confinement parameter. In the stronger confinement case both curves clearly show the effects of a confinement (plateau for small wavenumbers) and it can be seen that the larger system produces a slightly stronger confinement (compare the green to the red curve). From the fits the values 1.5232 · 1011 Jm−4 and 2.6982 · 1011 Jm−4 are extracted for the small and
+
+
+Numerical Treatment of Cytoskeleton 45
+Figure 2.16: MSD normalized by the system size as a function of q plotted for different anchoring strengths and system sizes as indicated in the legend. Solid lines are a fit of the fluctuation formula to the data.
+the large system respectively. For large wave numbers all curves are equivalent.
+Overall, the system size does not effect the results much. For strong confinements, the larger system produces a slightly larger confinement than the small system.
+Spherical Harmonic Approach
+All previous calculations were done for a planar patch of membrane. A natural next step would be to look at a membrane of spherical topology and hence using a spherical harmonic decomposition instead of Fourier modes. The limiting factor of this approach is the radius of the treated vesicle since the number of modes, and therefore the size of the matrix that needs to be inverted, becomes very large very quickly when keeping the resolution at an appropriate level.
+Here, I show an example of fluctuations on a spherical reference shape. The first step would be to define a triangular lattice on a sphere for the cytoskeleton representation, as can be seen in Figure 2.17a for an even mesh and in Figure 2.17b for a thinned out one. The fluctuations on such a sphere were calculated and converted back to real space. The result is shown in Figure 2.17c plotted on the surface of the sphere.
+This approach seems helpful at first sight but it does not lead to further insights into the problem. Additionally, the system size cannot be chosen large enough for comparison to a RBC and there is no direct comparison to experimental data because the resolution of microscopes is usually only sufficiently good in two dimensions.
+
+
+46 Flickering Analysis of Red Bood Cells
+ab
+c
+Figure 2.17: a) Triangulation on the surface of a sphere. b) Triangulation with wholes in the network. c) Real space fluctuation modes on the surface of the sphere.
+
+
+Implications for Infected RBCs 47
+Figure 2.18: Comparison of confinement parameter for underlying network structures that correspond to the data in Table 2.1 but keeping the spring constant equal.
+2.5 Implications for Infected RBCs
+2.5.1 Network Destruction Decreases Confinement
+Now we would like to examine the changes that occur during a malaria infection. In an AFM study of malaria infected RBCs [11] it was found that the spectrin network develops a larger average mesh size and the average spectrin length increases with proceeding infection stage (see Table 2.1). Additionally, they found that the spectrin network condenses around knob areas. It is important to notice that the spectrins exhibit a strain-hardening property [79] so that longer filaments will have a stronger spring constant. From the data in Table 2.1, the mesh size of the spectrin network seems to increase drastically. To make the effects of the proposed change in network structure clear, we numerically calculated the MSD for the four different cases. We assume, that the reason for the larger mesh size is the destruction of some connections between the bilayer and the spectrin network, so that a system with a large mesh size, has less springs in total. From our previous analysis we know, that thinning out the network will lead to less confinement and this can also be confirmed in the plot in Figure 2.18. However, experiments show, that the fluctuations decrease with time after infection, such that a thinning out of the network cannot be the only process happening in the iRBC. A hypothesis on what is actually happening is proposed in the next section.
+2.5.2 Strong Anchoring Introduces Confinement
+In the numerical study we quantified how γ scales with the number of connections between the bilayer and spectrin network and their strength. Hence, there are
+
+
+48 Flickering Analysis of Red Bood Cells
+two ways in which γ can increase. Either the existing connections get stronger or more connections are introduced. An increase in strength of the connections is very plausible since Shi et al. [11] found an increase in average spectrin length which results in stronger spring constants due to the strain hardening property of the spectrin filaments. For the number of connections the trend is not completely clear. On the one hand, it is thought that the parasite mines actin from the spectrin network [23] which would result in less connections to the bilayer. On the other hand, the knobs are thought to introduce extra connections so that the overall development could be either way. From the calculations it is clear that more connections will result in a larger γ. However, even if the number of connections reduces, γ can still increase if the spring constants get strong enough. Based on the results of the calculations, we can now make an estimate of how much the confinement will increase during a malaria infection. Three main effects need to be taken into account:
+• I found that γ scales nearly linear with the number of connectors N . Since the parasite mines actin from the cytoskeleton, the spectrin network becomes sparser and the density of connectors decreases. Shi et al. [11] found that the mesh size is approximately doubled from the uninfected to the trophozoite stage (compare Table 2.1). Based on the calculations presented in Section 2.5.1, I account for this by a factor of 0.8 for the confinement γ.
+• Building on the data by Shi et al. [11], the spectrin filaments get elongated during the infection from approximately 43 nm to 64 nm (compare Table 2.1). I explained previously that spectrin gets stiffer when it is stretched out. Applying the formula for the strain hardening behaviour of spectrin yields a factor of approximately 1.5 for the confinement increase due to this effect.
+• The assembly of knobs leads to the introduction of strongly anchored regions. Based on the above calculations explained in Section 2.4.4, this can be accounted for by a factor of 4.5 when assuming a knob density of 4 μm−2.
+Since these developments all happen simultaneously, overall the calculations predict an increase of the confinement by a factor of 5.4. It has to be taken into account that this is a crude estimate of the order of magnitude because the underlying microscopic changes of the network can only be estimated. Still, it is not so far off the experimentally measured increase by a factor of ten.
+
+
+Discussion of Malaria Induced Changes on Flickering 49
+2.6 Discussion of Malaria Induced Changes on
+Flickering
+In this chapter, the theory for equilibrium membranes and membrane dynamics was explained and the main advances in this field were summarised. Furthermore, a numerical model was developed in order to explain experimental results for the flickering of malaria infected RBCs. The numerical model takes into account the microscopic structure of the cytoskeleton and can therefore predict changes that occur during the malaria infection. The main properties that were discussed were the mesh size of the spectrin network, the spring constant of the effective tethering at junctional points and the formation of knobs connecting the bilayer and the cytoskeleton strongly in large areas. Overall, the most dominant factor for an increase in confinement seems to be the formation of knobs. Although it could be shown that a homogeneous tethering is more efficient, a stronger pinning in the relatively large knob areas can make up for this effect. There are some shortcomings to the model that could not be prevented. As seen in the theoretical section, a spherical approach or even better a parametrisation of the discocyte would be more fitting to describe the fluctuation data of a RBC. However, we also saw that an approach with altered geometry gets complicated very quickly. For the numerical model anything but a plane is not feasible for a thorough analysis, since the matrices involved in the calculations get too large for an efficient inversion. Furthermore, active contributions to the membrane movement were not treated here. The reason for this is the microscopic origin of the RBC activity is still not completely clear and the focus of this work was on the cytoskeletal modifications by the malaria parasite. Overall, we have learned, that the parasite stiffens the membrane by stretching out the individual spectrin filaments and by assembling knobs in the membrane. It is not entirely clear if the stiffening is a necessary effect or if it is a side effect of the knob assembly, which is necessary for the RBCs can to gain adhesive properties.
+
+
+50 Flickering Analysis of Red Bood Cells
+
+
+Chapter 3
+Molecular Red Blood Cell
+Cytoskeleton Model
+
+
+52 Molecular Red Blood Cell Cytoskeleton Model
+3.1 Motivation for a Molecular Model
+This chapter aims at improving the understanding of the molecular details of the RBC cytoskeleton in its native state and after the infection with malaria. During the malaria disease the RBC cytoskeleton is remodelled drastically. By studying the malaria induced alterations we can also learn something about how the healthy RBC cytoskeleton keeps its structure in its equilibrium state. There has been various evidence that the RBC spectrin-actin network is more dynamic than previously thought, specifically, the actin junctions have been found to disassemble and assemble constantly (see Section 3.2.4). All previous models of the RBC cytoskeleton assume actin junctions of a constant length or model the junction as one particle. Some models allow for a dynamically changing network topology through breaking of bonds but filament growth was not incorporated in such models. However, actin filament dynamics in other contexts has been modelled frequently, e.g. actin treadmilling and lamellipodium generation. The aim of our model is to establish a RBC cytoskeleton model that takes into account actin dynamics and reproduces the well-known RBC membrane properties. From there, we can test our hypotheses, how the malaria parasite attacks the network in order to build its own filaments and stiffens the RBC membrane. The model that is developed here, is a coarse-grained model, hence does not incorporate all molecular details of the system but enough to capture the structural details that are needed. As a basis the reaction diffusion software ReaDDy is used which has been developed in the group of Frank No ́e and evolves particles according to the Brownian dynamics equations, with external potentials and also incorporated reactions at the same time. First, the components of the RBC cytoskeleton are discussed in Section 3.2 and details about the relevant malaria exported proteins are given in Section 3.3. Then experimental data from our collaboration partners in Prof. Lanzer’s group is discussed in Section 3.4. After that, the reaction-diffusion model for the RBC cytoskeleton is introduced and possible alterations by the malaria parasite are shown in Section 3.5. The placement of PfEMP1 molecules is analysed in Section 3.6, before the conclusions of this chapter are drawn.
+3.2 Components of the RBC Cytoskeleton
+3.2.1 Cytoskeleton Structure
+RBCs have a unique cytoskeletal structure which enables the cells to squeeze through narrow capillaries in the microvasculature having a third the diameter of a RBC and still recover their shape throughout their lifetime [80]. The cytoskeleton mainly consists of spectrin, actin and associated proteins which regulate the structural organization. Due to various studies the overall structure and the components of the RBC cytoskeleton are well known. A comprehensive review of the current knowledge is given by Lux et al. [81]. However, the exact nature of some of the interactions is still unclear, e.g. the binding between spectrin and actin. The network’s elasticity mainly comes from the flexibility of the spectrin filaments. They are mainly thought to be in the form of tetramers which consist
+
+
+Components of the RBC Cytoskeleton 53
+of two dimers and have a stretched-out contour length of approximately 180 nm. Each dimer consists of an α- and a β-spectrin molecule which are wound around each other in a helical fashion (see Figure 3.1). Actin is found in short approx. 35 nm long filaments which form junctional complexes and hence the network’s connection points. The binding of spectrin is stabilized by protein 4.1R and would be a lot weaker otherwise. It was found that on average six spectrins and six proteins 4.1R attach to one junctional complex. The network is anchored to the bilayer through transmembrane proteins (such as Band 3) associated to ankyrin and the actin junctional complexes (compare top graphic in Figure 3.1). Ankyrin binds to the 13th to the 15th repeats within βspectrin [82] which is close to the midpoint of the tetramer. The ankyrin complex is thought to contain one akyrin, one Band 3 tetramer, two glycophorin A/B (hetero-)dimers, two protein 4.2 molecules and one Rh complex. The binding of an akyrin also promotes tetramer formation and Band 3 strengthens the spectrin selfassociation [81]. The other complex is centered around a short actin protofilament of approximately 35 nm length. Several spectrin N-termini can attach to this filament mediated by a protein 4.1R each. The attachment to the membrane is mediated via p55, glycophorin C/D and Band 3. It still remains unclear, how many Band 3 molecules are present in one complex [81].
+3.2.2 Spectrin
+The structure of spectrin in the native RBC membrane has been debated frequently because different microscopy techniques seem to lead to different results. Especially the contour length has been reported to have very different values. Part of this problem comes from the preparation techniques, the thus induced stretching and possible rearrangements of the network. From the amounts of spectrin tetramers (≈ 105000 per cell [83]) and actin protofilaments (≈ 35000 per cell [81]) in a RBC, the distance between actin protofilaments can be calculated to be on average 67 nm and the length of spectrin tetramers to be on average 65 nm [83], based on a hexagonal network and a surface area of 135 μm2. In the table in Figure 3.1, we see that similar values are obtained from computing the average distance between junctions bases on various RBC proteins such as ankyrin, adducin and others. All these values for the distance between junctions are approximately a third of the actual spectrin contour length of 200 nm [82]. Negative stain electron microscopy yields a stretched out network with straight spectrin filaments which have a length close to their contour length of 200 nm. Actin filaments and ankyrin sites can be seen clearly and 5-6 spectrins are attached to each actin junction [84, 85, 77]. It has been realized that this highly extended state is far from the structure present in native RBCs. From the amount of cytoskeletal components discussed above it is clear, that the network must be a lot denser and thicker as well. In order to get a better view on the native structure quick-freeze, deep-etch rotary replication (QFDERR) [85, 86] and AFM on unexpanded skeletons [87] have been applied. In contrast to the negatively stained samples, the spectrin contour length was found to be 29 − 50 nm and between 3 and 4 spectrins were attached to one junction. Electron microscopy
+
+
+54 Molecular Red Blood Cell Cytoskeleton Model
+Figure 3.1: Top) Schematic of the membrane anchored complexes taken from [81]. On the left an ankyrin complex and its associated proteins can be seen and on the right the larger actin junctional complex is shown. Bottom) Table taken from Ref. [83] summarizing the experimentally measured values for the number of proteins in a RBC and the calculated length of the spectrin filaments assuming a hexagonal structure in the last column.
+
+
+Components of the RBC Cytoskeleton 55
+Figure 3.2: a and b) Nans et al. [77] prepared healthy erythrocyte skeletons and reconstructed the tomograms to arrive at the networks shown in red. c and d) Parts of the network taken from the middle and the edge are enlared, respectively.
+of quickly-frozen and deeply-etched skeletons also found contour lengths between 30.6 and 82.6 nm [88]. When resolving the three dimensional structure of the RBC cytoskeleton, Nans et al. found an average contour length of 46 nm, a network thickness between 47 and 90 nm and on average 4.2 spectrins per junction. The tomograms used for their study can be seen in Figure 3.2.
+It has been debated over many years, how these two pictures fit together. In principle a very flexible polymer like spectrin would be shortened dramatically due to entropic reasons. Assuming a contour length of 200 nm and a persistence length of 0.1 − 10 nm, the theory for worm-like chains gives a value of 17.8 − 61.6 nm for the end-to-end distance of the polymer. Theories based on this principle have been applied [91, 92, 93, 94] but the highly crumpled state of the filaments seems to contradict experimental observations. Therefore, people proposed, that spectrins could associate laterally [86], that the observed filaments could be spectrin dimers instead of tetramers and that spetrin could be in higher oligomeric states [77].
+A different approach considers the sub-structure of spectrin and proposes structural rearrangements that lead to considerable shortening of the tetramer. As already discussed, a tetramer consists of an α and a β strand that wind around each other in a helical fashion. Based on this structure a possible mechanism for changing the contour length of the filament lies in adjusting the helical pitch and diameter. Images of negatively stained filaments seem to support this mechanism [90] (see Figure 3.3c). It was also found that bending in the linker region between spectrin repeats can lead to a shortening of 30 % while keeping the filament straight [89] (see Figure 3.3b). Brown et al. [83] developed a model exploiting the above mechanisms which they term the Chinese finger-trap model which is shown in Figure 3.3a. By varying the pitch, the contour length changes from
+
+
+56 Molecular Red Blood Cell Cytoskeleton Model
+ab
+c
+Figure 3.3: a) Schematic of the Finger Trap model discussed by Brown et al. [83]. The top row shows the front and side view of the compacted spectrin whereas the graphic in the middle gives a possible molecular organization of this structure. At the bottom the different configurations for various contour lengths are shown. b) Spectrin model from Ref. [89] and c) filtered microscopy images from Ref. [90] showing a possible relation between spectrin pitch and diameter.
+180 nm to 50 nm. At the same time the filament diameter changes and the short filaments are hollow in the middle which they also seem to observe experimentally. This model would explain, why microscopy images mainly show straight filaments. However, it does not explain why the spectrin network was observed to have a thickness of up to 90 nm [94] (a 40 nm soft and a 50 nm stiffer regime beneath) with tangentially oriented actin filaments [93] as the base.
+When pulling on single spectrin filaments, more information can be found about its behaviour under large strains. The filament can actually be stretched out further than it’s contour length of 200 nm because the single repeat structures can unfold. This has been shown in an AFM study by Rief et al. [95]. Although this unfolding is important for large forces in situations where the RBC is stretched a lot, it does not play a role in the discussion about the equilibrium structure of the RBC cytoskeleton.
+Overall, the entropic picture of a flexible polymer that shortens due to entropy and forms a thick layer seems most plausible. Especially since the theory of such a polymer gel yields the right macroscopic quantities like the shear modulus which is discussed in the next section. Additionally, in recent years this picture has been accepted by most researchers in the field.
+
+
+Components of the RBC Cytoskeleton 57
+3.2.3 Shear Modulus: Experimental and Theoretical Re
+sults
+Until now, the microscopic structure of the RBC cytoskeleton was discussed. However, in most cases the mechanics of RBCs are probed on more macroscopic scales. To access the stiffness of the membrane and the cell as a hole, one important quantity is the shear modulus. In a shear experiment either a force (stress τ ) or a deformation (strain γ) is applied. These two quantities are related by the shear modulus μ: τxy = μ γxy. (3.1)
+Note that this description assumes an isotropic response of the material. Although the cytoskeleton will not be isotropic on the microscopic scale, it can be treated as an isotropic continuum on the scale of a shear experiment. Such an experiment is useful, since it indirectly gains information about the small scale by probing the membrane on the whole cell level. The RBC shear modulus has been measured to be 2.4−2.75 μN m−1 and a review of the outcome of different measurment techniques can be found in [96]. Possible techniques to probe the shear modulus are micropipette aspiration, optical tweezers or flow chamber experiments. Another way to probe the shear modulus is observing fluctuations of the network. This can be done by attaching nano-particles to the actin nodes [97] and observing the fluctuations for different locations. This way Lee et al. found that fluctuations are increased along the strain axis if a large strain is applied. A possible explanation are dissociation events or unfolding. In a similar approach, the shear modulus can be probed by analysing the fluctuations of the membrane by a method called flickering analysis. How this works in detail is treated in Chapter 2. A study on RBCs has shown that the network gets softer with increasing temperature [98]. This result contradicts the picture of an entropic cytoskeleton elasticity. However, the RBC is complex enough that there could be also other reasons that explain this observation.
+3.2.4 Dynamic Actin Junction
+It is still generally excepted, that the actin junctional points consist of static filaments of equal lengths which are kept at this length by additional proteins. However, there has been evidence that this is not true in general. Motivated by the malaria community, people have started looking into the possibility of dynamic actin junctions that are partly stabilized by capping proteins. An interesting question is, how the malaria parasite uses this dynamic equilibrium to take actin out of this system in order to build its own trafficking system. When labelling junctional complex components, it became clear that even the healthy cytoskeleton seems to have 200 nm large voids [99]. Hence, the network seems to be more disordered than previously thought. In malaria infected RBCs it has been shown, that the parasite uses host derived actin monomers to build filaments that connect to the membrane [23, 100]. The reduction of actin junctional complex number also fits the observation that infected RBCs develop large voids in the network.
+
+
+58 Molecular Red Blood Cell Cytoskeleton Model
+In 2015 the first RBC study showed evidence for actin exchange in healthy RBCs. By labelling the G-actin monomers it was shown that one third of actin filaments dynamically exchange actin monomers at a given time [101, 102]. This observation is in agreement with the observation that the actin capping proteins are localized to a subset of junctional complexes [99].
+Actin Filaments
+The actin filament itself has a persistence length around 0.1 μm and is polarized such that it has one fast growing end (”barbed” or plus) and one slow growing end (”pointed” or minus). The magnitude of rate constants at the barbed end is significantly larger than at the pointed end. However, the situation is further complicated by ATP hydrolysis within the actin monomer and different rate constants associated to the different states. Although ATP hydrolysis occurs very slowly for free actin subunits, it is faster (rate of 0.3 s−1 in the presence of Mg, assuming random hydrolysis uninfluenced by neighbouring monomers [103]) once the subunit is bound in a filament and hence, the hydrolysis plays a role for actin filament assembly. Shortly after the hydrolysis occurred, the phosphate is released from the filament at a rate of 0.002 − 0.006 s−1 [104], leaving ADP-actin behind. This leads to 3 different states, ATP-actin, ADP/P-actin and ADP-actin which detach at different rates. There has been some debate whether the hydrolysis happens randomly or vectorially, which would mean that hydrolysis occurs next to already hydrolysed monomers. Although not completely clear, many studies suggest the random hypothesis [105, 106]. Because of the accumulation of hydrolysed subunits at the pointed end the filaments can be in a state termed ”treadmilling”, where the depolymerization rate at the pointed end is equal to the polymerization rate at the barbed end, so that the filament stays at constant length but the subunits are constantly renewed. For this to occur the free monomer concentration must be between the critical concentrations of the pointed and barbed end. These concentrations can only be different because one end is hydrolysed and the other one is not. Actin filaments have many different functions in cells depending on their length and organization. Where the short actin filaments hold the RBC cytoskeleton together, the dynamic actin polymerization is the foundation for cell motility. The filaments are built from 43 kD globular G-actin (see Figure 3.4a) and form a two-stranded right-handed helix with a diameter of 8 nm (see Figure 3.4b). To fulfil all different functions, the filament length and dynamics can be controlled by adjusting the actin monomer concentration or by addition of actin binding proteins, such as capping proteins which will be described in more detail hereafter. In most non-muscle vertebrate cells, only half of the actin is bound to filaments. This leads to a monomer concentration of 50 − 200 μM which is a lot higher than the critical concentration.
+Rate Constants
+On the experimental side there have been various studies to measure how actin growth depends on monomer concentration and to observe the phenomenon of treadmilling [107, 108]. Early studies measured the rates by electron microscopy
+
+
+Components of the RBC Cytoskeleton 59
+ab
+Figure 3.4: Structure of actin monomers in a) and filaments in b) taken from Alberts et al. [3]. The right image clearly shows that an actin filament has two distinct sides.
+which requires fixation (values in Table D.1). Other approaches used fluorescence microscopy but a major problem in real-time measurements is the background fluorescence of the labelled monomers. To circumvent this problem Kuhn et al. [108] used total internal reflection fluorescence microscopy to follow the filament growth. In order to distinguish between the pointed and barbed end, the filaments were attached via N-ethylmaleimide inactivated myosins or different fractions of labelled actin were used to establish a clear border which can be tracked. In this study treadmilling was observed and the different association and dissociation constants for ATP-actin and ADP-actin were found as shown in Table D.1. The ADP dissociation rates were measured after the filaments were aged in treadmilling conditions so that most actin was converted to ADP-actin. Additionally, vitamin D binding protein was added to sequester the dissociated monomers during the dissociation process.
+The rates are extracted from a plot of the time derivative of the filament length dl
+dt against free actin monomer concentration C since the slope corresponds to the association constant k+ and the y-axis interception to the dissociation con
+stant k−: dl
+dt = k+ C − k−. (3.2)
+The association of monomers is concentration dependent, since more monomers have the chance to associate to the filament if the monomer concentration is high. For a dissociation however, it does not matter, how many monomers are available.
+When considering binding interactions, an important quantity is the dissociation constant KD. It given by
+KD = k−
+k+
+(3.3)
+and hence, a smaller KD implies more likely binding. The dissociation constant has a unit of concentration.
+
+
+60 Molecular Red Blood Cell Cytoskeleton Model
+Modelling Actin Dynamics
+There have also been various approaches to model actin filament growth. Analytical studies taking into account ATP hydrolysis based on probability distributions [109] and a master equation approach [110] reproduce the actin filament dynamics as well as predict an ADP-P and ATP cap and maximal length fluctuations just above the critical concentration, although not as large as experimentally observed. The stochastic nature of the process is well captured in particle-based models like a Brownian Dynamics approach. In a series of papers Guo et al. [111, 112, 113] established such a BD scheme which models an actin monomer by three connected BD particles and speeds up the reactions by rescaling the reaction rates. This model also incorporated ATP-hydrolisis. The basic equation of the BD scheme is
+ri(t + ∆t) = ri(t) + ∆t
+kBT
+∑
+j
+Dij · Fij + Ri(∆t), (3.4)
+where ri is the position of the particle, ∆t the time step, kBT the Boltzmann constant multiplied by the temperature and Fij the force tensor due to interparticle potentials. The diffusion tensor Dij reduces to
+Dij = kBT
+6πηrparticle
+δij (3.5)
+without hydrodynamic interactions. The random displacement Ri(∆t) has mean ⟨Ri(∆t)⟩ = 0 and ⟨Ri(∆t) · Rj(∆t)⟩ = 6Dij∆t. A soft-core potential is used between free monomers. Reactions take place when monomers enter a capture zone at the end of the tetramer which is a conical cut from a sphere with internal angle 60◦. Reaction rates can then be tuned by varying the size of this capture zone. Additionally, all particles get a flag for their type (T,D,P), corresponding to ATP-actin, ADP-actin and ADP-actin plus bound phosphate. The simulation reproduces most features of the experimental data but length fluctuations near the critical concentration are not as large as in experiments.
+Capping Proteins
+The RBC uses the the capping proteins tropomodulin and adducin as well as the actin binding protein tropomyosin in order to control filament length. These proteins associate to the actin filaments and prevent further polymerization. The highly conserved length of 35 nm is thought to be dictated through tropomyosin. Tropomyosin is a rod like protein that binds 6-7 actin monomers. With its length of 34 nm it is thought to act as a molecular ruler in the actin junctions, with one tropomyosin binding to each actin strand. Polymerizaiton stops at the length of tropomyosin because tropomodulin associates to the pointed end of actin filaments better in presence of tropomyosin (KD < 1 nM) [114]. In absence of tropomyosin the affinity is much smaller (KD ≈ 0.3 μM) [115]. Adducin (KD ≈ 100 nM) caps the barbed end of actin filaments and recruits additional spectrin filaments to the junctional complex [116],
+
+
+Details on Malaria Induced Changes 61
+such that more spectrins are recruited to the fast growing side of the filament [117]. When comparing these dissociation constants, we observe that adducin has a much larger dissociation constant than tropomodulin (with tropomyosin present). This means that adducin is less strongly bound.
+3.3 Details on Malaria Induced Changes
+The malaria parasite uses the RBC to hide inside the body and to replicate. In order to do so, it consumes haemoglobin and alters the properties of the membrane by exporting proteins [24]. The consumption of haemoglobin generates toxic reactive oxygen species and free heme which is known to destabilize the membrane (compareable to the situation in sickle cells) by interacting with the cytoskeleton. The parasite needs to prevent premature rupture but also uses host actin to transport proteins to the membrane such that adhesion complexes can be formed. In HbAS and HbAC cells the remodelling process seems to be less efficient such that these cells are less adhesive and lead to less severe symptoms. One reason might be the increased level of hemichromes [118] which alter the cytoskeletal interactions. However, it is unclear, which parts of the parasite’s remodelling process are most affected by the haemoglobin variants. A detailed review about the malaria induced changes inside the RBC can be found in Ref. [17].
+3.3.1 Knob Associated Histidine Rich Protein
+An important parasite exported protein is the knob associated histidine rich protein (KAHRP) (80-108 kDa [119]) which is essential to form knobs on the RBC surface [120]. The N-terminal half of the protein is called K1 and is the the histidine-rich part. Then there is a lysine rich region termed K2 and the Cterminal repeat region is called K3 [121]. Overall, KAHRP is a highly disordered protein, such that it can bind to many different sites of the RBC cytoskeleton. The parasite starts synthesizing KAHRP in the mid ring stage and then exports it into the RBC cytosol. Hence, the protein reaches the membrane through diffusion and then binds to various locations within the spectrin-actin network, as I will exlain in the following paragraphs. This attachment of KAHRP to the cytoskeleton leads to a drastic stiffening of the membrane [24]. Since the RBC gains its flexibility through the spectrin network this means that KAHRP somehow interacts with the spectrin filaments. However, its main purpose seems to be the formation of protrusions, termed knobs, on the RBC surface. It was shown that after the disruption of the KAHRP gene, knobs do not form properly and the cytoadhesion of the infected cells is reduced dramatically under flow conditions [122]. With immunoelectron microscopy it was found, that KAHRP can cluster at actin junctions and also attach along the cytoskeleton [123]. It is also believed that KAHRP forms the electron dense layer just below the bilayer in knob areas but the exact structure of the knobs and where exactly KAHRP binds to form knobs is still unclear. People have tried to solve this question by determining dissociation constants of the binding processes between different protein fragments which are summarized hereafter.
+
+
+62 Molecular Red Blood Cell Cytoskeleton Model
+First of all, it has been observed that KAHRP self-associates into clusters similar to the size of knobs (≈ 100 nm diameter). These clusters have also been shown to bind to the spectrin-actin-protein 4.1 junction [124, 123]. Therefore, it might be possible, that KAHRP forms larger aggregates in the cytosol and then attaches to the membrane. The alternative would be, that KAHRP first attaches to the cytoskeleton and then assembles to larger structures. The interaction between KAHRP and spectrin has been narrowed down to two distinct interaction pairs. Pei et al. [125] found that a 72-amino-acid stretch of KAHRP associates with repeat 4 of α spectrin and the 5-repeat region of KAHRP binds β spectrin repeats 10-14. The second of these lies directly next to the spectrin-ankyrin interaction site [120, 126, 127] and is strengthened through complementary electric charges. Cutts et al. [127] measured dissociation constants and conducted molecular dynamics simulations to confirm the β spectrin binding site with a dissociation constant of kD = 50±15 μM. However, for the α spectrin binding site they obtained contradicting results. They pinpointed the bining site to repeats 12-16 instead of repeat 4 and found this binding to be three times weaker with a dissociation constant of kD = 160 ± 60 μM. Additionally, a binding site for ankyrin was found and could be narrowed down to a 79-residue segment on KAHRP [126]. The site on ankyrin that it binds to was identified as the band 3 binding domain. Magowan et al. [119] found dissociation constants for the 89 kDA membrane-binding domain (MBD) and the 43 kDa subdomain with full length KAHRP to be kD = 1.8 and kD = 1.3 μM, respectively. Weng et al. [126] only considered the K1 domain of KAHRP but the same ankyrin domains. Here they found dissociation constants of kD = 0.046 and kD = 0.038 μM, respectively. It makes sense that the binding is stronger (smaller kD) for the smaller KAHRP domain, since there are no entropic repulsion effects.
+3.3.2 Plasmodium Falciparum Erythrocyte Membrane Pro
+tein 1
+Another very important parasite exported protein is called plasmodium falciparum erythrocyte membrane protein 1 (PfEMP1) which interacts with various ligands on epithelial cells [137] and hence mediates cytoadhesion. This 200-350 kDa transmembrane protein clusters on knobs such that it interacts more easily with endothelial receptors to induce adherence. This clustering only happens in the presense of KAHRP and otherwise cytoadhesion is reduced [122]. PfEMP1 is transported to the membrane in vesicles with the cytoplasmic domain pointing outwards. This cytoplasmic domain which is the acidic terminal sequence (ATS) of PfEMP1 is called VARC and is highly disordered (similar to KAHRP) [138]. The export is a very slow process and goes through the parasite induced Maurer’s clefts. Transcription peaks at 12 h past invasion but the protein only reaches the membrane 16 hours past invasion [139]. First, the binding interactions of the extracellular part of PfEMP1 to endothelial receptors are discussed. These turn out to be slightly different for different PfEMP1 variants, whereas the cytoplasmic region is highly conserved. Most PfEMP1 variants have a binding site for CD36 which lies in the cysteine-rich interdomain region [140]. Binding sites to chondroitin sulphate A (CSA) are only
+
+
+Details on Malaria Induced Changes 63
+Protein 1 Protein 2 KD in μM References
+Spectrin F-actin 200 Ohanian et al. 1984 [128]
+Spectrin protein4.1 0.1 Tyler et al. 1980 [129]
+0.1 Podgorski et al. 1985 [130]
+2.0 Eder et al. 1986 [131]
+0.2 Li et al. 2014 [132]
+(phosphorylated) 9.6 Eder et al. 1986 [131]
+Spectrin Ankyrin 0.1 Tyler et al. 1980 [129]
+0.05 Bennet et al. 1980 [133]
+Ankyrin Band3 0.01 Bennett et al. 1980 [133]
+0.01 Thevenin et al. 1990 [134]
+Spectrin Spectrin 2 Liu et al. 1981
+Tropomyosin F-actin 0.4 Fowler et al. 1984 [135]
+KAHRP Ankyrin (MBD) 1.8 Magowan et al. 2000 [119]
+KAHRP Ankyrin (D3) 1.3 Magowan et al. 2000 [119]
+KAHRP K1D Ankyrin (MBD) 0.038 Weng et al. 2014 [126]
+KAHRP K1D Ankyrin (D3) 0.046 Weng et al. 2014 [126]
+VARCD F-actin 0.04 Oh et al. 2000 [123]
+VARCD KAHRP 0.01 Oh et al. 2000 [123]
+VARC KAHRP (K1A) 0.1 Waller et al. 1999 [136]
+VARC KAHRP (K2A) 3.3 Waller et al. 1999 [136]
+VARC KAHRP (K2A1) 32.06 Ganguly et al. 2015 [121]
+VARC KAHRP (K3) 13.0 Waller et al. 1999 [136]
+Table 3.1: Dissociation constants are listed, that have been found by various groups for different protein(fragment) pairs. The three parts of the table show interactions of host cytoskeletal proteins, interactions with KAHRP and interactions with the cytoplasmic domain of PfEMP1 from top to bottom.
+
+
+64 Molecular Red Blood Cell Cytoskeleton Model
+present in some isolates [141] and other receptors that can potentially be bound are the intercellular adhesioin molecule 1 (ICAM-1) and thrombospondin [136]. On the cytoplasmic side PfEMP1 needs to be anchored by the VARC domain to the RBC cytoskeleton to transmit the forces due to adhesion. Oh et al. found very low dissociation constants in the order of magnitude of 10 nM for the binding of VARC to F-actin and KAHRP such that a direct anchorage to the host cytoskeleton and the knob was proposed. Subsequently, a more detailed picture of the PfEMP1 binding sites was developed. One parasite induced binding partner is KAHRP which is thought to make up the base of the knobs and hence can anchor PfEMP1 to knob regions. The VARC domain can bind to KAHRP via long range electrostatic interactions [119]. Actually, there are 3 distinct KAHRP fragments (the N-terminal region of K1 and K2 termed K1A and K2A and K3) that PfEMP1 can bind to. Out of these three, K1A and K2A have strong binding affinities, namely KD = 0.1 μM and K2A KD = 3.3 μM, whereas K3 only binds weakly with KD = 13.0 μM [136]. The binding to K2A is mediated via the first 291 residues of VARC [121]. Overall, the binding of PfEMP1 to KAHRP is enhanced through the phosphorylation of the VARC domain by the RBC casein kinase II [142]. It has further been found that VARC can bind spectrin close to the spectrin actin junction [119, 123]. Although the core of the VARC domain interacts broadly with spectrin, the strongest interaction could be specified to the 17th repeat of the spectrin α-chain [127] and the C-terminus of VARC. Mayer et al. [138] found a dissociation constant of Kd = 59 ± 6 μM. Since PfEMP1 arrives in vesicles at the membrane, it is most likely that it enters knob areas by 2d diffusion in the membrane. As we will see in Section 3.6, there is only a small number of PfEMP1 molecules present in each knob and they have been found to cluster towards the middle.
+3.3.3 Actin Mining
+When examining the internal structures of RBCs with different haemoglobin variants, Cyrklaff et al. observed long actin filaments inside the RBC cytosol [23]. The aim of the study was to show, why some haemoglobin variants protect the host from severe malaria pathology and they answered this question by reconstructing cryo-electron tomogram images of rapidly frozen RBC samples. An example can be seen in Figure 3.5 where we see an uninfected RBC on the left, an infected HbAA RBC in the middle and an HBCC RBC on the right. The most important features that can be seen are the yellow filaments that form for the infected RBCs. From additional experiments it is clear, that this is host derived actin which grows in direction of the Maurer’s clefts (cyan membrane structures). The existance of these filaments is thought to aid transport of proteins from the parasite to the membrane. In the figure we see how vesicles are possibly transported along the filaments. The source of the motion could either be actin polymerization close to the Maurer’s clefts or a molecular motor could be used. Rug et al. found that interfering with PfEMP1 trafficking prevents proper assembly of the Maurer’s clefts [143]. In Figure 3.5c we see a HbCC RBC and observe that actin filaments are a
+
+
+Details on Malaria Induced Changes 65
+Figure 3.5: Reconstructed tomograms of an uninfected HbAA erythrocyte in a), a trophozoite-infected HbAA erythrocyte in b) and a trophozoite-infected HbCC erythrocyte in c), taken from [100]. The scale bar is 100 nm and the colours highlight the following compartments: blue, plasma membrane; yellow, actin filaments; red, knobs and cyan, vesicles and Maurer’s clefts.
+lot shorter. An explanation might be that haemoglobin oxidation products which are present in HBCC and HBSS erythrocytes interfere with the actin polymerisation [23].
+3.3.4 Phosphorylation
+Phosphorylation of proteins (the attachment of a phosphoryl group) can alter their binding affinities dramatically. For example, phosphorylation of protein 4.1 amplifies its dissociation constant with spectrin by a factor of five (compare Table 3.1). In the healthy RBC phosphorylation is regulated by human kinases, such as cAMP-dependent kinase or protein kinase C [17]. Where most proteins are dephosphorylated in the early parasite life-cycle [144], phosphorylation is increased at the end of the ring stage by parasite exported kinases. The parasite seems to export at least 20 different kinases [145]. Hence, it is very likely that binding affinities change during the parasite life-cycle. An increased level of phosphorylation has been measures for protein 4.1 and band 3 in malaria infected RBCs [146, 147]. This phosphorylation is assumed to destabilize the membrane skeleton. The phosphorylation of KAHRP has not been studied very well, but it could potentially change its binding properties during the infection. For further information see the analysis of the KAHRP cluster formation in Section 3.5.4.
+3.3.5 Oxidative Stress
+In order to carry oxygen through the body, the Fe(II) haemoglobin in RBCs can bind oxygen reversibly. At the same time 3 % of haemoglobin is oxidized in 24 hours, producing superoxide [148] and further oxidation products. It has been
+
+
+66 Molecular Red Blood Cell Cytoskeleton Model
+found that haemoglobin oxidation products have different effects on the membrane skeleton stability. Some stabilize the skeletons via promotion of spectrin selfassociation to tetramers and others decrease the spectrin-protein 4.1-actin binding. Whereas the oxidation products are held at a low level in healthy red blood cells, in sickle cell disease the hemin level is increased three to five-fold. This is due to the redox imbalance that is associated with sickle cell anemia. Furthermore, it has been found that there is 50% less spectrin-ankyrin binding in sickle cells. The situation is even worse in malaria infected red blood cells. The parasite consumes haemoglobin and thus, generates toxic reactive oxygen species and free heme. To prevent complete destruction of the red blood cell, some of this is converted to inert hemozoin by the parasite [149].
+3.4 Experimental Data
+In order to determine where exactly knobs form in the RBC cytoskeleton experiments were set up in which two proteins are labelled by distinct colours. The experimental work was done by Cecilia Sanchez from Prof. Michael Lanzer’s group at the University Clinics Heidelberg and the data analysis was done by Pintu Patra from Prof. Ulrich Schwarz’s group. The experiments were conducted on uninfected, ring stage infected and trophozoite infected RBCs in order to see temporal changes. In each RBC two proteins were labelled by anti-bodies such that their relative position could be determined. The RBCs were opened up, such that the cytoplasmic side could be examined with super-resolution microscopy. Three examples of the obtained data can be seen in Figure 3.6, where Figure 3.6a shows labelled ankyrin and protein 4.1 in an uninfected cell, Figure 3.6b shows ankyrin and KAHRP in a ring stage infected RBC and in Figure 3.6c ankyrin and KAHRP are labelled in a trophozoite iRBC. These images were then analysed by Pintu Patra’s python scripts, which determine the pair cross-correlation of the two distinctly labelled proteins. The pair cross-correlation for localization points is calculated by
+C(r, r + ∆r) =
+∑ρ=r+∆r ρ=r
+∑nR i=1
+∑nG
+j=1 δ(|ri − rj| − ρ)
+π∆r(2r + ∆r)η , η = nR × nG
+Aimage
+, (3.6)
+where r is the distance between point pairs, ∆r the bin width of the radial bins, ri is the position vector of a point and η gives the density of pair-wise distances (ηR/G is the number of total red/green points). A cross-correlation of 1 indicates a random distribution, such that for long distances all cross-correlations decay to 1. A value above 1 shows that a lot of protein pairs have the specified distance to each other, whereas a value below 1 means that there are less proteins of the given distance than for a random distribution. In Figure 3.7 selected cross-correlation curves are shown for healthy RBCs in Figure 3.7a, ring stage iRBCs in Figure 3.7b and trophozoite iRBCs in Figure 3.7c. For the healthy RBC positive correlations can be seen for protein 4.1 with actin and tropomodulin but not for ankyrin. This validates that the method works correctly, since protein 4.1, actin and tropomodulin are part of the actin junctional complex but ankyrin is not.
+
+
+Experimental Data 67
+a
+c
+b
+ankyrin protein 4.1
+ankyrin KAHRP
+ankyrin KAHRP
+Figure 3.6: Experimental data from the cross-correlation study done in Prof. Lanzer’s Lab is shown. Two colour channels, red and green, were observed as shown in each row. a) Antibodies associated to ankyrin and protein 4.1 are labelled in an uninfected RBC. b) Ankyrin and KAHRP are labelled in a ring iRBC. c) Ankyrin and KAHRP are labelled in a trophozoite iRBC.
+
+
+68 Molecular Red Blood Cell Cytoskeleton Model
+0 25 50 75 100 125 150 175 200 d in nm
+0
+1
+2
+3
+4
+5
+6
+Cross-Correlation
+Trophozoite Stage iRBCs
+KAHRP-Actin KAHRP-Adducin KAHRP-4.1 KAHRP-Tropomodulin KAHRP-Ankyrin KAHRP-KAHRP
+0 25 50 75 100 125 150 175 200 d in nm
+0
+2
+4
+6
+8
+10
+12
+Cross-Correlation
+Ring Stage iRBCs
+KAHRP-Adducin KAHRP-Ankyrin KAHRP-KAHRP
+0 25 50 75 100 125 150 175 200 d in nm
+0.0
+0.5
+1.0
+1.5
+2.0
+2.5
+3.0
+3.5
+Cross-Correlation
+Healthy RBCs
+Protein 4.1-Actin Protein 4.1-Tropomodulin Protein_4.1-Ankyrin
+a
+c
+b
+Figure 3.7: The analyis of the experimental data from the cross-correlation study done in Prof. Lanzer’s Lab is shown. The data analysis was done by Pintu Patra. The calculated cross-correlations are shown for a) the uninfected RBC, b) the ring iRBC and c) the trophozoite RBC. Each curve is the average of approximately 30 images.
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 69
+For the iRBCs, two different tags for KAHRP were used and tested by correlating one of these with the other. As expected a very high correlation is found for small distances. In ring stage positive correlations were also found for KAHRP with adducin, which is one of the actin capping proteins, and ankyrin. Hence, we conclude that KAHRP attaches all along the cytoskeleton during ring stage.
+In trophozoite stage adducin and other actin junctional proteins also show a positive correlation with KAHRP at small distances, but ankyrin starts with a value below 1 which indicates that KAHRP is not near the ankyrin sites during this infection stage.
+Overall, this study seems to suggest, that KAHRP first binds to all its possible binding sites during ring stage but later moves away from the ankyrin sites. The binding interactions of KAHRP with the cytoskeleton were explained in the last section and were shown to exist both close to the actin junction and the ankyrin site. It remains unclear which mechanism is responsible for this configuration change. I try to find an explanation by applying a reaction-diffusion model to the RBC cytoskeleton in the next section.
+3.5 Reaction-Diffusion Model for Healthy and
+Infected RBCs
+3.5.1 Modelling Technique and Software
+Reactive Brownian Dynamics
+A convenient way to model the RBC cytoskeleton seems to be a reactive Brownian dynamics approach where particles are represented as solid spheres. In this type of model, the particles diffuse through the reaction volume using a Brownian dynamics scheme and can additionally react with each other once they are close enough and specific conditions are fulfilled. On top of this, inter-particle potentials can be introduced, such that particles can repel each other form a chain of a given persistence length. Two reviews on such algorithms can be found in [150] and [151].
+When reactions take place in solution, the molecules have to find each other through diffusive motion before the reaction can take place. Hence, several rates are important, the rate for forming the reactive complex within a solvent cage, k1, the rate for disassembly of this complex, k−1 and the rate of reaction, k2. The reactive complex has a typical lifetime of 100 ps [152].
+Because of these two different processes, two limits can be considered; the diffusion-controlled limit and the reaction controlled limit. In the diffusion controlled limit (k2 ≫ k±1) the reaction is determined by the formation of the reactive complex with reaction rate k1. In the reaction-controlled limit an equilibrium be
+tween reactive complexes and single molecules builds up C{AB}
+CACB = K = k1
+k−1 , so that
+the overall reaction rate is given by k2K (C denotes concentrations of the different species A, B or AB).
+
+
+70 Molecular Red Blood Cell Cytoskeleton Model
+ReaDDy
+The simulation software that we will use is called ReaDDy and was developed by the group of Prof. Frank Noe ́. ReaDDy models the movement of particles with generalized Langevin dynamics in the overdamped limit, where interaction potentials are incorporated naturally. Before particles can react, an encounter complex has to be formed and then the reaction happens with a specified activation rate. The rate at which an encounter complex is formed is given by the Smoluchowski equation: kenc = 4π(D1 + D2)(ri,1 + ri,2), (3.7)
+where Di the diffusion constant of particle i and ri is the reaction radius of the particle. This radius can be different from the collision radius rc of each particle, which determines the particles spacial extend via a repulsion potential. The macroscopic and microscopic on-rates (k+ and k+
+micro) are related by the following equation:
+k+ = 4π(D1 + D2)
+⎡
+⎣R12 −
+√
+D1 + D2
+k+
+micro
+tanh
+⎛
+⎝R12
+√
+k+
+micro
+D1 + D2
+⎞
+⎠
+⎤
+⎦ . (3.8)
+All reactions are set up in a way that ensures detailed balance which is important to reproduce the right equilibrium properties. Since 2018 it is also possible to model membranes in ReaDDy which might be beneficial to us in the future. For initial steps it is sufficient to constrain the cytoskeleton to a 2D plane.
+Previous RBC Modelling Approaches
+The RBC membrane has been modelled on several scales by various methods. When doing so, a compromise has to be found between including molecular detail and reaching a reasonable system size for the relevant problem. Therefore, models either consider a small membrane patch with a few junctional complexes or the RBC as a whole, where molecular detail is lost. These large scale models are usually more easily comparable to experimental data. On the small scale there is two main modelling approaches. In the so called coarse grained molecular dynamics (CGMD) model, all agents are modelled as spherical particles that interact via potentials. Typically, the membrane consists of a one agent thick layer with specific potentials that insure the correct membrane mechanics. Spectrin filaments are then modelled as chains of particles that are connected with unbreakable springs and connect at actin junctions which consist of one slightly larger particle [18]. The actin junctions are constrained to stay within the bilayer but can freely diffuse. This kind of model has been altered to incorporate effects like dissociation between actin and spectrin [153] and strengthening of the network by the formation of spectrin octamers instead of tetramers [154]. On an even smaller scale the dynamics of a fixed length actin filament has been considered by modelling it as a cylindrical rod. After calculating forces and torques on it, an average angular orientation could be determined and the question of how the spectrin filaments are attached could be discussed [155]. This model is
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 71
+limited to a very small number of junctional complexes. For whole RBC simulations, the membrane is usually depicted as a triangular surface, each representing a rather large patch of membrane. The hydrodynamics of the surrounding liquids is then simulated by dissipative particle dynamics (DPD) [156] or mulit-particle collision dynamics (MPCD) [157]. In a different approach it is also possible to consider the spectrin filaments as a triangular network and extract elastic constants via an effective medium theory [79]. Although these models can capture the RBC properties very well, they do not tell much about the molecular details that lead to the behaviour.
+3.5.2 Model Details
+The key to modelling the right cytoskeletal behaviour is choosing all rates and parameters in an appropriate way. Here, we try to extract as many parameters as possible from previous experiments and choose the rest according to successful previous modelling approaches. For the simulations of the malaria infected cells, very little is known about the exact interactions, thus a wide range of parameters is probed in that case.
+Model Elements
+In the presented RBC model, the following constituents are incorporated:
+• G-actin monomers: The monomers diffuse in the cytosol and can react with actin filament ends.
+• actin filaments: Actin filaments are implemented with two distinct ends (corresponding to barbed and pointed) and can react with G-actin according to the rates explained hereafter.
+• actin capping proteins: Two types of capping proteins are introduced corresponding to adducin and tropomodulin. These can bind to one actin filament end each and block polymerization.
+• spectrin filaments: These consist of 39 beads and can bind to actin filaments with their end beads such that a cytoskeletal network can be formed.
+• KAHRP monomers: The KAHRP monomers diffuse in the cytosol and can bind to spectrin and actin filaments as described in the next section.
+The two filament types are implemented in ReaDDy as so-called topologies. These behave as one entity with specific potentials between its constituents (see InterParticle Potentials). In the case of actin the polymerization is included as topology reaction.
+
+
+72 Molecular Red Blood Cell Cytoskeleton Model
+Rates
+First, reaction rates need to be set correctly to model actin dynamics. The rates that are accessible in experiments are called macroscopic and can be extracted from the elongation rate ω of a filament under constant G-actin concentration C:
+ω = k+C − k−, (3.9)
+where k+ and k− are the association and dissociation rates, respectively. The addition of monomers depends on the concentration whereas the dissociation is independent. Therefore, we introduce a microscopic rate k+
+micro which decouples the reaction from the diffusion such that the microscopic and macroscopic association rates are related as follows:
+k+ = 4π(D1 + D2)
+⎡
+⎣R12 −
+√
+D1 + D2
+k+
+micro
+tanh
+⎛
+⎝R12
+√
+k+
+micro
+D1 + D2
+⎞
+⎠
+⎤
+⎦ , (3.10)
+where Di are the diffusion constants of the two interacting particles and R12 is the sum of the two reaction radii. Hence, the microscopic rate which needs to be known as simulation input can be determined from the macroscopic rate using this equation.
+Fujiwara et al. [158] used fluorescence microscopy to determine the macroscopic rates of actin assembly with a special focus on the presence of phosphate, which we neglect here. Their rates are commonly used as reference when considering actin polymerization:
+k+
+b = 11.6 μM−1s−1
+k+
+p = 1.3 μM−1s−1
+k−
+b = 1.4 s−1 = 1.4 · 10−9 ns−1
+k−
+p = 0.8 s−1 = 8 · 10−10 ns−1.
+The subscripts indicate the barbed or pointed end and we see that both association and dissociation rates are larger at the barbed end.
+By comparing diffusion and reaction time scales it can be seen that there is a mismatch in time scales. The time scale set by actin rates is given by:
+tdiss = 1
+k−
+b
+= 0.7 s. (3.11)
+For the diffusion timescale tdiff, we consider the time a G-actin particle needs to diffuse its own size r0 = 3 nm. The simulation time step ∆t needs to be chosen as a fraction of this time, we choose ∆t = 10−3 tdiff. Hence, we find
+DGactin = 71.5 μm2 s−1 → tdiff = r2
+0
+DGactin
+= 350 ns, (3.12)
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 73
+∆t = 10−3tdiff = 0.35 ns (3.13)
+and see that only approximately every 109 time steps a dissociation event would occur which is not practical in a simulation. Hence, we introduce a factor b that speeds up the elongation rate, as introduced in [111] and indicate the scaled rates by a hat symbol:
+ωˆ = bω = b(k+C + k−) = kˆ−Cˆ + kˆ−. (3.14)
+Therefore, we find
+kˆ+ = k+bk, Cˆ = b
+bk
+C and kˆ− = bk− (3.15)
+and choose b = 1000 and bk = 25 according to [111]. This leads to the following
+macroscopic and microscopic rates (Cˆ = 40C):
+kˆ+
+b = 289.5 μM−1s−1 = 0.4825 μm3 s−1 kˆ+
+b,micro = 563521 s−1
+kˆ+
+p = 32.55 μM−1s−1 = 0.05425 μm3 s−1 kˆ+
+p,micro = 60323 s−1
+kˆ−
+b = 1400 s−1 = 1.4 · 10−6 ns−1 kˆ−
+b,micro = 1400 s−1
+kˆ−
+p = 800 s−1 = 8 · 10−7 ns−1 kˆ−
+p,micro = 800 s−1.
+The deterministic equation for actin filament growth is given by
+dL
+dt = (kˆ+
+b + kˆ+
+p )Cˆ − (kˆ−
+b + kˆ−
+p ), (3.16)
+where L is the filament length. By setting the elongation rate to zero, we can calculate the critical concentration for treadmilling:
+CˆD =
+kˆ−
+b + kˆ−
+p
+kˆ+
+b + kˆp+
+. (3.17)
+Substituting in the scaled actin rates, we find
+CˆD = 1400 + 800
+0.05425 + 0.4825 μm−3 = 4098 μm−3 = 4.098 · 10−6 nm−3.
+Keeping the Particle Concentration Fixed
+When studying polymer growth or processes in cell-like environments, it is useful to be able to keep the concentration of the diffusing monomers A at a constant level. However, the simulation software does not allow to manually adjust the number of monomers A after every reaction event, such that a different approach needs to be chosen. I do this here by introducing another species of particles N that do not interact with the system except of producing and absorbing monomers
+
+
+74 Molecular Red Blood Cell Cytoskeleton Model
+of the relevant particle species:
+N ⇌ N + A, (3.18)
+where the rate for creating an A particle is kc and the rate of absorbing an A particle is ka. By tuning the rates correctly, the average value of the concentration can be set under some conditions. A relation between the rates and the concentration can be found by applying the law of mass action:
+K = [N ]eq[A]eq
+[A]eq
+= [A]eq = kc
+ka
+. (3.19)
+Sine the absorption depends on the diffusive formation of an encounter complex, the rates kc and ka are related to the microscopic rates fc and fa as follows:
+kc = fc
+ka = 4πDR
+⎛
+⎝1 −
+√
+D
+fa
+tanh(R
+√
+fa
+D)
+R
+⎞
+⎠.
+When putting these formulas together, we find the following relation, that enables us to calculate fc from the concentration and the previously chosen microscopic absorption rate fa:
+fc = [A]eq4πDR
+⎛
+⎝1 −
+√
+D
+fa
+tanh(R
+√
+fa
+D)
+R
+⎞
+⎠ . (3.20)
+Note that this result is only valid in the
+√
+fa
+D R ≪ 1 regime.
+As the next step we want to keep the concentration stable while an actin filament growth in the box. In that case, we additionally need to take into account the attachment and detachment from the actin filament ends:
+N ⇌ N + A (3.21)
+F b ⇌ F b + A (3.22)
+F p ⇌ F p + A, (3.23)
+where F is the assembling filament with a barbed and a pointed end. These reactions lead to the following continuum differential equation:
+d[A]
+dt = [N ]kc − [N ][A]ka − [F ][A](k−
+b + k−
+p ) + [F ](k+
+b + k+
+p ). (3.24)
+Setting this to zero and hence obtaining the equilibrium condition for A, we find an expression for fc:
+fc = [A]eqka + [F ][A]eq
+[N ] (k−
+p + k−
+b ) − [F ]
+[N ] (k+
+b + k+
+p ). (3.25)
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 75
+Note that the k+ rates are macroscopic and need to be specified further by introducing the microscopic rates.
+Particle Size and Diffusion
+In ReaDDy each particle is defined by a reaction radius ri and a collision radius rc. The first one defines the sphere around the particle, in which it can react with other particles. The collision radius represents the extend of the particle itself so that it enters the formula for the particle-particle potentials. The diffusion constants for each particle type also need to be known. In the framework of ReaDDy the diffusion is assumed to be isotropic. In general proteins will have directionally dependent diffusion properties but this is not important for the problem considered here and is hence neglected. If a value for the diffusion constant has been measured experimentally, this value is used. Otherwise, it can be approximated by the following formula for the diffusion of a spherical particle:
+D = kBT
+6πηr , (3.26)
+where kB is the Boltzmann constant, T the temperature, eta the fluid viscosity (assumed to be the viscosity of water here) and r is the particle radius. The values, that are used in the simulations, are shown in Table 3.2.
+Anchoring to the Bilayer
+The lipid bilayer is neglected in this study because we would like to focus on the properties of the cytoskeleton. However, the confinement to the membrane plane is still important. In the RBC, the cytoskeleton is attached to the bilayer via transmembrane proteins, with band-3 being the most abundant. The parts of the cytoskeleton, that are anchored to the bilayer are the actin junctional complexes and the ankyrin binding sites (roughly in the middle of the spectrin filaments). It has further been found, that actin filament are oriented nearly parallelly to the bilayer. Therefore, all beads that are part of actin filament and the ankyrin binding sites within spectrin are confined to a 4 nm thick layer centred 10 nm above the wall of the simulation box which indicates the position of the bilayer. Additional to the spacial confinement the anchoring reduces the diffusion of the attached proteins. Since band-3 is the most common anchor, its diffusion constant is used for the anchored beads such that the structures diffuse more slowly in the membrane plane than in free 3D space. The diffusion constant of band-3 within the membrane has been measured to be D = 0.53 μm2 s−1 [159] on the small scale. When looking at larger displacements, the cytoskeleton hinders the free diffusion of band-3. Therefore, the diffusion constant of the anchored particles is set to D = 0.53 μm2 s−1.
+Inter-Particle Potentials
+Furthermore, the inter-particle potentials need to be tuned. We distinguish between free particles and particles topologies. In Ref. [153] Li et al. introduce a computational model for spectrin filaments which we implement similarly in our
+
+
+76 Molecular Red Blood Cell Cytoskeleton Model
+simulations. Specifically, in our simulations spectrin binds to actin via a LennardJohns potential
+V (r) = − ε
+(
+σ rmin
+)12
+−
+(
+σ rmin
+)6
+[
+(σ
+r
+)12
+−
+(σ
+r
+)6]
+, (3.27)
+which is shifted to −ε at the bottom of the well (at position rmin). As in Ref. [153], we choose ε = 58.576 kJ mol−1 and σ = 7.36 nm. For the association of spectrin with actin in the presence of protein 4.1 association energies up to 70 kJ mol−1 have been calculated [128]. Further, excluded volume effects are included by a repulsion potential
+V (r) = krepulsion
+2 (r − r0)2, (3.28)
+with
+krepulsion = 36 · 22/3εσ−2. (3.29)
+When considering the two filament types that are present, actin and spectrin, angle and bond potentials are used to tune the filament properties. The angle potential
+V (θ) = kangle(θ − π)2 (3.30)
+is proportional to kangle which is determined by the filament persistence length lp:
+kangle = lpkBT
+a , (3.31)
+where a is the monomer size which roughly corresponds to the particle diameter. The bond potential is given by
+V (d) = kbond(d − d0)2 (3.32)
+and the bond force is chosen to have the same curvature at the bottom of the well as the spectrin-spectrin repulsion curve:
+kbond = 36 · 22/3εσ−2. (3.33)
+A summary of the values can be seen in Table 3.3 and Table 3.4 and the potentials as a function of separation can be seen in Figure 3.8.
+Incorporation of KAHRP
+In order to simulate effects of the malaria infection, particles are introduced that have the properties of the malaria exported protein KAHRP. Their size and diffusion constant is given by rc = ri = 2.8 nm and D = 76.6 μm s−1, respectively, as indicated in Table 3.2. In Section 3.3 we saw, that KAHRP can self-associate, can bind spectrin at different locations and also bind to the actin junction. These binding interactions are modelled by Lennard-Johns potentials, as described in the subsection about inter-particle potentials. Here, we implement the binding sites described in Ref. [125], which are the 4th repeat of the α-spectrin chain and the 10th to the 13th repeats of the β
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 77
+Figure 3.8: Inter-particle potentials are shown which are used in the simulation. In the left graph the interactions of cytoskeletal proteins are plotted where the right graph concernes the interactions with the KAHRP particles.
+particle type rc in nm ri in nm D in μm2
+s
+G-actin 3 3 71.5a
+adducin 4.2b 4.2 51.07
+tropomodulin 7.25 7.25 29.59
+spectrin monomer 5.26 5.26 41.1
+KAHRP 2.8 2.8 76.6
+Table 3.2: Values used for collision radius, the reaction radius and the diffusion constant in my simulations. a is taken from [160] and b is taken from [161].
+kangle in kJ
+mol kbond in kJ
+mol nm2 persistence length in nm
+actin 4280 10 10000
+spectrin 4.28 38.11 10 taken from [79]
+Table 3.3: Parameters for the bond and angle potentials of actin and spectrin filaments.
+krepulsion in kJ
+mol nm2 actin spectrin adducin tropomodulin
+actin 10 38.11 10 10
+spectrin 38.11 38.11 38.11
+adducin 10 10
+tropomodulin 10
+Table 3.4: Parameters for repulsive potentials between actin, spectrin, adducin and tropomodulin.
+
+
+78 Molecular Red Blood Cell Cytoskeleton Model
+Figure 3.9: To set up the spectrin filament in the simulations, the molecular details and known binding sites are considered (top). In analogy to the number of spectrin repeats, a chain of 39 beads is set up in the simulations (bottom). Red particles indicate the ankyrin binding site and are therefore confined to the membrane plane. Their position is randomly chosen left or right of the midpoint. Blue beads model the KAHRP binding sites building on interactions that have been proven experimentally.
+spectrin chain. These sites are labelled blue in the spectrin schematic at the top in Figure 3.9. Here it can also be seen, that these sites lie very close to the ankyrin binding sites labelled in red. As described above, the spectrin tetramer is modelled as a chain of 39 beads (compare bottom in Figure 3.9). Complementary to the schematic of the spectrin tetramer, 10 beads of the spectrin chain are chosen to interact with KAHRP (beads 10 to 13, bead 17, bead 21 and beads 25 to 28 as shown in Figure 3.9). The two beads coloured in red (ankyrin binding sites) are confined to the membrane plane. The two end beads of the spectrin chain (coloured black) can bind to the actin junction as explained previously. To implement the binding to actin, KAHRP can interact with any actin bead in an actin filament and all KAHRP particles can interact with each other to self-associate.
+3.5.3 Model Results
+Achieving a Constant Concentration in ReaDDy
+To test the method that was explained in the last section, we set up a periodic box of size 30 × 30 × 400 nm3. We further introduce G-actin particles which have a diffusion constant of DGactin = 10 μm2 s−1 and a proposed concentration of 177777 μm−3 which corresponds to 64 particles in the box. As described above, N-particles (with DN = DGactin) are introduced which can produce and absorb G-actin. As can be seen in Figure 3.10a, this reaction manages to keep the concentration relatively stable close to the desired concentration of 64 particles per box for f− < 0.0005 ns−1. See two examples for the time evolution of the particle numbers in Figure 3.10b and c. These simulations show which value should be chosen for fa. On the one hand the value should be as large as possible such that the concentration equilibrates more quickly (see Figure 3.10c compared to Figure 3.10b), but on the other hand the theoretical description breaks down for fa too large (see Figure 3.10a). Hence,
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 79
+b
+c
+a
+Figure 3.10: a) The mean G-actin number is plotted for different fa rates and N-particle numbers as indicated in the legend. Each point corresponds to one simulation. The black line shows the calculated concentration of 64 particles per box (corresponding to a concentration of 177777 μm−3). b and c) The amount of each particle species is shown as the time course of one simulation. b) shows a simulation with 100 N-particles and an absorption rate of fa = 0.00001 ns−1. c) The absorption rate fa is ten times larger and the rate fc is changed according to equation (3.20).
+
+
+80 Molecular Red Blood Cell Cytoskeleton Model
+we see that the optimal value lies around fa = 0.0001 ns−1. We further find that the number of N-particles is not so important in the suitable range for fa. To see effects of the particle number it would have to be decreased even more. Now, we add reactions that simulate growth of F-actin (λ+
+b = 5.64 · 10−4 ns−1,
+λ+
+p = 6.03·10−5 ns−1, λ−
+b = 1.4·10−6 ns−1 and λ−
+p = 8·10−7 ns−1) to the previously described system. This enables us to look at growth of F-actin under a constant G-actin concentration. As the F-actin filament growth, the N-particles need to produce enough G-actin to keep the concentration at a constant level. We now vary the number of N-particles (from 50 to 200) and the absorption rate fa (from 10−5 ns−1 to 10−3 ns−1) to see the effects on the G-actin concentration. The results can be seen in Figure 3.11. As observed previously, the desired concentration is kept for fa < 0.0005 (Figure 3.11a). In Figure 3.11b and c the constant elongation rate of the actin filament can be seen, as predicted under constant concentration. For fa = 0.00001, 50 N-particles do not seem to be enough but this effect disappears for larger rates. We find an optimal value around fa = 0.0001 ns−1. Note that the concentration adapts very quickly to the actin filament growth which takes away monomers. The growth rate in the simulations is 0.2879 ± 0.0099 mm s−1 (determined from 15 runs). This is a factor of 2 smaller than the analytically calculated value of
+dL
+dt =
+[
+(0.4825 μm3
+s + 0.05425 μm3
+s ) × 177777 1
+μm3 − 1400 1
+s − 800 1
+s
+]
+× 6 nm
+= 0.559 mm
+s.
+One reason why the growth rate could be reduced is the reduced diffusion of the assembled filament which is not accounted for in the calculation of the macroscopic rates or the N-particle reactions.
+Controlling Filament Length
+In the RBC cytoskeleton the actin filaments are held at a relatively constant length of 35 nm. In this section the different mechanisms for length control are examined. Actin is found to fulfil may different functions inside cells depending on its environment, it can form branched networks or enable the cell to move by polymerization. First, we would like to see how well we can control single filament length by fixing the overall G-actin concentration. In principle there is a specific concentration for which the filament elongation is zero, hence the addition of monomers at the barbed end is balanced by the release of particles at the plus end. This treadmilling concentration is calculated to be Ctread = 4098 μm−3. To examine the filament behaviour, simulations were set up at seven different concentrations. As explained above, the reactions with the additional particle species N control the G-actin concentration. From the reaction rates used in the simulation, the analytical concentration Canalytic can be calculated. However, the measured concentration value fluctuates around a mean value of Csimulation as shown in Table 3.5.
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 81
+b
+a
+c
+Figure 3.11: a) The mean G-actin number is plotted for different fa rates and N-particle numbers as indicated in the legend. Each point corresponds to one simulation. The black line shows the calculated concentration of 64 particles per box (corresponding to a concentration of 177777 μm−3). b and c) The amount of each particles species is shown as the time course of one simulation. b) shows a simulation with 100 N-particles, an absorption rate of fa = 0.00001 ns−1 and the actin on and off rates as described in Section 3.5.2. c) The absorption rate fa is ten times larger and the rate fc is changed according to equation (3.20).
+Canalytic in μm−3 Csimulation in μm−3
+2778 2253 ± 0.24
+3427 3128 ± 0.29
+4167 3813 ± 0.27
+4861 4618 ± 0.33
+5556 5162 ± 0.34
+6250 5923 ± 0.36
+6944 6598 ± 0.37
+Table 3.5: The analytically calculated concentrations are compared to the ones extracted from the simulations.
+
+
+82 Molecular Red Blood Cell Cytoskeleton Model
+a
+b
+cd
+Figure 3.12: a) Five filaments are set up to grow in a simulation box while keeping the concentration of G-actin at a fixed calculated value of C = 6944 μm−3. The graph shows the number of G-actin monomers in blue and the overall number of monomers in filaments in orange. The predicted number of G-actin is indicated by the black line. b) The average filament length is plotted for each simulated concentration with the error bars showing the standard error of the mean. The concentration in the legend is the theoretically predicted concentration. c and d) Trajectories of individual filaments over the whole simulation time period. The concentration was fixed at 2778 μm−3 in c) and at 6944 μm−3 in d).
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 83
+a
+bc
+Figure 3.13: a) Average filament length is plotted for different numbers of capping proteins present. The G-actin concentration is kept constant at C = 6944μm−3 and the error bars show the standard error of the mean. b) and c) The lengths of the five individual filaments are plotted against time for 100 capping proteins in b) and 20 capping proteins in c).
+An example for the G-actin number over the whole simulation period is shown in Figure 3.12a by the blue data points. The orange line shows the overall number of actin bound to filaments. In Figure 3.12b the average filament length is compared for all seven concentrations. Where the overall filament length grows in most simulations, it stays approximately constant for the two smallest concentrations. Hence, the treadmilling concentration is predicted to be close to ≈ 3000 μm−3 which is a factor of 1.37 smaller than the calculated value. This plot also shows that the average filament length has quite a large error which comes from the deviation of single filaments within one run. To explain this further, individual filament trajectories were plotted in Figure 3.12c for Canalytic = 2778 μm−3 in the top graph and Canalytic = 6944 μm−3 in the bottom graph. Here it becomes clear that single filaments can have quite a different length, whereas the overall number of bound G-actin is more stable.
+In the RBC actin dynamics is mainly controlled through the capping proteins tropomodulin and adducin as explained in Section 3.2. Tropomodulin binds better if tropomyosin is also attached to the actin filament and in this case the dissociation constant has been measured to be smaller than 1 nM. Adducin, which binds the
+
+
+84 Molecular Red Blood Cell Cytoskeleton Model
+KD
+40 KD D k− kmac.
++ kmic.
++
+in nM in nM in μm2 s−1 in s−1 in μm3 s−1 in s−1
+adducin 100.7 4026 51.07 8000 3.3 7.0 · 107
+tropomodulin 1 40 29.59 53 2.2 1.0 · 109
+Table 3.6: Rates used in the capping protein simulations.
+barbed end, has a much larger dissociation constant, which has been measured to be 100 nM. We choose the capping protein rates as given in Table 3.6. If a capping protein is attached in the simulation, the dynamics at this end is completely blocked until the protein dissociates again. Hence, the addition of more capping proteins will slow down the polymerisation as compared to the case discussed above. The largest concentration C = 6944 μm−3 from the simulations without capping proteins was taken and a varying number of capping proteins was inserted into the simulation box (20, 40, 60, 80 and 100). The results of these runs are summarized in Figure 3.13a where the average filament length is shown as a function of time. Without capping proteins, the average filament length grew up to 26 in 0.02 s, whereas the capped filaments reach a length between 17 and 22, where more capping proteins lead to a slower growth. The individual trajectories are shown in Figure 3.13b and c where one can also see plateaus in for limited temporal periods which is an effect of the capping proteins. Although we saw that the average filament length can be controlled reasonably well, the individual filament lengths fluctuate quite dramatically. This was also tested at the treadmilling concentration and while the average filament length is fixed, the individual filaments fluctuate in length dramatically (results shown in Appendix D.3). This is due to the effect that has been described by Mohapatra et al. [162]. They found that many filament growing at the same time cannot be controlled by concentration because one filament might take up the monomers of the other without changing the concentration of free monomers. Previously it had been claimed, that organelle size can be controlled by the so-called limiting pool mechanism [163]. However, this only applies to the case of one filament. In the RBC other proteins, like tropomyosin, are used to stabilize the size.
+Network Structure and Properties
+As the next step, simulations of a small patch of RBC cytoskeleton were set up incorporating the following elements: randomly oriented short actin filaments (yellow beads in Figure 3.14) that are free to grow/shrink and diffuse in the membrane plane, capping proteins that inhibit this dynamics (purple and green), freely diffusing G-actin monomers (light grey) and spectrin filaments (cyan and blue beads) that bind actin with their end beads (white). The actin filaments and the ankyrin binding sites (red beads) of spectrin are confined to a 4 nm thick plane 10 nm above the bottom of the simulation box. In the real RBC this distance comes from the spacial extend of the anchoring proteins. We set up a perfect hexagonal array (as in Figure 3.14a) with spacial extension 140 × 242.48 nm2 and run the
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 85
+ab
+Figure 3.14: Snapshots from a simulation modelling KAHRP cluster formation in the cytosol and the RBC cytoskeleton. Grey beads represent KAHRP particles, spectrin filaments contain cyan, blue and red beads, actin filament units are shown in yellow and the other colours represent actin capping proteins. The images show the starting configuration looking from a) below and b) the side.
+ab
+Figure 3.15: a) A snapshot (in side view) from a simulation of the cytoskeletal network. The thickness of the cytoskeletal network is defined as the maximal extend out of the membrane plane (y-direction). Grey beads represent KAHRP particles, spectrin filaments contain cyan, blue and red beads, actin filament units are shown in yellow and the other colours represent actin capping proteins. b) The membrane thickness is plotted for four independent simulations over the whole simulation period each.
+
+
+86 Molecular Red Blood Cell Cytoskeleton Model
+εk−k εk−sp εk−a
+all equal ε ε ε weak self-assocition ε 2.0 ε 2.0 ε strong self-association ε 0.5 ε 0.5 ε strong actin-association ε ε 2.0 ε
+Table 3.7: The interaction energies of the four different simulation types are given in terms of the overall energy scale ε.
+simulation for 0.26 ms using a timestep of ∆t = 0.01 ns. The timestep cannot be chosen any larger because of the strong potentials that keep the spherical beads in place. First, the height of the network can be determined by finding the maximal thickness at each timestep. The network thickness is plotted for 4 independent runs in Figure 3.15. We see that the system needs some time to equilibrate, such that the thickness grows for 0.06 ms and then fluctuates about a mean of 54.21nm with a standard error of the mean given by 0.03 nm as calculated from 4 independent runs.
+Effects of KAHRP on Cytoskeletal Network
+To examine the effects of a malaria infection on the RBC cytoskeleton a new particle was incorporated that mimics the binding interactions of the malaria parasite exported protein KAHRP. This protein is known to bind to many cytoskeletal components and itself as discussed in Section 3.3. The aim of these simulations is the examination of KAHRP cluster formation as this protein is known to selfassemble in solution and attach to the RBC cytoskeleton. To do so, the interaction strength between KAHRP and KAHRP/spectrin/actin is varied and the effect on the cluster size and position is studied. It is of special interest to know where these clusters form since they develop into adhesion mediating knobs in the iRBC. As basis a hexagonal array of spectrin and actin filaments is set up as discussed before. The actin dynamics do not play such an important role at the timescale of KAHRP assembly discussed here. However, for the time scale set by the parasite life time the actin dynamics will play a role and should be examined in a further study. Since KAHRP reaches the membrane via diffusion through the cytosol in the iRBC, the simulations start with 200 KAHRP particles uniformly distributed in the free space starting 30 nm above the membrane plane as can be seen in Figure 3.14b. The binding interactions of KAHRP particles are modelled by a Lennard-Johns potential with potential depth ε as discussed in Section 3.5.2. Hence, there are 3 parameters that are varied: the interaction energy of KAHRP with KAHRP εk−k, the interaction energy of KAHRP with the binding sites on the spectrin filaments εk−sp and the interaction energy of KAHRP with the actin particles εk−a. The value of ε is varied from 0.1 kBT to 20 kBT and four cases are examined as shown in Table 3.7; the case of all interactions equal, a weak self-association, a strong self-association and a strong actin-association. The simulation data (two independent runs) was used to determine the clustering properties depending on the four different cases. A particle belongs to a cluster
+
+
+Reaction-Diffusion Model for Healthy and Infected RBCs 87
+if it is closer than 1.5 nm to a particle of that cluster. First, the average size of clusters is calculated distinguishing between free clusters which are not attached to the RBC cytoskeleton and clusters that are attached to the cytoskeleton.
+In Figure 3.16 the average cluster size is shown for all KAHRP interaction energies equal. In Figure 3.16a we see, that the free clusters are in general larger than the attached clusters and cluster formation starts from ε = 1.5 kBT. Additionally, the clusters also grow in time (see darker colours of red and green). In Figure 3.16b and c the same data is plotted as a heat map with more time points along the x-axis and ε along the y-axis. The colour indicates the size of the free clusters in Figure 3.16b and the size of the attached clusters in Figure 3.16c. These two graphs show that the attached clusters grow more slowly, whereas the free clusters grow until 70 μs are over and then fluctuate around a similar value. We can also note that there are two distinct regimes in ε. Up to 1.0 kBT the clusters are very small and above that value the behaviour is very similar for all ε. In Figure 3.16d and e the temporal evolution for two specific ε are shown with the standard error of the mean indicated by the error bars. Note that the standard error of the free clusters is larger than the attached clusters.
+In Figure 3.17 the same graphs are shown for strong self-association of KAHRP because these simulations show a slightly different behaviour. When focusing on the green data points in panel a, we see a peak in attached cluster size at ε = 3 kBT. This phenomenon can also be appreciated in Figure 3.17c, where yellow squares appear for late times around ε = 3 kBT. The data for the free sizes is a lot noisier in the sense that several size peaks appear for different ε (compare Figure 3.17a and b) also for large ε. This large noise in the data can also be seen in the standard error in Figure 3.17e for free clusters.
+As the next step of the analysis the positioning of the clusters was considered. Here, three cases were distinguished: free clusters, clusters in the cytoskeleton mesh (attached to spectrin binding sites) and clusters around the actin junctions (a distance of at most 1.5 nm to the next actin junction). This concept is depicted in Figure 3.18. The top four images show simulations for equal KAHRP interaction energies and increasing ε towards the right. The black circles indicate KAHRP clusters that have formed within the cytoskeleton mesh pulling the spectrin filaments together. The bottom row of images shows simulations with strong KAHRP-actin association. Here we see clusters at the actin junctions (red circle) for ε = 2 kBT.
+To quantify this cluster positioning, it was decided for each cluster, if it is free, associated to an actin filament or otherwise attached in the mesh of the cytoskeleton. Hence, the fraction of clusters in these three categories was calculated for all time points and ε. A graphical representation of this data is shown in Figure 3.19, with red data points indicating the fraction of free clusters, green data points showing the fraction of spectrin attached clusters and blue data points indicating the fraction of actin-attached clusters. How the fractions develop for specific ε in time, can be seen in Appendix D in Figure D.2.
+First, we would like to see how the positioning changes with the parameter ε by considering the same four interaction cases as before. We find, that for small epsilon (ε < 1 kBT) most clusters are free whereas for high epsilon, the clusters are preferentially attached in the mesh of the cytoskeleton with very little attachment
+
+
+88 Molecular Red Blood Cell Cytoskeleton Model
+c
+d
+Free Average Size
+b Attached Average Size
+e
+a
+Figure 3.16: The average KAHRP cluster size is depicted in various ways for all interaction energies equal taking into account two independent runs. a) displays the average cluster size at four timepoints as a function of the potential depth ε. Free and attached clusters are considered separately as indicated in the legend. b and c) are two dimensional colour plots of the free and attached average sizes depending on time and the potential depth ε. The colour bar indicates the size in number of KAHRP particles. d and e) show the temporal evolution of the average sizes for interaction energies ε = 5 kBT and ε = 3 kBT, respectively. The error bars indicate the standard error of the mean.

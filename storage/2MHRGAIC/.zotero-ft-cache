@@ -1,0 +1,933 @@
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Stochastic Simulation of Chemical Kinetics
+Daniel T. Gillespie
+Dan T Gillespie Consulting, Castaic, California 91384; email: GillespieDT@mailaps.org
+
+Annu. Rev. Phys. Chem. 2007. 58:35–55
+First published online as a Review in Advance on October 12, 2006
+The Annual Review of Physical Chemistry is online at http://physchem.annualreviews.org
+This article’s doi: 10.1146/annurev.physchem.58.032806.104637
+Copyright c 2007 by Annual Reviews. All rights reserved
+0066-426X/07/0505-0035$20.00
+
+Key Words
+tau-leaping, master equation, Langevin equation, stiff systems
+Abstract
+Stochastic chemical kinetics describes the time evolution of a wellstirred chemically reacting system in a way that takes into account the fact that molecules come in whole numbers and exhibit some degree of randomness in their dynamical behavior. Researchers are increasingly using this approach to chemical kinetics in the analysis of cellular systems in biology, where the small molecular populations of only a few reactant species can lead to deviations from the predictions of the deterministic differential equations of classical chemical kinetics. After reviewing the supporting theory of stochastic chemical kinetics, I discuss some recent advances in methods for using that theory to make numerical simulations. These include improvements to the exact stochastic simulation algorithm (SSA) and the approximate explicit tau-leaping procedure, as well as the development of two approximate strategies for simulating systems that are dynamically stiff: implicit tau-leaping and the slow-scale SSA.
+
+35
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Reaction-rate equation (RRE): the set of coupled, ﬁrst-order, ordinary differential equations traditionally used to describe the time evolution of a well-stirred chemical system
+
+1. INTRODUCTION
+The most accurate way to depict the time evolution of a system of chemically reacting molecules is to do a molecular dynamics simulation, meticulously tracking the positions and velocities of all the molecules, and changing the populations of the species appropriately whenever a chemical reaction occurs. Chemical reactions in this approach are viewed as distinct, essentially instantaneous physical events, and they are generally of two elemental types: unimolecular, occurring as a result of processes internal to a single molecule, and bimolecular, occurring as a result of a collision between two molecules. (Trimolecular and higher order reactions are approximate representations of sequences of two or more elemental reactions.)
+From a classical mechanics viewpoint, one might suppose that such a system is deterministic, in that a given initial state always leads to the same state at some speciﬁed later time. There are three reasons why this is not so: First, even if the system evolved deterministically with respect to the positions, velocities, and molecular populations of the species, it would not evolve deterministically with respect to the species populations alone. Second, quantum indeterminacy unavoidably enters; e.g., in a unimolecular reaction we can never know exactly when a molecule will transform itself into a different isomeric form. Third, chemical systems are usually not mechanically isolated; rather, they are in contact with a heat bath, whose essentially random perturbations keep the system in thermal equilibrium at some temperature.
+In view of the fact that molecular populations in a chemically reacting system are integer variables that evolve stochastically, it is remarkable that chemical kinetics has traditionally been analyzed using a mathematical formalism in which continuous (real) variables evolve deterministically: Traditional chemical kinetics holds that in a well-stirred, thermally equilibrated chemical system, the number of molecules Xi of each chemical species Si (i = 1, . . . , N ) evolves in time according to a set of coupled ordinary differential equations (ODEs) of the form
+
+d Xi dt
+
+=
+
+fi(X1, . . . , XN)
+
+(i = 1, . . . , N )
+
+(1)
+
+where the functions fi are inferred from the speciﬁcs of the various reactions. This set of equations is called the reaction-rate equation (RRE). It is usually expressed in terms of the concentration variables Zi ≡ Xi/ , where is the system volume, but that scalar transformation is not important here. Even more remarkable is that for systems of test-tube size or larger, the RRE seems to work quite well. But if the system is small enough that the molecular populations of at least some of the reactant species are not too many orders of magnitude larger than one, discreteness and stochasticity may play important roles. Whenever that happens, and it often does in cellular systems in biology (1–7), Equation 1 does not accurately describe the system’s true behavior.
+Stochastic chemical kinetics attempts to describe the time evolution of a wellstirred chemically reacting system in a way that takes honest account of the system’s discreteness and stochasticity. In this chapter I brieﬂy review the theoretical foundations of stochastic chemical kinetics and then describe some recent advances in numerical-simulation strategies that are supported by this theory.
+
+36 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+2. STOCHASTIC CHEMICAL KINETICS: THE CHEMICAL MASTER EQUATION AND THE STOCHASTIC SIMULATION ALGORITHM
+Let us consider a well-stirred system of molecules of N chemical species {S1, . . . , SN}, which interact through M chemical reactions {R1, . . . , RM}. We assume that the system is conﬁned to a constant volume and is in thermal (but not chemical) equilibrium at some constant temperature. We let Xi(t) denote the number of molecules of species Si in the system at time t. Our goal is to estimate the state vector X(t) ≡ (X1(t), . . . , XN(t)), given that the system was in state X(t0) = x0 at some initial time t0.
+The justiﬁcation for the tacit assumption that we can describe the system’s state by specifying only the molecular populations, ignoring the positions and velocities of the individual molecules, lies in the conditions responsible for the system being well stirred. The fundamental assumption being made is that the overwhelming majority of molecular collisions that take place in the system are elastic (nonreactive), and further that the net effect of these elastic collisions is twofold: First, the positions of the molecules become uniformly randomized throughout ; second, the velocities of the molecules become thermally randomized to the Maxwell-Boltzmann distribution. To the extent that this happens, we can ignore the nonreactive molecular collisions, the simulation of which would occupy most of the computation time in a molecular dynamics simulation, and concern ourselves only with events that change the populations of the chemical species. This simpliﬁes the problem enormously.
+The changes in the species populations are of course a consequence of the chemical reactions. Each reaction channel Rj is characterized mathematically by two quantities. The ﬁrst is its state-change vector νj ≡ (ν1 j , . . . , νNj), where νij is the change in the Si molecular population caused by one Rj reaction, so if the system is in state x and one Rj reaction occurs, the system immediately jumps to state x + νj. The other characterizing quantity for Rj is its propensity function aj, which is deﬁned so that
+
+State-change vector: the change in the vector of the species’ molecular populations induced by a single occurrence of a particular reaction
+Propensity function: the function whose product with dt gives the probability that a particular reaction will occur in the next inﬁnitesimal time dt
+
+a j (x) d t = the probability, given X(t) = x, that one Rj reaction will occur somewhere inside in the next inﬁnitesimal time interval [t, t + d t). (2)
+
+Deﬁnition 2 can be regarded as the fundamental premise of stochastic chemical ki-
+netics because everything else in the theory follows from it via the laws of probability.
+The physical rationale for Deﬁnition 2 for unimolecular and bimolecular reactions
+can be brieﬂy summarized as follows.
+If Rj is the unimolecular reaction S1 → product(s), the underlying physics, which is usually quantum mechanical, dictates the existence of some constant c j, such that c jd t gives the probability that any particular S1 molecule will so react in the next inﬁnitesimal time d t. It then follows from the laws of probability that if there are currently x1 S1 molecules in the system, the probability that some one of them will undergo the Rj reaction in the next d t is x1 · c jd t. Thus the propensity function in Equation 2 is aj(x) = c jx1.
+If Rj is a bimolecular reaction of the form S1 + S2 → product(s), kinetic theory arguments and the well-stirred condition together imply the existence of a constant c j,
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 37
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Chemical master equation (CME): the equation that determines the probability that each species will have a speciﬁed molecular population at a given future time
+
+such that c jd t gives the probability that a randomly chosen pair of S1 and S2 molecules
+
+will react according to Rj in the next inﬁnitesimal time d t (8–11). The probability
+
+that some one of the x1x2 S1-S2 pairs inside will react according to Rj in the next
+
+d t is therefore x1x2 · c jd t, and that implies that the propensity function in Equation 2
+
+is aj(x) = c jx1x2. If instead the bimolecular reaction had been S1 + S1 → product(s),
+
+we
+
+would
+
+have
+
+reckoned
+
+the
+
+number
+
+of
+
+distinct
+
+S1
+
+molecular
+
+pairs
+
+as
+
+1 2
+
+x1(x1
+
+− 1),
+
+and
+
+so
+
+obtained
+
+for
+
+the
+
+propensity
+
+function
+
+a j (x)
+
+=
+
+c
+
+j
+
+1 2
+
+x1(x1
+
+−
+
+1).
+
+Evaluating c j completely from ﬁrst principles is a challenging task, requiring spe-
+
+ciﬁc assumptions to be made about how the reaction Rj physically occurs. Unimolecu-
+
+lar c j ’s and bimolecular c j ’s are quite different from each other. For example, whereas
+
+a unimolecular c j is independent of the system volume , a bimolecular c j is inversely
+
+proportional to , reﬂecting the fact that two reactant molecules will have a harder
+
+time ﬁnding each other inside a larger volume. It turns out that for a unimolecular
+
+reaction, c j is numerically equal to the reaction-rate constant kj of conventional deterministic chemical kinetics, whereas for a bimolecular reaction, c j is equal to kj/ if the reactants are different species, or 2kj/ if they are the same species (8–11). However, these results should not be taken to imply that the mathematical forms of the propen-
+
+sity functions are just heuristic extrapolations of the reaction rates of deterministic
+
+chemical kinetics. The propensity functions are grounded in molecular physics, and
+
+the formulas of deterministic chemical kinetics are approximate consequences of the
+
+formulas of stochastic chemical kinetics, not the other way around.
+
+Although the probabilistic nature of Equation 2 precludes making an exact pre-
+
+diction of X(t), we might hope to infer the probability
+
+P (x, t | x0, t0) = Prob {X(t) = x, given X(t0) = x0}.
+
+(3)
+
+It is not difﬁcult to derive a time-evolution equation for P (x, t | x0, t0) by applying the laws of probability to the fundamental premise (Equation 2). The result is the chemical master equation (CME) (10–12):
+
+∂ P (x, t | x0, t0) ∂t
+
+=
+
+M
+[aj(x − νj)P (x − νj, t | x0, t0) − aj(x)P (x, t | x0, t0)].
+j =1
+
+(4)
+
+In principle, the CME completely determines the function P (x, t | x0, t0). But a close inspection reveals that the CME is actually a set of coupled ODEs, with one equation for every possible combination of reactant molecules. It is therefore not surprising that the CME can be solved analytically for only a few simple cases, and even numerical solutions are prohibitively difﬁcult in other cases.
+It is also difﬁcult to infer anything about the behavior of averages such as h(X(t)) ≡ x h(x)P (x, t | x0, t0) if any of the reaction channels are bimolecular. For example, if we multiply the CME (Equation 4) through by x and then sum over all x, we get
+
+d X(t) dt
+
+M
+= νj aj(X(t)) .
+j =1
+
+(5)
+
+If all the reactions were unimolecular, the propensity functions would all be linear
+
+in the state variables, and we would have aj (X(t)) = aj ( X(t) ), so Equation 5 would
+
+38 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+reduce to a closed ODE for the ﬁrst moment X(t) . But if any reaction is bimolecular, the right-hand side of Equation 5 will contain at least one quadratic moment of the
+form Xi(t)Xi (t) , and Equation 5 would then be merely the ﬁrst of an inﬁnite, openended set of equations for all the moments.
+In the hypothetical case in which there are no ﬂuctuations—i.e., if X(t) were a deterministic or sure process—we would have h(X(t)) = h(X(t)) for all functions h, and Equation 5 would then reduce to
+
+d X(t) dt
+
+=
+
+M
+νjaj(X(t)).
+j =1
+
+(6)
+
+This is precisely the RRE (Equation 1), with the functions fi(X) ≡ j νij aj(X) now explicitly rendered. As a set of coupled ODEs, Equation 6 characterizes X(t) as a continuous, deterministic process. But while this shows that the RRE would be valid
+if all ﬂuctuations could be ignored, it does not provide any justiﬁcation for doing that.
+Below I discuss how, and under what conditions, the discrete, stochastic CME de-
+scription approximately gives rise to the continuous, deterministic RRE description.
+Because the CME (Equation 4) can rarely be solved for the probability density
+function of X(t), perhaps we should look for a way to construct numerical realizations of X(t), i.e., simulated trajectories of X(t) versus t. This is not the same as solving the CME numerically, as that would give us the probability density function of X(t) instead of a random sample of X(t). The key to generating simulated trajectories of X(t) is not the function P (x, t | x0, t0), but rather a new probability function p(τ, j | x, t), which is deﬁned as follows:
+
+p(τ, j | x, t) d τ = the probability, given X(t) = x, that the next reaction in the
+
+system will occur in the inﬁnitesimal time interval
+
+[t + τ, t + τ + d τ ), and will be an Rj reaction.
+
+(7)
+
+Formally, this function is the joint probability density function of the two random variables time to the next reaction (τ ) and index of the next reaction ( j ), given that the system is currently in state x. It is not difﬁcult to derive an exact formula for p(τ, j | x, t) by applying the laws of probability to the fundamental premise (Equation 2). The result is (8–11)
+
+p(τ, j | x, t) = aj(x) exp(−a0(x) τ ),
+
+(8)
+
+where
+
+M
+
+a0(x) = aj (x).
+
+(9)
+
+j =1
+
+Equation 8 is the mathematical basis for the stochastic simulation approach. It implies
+that τ is an exponential random variable with mean (and standard deviation) 1/a0(x), while j is a statistically independent integer random variable with point probabilities aj(x)/a0(x). There are several exact Monte Carlo procedures for generating samples of τ and j according to these distributions. Perhaps the simplest is the so-called direct method, which follows by applying the standard inversion generating method
+of Monte Carlo theory (11): We draw two random numbers r1 and r2 from the uniform
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 39
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Stochastic simulation algorithm (SSA): a Monte Carlo procedure for numerically generating time trajectories of the molecular populations in exact accordance with the CME
+
+distribution in the unit interval, and take
+
+τ
+
+=
+
+1 a0(x)
+
+ln
+
+1 r1
+
+,
+
+(10a)
+
+j
+j = the smallest integer satisfying aj (x) > r2 a0(x).
+j =1
+
+(10b)
+
+With this generating method (or any mathematically equivalent one), we have the following stochastic simulation algorithm (SSA) for constructing an exact numerical realization of the process X(t) (8, 9):
+
+0. Initialize the time t = t0 and the system’s state x = x0. 1. With the system in state x at time t, evaluate all the aj(x) and their sum a0(x). 2. Generate values for τ and j using Equations 10a,b (or their equivalent). 3. Effect the next reaction by replacing t ← t + τ and x ← x + νj. 4. Record (x, t) as desired. Return to Step 1, or else end the simulation.
+
+The X(t) trajectory produced by the SSA may be thought of as a stochastic version of the trajectory that would be obtained by solving the RRE (Equation 6). But note that the time step τ in the SSA is exact and not a ﬁnite approximation to some inﬁnitesimal d t, as is the time step in a typical ODE solver. If it is found that every SSA-generated trajectory is practically indistinguishable from the RRE trajectory, then we may conclude that microscale randomness is ignorable. But if the SSA trajectories are found to deviate signiﬁcantly from the RRE trajectory, or from each other, then we must conclude that microscale randomness is not ignorable, and the deterministic RRE does not provide an accurate description of the system’s true behavior.
+Because the SSA and the CME are each derived without approximation from the fundamental premise (Equation 2), they are logically equivalent to each other. But even when the CME is intractable, the SSA is easy to implement; indeed, as a numerical procedure, the SSA is simpler than most procedures that are used to numerically solve the RRE (Equation 6). The catch is that the SSA is often very slow, essentially because it insists on simulating every individual reaction event. The mathematical reason for this slowness can be traced to the factor 1/a0(x) in Equation 10a, which will be small if any reactant population is large.
+To illustrate the foregoing ideas, consider the simple reaction
+
+S
+
+c
+−−→
+
+Ø.
+
+(11)
+
+The propensity function for this reaction is a(x) = c x, and the state-change vector is ν = −1. The RRE (Equation 6) reads d X/d t = −c X, and the solution to this ODE for the initial condition X(0) = x0 is
+
+X(t) = x0e−ct(RREsolution).
+
+(12)
+
+The CME (Equation 4) reads
+
+∂ dt P (x, t | x0, 0) = a(x + 1)P (x + 1, t | x0, 0) − a(x)P (x, t | x0, 0).
+
+40 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+100
+
+Figure 1
+
+Simulating the simple
+
+S Ø
+
+isomerization reaction
+
+c = 1, X(0) = 100
+
+(Equation 11). The thin
+
+80
+
+light blue line shows the
+
+solution (Equation 12) of
+
+the reaction-rate equation
+
+(RRE). The two dashed
+
+60
+
+gray lines show the
+
+one-standard-deviation
+
+X(t)
+
+envelope
+
+X(t) ± sdev {X(t)} of
+
+40
+
+Equations 14a,b as
+
+predicted by the solution of
+
+the chemical master
+
+equation (CME) (Equation
+
+20
+
+13). The red and blue jagged
+
+curves show the trajectories
+
+produced by two separate
+
+0 0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+runs of the stochastic
+
+6
+
+simulation algorithm (SSA).
+
+t
+
+Because P (x0 + 1, t | x0, 0) ≡ 0, we can solve this equation exactly by successively putting x = x0, x0 − 1, . . . , 0. The result is
+
+P (x, t | x0, 0)
+
+=
+
+x0! x!(x0 −
+
+e−cxt(1 − e−ct)x0−x x)!
+
+(x = 0, . . . , x0),
+
+(13)
+
+which we recognize as the probability density function for the binomial random
+
+variable with mean and standard deviation
+
+X(t) = x0e−ct, sdev{X(t)} = x0e−ct(1 − e−ct).
+
+(14a) (14b)
+
+Note that X(t) is identical to the solution (Equation 12) of the RRE; this will always be so if all the propensity functions are linear in the populations, but not otherwise.
+The SSA for this reaction is simple: In state x at time t, we draw a unit-interval uniform random number r, increase t by τ = (1/ax) ln(1/r), decrease x by 1, and then repeat. Figure 1 shows numerical results for c = 1 and x0 = 100.
+
+3. ELABORATIONS ON AND IMPROVEMENTS TO THE STOCHASTIC SIMULATION ALGORITHM
+The version of the SSA described above is the one originally presented in References 8 and 9. A number of earlier works applied similar if not equivalent procedures to speciﬁc model systems (13–19) but paid little attention to developing the supporting theory. In this section I focus on some later elaborations on and improvements to the SSA.
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 41
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+One elaboration of the SSA already noted in Reference 8 is an alternative to the
+direct method (Equation 10) for generating values of τ and j . Called the ﬁrst-reaction method, it begins by drawing M random numbers r1, . . . , rM from the unit-interval uniform distribution and computing
+
+τj
+
+=
+
+1 aj (x)
+
+ln
+
+1 rj
+
+( j = 1, . . . , M);
+
+(15a)
+
+then it takes
+
+τ = the smallest of the {τj } j = the index of the smallest {τj }
+
+.
+
+(15b)
+
+Heuristically, τ1, . . . , τM are putative times to the next ﬁrings of the respective reaction channels; however, we accept only the earliest of those and discard the rest. It can be
+
+proved (8) that this procedure, like the direct method, generates values for τ and j
+
+in exact accord with the joint density function (Equation 8). However, if the system
+
+has many reaction channels, this method will be computationally less efﬁcient than
+
+the direct method.
+
+A generalization of the direct and ﬁrst-reaction methods that includes both as spe-
+
+cial cases is L. Lok’s (unpublished manuscript) ﬁrst-family method. The M reactions
+
+are partitioned into L families {F1, . . . , FL} and then relabeled so that the Ml reactions
+
+in family Fl are {R1l , . . . , RlMl }. Each family Fl is then viewed as a pseudoreaction with
+
+propensity function a0l (x) ≡
+
+Ml j =1
+
+ajl (x).
+
+To
+
+generate
+
+the
+
+time
+
+τ
+
+to
+
+the
+
+next
+
+reaction
+
+event and the index pair (l, j ) that identiﬁes that reaction, we draw L + 1 random
+
+numbers r1, . . . , rL+1 from the uniform distribution in the unit interval. We use the
+
+ﬁrst L of these to compute
+
+1
+
+1
+
+τl
+
+=
+
+a
+
+l 0
+
+(x)
+
+ln
+
+rl
+
+(l = 1, . . . , L);
+
+(16a)
+
+then we take
+
+τ = the smallest of the {τl } l = the index of the smallest {τl }
+
+,
+
+and ﬁnally
+
+j
+
+j = the smallest integer satisfying
+
+a
+
+l j
+
+(x)
+
+>
+
+rL+1
+
+a0l (x).
+
+j =1
+
+(16b) (16c)
+
+Heuristically, Equations 16a,b generate the time step τ to, and the index l of, the next ﬁring family, and Equation 16c then decides which reaction in Fl actually ﬁres. It can be proved (L. Lok, unpublished manuscript) that this procedure generates values for τ and j = (l, j ) in exact accord with the joint density function (Equation 8). It reduces to the direct method if all the reactions are taken to be members of one family, and it reduces to the ﬁrst-reaction method if each reaction is taken to be a family unto itself. For intermediate partitionings, the method may afford bookkeeping advantages when M is large.
+A reformulation of the SSA that, for large N and M, signiﬁcantly increases its speed as compared with the direct method is Gibson & Bruck’s (20) next-reaction method.
+
+42 Gillespie
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+Essentially a heavily revised version of the ﬁrst-reaction method, the next-reaction method saves the putative next ﬁring times of all reaction channels in an indexed binary tree priority queue, which is constructed so that the ﬁring time of each parent node is always earlier than the ﬁring times of its two daughter nodes. The time and index of the next occurring reaction are therefore always available at the top node of the queue. The indexing scheme and the binary-tree structure of the queue facilitate updating the queue as a result of changes caused by occurring reactions. With added effort, we can even make the next-reaction method consume only one uniform random number per additional reaction event, in contrast to the two required by the direct method. Although the next-reaction method can be signiﬁcantly faster than the direct method, it is much more challenging to code. For more details, see References 20 and 21.
+Lok & Brent (22) have developed a stochastic simulation software package called Moleculizer that uses a slightly simpliﬁed version of the next-reaction method, but with a unique twist: Reaction channels and species are introduced only when they are needed, and removed when they are not needed. The target application for Moleculizer is the simulation of the pheromone-response mechanism in yeast, a chemical system that entails a potentially enormous number of species and reaction channels. Lok showed that, at least when using the SSA, it is not necessary to introduce all the reactions and species at the beginning of a simulation, and for the yeast system in particular, a just-in-time introduction of the reactions and species makes feasible an otherwise infeasible simulation. Lok also observes that this just-in-time strategy cannot be used with the RRE, which is noteworthy because the RRE too becomes unwieldy when enormous numbers of species and reaction channels are involved; thus we have yet another reason for using stochastic simulation instead of deterministic simulation on biological systems. For further discussion of these points, see Reference 22.
+Cao et al. (21) recently introduced a modiﬁed direct method that often makes the direct method competitive in speed with the next-reaction method. These authors observed that if the reaction channels are indexed so that reactions Rj with larger propensity functions are assigned lower index values j , then the average number of terms summed in the computation (Equation 10b) is minimized. The consequent gain in speed can be signiﬁcant for systems with many reactions and a wide range of propensity function values, a common circumstance in biological models. The modiﬁed direct method starts off with a relatively short prerun using the direct method in which the average sizes of the propensity functions are assessed. Then it reindexes the reactions accordingly and resumes the simulation, at a usually much-greater speed. See Reference 21 for details.
+McCollum et al. (23) have recently proposed a further improvement on the direct method in what they call the sorting direct method. Similar to the modiﬁed direct method, the sorting direct method seeks to index the reaction channels in order of decreasing values of their propensity functions so as to optimize the search in Equation 10b. But the sorting method does this dynamically, and without the need for a prerun, by using a simple bubble-up tactic: Whenever a reaction channel ﬁres, the index of the ﬁring channel is interchanged with the index of the next lower indexed channel
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 43
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Tau-leaping: an approximate way of accelerating the SSA in which each time step τ advances the system through possibly many reaction events
+Leap condition: an accuracy-assuring restriction on tau-leaping that requires τ to be small enough that no propensity function changes by a signiﬁcant amount
+
+(if there is one). Doing this repeatedly tends to establish the desired index ordering. This tactic not only eliminates the prerun of the modiﬁed direct method, but it also accommodates any changes in the relative sizes of the propensity functions that might develop as the simulation proceeds.
+H. Li & L.R. Petzold (unpublished manuscript) have recently proposed the logarithmic direct method, another novel twist on the direct method. Its strategy is to collect and store the partial sums of the propensity functions during the computation of the full sum a0 in Equation 9. The value of j in Equation 10b can then be found rapidly by conducting a binary search over those partial sums. Although the logarithmic direct method (24) may not always result in as great a speed gain as the sorting direct method (23) or the optimized direct method (21), it can avoid a potential accuracy problem that may afﬂict those other two methods. Arranging the reaction indices in order of decreasing size of the propensity functions does make the linear search Equation 10b go faster, but it also makes that search potentially less accurate; e.g., if we were carrying k decimals in the sum on the left side of Equation 10b and the highest-indexed propensity function happened to be k orders of magnitude smaller than aM, then numerical truncation results in RM never ﬁring at all. For maximal numerical accuracy in executing Equation 10b, reactions with smaller propensity functions should be assigned lower index values—just the opposite of what the modiﬁed and sorting direct methods do. The logarithmic direct method is not susceptible to this problem because it does not depend on any ordering scheme for the reaction indices; indeed, with the logarithmic direct method, the ordering could deliberately be arranged to achieve maximum accuracy. It might also be possible to overcome the inaccuracy problem by using Lok’s ﬁrst-family method, grouping reactions with very small propensities together into a family F1 and all the other reactions into a family F2: Most of the time the selection in Equation 16b falls to family F2, but on those rare occasions when it falls to F1, the subsequent search in Equation 16c is accomplished without involving the larger-valued propensity functions, so no truncation errors arise.
+Improvements to the SSA along the lines described above are certainly beneﬁcial, but any procedure that simulates every reaction event one at a time, no matter how efﬁciently it does that, will simply be too slow for many practical applications. This prompts us to look for ways to sacriﬁce some of the exactness of the SSA in return for greater simulation speed. One way of doing that is to use an approximate simulation strategy called tau-leaping.
+
+4. TAU-LEAPING: THE BRIDGE TO THE REACTION-RATE EQUATION
+With the system in state x at time t, let us suppose there exists a τ > 0 that satisﬁes the following leap condition: During [t, t + τ ), no propensity function is likely to change its value by a signiﬁcant amount. With aj(x) remaining essentially constant during [t, t + τ ), it then follows from the fundamental premise (Equation 2) that the number of times reaction channel Rj ﬁres in [t, t + τ ) is a Poisson random variable with mean (and variance) aj(x) τ . Therefore, to the degree that the leap condition is
+
+44 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+satisﬁed, we can approximately leap the system ahead by a time τ by taking (25, 26)
+
+X(t + τ ) =. x + M Pj(aj(x)τ )νj,
+
+(17)
+
+j =1
+
+where x = X(t), and Pj(mj) is a statistically independent Poisson random variable with mean (and variance) mj.
+Equation 17 is the basic tau-leaping formula. In the next section below I discuss how we can use it to perform faster stochastic simulations. But for now, let us suppose that τ is not only small enough to satisfy the leap condition, but also large enough that the expected number of ﬁrings of each reaction channel Rj during τ is 1:
+
+aj(x) τ 1 for all j = 1, . . . , M.
+
+(18)
+
+Then, denoting the normal (Gaussian) random variable with mean m and variance σ 2 by N (m, σ 2), and invoking the mathematical fact that a Poisson random variable with a mean and variance that is 1 can be approximated as a normal random variable
+with that same mean and variance, we can further approximate Equation 17 as
+
+X(t + τ ) =. x + M Nj(aj(x)τ, aj(x)τ ) νj = x + M aj(x)τ + aj(x)τ Nj(0, 1) νj.
+
+j =1
+
+j =1
+
+The last step here invokes the well-known property of the normal random variable that N (m, σ 2) = m + σ N (0, 1). Collecting terms gives us what is known as the chemical Langevin equation (CLE) or Langevin leaping formula (25),
+
+X(t + τ ) =. x + M νjaj(x)τ + M νj
+
+√ aj(x) Nj(0, 1) τ ,
+
+(19)
+
+j =1
+
+j =1
+
+where x = X(t), and each Nj(0, 1) is a statistically independent normal random variable with mean 0 and variance 1. Again, this equation is valid only to the extent that during τ , no propensity function changes its value signiﬁcantly, yet every reaction channel ﬁres many more times than once. It is usually possible to ﬁnd a τ that satisﬁes these opposing conditions if all the reactant populations are sufﬁciently large.
+In the theory of continuous Markov processes, it can be shown that the CLE (Equation 19) can also be written in the white-noise form (25, 27)
+
+d X(t) dt
+
+=.
+
+M
+νj aj(X(t)) +
+j =1
+
+M
+νj
+j =1
+
+aj(X(t))
+
+j(t) .
+
+(20)
+
+Here the j(t) are statistically independent Gaussian white-noise processes, satisfying j(t) j (t ) = δjj δ(t−t ), where the ﬁrst delta function is Kronecker’s and the second
+is Dirac’s. Equation 20 is just another way of writing Equation 19; the two equations are mathematically equivalent. Equations of the form of Equation 20, with the right side the sum of a deterministic drift term and a stochastic diffusion term proportional to Gaussian white noise, are known as Langevin equations or stochastic differential equations. In most occurrences of Langevin equations in science and engineering applications, the form of the stochastic diffusion term is postulated ad hoc; here, however, it has been derived. Continuous Markov process theory also implies that
+
+Chemical Langevin equation (CLE): a differential equation driven by zero-mean Gaussian noise that describes tau-leaping when the reactant populations are sufﬁciently large
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 45
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Thermodynamic limit: the inﬁnite-population, inﬁnite-volume, ﬁnite-concentration limit in which the stochastic CLE reduces (usually) to the deterministic RRE
+
+the probability density function P (x, t | x0, t0) of the random variable X(t) in the CLE Equations 19 and 20 obeys a well-deﬁned partial differential equation called the chemical Fokker-Planck equation (CFPE). References 25, 27, and 28 give a derivation and discussion of the CFPE.
+The thermodynamic limit is deﬁned as the limit in which the species populations Xi and the system volume all approach inﬁnity, but in such a way that the species concentrations Xi/ stay constant. As this limit is approached, all propensity functions grow in direct proportion to the size of the system. This is obvious for a unimolecular propensity function of the form c jxi; for a bimolecular propensity function of the form c jxixi , this follows because c j is inversely proportional to . Therefore, as the thermodynamic limit is approached, the term on the left side of the CLE (Equation 20) and the ﬁrst term on the right side both grow like the system size, whereas the second term on the right grows more slowly as the square root of the system size. In the full thermodynamic limit, the last term becomes negligibly small compared with the other terms, and the CLE (Equation 20) reduces to the RRE (Equation 6). Thus we have derived the RRE from the fundamental stochastic premise (Equation 2). The approximations made in this derivation are schematized in Figure 2, which summarizes the theoretical structure of stochastic chemical kinetics (29).
+
+5. THE EXPLICIT TAU-LEAPING SIMULATION ALGORITHM
+The basic tau-leaping formula (Equation 17) suggests an obvious strategy for approximately doing stochastic simulations: In the current state x, we ﬁrst choose a value for τ that satisﬁes the leap condition. Next, we generate for each j a sample kj of the Poisson random variable with mean aj(x) τ , by using, for example, the numerical procedure described in Reference 30. (Because the Poisson random numbers k1, . . . , kM are statistically independent, they could be generated simultaneously on M parallel processors, which would result in a substantial gain in computational speed.) Finally, we update the state from x to x + j kj νj. If the values generated for the kj are sufﬁciently large, this approximate procedure will be faster than the exact SSA. But several practical issues need to be resolved to effectively implement this strategy: First, how can we estimate in advance the largest value of τ that satisﬁes the leap condition? Second, how can we ensure that the generated kj-values do not cause some Rj to ﬁre so many times that the population of some reactant is driven negative? Finally, how can we arrange it so that tau-leaping segues efﬁciently to the SSA?
+The method originally suggested in Reference 26 for estimating the largest value of τ that satisﬁes the leap condition has undergone two successive reﬁnements (31, 32). The latest τ -selection procedure (32) is not only more accurate than the earlier procedures, but also faster, especially if M is large. It computes the largest value of τ for which the estimated fractional change τ aj/aj in each propensity function during τ is bounded by a user-speciﬁed accuracy-control parameter ε (0 < ε 1). However, it does this in an indirect way: It chooses τ so that the estimated fractional change
+τ xi/xi in each reactant population is bounded by an amount εi = εi(ε, xi) (except that no xi is required to change by an amount less than one), where the functions
+
+46 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+ajdt = probability that Rj will fire in next dt aj = constant during τ, ∀j
+
+CME
+
+SSA
+
+Tau-leaping
+
+Discrete and stochastic
+
+ajτ >> 1, ∀j
+
+CFPE
+
+CLE
+
+Continuous and stochastic
+
+Xi ∞,Ω
+
+∞
+
+Xi /Ω = consti , ∀i
+
+RRE
+
+Continuous and deterministic
+
+Figure 2
+Logical structure of stochastic chemical kinetics. Everything follows from the fundamental premise at the top via the laws of probability theory. Inference routes that are exact are shown by solid arrows. Inference routes that are approximate are shown by dotted arrows, with the condition justifying the approximation indicated in braces immediately to the right. Solid-outlined boxes are exact results: the chemical master equation (CME) and the stochastic simulation algorithm (SSA). Dashed-outlined boxes are approximate results: the tau-leaping formula, the chemical Langevin equation (CLE), the chemical Fokker-Planck equation (CFPE), and the reaction-rate equation (RRE). The condition justifying the arguments leading from the fundamental premise to tau-leaping is called the leap condition, and the condition justifying the arguments leading from the CLE to the RRE is called the thermodynamic limit.
+
+εi have been chosen so that τ aj/aj for every j is then bounded by the stipulated amount ε. As is shown in Reference 32, the algebraic forms of the functions εi(ε, xi) that accomplish this are quite simple, and they can easily be inferred by inspection at
+the outset of the simulation. Enforcing the bound
+
+| τ xi| ≤ max {εixi,1}
+
+(21)
+
+is accomplished by ﬁrst noting from the basic tau-leaping formula (Equation 17) that
+
+τ xi =.
+
+j Pj(ajτ )νij.
+
+Because the statistically independent Poisson random variables Pj(ajτ ) have means and variances ajτ , the means and variances of τ xi are
+
+τ xi =.
+
+j νij(ajτ ), var { τ xi} =.
+
+j νi2j (ajτ ).
+
+(22)
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 47
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+√Condition 21 is deemed to be adequately fulﬁlled if it is satisﬁed by both τ xi and var{ τ xi}. The resulting set of inequalities yields an efﬁcient, explicit formula for
+the largest permissible value of τ (32). As for keeping the generated random numbers kj from driving the Rj reactant
+populations negative, several strategies have been proposed. Tian & Burrage (33)— and, independently, Chatterjee et al. (34)—proposed approximating the unbounded Poisson random numbers kj with bounded binomial random numbers. But it turns out that it is usually not the unboundedness of the Poisson kj’s that produces negative populations, but rather the lack of coordination in tau-leaping between different reaction channels that separately decrease the population of a common species. Cao et al. (35) have proposed a different approach that resolves this difﬁculty and also establishes a smooth connection with the SSA. In their approach, we ﬁrst identify as critical all those reactions with nonzero propensities that are currently within nc ﬁrings of exhausting one of its reactants, nc being a user-speciﬁed integer. All other reactions are called noncritical. The noncritical reactions are handled by the regular Poisson tau-leaping method, and a maximum leap time τ is computed for them using the procedure described in the preceding paragraph. For the critical reactions, we use the direct method formulas Equations 10a,b to estimate the time τ to, and index jc of, the next critical reaction. The actual time step τ is then taken to be the smaller of τ and τ ; if the former, no critical reaction ﬁres, and if the latter, only one critical reaction (R jc ) ﬁres. Because the total number of critical reactions ﬁring during τ is never greater than one, it is impossible for any critical reaction to drive any population negative.
+If nc is taken so large that every reaction becomes critical, the foregoing procedure reduces to the exact SSA. This is fortunate because although tau-leaping theoretically becomes exact (and hence equivalent to the SSA) as τ → 0, it also becomes grossly inefﬁcient in that limit. This is because when τ is small, the Poisson random numbers kj = Pj(ajτ ) usually all are zero, resulting in a small tau-leap with no reactions ﬁring. It is not efﬁcient to do tau-leaping when τ is less than a few multiples of 1/a0(x), the expected next time step in the SSA. But by using a reasonable value for nc (e.g., between 5 and 50), along with a reasonable value of ε (e.g., between 0.01 and 0.06), large leaps are taken whenever possible, and a gradual transition to the SSA occurs automatically as needed for accuracy. Finally, if we write the code for generating a Poisson random number with mean (and variance) m so that when m 1, it generates instead a normal random number with mean and variance m, then a smooth transition from tau-leaping to the more computationally efﬁcient Langevin leaping will occur automatically.
+Reference 32 gives a more detailed description of the current explicit tau-leaping procedure. Tests indicate that for many systems in which the molecular populations of at least some of the reactant species are large, it produces signiﬁcantly faster simulations than the SSA with only a slight loss of accuracy.
+6. SIMULATING STIFF SYSTEMS A system of ODEs is said to be stiff if is characterized by well-separated fast and slow dynamical modes, the fastest of which is stable. The solution space of a stiff ODE has a slow manifold, on which the state point moves slowly, and off which the state point
+48 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+moves rapidly toward the slow manifold. Researchers have devoted much effort over the years to understanding and overcoming the computational problems posed by stiff ODEs (36) because such equations arise in many practical contexts. Stiff RREs in particular are quite commonplace.
+Stiffness is just as computationally troublesome in the stochastic context. When the SSA simulates a stiff system, it moves along as usual, one reaction at a time, oblivious to the stiffness. But because the great majority of the reactions are the usually uninteresting fast ones, the simulation proceeds slowly from a practical point of view. The explicit tau-leaping algorithm also performs as advertised on stiff systems. But because the τ -selection procedure that keeps the algorithm accurate restricts τ to the timescale of the system’s fastest mode, then even those leaps seem frustratingly small. I conclude by describing two recently developed strategies for simulating stiff chemical systems: the implicit tau-leaping algorithm and the slow-scale SSA (ssSSA).
+
+Slow-scale SSA (ssSSA): an approximation to the SSA for systems with fast and slow reactions in which only the latter are explicitly simulated
+
+6.1. The Implicit Tau-Leaping Algorithm
+
+A well-known strategy for numerically solving a stiff ODE d x/d t = f (x) is to replace the explicit updating formula xt+ t = xt + f (xt) t with an implicit formula, such as xt+ t = xt + f (xt + t) t (36). The latter equation of course has to be solved to obtain xt+ t at each time step. But even when that can only be done numerically (Newton iteration is usually used), the extra effort is usually more than compensated by the
+ability to use much-larger values of t for the same degree of accuracy. The tau-leaping formula (Equation 17), where x = X(t), is obviously an explicit
+updating formula. To make it implicit by replacing x in the argument of the Poisson
+random variable with X(t +τ ), however, raises some serious questions in the context of Markov process theory, where updates are supposed to be past-forgetting; moreover,
+even if that replacement could be justiﬁed theoretically, there appears to be no way to
+solve the resulting equation for X(t + τ ). Rathinam et al. (37) have proposed a partial implicitization, in the following implicit tau-leaping formula:
+
+X(t + τ ) =. x + M [Pj(aj(x)τ ) − aj(x)τ + aj(X(t + τ ))τ ]νj.
+
+(23)
+
+j =1
+
+In this formula, the mean of the Poisson random variable Pj(aj(x)τ ) is subtracted out and replaced by its value at the later time t + τ , but the variance has been left unchanged. The advantage of this formula is that, once the Poisson random numbers have been generated using the current state x, the equation can then be solved for X(t + τ ) using the same (deterministic) numerical techniques developed for implicit ODE solvers (36). Noninteger values for the components of X(t+τ ) can be avoided by rounding the quantity in brackets in Equation 23 to the nearest nonnegative integer and then recomputing X(t + τ ) directly from Equation 23 (37).
+Tests of this implicit tau-leaping strategy show that it produces signiﬁcantly faster simulations than the explicit tau-leaping formula (Equation 17) for stiff systems, but with one major qualiﬁcation: Formula 23 excessively damps the ﬂuctuations in the fast components of X(t). Rapid ﬂuctuations of the state point transverse to the slow manifold naturally occur in a stochastically evolving system, as can be seen in
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 49
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+simulations made with the exact SSA. But Equation 23 suppresses these ﬂuctuations. However, we can restore the properly ﬂuctuating fast variables whenever desired by taking a succession of much shorter explicit tau-leaps or SSA steps, a tactic called downshifting. For more details, see Reference 37.
+Cao & Petzold (38) subsequently proposed a trapezoidal implicit tau-leaping formula, which has the same form as Equation 23 except that a factor of 1/2 appears in front of each of the last two terms in the brackets. Tests suggest that the trapezoidal formula often gives more accurate results than Equation 23 for a given value of τ .
+6.2. The Slow-Scale Stochastic Simulation Algorithm
+A different approach to stochastically simulating stiff chemical systems is one that was inspired by the well-known Michaelis-Menten approximation in deterministic chemical kinetics (39). Several different ways of realizing this approach have been proposed (40–48), but all are rooted in the same basic idea of eliminating the fast entities through a kind of quasi-steady-state approximation (41). Arguably the clearest articulation of this approach, at least as regards its theoretical justiﬁcation within stochastic chemical kinetics, is the ssSSA of References 42 and 45.
+The ssSSA proceeds in a series of steps, the ﬁrst of which is to make a provisional partitioning of the reaction channels R = {R1, . . . , RM} into fast and slow subsets, Rf and Rs. Assigned to Rf are those reactions whose propensity functions tend to have the largest values. All the other reactions are assigned to Rs. If it is not obvious how to make this partitioning, then it may be that the system is not really stiff, and therefore not a candidate for the ssSSA. In any case, this provisional partitioning of the reactions will later be subjected to an acceptance test.
+The second step is to partition the species S = {S1, . . . , SN} into fast and slow subsets, Sf and Sf, according to the following rule: Any species whose population gets changed by a fast reaction is classiﬁed as a fast species; all other species (if there are any) are classiﬁed as slow. This rule induces a partitioning of the process X(t) into a fast process Xf(t) and a slow process Xs(t). Note the subtle but important asymmetry that a fast species can get changed by a slow reaction, but a slow species cannot get changed by a fast reaction.
+The third step deﬁnes the virtual fast process Xˆ f(t) as the fast species populations evolving under only the fast reactions Rf; i.e., Xˆ f(t) is Xf(t) with all the slow reactions switched off. The virtual fast process Xˆ f(t) is a Markov process, whereas the real fast process Xf(t) is generally non-Markovian, and hence practically intractable.
+Next we require that two stochastic stiffness conditions be satisﬁed: First, Xˆ f(t) must be stable, in that it approaches as t → ∞ a well-deﬁned time-independent random variable Xˆ f(∞). This is the counterpart to the deterministic stiffness requirement that the fastest dynamical mode be stable. Second, the approach Xˆ f(t) → Xˆ f(∞) must be effectively accomplished in a time that is small compared with the expected time to the next slow reaction. This is a more precise speciﬁcation of the degree of separation that must exist between the timescales of the fast and slow reactions. If we ﬁnd these two stiffness conditions are satisﬁed, then our original classiﬁcation of the fast
+50 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+reactions is deemed acceptable; otherwise we must try another set of fast reactions,
+or else we must conclude that the system is not really stiff, and the ssSSA cannot be
+applied.
+With the stochastic stiffness conditions satisﬁed, we now invoke the slow-scale
+approximation—a result that can be mathematically derived from the fundamental
+premise (Equation 2) (42). The slow-scale approximation states, in essence, that we
+can ignore the fast reactions and simulate the system one slow reaction at a time,
+provided we replace the propensity function of each slow reaction by its average with respect to the asymptotic virtual fast process Xˆ f(∞). More precisely, if Pˆ (yf, ∞ | xf, xs) is the probability that Xˆ f(∞) = yf given that X(t) = (xf, xs), then the propensity function ajs(xf, xs) of each slow reaction Rjs at time t can be approximated on the timescale of the slow reactions by
+
+a¯js(xf, xs) ≡ Pˆ (yf, ∞ | xf, xs) ajs(yf, xs).
+
+(24)
+
+yf
+
+The ssSSA thus proceeds by simulating, in the manner of the SSA, the slow reactions using the propensity functions (Equation 24) and ignoring the fast reactions. We can exhibit the populations of the fast species whenever desired by Monte Carlo sampling the probability function Pˆ .
+The approaches of References 43, 44, 47 and 48 differ from the ssSSA approach described above in the way the averages (Equation 24) are computed and the way in which the fast-species populations are generated. All rely on making relatively short SSA runs of the virtual fast process between the slow reactions.
+Although the ssSSA can be challenging to implement, it has been successfully applied to a number of simple stiff systems (42), as well as the prototypical MichaelisMenten system (45) that is so ubiquitous in enzymatic reactions. These applications showed increases in simulation speed over the exact SSA of two to three orders of magnitude with no perceptible loss of simulation accuracy.
+
+7. OUTLOOK
+The robustness and efﬁciency of both the SSA and the explicit tau-leaping algorithm have been considerably improved in the past few years, and those procedures seem to be nearing maturity. However, there is still room for improvement on the stiffness problem. Such improvement may come in the form of reﬁnements to the implicit tau-leaping procedure and the ssSSA, and a clariﬁcation of the theoretical connection between those two approaches for dealing with stiff systems. Also needed are robust, adaptive strategies for deciding during a simulation when to use which simulation method. There is also a need for a better understanding of several foundational issues, such as how the reaction constants c j are to be derived in the context of diffusional kinetics, and what are the effects of the molecular-crowding conditions usually present in living cells. Finally, the problem of how best to simulate systems that are not well stirred, a problem that is not addressed in this review, holds a great many challenges.
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 51
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+SUMMARY POINTS 1. The SSA is a procedure for numerically simulating well-stirred chemically
+reacting systems by stepping in time to successive molecular reaction events in exact accord with the premises of the CME. 2. The ability of the SSA to take proper account of the discrete, stochastic nature of chemical reactions makes it better suited to cellular chemical kinetics than the traditional RRE because in cellular systems the small numbers of molecules of some key reactants can amplify the effects of discreteness and randomness. 3. Because the SSA simulates every successive molecular reaction event that occurs in the system, it is often too slow for practical simulation of realistic cellular systems. 4. An approximate speedup to the SSA is provided by tau-leaping, in which time is advanced by a preselected amount τ and the numbers of ﬁrings of the individual reaction channels are approximated by Poisson random numbers. 5. If the expected number of ﬁrings of each reaction channel during a tau-leap is much greater than one, the Poisson random numbers are well approximated by normal random numbers, and the result is equivalent to a Langevin-type equation called the CLE. 6. In the thermodynamic (macroscopic) limit, the noise terms in the CLE become negligibly small and the CLE reduces to the conventional RRE, thereby establishing deterministic chemical kinetics in the context of stochastic chemical kinetics. 7. For stiff systems—which evolve on both fast and slow timescales with the fastest modes being stable—accuracy in tau-leaping requires τ to be small on the fastest timescale, which makes even tau-leaping seem too slow. 8. Two acceleration procedures for stiff systems are implicit tau-leaping, which mirrors the implicit Euler method in ODE theory, and the ssSSA, in which the fast reactions are skipped over and only the slow reactions are directly simulated using specially modiﬁed propensity functions.
+ACKNOWLEDGMENTS Support for this work was provided by the University of California under Consulting Agreement 054281A20 with the Computer Science Department of its Santa Barbara campus. Support was also provided by the California Institute of Technology through Consulting Agreement 21E-1079702 with the Beckman Institute’s Biological Network Modeling Center and through an additional consulting agreement with Caltech’s Control and Dynamical Systems Department pursuant to NIH Grant R01 GM078992 from the National Institute of General Medical Sciences.
+52 Gillespie
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+LITERATURE CITED
+1. McAdams HH, Arkin AP. 1997. Stochastic mechanisms in gene expression. Proc. Natl. Acad. Sci. USA 94:814–19
+2. Arkin AP, Ross J, McAdams HH. 1998. Stochastic kinetic analysis of developmental pathway bifurcation in phage λ-infected E. coli cells. Genetics 149:1633–48
+3. Elowitz MB, Levine AJ, Siggia ED, Swain PS. 2002. Stochastic gene expression in a single cell. Science 297:1183–86
+4. Blake WJ, Kaern M, Cantor CR, Collins JJ. 2003. Noise in eukaryotic gene expression. Nature 422:633–37
+5. Raser JM, O’Shea EK. 2004. Control of stochasticity in eukaryotic gene expression. Science 304:1811–14
+6. Weinberger LS, Burnett JC, Toettcher JE, Arkin AP, Schaffer DV. 2005. Stochastic gene expression in a lentiviral positive-feedback loop: HIV-1 Tat ﬂuctuations drive phenotypic diversity. Cell 122:169–82
+7. Samoilov M, Plyasunov S, Arkin AP. 2005. Stochastic ampliﬁcation and signaling in enzymatic futile cycles through noise-induced bistability with oscillations. Proc. Natl. Acad. Sci. USA 102:2310–15
+8. Gillespie DT. 1976. A general method for numerically simulating the stochastic time evolution of coupled chemical reactions. J. Comput. Phys. 22:403–34
+9. Gillespie DT. 1977. Exact stochastic simulation of coupled chemical reactions. J. Phys. Chem. 81:2340–61
+10. Gillespie DT. 1992. A rigorous derivation of the chemical master equation. Physica A 188:404–25
+11. Gillespie DT. 1992. Markov Processes: An Introduction for Physical Scientists. San Diego: Academic
+12. McQuarrie D. 1967. Stochastic approach to chemical kinetics. J. Appl. Probab. 4:413–78
+13. Bharucha-Reid AT. 1960. Elements of the Theory of Markov Processes and Their Applications. New York: McGraw-Hill
+14. Nakanishi T. 1972. Stochastic analysis of an oscillating chemical reaction. J. Phys. Soc. Japan 32:1313–22
+15. Solc M, Horsak I. 1972. Simulation of ﬁrst-order chemical reaction as a stochastic process on a digital computer. Collect. Czech. Chem. Commun. 37:2994–3000
+16. Horsak I, Solc M. 1973. Simulation study of a stochastic model of reversible ﬁrst-order reaction equilibrium. Collect. Czech. Chem. Commun. 38:2200–3
+17. Bunker DL, Garret B, Kleindienst T, Long GS III. 1974. Discrete simulation methods in combustion kinetics. Combust. Flame 23:373–79
+18. Horsak I, Solc M. 1975. Simulation study of a stochastic models of higher order reactions. Collect. Czech. Chem. Commun. 40:321–25
+19. Nakanishi T. 1976. Time dependent ﬂuctuation in a nonlinear chemical system. J. Phys. Soc. Japan 40:1232–39
+20. Gibson MA, Bruck J. 2000. Exact stochastic simulation of chemical systems with many species and many channels. J. Phys. Chem. 105:1876–89
+
+1. Earliest application of the SSA to a real biological system demonstrating that stochasticity can play a critically important role.
+7. Demonstrates the surprising ability of external noise to cause a monostable system to become bistable.
+8. Introduced the SSA.
+10. Clariﬁed the physical and mathematical foundations of the CME and the SSA.
+12. Introduced the CME.
+
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 53
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+25. Gave a conceptually transparent derivation of the CLE from the CME that clariﬁed its form and the approximations involved. 26. Introduced tau-leaping and a variation called k-leaping.
+27. A tutorial on Langevin equations, Fokker-Planck equations, Gaussian white noise, Brownian motion, and related subjects.
+32. Describes the latest, most efﬁcient version of explicit tau-leaping.
+42. Introduced the ssSSA.
+
+21. Cao Y, Li H, Petzold LR. 2004. Efﬁcient formulation of the stochastic simulation algorithm for chemically reacting systems. J. Chem. Phys. 121:4059–67
+22. Lok L, Brent R. 2005. Automatic generation of cellular reaction networks with Moleculizer 1.0. Nat. Biotech. 23:131–36
+23. McCollum JM, Peterson GD, Cox CD, Simpson ML, Samatova NF. 2006. The sorting direct method for stochastic simulation of biochemical systems with varying reaction execution behavior. Comput. Bio. Chem. 30:39–49
+24. Deleted in proof 25. Gillespie DT. 2000. The chemical Langevin equation. J. Chem. Phys.
+113:297–306 26. Gillespie DT. 2001. Approximate accelerated stochastic simulation of
+chemically reacting systems. J. Chem. Phys. 115:1716–33 27. Gillespie DT. 1996. The multivariate Langevin and Fokker-Planck equa-
+tions. Am. J. Phys. 64:1246–57 28. Gillespie DT. 2002. The chemical Langevin and Fokker-Planck equations for
+the reversible isomerization reaction. J. Phys. Chem. A 106:5063–71 29. Gillespie DT. 2005. Stochastic chemical kinetics. In Handbook of Materials Mod-
+eling, ed. S Yip, pp. 1735–52. Dordrecht: Springer 30. Press W, Flannery B, Teukolsky S, Vetterling W. 1986. Numerical Recipes: The
+Art of Scientiﬁc Computing. Cambridge, UK: Cambridge Univ. Press 31. Gillespie DT, Petzold LR. 2003. Improved leap-size selection for accelerated
+stochastic simulation. J. Chem. Phys. 119:8229–34 32. Cao Y, Gillespie DT, Petzold LR. 2006. Efﬁcient stepsize selection for the
+tau-leaping simulation method. J. Chem. Phys. 124:044109 33. Tian T, Burrage K. 2004. Binomial leap methods for simulating stochastic chem-
+ical kinetics. J. Chem. Phys. 121:10356–64 34. Chatterjee A, Vlachos D, Katsoulakis M. 2005. Binomial distribution based τ -
+leap accelerated stochastic simulation. J. Chem. Phys. 122:024112 35. Cao Y, Gillespie DT, Petzold LR. 2005. Avoiding negative populations in explicit
+Poisson tau-leaping. J. Chem. Phys. 123:054104 36. Ascher UM, Petzold LR. 1998. Computer Methods for Ordinary Differential Equa-
+tions and Differential Algebraic Equations. Philadelphia: Soc. Ind. Appl. Math. 37. Rathinam M, Petzold LR, Cao Y, Gillespie DT. 2003. Stiffness in stochastic
+chemically reacting systems: the implicit tau-leaping method. J. Chem. Phys. 119:12784–94 38. Cao Y, Petzold LR. 2005. Trapezoidal tau-leaping formula for the stochastic simulation of chemically reacting systems. Proc. Found. Syst. Biol. Eng. (FOSBE 2005), pp. 149–52 39. Plowman KM. 1971. Enzyme Kinetics. New York: McGraw-Hill 40. Haseltine EL, Rawlings JB. 2002. Approximate simulation of coupled fast and slow reactions for stochastic chemical kinetics. J. Chem. Phys. 117:6959–69 41. Rao C, Arkin AP. 2003. Stochastic chemical kinetics and the quasi-steady-state assumption: application to the Gillespie algorithm. J. Chem. Phys. 118:4999–5010 42. Cao Y, Gillespie DT, Petzold LR. 2005. The slow-scale stochastic simulation algorithm. J. Chem. Phys. 122:014116
+
+54 Gillespie
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+ANRV308-PC58-02 ARI 21 February 2007 11:10
+43. Cao Y, Gillespie DT, Petzold LR. 2005. Multiscale stochastic simulation algorithm with stochastic partial equilibrium assumption for chemically reacting systems. J. Comput. Phys. 206:395–411
+44. Samant A, Vlachos DG. 2005. Overcoming stiffness in stochastic simulation stemming from partial equilibrium: a multiscale Monte Carlo algorithm. J. Chem. Phys. 123:144114
+45. Cao Y, Gillespie DT, Petzold LR. 2005. Accelerated stochastic simulation of the stiff enzyme-substrate reaction. J. Chem. Phys. 123:144917
+46. Haseltine EL, Rawlings JB. 2005. On the origins of approximations for stochastic chemical kinetics. J. Chem. Phys. 123:164115
+47. Weinan E, Liu D, Vanden-Eijnden E. 2005. Nested stochastic simulation algorithm for chemical kinetic systems with disparate rates. J. Chem. Phys. 123:194107
+48. Salis H, Kaznessis Y. 2005. Equation-free probabilistic steady-state approximation: dynamic application to the stochastic simulation of biochemical reaction networks. J. Chem. Phys. 123:214106
+www.annualreviews.org • Stochastic Simulation of Chemical Kinetics 55
+
+AR308-FM ARI 23 February 2007 13:44
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+Contents
+
+Annual Review of Physical Chemistry
+Volume 58, 2007
+
+Frontispiece C. Bradley Moore p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p xvi
+A Spectroscopist’s View of Energy States, Energy Transfers, and Chemical Reactions C. Bradley Moore p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p 1
+Stochastic Simulation of Chemical Kinetics Daniel T. Gillespie p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p 35
+Protein-Folding Dynamics: Overview of Molecular Simulation Techniques Harold A. Scheraga, Mey Khalili, and Adam Liwo p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p 57
+Density-Functional Theory for Complex Fluids Jianzhong Wu and Zhidong Li p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p 85
+Phosphorylation Energy Hypothesis: Open Chemical Systems and Their Biological Functions Hong Qian p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p113
+Theoretical Studies of Photoinduced Electron Transfer in Dye-Sensitized TiO2 Walter R. Duncan and Oleg V. Prezhdo p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p143
+Nanoscale Fracture Mechanics Steven L. Mielke, Ted Belytschko, and George C. Schatz p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p185
+Modeling Self-Assembly and Phase Behavior in Complex Mixtures Anna C. Balazs p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p211
+Theory of Structural Glasses and Supercooled Liquids Vassiliy Lubchenko and Peter G. Wolynes p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p235
+Localized Surface Plasmon Resonance Spectroscopy and Sensing Katherine A. Willets and Richard P. Van Duyne p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p267
+Copper and the Prion Protein: Methods, Structures, Function, and Disease Glenn L. Millhauser p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p299
+ix
+
+Annu. Rev. Phys. Chem. 2007.58:35-55. Downloaded from www.annualreviews.org by University of Sussex on 06/15/12. For personal use only.
+
+AR308-FM ARI 23 February 2007 13:44
+Aging of Organic Aerosol: Bridging the Gap Between Laboratory and Field Studies Yinon Rudich, Neil M. Donahue, and Thomas F. Mentel p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p321
+Molecular Motion at Soft and Hard Interfaces: From Phospholipid Bilayers to Polymers and Lubricants Sung Chul Bae and Steve Granick p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p353
+Molecular Architectonic on Metal Surfaces Johannes V. Barth p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p375
+Highly Fluorescent Noble-Metal Quantum Dots Jie Zheng, Philip R. Nicovich, and Robert M. Dickson p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p409
+State-to-State Dynamics of Elementary Bimolecular Reactions Xueming Yang p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p433
+Femtosecond Stimulated Raman Spectroscopy Philipp Kukura, David W. McCamant, and Richard A. Mathies p p p p p p p p p p p p p p p p p p p p p461
+Single-Molecule Probing of Adsorption and Diffusion on Silica Surfaces Mary J. Wirth and Michael A. Legg p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p489
+Intermolecular Interactions in Biomolecular Systems Examined by Mass Spectrometry Thomas Wyttenbach and Michael T. Bowers p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p511
+Measurement of Single-Molecule Conductance Fang Chen, Joshua Hihath, Zhifeng Huang, Xiulan Li, and N.J. Tao p p p p p p p p p p p p p p p535
+Structure and Dynamics of Conjugated Polymers in Liquid Crystalline Solvents P.F. Barbara, W.-S. Chang, S. Link, G.D. Scholes, and Arun Yethiraj p p p p p p p p p p p p p p p565
+Gas-Phase Spectroscopy of Biomolecular Building Blocks Mattanjah S. de Vries and Pavel Hobza p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p585
+Isomerization Through Conical Intersections Benjamin G. Levine and Todd J. Martínez p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p613
+Spectral and Dynamical Properties of Multiexcitons in Semiconductor Nanocrystals Victor I. Klimov p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p635
+Molecular Motors: A Theorist’s Perspective Anatoly B. Kolomeisky and Michael E. Fisher p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p675
+Bending Mechanics and Molecular Organization in Biological Membranes Jay T. Groves p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p p697
+Exciton Photophysics of Carbon Nanotubes Mildred S. Dresselhaus, Gene Dresselhaus, Riichiro Saito, and Ado Jorio p p p p p p p p p p p p719
+x Contents
+

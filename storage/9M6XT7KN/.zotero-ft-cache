@@ -1,0 +1,7442 @@
+The Finite Element Method: Its Basis and
+Fundamentals
+
+Professor O.C. Zienkiewicz, CBE, FRS, FREng died on 2 January 2009. Prior to his death he was Professor Emeritus at the Civil and Computational Engineering Centre, University of Wales, Swansea and previously Director of the Institute for Numerical Methods in Engineering at the University of Wales, Swansea, UK. He also held the UNESCO Chair of Numerical Methods in Engineering at the Technical University of Catalunya, Barcelona, Spain. He was the head of the Civil Engineering Department at the University of Wales, Swansea between 1961 and 1989. During this period he established that department as one of the primary centers of finite element research. In 1968 he became the Founder Editor of the International Journal for Numerical Methods in Engineering which still remains today the major journal in this field. The recipient of 27 honorary degrees and many medals, Professor Zienkiewicz was a member of five academies—an honor he received for his many contributions to the fundamental developments of the finite element method. In 1978, he became a Fellow of the Royal Society and the Royal Academy of Engineering. This was followed by his election as a foreign member to the U.S. Academy of Engineering (1981), the Polish Academy of Science (1985), the Chinese Academy of Sciences (1998), and the National Academy of Science, Italy (Academia dei Lincei) (1999). He published the first edition of this book in 1967 and it remained the only book on the subject until 1971.
+Professor R.L. Taylor has more than 50 years’ experience in the modeling and simulation of structures and solid continua including eight years in industry. He is Professor of the Graduate School and the Emeritus T.Y. and Margaret Lin Professor of Engineering at the University of California at Berkeley and Corporate Fellow at Dassault Systèmes SIMULIA in Providence, Rhode Island. In 1991 he was elected to membership in the US National Academy of Engineering in recognition of his educational and research contributions to the field of computational mechanics. He is a Fellow of the US Association of Computational Mechanics—USACM (1996) and a Fellow of the International Association of Computational Mechanics—IACM (1998). He has received numerous awards including the Berkeley Citation, the highest honor awarded by the University of California at Berkeley, the USACM John von Neumann Medal, the IACM Gauss–Newton Congress Medal, and a Dr.-Ingenieur ehrenhalber awarded by the Technical University of Hannover, Germany. He has written several computer programs for finite element analysis of structural and non-structural systems, one of which, FEAP, is used worldwide in education and research environments. A personal version, FEAPpv, available at his UC website, is incorporated into this book.
+Dr. J.Z. Zhu has more than 30 years’ experience in the development of finite element methods. During the last 20 years he has worked in industry where he has been developing commercial finite element software to solve multi-physics problems. Dr Zhu read for his Bachelor of Science degree at Harbin Engineering University and his Master of Science at Tianjin University, both in China. He was awarded his doctoral degree in 1987 from the University of Wales, Swansea, working under the supervision of Professor Zienkiewicz. Dr Zhu is the author of more than 40 technical papers on finite element methods including several on error estimation and adaptive automatic mesh generation. These have resulted in his being named in 2000 as one of the most highly cited researchers for engineering in the world and in 2001 as one of the top 20 most highly cited researchers for engineering in the United Kingdom.
+
+The Finite Element Method: Its Basis and
+Fundamentals
+Seventh Edition
+O.C. Zienkiewicz, CBE, FRS
+Previously UNESCO Professor of Numerical Methods in Engineering International Centre for Numerical Methods in Engineering, Barcelona Previously Director of the Institute for Numerical Methods in Engineering
+University of Wales Swansea
+R.L. Taylor
+Professor in the Graduate School Department of Civil and Environmental Engineering
+University of California at Berkeley Berkeley, California
+J.Z. Zhu
+Senior Scientist ESI US R & D 9891 Broken Land Parkway, Suite 200 Columbia, Maryland
+AMSTERDAM • BOSTON • HEIDELBERG • LONDON NEW YORK • OXFORD • PARIS • SAN DIEGO
+SAN FRANCISCO • SINGAPORE • SYDNEY • TOKYO Butterworth-Heinemann is an imprint of Elsevier
+
+Butterworth-Heinemann is an imprint of Elsevier The Boulevard, Langford Lane, Kidlington, Oxford, OX5 1GB, UK 225 Wyman Street, Waltham, MA 02451, USA First published 1967 by McGraw-Hill Fifth edition published by Butterworth-Heinemann 2000 Reprinted 2002 Sixth edition 2005 Seventh edition 2013 Copyright © 2013 Elsevier Ltd. All rights reserved No part of this publication may be reproduced or transmitted in any form or by any means, electronic or mechanical, including photocopying, recording, or any information storage and retrieval system, without permission in writing from the publisher. Details on how to seek permission, further information about the Publisher’s permissions policies and our arrangement with organizations such as the Copyright Clearance Center and the Copyright Licensing Agency, can be found at our website: www.elsevier.com/permissions.
+This book and the individual contributions contained in it are protected under copyright by the Publisher (other than as may be noted herein).
+Notices Knowledge and best practice in this field are constantly changing. As new research and experience broaden our understanding, changes in research methods, professional practices, or medical treatment may become necessary.
+Practitioners and researchers must always rely on their own experience and knowledge in evaluating and using any information, methods, compounds, or experiments described herein. In using such information or methods they should be mindful of their own safety and the safety of others, including parties for whom they have a professional responsibility.
+To the fullest extent of the law, neither the Publisher nor the authors, contributors, or editors, assume any liability for any injury and/or damage to persons or property as a matter of products liability, negligence or otherwise, or from any use or operation of any methods, products, instructions, or ideas contained in the material herein.
+British Library Cataloguing in Publication Data A catalogue record for this book is available from the British Library
+Library of Congress Cataloging in Publication Data A catalog record for this book is available from the Library of Congress
+ISBN: 978-1-85617-633-0
+For information on all Butterworth-Heinemann publications visit our website at store.elsevier.com
+Printed and bound in the United Kingdom 13 14 15 16  10 9 8 7 6 5 4 3 2 1
+
+This book is dedicated to the memory of Olgierd C. (Olek) Zienkiewicz: Pioneer, mentor, and close friend.
+
+This page is intentionally left blank
+
+Contents
+List of Figures..........................................................................................................xix List of Tables......................................................................................................... xxxv Preface.................................................................................................................xxxvii
+CHAPTER 1	The Standard Discrete System and Origins of the Finite Element Method............................................. 1
+1.1 Introduction...................................................................................... 1 1.2 The structural element and the structural system............................ 4 1.3 Assembly and analysis of a structure............................................... 6 1.4 The boundary conditions................................................................. 7 1.5 Electrical and fluid networks........................................................... 8 1.6 The general pattern.......................................................................... 9 1.7 The standard discrete system......................................................... 11 1.8 Transformation of coordinates....................................................... 12 1.9 Problems........................................................................................ 14
+References...................................................................................... 18
+CHAPTER 2 Problems in Linear Elasticity and Fields.................. 21
+2.1 Introduction.................................................................................... 21 2.2 Elasticity equations........................................................................ 21
+2.2.1 Displacement function.......................................................... 22 2.2.2 Strain matrix......................................................................... 23 2.2.3 Stress matrix......................................................................... 25 2.2.4 Equilibrium equations........................................................... 26 2.2.5 Boundary conditions............................................................. 27 2.2.6 Initial conditions................................................................... 30 2.2.7 Transformation of stress and strain....................................... 30 2.2.8 Stress-strain relations: Elasticity matrix............................... 32 2.3 General quasi-harmonic equation.................................................. 39 2.3.1 Governing equations: Flux and continuity............................ 39 2.3.2 Boundary conditions............................................................. 39 2.3.3 Initial condition..................................................................... 40 2.3.4 Constitutive behavior............................................................ 40 2.3.5 Irreducible form in φ ........................................................... 40 2.3.6 Anisotropic and isotropic forms for
+k: Transformations................................................................ 40 2.3.7 Two-dimensional problems................................................... 42
+vii
+
+viii ﻿Contents
+2.4 Concluding remarks....................................................................... 43 2.5 Problems........................................................................................ 43
+References...................................................................................... 44
+CHAPTER 3	Weak Forms and Finite Element Approximation: 1-D Problems................................. 47
+3.1 Weak forms.................................................................................... 47 3.2 One-dimensional form of elasticity............................................... 48
+3.2.1 Weak form of equilibrium equation...................................... 49 3.3 Approximation to integral and weak forms: The weighted
+residual (Galerkin) method............................................................ 51 3.3.1 Galerkin solution of elasticity equation................................ 52 3.4 Finite element solution.................................................................. 55 3.4.1 Requirements for finite element approximations.................. 59 3.5 Isoparametric form......................................................................... 61 3.5.1 Higher order elements: Lagrange interpolation.................... 62 3.5.2 Integrals on the parent element: Numerical integration........ 64 3.6 Hierarchical interpolation.............................................................. 66 3.7 Axisymmetric one-dimensional problem...................................... 69 3.7.1 Weak form for axisymmetric problem.................................. 70 3.7.2 A variational notation............................................................ 71 3.7.3 Irreducible form for axisymmetric problem......................... 72 3.7.4 Finite element solution......................................................... 72 3.8 Transient problems........................................................................ 75 3.8.1 Discrete time methods.......................................................... 75 3.8.2 Semi-discretization of the problem....................................... 77 3.9 Weak form for one-dimensional quasi-harmonic equation............ 81 3.9.1 Weak form............................................................................. 82 3.9.2 Finite element solution of quasi-harmonic problem............. 82 3.9.3 Transient problems................................................................ 84 3.10 Concluding remarks....................................................................... 87 3.11 Problems........................................................................................ 88 References...................................................................................... 91
+CHAPTER 4	Variational Forms and Finite Element Approximation: 1-D Problems................................. 93
+4.1 Variational principles..................................................................... 93 4.2 “Natural” variational principles and their relation to
+governing differential equations.................................................... 95 4.2.1 Euler equations..................................................................... 95
+
+﻿ ix
+4.3 Establishment of natural variational principles for linear, self-adjoint differential equations.................................................. 97
+4.4 Maximum, minimum, or a saddle point?..................................... 100 4.5 Constrained variational principles............................................... 101
+4.5.1 Lagrange multipliers........................................................... 101 4.5.2 Identification of Lagrange multipliers: Forced boundary
+conditions and modified variational principles������������������ 103 4.6 Constrained variational principles: Penalty function and
+perturbed Lagrangian methods.................................................... 104 4.6.1 Penalty functions................................................................ 105 4.6.2 Perturbed Lagrangian.......................................................... 105 4.7 Least squares approximations...................................................... 108 4.8 Concluding remarks: Finite difference and boundary methods........................................................................................ 110 4.9 Problems...................................................................................... 111 References.................................................................................... 112
+CHAPTER 5	Field Problems: A Multidimensional Finite Element Method.................................................. 115
+5.1 Field problems: Quasi-harmonic equation................................... 115 5.1.1 Irreducible form.................................................................. 116 5.1.2 Finite element discretization............................................... 117 5.1.3 Shape functions for triangle, rectangle, and tetrahedron������������������������������������������������������������������������� 119
+5.2 Partial discretization: Transient problems...................................126 5.3 Numerical examples: An assessment of accuracy....................... 126
+5.3.1 Torsion of prismatic bars.................................................... 128 5.3.2 Transient heat conduction................................................... 131 5.3.3 Anisotropic seepage............................................................ 134 5.3.4 Electrostatic and magnetostatic problems.......................... 134 5.3.5 Lubrication problems.......................................................... 135 5.3.6 Irrotational and free surface flows...................................... 136 5.4 Problems...................................................................................... 139 References.................................................................................... 147
+CHAPTER 6 Shape Functions, Derivatives, and Integration....... 151
+6.1 Introduction.................................................................................. 151 6.2 Two-dimensional shape functions............................................... 152
+6.2.1 Shape functions for triangles.............................................. 152 6.2.2 Shape functions for quadrilaterals...................................... 155
+
+x
+
+﻿Contents
+
+6.3 Three-dimensional shape functions............................................. 162 6.3.1 Tetrahedral elements........................................................... 162 6.3.2 Hexagon elements: Brick family........................................ 165
+6.4 Other simple three-dimensional elements................................... 168 6.5 Mapping: Parametric forms......................................................... 170 6.6 Order of convergence for mapped elements................................ 172 6.7 Computation of global derivatives............................................... 175
+6.7.1 Placement of element coordinates...................................... 177 6.8 Numerical integration.................................................................. 178
+6.8.1 Quadrilateral elements........................................................ 178 6.8.2 Brick elements.................................................................... 179 6.8.3 Triangular elements............................................................ 179 6.8.4 Tetrahedral elements........................................................... 180 6.8.5 Required order of numerical integration............................. 180 6.8.6 Matrix singularity due to numerical integration................. 183 6.9 Shape functions by degeneration................................................. 187 6.9.1 Higher order degenerate elements...................................... 188 6.10 Generation of finite element meshes by mapping........................ 192 6.10.1 Blending functions............................................................ 193 6.10.2 Bèzier functions................................................................ 196 6.11 Computational advantage of numerically integrated finite elements.............................................................................. 198 6.12 Problems...................................................................................... 199 References.................................................................................... 207
+CHAPTER 7	Elasticity: Two- and Three-Dimensional Finite Elements............................................................. 211
+7.1 Introduction.................................................................................. 211 7.2 Elasticity problems: Weak form for equilibrium......................... 211
+7.2.1 Displacement method: Irreducible form............................. 214 7.3 Finite element approximation by the Galerkin method............... 214 7.4 Boundary conditions.................................................................... 217 7.5 Numerical integration and alternate forms.................................. 219 7.6 Infinite domains and infinite elements......................................... 221
+7.6.1 The mapping function......................................................... 222 7.7 Singular elements by mapping: Use in fracture
+mechanics, etc.............................................................................. 224 7.8 Reporting results: Displacements, strains, and stresses............... 226 7.9 Discretization error and convergence rate................................... 228 7.10 Minimization of total potential energy........................................ 230
+
+Contents ﻿ xi
+7.10.1 Bound on strain energy in a displacement formulation........................................................................ 232
+7.10.2 Direct minimization.......................................................... 233 7.11 Finite element solution process................................................... 233 7.12 Numerical examples.................................................................... 234
+7.12.1 Practical examples............................................................ 244 7.13 Concluding remarks..................................................................... 247 7.14 Problems...................................................................................... 247
+References.................................................................................... 252
+CHAPTER 8	The Patch Test, Reduced Integration, and Nonconforming Elements............................... 257
+8.1 Introduction.................................................................................. 257 8.2 Convergence requirements........................................................... 258 8.3 The simple patch test (Tests A and B): A necessary
+condition for convergence............................................................ 260 8.4 Generalized patch test (Test C) and the single-element test........ 262 8.5 The generality of a numerical patch test...................................... 263 8.6 Higher order patch tests............................................................... 265 8.7 Application of the patch test to plane elasticity elements
+with “standard” and “reduced” quadrature.................................. 265 8.8 Application of the patch test to an incompatible element............ 271 8.9 Higher order patch test: Assessment of robustness...................... 276 8.10 Concluding remarks..................................................................... 278 8.11 Problems...................................................................................... 279
+References.................................................................................... 283
+CHAPTER 9	Mixed Formulation and Constraints: Complete Field Methods..................................................... 285
+9.1 Introduction.................................................................................. 285 9.2 Mixed form discretization: General remarks............................... 287 9.3 Stability of mixed approximation: The patch test........................ 289
+9.3.1 Solvability requirement....................................................... 289 9.3.2 Locking............................................................................... 291 9.3.3 The mixed patch test........................................................... 291 9.4 Two-field mixed formulation in elasticity.................................... 293 9.4.1 General................................................................................ 293 9.4.2 The u-σ mixed form............................................................ 294 9.4.3 Stability of two-field approximation in elasticity
+(u-σ).................................................................................... 295 9.5 Three-f ield mixed formulations in elasticity............................... 300
+
+xii ﻿Contents
+9.5.1 The u-σ- mixed form......................................................... 300 9.5.2 Stability condition of three-field approximation
+(u-σ-)................................................................................. 302 9.5.3 The u-σ-en form: Enhanced strain formulation................. 303 9.6 Complementary forms with direct constraint.............................. 308 9.6.1 General forms..................................................................... 308 9.6.2 Solution using auxiliary functions...................................... 310 9.7 Concluding remarks: Mixed formulation or a test of element “robustness”............................................................... 311 9.8 Problems...................................................................................... 311 References.................................................................................... 312
+CHAPTER 10	Incompressible Problems, Mixed Methods, and Other Procedures of Solution......................... 315
+10.1 Introduction.................................................................................. 315 10.2 Deviatoric stress and strain, pressure, and volume change.......... 315 10.3 Two-field incompressible elasticity (u-p form)........................... 317 10.4 Three-field nearly incompressible elasticity (u-p-vv form).......... 326
+10.4.1 The B-bar method for nearly incompressible problems............................................................................ 327
+10.5 Reduced and selective integration and its equivalence to penalized mixed problems........................................................... 328
+10.6 A simple iterative solution process for mixed problems: Uzawa method............................................................................. 335 10.6.1 General.............................................................................. 335 10.6.2 Iterative solution for incompressible elasticity................. 335
+10.7 Stabilized methods for some mixed elements failing the incompressibility patch test......................................................... 337 10.7.1 Laplacian pressure stabilization........................................ 338 10.7.2 Galerkin least squares method.......................................... 340 10.7.3 Direct pressure stabilization............................................. 341 10.7.4 Incompressibility by time stepping................................... 345 10.7.5 Numerical comparisons.................................................... 348
+10.8 Concluding remarks..................................................................... 351 10.9 Problems...................................................................................... 353
+References.................................................................................... 356
+CHAPTER 11 Multidomain Mixed Approximations...................... 361
+11.1 Introduction.................................................................................. 361 11.2 Linking of two or more subdomains by Lagrange
+multipliers.................................................................................... 362
+
+Contents ﻿ xiii
+11.2.1 Linking subdomains for quasi-harmonic equations.......... 362 11.2.2 Linking subdomains for elasticity equations.................... 367 11.3 Linking of two or more subdomains by perturbed Lagrangian and penalty methods................................................. 369 11.3.1 Nitsche method and discontinuous Galerkin
+approximation................................................................... 371 11.4 Problems...................................................................................... 376
+References.................................................................................... 377
+CHAPTER 12	The Time Dimension: Semi-Discretization of Field and Dynamic Problems............................ 379
+12.1 Introduction.................................................................................. 379 12.2 Direct formulation of time-dependent problems with
+spatial finite element subdivision................................................. 379 12.2.1 The “quasi-harmonic” equation with first and second
+time derivative................................................................... 379 12.2.2 Dynamic behavior of elastic structures with linear
+damping............................................................................381 12.2.3 “Mass” or “damping” matrices for some typical
+elements............................................................................ 382 12.2.4 Mass “lumping” or diagonalization.................................. 383 12.3 Analytical solution procedures: General classification................ 386 12.4 Free response: Eigenvalues for second-order problems and dynamic vibration........................................................................ 387 12.4.1 Free dynamic vibration: Real eigenvalues........................ 387 12.4.2 Determination of eigenvalues........................................... 387 12.4.3 Free vibration with the singular K matrix......................... 388 12.4.4 Reduction of the eigenvalue system................................. 389 12.4.5 Some examples................................................................. 389 12.5 Free response: Eigenvalues for first-order problems and heat conduction, etc..................................................................... 392 12.6 Free response: Damped dynamic eigenvalues............................. 393 12.7 Forced periodic response............................................................. 394 12.8 Transient response by analytical procedures............................... 395 12.8.1 General.............................................................................. 395 12.8.2 Frequency response procedures........................................ 395 12.8.3 Modal decomposition analysis......................................... 396 12.8.4 Damping and participation of modes................................ 398 12.9 Symmetry and repeatability......................................................... 399 12.10 Problems...................................................................................... 399 References.................................................................................... 402
+
+xiv ﻿Contents
+CHAPTER 13	Plate Bending Approximation: Thin and Thick Plates........................................................ 407
+13.1 Introduction.................................................................................. 407 13.2 Governing equations.................................................................... 408
+13.2.1 One-dimensional theory: Cylindrical bending............................................................................ 408
+13.2.2 Weak form for cylindrical bending................................... 412 13.2.3 Finite element approximation........................................... 413 13.2.4 Exact nodal solution for thick plate.................................. 417 13.3 General plate theory..................................................................... 418 13.3.1 The boundary conditions.................................................. 421 13.3.2 The irreducible, thin plate approximation........................423 13.3.3 Finite element approximation........................................... 424 13.3.4 Continuity requirement for shape functions
+(C1 continuity)..................................................................425 13.4 The patch test: An analytical requirement................................... 428 13.5 A nonconforming three-node triangular element........................ 429 13.6 Numerical example for thin plates............................................... 432 13.7 Thick plates.................................................................................. 433 13.8 Irreducible formulation: Reduced integration.............................437 13.9 Mixed formulation for thick plates.............................................. 442
+13.9.1 The approximation............................................................ 442 13.9.2 Continuity requirements................................................... 443 13.9.3 Equivalence of mixed forms with discontinuous Q
+interpolation and reduced (selective) integration..............444 13.9.4 Why elements fail: Patch test for thick plates................... 445 13.9.5 Design of some useful elements....................................... 448 13.10 Elements with rotational bubble or enhanced modes.................. 449 13.11 Linked interpolation: An improvement of accuracy.................... 452 13.11.1 Linking function for linear triangles and
+quadrilaterals................................................................... 453 13.11.2 Linked interpolation for quadratic elements................... 454 13.12 Discrete “exact” thin plate limit..................................................456 13.13 Limitations of plate theory........................................................... 458 13.14 Concluding remarks..................................................................... 459 13.15 Problems...................................................................................... 459 References.................................................................................... 460
+CHAPTER 14	Shells as a Special Case of Three-Dimensional Analysis.............................................................. 467
+14.1 Introduction.................................................................................. 467
+
+Contents ﻿ xv
+14.2 Shell element with displacement and rotation parameters.................................................................................... 469 14.2.1 Geometric definition of an element.................................. 469 14.2.2 Displacement field............................................................ 471 14.2.3 Definition of strains and stresses...................................... 473 14.2.4 Element properties and necessary transformations........... 474 14.2.5 Some remarks on stress representation............................. 476
+14.3 Special case of axisymmetric thick shells................................... 477 14.4 Special case of thick plates.......................................................... 480 14.5 Convergence................................................................................480 14.6 Some shell examples.................................................................... 481
+14.6.1 Spherical dome under uniform pressure........................... 481 14.6.2 Edge-loaded cylinder........................................................ 481 14.6.3 Cylindrical shell: Self-weight loading.............................. 483 14.6.4 Pipe penetration and spherical cap................................... 484 14.7 Concluding remarks..................................................................... 484 14.8 Problems...................................................................................... 487 References.................................................................................... 488
+CHAPTER 15 Errors, Recovery Processes, and Error Estimates... 493
+15.1 Definition of errors...................................................................... 493 15.1.1 Norms of errors................................................................. 494
+15.2 Superconvergence and optimal sampling points.......................... 497 15.2.1 A one-dimensional example............................................. 497 15.2.2 The Herrmann theorem and optimal sampling points................................................................ 500
+15.3 Recovery of gradients and stresses.............................................. 502 15.4 Superconvergent patch recovery (SPR)....................................... 504
+15.4.1 Recovery for gradients and stresses.................................. 504 15.4.2 SPR for displacements and stresses.................................. 512 15.5 Recovery by equilibration of patches (REP)............................... 513 15.6 Error estimates by recovery......................................................... 515 15.7 Residual-based methods.............................................................. 517 15.7.1 Explicit residual error estimator....................................... 517 15.7.2 Implicit residual error estimators...................................... 523 15.8 Asymptotic behavior and robustness of error estimators: The Babuška patch test.............................................. 528 15.9 Error bounds and error estimates for quantities of interest.......... 532 15.10 Which errors should concern us?................................................. 536 15.11 Problems...................................................................................... 536 References.................................................................................... 537
+
+xvi ﻿Contents
+CHAPTER 16 Adaptive Finite Element Refinement...................... 545
+16.1 Introduction.................................................................................. 545 16.2 Adaptive h-refinement................................................................. 548
+16.2.1 Predicting the required element size in h-adaptivity....................................................................... 548
+16.2.2 Numerical examples......................................................... 550 16.3 p-refinement and hp-refinement................................................... 557 16.4 Concluding remarks..................................................................... 566 16.5 Problems...................................................................................... 570
+References.................................................................................... 570
+CHAPTER 17 Automatic Mesh Generation................................. 573
+17.1 Introduction.................................................................................. 573 17.2 Geometrical representation of the domain................................... 575
+17.2.1 Curve representation......................................................... 575 17.2.2 Surface representation......................................................578 17.3 Two-dimensional mesh generation: Advancing front method................................................................................. 579 17.3.1 Geometrical representation of two-dimensional
+domain............................................................................... 580 17.3.2 Geometrical characteristics of the mesh........................... 581 17.3.3 Triangular mesh generation.............................................. 584 17.3.4 Mesh quality enhancement for triangles........................... 593 17.3.5 Higher order elements....................................................... 598 17.3.6 Remarks............................................................................ 599 17.4 Surface mesh generation.............................................................. 599 17.4.1 Geometrical characteristics of the
+surface mesh...................................................................... 601 17.4.2 Discretization of three-dimensional curves...................... 607 17.4.3 Element generation in the parametric plane..................... 609 17.4.4 Higher order surface elements.......................................... 610 17.4.5 Remarks............................................................................ 611 17.5 Three-dimensional mesh generation: Delaunay triangulation................................................................................. 613 17.5.1 Voronoi diagram and Delaunay triangulation................... 613 17.5.2 Mesh generation by Delaunay triangulation..................... 615 17.5.3 Mesh quality enhancement............................................... 625 17.5.4 Higher order elements....................................................... 632 17.5.5 Numerical examples......................................................... 632 17.5.6 Remarks............................................................................ 632 17.6 Concluding remarks..................................................................... 634 References.................................................................................... 634
+
+Contents ﻿ xvii
+CHAPTER 18	Computer Procedures for Finite Element Analysis.............................................................. 641
+18.1 Introduction.................................................................................. 641 18.2 Pre-processing module: Mesh creation........................................ 641
+18.2.1 Element library................................................................. 642 18.3 Solution module........................................................................... 643 18.4 Post-processor module................................................................. 643 18.5 User modules............................................................................... 644
+References.................................................................................... 644
+Appendix A����������������������������������������������������������������������������� 647
+Appendix B����������������������������������������������������������������������������� 655
+Appendix C����������������������������������������������������������������������������� 661
+Appendix D����������������������������������������������������������������������������� 671
+Appendix E����������������������������������������������������������������������������� 681
+Appendix F����������������������������������������������������������������������������� 683
+Appendix G����������������������������������������������������������������������������� 685
+Appendix H����������������������������������������������������������������������������� 689
+Author Index��������������������������������������������������������������������������� 697
+Subject Index������������������������������������������������������������������������� 705
+
+This page is intentionally left blank
+
+List of Figures
+
+1.1
+
+A typical structure built up from interconnected elements
+
+1.2
+
+Network of electrical resistances
+
+1.3
+
+The general pattern: (a) elements, (b) element matrices, and (c)
+
+global matrices
+
+1.4
+
+Fluid network for Problem 1.1
+
+1.5
+
+Truss member for Problem 1.2: (a) truss member description
+
+and (b) displacements
+
+1.6
+
+Truss for Problems 1.3 and 1.4
+
+1.7
+
+Elastic bars for Problems 1.5 and 1.6: (a) bar geometry, (b)
+
+Problem 1.5, and (c) Problem 1.6
+
+1.8
+
+Tapered bar for Problem 1.7: (a) tapered bar geometry and (b)
+
+approximation by 4 segments
+
+2.1
+
+Two-dimensional analysis types for (a) plane stress, (b) plane
+
+strain, and (c) axisymmetry
+
+2.2
+
+Stresses involved in the analysis of solids: (a) three-dimensional
+
+and (b) axisymmetric
+
+2.3
+
+Repeatability segments and analysis domain (shaded)
+
+2.4
+
+Repeatable sector in analysis of an impeller
+
+2.5
+
+Axisymmetrically stratiﬁed material
+
+2.6
+
+Anisotropic material. Local coordinates coincide with the prin-
+
+cipal directions of stratiﬁcation
+
+3.1
+
+One-dimensional elasticity example
+
+3.2
+
+Displacement and stress for bar using N-term solutions: (a) dis-
+
+placement and (b) stress
+
+3.3
+
+One-dimensional ﬁnite element approximation for φi : (a) func-
+
+tions and (b) derivatives
+
+3.4
+
+One-dimensional ﬁnite element shape functions: (a) functions
+
+and (b) derivatives
+
+3.5
+
+Four-element mesh for one-dimensional elasticity example
+
+3.6
+
+One-dimensional ﬁnite element solution to bar problem: (a) dis-
+
+placements and (b) stress
+
+3.7
+
+A one-dimensional problem of stretching of a uniform elastic
+
+bar by prescribed body forces
+
+4 8
+10 14
+15 16
+17
+17
+22
+24 29 30 37
+41 54
+55
+56
+57 60
+60
+68
+xix
+
+xx List of Figures
+
+3.8
+
+One-dimensional ﬁnite element solution to axisymmetric prob-
+
+lem: (a) displacements and (b) stresses
+
+74
+
+3.9
+
+Problem description and loading for 1-D heat conduction example
+
+85
+
+3.10 One-dimensional heat conduction. Solution by ﬁnite element
+
+method with linear elements and h = L/4; ﬁnite difference
+
+method with h = L/4 and h = L/8
+
+86
+
+3.11 One-dimensional heat conduction. Solution by ﬁnite element
+
+method with quadratic elements and h = L/4
+
+87
+
+3.12 Beam bending description
+
+89
+
+4.1
+
+Maximum, minimum, and a “saddle” point for a functional
+
+of one variable
+
+101
+
+5.1
+
+Division of a two-dimensional region into triangular elements:
+
+(a) triangular mesh and (b) geometry of triangle
+
+120
+
+5.2
+
+Shape function N3 for one element: (a) three-node triangle and
+
+(b) four-node rectangle
+
+121
+
+5.3
+
+Rectangular element geometry and local node numbers
+
+122
+
+5.4
+
+Tetrahedron element
+
+123
+
+5.5
+
+“Regular” and “irregular” subdivision patterns
+
+127
+
+5.6
+
+Torsion of rectangular prismatic bar
+
+128
+
+5.7
+
+Torsion of a rectangular shaft. The numbers in parentheses show
+
+a more accurate solution due to Southwell using a 12×16 mesh
+
+(values of φ/Gθ L2)
+
+130
+
+5.8
+
+Bound on torsional stiffness for square bar
+
+131
+
+5.9
+
+Torsion of a hollow bimetallic shaft. φ/Gθ L2 × 104
+
+131
+
+5.10 Two-dimensional transient heat development in a square prism—
+
+plot of temperature at center: (a) boundary condition and (b)
+
+solution at center
+
+132
+
+5.11 Transient heat development in a square prism—plot of temper-
+
+ature at center
+
+133
+
+5.12 Flow under a dam through a highly nonhomogeneous and con-
+
+torted foundation
+
+134
+
+5.13 A three-dimensional distribution of electrostatic potential around
+
+a porcelain insulator in an earthed trough
+
+135
+
+5.14 Field near a magnet
+
+136
+
+5.15 Pressure distribution for a stepped pad bearing
+
+137
+
+5.16 Typical free surface problems with a streamline also satisfying
+
+an additional condition of pressure = 0: (a) jet overﬂow and (b)
+
+seepage through an earth dam
+
+138
+
+5.17 Orientation of axes for Problem 5.1
+
+139
+
+5.18 Warping function for torsion of rectangular bar for Problem 5.5:
+
+(a) a/b = 1; (b) a/b = 1.25; (c) a/b = 2
+
+140
+
+5.19 Thermal analysis of composite section for Problem 5.6
+
+141
+
+5.20 Thermal quench in two and three dimensions for Problem 5.7
+
+142
+
+List of Figures xxi
+
+5.21 End-loaded cantilever beam for Problem 5.8: (a) cantilever beam
+
+and (b) section A-A
+
+143
+
+5.22 Seepage under a sheet pile for Problem 5.9
+
+144
+
+5.23 Seepage under an axisymmetric sheet pile for Problem 5.10
+
+144
+
+5.24 Patch test for triangles for Problem 5.12
+
+146
+
+6.1
+
+Triangular element with area and baricentric parent coordinates:
+
+(a) subareas of triangle and (b) parent coordinates
+
+152
+
+6.2
+
+Triangular element family: (a) linear, (b) quadratic, and (c) cubic
+
+153
+
+6.3
+
+The Pascal triangle (cubic expansion shaded—10 terms)
+
+153
+
+6.4
+
+A general triangular element
+
+155
+
+6.5
+
+Rectangular element geometry and local node numbers: (a) global
+
+coordinates and (b) parent coordinates
+
+156
+
+6.6
+
+Four elements of the Lagrangian family: (a) linear, (b) quadratic,
+
+(c) cubic, and (d) quartic
+
+157
+
+6.7
+
+Terms generated by a Lagrangian expansion of order 3 × 3 [or
+
+m ×n using Eq. (6.9)]. The shaded region shows complete poly-
+
+nomials of order 3 and n
+
+158
+
+6.8
+
+Four elements of the serendipity family: (a) linear, (b) quadratic,
+
+(c) cubic, and (d) quartic
+
+158
+
+6.9
+
+Systematic generation of “serendipity” shape functions
+
+160
+
+6.10 Shape functions for a transition “serendipity” element,
+
+cubic/linear
+
+161
+
+6.11 Terms generated by edge-shaped functions in serendipity-type
+
+elements (3 × 3 and n × n)
+
+161
+
+6.12 The tetrahedral family: (a) linear, (b) quadratic, and (c) cubic
+
+163
+
+6.13 Tetrahedron element. Volume and baricentric coordinates: (a)
+
+four-node tetrahedron and (b) V1 for 432P
+
+164
+
+6.14 Brick element geometry and local node numbers
+
+165
+
+6.15 Linear, quadratic, and cubic right prisms with corresponding
+
+sheet and line elements (extra shading on 64-node element to
+
+show node location more clearly): (a) Lagrangian family and (b)
+
+serendipity family
+
+167
+
+6.16 Triangular prism elements for the Lagrangian and serendipity
+
+family: (a) linear and (b) quadratic
+
+169
+
+6.17 Isoparametric mapping of four-node quadrilateral element: (a)
+
+paren coordinates and (b) Global coordinates
+
+170
+
+6.18 Inadmissible mapping of four-node quadrilateral element
+
+171
+
+6.19 Isoparametric mapping of solids and surfaces
+
+171
+
+6.20 Bilinear mapping of sub-parametric quadratic eight- and nine-
+
+node elements: (a) four-node mapping, (b) eight-node element,
+
+(c) nine-node element
+
+173
+
+xxii List of Figures
+
+6.21 Quadratic eight-node serendipity and nine-node Lagrangian ele-
+
+ments in regular and distorted form. Distribution of φ for quasi-
+
+harmonic solution with quadratic variation in x : (a) regular mesh,
+
+(b) distorted mesh, (c) φ solution, and (d) error φ
+
+175
+
+6.22
+
+Required quadrature for two-dimensional quasi-harmonic problems: (a) exact Jacobian, (b) Ce (mass) matrix, and (c) He (stiff-
+
+ness) matrix
+
+186
+
+6.23 Degeneration of a quadrilateral into a triangle
+
+187
+
+6.24 Some degenerate element forms for an eight-node brick ele-
+
+ment: (a) brick, (b) degenerate, (c) prism, (d) pyramid, (e) chisel,
+
+and (f) tetrahedron
+
+189
+
+6.25 Degeneration of a eight- or nine-node quadrilateral into a six-
+
+node triangle
+
+190
+
+6.26 Numbering for 27-node quadratic Lagrangian hexagon (node 27
+
+at origin of ξ ,η,ζ coordinates)
+
+192
+
+6.27 Mesh generation by quadratic isoparametric elements: (a) quadratic
+
+serendipity element, (b) speciﬁed blending points, and (c) auto-
+
+matic subdivision into linear quadrilaterals
+
+194
+
+6.28 Stages of construction of a blending interpolation (a)–(e)
+
+195
+
+6.29 Quadratic Bèzier shape functions
+
+197
+
+6.30 Bèzier curves: parabola w3 = 1; circular arc w3 = cos(θ )
+
+197
+
+6.31 Computational scheme for numerically integrated elements
+
+(Na,x = ∂Na /∂x )
+
+199
+
+6.32 Quadrilateral element for Problems 6.1–6.3
+
+200
+
+6.33 Quadrilateral element for Problems 6.5 and 6.6
+
+201
+
+6.34 Quadratic rectangle and triangle for Problem 6.7
+
+201
+
+6.35 Quadratic element for Problem 6.16: (a) parent element and (b)
+
+mapped element
+
+202
+
+6.36 Transition elements for use with four-node quadrilaterals
+
+203
+
+6.37 Degeneration of cubic triangle for Problem 6.20: (a) 16-node
+
+quadrilateral and (b) 10-node triangle
+
+204
+
+6.38 Quadratic triangle for Problems 6.23–6.25
+
+205
+
+6.39 Quadrilateral for Problem 6.26
+
+205
+
+6.40 Degenerate triangle for Problem 6.27
+
+206
+
+7.1
+
+Boundary approximation: e error between and h
+
+217
+
+7.2
+
+A semi-inﬁnite domain. Deformations of a foundation due to
+
+removal of load following an excavation: (a) conventional treat-
+
+ment and (b) use of inﬁnite elements
+
+221
+
+7.3
+
+Inﬁnite line and element map. Linear η interpolation
+
+222
+
+7.4
+
+Inﬁnite element map. Quadratic η interpolation
+
+225
+
+7.5
+
+Singular elements from degenerate isoparametric elements
+
+(a)–(c)
+
+226
+
+7.6
+
+Element size parameter h for four-node quadrilateral
+
+229
+
+List of Figures xxiii
+
+7.7
+
+Patch test for two-dimensional plane stress
+
+235
+
+7.8
+
+Beam with end loaded moment: (a) meshes, (b) displacement,
+
+and (c) σx stress on AA
+
+236
+
+7.9
+
+End loaded beam: (a) problem geometry and (b) coarse three-
+
+node mesh
+
+237
+
+7.10 Convergence in energy error for three-node, four-node, and nine-
+
+node elements
+
+238
+
+7.11 End-loaded circular beam: (a) problem geometry and (b) coarse
+
+mesh
+
+239
+
+7.12 End-loaded circular beam: (a) ur displacement and (b) uθ dis-
+
+placement for r = a
+
+241
+
+7.13 End-loaded circular beam: coarse mesh for four-node, nine-
+
+node, and 16-node Lagrangian elements
+
+242
+
+7.14 Curved beam: convergence in energy error for three-node to
+
+16-node elements
+
+242
+
+7.15 A point load on an elastic half-space (Boussinesq problem).
+
+Standard linear elements and inﬁnite line elements (E = 1, ν =
+
+0.1, p = 1)
+
+243
+
+7.16 A rotating disc, analyzed with quadratic Lagrangian elements
+
+244
+
+7.17 Conical water tank
+
+244
+
+7.18 A nuclear pressure vessel analysis using simple tetrahedral ele-
+
+ments. Geometry, subdivision, and some stress results. N.B. Not
+
+all edges are shown
+
+245
+
+7.19 Three-dimensional analysis of a pressure vessel
+
+246
+
+7.20 Elements for Problems 7.1–7.4: (a) triangle and (b) rectangle
+
+247
+
+7.21 Traction loading on boundary for Problems 7.10 and 7.11
+
+248
+
+7.22 Element assembly for Problem 7.12
+
+249
+
+7.23 Uniformly loaded cantilever beam for Problem 7.16
+
+249
+
+7.24 Thermal assembly of tubular sections for Problem 7.19
+
+251
+
+7.25 Patch test for triangles for Problem 7.20
+
+252
+
+8.1
+
+A patch of element and a volume of continuum subject to con-
+
+stant strain εx . A physical interpretation of the constant strain
+
+or linear displacement ﬁeld patch test
+
+258
+
+8.2
+
+Simple patch test (Tests A and B)
+
+261
+
+8.3
+
+Polar coordinate mapping
+
+262
+
+8.4
+
+(a) Generalized patch test (Test C). (b) The single-element test
+
+262
+
+8.5
+
+(a) Zero-energy (singular) modes for eight- and nine-node quadratic
+
+elements and (b) for a patch of bilinear elements with single
+
+integration points
+
+264
+
+8.6
+
+Patch for evaluation of numerically integrated plane stress prob-
+
+lems: (a) ﬁve-element patch and (b) one-element patch
+
+266
+
+8.7
+
+Patch test for eight- and nine-node isoparametric quadrilaterals
+
+268
+
+xxiv List of Figures
+
+8.8
+
+A propagating spurious mode from a single unsatisfactory ele-
+
+ment: (a) problem and mesh, (b) 2 × 2 integration, and (c) 3 × 3
+
+integration
+
+269
+
+8.9
+
+Peculiar response of near singular assemblies of elements. (a) A
+
+column of nine-node elements with point load response of full
+
+3 × 3 and 2 × 2 integration. The whole assembly is nonsingular
+
+but singular element modes are apparent. (b) A fully constrained
+
+assembly of nine-node elements with no singularity—ﬁrst six
+
+eigenmodes with full (3 × 3) integration. (c) Same as (b) but
+
+with 2 × 2 integration. Note the appearance of “wild” modes
+
+called “Escher” modes after the graphic artist
+
+270
+
+8.10 (a) Linear quadrilateral with auxiliary incompatible shape func-
+
+tions; (b) pure bending and linear displacements causing shear;
+
+and (c) auxiliary “bending” shape functions with internal variables
+
+272
+
+8.11 Performance of the nonconforming quadrilateral in beam bend-
+
+ing treated as plane stress: (a) conforming linear quadrilateral
+
+and (b) nonconforming quadrilateral
+
+273
+
+8.12 Patch test for an incompatible element form: (a) regular dis-
+
+cretization, (b) irregular discretization about node 5, and (c)
+
+constant Jacobian discretization about node 5
+
+274
+
+8.13 Plane strain four-node quadrilaterals with and without incom-
+
+patible modes (higher order patch test for performance evaluation)
+
+276
+
+8.14 Higher order patch test on element robustness (see Fig. 8.13):
+
+convergence test under subdivision of elements
+
+277
+
+8.15 One-element patch test for four-node quadrilateral for Problems
+
+8.1–8.4: (a) element geometry and (b) orthotropic axes
+
+279
+
+8.16 One-element patch test for eight- and nine-node quadrilateral
+
+for Problems 8.5–8.8
+
+281
+
+8.17 Multielement patch test. Problems 8.9–8.13: (a) regular and
+
+(b) distorted
+
+282
+
+9.1
+
+A mixed approximation to the heat conduction problem yield-
+
+ing identical results as the corresponding irreducible form (the
+
+constant k is assumed in each element)
+
+289
+
+9.2
+
+Single-element patch test for mixed approximations to the
+
+heat conduction problem with discontinuous ﬂux q assumed: (a)
+
+quadratic C0, φ; constant q; (b) quadratic C0, φ; linear q
+
+292
+
+9.3
+
+As Fig. 9.2 but with C0 continuous q
+
+293
+
+9.4
+
+Some situations for which C0 continuity of ﬂux q is inappro-
+
+priate: (a) discontinuous change of material properties and (b)
+
+singularity
+
+293
+
+9.5
+
+Elasticity by the mixed σ -u formulation. Discontinuous stress
+
+approximation. Single-element patch test. No restraint on σ˜
+
+variables but three u degrees-of-freedom restrained on patch.
+
+Test condition nσ ≥ nu [× denotes σ˜ (3 DOF) and ◦ the u (2
+
+DOF) variables]
+
+296
+
+List of Figures xxv
+
+9.6
+
+Elasticity by the mixed σ -u formulation. Partially continuous σ
+
+(continuity at nodes only): (a) σ linear, u linear and (b) possible
+
+transformation of interface stresses with σtt disconnected
+
+297
+
+9.7
+
+Geometry of rectangular σ -u element
+
+298
+
+9.8
+
+Pian-Sumihara quadrilateral (P-S) compared with displacement
+
+quadrilateral (Q-4). Effect of element distortion (Exact = 1.0)
+
+301
+
+9.9
+
+Simo-Rifai enhanced strain quadrilateral (S-R) compared with
+
+displacement quadrilateral (Q-4). Effect of element distortion
+
+(Exact = 1.0)
+
+306
+
+9.10 Mesh with 4 × 4 elements for unit end shear load
+
+307
+
+9.11 Convergence behavior for (a) ν = 1/3 and (b) ν = 0.499995
+
+307
+
+10.1 Incompressible elasticity u-p formulation. Discontinuous pres-
+
+sure approximation. (a) Single-element patch tests. (b) Multiple-
+
+element patch tests
+
+318
+
+10.2
+
+Incompressible elasticity u-p formulation. Continuous (C0) pressure approximation. (a) Single-element patch tests. (b) Multiple-
+
+element patch tests
+
+319
+
+10.3 Some simple combinations of linear triangles and quadrilaterals
+
+that pass the necessary patch test counts. Combinations (a), (c),
+
+and (d) are successful but (b) is still singular and not usable
+
+321
+
+10.4 Locking (zero displacements) of a simple assembly of linear tri-
+
+angles for which incompressibility is fully required (np = nu = 24)
+
+322
+
+10.5 The freedom index or inﬁnite patch ratio for various u-p elements
+
+for incompressible elasticity (γ = nu /np ): (a) discontinuous
+
+pressure and (b) continuous pressure
+
+323
+
+10.6 Sphere under internal pressure. Effect of numerical integration
+
+rules on results with different Poisson ratios
+
+331
+
+10.7 Steady-state, low Reynolds number ﬂow through an oriﬁce. Note
+
+that pressure variation for element Q8/4 is so large it cannot be
+
+plotted. Solution with u/p elements Q8/3, Q8/4, Q9/3, Q9/4
+
+333
+
+10.8 A quadrilateral with intersecting diagonals forming an assembly
+
+of four T3/1 elements. This allows displacements to be deter-
+
+mined for nearly incompressible behavior but does not yield
+
+pressure results
+
+334
+
+10.9 Patch for selective, reduced quadrature on axisymmetric four-
+
+node elements
+
+334
+
+10.10 Convergence of iterations in an extrusion problem for different
+
+values of the parameter λ
+
+337
+
+10.11 Mesh patterns for pressure stabilization matrix evaluation: (a)
+
+four-element patch and (b) six-element patch
+
+344
+
+10.12 Mesh and GLS/Brezzi-Pitkäranta results: (a) problem deﬁnition,
+
+(b) horizontal velocity on AA, (c) vertical velocity on BB, and (d)
+
+pressure on BB
+
+349
+
+xxvi List of Figures
+
+10.13 Vertical velocity and pressure for driven cavity problem: (a) ver-
+
+tical velocity on BB, (b) pressure on BB, (c) vertical velocity on
+
+BB, and (d) pressure on BB
+
+350
+
+10.14 Region and mesh used for slotted tension strip: (a) problem
+
+deﬁnition and (b) mesh for quadrant
+
+351
+
+10.15 Pressures and displacement for slot problems: (a) pressure at
+
+x-axis, (b) pressure at y-axis, and (c) x-coordinate
+
+352
+
+10.16 Support bearing for Problem 10.13: (a) steel-rubber layers and
+
+(b) layer for analysis
+
+355
+
+11.1 Linking two (or more) domains by traction variables deﬁned only
+
+on the interfaces. The variables in each domain are displace-
+
+ment u (irreducible form)
+
+363
+
+11.2 Mortar function for Lagrange multiplier. Form for linear edges
+
+on 1 elements
+
+365
+
+11.3 Two-dimensional mortar interface: (a) interface for 1 and 2
+
+and (b) subincrements for quadrature
+
+365
+
+11.4 Dual mortar function for Lagrange multiplier. Form for linear
+
+edges on 1 elements
+
+366
+
+11.5 Mortar and dual mortar shape functions for two-dimensional
+
+linear edge
+
+366
+
+11.6 Mesh and nodal loading for vertically loaded strip: (a) no inter-
+
+face and (b) mortar interface
+
+369
+
+11.7 Vertical displacement for strip loaded over short segment of top:
+
+(a) no interface and (b) mortar interface
+
+369
+
+11.8 Solution of one-dimensional heat equation of Example 3.11 in
+
+Chapter 3: (a) Nitsche method (c = 10) and (b) penalty method:
+
+(c = 10)
+
+373
+
+11.9 Solution of one-dimensional heat equation of Example 3.11 in
+
+Chapter 3. Quadratic elements
+
+374
+
+11.10 Two subdomain solution using Nitsche method for one-dimensional
+
+heat equation of Example 3.11 in Chapter 3. Linear elements
+
+375
+
+11.11 Two subdomain solution using Nitsche method for one-dimensional
+
+heat equation of Example 3.11 in Chapter 3. Quadratic ele-
+
+ments: (a) four elements (c = 10) and (b) eight elements (c = 10)
+
+375
+
+11.12 Surface description for Problem 11.3
+
+376
+
+11.13 Tied segment for Problems 11.4 and 11.5
+
+377
+
+12.1 Mass lumping for some two-dimensional elements
+
+384
+
+12.2 Simply supported beam: (a) ω1 = 3.7785; (b) ω2 = 59.2236;
+
+(c) ω3 = 290.0804
+
+390
+
+12.3 (a) Mesh showing layers considered; (b) earth dam, Mode 1; (c)
+
+earth dam, Mode 2; (d) earth dam, Mode 3
+
+391
+
+12.4 A “lunar” waveguide [9] mode of vibration for electromagnetic
+
+ﬁeld. Outer diameter = d , OO = 0.13d , r = 0.29d , S =
+
+0.055d , θ = 22◦
+
+392
+
+List of Figures xxvii
+
+12.5 Oscillations of a natural harbor: contours of velocity amplitudes
+
+393
+
+12.6 Frequency response of an artiﬁcial harbor to an input of a peri-
+
+odic wave
+
+396
+
+12.7 Two-element bar for Problem 12.2
+
+400
+
+12.8 Four-element bar with end damper for Problem 12.8
+
+401
+
+13.1 Displacements and force resultants for cylindrical bending of a
+
+plate
+
+408
+
+13.2 Support (end) conditions for a plate. Note: The convention-
+
+ally illustrated simple support leads to inﬁnite displacement—
+
+reality is different: (a) built-in support (clamped) with u = v =
+
+w = 0, θ = 0; (b) free edge with M = 0, S = 0(P = 0); and
+
+(c) simply supported condition
+
+412
+
+13.3 Cylindrical bending of simply supported, uniformly loaded plate
+
+415
+
+13.4 Convergence for cylindrical bending of simply supported, uni-
+
+formly loaded thick and thin plates: (a) exact integration and (b)
+
+reduced quadrature
+
+417
+
+13.5 Deﬁnitions of variables for plate approximations: (a) displace-
+
+ment, rotation, and loads and (b) force resultants (on negative
+
+faces)
+
+419
+
+13.6 Boundary traction and conjugate displacement. Note: The sim-
+
+ply supported condition requiring Mn = 0, φs = 0, and w = 0 is
+
+identical at a corner node to specifying φn = φs = 0, that is, a
+
+clamped support. This leads to a paradox if a curved boundary
+
+(a) is modeled as a polygon (b)
+
+422
+
+13.7 Continuity requirement for normal slopes
+
+425
+
+13.8 A rectangular plate element
+
+426
+
+13.9 Nodes where elements meet in arbitrary directions
+
+428
+
+13.10 Continuity condition for satisfaction of patch test [ (∂w /∂n)
+
+ds = 0]; variation of ∂w /∂n along side: (a) deﬁnition by corner
+
+nodes (linear component compatible) and (b) deﬁnition by one
+
+central node (constant component compatible)
+
+429
+
+13.11 Area coordinates and side lengths for three-node triangle
+
+430
+
+13.12 Uniformly loaded square plate: (a) simply supported edges and
+
+(b) clamped edges
+
+432
+
+13.13 A square plate with clamped edges, uniform load q, and square
+
+elements: (a) center displacement and (b) center moment
+
+433
+
+13.14 An isoparametric three-dimensional element with linear inter-
+
+polation in the transverse (thickness) direction and the “thick”
+
+plate element
+
+435
+
+13.15 Some early thick plate elements
+
+439
+
+xxviii List of Figures
+
+13.16 Performance of (a) quadratic serendipity (QS) and (b) Lagrangian
+
+(QL) elements with varying span-to-thickness L/h ratios, uni-
+
+form load on a square plate with 4 × 4 normal subdivisions in
+
+a quarter. R is reduced 2 × 2 quadrature and N is normal 3 × 3
+
+quadrature
+
+439
+
+13.17 Performance of bilinear elements with varying span-to-thickness,
+
+L/h, values
+
+440
+
+13.18 Performance of cubic quadrilaterals: (a) serendipity (QS) and
+
+(b) Lagrangian (QL) with varying span-to-thickness, L/h, values
+
+441
+
+13.19 Equivalence of mixed form and reduced shear integration in
+
+quadratic serendipity rectangle
+
+444
+
+13.20 “Constrained” and “relaxed” patch test/count for serendipity
+
+(quadrilateral). (In the C test all boundary displacements are
+
+ﬁxed. In the R test only three boundary displacements are ﬁxed,
+
+eliminating rigid body modes.) (a) Single-element test and (b)
+
+four-element test
+
+445
+
+13.21 Robust triangular elements: (a) the T6S3B3 element of Zienkiewicz
+
+and Lefebvre [75] and (b) the T3S1B1 element of Xu [89]
+
+450
+
+13.22 Quadratic linked element
+
+455
+
+13.23 Energy error for quadratic linked element: clamped plate
+
+457
+
+14.1 Curved, isoparametric hexahedra in a direct approximation to a
+
+curved shell
+
+468
+
+14.2 Curved thick shell elements of various types
+
+470
+
+14.3 Local and global coordinates
+
+471
+
+14.4 Coordinates for an axisymmetric shell: (a) coordinate represen-
+
+tation and (b) shell representation
+
+477
+
+14.5 Global displacements in an axisymmetric shell
+
+478
+
+14.6 Axisymmetric shell elements: (a) linear, (b) parabolic, and (c)
+
+cubic
+
+479
+
+14.7
+
+A simply supported square plate under uniform load q0: plot of central deﬂection wc for eight-node elements with (a) 3 × 3
+
+Gauss point integration and (b) with 2 × 2 (reduced) Gauss
+
+point integration. Central deﬂection is w¯ c for thin plate theory
+
+481
+
+14.8
+
+Spherical dome under uniform pressure analyzed with 24 cubic serendipity elements (ﬁrst element subtends an angle of 0.1◦
+
+from ﬁxed end, others in arithmetic progression)
+
+482
+
+14.9 Thin cylinder under a unit radial edge load
+
+483
+
+14.10 Cylindrical shell example: self-weight behavior
+
+484
+
+14.11 Displacement (parabolic element), cylindrical shell roof
+
+485
+
+14.12 An analysis of cylinder intersection by means of reduced inte-
+
+gration shell-type elements
+
+485
+
+14.13 Cylinder-to-cylinder intersections of Fig. 14.12: (a) hoop stresses
+
+near 0deg line and (b) axial stresses near 0deg line
+
+486
+
+List of Figures xxix
+
+14.14 A spherical cap analysis with irregular isoparametric shell ele-
+
+ments using full 3 × 3 and reduced 2 × 2 integration: (a) three-
+
+element mesh and (b) 16-element mesh
+
+487
+
+14.15 Stress transformation for Problem 14.2
+
+488
+
+15.1 Analysis of L-shaped domain with singularity
+
+496
+
+15.2 Analysis of L-shaped domain without singularity
+
+496
+
+15.3 Optimal sampling points for the function (a) and its gradient (b)
+
+in one dimension (linear elements)
+
+498
+
+15.4 Optimal sampling points for the function (a) and its gradient (b)
+
+in one dimension (quadratic elements)
+
+499
+
+15.5 The integration property of Gauss points: p = 1, p = 2, and
+
+p = 3 which guarantees superconvergence
+
+502
+
+15.6 Optimal superconvergent sampling and minimum integration
+
+points for some C0 elements
+
+503
+
+15.7 Cantilever beam with four quadratic (Q8) elements. Stress sam-
+
+pling at cubic order (2 × 2) Gauss points with extrapolation to
+
+nodes
+
+504
+
+15.8 Interior superconvergent patches for quadrilateral elements (lin-
+
+ear, quadratic, and cubic) and triangles (linear and quadratic)
+
+505
+
+15.9 Recovery of boundary or interface gradients
+
+506
+
+15.10 Recovery of exact σ of degree p by linear elements (p = 1) and
+
+quadratic elements (p = 2)
+
+507
+
+15.11 Problem of a stressed bar. Rates of convergence (error) of stress,
+
+where x = 0.5 (0 ≤ x ≤ 1) (σˆ ——–; σL · · · ·; σ - - - - -)
+
+508
+
+15.12 Poisson equation in two dimensions solved using arbitrary shaped
+
+quadratic quadrilaterals: (a) Arbitrary mesh, (b) error of σx∗ and
+
+(c) error of σˆx
+
+509
+
+15.13 Plane stress analysis of stresses around a circular hole in a uni-
+
+axial ﬁeld
+
+510
+
+15.14 Patch of rectangular elements for SPR projection. Optimal points
+
+to sample stresses indicated by
+
+511
+
+15.15 An element patch. Element K and its neighbors
+
+519
+
+15.16 Recovered solution and jump for xK and xK+1
+
+520
+
+15.17 Typical patch with interior vertex node a showing a local num-
+
+bering of elements ei and edges Si
+
+525
+
+15.18 Element interface for equilibrated ﬂux recovery
+
+525
+
+15.19 Repeating patch of irregular and quadrilateral elements
+
+529
+
+15.20 Repeating patch types (a) through (h). See Table 15.3 for results
+
+533
+
+16.1 Various procedures by h-reﬁnement: (a) original mesh, (b) mesh
+
+enhancement by subdivision (enrichment), (c) mesh enhance-
+
+ment by remeshing, and (d) h-reﬁnement of original mesh by
+
+reposition of nodes
+
+547
+
+xxx List of Figures
+
+16.2 The inﬂuence of initial mesh on convergence rates in h version.
+
+Adaptive reﬁnement using quadratic triangular elements. Prob-
+
+lem of Fig. 16.3. Note that if initial mesh is ﬁner than h = 1/8
+
+adaptive reﬁnement reduces the number of equations
+
+551
+
+16.3 Short cantilever beam and adaptive meshes of linear triangular
+
+elements
+
+552
+
+16.4 Adaptive mesh of quadratic triangular elements for short can-
+
+tilever beam
+
+553
+
+16.5 Experimental rates of convergence for short cantilever beam
+
+553
+
+16.6 Short cantilever beam. Mesh enrichment versus mesh regener-
+
+ation using linear quadrilateral elements
+
+554
+
+16.7 Short cantilever solved by mesh enrichment. Linear quadrilat-
+
+eral elements
+
+554
+
+16.8 Short cantilever solved by mesh regeneration. Linear quadrilat-
+
+eral elements
+
+555
+
+16.9 Sequence of adaptive mesh reﬁnement strategies based on (a)
+
+equal distribution of the global energy error between all the ele-
+
+ments, (b) equal distribution of the density of energy error, (c)
+
+equal distribution of the maximum error in stresses at each
+
+point, and (d) equal distribution of the maximum percentage
+
+of the error in stresses at each point. All ﬁnal meshes have less
+
+than 5% energy norm error
+
+556
+
+16.10 Poisson equation “exact” solutions: (a) ∂u/∂x contours (b) ∂u/∂y
+
+contours
+
+557
+
+16.11 Poisson problem of Fig. 16.10. Adaptive solutions for (a) linear
+
+triangles, (b) linear quadrilaterals, (c) quadratic triangles, and (d) quadratic quadrilaterals. θ based on SPR, θ L based on L2
+projection. Target error 10% for linear elements and 1% for
+
+quadratic elements
+
+558
+
+16.12 Adaptive reﬁnement for Poisson problem of Fig. 16.10
+
+559
+
+16.13 Adaptive reﬁnement of an L-shaped domain in plane stress with
+
+prescribed error of 1%
+
+560
+
+16.14 Adaptive reﬁnement of a machine part using linear quadrilateral
+
+elements. Target error 5%
+
+561
+
+16.15 Adaptive reﬁnement of a machine part. Contours of shear stress
+
+for original and ﬁnal mesh
+
+561
+
+16.16 Quadratic triangle. Automatic mesh generation to achieve 5%
+
+accuracy. Plane strain analysis of a dam with perforation, water
+
+loading only: (a) original mesh and (b) reﬁned mesh
+
+562
+
+16.17 Adaptive solution of perforated dam by p-reﬁnement: (a) stage
+
+three, 206 degrees of freedom and (b) stage ﬁve, 365 degrees
+
+of freedom
+
+563
+
+List of Figures xxxi
+
+16.18 Solution of L-shaped domain by reﬁnement (as deﬁned in Exam-
+
+ple 16.4 of the previous section) using h-reﬁnement and lower
+
+order elements followed by p-reﬁnement. (a) Original mesh; (b)
+
+Quadratic triangles for 5% error and (c) h-p reﬁnement. 1%
+
+accuracy reached with 1322 d.o.f
+
+564
+
+16.19 Solution of short cantilever by adaptive reﬁnement using h-
+
+reﬁnement and lower order elements followed by p-reﬁnement:
+
+(a) Original mesh; (b) First reﬁnement; (c) Second reﬁnement
+
+and (d) p-reﬁnement. 1% accuracy reached with 1104 d.o.f
+
+564
+
+16.20 Solution of L-shaped domain by h-p adaptive reﬁnement using
+
+alternative procedure
+
+565
+
+16.21 Solution of short cantilever by h-p adaptive reﬁnement using
+
+alternative procedure
+
+566
+
+16.22 Adaptive h-p reﬁnement for a singular crack using alternative
+
+procedure
+
+567
+
+16.23 Directional mesh reﬁnement. Gas ﬂow past a circular cylinder:
+
+Mach number 3. Third reﬁnement mesh 709 nodes (1348 ele-
+
+ments): (a) Local mesh and (b) Pressure coefﬁcients
+
+568
+
+17.1 (a) A machine part. (b) Boundary faces and boundary edges of
+
+the machine part
+
+576
+
+17.2 Quadratic B-spline basis functions with nonuniform, open knot
+
+vector U = {0,0,0,1,2,3,4,4,5,5,5}
+
+577
+
+17.3 A cubic NURBS curve with control points and control polygon
+
+577
+
+17.4 NURBS surface with control net
+
+578
+
+17.5 A trimmed surface on a parametric plane and its image on a
+
+NURBS surface
+
+579
+
+17.6 Boundary edge and orientation of a typical domain
+
+581
+
+17.7 Mesh parameters in two dimensions
+
+582
+
+17.8 Background meshes for a typical domain. (a) Two triangles are
+
+used in the background mesh to represent a uniform distribution
+
+of the mesh parameters. (b) Eleven triangles are used in the
+
+background mesh to generate a graded mesh
+
+582
+
+17.9 An irregular triangle abc in coordinate system (x , y ) mapped to
+
+a regular triangle a b c in coordinate system (x , y )
+
+583
+
+17.10 Sampling points and mesh parameters on the curve
+
+585
+
+17.11 Node generation on a curve. (a) Description of the curve and
+
+mesh parameters. (b) Nodes generated on the curve and sides
+
+formed by nodes
+
+588
+
+17.12 Generation front and its updating during the element generation
+
+process. (a) The initial generation front. (b) Generation front at
+
+a certain stage. (c) and (d) Updated generation front after the
+
+creation of a new element
+
+591
+
+17.13 The ideal position of the new node and locations of the potential
+
+forming nodes
+
+592
+
+xxxii List of Figures
+
+17.14 Laplacian smoothing. Node i is repositioned
+
+594
+
+17.15 A pathological case of Laplacian smoothing
+
+594
+
+17.16 Elimination of node i with NEi = 3
+
+595
+
+17.17 Elimination of node i with NEe = 4
+
+596
+
+17.18 Diagonal swapping. Diagonal ac replaced by diagonal bd . Elements
+
+e1 and e2 changed to elements e1 and e2
+
+596
+
+17.19 Diagonal swapping for elements in a boundary region
+
+597
+
+17.20 Triangular mesh for a dam
+
+598
+
+17.21 Triangular mesh with mesh size distribution given by an error
+
+estimator
+
+598
+
+17.22 Quadratic elements
+
+599
+
+17.23 Mesh parameters deﬁned in three dimensions
+
+601
+
+17.24 A six tetrahedra background mesh derived from a hexahedron.
+
+The six tetrahedra are (e,f ,h,a), (a,b,f ,d ), (f ,h,d ,a), (b,f ,d ,c),
+
+(d ,g ,h,f ), and (d ,c,g ,f )
+
+602
+
+17.25 Arc length element d ξ in parametric plane and its image on the
+
+surface
+
+603
+
+17.26 Sampling points and mesh parameters on a three-dimensional
+
+curve
+
+608
+
+17.27 Surface meshes of a face from the machine part of Fig. 17.1:
+
+(a) course mesh and (b) ﬁne mesh
+
+610
+
+17.28 Complete surface meshes of the machine part of Fig. 17.1: (a)
+
+course mesh and (b) ﬁne mesh
+
+610
+
+17.29 Mesh generation for a gearbox part: (a) boundary faces and
+
+edges and (b) complete surface mesh
+
+611
+
+17.30 Surface mesh of quadratic elements
+
+612
+
+17.31 Voronoi and Delaunay diagrams for 10 forming points: (a) Voronoi
+
+diagram and (b) Delaunay triangulation
+
+614
+
+17.32 Circumcircles of the Delaunay triangles. Only three are shown
+
+615
+
+17.33 (a) Insertion of new forming point n into Delaunay triangulation.
+
+(b) Removal of Delaunay triangles; deleted Voronoi vertices are
+
+not shown. (c) New Delaunay triangulation and Voronoi diagram
+
+616
+
+17.34 Surface mesh of a simple three-dimensional geometry
+
+617
+
+17.35 Convex hull and surface mesh
+
+617
+
+17.36 (a) Delaunay triangulation of the surface nodes. (b) A cross-
+
+section of the surface nodes Delaunay triangulation. Six addi-
+
+tional points are inserted before the surface nodes for efﬁciency
+
+618
+
+17.37 (a) Delaunay triangulation of the interior nodes. (b) A cross-
+
+section of the interior nodes Delaunay triangulation
+
+618
+
+17.38 (a) Recovered surface. (b) Tetrahedral mesh shown at a cross-
+
+section
+
+619
+
+17.39 Edge swapping to recover the surface edge and faces
+
+622
+
+17.40 Edge ab of a surface triangle missing in the Delaunay triangulation
+
+622
+
+List of Figures xxxiii
+
+17.41 Edge-tetrahedron intersections for missing surface edges
+
+623
+
+17.42 Tetrahedral transformation to recover a segment of the missing
+
+edges
+
+624
+
+17.43 Recovery of boundary edge ab by the deletion of face cde
+
+625
+
+17.44 Transformations for the recovery of surface faces. Shaded area
+
+shows the recovered portion of the boundary face. (a) One edge
+
+intersects face abc. (b) Two edges intersect face abc. (c) Three
+
+edges intersect face abc. (d) Four edges intersect face abc
+
+626
+
+17.45 Different patterns of dividing a pyramid to tetrahedra
+
+627
+
+17.46 Different patterns of dividing a prism to tetrahedra
+
+628
+
+17.47 Recovery of boundary face cde by the deletion of edge ab
+
+629
+
+17.48 Two elements transformed to three elements and three elements
+
+transformed to two elements
+
+629
+
+17.49 Two patterns of four elements transformed to four elements. (1)
+
+Edge ab changed to edge cd . (2) Edge ab changed to edge ef
+
+630
+
+17.50 Five or more element transformation. (a) Edge ab and all the
+
+elements sharing it. (b) Node n is added to edge ab; all the
+
+common elements are split. (c) New node n is collapsed to node c
+
+631
+
+17.51 Node collapsing. (a) Node b and its connecting elements. (b)
+
+Collapse node b to node d
+
+632
+
+17.52 (a) Tetrahedral mesh of casting part of ﬂask body. (b) A cross-
+
+section of the tetrahedral mesh
+
+633
+
+17.53 Tetrahedral mesh of a V8 engine block
+
+633
+
+B.1
+
+Vector addition
+
+656
+
+B.2
+
+Vector multiplication (cross-product)
+
+658
+
+C.1
+
+Orthogonal axes and a point: Cartesian coordinates
+
+662
+
+D.1
+
+Triangular decomposition of K
+
+673
+
+D.2
+
+Reduced, active, and unreduced parts
+
+673
+
+D.3
+
+Terms used to construct Uij and Lji
+
+674
+
+D.4
+
+Proﬁle storage for coefﬁcient matrix
+
+677
+
+F.1
+
+Deﬁnitions for integrations in two dimensions
+
+684
+
+H.1
+
+(a) Linear and (b) piecewise constant shape functions for a
+
+triangle
+
+690
+
+H.2
+
+Diagonalization of rectangular elements by three methods
+
+692
+
+H.3
+
+Diagonalization of triangular elements by quadrature
+
+692
+
+H.4
+
+Distorted four-node element
+
+693
+
+This page intentionally left blank
+
+List of Tables
+
+1.1 2.1 3.1 3.2 3.3
+4.1 6.1 6.2 6.3 6.4 6.5 7.1 7.2 7.3 7.4 8.1 8.2 10.1 10.2 12.1 13.1 13.2 13.3
+13.4 13.5 13.6 13.7
+13.8
+
+History of Approximate Methods
+
+Relations between Isotropic Elastic Parameters
+
+Parameters for Bar Example
+
+Local to Global Node Numbering for Two-Node Elements
+
+Gaussian Quadrature Points and Weights for
+
+1 −1
+
+f
+
+(ξ
+
+)dξ
+
+=
+
+n j =1
+
+f
+
+(ξj
+
+)wj
+
+Finite Element Approximation
+
+Numbering for Four-Node Rectangle
+
+Numbering for Eight-Node Brick
+
+Numerical Integration Formulae for Triangles
+
+Numerical Integration Formulae for Tetrahedra
+
+Degeneration Modiﬁcations for 27-Node Hexahedron
+
+Coordinates and Nodal Displacement in Fig. 7.7
+
+Mesh Size and Energy for End-Loaded Beam
+
+Mesh Size and Energy for Curved Beam
+
+Mesh Size and Energy for Curved Beam
+
+Patch Solution for Fig. 8.6
+
+Bending Load Case (E = 100,ν = 0.3)
+
+Exact Solution for Patch
+
+Radial Displacement at Nodes 2 and 5
+
+Frequencies for a Simply Supported Beam
+
+Equations for Thick and Thin Plates in Cylindrical Bending
+
+Node and Function for Rectangular Element
+
+Computed Central Deﬂection of a Square Plate for Several Meshes (Rectangular Elements)
+
+Corner Supported Square Plate
+
+Quadrilateral Mixed Elements: Patch Count
+
+Triangular Mixed Elements: Patch Count
+
+Center Displacement of a Simply Supported Plate under Uniform Load for Two L/h Ratios: E = 10.92, ν = 0.3, L = 10, q=1
+
+Center Displacement of a Clamped Plate under uniform Load for Two L/h Ratios: E = 10.92, ν = 0.3, L = 10, q = 1
+
+3 33 55 57
+65 110 157 167 181 182 193 235 238 241 242 267 271 334 335 390 411 427
+433 434 447 448
+458
+459
+xxxv
+
+xxxvi List of Tables
+
+15.1 Robustness Index R for Equilibrated Residual ERpB and SPR
+
+(ZZ-Discrete) Estimators for a Variety of Anisotropic Situations
+
+and Element Patterns, p = 2
+
+530
+
+15.2 Effectivity Bounds and Robustness of SPR and REP Recovery
+
+Estimator for Regular Meshes of Triangles and Rectangles with
+
+Linear and Quadratic Shape Function (Applied to Heat Conduc-
+
+tion and Elasticity Problems). Aspect Ratio = Length (L)/Height
+
+(H) of Elements in Patch Tested
+
+531
+
+15.3 Effectivity Bounds and Robustness of SPR and REP Recov-
+
+ery Estimator for Irregular Meshes of Triangles (a, b, c, d) and
+
+Quadrilaterals (e, f, g, h)
+
+534
+
+C.1
+
+Mapping between Matrix and Tensor Indices for Second Rank
+
+Symmetric Tensors
+
+669
+
+D.1
+
+Example: Triangular Decomposition of 3 × 3 Matrix
+
+675
+
+D.2
+
+Matrix Size and Storage for Direct Solution
+
+678
+
+Preface
+
+The present revision of The Finite Element Method was undertaken shortly before the passing in January 2009 of our close friend and co-author Olgierd C. (Olek) Zienkiewicz. His inspiration and guidance have been greatly missed in the intervening years. However, we hope that the essence of his writings is retained in the new work so that current and future scholars can continue to benefit from his insights and many contributions to the field of computational mechanics. The story of his life and works is summarized in International Journal for Numerical Methods in Engineering, 80, 2009, pp. 1–45.
+It is now 46 y  ears since the The Finite Element Method in Structural and Continuum Mechanics was first published by Olek Zienkiewicz. This book, which was the first dealing with the finite element method, provided the basis from which many further developments occurred. The expanding research and field of application of finite elements led to the second edition in 1971, the third in 1977, the fourth as two volumes in 1989 and 1991, and the fifth and sixth as three volumes in 2000 and 2005, respectively. The size of each of these editions expanded geometrically (from 272 pages in 1967 to the sixth edition of nearly 1800 pages). This was necessary to do justice to a rapidly expanding field of professional application and research. Even so, much filtering of the contents was necessary to keep these editions within reasonable bounds.
+In the present edition we have retained the complete works as three separate volumes, each one capable of being used without the others and each one appealing perhaps to a different audience.
+In particular this first volume, The Finite Element Method: Its Basis and Fundamentals, is designed to cover quite completely all the steps necessary to solve problems represented by linear differential equations. Applications to problems of elasticity, field problems, and plate and shell structural problems form the primary basis from which the finite element steps are enumerated. After a summary of the basic equations in matrix form, two new chapters on applications to one-dimensional problems are added. This describes the steps necessary to convert a differential equation to a form from which finite element approximation may be made in a very simple context. Two methodologies are presented: weak forms (which may be used for any linear differential equation) and variational theorems (which are restricted here to steady-state applications). The basic concepts include interpolation of solution variables, numerical integration to evaluate the final matrices appearing in the finite element approximation, and solution of the resulting matrix equations. Both steadystate and transient problems are covered at an early point to permit the methods to be available for later applications.
+Subsequent chapters extend the finite element theory to applications of multidimensional field and elasticity problems. In addition the general concepts necessary to construct interpolation forms for various element shapes, differentiate parametric forms, and carry out numerical integration are consolidated into a single chapter. A
+
+xxxvii
+
+xxxviii Preface
+chapter on the patch test is used to establish engineering criteria to measure convergence of a finite element formulation.
+An important application is dealing with constraints in a theory. In elasticity a constraint is imposed when the Poisson ratio approaches one-half. In plate and shell problems modeled by a shear deformable theory a constraint is imposed as the thickness becomes small compared to other dimensions. To be able to treat both types of constraints we have moved the treatment of plates and shells for linear behavior to this volume. This allows for a more complete discussion on treatment methods to be considered. We believe that understanding the effects of constraints is essential before treating such topics as large strain or inelastic material behavior.
+This volume concludes with chapters on error estimation, adaptivity, and mesh generation. A beginner in the finite element field will find very rapidly that much of the work of solving problems consists of preparing a suitable mesh to deal with the whole problem and as the size of computers has seemed to increase without limits the size of problems capable of being dealt with is also increasing. Thus, meshes containing sometimes many million nodes have to be prepared with details of the material interfaces, boundaries, and loads being well specified. There are many books devoted exclusively to the subject of mesh generation but we feel that the essence of dealing with this difficult problem should be included here for those who wish to have a solid grasp of the subject.
+To permit the reader to solve problems or extend concepts covered in the text a computer program called FEAPpv and user instructions are available at the authors’ web page: http://www.ce.berkeley.edu/feap/feappv.
+Each chapter concludes with a set of problems which the reader may use to test comprehension of the basic theory and applications covered.
+The two further volumes form again separate books. The first of these is entitled The Finite Element Method in Solid and Structural Mechanics and the second is a text entitled The Finite Element Method in Fluid Dynamics. Each of these two volumes is a stand-alone text which provides the full knowledge of the subject for those who have acquired an introduction to the finite element method through other texts or this volume.
+We emphasize here the fact that all three books stress the importance of considering the finite element method as a unique and whole basis of approach and that the method contains many of the other numerical analysis methods as special cases.
+R.L. Taylor and J.Z. Zhu
+
+The Standard Discrete System and Origins of the Finite Element Method
+
+CHAPTER
+1
+
+1.1 Introduction
+
+The limitations of the human mind are such that it cannot grasp the behavior of its complex surroundings and creations in one operation. Thus the process of subdividing all systems into their individual components or “elements,” whose behavior is readily understood, and then rebuilding the original system from such components to study its behavior is a natural way in which the engineer, the scientist, or even the economist proceeds.
+In many situations an adequate model is obtained using a ﬁnite number of welldeﬁned components. We shall term such problems discrete. In others the subdivision is continued indeﬁnitely and the problem can only be deﬁned using the mathematical ﬁction of an inﬁnitesimal. This leads to differential equations or equivalent statements which imply an inﬁnite number of elements. We shall term such systems continuous.
+With the advent of digital computers, discrete problems can generally be solved readily even if the number of elements is very large. As the capacity of all computers is ﬁnite, continuous problems can only be solved exactly by mathematical manipulation. The available mathematical techniques for exact solutions usually limit the possibilities to oversimpliﬁed situations.
+To overcome the intractability of realistic types of continuous problems (a continuum), various methods of discretization have been proposed by engineers, scientists, and mathematicians. All involve an approximation which, hopefully, approaches in the limit the true continuum solution as the number of discrete variables increases.
+The discretization of continuous problems has been approached differently by mathematicians and engineers. Mathematicians have developed general techniques applicable directly to differential equations governing the problem, such as ﬁnite difference approximations [1–3], various weighted residual procedures [4,5], or approximate techniques for determining the stationarity of properly deﬁned “functionals” [6]. The engineer, on the other hand, often approaches the problem more intuitively by creating an analogy between real discrete elements and ﬁnite portions of a continuum domain. For instance, in the ﬁeld of solid mechanics in the 1940s McHenry [7], Hrenikoff [8], Newmark [9], and Southwell [2] showed that reasonably good solutions to an elastic continuum problem can be obtained by replacing small portions of the continuum by an arrangement of simple elastic bars. Later, in the same context, Turner et al. [10] showed that a more direct, but no less intuitive, substitution
+
+The Finite Element Method: Its Basis and Fundamentals. http://dx.doi.org/10.1016/B978-1-85617-633-0.00001-0
+
+1
+
+© 2013 Elsevier Ltd. All rights reserved.
+
+2
+
+CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+of properties can be made much more effectively by considering that small portions or “elements” in a continuum behave in a simpliﬁed manner.
+It is from the engineering “direct analogy” view that the term “ﬁnite element” was born. Clough [11] appears to be the ﬁrst to use this term, which implies in it a direct use of a standard methodology applicable to discrete systems (see also Ref. [12] for a history on early developments). Both conceptually and from the computational viewpoint this is of the utmost importance. The ﬁrst allows an improved understanding to be obtained; the second offers a uniﬁed approach to the variety of problems and the development of standard computational procedures.
+Since the early 1960s much progress has been made, and today the purely mathematical and “direct analogy” approaches are fully reconciled. It is the object of this volume to present a view of the ﬁnite element method as a general discretization procedure of continuum mechanics problems posed by mathematically deﬁned statements.
+In the analysis of problems of a discrete nature, a standard methodology has been developed over the years. The civil engineer, dealing with structures, ﬁrst calculates force-displacement relationships for each element of the structure and then proceeds to assemble the whole by following a well-deﬁned procedure of establishing local equilibrium at each “node” or connecting point of the structure. The resulting equations can be solved for the unknown displacements. Similarly, the electrical or hydraulic engineer, dealing with a network of electrical components (resistors, capacitances, etc.) or hydraulic conduits, ﬁrst establishes a relationship between currents (ﬂuxes) and potentials for individual elements and then proceeds to assemble the system by ensuring continuity of ﬂows.
+All such analyses follow a standard pattern which is universally adaptable to discrete systems. It is thus possible to deﬁne a standard discrete system, and this chapter will be primarily concerned with establishing the processes applicable to such systems. Much of what is presented here will be known to engineers, but some reiteration at this stage is advisable. As the treatment of elastic solid structures has been the most developed area of activity this will be introduced and generalized along with examples from other ﬁelds.
+The existence of a uniﬁed treatment of “standard discrete problems” leads us to the ﬁrst deﬁnition of the ﬁnite element process as a method of approximation to continuum problems such that
+(a) the continuum is divided into a ﬁnite number of parts (elements), the behavior of which is speciﬁed by a ﬁnite number of parameters, and
+(b) the solution of the complete system as an assembly of its elements follows precisely the same rules as those applicable to standard discrete problems.
+The development of the standard discrete system can be followed most closely through the work done in structural engineering during the 19th and 20th centuries. It appears that the “direct stiffness process” was ﬁrst introduced by Navier in the early part of the 19th century and brought to its modern form by Clebsch [13] and others. In the 20th century much use of this has been made and Southwell [14], Cross [15],
+
+1.1 Introduction
+
+3
+
+and others have revolutionized many aspects of structural engineering by introducing a relaxation iterative process. Just before the Second World War matrices began to play a larger part in casting the equations and it was convenient to restate the procedures in matrix form. The work of Duncan and Collar [16–18], Argyris and Kelsey [19], Kron [20], and Turner et al. [10] should be noted. A thorough study of direct stiffness and related methods was recently conducted by Samuelsson and Zienkiewicz [21].
+It will be found that most classical mathematical approximation procedures as well as the various direct approximations used in engineering fall into this category. It is thus difﬁcult to determine the origins of the ﬁnite element method and the precise moment of its invention.
+Table 1.1 shows the process of evolution which led to the present-day concepts of ﬁnite element analysis. A historical development of the subject of ﬁnite element methods has been presented by the ﬁrst author in Refs. [34–36]. Chapters 3 and 4
+Table 1.1 History of Approximate Methods [1, 2, 8–10, 19, 22–33]
+
+1870 [23] 1908 [24]
+
+1910 [1] 1918 [22]
+1946 [2]
+1795 [25] 1915 [26] 1923 [27]
+
+1941 [8] 1943 [28] 1949 [9]
+
+1943 [29] 1947 [30]
+1955 [19] 1964 [31]
+
+1956 [10]
+
+1962 [32] 1964 [33]
+
+4
+
+CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+will give, in more detail, the mathematical basis which emerged from these classical ideas [1,22–27,29,30,32].
+1.2 The structural element and the structural system
+To introduce the reader to the general concept of discrete systems we shall ﬁrst consider a structural engineering example with linear elastic behavior.
+Figure 1.1 represents a two-dimensional structure assembled from individual components and interconnected at the nodes numbered 1 to 6. The joints at the nodes in this case are pinned so that moments cannot be transmitted.
+As a starting point it will be assumed that by separate calculation, or for that matter from the results of an experiment, the characteristics of each element are precisely known. Thus, if a typical element labeled (1) and associated with nodes 1, 2, and 3 is examined, the forces acting at the nodes are uniquely deﬁned by the displacements of these nodes, the distributed loading acting on element (p), and its initial strain. The last may be due to temperature, shrinkage, or simply an initial “lack of ﬁt.” The forces and the corresponding displacements are deﬁned by appropriate components (U, V ) and (u, v) in a common coordinate system (x, y).
+
+Y4
+
+3
+
+4
+
+(2) p
+
+X4
+
+y
+
+(1)
+
+(4)
+
+(3)
+
+1
+
+2
+
+5
+
+6
+
+x
+V3 (V3)
+
+p
+
+3
+
+U3 (U3)
+
+y
+
+(1)
+
+Nodes
+
+2
+
+1
+x
+A typical element (1)
+FIGURE 1.1 A typical structure built up from interconnected elements.
+
+1.2 The structural element and the structural system
+
+5
+
+Listing the forces acting on all the nodes (three in the case illustrated) of element
+
+(1) as a matrix1 we have
+
+⎧ ⎪⎨
+
+r11
+
+⎫ ⎪⎬
+
+r1
+
+=
+
+⎪⎩
+
+r21 r31
+
+⎪⎭ ;
+
+r11 =
+
+U1 V1
+
+etc.
+
+(1.1)
+
+and for the corresponding nodal displacements
+
+⎧ ⎪⎨
+
+u11
+
+⎫ ⎪⎬
+
+u1
+
+=
+
+⎪⎩
+
+u21 u31
+
+⎪⎭
+
+;
+
+u11 =
+
+u1 v1
+
+etc.
+
+(1.2)
+
+Assuming linear elastic behavior of the element, the characteristic relationship
+
+will always be of the form
+
+r1 = K1u1 − f1
+
+(1.3)
+
+in which f1 represents the nodal forces required to balance any concentrated or dis-
+
+tributed loads acting on the element. The ﬁrst of the terms represents the forces induced by displacement of the nodes. The matrix Ke is known as the stiffness matrix
+
+for element (e).
+
+Equation (1.3) is illustrated by an example of an element with three nodes with
+
+the interconnection points capable of transmitting only two components of force.
+
+Clearly, the same arguments and deﬁnitions will apply generally. Element (2) of the
+
+hypothetical structure will possess only two points of interconnection; others may
+
+have quite a large number of such points. Quite generally, therefore,
+
+re
+
+=
+
+⎧ ⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎩
+
+r1e r2e ...
+rme
+
+⎫ ⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎭
+
+and
+
+ue
+
+=
+
+⎧ ⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎩
+
+u1e u2e ...
+ume
+
+⎫ ⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎭
+
+(1.4)
+
+with each rae and uae possessing the same number of components or degrees of freedom. The stiffness matrices of the element will clearly always be square and of the form
+
+Ke
+
+=
+
+⎡ ⎢⎢⎢⎢⎣
+
+K1e1 K2e1
+...
+
+K1e2 ...
+...
+
+···
+
+K1em ... ...
+
+⎤ ⎥⎥⎥⎥⎦
+
+(1.5)
+
+Kme 1 · · · · · · Kme m
+
+1A limited knowledge of matrix algebra will be assumed throughout this book. This is necessary for reasonable conciseness and forms a convenient bookkeeping form. For readers not familiar with the subject a brief appendix (Appendix A) is included in which sufﬁcient principles of matrix algebra are given to follow the development intelligently. Matrices and vectors will be distinguished by bold print throughout.
+
+6
+
+CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+in which K1e1, K1e2, etc., are submatrices which are again square and of the size l × l, where l is the number of force and displacement components to be considered at each
+node. The element properties were assumed to follow a simple linear relationship. In
+principle, similar relationships could be established for nonlinear materials, but dis-
+cussion of such problems is not covered in this volume. Interested readers are referred
+to Ref. [37] for basic information on solid and structural mechanics applications and
+to Ref. [38] for applications to ﬂuid dynamics problems. In most cases considered in this volume the element matrices Ke will be symmetric, that is
+
+Ke = (Ke)T
+
+(1.6)
+
+where (·)T denotes transpose of a matrix (see Appendix A).
+
+1.3 Assembly and analysis of a structure
+
+Consider again the hypothetical structure of Fig. 1.1. To obtain a complete solution the two conditions of
+
+(a) displacement compatibility and (b) equilibrium
+
+have to be satisﬁed throughout.
+
+Any system of nodal displacements u,
+
+⎧⎫
+
+⎪⎨ u1 ⎪⎬
+
+u
+
+=
+
+⎪⎩
+
+... un
+
+⎪⎭
+
+(1.7)
+
+listed now for the whole structure in which all the elements participate, automatically satisﬁes the ﬁrst condition.
+As the conditions of overall equilibrium have already been satisﬁed within an element, all that is necessary is to establish equilibrium conditions at the nodes (or assembly points) of the structure. The resulting equations will contain the displacements as unknowns, and once these have been solved the structural problem is determined. The internal forces in elements, or the stresses, can easily be found by using the characteristics established a priori for each element.
+If now the equilibrium conditions of a typical node, a, are to be established, the sum of the component forces contributed by the elements meeting at the node is simply accumulated. Thus, considering all the force components we have
+
+ne
+rae = ra1 + ra2 + · · · = 0
+e=1
+
+(1.8)
+
+in which ra1 is the force contributed to node a by element (1), ra2 by element (2), etc. Clearly, only the elements which include point a will contribute nonzero forces, but
+for conciseness in notation all the elements are included in the summation.
+
+1.4 The boundary conditions
+
+7
+
+Substituting the forces contributing to node a from deﬁnition (1.3) and noting that nodal variables ua are common (thus omitting the superscript e), we have
+
+ne
+Kae1
+e=1
+
+u1 +
+
+ne
+Kae2
+e=1
+
+ne
+u2 + · · · − fie = 0
+e=1
+
+(1.9)
+
+The summation again only concerns the elements which contribute to node a. If all such equations are assembled we have simply
+
+Ku − f = 0
+
+(1.10)
+
+in which the submatrices are
+
+ne
+
+ne
+
+Kab = Kaeb and fa = fae
+
+e=1
+
+e=1
+
+(1.11)
+
+with summations including all elements. This simple rule for assembly is very convenient because as soon as a coefﬁcient for a particular element is found it can be put immediately into the appropriate “location” speciﬁed in the computer. This general assembly process can be found to be the common and fundamental feature of all ﬁnite element calculations and should be well understood by the reader.
+If different types of structural elements are used and are to be coupled it must be remembered that at any given node the rules of matrix summation permit this to be done only if these are of identical size. The individual submatrices to be added have therefore to be built up of the same number of individual components of force or displacement.
+
+1.4 The boundary conditions
+
+The system of equations resulting from Eq. (1.10) can be solved once the prescribed
+
+support displacements have been substituted. In the example of Fig. 1.1, where
+
+both components of displacement of nodes 1 and 6 are zero, this will mean the
+
+substitution of
+
+u1 = u6 =
+
+0 0
+
+which is equivalent to reducing the number of equilibrium equations (in this instance 12) by deleting the ﬁrst and last pairs and thus reducing the total number of unknown displacement components to eight. It is, nevertheless, often conceptually convenient to assemble the equation according to relation (1.10) so as to include all the nodes.
+Clearly, in a “static” or steady-state problem without substitution of a minimum number of prescribed displacements to prevent rigid body movements of the structure, it is impossible to solve this system, because the displacements cannot be uniquely determined by the forces in such a situation. This physically obvious fact will be interpreted mathematically as the matrix K being singular, i.e., not possessing an inverse. The prescription of appropriate displacements after the assembly stage will
+
+8
+
+CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+permit a unique solution to be obtained by deleting appropriate rows and columns of the various matrices.
+If all the equations of a system are assembled, their form is
+
+K11u1 + K12u2 + K13u3 + · · · − f1 = 0 K21u1 + K22u2 + K23u3 + · · · − f2 = 0 K31u1 + K32u2 + K33u3 + · · · − f3 = 0
+etc.
+
+(1.12)
+
+and it will be noted that if any displacement, such as u1 = u¯ 1, is prescribed then the total “force” f1 cannot be simultaneously speciﬁed and remains unknown until all values for the remaining ui are determined. The ﬁrst equation can be deleted and substitution of known values u¯ 1 made in the remaining equations to give
+
+K22u2 + K23u3 + · · · (K21u¯ 1 − f2) = 0 K32u2 + K33u3 + · · · (K31u¯ 1 − f3) = 0
+etc.
+
+(1.13)
+
+When all the boundary conditions are inserted the equations of the system can be solved for the unknown nodal displacements and the internal forces in each element obtained.
+
+1.5 Electrical and ﬂuid networks
+Identical principles of deriving element characteristics and of assembly will be found in many nonstructural ﬁelds. Consider, for instance, the assembly of electrical resistances (r e) shown in Fig. 1.2.
+
+b Pa a
+FIGURE 1.2 Network of electrical resistances.
+
+Jb,Vb b
+re
+Ja ,Va
+
+1.6 The general pattern
+
+9
+
+If a typical resistance element, ab, is isolated from the system we can write, by Ohm’s law, the relation between the currents (J ) entering the element at the ends and the end voltages (V ) as
+
+Jae
+
+=
+
+1 r e (Va
+
+−
+
+Vb )
+
+and
+
+Jbe
+
+=
+
+1 r e (Vb
+
+−
+
+Va )
+
+or in matrix form
+
+Jae Jbe
+
+=
+
+1 re
+
+1 −1 −1 1
+
+Va Vb
+
+which in our standard form is simply
+
+(1.14)
+
+Je = KeVe
+
+(1.15)
+
+This form clearly corresponds to the stiffness relationship (1.3); indeed if an external current were supplied along the length of the element “force” terms could also be found.
+To assemble the whole network the continuity of the voltage (V ) at the nodes is assumed and a current balance imposed there. With no external input of current at node a we must have, with complete analogy to Eq. (1.9),
+
+n ne
+
+K
+
+e ab
+
+Vb
+
+=
+
+0
+
+b=1 e=1
+
+(1.16)
+
+where the second summation is over all “elements,” and once again for all the nodes
+
+KV = 0
+
+(1.17)
+
+in which
+
+ne
+Kab = Kaeb
+e=1
+
+Matrix notation in the latter has been dropped since the quantities such as voltage and current, and hence also the coefﬁcients of the “stiffness” matrix, are scalars.
+If the resistances were replaced by ﬂuid-carrying pipes in which a laminar regime pertained, an identical formulation would once again result, with V standing for the hydraulic head and J for the ﬂow.
+For pipe networks that are usually encountered, however, the linear laws are in general not valid and nonlinear equations must be solved.
+
+1.6 The general pattern
+An example will be considered to consolidate the concepts discussed in this chapter. This is shown in Fig. 1.3a where ﬁve discrete elements are interconnected. These may be of structural, electrical, or any other linear type. In the solution:
+
+10 CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+1
+
+2
+
+2
+
+1
+
+3
+
+4
+
+3 5
+
+4
+
+5
+
+(a) 6
+
+7
+
+8
+
+1
+
+2
+
+3
+
+4
+
+5
+
+++++
+
+u= f
+
+=++++
+(b)
+
+u=
+
+(c)
+
+BAND
+
+FIGURE 1.3 The general pattern: (a) elements, (b) element matrices, and (c) global matrices.
+
+The ﬁrst step is the determination of element properties from the geometric mate-
+
+rial and loading data. For each element the “stiffness matrix” as well as the cor-
+
+responding “nodal loads” are found in the form of Eq. (1.3). Each element shown
+
+in Fig. 1.3a has its own identifying number and speciﬁed nodal connection. For
+
+example:
+
+element 1 connection 1 3 4
+
+2
+
+142
+
+3
+
+25
+
+4
+
+3674
+
+5
+
+4785
+
+Assuming that properties are found in global coordinates we can enter each “stiffness” or “force” component in its position of the global matrix as shown in Fig. 1.3b. Each shaded square represents a single coefﬁcient or a submatrix of type Kab if more than one quantity is being considered at the nodes. Here the separate contribution of each element is shown and the reader can verify the
+
+1.7 The standard discrete system 11
+
+position of the coefﬁcients. Note that the various types of “elements” considered here present no difﬁculty in speciﬁcation. (All “forces,” including nodal ones, are here associated with elements for simplicity.) The second step is the assembly of the ﬁnal equations of the type given by Eq. (1.10). This is accomplished according to the rule of Eq. (1.11) by simple addition of all numbers in the appropriate space of the global matrix. The result is shown in Fig. 1.3c where the nonzero coefﬁcients are indicated by shading. If the matrices are symmetric only the half above (or below) the diagonal shown needs, in fact, to be found. All the nonzero coefﬁcients are conﬁned within a band or proﬁle which can be calculated a priori for the nodal connections. Thus in computer programs only the storage of the elements within the proﬁle (or sparse structure) is necessary, as shown in Fig. 1.3c. Indeed, if K is symmetric only the upper (or lower) half need be stored. The third step is the insertion of prescribed boundary conditions into the ﬁnal assembled matrix, as discussed in Section 1.4. This is followed by the ﬁnal step. The ﬁnal step solves the resulting equation system. Here many different methods can be employed, some of which are summarized in Appendix D. The general subject of equation solving, though extremely important, is in general beyond the scope of this book.
+The ﬁnal step discussed above can be followed by substitution to obtain stresses, currents, or other desired output quantities. All operations involved in structural or other network analysis are thus of an extremely simple and repetitive kind. We can now deﬁne the standard discrete system as one in which such conditions prevail.
+
+1.7 The standard discrete system
+In the standard discrete system, whether it is structural or of any other kind, we ﬁnd that:
+
+1. A set of discrete parameters, say ua, can be identiﬁed which describes simultaneously the behavior of each element, e, and of the whole system. We shall call
+these the system parameters. 2. For each element a set of quantities rae can be computed in terms of the system
+parameters ua. The general function relationship can be nonlinear, for example
+
+rae = rae (u)
+
+(1.18)
+
+but in most of the cases considered in this volume a linear form exists giving
+
+rae = Kae1u1 + Kae2u2 + · · · − fae
+
+(1.19)
+
+12 CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+3. The ﬁnal system equations are obtained by a simple addition
+
+ne
+ra = rae = 0
+e=1
+
+(1.20)
+
+where ra are system quantities. In the linear case this results in a system of
+
+equations
+
+Ku − f = 0
+
+(1.21)
+
+such that
+
+ne
+
+ne
+
+Kab = Kaeb and fa = fae
+
+e=1
+
+e=1
+
+(1.22)
+
+from which the solution for the system variables u can be found after imposing necessary boundary conditions.
+
+The reader will observe that this deﬁnition includes the structural, hydraulic, and electrical examples already discussed. However, it is broader. In general neither linearity nor symmetry of matrices need exist—although in many problems this will arise naturally. Further, the narrowness of interconnections existing in usual elements is not essential.
+While much further detail could be discussed we feel that the general exposure given here should sufﬁce for further study of the methods included in this book.
+Only one further matter relating to the change of discrete parameters needs to be mentioned here. The process of so-called transformation of coordinates is vital in many contexts and must be fully understood.
+
+1.8 Transformation of coordinates
+It is often convenient to establish the characteristics of an individual element in a coordinate system which is different from that in which the external forces and displacements of the assembled system will be measured. A different coordinate system may, in fact, be used for every element, to ease the computation. It is a simple matter to transform the coordinates of the displacement and force components of Eq. (1.3) to any other coordinate system. Clearly, it is necessary to do so before an assembly of the global system equations can be attempted.
+Let the local coordinate system in which the element properties have been evaluated be denoted by a prime sufﬁx and the common coordinate system necessary for assembly have no embellishment. The displacement components can be transformed by a suitable matrix of direction cosines L as
+
+u = Lu
+
+(1.23)
+
+1.8 Transformation of coordinates 13
+
+As the corresponding force components must perform the same amount of work
+
+in either system
+
+rTu = r Tu
+
+(1.24)
+
+On inserting (1.23) we have rTu = r TLu
+
+or
+
+r = LTr
+
+(1.25)
+
+The set of transformations given by (1.23) and (1.25) is called contravariant or dual.
+To transform “stiffnesses” and “loads” which may be available in local coordinates to global ones note that if we write
+
+r =Ku −f
+
+(1.26)
+
+then by (1.25), (1.26), and (1.23) r = LTK Lu − LTf = K u − f
+
+or in global coordinates K = LTK L and f = LTf
+
+(1.27)
+
+In many complex problems an external constraint of some kind may be imagined, enforcing the requirement (1.23) with the number of degrees of freedom of u and u being quite different. Even in such instances the relations (1.24) and (1.25) continue to be valid.
+An alternative and more general argument can be applied to many other situations of discrete analysis. We wish to replace a set of parameters u in which the system equations have been written by another set related to it by a transformation matrix T as
+
+u = Tv
+
+(1.28)
+
+In the linear case the system equations are of the form
+
+Ku = f
+
+(1.29)
+
+and on the substitution we have
+
+KTv = f
+
+The new system can be premultiplied simply by TT, yielding
+
+(TTKT)v = TTf
+
+(1.30) (1.31)
+
+which will preserve the symmetry of equations if the matrix K is symmetric. However, occasionally the matrix T is not square and expression (1.28) represents in fact an approximation or a projection in which a larger number of parameters u is constrained to a smaller number. Clearly the system of equations (1.30) gives more equations than are necessary for a solution of the reduced set of parameters v, and the ﬁnal expression (1.31) presents a reduced system which in some sense approximates the original one.
+We have thus introduced the basic idea of approximation, which will be the subject of subsequent chapters where inﬁnite sets of quantities are reduced to ﬁnite sets.
+
+14 CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+3 (2) 4 1
+
+(1)
+FIGURE 1.4 Fluid network for Problem 1.1.
+
+(3)
+
+2
+
+5
+
+(4) 6
+
+1.9 Problems
+1.1 A simple ﬂuid network to transport water is shown in Fig. 1.4. Each “element” of the network is modeled in terms of the ﬂow, J, and head, V, which are approximated by the linear relation
+
+Je = −KeVe
+
+where Ke is the coefﬁcient array for element (e). The individual terms in the
+
+ﬂow vector denote the total amount of ﬂow entering (+) or leaving (−) each end
+
+point. The properties of the elements are given by
+
+⎡
+
+⎤
+
+3 −2 −1
+
+Ke = ce ⎣ −2 4 −2 ⎦
+
+−1 −2 3
+
+for elements (1) and (4), and for elements (2) and (3) by
+
+Ke = ce
+
+1 −1
+
+−1 1
+
+where ce is an element-related parameter. The system is operating with a known head of 100 m at node 1 and 30 m at node 6. At node 2, 30 m3h−1 of water per hour are being used and at node 4, 10 m3 per hour.
+(a) For all ce = 1, assemble the total matrix from the individual elements to give J = KV
+N.B. J contains entries for the speciﬁed usage and connection points. (b) Impose boundary conditions by modifying J and K such that the known
+heads at nodes 1 and 6 are recovered. (c) Solve the equations for the heads at nodes 2 to 5. (The result at node 4 should
+be V4 = 30.8133 m.) (d) Determine the ﬂow entering and leaving each element.
+
+1.9 Problems 15
+
+y (v, V )
+
+u 2′
+
+x′
+
+y′
+
+2
+
+u 1′
+
+θ
+
+1
+
+(a)
+
+u′
+
+v
+
+x (u,U )
+
+θ u
+(b)
+
+FIGURE 1.5 Truss member for Problem 1.2: (a) truss member description and (b) displacements.
+
+1.2 A plane truss may be described as a standard discrete problem by expressing the characteristics for each member in terms of end displacements and forces. The behavior of the elastic member is shown in Fig. 1.5 with modulus E, cross-section A, and length L given by r = Ke u
+
+where
+
+r=
+
+U1 U2
+
+,
+
+u=
+
+u1 u2
+
+and
+
+Ke
+
+=
+
+EA L
+
+1 −1 −1 1
+
+To obtain the ﬁnal assembled matrices for a standard discrete problem it is neces-
+
+sary to transform the behavior to a global frame using Eqs. (1.25) and (1.27) where
+
+⎧⎫
+
+⎧⎫
+
+L=
+
+cos θ 0
+
+sin θ 0
+
+0 cos θ
+
+0 sin θ
+
+,
+
+r
+
+=
+
+⎪⎪⎨ ⎪⎪⎩
+
+U1 V1 U2 V2
+
+⎪⎪⎬ ⎪⎪⎭
+
+and
+
+u
+
+=
+
+⎪⎪⎨ ⎪⎪⎩
+
+u1 v1 u2 v2
+
+⎪⎪⎬ ⎪⎪⎭
+
+(a) Compute relations for r and K in terms of L, r , and Ke. (b) If the numbering for the end nodes is reversed what is the ﬁnal form for K
+compared to that given in (a)? Verify your answer when θ = 30◦.
+1.3 A plane truss has nodes numbered as shown in Fig. 1.6a.
+(a) Use the procedure shown in Fig. 1.3 to deﬁne the nonzero structure of the coefﬁcient matrix K. Compute the maximum bandwidth.
+(b) Determine the nonzero structure of K for the numbering of nodes shown in Fig. 1.6b. Compute the maximum bandwidth.
+Which order produces the smallest band? 1.4 Write a small computer program (e.g., using MATLAB [39] or GNU Octave
+[40]) to solve the truss problem shown in Fig. 1.6b. Let the total span of the truss
+
+16 CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+(a)
+
+7
+
+8
+
+9
+
+10
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+(b)
+
+3
+
+5
+
+7
+
+9
+
+1
+
+2
+
+4
+
+6
+
+8
+
+10
+
+FIGURE 1.6 Truss for Problems 1.3 and 1.4.
+
+be 2.5 m and the height 0.8 m and use steel as the property for each member with E = 200 GPa and A = 0.001 m2. Restrain node 1 in both the u and v directions
+
+and the right bottom node in the v direction only. Apply a vertical load of 100 N
+
+at the position of node 6 shown in Fig. 1.6b. Determine the maximum vertical
+
+displacement at any node. Plot the undeformed and deformed position of the truss
+
+(increase the magnitude of displacements to make the shape visible on the plot).
+
+You can verify your result using the program FEAPpv available at the second
+
+author’s website (see Chapter 18).
+
+1.5 An axially loaded elastic bar has a variable cross-section and lengths as shown in
+
+Fig. 1.7a. The problem is converted into a standard discrete system by considering
+
+each prismatic section as a separate member. The array for each member segment
+
+is given as
+
+re = Keue
+
+where
+
+Ke = E Ae h
+
+1 −1 −1 1
+
+;
+
+re =
+
+ree ree+1
+
+and ue =
+
+ue ue+1
+
+Equilibrium for the standard discrete problem at joint e is obtained by combining results from segment e − 1 and e as
+
+ree−1 + ree + Ue = 0
+
+where Ue is any external force applied to a joint. Boundary conditions are applied for any joint at which the value of ue is known a priori.
+
+1.9 Problems 17
+
+E ,A
+
+(a)
+
+11
+
+u
+1
+
+e=1
+
+L
+1
+
+(b)
+u1=0
+
+E ,A
+22
+
+u
+2
+
+e=2
+
+L
+2
+
+P2
+
+E ,A
+33
+
+u
+3
+
+e=3
+
+u
+4
+
+L
+3
+
+P3
+
+P 4
+
+(c)
+u1=0
+
+P2
+
+P3
+
+u4= 0
+
+FIGURE 1.7 Elastic bars for Problems 1.5 and 1.6: (a) bar geometry, (b) Problem 1.5, and (c) Problem 1.6.
+
+Solve the problem shown in Fig. 1.7b for the joint displacements using the data E1 = E2 = E3 = 200 GPa, A1 = 25 cm2, A2 = 20 cm2, A3 = 12 cm2, L1 = 37.5 cm, L2 = 25.0 cm, L3 = 12.5 cm, P2 = 10 kN, P3 = −3.5 kN, and P4 = 6 kN. 1.6 Solve Problem 1.5 for the boundary conditions and loading shown in Fig. 1.7c. Let E1 = E2 = E3 = 200 GPa, A1 = 30 cm2, A2 = 20 cm2, A3 = 10 cm2, L1 = 37.5 cm, L2 = 30.0 cm, L3 = 25.0 cm, P2 = −10 kN, and P3 = 3.5 kN. 1.7 A tapered bar is loaded by an end load P and a uniform loading b as shown in Fig. 1.8a. The area varies as A(x) = A x/L when the origin of coordinates is
+located as shown in the ﬁgure.
+The problem is converted into a standard discrete system by dividing it into
+equal length segments of constant area as shown in Fig. 1.8b. The array for each
+
+y
+
+A
+
+P
+
+b
+
+L
+
+L
+
+2A
+
+x
+
+u1
+
+u2
+
+u3
+
+u4
+
+e=1
+
+e=2
+
+e=3
+
+e=4
+
+h=L/4
+
+u5 =0
+
+(a)
+
+(b)
+
+FIGURE 1.8 Tapered bar for Problem 1.7: (a) tapered bar geometry and (b) approximation by 4 segments.
+
+18 CHAPTER 1 The Standard Discrete System and Origins of the FEM
+
+segment is determined from
+
+re = Keue + fe
+
+where Ke and ue are deﬁned in Problem 1.5 and
+
+fe = 1 bh 2
+
+1 1
+
+For the properties L = 100 cm, A = 2 cm2, E = 104 kN/cm2, P = 2 kN, b = −0.25 kN/cm, and u(2L) = 0, the displacement from the solution of the differential equation is u(L) = −0.03142513 cm.
+Write a small computer program (e.g., using MATLAB [39] or GNU Octave [40]) that solves the problem for the case where e = 1, 2, 4, 8, . . . segments. Continue the solution until the absolute error in the tip displacement is < 10−5 cm (let error be E = |u(L) − u1| where u1 is the numerical solution at the end).
+
+References
+[1] L.F. Richardson, The approximate arithmetical solution by ﬁnite differences of physical problems, Trans. R. Soc. (Lond.) A 210 (1910) 307–357.
+[2] R.V. Southwell, Relaxation Methods in Theoretical Physics, Clarendon Press, Oxford, 1946.
+[3] D.N. de G. Allen, Relaxation Methods, McGraw-Hill, London, 1955. [4] S. Crandall, Engineering Analysis, McGraw-Hill, New York, 1956. [5] B.A. Finlayson, The Method of Weighted Residuals and Variational Principles,
+Academic Press, New York, 1972. [6] K. Washizu, Variational Methods in Elasticity and Plasticity, third ed., Pergamon
+Press, New York, 1982. [7] D. McHenry, A lattice analogy for the solution of plane stress problems, J. Inst.
+Civ. Eng. 21 (1943) 59–82. [8] A. Hrenikoff, Solution of problems in elasticity by the framework method,
+J. Appl. Mech. ASME A 8 (1941) 169–175. [9] N.M. Newmark, Numerical methods of analysis in bars, plates and elastic bodies,
+in: L.E. Grinter (Ed.), Numerical Methods in Analysis in Engineering, Macmillan, New York, 1949. [10] M.J. Turner, R.W. Clough, H.C. Martin, L.J. Topp, Stiffness and deﬂection analysis of complex structures, J. Aeronaut. Sci. 23 (1956) 805–823. [11] R.W. Clough, The ﬁnite element method in plane stress analysis, in: Proceedings of the Second ASCE Conference on Electronic Computation, Pittsburgh, PA, September, 1960. [12] R.W. Clough, Early history of the ﬁnite element method from the view point of a pioneer, Int. J. Numer. Methods Eng. 60 (2004) 283–287. [13] R.F. Clebsch, Théorie de l’elasticité des corps solides, Dunod, Paris, 1883.
+
+References 19
+[14] R.V. Southwell, Stress calculation in frame works by the method of systematic relaxation of constraints, Proc. R. Soc. Lond. A 151 (1935) 56–95 (Part I and II).
+[15] Hardy Cross, Continuous Frames of Reinforced Concrete, John Wiley & Sons, New York, 1932.
+[16] W.J. Duncan, A.R. Collar, A method for the solution of oscillation problems by matrices, Phil. Mag. 17 (1934) 865 (Series 7).
+[17] W.J. Duncan, A.R. Collar, Matrices applied to the motions of damped systems, Phil. Mag. 19 (1935) 197 (Series 7).
+[18] R.R. Frazer, W.J. Duncan, A.R. Collar, Elementary Matrices, Cambridge University Press, London, 1960.
+[19] J.H. Argyris, S. Kelsey, Energy Theorems and Structural Analysis, Butterworths, London, 1960 (Reprinted from a series of articles in Aircraft Eng., 1954–1955).
+[20] G. Kron, Equivalent Circuits of Electrical Machinery, John Wiley & Sons, New York, 1951.
+[21] A. Samuelsson, O.C. Zienkiewicz, History of the stiffness method, Int. J. Numer. Methods Eng. 67 (2006) 149–157.
+[22] H. Liebman, Die angenäherte Ermittlung: harmonishen, functionen und konformer Abbildung, Sitzber. Math. Physik Kl. Bayer Akad. Wiss. München 3 (1918) 65–75.
+[23] Lord Rayleigh (J.W. Strutt), On the theory of resonance, Trans. R. Soc. (Lond.) A 161 (1870) 77–118.
+[24] W. Ritz, Über eine neue Methode zur Lösung gewisser variationsproblem der mathematischen physik, J. Reine Angew. Math. 135 (1908) 1–61.
+[25] C.F. Gauss, Werke, Dietrich, Göttingen, 1863–1929 (See: Theoretishe Astronomie, Bd. VII).
+[26] B.G. Galerkin, Series solution of some problems in elastic equilibrium of rods and plates, Vestn. Inzh. Tech. 19 (1915) 897–908.
+[27] C.B. Biezeno, J.J. Koch, Over een Nieuwe Methode ter Berekening van Vlokke Platen, Ing. Grav. 38 (1923) 25–36.
+[28] D. McHenry, A new aspect of creep in concrete and its application to design, Proc. ASTM 43 (1943) 1064.
+[29] R. Courant, Variational methods for the solution of problems of equilibrium and vibration, Bull. Am. Math. Soc. 49 (1943) 1–61.
+[30] W. Prager, J.L. Synge, Approximation in elasticity based on the concept of function space, Quart. J. Appl. Math. 5 (1947) 241–269.
+[31] O.C. Zienkiewicz, Y.K. Cheung, The ﬁnite element method for analysis of elastic isotropic and orthotropic slabs, Proc. Inst. Civ. Eng. 28 (1964) 471–488.
+[32] R.S. Varga, Matrix Iterative Analysis, Prentice-Hall, Englewood Cliffs, NJ, 1962. [33] M.L. Wilkins, Calculation of elastic-plastic ﬂow, in: B. Alder (Ed.), Methods in
+Computational Physics, vol. 3, Academic Press, New York, 1964, pp. 211–263. [34] O.C. Zienkiewicz, Origins, milestones and directions of the ﬁnite element
+method, Arch. Comput. Methods Eng. 2 (1995) 1–48.
+
+20 CHAPTER 1 The Standard Discrete System and Origins of the FEM
+[35] O.C. Zienkiewicz, Origins, milestones and directions of the ﬁnite element method. A personal view, in: P.G. Ciarlet, J.L. Lyons (Eds.), Handbook of Numerical Analysis, vol. IV, North Holland, 1996, pp. 3–65.
+[36] O.C. Zienkiewicz, The birth of the ﬁnite element method and of computational mechanics, Int. J. Numer. Methods Eng. 60 (2004) 3–10.
+[37] O.C. Zienkiewicz, R.L. Taylor, D. Fox, The Finite Element Method for Solid and Structural Mechanics, seventh ed., Elsevier, Oxford, 2013.
+[38] O.C. Zienkiewicz, R.L. Taylor, P. Nithiarasu, The Finite Element Method for Fluid Dynamics, seventh ed., Elsevier, Oxford, 2013.
+[39] MATLAB, www.mathworks.com, 2012. [40] GNU Octave, www.gnu.org/software/octave, 2012.
+
+CHAPTER
+
+Problems in Linear Elasticity and Fields
+
+2
+
+2.1 Introduction
+In this chapter we present the set of equations for the theory of elasticity and theory of ﬁelds which are common in many engineering applications.
+We shall ﬁrst deal with the elasticity problem for general three-dimensional applications, as well as its simpliﬁcation to some special two-dimensional situations. In the elasticity equations presented here we assume that strains are small compared to unity. Also we ignore any possibility of buckling. We assume the reader is familiar with the theory of linear elasticity. However, for completeness we will summarize the basic equations for the different problem classes to be considered. For a more general discussion the reader is referred to standard references on the subject (e.g., see Refs. [1–6]) and for problems that consider large strain effects to the companion volume [7].
+In some situations an indicial form of the equations can be advantageous, however in this chapter the basic equations will be formulated in a matrix form that will be used later to construct ﬁnite element developments. The indicial form is included in Appendix C for completeness.
+
+2.2 Elasticity equations
+
+The basic equations for the theory of elasticity are described in terms of displacements, strains, stresses, boundary conditions, initial conditions, and constitutive relations that relate the behavior between strain and stress. We start by specifying each equation set for a general three-dimensional problem in Cartesian coordinates. However, we will also consider some two-dimensional forms. The two-dimensional problems we consider are of three types:
+
+(a) The plane stress case. In this problem the only nonzero stresses are those in the plane of the problem and normal to the lamina we have no stresses as shown in Fig. 2.1a.
+(b) The plane strain case. Here all straining normal to the plane considered is prevented. Such a situation may arise in the long prism shown in Fig. 2.1b in which loading does not vary in the direction normal to the plane.
+(c) The third and ﬁnal case of two-dimensional analysis is that in which the situation is axisymmetric. Here the plane considered is one at constant θ in a cylindrical
+
+The Finite Element Method: Its Basis and Fundamentals. http://dx.doi.org/10.1016/B978-1-85617-633-0.00002-2 © 2013 Elsevier Ltd. All rights reserved.
+
+21
+
+22 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+z(v)
+
+y(v)
+
+y(v)
+
+x(u) z
+(a)
+
+z x(u)
+
+θ x
+
+y r(u)
+
+(b)
+
+(c)
+
+FIGURE 2.1 Two-dimensional analysis types for (a) plane stress, (b) plane strain, and (c) axisymmetry.
+
+coordinate system r−z−θ (Fig. 2.1c) and all components of displacement, stress, and strain are assumed dependent on r and z only.
+
+2.2.1 Displacement function
+
+For the three-dimensional problem the displacement ﬁeld is given by
+
+⎧
+
+⎫
+
+⎨ u(x, y, z, t) ⎬
+
+u(x,
+
+t)
+
+=
+
+⎩
+
+v(x, w(x,
+
+y, y,
+
+z, z,
+
+t) t)
+
+⎭
+
+(2.1)
+
+where positions are denoted by the Cartesian coordinates x, y, z which we also write
+
+in matrix form as
+
+⎧⎫ ⎨x⎬
+
+x
+
+=
+
+⎩
+
+y z
+
+⎭
+
+(2.2)
+
+For two-dimensional plane stress and plane strain cases the displacement ﬁeld is
+
+given by
+
+u(x, t) =
+
+u(x, y, t) v(x, y, t)
+
+(2.3)
+
+and only the ﬁrst two components of (2.2) are needed. Finally, in the axisymmetric case we use cylindrical coordinates to deﬁne the r −z plane for which
+
+x=
+
+r z
+
+(2.4)
+
+with the displacements given by
+
+u(x, t) =
+
+u(r, z, t) v(r, z, t)
+
+(2.5)
+
+2.2 Elasticity equations 23
+
+The only difference in the latter two is the coordinates used: x, y for Cartesian coordinates and r, z for cylindrical coordinates. The reader may notice that in plane stress problems, changes of thickness occur; however, no explicit displacement assumption is given and the result will be included directly within the strain approximation.
+
+2.2.2 Strain matrix
+In a three-dimensional problem there are six independent components of strain which we order and denote in matrix form by1
+
+ε = εx εy εz γxy γyz γzx T
+
+(2.6)
+
+where [·]T denotes the matrix transpose (see Appendix A). This form is known in the mechanics literature as Voigt notation [8]. It is a way of writing a symmetric second order tensor in terms of a reduced set of components. The strain is a symmetric form where γxy = γyx , γyz = γzy, and γzx = γxz; thus, Voigt notation reduces nine components to six. For the two-dimensional problems considered in this volume the last two components are always zero. Thus, only four components of ε need be considered as shown in the next section.
+
+2.2.2.1 Strain-displacement matrix The strains for a problem undergoing small deformations are computed from the displacements and may be expressed in matrix form as
+
+ε=Su
+
+(2.7)
+
+where S is a matrix of differential operators and u is the displacement ﬁeld. For the three-dimensional problem the strain-displacement relations are given by2
+
+⎡∂
+
+⎤
+
+ε
+
+=
+
+⎧ ⎪⎪⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎪⎪⎩
+
+εx εy εz γx y γyz γzx
+
+⎫ ⎪⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎪⎭
+
+=
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣
+
+∂x 0
+0 ∂ ∂y 0 ∂
+
+0 ∂ ∂y
+0 ∂ ∂x ∂ ∂z
+
+0
+0 ∂ ∂z 0 ∂ ∂y ∂
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+⎧ ⎨ ⎩
+
+u v w
+
+⎫ ⎬ ⎭
+
+(2.8)
+
+0
+
+∂z
+
+∂x
+
+1It is known that strain is a second rank tensor by its transformation properties, however, in this book
+we will normally represent quantities using matrix (Voigt) notation. The interested reader is encouraged
+to consult Appendix C for the relations between tensor forms and the matrix quantities. 2Note that in matrix form shear strain components are twice that given in tensor form in Appendix C (e.g., γxy = 2 εxy ).
+
+24 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+For convenience in considering all three classes of two-dimensional problems in
+
+a uniﬁed manner, we include four components of strain in ε and write them as
+
+⎡∂
+
+⎤
+
+ε
+
+=
+
+⎡ ⎢⎢⎣
+
+εx εy εz γx y
+
+⎤ ⎥⎥⎦
+
+=
+
+⎢⎢⎢⎢⎢⎢⎢⎣
+
+∂x 0
+0 ∂
+
+0
+∂
+∂y 0 ∂
+
+⎥⎥⎥⎥⎥⎥⎥⎦
+
+u v
+
+⎧⎫
+
++
+
+⎪⎪⎨ ⎪⎪⎩
+
+0 0 εz 0
+
+⎪⎪⎬ ⎪⎪⎭
+
+=
+
+Sp
+
+u
+
++
+
+εz
+
+(2.9)
+
+∂y ∂x
+
+for plane problems (where εz is zero for plane strain but not for plane stress) and
+
+⎡∂
+
+⎤
+
+ε
+
+=
+
+⎧ ⎪⎪⎨ ⎪⎪⎩
+
+εr εz εθ γr z
+
+⎫ ⎪⎪⎬ ⎪⎪⎭
+
+=
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎣
+
+∂r 0 1 r ∂
+
+0 ∂ ∂z 0 ∂
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+u v
+
+= Sa u
+
+(2.10)
+
+∂z ∂r
+
+for the axisymmetric case (see Fig. 2.2). The two-dimensional problem types differ only by the presence of εz in the plane
+stress problem and the εθ component in the axisymmetric case.
+
+2.2.2.2 Volume change and deviatoric strain
+
+When a small cube deforms it both changes volume and distorts. The change in volume may be expressed in terms of the extensional strains εx , εy, and εz as
+
+εv = εx + εy + εz = mT ε
+
+(2.11)
+
+z
+
+z
+
+τzx
+
+σz τzy
+
+σx
+
+τxz
+
+τyz
+
+σy
+
+θ
+
+x
+
+τxy
+
+τyx
+
+y
+
+γrz (τrz )
+
+εr (σr ) r
+εz (σz )
+
+εθ (σθ)
+
+(a)
+
+(b)
+
+FIGURE 2.2 Stresses involved in the analysis of solids: (a) three-dimensional and (b) axisymmetric.
+
+2.2 Elasticity equations 25
+
+where in three dimensions m = [ 1 1 1 0 0 0 ]T and in two dimensions m = [ 1 1 1 0 ]T. The distortion is then measured by the deviatoric strains which are the difference between the total and mean volumetric strains. The deviatoric components are expressed as
+
+e
+
+=
+
+ε
+
+−
+
+1 3
+
+m
+
+εv
+
+=
+
+I − 1 mmT 3
+
+ε = Idev ε
+
+(2.12)
+
+where I is the identity matrix and Idev is a deviatoric projection matrix. Both are of size 6 for three-dimensional problems and size 4 for the two-dimensional cases.
+
+2.2.3 Stress matrix
+
+In a three-dimensional body there are nine components of stress which act on an element of volume as shown in Fig. 2.2a. The components σx , σx , σx are called normal stresses and τxy, τyx , τyz, τzy, τxz, τzx are called shearing stresses. The shearing components are symmetric (by angular momentum or moment equilibrium on the cube) and, thus,
+τxy = τyx, τyz = τzy and τzx = τxz
+Thus, similar to strain, the stresses may be written in terms of six components that are ordered and denoted in matrix form by
+
+σ = [ σx σy σz τxy τyz τzx ]T
+
+(2.13)
+
+For two-dimensional plane problems we consider only four components of stress
+
+and use
+
+σ = [ σx σy σz τxy ]T
+
+(2.14)
+
+In axisymmetry we deﬁne the components of stress as
+
+σ = [ σr σz σθ τr z ]T
+
+(2.15)
+
+In plane stress problems we know a priori that σz = 0, however, it is convenient to retain the component to allow all two-dimensional problems to be considered in a more uniform manner.
+
+2.2.3.1 Mean stress and deviatoric stress
+
+Similar to strain, we can split the stress into its mean and deviatoric parts. The mean
+
+stress is deﬁned by
+
+p
+
+=
+
+1 3
+
+(σx
+
++
+
+σy
+
++
+
+σz )
+
+=
+
+1 3
+
+mTσ
+
+(2.16)
+
+We shall also refer to p as a pressure. The deviatoric stress is then deﬁned as
+
+s=σ −mp=
+
+I − 1 mmT 3
+
+σ = Idev σ
+
+(2.17)
+
+The split form for stress and strain will be useful when we discuss stress-strain relations and later in Chapter 10 for incompressible problems.
+
+26 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+2.2.4 Equilibrium equations
+The linear momentum or equilibrium equations for the three-dimensional behavior of a solid may be written in Cartesian coordinates as
+
+∂σx ∂x
+
++
+
+∂τyx ∂y
+
++
+
+∂ τz x ∂z
+
++ bx
+
+=
+
+ρ
+
+∂2u ∂t2
+
+∂ τx y ∂x
+
++
+
+∂σy ∂y
+
++
+
+∂ τz y ∂z
+
++ by
+
+=
+
+ρ
+
+∂2v ∂t2
+
+∂τxz ∂x
+
++
+
+∂τyz ∂y
+
++
+
+∂ σz ∂z
+
++ bz
+
+=
+
+ρ
+
+∂2w ∂t2
+
+(2.18)
+
+in which we recall that by angular momentum (moment equilibrium) the stress is
+
+symmetric. Using only the independent components of the symmetric stress given in
+
+(2.13), the equilibrium equations in Cartesian coordinates may be written in a matrix
+
+Voigt form as
+
+STσ + b = ρ u¨
+
+(2.19)
+
+where in Cartesian coordinates S is the same differential operator as that given for strains in (2.8), b is the vector of body forces given as
+
+b = [ bx by bz ]T
+
+(2.20)
+
+ρ is the mass density per unit volume and u¨ = ∂2u/∂t2 is the acceleration vector.
+
+2.2.4.1 Plane stress and plane strain problems
+In two-dimensional plane problems we omit τyz, τzx , and bz. We also note that σz will not depend on the z-coordinate. Thus the stress matrix is given by (2.14) and the remaining two equilibrium equations become
+
+∂σx ∂x
+
++
+
+∂τyx ∂y
+
++ bx
+
+=ρ
+
+∂2u ∂t2
+
+∂ τx y ∂x
+
++
+
+∂σy ∂y
+
++ by
+
+=
+
+ρ
+
+∂2v ∂t2
+
+(2.21)
+
+Noting that τxy = τyx , the equilibrium equations may be written in matrix form as
+
+STpσ + b = ρ u¨
+
+(2.22)
+
+where Sp is identical to that given in (2.9); also b and u now only have two components.
+
+2.2.4.2 Axisymmetric problems
+For axisymmetric problems the stress is replaced by (2.15) and body force by b = [ br bz ]T. Using the stresses on the element of volume shown in Fig. 2.2 and summing
+
+2.2 Elasticity equations 27
+
+forces in the r and z directions the two equilibrium equations are given by
+
+∂ σr ∂r
+
++
+
+σr
+
+− σθ r
+
++
+
+∂ τzr ∂z
+
++ br
+
+=ρ
+
+∂2u ∂t2
+
+∂τr z ∂r
+
++
+
+∂ σz ∂z
+
++ bz
+
+=ρ
+
+∂2v ∂t2
+
+(2.23)
+
+By moment equilibrium (angular momentum) we again obtain τrz = τzr . Note that in the axisymmetric problem the differential operator on equilibrium is given by
+
+⎡ S¯ aT = ⎢⎣
+
+∂ ∂r
+
++
+
+1 r
+
+0
+
+0
+
+−
+
+1 r
+
+∂ 0
+∂z
+
+∂⎤
+
+∂ ∂
+
+z
+
+⎥⎦
+
+∂r
+
+(2.24)
+
+and is not equal to SaT. This difference occurs due to the curvilinear coordinate system. Working with the differential equation form this is a disadvantage, however, for
+methods used in ﬁnite element analysis we will show that the difference disappears
+and formulations in curvilinear coordinates greatly simplify.
+
+2.2.5 Boundary conditions
+
+The strain-displacement and equilibrium equations are valid at each point of the body
+
+domain, which we denote by . Boundary conditions must be speciﬁed for each
+
+point on the surface of the solid, which we denote as . Here we consider only two
+
+types of boundary conditions: (a) displacement boundary conditions and (b) traction
+
+boundary conditions. We divide the boundary into two parts, which we denote as u
+
+for displacement conditions and t for traction conditions. Thus, the total boundary
+
+is always the sum of the displacement and traction parts.
+
+Displacement boundary conditions are speciﬁed at each point of the boundary
+
+u as
+
+u = u¯ (x, t)
+
+(2.25)
+
+where u¯ are known values and x are points on the boundary. Traction boundary conditions are speciﬁed for each point of the boundary t and
+are given in terms of stresses by
+
+t = GTσ = t¯(x, t)
+
+(2.26)
+
+in which for three-dimensional problems GT is the matrix
+
+⎡
+
+⎤
+
+nx 0 0 ny 0 nz
+
+GT = ⎣ 0 ny 0 nx nz 0 ⎦
+
+0 0 nz 0 ny nx
+
+(2.27)
+
+where nx , ny, nz are direction cosines for the outward pointing normal, n, to the boundary t . The reader should note that the matrices G and S have identical nonzero
+
+28 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+structure. In two-dimensional plane problems G reduces to
+
+GTp =
+
+nx 0
+
+0 ny
+
+0 ny 0 nx
+
+(2.28)
+
+with nx , ny the components of an outward pointing unit normal vector of the boundary. In axisymmetry nx = nr , ny = nz, and Ga has the same nonzero form as Gp.
+Both boundary condition types are vectors and, at any point on the boundary, it
+is possible to specify some components by displacement conditions and others by
+traction ones.
+
+2.2.5.1 Boundary conditions on inclined coordinates It is also possible that the conditions are given with respect to coordinates x , y , z which are oriented with respect to the global axes x, y, z by
+
+x = Tx
+
+(2.29)
+
+where T is an orthonormal matrix of direction cosines given by
+
+⎡
+
+⎤⎡
+
+⎤
+
+cos(x , x) cos(x , y) cos(x , z)
+
+t11 t12 t13
+
+T = ⎣ cos(y , x) cos(y , y) cos(y , z) ⎦ = ⎣ t21 t22 t23 ⎦
+
+cos(z , x) cos(z , y) cos(z , z)
+
+t31 t32 t33
+
+(2.30)
+
+in which cos(x , x) is the cosine of the angle between the x direction and the x direction. For two-dimensions, rotation of the axes by an angle β gives
+
+cos(x , x) = cos(y , y) = cos(β) cos(x , y) = − cos(y , x) = sin(β) cos(x , z) = cos(z , x) = 0 cos(y , z) = cos(z , y) = 0 cos(z , z) = 1
+
+and T may be treated as a 2 × 2 matrix given by
+
+T=
+
+cos(β) sin(β) − sin(β) cos(β)
+
+Since T is orthonormal it has the property T−1 = TT
+
+(2.31)
+
+The displacement and traction vectors transform to the prime system in exactly the same way as the coordinates. Hence, we have
+
+u = Tu = u¯ t = Tt = TGTσ = t¯
+
+(2.32)
+
+2.2 Elasticity equations 29
+
+2.2.5.2 Normal pressure loading When a pressure loading is applied normal to a surface the traction may be speciﬁed as
+
+t¯ = p¯ n ; n = [ nx ny nz ]T
+
+(2.33)
+
+where p¯ is the magnitude of the speciﬁed traction and n again is the unit outward normal to the boundary. This is a condition which is often encountered in practical situations in which p¯ arises from a ﬂuid or gas loading and tangential surface components are zero.
+
+2.2.5.3 Symmetry and repeatability
+In many problems, the advantage of symmetry in loading and geometry can be considered when imposing the boundary conditions, thus reducing the whole problem to more manageable proportions. The use of symmetry conditions is so well known to the engineer and physicist that no statement needs to be made about it explicitly. Less known, however, appears to be the use of repeatability [9] when an identical structure (and) loading is continuously repeated, as shown in Fig. 2.3 for an inﬁnite blade cascade. Here it is evident that a typical segment (shaded in the ﬁgure) behaves identically to the next one, and thus functions such as velocities and displacements at corresponding points of AA and BB are simply identiﬁed, i.e.,
+
+uI = uII
+Similar repeatability, in radial coordinates, occurs very frequently in problems involving turbine or pump impellers. Figure 2.4 shows a typical three-dimensional analysis of such a repeatable segment.
+Proper use of symmetry and repeatability can reduce the required compute effort signiﬁcantly. Similar conditions also can obviously be imposed to enforce conditions of “asymmetry” where
+uI = −uII
+
+Analysis domain
+
+A
+
+B
+
+I
+
+II
+
+A
+
+B
+
+uI = uII
+
+FIGURE 2.3 Repeatability segments and analysis domain (shaded).
+
+30 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+FIGURE 2.4 Repeatable sector in analysis of an impeller.
+
+2.2.6 Initial conditions
+
+For transient problems it is necessary to describe the state of the body when the
+
+analysis starts. These are called initial conditions and since a second derivative in time
+
+appears to describe the acceleration it is necessary to specify the initial displacement
+
+and velocity (i.e., the ﬁrst time derivative of the displacement). Accordingly, the initial
+
+displacement is given as
+
+u(x, 0) = d¯ (x)
+
+(2.34)
+
+and the initial velocity by
+
+v(x, 0) = u˙ (x, 0) = v¯(x)
+
+(2.35)
+
+2.2.7 Transformation of stress and strain
+
+The transformation of coordinates to a prime system given in Eq. (2.29) may also be
+
+used to deﬁne transformations for stresses and strains. Expressing the stress in the
+
+Cartesian tensor form (see Appendix C)
+
+⎡
+
+⎤
+
+σxx σxy σxz
+
+σ = ⎣ σyx σyy σyz ⎦
+
+σzx σzy σzz
+
+(2.36)
+
+the transformations are given by
+
+σ = Tσ TT
+
+(2.37)
+
+2.2 Elasticity equations 31
+
+Using Voigt notation (2.37) may be expressed in matrix form as
+
+σ = Tσ σ
+
+(2.38)
+
+where the stress matrices are expanded using (2.13) and the transformation matrix is
+
+given by
+
+⎡
+
+t11t11
+
+Tσ
+
+=
+
+⎢⎢⎢⎢⎢⎢⎣
+
+t21t21 t31t31 t11t21 t21t31
+
+t31t11
+
+t12t12 t22t22 t32t32 t12t22 t22t32 t32t12
+
+t13t13 t23t23 t33t33 t13t23 t23t33 t33t13
+
+2 t11t12
+2 t21t22
+2 t31t32 (t11t22 + t12t21) (t21t32 + t22t31) (t31t12 + t32t11)
+
+2 t12t13
+2 t22t23
+2 t32t33 (t12t23 + t13t22) (t22t33 + t23t32) (t32t13 + t33t12)
+
+⎤
+
+2 t13t11
+
+2 t23t21
+2 t33t31 (t13t21 + t11 (t23t31 + t21
+
+t23) t33)
+
+⎥⎥⎥⎥⎥⎥⎦
+
+(t33t11 + t31t13)
+
+(2.39)
+
+Similarly the strain transformation in Voigt notation is expressed by
+
+ε = Tεε
+
+(2.40)
+
+where strains are expanded using (2.6) and the transformation matrix is given by
+
+⎡
+
+t11t11
+
+Tε
+
+=
+
+⎢⎢⎢⎢⎢⎢⎣
+
+t21t21 t31t31 2 t11t21 2 t21t31
+
+2 t31t11
+
+t12t12 t22t22 t32t32 2 t12t22 2 t22t32 2 t32t12
+
+t13t13 t23t23 t33t33 2 t13t23 2 t23t33 2 t33t13
+
+t11t12
+t21t22
+t31t32 (t11t22 + t12t21) (t21t32 + t22t31) (t31t12 + t32t11)
+
+t12t13
+t22t23
+t32t33 (t12t23 + t13t22) (t22t33 + t23t32) (t32t13 + t33t12)
+
+⎤
+
+t13t11
+
+t23t21
+t33t31 (t13t21 + t11t23) (t23t31 + t21t33)
+
+⎥⎥⎥⎥⎥⎥⎦
+
+(t33t11 + t31t13)
+
+(2.41)
+
+The differences between Tσ and Tε occur from the use of the engineering deﬁnition of shearing strain where we have introduced
+
+γxy = 2 εxy etc. for tensor components (see Appendix C).
+
+2.2.7.1 Energy
+Stored energy is an important quantity in mechanics that may be used as the basis of conservation principles. It may also be used to deﬁne the relationship between stress and strain transformations. Using Voigt notation we deﬁne the stored energy as
+
+E = σTε
+
+(2.42)
+
+Energy is invariant with respect to the coordinate frame we use for its computation.
+
+Accordingly,
+
+E = σ T ε = σ TTTσ Tεε
+
+(2.43)
+
+which yields
+
+TTσ Tε = I
+
+(2.44)
+
+32 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+From this we can observe that
+
+T−ε 1 = TTσ and T−σ 1 = TTε
+
+(2.45)
+
+and, thus, the inverses to the stress and strain transformation matrices may be computed by a simple transpose.
+
+2.2.8 Stress-strain relations: Elasticity matrix
+
+The equations to this point are all independent of the particular material being consid-
+
+ered. To complete the theory we need to provide a statement of how the stresses are
+
+related to the strains. Such relations are known as stress-strain equations or constitu-
+
+tive equations. They can be of very complex form; however, in this volume we shall
+
+consider the simplest “linear” elastic case in which a strain response is instantaneous
+
+and complete upon application of a constant stress. Upon removal of the stress the
+
+recovery is also complete and instantaneous.
+
+Using this hypothesis the stress-strain equations for a linearly elastic material
+
+may be expressed by
+
+σ = D ε − ε0 + σ 0
+
+(2.46a)
+
+or by
+
+ε = D−1 σ − σ 0 + ε0
+
+(2.46b)
+
+The D matrix is known as the elasticity matrix of moduli and the D−1 matrix as the elasticity matrix of compliances [5]. The quantities σ 0 and ε0 represent stress and strain values that are created by sources other than mechanical strain, ε. For example, in thermal problems a change in temperature can create a strain ε0.
+For elastic materials it is also possible to deduce the stress from a stored energy
+
+function W expressed in terms of strains using
+
+σ
+
+=
+
+∂W ∂ε
+
+(2.47)
+
+This holds for both linear and nonlinear materials and, thus, may be used to generalize
+
+the above expressions. For the linear elastic equations given in (2.46a) the stored
+
+energy function is given by
+
+W (ε) =
+
+1 εTDε + εT 2
+
+σ 0 − Dε0
+
+(2.48)
+
+One can also deﬁne a complementary energy U (σ ) from which the strains are
+
+deduced using
+
+ε
+
+=
+
+∂U ∂σ
+
+(2.49)
+
+where for the linear elastic case
+
+U (σ )
+
+=
+
+1 σ TD−1σ 2
+
++ σT
+
+ε0
+
+− D−1σ 0
+
+(2.50)
+
+Use of a stored or complementary energy form also ensures that D and D−1 are symmetric.
+
+2.2 Elasticity equations 33
+
+For the present we shall ignore the ε0 and σ 0 terms in order to describe more fully the form of the elasticity matrix. After obtaining ﬁnal results they may be again added by replacing ε and σ by ε − ε0 and σ − σ 0, respectively.
+
+2.2.8.1 Isotropic materials
+
+An isotropic material is one in which the elasticity matrix does not change when the
+
+coordinate transformation given by (2.29) is applied. We write a general expression
+
+for isotropic materials in terms of the six stress and strain terms. We may use any two
+
+independent elastic constants for an isotropic material [5,10]. Here we use Young’s
+
+modulus of elasticity, E, and Poisson’s ratio, ν. In Table 2.1 we indicate the relation-
+
+ships between E, ν, and other parameters frequently encountered in the literature.
+
+Using Cartesian coordinates, for example, the expression is given by
+
+⎧⎫
+
+⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎪⎪⎪⎪⎨
+
+εx εy εz
+
+⎪⎪⎪⎪⎪⎪⎬
+
+⎪⎪⎪⎪⎪⎪⎩
+
+γx y γyz γzx
+
+⎪⎪⎪⎪⎪⎪⎭
+
+=
+
+1 E
+
+1
+
+⎢⎢⎢⎢⎢⎢⎣
+
+−ν −ν
+0 0
+
+0
+
+−ν 1
+−ν 0 0 0
+
+−ν −ν
+1 0 0 0
+
+0 0 0 2(1 + ν) 0 0
+
+0 0 0 0 2(1 + ν) 0
+
+2(1
+
+0 0 0 0 0 +
+
+ν)
+
+⎥⎥⎥⎥⎥⎥⎦
+
+⎪⎪⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎪⎪⎩
+
+σx σy σz τx y τyz τzx
+
+⎪⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎪⎭
+
+(2.51)
+
+Inverting to obtain the appropriate elasticity matrix of moduli yields the result
+
+⎡
+
+⎤
+
+(1 − ν) ν
+
+ν
+
+0
+
+0
+
+0
+
+D
+
+=
+
+E d
+
+⎢⎢⎢⎢⎢⎢⎣
+
+ν ν 0 0
+
+(1 − ν) ν
+
+0
+
+0
+
+ν (1 − ν)
+
+0
+
+0
+
+0
+
+0 (1 − 2ν)/2
+
+0
+
+0
+
+0
+
+0
+
+(1 − 2ν)/2
+
+0 0 0 0
+
+⎥⎥⎥⎥⎥⎥⎦
+
+0
+
+0
+
+0
+
+0
+
+0
+
+(1 − 2ν)/2
+
+(2.52)
+
+where d = (1 + ν)(1 − 2ν). The form of d places restrictions on the admissible values of ν to keep all the material parameters positive. Thus, we have
+
+−1 < ν < 1 2
+The limiting values of the parameters (namely −1 and 1/2) are permitted by rewriting the material model in which Lagrange multipliers replace the terms that are indeﬁnite.
+
+Table 2.1 Relations between Isotropic Elastic Parameters
+
+Parameters E , ν
+
+K,G
+
+λ, μ
+
+E ν K G=μ λ
+
+– – E /(1 − 2ν)/3 E /(1 + ν)/2 νE /(1 + ν)/(1 − 2ν)
+
+9KG/(3K + G) (3K − 2G)/(6K + 2G) – G K − 2G/3
+
+μ(3λ + 2μ)/(λ + μ) λ/(λ + μ)/2 λ + 2μ/3 μ –
+
+34 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+The case where ν = 1/2 is associated with materials which are incompressible and
+
+we shall devote special attention to this problem in Chapter 10 since it has relevance
+
+for many applications in solid and ﬂuid mechanics. Generally, of course, no material
+
+can be incompressible and we are only interested in the case where ν approaches 1/2.
+
+However, even for this case we will ﬁnd that care must be used when developing a
+
+ﬁnite element form.
+
+For isotropic materials the expression for two-dimensional problems is written in
+
+terms of the four stress and strain terms by omitting the last two rows and columns
+
+in (2.51). Using Cartesian coordinates the expression then becomes
+
+⎧⎫
+
+⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎨
+
+εx εy
+
+⎪⎪⎬
+
+⎪⎪⎩
+
+εz γx y
+
+⎪⎪⎭
+
+=
+
+1 E
+
+1
+
+⎢⎢⎣
+
+−ν −ν
+
+0
+
+−ν 1
+−ν 0
+
+−ν −ν
+1 0
+
+2(1
+
+0 0 0 +
+
+ν)
+
+⎥⎥⎦
+
+⎪⎪⎨ ⎪⎪⎩
+
+σx σy σz τx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+(2.53)
+
+For the plane stress case we must set σz to zero to compute the appropriate D matrix. This yields the result
+
+εz
+
+=
+
+−
+
+ν E
+
+σx + σy
+
+(2.54)
+
+and including this in the inverse of (2.53) we obtain
+
+⎧⎫
+
+⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎨ ⎪⎪⎩
+
+σx σy σz τx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+=
+
+E (1 − ν2)
+
+⎢⎢⎣
+
+1 ν 0 0
+
+ν 1 0 0
+
+0 0 0 0
+
+(1
+
+0 0 0 − ν)/2
+
+⎥⎥⎦
+
+⎪⎪⎨
+
+εx εy
+
+⎪⎪⎩
+
+εz γx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+(2.55)
+
+We have ﬁlled in the third column and row of the D array so that the correct stresses
+
+are obtained.
+
+For the plane strain and axisymmetric problems the inverse may be performed
+
+directly from (2.53), as all components of stress can exist. Accordingly, for these two
+
+cases we obtain (again writing for the Cartesian coordinate form)
+
+⎧⎫ ⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎨
+
+σx σy
+
+⎪⎪⎬
+
+⎪⎪⎩
+
+σz τx y
+
+⎪⎪⎭
+
+=
+
+E d
+
+(1 − ν)
+
+⎢⎢⎣
+
+ν ν
+
+0
+
+ν (1 − ν)
+ν 0
+
+ν ν (1 − ν) 0
+
+(1
+
+0 0 0 − 2ν)/2
+
+⎥⎥⎦
+
+⎪⎪⎨ ⎪⎪⎩
+
+εx εy εz γx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+(2.56)
+
+which is identical to the three-dimensional problem if the last two rows and columns of each array in (2.52) are omitted. Here we observe that the case where εz is zero is treated merely by inserting that value when computing stresses; however, σz will always exist unless the Poisson ratio, ν, is zero.
+
+2.2.8.2 Deviatoric and pressure-volume relations
+
+For an isotropic material we can substitute the expressions for deviatoric and volumetric strain into the stress-strain relation to obtain
+
+σ =D
+
+e
+
++
+
+1 3
+
+mεv
+
+(2.57)
+
+2.2 Elasticity equations 35
+
+Using the relationship between E and ν and G and K from Table 2.1 we obtain
+
+⎡
+
+⎤
+
+200000
+
+D
+
+e
+
+=
+
+G
+
+⎢⎢⎢⎢⎢⎢⎣
+
+0 0 0 0
+
+2 0 0 0
+
+0 2 0 0
+
+0 0 1 0
+
+0 0 0 1
+
+0 0 0 0
+
+⎥⎥⎥⎥⎥⎥⎦
+
+e
+
+=
+
+2
+
+G
+
+I0
+
+e
+
+(2.58a)
+
+000001
+
+and
+
+1 Dm = K m
+
+(2.58b)
+
+3
+
+and thus, using (2.58a), we can write the deviatoric stress-strain relation in Voigt
+
+notation as
+
+s = 2 G I0 e
+
+(2.59a)
+
+and the pressure-volume relation as
+
+p = K εv
+
+(2.59b)
+
+This form will be useful when we consider incompressible and nearly incompressible materials in Chapter 10. For an incompressible material the volume change εv is zero and the constitutive equation for an isotropic material reduces to
+
+σ = p m + 2 G I0 e
+
+(2.60)
+
+2.2.8.3 Anisotropic materials
+
+Many materials have structure such that they are not isotropic; these are said to be
+
+anisotropic materials. There are many forms of stress-strain relations for anisotropic
+
+materials. We write the relationship for a general anisotropic linearly elastic mate-
+
+rial as
+
+⎧ ⎫⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎪⎪⎩
+
+σx σy σz τx y τyz τzx
+
+⎪⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎪⎭
+
+=
+
+⎢⎢⎢⎢⎢⎢⎣
+
+D11 D21 D31 D41 D51 D61
+
+D12 D22 D32 D42 D52 D62
+
+D13 D23 D33 D43 D53 D63
+
+D14 D24 D34 D44 D54 D64
+
+D15 D25 D35 D45 D55 D65
+
+D16 D26 D36 D46 D56 D66
+
+⎥⎥⎥⎥⎥⎥⎦
+
+⎪⎪⎪⎪⎪⎪⎨
+
+εx εy εz
+
+⎪⎪⎪⎪⎪⎪⎩
+
+γx y γyz γzx
+
+⎪⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎪⎭
+
+(2.61)
+
+For an elastic material deduced from (2.47) the D matrix must be symmetric and, hence, Di j = D ji . This results in a possibility of 21 elastic constants for the general problem [4,11,12].
+An important class of anisotropic materials is one for which three planes of symmetry exist; this is called an orthotropic material. Here the principal axes are also in rectangular Cartesian coordinates. For orthotropic materials it is common to deﬁne the elastic material parameters in terms of their Young’s moduli, Poisson ratios, and shear moduli.
+
+36 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+If we let x , y , and z be the three axes of material symmetry, the elastic strain-
+
+stress relations may be expressed as
+
+⎡
+
+⎧
+
+⎪⎪⎪⎪⎪⎪⎨
+
+εx εy εz
+
+⎪⎪⎪⎪⎪⎪⎩
+
+γx γy γz
+
+y z x
+
+⎫ ⎪⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎪⎭
+
+=
+
+1
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣
+
+−EνExy xx
+
+−
+
+νz x Ex
+
+0
+
+0
+
+0
+
+−
+
+νx E
+
+y y
+
+1
+
+−EνEyz
+
+y y
+
+0
+
+0
+
+0
+
+− −
+
+νx z
+
+E νy
+
+z z
+
+Ex
+
+1
+
+Ez
+
+0
+
+0
+
+0
+
+0
+0
+0
+1 Gx y
+0
+0
+
+0
+0
+0
+0
+1 Gy z
+0
+
+⎤
+
+0 0 0 0 0
+1
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+⎛
+
+σx
+
+⎜⎜⎜⎜⎜⎜⎝
+
+σy σz τx y τy z
+
+τz x
+
+⎞ ⎟⎟⎟⎟⎟⎟⎠
+
+Gz x
+
+(2.62)
+
+where Ex , Ey , Ez are elastic moduli; νx y , νx z , etc., are Poisson ratios; and Gx y , G y z , Gz x are elastic shear moduli. Again symmetry of the D−1 matrix
+
+results in
+
+νi j = ν j i
+
+Ej
+
+Ei
+
+(2.63)
+
+thus reducing the number of independent components for the three-dimensional case to nine parameters (three direct moduli, 3 Poisson ratios, and three shear moduli).
+The elastic moduli for the D matrix are computed by inverting the square matrix appearing in Eq. (2.62).
+The inverse may be written as
+
+σ =D ε
+
+(2.64)
+
+If the principal material axes are expressed by the directions given in (2.29), it is necessary to transform Eq. (2.64) to the form of (2.46a) before proceeding with an analysis. This is most easily performed by noting an equality of work given by
+
+σ T ε = σTε ε T D ε = εTD ε
+
+(2.65)
+
+and using the expressions for transformation given by Eq. (2.41) in Eq. (2.65) gives
+
+D = TTε D Tε.
+
+(2.66)
+
+Such a transformation also has been used in a slightly different context in Chapter 1
+
+[viz. Eq. (1.27)] to transform a stiffness matrix.
+
+For treatment of anisotropic materials in the two-dimensional problems, it is nec-
+
+essary for the direction normal to the plane of deformation (i.e., the z direction for
+
+plane problems or θ direction for axisymmetric problems) to be a direction of mate-
+
+rial symmetry. For this case we may write a general relationship for linearly elastic
+
+deformation as (using the Cartesian form)
+
+⎧ ⎫⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎨ ⎪⎪⎩
+
+σx σy σz τx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+=
+
+⎢⎢⎣
+
+D11 D21 D31 D41
+
+D12 D22 D32 D42
+
+D13 D23 D33 D43
+
+D14 D24 D34 D44
+
+⎥⎥⎦
+
+⎪⎪⎨
+
+εx εy
+
+⎪⎪⎩
+
+εz γx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+(2.67)
+
+2.2 Elasticity equations 37
+
+For an elastic material the D matrix must be symmetric and, hence, Di j = D ji . This results in a possibility of 10 elastic constants for the plane or axisymmetric problem.
+In order to consider the plane stress case it is again necessary to impose the constraint σz = 0. If we solve for εz using the third row of (2.67) we have
+
+εz = − [D31 εx + D32 εy + D34 γxy]/D33
+
+(2.68)
+
+which may be substituted into the remaining three equations in (2.67) to give
+
+⎧ ⎫⎡
+
+⎤⎧ ⎫
+
+⎪⎪⎨ ⎪⎪⎩
+
+σx σy σz τx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+=
+
+⎢⎢⎣
+
+D11 D21 0
+D41
+
+D12 D22 0
+D42
+
+0 0 0 0
+
+D14 D24 0
+D44
+
+⎥⎥⎦
+
+⎪⎪⎨ ⎪⎪⎩
+
+εx εy εz γx y
+
+⎪⎪⎬ ⎪⎪⎭
+
+(2.69)
+
+in which
+
+Di j = Di j − Di3 D3−31 D3 j
+
+(2.70)
+
+are reduced elastic moduli.
+
+Example 2.1. Anisotropic, stratiﬁed, material
+
+With the z-axis representing the normal to the planes of stratiﬁcation, as shown in Fig. 2.5, we can rewrite (2.62) (again ignoring the initial strains and stresses for
+
+z
+
+r
+FIGURE 2.5 Axisymmetrically stratiﬁed material.
+
+38 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+convenience) as
+
+εr =
+
+σr − ν2σz − ν1σθ
+
+E1 E2
+
+E1
+
+εz
+
+= − ν2σr E1
+
++
+
+σz E2
+
+−
+
+ν2σθ E1
+
+εθ
+
+= − ν1σr E1
+
+−
+
+ν2σz E2
+
++
+
+σθ E1
+
+γr z =
+
+τr z G
+
+Writing the parameters as
+
+E1 = n, E2
+
+G =m
+E2
+
+and
+
+d = (1 + ν1)(1 − ν1 − 2nν22)
+
+we have on solving for the stresses that
+
+D=
+
+E2 d
+
+⎡ ⎢⎢⎣
+
+n(1 − nν22) nν2(1 + ν1) n(ν1 + nν22)
+
+nν2(1 + ν1) 1 − ν12
+nν2(1 + ν1)
+
+n(ν1 + nν22) nν2(1 + ν1) n(1 − nν22)
+
+⎤
+
+0
+
+0 0
+
+⎥⎥⎦
+
+0
+
+0
+
+0
+
+md
+
+(2.71) (2.72)
+
+2.2.8.4 Initial strain—thermal effects
+
+Initial strains may be due to many causes. Shrinkage, crystal growth, or temperature change will, in general, result in an initial strain vector
+
+ε0 = [ εx0 εy0 εz0 γx y0 γyz0 γzx0 ]T
+
+(2.73)
+
+The initial strain will usually depend on position.
+
+As an example, consider the effects of change in temperature in an isotropic material. The initial strain for a temperature change T = T − T0 (with T0 a temperature where no straining is caused) with a linear coefﬁcient of thermal expansion α is
+
+given by
+
+ε0 = α T m
+
+(2.74)
+
+For an isotropic material normal strains εx , εy, εz are all equal and no shear strains are caused by a temperature change.
+
+Anisotropic materials present no special problems with the coefﬁcients of thermal
+
+expansion varying with direction in the material. For example, in an orthotropic
+
+material no shearing strains are caused for the principal material directions and we
+
+may replace (2.74) by
+
+ε0 = T [ αx αy αz 0 0 0 ]T
+
+(2.75)
+
+It is now again necessary to use the transformation between principal material directions and those used for coordinates of the analysis using
+
+ε0 = T−ε 1 ε0 = TσT ε0
+
+(2.76)
+
+where Tσ is given by (2.39). Now, in general, the γxy0, γyz0, γzx0 components are no longer equal to zero.
+
+2.3 General quasi-harmonic equation 39
+
+2.3 General quasi-harmonic equation
+
+2.3.1 Governing equations: Flux and continuity
+
+As a second example of a continuous formulation we consider problems that may be deﬁned by a form we call a “quasi-harmonic equation.” In many physical situations the generation of initial stresses or strains is created by the diffusion or ﬂow of some quantity such as heat, mass, or concentration within the solid. In such problems, a scalar variable φ is deﬁned to describe the temperature, ﬂuid head, or some other physical variable. The balance equation is then written as the rate of transfer per unit area of a ﬂux, q, which in Cartesian coordinates has the components
+
+q = [ qx qy qz ]T
+
+(2.77)
+
+The balance or continuity requirement per unit volume may be written as
+
+−
+
+∂qx + ∂qy + ∂qz
+
++
+
+Q
+
+=
+
+∂φ c
+
+∂x ∂y ∂z
+
+∂t
+
+(2.78)
+
+where Q is a source term describing the rate at which the relevant quantity is generated (or removed) and c is a material parameter describing the transient behavior. Equation (2.78) is satisﬁed in the domain of the problem which we again denote by
+. Introducing the gradient operator
+
+∂ ∂ ∂T ∇=
+∂x ∂y ∂z
+
+(2.79)
+
+we can write (2.78) in matrix form as
+
+− ∇Tq + Q = c ∂φ ∂t
+where ∇Tq is called the divergence of the ﬂux and often written as div q.
+
+(2.80)
+
+2.3.2 Boundary conditions
+On the boundaries of the domain we shall usually encounter one of the following conditions:
+
+1. On φ, the potential (e.g., the temperature) is speciﬁed as φ = φ¯
+
+(2.81)
+
+2. On q , the normal component of ﬂow (or ﬂux), qn, is given as qn = q¯ + H (φ − φ0)
+
+where H is a transfer or radiation coefﬁcient, φ0 is a known equilibrium value, and q¯ is a speciﬁed value. Here qn is deﬁned as
+qn = nTq with n = [ nx n y nz ]T
+
+40 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+where n is a vector of direction cosines of the normal to the boundary surface. Accordingly, we may write the second boundary condition
+qn = q¯ + H (φ − φ0)
+which holds on q .
+
+2.3.3 Initial condition
+For transient problems only a single initial condition is required and it is speciﬁed as
+
+φ(x, 0) = d¯(x)
+
+(2.82)
+
+in the domain .
+
+2.3.4 Constitutive behavior
+
+Generally the rates of ﬂow are related to the gradient of φ. A general linear relationship
+
+will be of the form
+
+⎧⎫
+
+⎧⎫ ⎡
+
+⎨ qx ⎬
+
+kxx
+
+q
+
+=
+
+⎩
+
+qy qz
+
+⎭
+
+=
+
+−
+
+⎣
+
+kyx kzx
+
+kxy kyy kzy
+
+kxz kyz kzz
+
+⎤ ⎦
+
+⎪⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎪⎩
+
+∂φ
+∂x ∂φ
+∂y ∂φ
+
+⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎭
+
+=
+
+−
+
+k
+
+∇φ
+
+∂z
+
+(2.83)
+
+where k is a symmetric form due to energy arguments (i.e., kxy = kyx , etc.) and is variously referred to as Fourier’s, Fick’s, or Darcy’s law depending on the physical problem.
+
+2.3.5 Irreducible form in φ
+The ﬁnal governing differential equation for the “potential” φ is obtained by substitution of Eq. (2.83) into (2.80), leading to
+
+∇T k ∇φ + Q = c ∂φ ∂t
+
+(2.84)
+
+which has to be solved in the domain . The governing equation is now expressed in a minimum number of dependent variables (namely one). We call all such forms “irreducible” in subsequent discussion.
+
+2.3.6 Anisotropic and isotropic forms for k: Transformations
+If we consider the general statement of Eq. (2.83) as being determined for an arbitrary set of coordinate axes x, y, z we shall ﬁnd that it is always possible to determine
+
+2.3 General quasi-harmonic equation 41
+
+locally another set of axes x , y , z with respect to which the matrix k becomes
+
+diagonal, as shown in Fig. 2.6. With respect to such axes we have
+
+⎡ kx x 0
+k = ⎣ 0 ky y
+
+⎤ 0 0⎦
+
+0 0 kz z
+
+(2.85)
+
+Thus, the general form of k has only three components which are associated with three orthogonal axes. Such materials are called anisotropic or orthotropic.
+The governing differential equation (2.84) for these axes can be written
+
+∂ ∂x
+
+∂φ kx x ∂x
+
++∂ ∂y
+
+∂φ ky y ∂y
+
++∂ ∂z
+
+∂φ kz z ∂z
+
++ Q = c ∂φ ∂t
+
+(2.86a)
+
+or in matrix form as where
+
+∇ T k ∇ φ + Q = c ∂φ ∂t
+∂ ∂ ∂T ∇=
+∂x ∂y ∂z
+
+deﬁnes the gradient operator for the “prime” coordinate system.
+
+(2.86b)
+
+y
+x′ y′
+
+Stratification
+
+x
+FIGURE 2.6 Anisotropic material. Local coordinates coincide with the principal directions of stratiﬁcation.
+
+42 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+Alternatively, knowing k and the orientation of the axes x , y , z , a transformation of coordinates is given by [viz. (2.29)]
+
+x = Tx
+
+in which T are the direction cosines deﬁned in (2.30). The inverse of T is equal to its
+
+transpose; hence
+
+x = TT x
+
+In addition we may write the derivatives with respect to the prime axes as
+
+∂· = ∂x ∂· + ∂y ∂· + ∂z ∂· ∂x ∂x ∂x ∂x ∂y ∂x ∂z ∂· = ∂x ∂· + ∂y ∂· + ∂z ∂· ∂y ∂y ∂x ∂y ∂y ∂y ∂z ∂· = ∂x ∂· + ∂y ∂· + ∂z ∂· ∂z ∂z ∂x ∂z ∂y ∂z ∂z
+
+and thus
+
+∇(·) = TT∇ (·)
+
+or alternatively
+
+∇ (·) = T ∇(·)
+
+Using the above we obtain the expression
+
+∇ T k ∇ φ = ∇ T TT k T ∇φ
+
+(2.87a)
+
+or k = TT k T or k = T k TT
+Lastly for an isotropic material we can write
+
+(2.87b)
+
+k=kI
+
+(2.88)
+
+where I is an identity matrix and thus we have also k = k T ITT = k I
+
+(2.89)
+
+2.3.7 Two-dimensional problems
+
+For two-dimensional plane problems the above equations may be used directly by merely deleting the third row and column of all the arrays. For the axisymmetric problem the gradient of φ is given by
+
+∇φ = ∂φ ∂φ T ∂r ∂z
+
+(2.90)
+
+the ﬂux by the two components
+
+q = [ qr qz ]T
+
+(2.91)
+
+2.5 Problems 43
+
+and the continuity requirement by
+
+− ∂qr + qr + ∂qz + Q = c ∂φ
+
+∂r r ∂z
+
+∂t
+
+(2.92)
+
+We note now that the divergence of the ﬂux is not the same as applying the transpose
+
+of the gradient to the ﬂux. This is, of course, due to the presence of curvilinear
+
+coordinates instead of the simple Cartesian ones.
+
+Finally, the constitutive behavior is given by
+
+⎧⎫
+
+qr qz
+
+=−
+
+krr kr z kzr kzz
+
+⎪⎪⎨
+
+∂φ ∂r
+
+⎪⎪⎬
+
+⎪⎪⎩ ∂φ ⎪⎪⎭
+
+∂z
+
+(2.93)
+
+where krz = kzr . These values may be determined from the values in the principal x , y directions using the coordinate transformation described above.
+Assuming an isotropic material and substituting (2.93) into (2.92) yields the governing differential equation
+
+k
+
+∂2φ ∂r2
+
++
+
+1 r
+
+∂φ ∂r
+
++
+
+∂2φ ∂z2
+
++ Q = c ∂φ ∂t
+
+(2.94)
+
+2.4 Concluding remarks
+This chapter has presented a summary of the equations that will form a basis for much of the remaining text. The emphasis has been to express the equations in a matrix form that is convenient for the ﬁnite element developments presented in subsequent chapters. While the equations are complete for the purposes needed in this volume the properties of their solution have not been described. The reader needs to be well aware of the limitations in the equations and basic properties of their solution. For these aspects the reader is referred to classical works on the subject. For example, some properties of solutions to elasticity problems may be found in the classical works of Love [1], Timoshenko and Goodier [3], or Muskhelishvili [2]. Basic solutions to the quasi-harmonic equation are typically covered for speciﬁc topic areas. Thus, for heat conduction problems one may consult the works of Carslaw and Jaeger [13]. A general reference for elliptic and hyperbolic problems is Lebedev and Silverman [14].
+
+2.5 Problems
+2.1 For a plane stress problem the displacements have the polynomial expressions
+u = A x2y + B y3 + E y + G v = C xy2 + D x3 + F x + H
+
+44 CHAPTER 2 Problems in Linear Elasticity and Fields
+
+(a) Compute the expressions for strain in matrix form. (b) If the material is isotropic with properties E and ν compute the expression
+
+for the stresses.
+
+(c) Let
+
+A = − P , B = − νP + P , C = νP , D = P
+
+2E I
+
+6E I 6G I
+
+2E I
+
+6E I
+
+and compute the expressions for the stresses. What problem can be solved?
+
+2.2 The axisymmetric solution for a thick-walled cylinder with inner radius a and outer radius b may be expressed as
+
+u
+
+=
+
+Ar
+
++
+
+1 B,
+
+v
+
+=
+
+0
+
+r
+
+(a) Obtain the expressions for strains. (b) For an isotropic material with properties E and ν obtain the expression for
+stresses assuming εz = 0. (c) If the boundary conditions are u(a) = 0 and tr (b) = 1 determine the values
+for A and B and plot the radial and tangential stress distributions.
+2.3 Using Eq. (2.12) show that ex + ey + ez = 0 and, thus, does not produce volume change.
+2.4 Deduce a form for the complementary energy U (σ ) that produces Eq. (2.46b) using Eq. (2.49).
+2.5 A long axisymmetric thick-walled cylinder is subjected to a constant temperature Ta at the inner radius a and Tb at the outer radius b.
+(a) Let φ = T (r ) independent of z and determine the steady-state temperature distribution. Assume Q = 0 in (2.94).
+(b) Compute the thermal strains from T (r ). (c) Compute the thermal stress assuming a plane strain solution and isotropic
+material properties E, ν, and α. Assume the stress-free condition occurs at temperature T0.
+
+References
+[1] A.E.H. Love, A Treatise on the Mathematical Theory of Elasticity, Dover, New York, 2011.
+[2] N.I. Muskhelishvili, Some Basic Problems of the Mathematical Theory of Elasticity, third ed., Noordhoff, Groningen, 1953 (English translation by J.R.M. Radok).
+[3] S.P. Timoshenko, J.N. Goodier, Theory of Elasticity, third ed., McGraw-Hill, New York, 1970 (Classic Textbook Reissue Series).
+[4] S.G. Lekhnitskii, Theory of Elasticity of an Anisotropic Elastic Body, Holden Day, San Francisco, 1963 (Translation from Russian by P. Fern).
+
+References 45
+[5] I.S. Sokolnikoff, The Mathematical Theory of Elasticity, second ed., McGrawHill, New York, 1956.
+[6] P.G. Ciarlet, Mathematical Elasticity: Vol. 1, Three-Dimensional Elasticity, North-Holland, Amsterdam, 1988.
+[7] O.C. Zienkiewicz, R.L. Taylor, D. Fox, The Finite Element Method for Solid and Structural Mechanics, seventh ed., Elsevier, Oxford, in press.
+[8] T. Belytschko, W.K. Liu, B. Moran, Nonlinear Finite Elements for Continua and Structures, John Wiley & Sons, Chichester, 2000.
+[9] O.C. Zienkiewicz, F.C. Scott, On the principle of repeatability and its application in analysis of turbine and pump impellers, Int. J. Numer. Methods Eng. 9 (1972) 445–452.
+[10] S.P. Timoshenko, J.N. Goodier, Theory of Elasticity, third ed., McGraw-Hill, New York, 1969.
+[11] R.F.S. Hearmon, An Introduction to Applied Anisotropic Elasticity, Oxford University Press, Oxford, 1961.
+[12] T.C.-T Ting, Anisotropic Elasticity: Theory and Applications, Oxford University Press, New York, 1996.
+[13] H.S. Carslaw, J.C. Jaeger, Conduction of Heat in Solids, second ed., Oxford University Press, Oxford, 1986 (Paperback edition).
+[14] N.N. Lebedev, R.A. Silverman, Worked Problems in Applied Mathematics, Dover, New York, 2010.
+
+This page is intentionally left blank
+
+CHAPTER
+
+Weak Forms and Finite Element Approximation: 1-D
+
+3
+
+Problems
+
+3.1 Weak forms
+In the preceding chapter we stated the governing equations for elasticity and ﬁeld problems in terms of partial differential equations along with their boundary and, where appropriate, initial conditions. These describe the continuous problem. General solutions to problems formulated in this manner are seldom possible for situations of interest in science and engineering. Thus, one seeks to ﬁnd other approaches that may be used. One approach is to recast the problem in an alternate form from which accurate approximate solutions may be achieved. In this chapter we consider one such approach called a weak form of the differential equations. In the following chapter we consider a related but alternate approach based on a variational approach. Later we show that the two approaches are closely related and often may be used interchangeably.
+A weak form to a set of differential equations is obtained using the following steps:
+
+• Multiply each equation by an appropriate arbitrary function.
+
+• Integrate this product over the space domain of the problem. • Use integration by parts to reduce the order of derivatives to a minimum.
+
+(3.1)
+
+• Introduce boundary conditions if possible.
+
+In this volume we only integrate over the space domain and, thus, it will be necessary to express time dependency and initial conditions explicitly. It is also possible to consider integrations over the time domain [1–3]; however, this is outside the scope of the present volume. The above steps to construct a weak form are direct and may be used to reduce any set of differential equations to a weak form. An arbitrary function is one that can take any value we can imagine. It can be a polynomial, a trigonometric function, a Heaviside function, a Dirac delta function, or any other function. A special case of an arbitrary function is a virtual displacement which may already be known to the reader.
+To illustrate the above process we ﬁrst consider a weak form for the onedimensional equilibrium equation of elasticity.
+
+The Finite Element Method: Its Basis and Fundamentals. http://dx.doi.org/10.1016/B978-1-85617-633-0.00003-4 © 2013 Elsevier Ltd. All rights reserved.
+
+47
+
+48 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+3.2 One-dimensional form of elasticity
+We ﬁrst consider a one-dimensional problem in a Cartesian coordinate system with a single component x. The equation for linear elasticity may be deduced by writing the u-displacement as a function of the x-coordinate and time. We assume that our problem is deﬁned in a domain , which is some interval a < x < b, and time t ≥ 0. Accordingly, we write u(x, t) for the displacement and observe that all strain components deﬁned in the previous chapter are zero except
+
+εx
+
+=
+
+∂u ∂x
+
+(3.2)
+
+For simplicity, to describe the stress-strain behavior we assume a Poisson ratio of zero. For this value all components of stress are zero except σx ; thus, the equilibrium equations reduce to the single equation
+
+∂σx ∂x
+
++ bx
+
+=
+
+ρ
+
+∂2u ∂t2
+
+(3.3)
+
+and the constitutive equation to
+
+σx = E εx
+
+(3.4)
+
+where E is Young’s modulus of elasticity. The problem is completed by introducing boundary conditions as
+
+u = u¯ or tx = t¯x = nx σx on x = a, b
+
+(3.5)
+
+and initial conditions
+
+u(x, 0) = d¯(x) and u˙(x, 0) = v¯(x) in
+
+(3.6)
+
+In Eq. (3.5) nx is the unit outward normal that is positive unity at b and negative unity at a.
+The above equations may be combined by substituting the constitutive equation and strain-displacement equation into the equilibrium equation. This gives the equilibrium equation expressed in terms of displacement as
+
+∂ ∂u
+
+∂2u
+
+∂x
+
+E ∂x
+
++ bx = ρ ∂t2
+
+(3.7)
+
+where dependence on x of E is permitted. We note this again is an irreducible form of the differential equation since only a single dependent variable exists.
+The set of Eqs. (3.2)–(3.6) is called the strong form of the one-dimensional elasticity problem. It can be used to write a set of discrete equations using ﬁnite difference methods [4–7]. However, a more powerful approach is to introduce an integral weak form of the equations using the steps described in (3.1) from which an alternate approximate method may be introduced.
+
+3.2 One-dimensional form of elasticity 49
+
+3.2.1 Weak form of equilibrium equation
+
+We start by introducing an arbitrary function w(x) that is deﬁned in the domain described by the interval a < x < b. Multiplying the equilibrium equation (3.3) by this function we may write
+
+g(w, u, σx ) = w(x)
+
+∂2u ρ ∂t2
+
+−
+
+bx
+
+−
+
+∂σx ∂x
+
+=0
+
+(3.8)
+
+It is convenient, though not necessary, that we write a form that is equal to zero. In this way we observe that if w(x) is zero everywhere except at x = xc then for (3.8) to be zero the differential equation must be satisﬁed at x = xc. Repeating for all points the expression says the differential equation is satisﬁed at all points in the domain
+provided w(x) is arbitrary everywhere. When, in the second step of (3.1), we integrate
+over the domain we obtain an integral form that is also zero and is expressed by
+
+G(w, u, σx ) =
+
+w(x)
+
+∂2u ρ ∂t2
+
+− bx
+
+−
+
+∂σx ∂x
+
+dx = 0
+
+(3.9)
+
+This form is a function of functions called a functional. Repeating the argument on w(x) being nonzero only at individual points again provides the necessary argument that the differential equation must be zero at all points in the domain. We call this the fundamental lemma for an integral form. As a third step, we can integrate the stress term by parts as
+
+− w(x) ∂σx dx = ∂x
+
+∂w ∂x
+
+σx
+
+dx
+
+−
+
+w(x)
+
+nx
+
+σx
+
+where is the boundary of and nx is the outward pointing normal to the boundary. The boundary term may be expressed in terms of the traction as
+
+w(x) nx σx | = w(b) σx (b) − w(a) σx (a) = w(b) tx (b) + w(a) tx (a)
+
+where we have noted nx (b) = 1 and nx (a) = −1. We also again introduce the notation that u is a boundary where u = u¯, t is a boundary where tx = t¯x , and the total boundary is = u ∪ t . With this notation we can write the weak form for
+equilibrium as
+
+G(w, u, σx ) =
+
+w(x)
+
+∂2u ρ ∂t2
+
+−
+
+bx
+
++
+
+∂w ∂x
+
+σx
+
+dx
+
+−
+
+w
+
+tx
+
+dx u − w t¯x
+
+=0
+t
+
+(3.10)
+
+Note that the time derivative is not reduced as we have not integrated over time. If we wish to show what equations are satisﬁed by the weak form, we merely remove all derivatives from the weight function w using integrations by parts and recover the governing differential equation along with some boundary terms. The recovered
+
+50 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+differential equation is called the Euler equation of the weak form and the recovered boundary conditions are called natural boundary conditions. Boundary conditions that are not natural are called essential. The reader can verify that (3.10) yields the result
+
+G(w, u, σx ) =
+
+w(x)
+
+∂2u ρ ∂t2
+
+−
+
+∂σx ∂x
+
+− bx
+
+dx − w t¯x − tx
+
+= 0 (3.11)
+t
+
+From this we conclude that a weak form may be written as a sum of all the governing equations in which appropriate weight functions are introduced. This obviously includes equations both in the domain, , and those on the boundary, .
+We can introduce the constitutive equation and strain displacement equation to obtain a purely displacement or “irreducible” form of the equations. Accordingly, we obtain
+
+G(w, u) =
+
+w(x)
+
+∂2u ρ ∂t2
+
+−
+
+bx
+
+dx +
+
+∂w ∂x
+
+E
+
+∂u ∂x
+
+dx
+
+−
+
+w
+
+t¯x
+
+=0
+t
+
+(3.12)
+
+For simplicity, where displacements are speciﬁed we set w = 0 to eliminate the need to consider tx . This form is known as a displacement model or an irreducible form.1 A static problem is one for which the inertia term is omitted. Integrating (3.12) by
+parts to recover the Euler differential equations gives
+
+G(w, u) =
+
+w(x)
+
+ρ
+
+∂2u ∂t2
+
+−
+
+∂ ∂x
+
+∂u E
+∂x
+
+− bx
+
+dx − w t¯x − tx
+
+=0
+t
+(3.13)
+
+Thus, we can observe that the traction boundary conditions are natural ones and the
+
+displacement ones are essential.
+
+Comparing Eq. (3.12) with Eq. (3.7) or (3.13) we note that the weak form only
+
+requires a speciﬁcation of ﬁrst derivatives for u and w with respect to the spatial
+
+coordinate x, whereas the strong form needs second derivatives. The weak form also
+
+provides a basis to construct approximate solutions.
+
+3.2.1.1 Adjoint forms
+If one considers the static problem without load and boundary terms and continues to integrate the weak form by parts to remove all derivatives on u, a differential equation acting on the arbitrary weight function is created. This differential equation is called the adjoint to the original equation. For the static problem expressed in (3.12) the adjoint equation is given by
+
+Gstat(w, u) = −
+
+∂ ∂w
+
+uE
+
+dx
+
+∂x ∂x
+
+and since it is exactly the same as the original static differential equation on u [viz. (3.13)], the equation is called self-adjoint.
+
+1When more variables are included in the weak form we shall call the method mixed.
+
+3.3 Approximation to integral and weak forms 51
+
+Indeed, any linear differential equation L(u) with weak form written as
+Gstat(w, u) = w L(u) dx = u Lˆ(w) dx with L = Lˆ
+is called self-adjoint. Self-adjoint differential equations have useful properties that we will describe later.
+
+3.3 Approximation to integral and weak forms: The weighted residual (Galerkin) method
+To construct an approximate solution we express the displacement u(x, t) in terms of a set of speciﬁed functions multiplied by unknown parameters. In a similar way, we write the arbitrary function in terms of an equal number of speciﬁed functions and arbitrary parameters. These may be expressed as
+
+N
+u(x, t) ≈ uˆ(x, t) = φn(x) an(t) + ub¯(x, t)
+n=1 N
+w(x, t) ≈ wˆ (x) = ψm(x) wm
+m=1
+
+(3.14)
+
+In the above form we assume that both φn(x) and ψm(x) are zero at all locations
+
+where the boundary displacement is speciﬁed. The function ub¯(x, t) is then speciﬁed
+as any function that satisﬁes the displacement boundary condition. For example, if the displacement must satisfy u(L , t) = d¯(t) on the domain 0 < x < L, this function
+
+may be taken as
+
+u b¯ (x ,
+
+t)
+
+=
+
+x L
+
+d¯(t )
+
+=
+
+φb¯(x) d¯(t)
+
+There are many ways that approximations may be assumed. These include:
+
+1. Point collocation [8]. ψm = δ(xm) in (3.12), where δ(xm) is such that for x = xm, ψm = 0 but ψmdx = 1. This procedure is equivalent to simply making the weak form zero at N points within the domain and integration is “nominal”. Finite difference methods are particular cases of this weighting. For point approximation of w(x) the approximation for u(x, t) must have continuous derivatives for all terms in the integral form. For (3.13) this requires that second derivatives be continuous at every xm.
+2. Subdomain collocation [9]. ψm = 1 in subdomains xm < x < xm+1 and zero elsewhere. This essentially makes the integral of the error zero over the speciﬁed subdomains. When used with (3.9) this is one of the many ﬁnite volume methods [10]. The requirements for approximations of u(x, t) permit use of functions whose highest derivatives in the integral form are piecewise continuous. For (3.13) this implies that the φn(x) have continuous second derivatives.
+
+52 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+3. The Galerkin method (Bubnov-Galerkin) [9,11]. ψn = φn. This form allows use of approximating functions with piecewise continuous highest derivatives in the weak form. For (3.12) we only need the φn to be continuous. This method, as we shall see, frequently (but by no means always) leads to symmetric matrices and for this and other reasons will be adopted in this volume almost exclusively.
+The name “weighted residuals” is clearly much older than that of the “ﬁnite element method.” The latter uses mainly locally based (element) functions in the expansion of Eq. (3.14) but the general procedures are identical. As the process always leads to equations which, being of integral form, can be obtained by summation of contributions from various subdomains, we choose to embrace all weighted residual approximations under the name generalized ﬁnite element method. On occasion, simultaneous use of both local and “global” trial functions may be found to be useful.
+In the literature the names Petrov and Galerkin [11] are often associated with the use of weighting functions such that ψn = φn. It is important to remark that the wellknown ﬁnite difference method of approximation is a particular case of collocation with locally deﬁned basis functions and is thus a case of a Petrov-Galerkin scheme.
+
+3.3.1 Galerkin solution of elasticity equation
+An approximate Galerkin solution for the elasticity problem may be obtained by inserting (3.14) into (3.12) to obtain
+
+N
+
+N
+
+Gˆ (wˆ , uˆ) = wm
+
+m=1 n=1
+
+ψm ρ
+
+φn
+
+d2an dt 2
+
++ φb¯
+
+d2d¯ dt 2
+
+dx
+
+N
+
+N
+
++ wm
+
+m=1 n=1
+
+dψm E dx
+
+dφn dx
+
+an (t )
+
++
+
+dφb¯ dx
+
+d¯(t )
+
+dx
+
+N
+− wm
+m=1
+
+N
+
+ψm bx dx −
+
+wm ψm (x) t¯x
+
+=0
+t
+
+m=1
+
+(3.15)
+
+Since the functions φn, ψn, and φb¯ are all known functions, the integrals may be evaluated as
+
+Mmn = ψm ρ φn dx
+
+Kmn =
+
+dψm E dφn dx dx dx
+
+fm(t) =
+
+ψm bx dx + ψm t¯x
+
+−
+t
+
+− dψm E dφb¯ dx d¯(t) dx dx
+
+d2d¯ ψm ρ φb¯ dx dt2
+
+(3.16)
+
+3.3 Approximation to integral and weak forms 53
+
+The array Mmn is called the mass matrix, the array Kmn is the stiffness matrix, and fm is the speciﬁed load matrix. Since the parameters wm are arbitrary, the expression multiplying each one must be zero. This leads to the set of equations
+
+N n=1
+
+Mmn
+
+d2an dt 2
+
++
+
+Kmn an(t)
+
+= fm(t),
+
+m = 1, 2, . . . , N
+
+(3.17)
+
+The original problem of partial differential equations has been reduced to a set of ordi-
+
+nary differential equations in time. For the present we will consider problems in which
+
+inertial effects are not important; transient problems are considered in Section 3.8.
+
+Problems without inertia effects are called static. The equations are now purely alge-
+
+braic and given by
+
+N
+
+Kmn an = fm , m = 1, 2, . . . , N
+
+(3.18)
+
+n=1
+
+where the load matrix reduces to
+
+fm =
+
+ψm bx dx + ψ(x) t¯x − t
+
+dψm E dφb¯ dx d¯ dx dx
+
+(3.19)
+
+Expressing the problem in matrix form
+
+Ka =f
+
+(3.20)
+
+where
+
+⎡
+
+⎤
+
+⎧⎫
+
+K11
+
+K
+
+=
+
+⎢⎢⎢⎣
+
+K21 ...
+
+KN1
+
+K12 K22
+KN2
+
+··· ···
+···
+
+K1N
+
+K2N ...
+
+⎥⎥⎥⎦
+
+KNN
+
+and
+
+⎪⎪⎪⎨
+
+f1 f2
+
+⎪⎪⎪⎬
+
+f
+
+=
+
+⎪⎪⎪⎩
+
+... fN
+
+⎪⎪⎪⎭
+
+The formal solution to the problem is now given by
+
+a = K−1f
+
+(3.21)
+
+However, in practical situations the inverse of K is never determined. Instead the solution is obtained using either a direct solution of (3.20) or by an iterative method (see Appendix D).
+Once the parameters an are known, the approximation for displacement may be computed from (3.14) and that for stresses from
+
+σ (x)
+
+=
+
+E
+
+N n=1
+
+dφn dx
+
+an
+
+Example 3.1. Static solution
+As an example we consider a static problem with length 10 units and E = 1000. Figure 3.1 shows the problem to solve. The loading is given by
+
+bx =
+
+10 for 0 < x < 5 0 for 5 < x < 10
+
+54 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+b x = 10
+5 10
+FIGURE 3.1 One-dimensional elasticity example.
+
+t x = 25
+
+and the boundary conditions by
+
+t¯x (10) = 25 and u(0) = 0
+
+For this problem the weak form is given by
+
+10 ∂w 1000 ∂u dx −
+
+5
+w(x) 10 dx − w(10) 25 = 0
+
+0 ∂x
+
+∂x
+
+0
+
+We consider an approximate solution given by
+
+N
+uˆ(x) =
+n=1
+
+xn 10 an
+
+and
+
+N
+wˆ (x) =
+m=1
+
+xm 10 wm
+
+Note that ub¯ = 0 for this problem. The solution to the weak form is obtained from
+
+N n=1
+
+10
+10 mn
+0
+
+x m−1 10
+
+x n−1 dx
+10
+
+an =
+
+5 0
+
+x
+
+m
+10 dx + 25
+
+10
+
+where m = 1, 2, . . . , N . The stiffness matrix and load vector are given by
+
+Kmn =
+
+10
+10 mn
+0
+
+x
+
+m+n−2
+dx =
+
+100 mn
+
+10
+
+m+n−1
+
+and
+
+(3.22)
+
+fm =
+
+5 0
+
+x 10
+
+m
+10 dx + 25 =
+
+100
+
+m+1
+
+1
+
+m+1
++ 25
+
+2
+
+The solution for the parameters using one to ﬁve terms in the solution is shown in
+
+Table 3.1. The results from the above problem indicate some important aspects in construct-
+
+ing approximate solutions. First it is noticed that the solutions using three and four
+
+terms are identical. This implies that the weak form is able to discard terms that do not contribute to the solution. A second conclusion, however, is that constructing
+
+solutions in a global manner does not lead to convergent behavior in the individual parameters. Thus, it is essential to use approximation procedures that have more stable
+
+properties. We will observe that ﬁnite element methods do possess such good properties. The solution for displacement and stress obtained using one to three terms is
+
+3.4 Finite element solution 55
+
+Table 3.1
+N-terms
+1 2 3 4 5
+
+Parameters for Bar Example
+
+a1
+0.37500 0.62500 0.78125 0.78125 0.73437
+
+a2
+−0.25000 −0.71875 −0.71875 −0.25000
+
+a3
+0.31250 0.31250 −1.09275
+
+a4
+0.00000 1.64063
+
+a5 0.65625
+
+u−displacement Stress
+
+0.4
+
+N=1
+
+0.35
+
+N=2
+
+0.3
+
+N=3
+
+Exact
+
+0.25
+
+0.2
+
+0.15
+
+0.1
+
+0.05
+
+0 0
+(a)
+
+2
+
+4
+
+6
+
+8
+
+x−coordinate
+
+80
+
+70
+
+60
+
+50
+
+40
+
+30
+
+20
+
+10
+
+0
+
+10
+
+0
+
+(b)
+
+N=1 N=2 N=3 N=5 Exact
+
+2
+
+4
+
+6
+
+8
+
+10
+
+x−coordinate
+
+FIGURE 3.2 Displacement and stress for bar using N-term solutions: (a) displacement and (b) stress.
+
+shown in Fig. 3.2. From this ﬁgure we observe that the displacement at the free end is the same no matter how many terms we use. This often happens in one-dimensional static problems but, unfortunately, is seldom true in higher dimensional problems. The solution for stress converges more slowly than that for the displacements; however, once again we observe that some points are more accurate than others. These we shall call super-convergent points and these points play an important role in our later discussion on error estimates and adaptive reﬁnement of solutions.
+
+3.4 Finite element solution
+A more convenient method to construct the approximating functions ψm and φn is obtained by dividing the domain to be analyzed into small regular shaped regions. For example, we can divide the one-dimensional region between a and b into a set of “M” small ﬁnite segments by deﬁning a set of N points xi such that
+x1 = a, xi < xi+1 and xN = b
+For a one-dimensional problem we can let each increment deﬁne a ﬁnite element domain (or more simply, an element) and the set of points deﬁne the nodes.
+
+56 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+The division into elements and nodes is a fundamental part of the ﬁnite element
+
+method and describes what we will refer to as the ﬁnite element mesh or simply the
+
+mesh for the problem.
+
+Using the above subdivision, a simple set of continuous polynomial approximating
+
+functions may be deﬁned by
+
+⎧
+
+φi
+
+=
+
+⎪⎪⎪⎪⎪⎪⎨
+
+0, x xi
+
+− −
+
+xi −1 xi −1
+
+,
+
+⎪⎪⎪⎪⎪⎪⎩
+
+xi+1 − x xi+1 − xi
+
+,
+
+0,
+
+x < xi−1 xi−1 ≤ x ≤ xi
+xi < x ≤ xi+1 x > xi+1
+
+(3.23)
+
+A plot for these functions and their ﬁrst derivative is shown in Fig. 3.3. Such functions are called C0 since only the function is continuous in x, whereas the ﬁrst derivative is only piecewise continuous with the discontinuities located at the nodes. Development of appropriate C0 functions for higher spatial dimensions will be considered in subsequent chapters. Here we shall focus on how to describe general forms in one dimension.
+From the ﬁgure we can note that, if required, the end functions can serve as the spatial form for the φb¯(x) functions.
+If we let ψi = φi then we observe that all the integrals deﬁned in the weak form functional can be integrated over the length. Indeed, we usually can evaluate the integrals individually over each element by noting
+
+M
+
+xi +1
+
+· dx =
+
+· dx ≡
+
+i =1 xi
+
+e
+
+· dx
+e
+
+(3.24)
+
+φ1
+
+dφ1/dx
+
+φ2
+
+dφ2/dx
+
+φ
+3
+
+dφ3/dx
+
+φN−1
+
+dφN−1/dx
+
+φN x1 x2 x3
+(a)
+
+dφN/dx
+
+xN−1 xN
+
+x1 x2 x3
+
+(b)
+
+xN−1 xN
+
+FIGURE 3.3 One-dimensional ﬁnite element approximation for φi : (a) functions and (b) derivatives.
+
+3.4 Finite element solution 57
+
+φi
+
+N1
+
+dφ i/dx
+
+dN1/dx
+
+N2 φi+1
+
+dφi+1/dx dN2/dx
+
+x i−2
+
+x i−1
+
+xi
+
+xi+1
+
+xi+2
+
+xi+3 xi−2
+
+xi−1
+
+xi
+
+xi+1
+
+xi+2
+
+xi+3
+
+(a)
+
+(b)
+
+FIGURE 3.4 One-dimensional ﬁnite element shape functions: (a) functions and (b) derivatives.
+
+Table 3.2 Local to Global Node Numbering for Two-Node Elements
+
+Local Node
+
+Element Number
+
+1
+
+2
+
+3
+
+···
+
+M
+
+1
+
+1
+
+2
+
+3
+
+···
+
+N −1
+
+2
+
+2
+
+3
+
+4
+
+···
+
+N
+
+Considering any interval [xi , xi+1] shown in Fig. 3.4 we note that each interval is
+
+deﬁned by the same two local functions N1 and N2. We call these the shape functions
+
+for the element. To simplify the notation we also deﬁne local nodal coordinates on
+each element as x1e and x2e. Then for each element we deﬁne the relationship of the local nodes to the global node number as indicated in Table 3.2.
+
+With this notation we can always write the displacements and arbitrary weight
+
+function as
+
+uˆe = N1(x ) u˜e1 + N2(x ) u˜e2 wˆ e = N1(x ) w˜ 1e + N2(x ) w˜ 2e
+
+(3.25)
+
+If we deﬁne a local coordinate system in each element as x = x − x1e and the element length as he = x2e − x1e, the shape functions are given by
+
+N1(x
+
+)
+
+=
+
+1
+
+−
+
+x he
+
+and
+
+N2(x
+
+)
+
+=
+
+x he
+
+(3.26a)
+
+and are the same for every element. The derivatives of the shape functions are given by
+
+dN1 = dN1 = − 1 and dN2 = dN2 = 1
+
+dx dx
+
+he
+
+dx dx he
+
+Using the above we can write the approximation to the weak form as
+
+(3.26b)
+
+G(wˆ , uˆ) = Gi (wˆ , uˆ) + Gσ (wˆ , uˆ) − G f (wˆ , uˆ) − wˆ (x)t¯x t
+
+(3.27a)
+
+where Gi denotes the inertial contribution, Gσ denotes the internal stress contribution, and G f denotes the contribution to the force from the body loading. Using (3.12) each
+
+58 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+term is deﬁned by
+
+M
+
+Gi (wˆ , uˆ) =
+
+w˜ 1e w˜ 2e
+
+e=1
+
+he N1 0 N2
+
+ρe N1 N2 dx
+
+u¨˜
+
+e 1
+
+u¨˜
+
+e 2
+
+M
+
+Gσ (wˆ , uˆ) =
+
+w˜ 1e w˜ 2e
+
+e=1
+
+he 0
+
+⎧ ⎪⎨ ⎪⎩
+
+d N1
+dx d N2
+
+⎫ ⎪⎬ ⎪⎭
+
+Ee
+
+dN1 dN2 dx dx
+
+dx
+
+u˜ e1 u˜ e2
+
+(3.27b)
+
+dx
+
+M
+
+G f (wˆ , uˆ) =
+
+w˜ 1e w˜ 2e
+
+e=1
+
+he 0
+
+N1 N2
+
+bx dx
+
+where u˙ = du/dt. Each element can be evaluated as
+
+he
+Me =
+0
+
+N1 N2
+
+ρe
+
+N1 N2 dx =
+
+M1e1 M1e2 M2e1 M2e2
+
+Ke =
+
+he
+
+⎧ ⎪⎨
+
+d N1 dx
+
+0 ⎪⎩ dN2
+
+⎫ ⎪⎬ ⎪⎭ E
+
+d N1 dx
+
+d N2 dx
+
+dx =
+
+K
+
+e 11
+
+K1e2
+
+K
+
+e 21
+
+K2e2
+
+dx
+
+he
+fe =
+0
+
+N1 N2
+
+bx dx =
+
+f1e f2e
+
+(3.28)
+
+For the shape functions given in Eq. (3.26a) and assuming Ee, ρe, and bx are constant within each element the matrices are given by
+
+Me
+
+=
+
+1 6
+
+ρe he
+
+2 1
+
+1 2
+
+,
+
+Ke = Ee he
+
+1 −1 −1 1
+
+and
+
+fe
+
+=
+
+1 2
+
+bx
+
+he
+
+1 1
+
+(3.29)
+
+The summation indicated in (3.24) and subsequent expressions leads to a standard linear problem with the ﬁnal equations given by
+
+M u¨˜ + K u˜ = f
+
+(3.30)
+
+For a static problem the inertia term may be ignored and the expanded form of the
+
+matrices is given by
+
+⎡ ⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣
+
+K111 K211
+0
+
+K112 (K212 + K121)
+K221
+0
+
+0
+
+K
+
+2 12
+
+(
+
+K
+
+2 22
+
++
+
+K131)
+
+K 2M1 −1 0
+
+0
+
+K
+
+3 12
+
+...
+
+( K 2M2 −1
+
++
+
+K
+
+M 11
+
+)
+
+K
+
+M 21
+
+⎤⎧ ⎫ ⎧ ⎫
+
+K
+
+M 12
+
+K
+
+M 22
+
+⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+⎪⎪⎪⎪⎪⎪⎪⎨
+
+u˜ 1 u˜ 2 u˜ 3
+
+⎪⎪⎪⎪⎪⎪⎪⎬
+
+⎪⎪⎪⎪⎪⎪⎪⎩u˜uN˜...N−1⎪⎪⎪⎪⎪⎪⎪⎭
+
+=
+
+⎪⎪⎪⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎪⎪⎪⎩
+
+f1 f2 f3
+
+⎪⎪⎪⎪⎪⎪⎪⎬
+
+f
+
+...
+N −1
+fN
+
+⎪⎪⎪⎪⎪⎪⎪⎭
+
+(3.31)
+
+3.4 Finite element solution 59
+
+Up to this point we have not considered boundary conditions other than noting the end functions can serve as the boundary approximation. With the above ﬁnite element form it is very simple to impose the displacement boundary conditions since the parameters are now all physical values. That is they obey the property
+
+uˆ(xa) ≡ u˜a
+
+(3.32)
+
+Thus, if we wish to impose a displacement condition u(0) = u¯, we set u˜1 = u¯ and
+
+rewrite (3.31) as
+
+⎡
+
+1
+
+⎢⎢⎢⎢⎢⎢⎢⎢⎢⎢⎣
+
+0 0
+
+0
+
+0
+
+(K212 + K121)
+
+K
+
+2 12
+
+K221
+
+(K222 + K131)
+
+0
+
+K
+
+M 21
+
+−1
+
+0
+
+⎧ ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎨
+
+f2
+
+u¯ − K211u¯
+f3
+
+⎫ ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎬
+
+0
+
+K132 ...
+
+(
+
+K
+
+M 22
+
+−1
+
++
+
+K1M1
+
+)
+
+K
+
+M 21
+
+K1M2 K2M2
+
+⎤ ⎥⎥⎥⎥⎥⎥⎥⎥⎥⎥⎦
+
+⎧ ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎨ ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎩
+
+u˜ 1 u˜ 2 u˜ 3 ... u˜ N −1 u˜ N
+
+⎫ ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎬ ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎭
+
+= ⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎩
+
+... f N −1
+
+⎪⎪⎪⎪⎪⎪⎪⎪⎪⎪⎭
+
+fN
+
+(3.33)
+
+This is equivalent to setting w˜ 1 = 0. Similarly, imposing a traction condition at x = L only requires the modiﬁcation
+
+fN → fN + t¯x (L)
+
+(3.34)
+
+These physical properties point out the distinct advantage of using a ﬁnite element form to approximate the variables.
+
+Example 3.2. Static solution by ﬁnite element method
+
+We again consider the solution of the example problem previously considered and shown in Fig. 3.1. We divide the domain into four equal elements as shown in Fig. 3.5 with the solution shown in Fig. 3.6. The solution using eight elements is also shown in the ﬁgure. Comparing the two solutions, we note that the stresses are converging more slowly than the displacements (this was true for the ﬁrst example also) but again have super-convergent points.
+
+3.4.1 Requirements for ﬁnite element approximations
+The construction of ﬁnite element approximations for the basis functions, φi (x), is quite easy to express. Indeed there are only three basic requirements:
+
+60 CHAPTER 3 Weak Forms and Finite Element Approximation
+
+bx = 10
+
+1 2.5
+
+2 2.5
+
+3 2.5
+
+4 2.5
+
+FIGURE 3.5 Four-element mesh for one-dimensional elasticity example.
+
+t x = 25 5
+
+0.4 0.35
+0.3
+
+N=4 Exact
+
+80
+
+Exact
+
+70
+
+FE = 4
+
+FE = 8
+
+60
+
+u−displacement Stress
+
+0.25
+
+50
+
+0.2
+
+40
+
+0.15
+
+30
+
+0.1
+
+20
+
+0.05
+
+10
+
+0
+
+0
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+(a)
+
+x—coordinate
+
+(b)
+
+x—coordinate
+
+FIGURE 3.6 One-dimensional ﬁnite element solution to bar problem: (a) displacements and (b) stress.
+
+1. Continuity: Each function must be continuous in the problem domain up to one less than the highest derivative in the functional G(w, u).
+2. Completeness: Adding terms to the solutions (i.e., increasing the number of φi and ψi ) must be such that a suitable choice of the parameters be able to match any bounded solution and its derivative more closely as terms are added. That is,
+
+u − uˆ|N < O(hep) and
+
+du dx
+
+−
+
+duˆ dx
+
+|N
+
+< O(hep−1)
+
+as N is increased. 3. Linear independence: The functions must be linearly independent, that is, no
+combination of some functions may give another of the functions.
+
+It is clear that the simple functions deﬁned in (3.23) satisfy all the above requirements for the one-dimensional elasticity problem. They are continuous and linearly independent as seen in Figs. 3.3 and 3.4. It is also clear that short piecewise continuous straight segments can match any bounded curve as closely as we want by reducing the segment lengths. In particular, linear functions can satisfy the condition u = const, which is a rigid translation or rigid body mode of the solution. This condition is crucial to all problems formulated in Cartesian coordinates since any constant displacement causes no strain. If strains were present, we would not be able to match the above
+
+3.5 Isoparametric form 61
+
+derivative condition. Indeed by using polynomials complete to degree p to deﬁne the shape functions we can always satisfy the completeness condition for problems requiring C0 continuity provided p is at least of degree 1.
+
+3.5 Isoparametric form
+
+The element displacement function for the two-node element was obtained as
+
+uˆe(x, t) = N1(x ) u˜e1(t) + N2(x ) u˜e2(t)
+
+where x = x1e + x and the shape functions are expressed by
+
+N1(x
+
+)
+
+=
+
+1
+
+−
+
+x he
+
+and
+
+N2(x
+
+)
+
+=
+
+x he
+
+If we let
+
+x he
+
+=
+
+ξ
+
+where
+
+0≤ξ ≤1
+
+the shape functions may be rewritten as
+
+N1(ξ ) = 1 − ξ and N2(ξ ) = ξ , 0 ≤ ξ ≤ 1
+
+(3.35a)
+
+This permits the writing of the element coordinate, displacement, and arbitrary function in the parametric form
+
+xe = N1(ξ )x1e + N2(ξ )x2e uˆe = N1(ξ )u˜e1 + N2(ξ )u˜e2 wˆ e = N1(ξ )w˜ 1e + N2(ξ )w˜ 2e
+
+(3.35b)
+
+This is called an isoparametric form since all three expressions are identical. In this form the coordinate ξ is a parameter called the parent coordinate.
+The computation of x derivatives now requires use of the chain rule which for any function f (ξ ) may be written as
+
+∂ f = ∂ f ∂ξ ∂x ∂ξ ∂x If we let f (ξ ) = x then we obtain
+
+(3.36)
+
+∂x = 1 = ∂x ∂ξ
+
+∂x
+
+∂ξ ∂x
+
+The term ∂ x/∂ξ is called the Jacobian and is easily computed from the shape func-
+
+tions as
+
+je
+
+=
+
+∂xe ∂ξ
+
+=
+
+x2e
+
+− x1e
+
+=
+
+he
+
+and, thus, for the linear shape functions
+
+∂ξ = 1 ∂x he
+

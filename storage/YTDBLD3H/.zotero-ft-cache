@@ -1,0 +1,3420 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/277207443
+INDUSTRIAL CFD SIMULATION OF AERODYNAMIC NOISE
+Article · December 2008
+
+CITATIONS
+22
+1 author: Domenico Caridi ANSYS 21 PUBLICATIONS 151 CITATIONS
+SEE PROFILE
+
+READS
+4,641
+
+All content following this page was uploaded by Domenico Caridi on 13 May 2020.
+The user has requested enhancement of the downloaded file.
+
+UNIVERSITÀ DEGLI STUDI DI NAPOLI FEDERICO II
+
+DOTTORATO DI RICERCA IN INGEGNERIA AEROSPAZIALE, NAVALE, E DELLA QUALITÀ (XXI CICLO)
+DIPARTIMENTO DI INGEGNERIA AEROSPAZIALE
+______________________________________ INDUSTRIAL CFD SIMULATION OF AERODYNAMIC NOISE
+______________________________________
+Domenico Caridi
+
+Il Coordinatore:
+
+Il Tutore:
+
+Ch.mo Prof. Antonio Moccia
+
+Ch.mo Prof. Carlo De Nicola
+
+A.A. 2007˗2008
+
+ABSTRACT
+INDUSTRIAL CFD SIMULATION OF AERODYNAMIC NOISE
+Domenico Caridi
+DIPARTIMENTO DI INGEGNERIA AEROSPAZIALE
+Real challenges to suppress undesirable fluid-excited acoustics are posed by a wide variety of engineering disciplines. Noise regulations, passenger comfort and component stability are motivators which are continuing to stimulate substantial efforts towards the understanding of aeroacoustic phenomena, and not least to quantify the usability (practicability and value) of traditional and advanced prediction methods. The latter is the primary focus of this thesis, particularly as applied to the transportation industries, aerospace, automotive and rail.
+Nowadays Computational Fluid Dynamics (CFD) is a tool well integrated into the industrial development and production life-cycles. This is possible now because of two main factors: the increase in the performance of relatively cheap personal computers and network facilities, and the progress made in general purpose CFD software between modeling complexity and practicability within the industrial environment.
+i
+
+While CFD methodologies are well established for lots of applications such as aerodynamics, heat exchange, etc., aeroacoustic CFD simulations still represent a challenge, in particular their industrial practicability. In these years this has given rise to heavy investments by the automotive industry in international aeroacoustics consortia, whereby all the major car companies work together to study the limitations and advantages of aeroacoustics CFD. The general aim of these consortia is to develop methodologies which fit into, and improve upon, current design processes.
+The goal of the present work is to explore the multitude of different CFD modeling approaches for some typical industrial problems such as: cavity noise, vortex shedding noise, propeller and jet noise. Each of these problems has a particular mechanism for noise generation and different methods have been studied and tested, in order to develop and optimize a practical methodology for the analysis of each problem type. Furthermore each of the aeroacoustics problems considered are representative of a variety of industrial applications. Cavity noise is at the origin of phenomena such as sunroof buffeting in convertibles or door-gap tonal noise. Vortex shedding noise is typical of any flows involving bluff bodies such as automobile antennas or aircraft landing gear. Propeller noise is typical to applications involving rotating machinery, such as fans, pumps and turbines.
+Different approaches ranging from steady and transient RANS simulations with the acoustic analogy (including porous and solid surface formulations), to Computational Aero Acoustics (CAA) and Large Eddy Simulation (LES) type computations have been studied and applied.
+ii
+
+Classic theories already exist to predict aerodynamically generated noise, which are both computationally and economically less expensive than CFD methods. However aeroacoustics CFD is the future, beginning as a promising present, for the following reasons:
+ Industries are interested in modeling complex geometries.  Many classic theories can be applied successfully but very often
+restrictions exist with respect to the configuration and flow conditions. For example, classic propeller theories cannot be used to model real-world configurations such as a propeller installed on a wing with some prescribed yaw or angle of attack.  The progress of all other Computer Aided Design and Engineering tools, such as linear or non-linear structural codes, are driving design towards a virtual multi-physics approach for the simulation of complex geometries. Due to previous experience and the wide availability of modeling options, it was decided to use the general purpose CFD software package ANSYS FLUENT for CFD investigations in this study.
+iii
+
+ACKNOWLEDGMENTS First of all I wish to thank my advisor Prof. Carlo De Nicola for his support and help in this path of human and professional growth. The coordinator Prof. Antonio Moccia for his comprehension about some difficulties to conciliate my job with the PHD activities. I would also like to thank Chris Carey and Dave Mann from ANSYS for their support and attention to this PHD which was started prior to me joining the company. A special thank also to Andy Wade from ANSYS for his valuable help and encouragement. I am grateful to the PHD student Michele De Gennaro, Ing. Giovanni Petrone and the
+student Gianpaolo Reina for their contribution to this work.
+iv
+
+TABLE OF CONTENTS
+1 ACOUSTICS FUNDAMENTALS .......................................................................... 1 1.1 PHYSICS OF SOUND ....................................................................................... 1 1.2 SOUND FIELD DEFINITIONS ........................................................................ 7 1.2.1 Free Field ........................................................................................................ 7 1.2.2 Near Field........................................................................................................ 7 1.2.3 Far Field .......................................................................................................... 7 1.2.4 Direct Field ..................................................................................................... 7 1.2.5 Reverberant Field............................................................................................ 8 1.2.6 Frequency Analysis......................................................................................... 8 1.2.6.1 A convenient property of the one-third octave band centre frequencies ...... 10 1.3 QUANTIFICATION OF SOUND.................................................................... 12 1.3.1 Sound Power (W) and Intensity (I) ............................................................... 12 1.3.2 Sound Pressure Level.................................................................................... 13 1.3.3 Sound Intensity Level ................................................................................... 15 1.3.4 Sound Power Level ....................................................................................... 15 1.3.5 Combining Sound Pressures ......................................................................... 16 v
+
+1.3.5.1 Addition of coherent sound pressures........................................................... 16 1.3.5.2 Addition of incoherent sound pressures (logarithmic addition) ................... 17 1.4 PROPAGATION OF NOISE ........................................................................... 20 1.4.1 Free Field ...................................................................................................... 20 1.4.2 Directivity ..................................................................................................... 22 1.4.3 Reflection effects .......................................................................................... 23 1.4.4 Reverberant fields ......................................................................................... 24 1.4.5 Types of Noise .............................................................................................. 26 2 AERODYNAMIC SOUND .................................................................................... 31 2.1 HOMOGENOUS WAVE PROPAGATION.................................................... 32 2.2 NON-HOMOGENEOUS WAVE PROPAGATION ....................................... 33 2.3 LIGHTHILL’S ANALOGY ............................................................................. 35 2.4 CURLE’S EQUATION .................................................................................... 36 2.5 THE FFOWCS WILLIAMS & HAWKINGS’S ANALOGY ......................... 40 2.6 CONSIDERATIONS ON THE SOUND GENERATED
+AERODYNAMICALLY.................................................................................. 46 2.7 FLUENT IMPLEMENTATION OF ACOUSTIC ANALOGY ...................... 49 3 AEROACOUSTICS SIMULATION APPROACHES ........................................ 53 3.1 COMPUTATIONAL AEROACOUSTICS...................................................... 54
+3.1.1 Range of Scales............................................................................................. 55 3.1.2 Range of Pressures ........................................................................................ 56 3.2 CFD-WAVE-EQUATION-SOLVER COUPLING ......................................... 57 3.3 INTEGRAL ACOUSTICS METHODS ........................................................... 59 3.4 SYNTHETIC NOISE GENERATION METHOD........................................... 59 4 NOISE GENERATION MECHANISM ............................................................... 62 4.1 CAVITY NOISE............................................................................................... 62
+vi
+
+4.2 VORTEX SHEDDING NOISE ........................................................................ 66 4.3 AIRFOIL SELF-NOISE ................................................................................... 71
+4.3.1 Turbulent-Boundary-Layer-Trailing-Edge (TBL-TE) Noise ....................... 73 4.3.2 Separation-Stall Noise .................................................................................. 74 4.3.3 Laminar-Boundary-Layer-Vortex-Shedding (LBL-VS) Noise .................... 74 4.3.4 Tip Vortex Formation Noise ......................................................................... 75 4.3.5 Noise Trailing-Edge-Bluntness Vortex-Shedding ........................................ 75 4.3.6 Airfoil Tonal Noise ....................................................................................... 76 4.4 PROPELLER NOISE ....................................................................................... 79 4.4.1 High Performance Propeller and Installation Noise ..................................... 79 4.4.2 Propeller Noise Characteristics..................................................................... 83 4.4.3 Steady Sources .............................................................................................. 85 4.4.4 Unsteady Sources.......................................................................................... 86 4.4.5 Random Sources ........................................................................................... 88 4.4.6 Non Linear Effects ........................................................................................ 89 4.5 JET NOISE ....................................................................................................... 92 4.5.1 Jet Noise Physics........................................................................................... 93 4.5.2 Heated Jet Noise – The Effects of Increased Temperature........................... 97 5 EXAMPLES OF AEROACOUSTICS SIMULATIONS .................................. 101 5.1 CAVITY NOISE............................................................................................. 101 5.1.1 Experiments ................................................................................................ 102 5.1.2 Simulation Set Up ....................................................................................... 104 5.1.3 Results......................................................................................................... 106 5.2 VORTEX SHEDDING NOISE ...................................................................... 111 5.2.1 Experiments ................................................................................................ 111
+vii
+
+5.2.2 Simulation Set Up ....................................................................................... 111 5.2.3 Results......................................................................................................... 116 5.3 PROPELLER NOISE ..................................................................................... 125 5.3.1 Experiments ................................................................................................ 125 5.3.1.1 NASA SR2.................................................................................................. 125 5.3.1.2 NACA 4-(3)(08)-03 .................................................................................... 130 5.3.2 Simulation Set Up ....................................................................................... 133 5.3.3 Results......................................................................................................... 141 5.3.3.1 NASA SR2.................................................................................................. 141 5.3.3.2 NACA 4-(3)(08)-03 .................................................................................... 146 5.4 JET NOISE ..................................................................................................... 153 5.4.1 Experiments ................................................................................................ 153 5.4.2 Simulation Set Up ....................................................................................... 158 5.4.3 Results......................................................................................................... 164 6 CONCLUSION ..................................................................................................... 171 References...................................................................................................................... 176
+viii
+
+NOMENCLATURE
+
+c
+
+speed of sound [m/s]
+
+Cd
+
+drag coefficient
+
+d
+
+diameter [m]
+
+G
+
+green function
+
+k
+
+turbulence kinetic energy [m2/s2]
+
+M
+
+Mach number
+
+n
+
+surface normal vector
+
+p
+
+pressure [Pa]
+
+pref
+
+reference pressure [Pa]
+
+P
+
+production of turbulent kinetic energy [kg/(m s2)]
+
+R
+
+ideal gas constant [J/mol/K]
+
+Re
+
+Reynolds number
+
+St
+
+Strouhal number
+
+t
+
+time [s]
+
+T
+
+temperature [K] or [°C]
+
+Tj
+
+jet core temperature [K] or [°C]
+
+Tij
+
+Lighthill stress tensor components [N/m2]
+
+ix
+
+Uj ui xi y+  ij    t     ij w prime (‘ ) overbar (¯)
+
+axial jet velocity [m/s] velocity component in the i direction [m/s] coordinate vector [m] normalized wall coordinate blade angle at 75 % of blade radius [degree] Kronecker delta tensor [dimensionless] turbulence dissipation rate [m2/s3] wavelength [m] dynamic viscosity [kg/(m s)] dynamic turbulence viscosity [kg/(m s)] kinematic viscosity [m2/s] density [kg/m3] retarded time [s] stress tensor components [N/m2] wall shear stress [N/m2] fluctuating quantity time averaged quantity
+
+x
+
+ACRONYMS
+
+2D 3D BL CAA CFL CFD DES DNS FFT FW-H LBL LES MRF MUSCL OPSL PBCS NRBC
+
+Two Dimension Three Dimension Boundary Layer Computational Aero Acoustics Courant Number Computational Fluid Dynamics Detached Eddy Simulation Direct Numerical Simulation Fast Fourier Transform Ffowcs Williams and Hawkings Laminar Boundary Layer Large Eddy Simulation Moving Reference Frame Monotone Upstream-Centered Schemes for Conservation Laws Overall Sound Pressure Level Pressure Based Coupled Solver Non Reflective Boundary Condition
+xi
+
+PISO PRESTO QUICK RANS RMS RSM SIMPLE SLM SPL TBL TE TI TKE UDF VS
+
+Pressure-Implicit with Splitting of Operators PREssure STaggering Option Quadratic Upstream Interpolation for Convective Kinematics Reynolds-Averaged Navier-Stokes Root-Mean-Square Reynolds Stress Model Semi-Implicit Pressure Linked Equations Sliding Mesh Sound Pressure Level Turbulent Boundary Layer Trailing Edge Turbulent Intensity [%] Turbulent Kinetic Energy [m2/s2] User-Defined Function Vortex Shedding
+
+xii
+
+1 ACOUSTICS FUNDAMENTALS
+To provide the necessary background for the understanding of the topics covered in this thesis, basic definitions and other aspects related to the physics of sound and noise are presented. Most definitions have been internationally standardized and are listed in standards publications such as IEC 60050-801(1994).
+1.1 PHYSICS OF SOUND Noise can be defined as "disagreeable or undesired sound" or other disturbance.
+From the acoustics point of view, sound and noise constitute the same phenomenon of atmospheric pressure fluctuations about the mean atmospheric pressure; the differentiation is greatly subjective. What is sound to one person can very well be noise to somebody else.
+Sound (or noise) is the result of pressure variations, or oscillations, in an elastic medium (e.g., air, water, solids), generated by a vibrating surface, or turbulent fluid flow. Sound propagates in the form of longitudinal (as opposed to transverse) waves, involving a succession of compressions and rarefactions in the elastic medium, as illustrated by Figure 1-1(a). When a sound wave propagates in air (which is the medium considered in this document), the oscillations in pressure are above and below the ambient atmospheric pressure.
+1
+
+Figure 1-1 Representation of a sound wave. (a) compressions and rarefactions caused in air by the sound wave. (b) graphic representation of pressure variations above and below atmospheric pressure.
+Figure 1-2 Wavelength in air versus frequency.
+2
+
+The speed of sound propagation, c, the frequency, f, and the wavelength, λ, are related by the following equation:
+c  f (1.1)
+the speed of propagation, c, of sound in air is 343 m/s, at 20 C and 1 atmosphere pressure. At other temperatures (not too different from 20 C), it may be calculated using:
+c  332  0.6Tc (1.2)
+where Tc is the temperature in C. Alternatively, making use of the equation of state for gases, the speed of sound may be written as:
+c  RTk M (1.3)
+where Tk is the temperature in K, R is the universal gas constant which has the value 8.314 J per mole K, and M is the molecular weight, which for air is 0.029 kg/mole. For air, the ratio of specific heats, γ, is 1.402.
+All of the properties just discussed (except the speed of sound) apply only to a pure tone (single frequency) sound which is described by the oscillations in pressure shown in Figure 1-1. However, sounds usually encountered are not pure tones. In general, sounds are complex mixtures of pressure variations that vary with respect to phase, frequency, and amplitude. For such complex sounds, there is no simple mathematical relation between the different characteristics. However, any signal may be considered as a combination of a certain number (possibly infinite) of sinusoidal waves, each of which may be described as outlined above. These sinusoidal components constitute the
+3
+
+frequency spectrum of the signal. To illustrate longitudinal wave generation, as well as to provide a model for the discussion of sound spectra, the example of a vibrating piston at the end of a very long tube filled with air will be used, as illustrated in Figure 1-3.
+Figure 1-3 Wavelength in air versus frequency under normal Sound generation illustrated. (a) The piston moves right, compressing air as in (b). (c) The piston stops and reverses direction, moving left and decompressing air in front of the piston, as in (d). (e) The piston moves cyclically back and forth, producing alternating compressions and rarefactions, as in (f). In all cases disturbances move to the right with the speed of sound.
+Let the piston in Figure 1-3 move forward. Since the air has inertia, only the air immediately next to the face of the piston moves at first; the pressure in the element of air next to the piston increases. The element of air under compression next to the piston will expand forward, displacing the next layer of air and compressing the next elemental volume. A pressure pulse is formed which travels down the tube with the speed of sound, c. Let the piston stop and subsequently move backward; a rarefaction is formed next to the surface of the piston which follows the previously formed compression down the tube. If the piston again moves forward, the process is repeated with the net result being a "wave" of positive and negative pressure transmitted along the tube.
+4
+
+Figure 1-4 Spectral analysis illustrated. (a) Disturbance p varies sinusoidally with time t at a single frequency f1, as in (b). (c) Disturbance p varies cyclically with time t as a combination of three sinusoidal disturbances of fixed relative amplitudes and phases; the associated spectrum has three single-frequency components f1, f2 and f3, as in (d). (e) Disturbance p varies erratically with time t, with a frequency band spectrum as in (f).
+If the piston moves with simple harmonic motion, a sine wave is produced; that is,
+at any instant the pressure distribution along the tube will have the form of a sine wave,
+or at any fixed point in the tube the pressure disturbance, displayed as a function of time,
+will have a sine wave appearance. Such a disturbance is characterized by a single
+frequency. The motion and corresponding spectrum are illustrated in Figure 1-4a and b.
+If the piston moves irregularly but cyclically, for example, so that it produces the
+waveform shown in Figure 1-4c, the resulting sound field will consist of a combination of
+sinusoids of several frequencies. The spectral (or frequency) distribution of the energy in
+5
+
+this particular sound wave is represented by the frequency spectrum of Figure 1-4d. As the motion is cyclic, the spectrum consists of a set of discrete frequencies.
+Although some sound sources have single-frequency components, most sound sources produce a very disordered and random waveform of pressure versus time, as illustrated in Figure 1-4e. Such a wave has no periodic component, but by Fourier analysis it can be shown that the resulting waveform may be represented as a collection of waves of all frequencies. For a random type of wave the sound pressure squared in a band of frequencies is plotted as shown in the frequency spectrum of Figure 1-4f.
+It is customary to refer to spectral density level when the measurement band is one Hz wide, to one third octave or octave band level when the measurement band is one third octave or one octave wide and to spectrum level for measurement bands of other widths.
+Two special kinds of spectra are commonly referred to as white random noise and pink random noise. White random noise contains equal energy per hertz and thus has a constant spectral density level. Pink random noise contains equal energy per measurement band and thus has an octave or one-third octave band level which is constant with frequency.
+6
+
+1.2 SOUND FIELD DEFINITIONS Following Sound Field Definitions. For more detail see ISO 12001.
+1.2.1 Free Field The free field is a region in space where sound may propagate free from any form
+of obstruction.
+1.2.2 Near Field The near field of a source is the region close to a source where the sound pressure
+and acoustic particle velocity are not in phase. In this region the sound field does not decrease by 6 dB each time the distance from the source is doubled. The near field is limited to a distance from the source equal to about a wavelength of sound or equal to three times the largest dimension of the sound source (whichever is the larger).
+1.2.3 Far Field The far field of a source begins where the near field ends and extends to infinity.
+Note that the transition from near to far field is gradual in the transition region. In the far field, the direct field radiated by most machinery sources will decay at the rate of 6 dB each time the distance from the source is doubled. For line sources such as traffic noise, the decay rate varies between 3 and 4 dB.
+1.2.4 Direct Field The direct field of a sound source is defined as that part of the sound field which
+has not suffered any reflection from any room surfaces or obstacles. 7
+
+1.2.5 Reverberant Field The reverberant field of a source is defined as that part of the sound field radiated
+by a source which has experienced at least one reflection from a boundary of the room or enclosure containing the source.
+1.2.6 Frequency Analysis Frequency analysis may be thought of as a process by which a time varying signal
+in the time domain is transformed to its frequency components in the frequency domain. It can be used for quantification of a noise problem, as both criteria and proposed controls are frequency dependent. In particular, tonal components which are identified by the analysis may be treated somewhat differently than broadband noise. Sometimes frequency analysis is used for noise source identification and in all cases frequency analysis will allow determination of the effectiveness of controls.
+There are a number of instruments available for carrying out a frequency analysis of arbitrarily time-varying signals . To facilitate comparison of measurements between instruments, frequency analysis bands have been standardized. Thus the International Standards Organization has agreed upon "preferred" frequency bands for sound measurement and analysis.
+The widest band used for frequency analysis is the octave band; that is, the upper frequency limit of the band is approximately twice the lower limit. Each octave band is described by its "centre frequency", which is the geometric mean of the upper and lower frequency limits. The preferred octave bands are shown in the Table of Figure 1-5, in terms of their centre frequencies. Occasionally, a little more information about the detailed structure of the noise may be required than the octave band will provide. This
+8
+
+can be obtained by selecting narrower bands; for example, one-third octave bands. As the name suggests, these are bands of frequency approximately one-third of the width of an octave band. Preferred one-third octave bands of frequency have been agreed upon and are also shown in the Table of Figure 1-5.
+Instruments are available for other forms of band analysis. However, they do not enjoy the advantage of standardization so that the inter-comparison of readings taken on such instruments may be difficult. One way to ameliorate the problem is to present such readings as mean levels per unit frequency. Data presented in this way are referred to as “Spectral Density Levels” as opposed to band levels. In this case the measured level is reduced by ten times the logarithm to the base ten of the bandwidth. For example, referring to the Table of Figure 1-5, if the 500 Hz octave band which has a bandwidth of 354 Hz were presented in this way, the measured octave band level would be reduced by 10 log10 (354) = 25.5 dB to give an estimate of the spectral density level at 500 Hz.
+The problem is not entirely alleviated, as the effective bandwidth will depend upon the sharpness of the filter cut-off, which is also not standardized. Generally, the bandwidth is taken as lying between the frequencies, on either side of the pass band, at which the signal is down 3 dB from the signal at the centre of the band.
+There are two ways of transforming a signal from the time domain to the frequency domain. The first involves the use of band limited digital or analog filters. The second involves the use of Fourier analysis where the time domain signal is transformed using a Fourier series. This is implemented in practice digitally (referred to as the DFT digital Fourier Transform) using a very efficient algorithm known as the FFT (Fast Fourier Transform).
+9
+
+1.2.6.1 A convenient property of the one-third octave band centre frequencies The one-third octave band centre frequency numbers have been chosen so that
+their logarithms are one-tenth decade numbers. The corresponding frequency pass bands are a compromise; rather than follow a strictly octave sequence which would not repeat, they are adjusted slightly so that they repeat on a logarithmic scale. For example, the sequence 31.5, 40, 50 and 63 has the logarithms 1.5, 1.6, 1.7 and 1.8. The corresponding frequency bands are sometimes referred to as the 15th, 16th, etc., frequency bands.
+10
+
+Figure 1-5 Frequency Band Table.
+11
+
+1.3 QUANTIFICATION OF SOUND
+
+1.3.1 Sound Power (W) and Intensity (I)
+
+The Sound intensity is a vector quantity determined as the product of sound
+
+pressure and the component of particle velocity in the direction of the intensity vector. It
+
+is a measure of the rate at which work is done on a conducting medium by an advancing
+
+sound wave and thus the rate of power transmission through a surface normal to the intensity vector. It is expressed as watts per square meter (W/m2). In a free-field
+
+environment, i.e., no reflected sound waves and well away from any sound sources, the
+
+sound intensity is related to the root mean square acoustic pressure as follows
+
+I  prms 2 c
+
+(1.4) where ρ is the density of air (kg/m3), and c is the speed of sound (m/sec). The quantity, ρc
+
+is called the "acoustic impedance" and is equal to 414 Ns/m³ at 20 C and one
+
+atmosphere. At higher altitudes it is considerably smaller.
+
+The total sound energy emitted by a source per unit time is the sound power, W,
+
+which is measured in watts. It is defined as the total sound energy radiated by the source
+
+in the specified frequency band over a certain time interval divided by the interval. It is
+
+obtained by integrating the sound intensity over an imaginary surface surrounding a
+
+source. Thus, in general the power, W, radiated by any acoustic source is,
+
+W
+
+
+
+
+AI
+
+
+
+ndA
+
+(1.5)
+
+12
+
+the where the dot multiplication of
+
+ I with
+
+the unit vector,
+
+n , indicates that it is the
+
+intensity component normal to the enclosing surface which is used. Most often, a
+
+convenient surface is an encompassing sphere or spherical section, but sometimes other
+
+surfaces are chosen, as dictated by the circumstances of the particular case considered.
+
+For a sound source producing uniformly spherical waves (or radiating equally in all
+
+directions), a spherical surface is most convenient, and in this case the above equation
+
+leads to the following expression:
+
+W  4r 2 I
+
+(1.6)
+
+where the magnitude of the acoustic intensity, I, is measured at a distance r from the
+
+source. In this case the source has been treated as though it radiates uniformly in all
+
+directions.
+
+1.3.2 Sound Pressure Level The range of sound pressures that can be heard by the human ear is very large.
+The minimum acoustic pressure audible to the young human ear judged to be in good health, and unsullied by too much exposure to excessively loud music, is approximately 20 x 10-6 Pa, or 2 x 10-10 atmospheres (since 1 atmosphere equals 101.3 x 103 Pa). The minimum audible level occurs at about 4,000 Hz and is a physical limit imposed by molecular motion. Lower sound pressure levels would be swamped by thermal noise due to molecular motion in air.
+
+13
+
+For the normal human ear, pain is experienced at sound pressures of the order of 60 Pa or 6 x 10-4 atmospheres. Evidently, acoustic pressures ordinarily are quite small
+
+fluctuations about the mean.
+
+A linear scale based on the square of the sound pressure would require 1013 unit
+
+divisions to cover the range of human experience; however, the human brain is not
+
+organized to encompass such a range. The remarkable dynamic range of the ear suggests
+
+that some kind of compressed scale should be used. A scale suitable for expressing the
+
+square of the sound pressure in units best matched to subjective response is logarithmic
+
+rather than linear. Thus a unit named the Bel was introduced which is the logarithm of the
+
+ratio of two quantities, one of which is a reference quantity.
+
+To avoid a scale which is too compressed over the sensitivity range of the ear, a
+
+factor of 10 is introduced, giving rise to the decibel. The level of sound pressure p is then
+
+said to be Lp decibels (dB) greater or less than a reference sound pressure pref according to the following equation:
+
+Lp
+
+ 10 log10
+
+p2 rms
+p2 ref
+
+ 20 log10
+
+prms pref
+
+ 20 log10
+
+prms
+
+ 20 log10
+
+pref
+
+(dB)
+
+(1.7)
+
+For the purpose of absolute level determination, the sound pressure is expressed in terms
+
+of a datum pressure corresponding to the lowest sound pressure which the young normal
+
+ear can detect. The result is called the sound pressure level, Lp (or SPL), which has the units of decibels (dB). This is the quantity which is measured with a sound level meter.
+
+The sound pressure is a measured root mean square (r.m.s.) value and the internationally agreed reference pressure pref = 2 x 10-5 N m-2 or 20 μPa .
+
+14
+
+1.3.3 Sound Intensity Level A sound intensity level, LI, may be defined as follows:
+
+LI
+
+ 10 log10
+
+(sound intensity) (ref. sound intensity)
+
+ 10 log10
+
+I I ref
+
+(dB)
+
+(1.8) An internationally agreed reference intensity, Iref , is 10-12 Wm-2. Use of the relationship between acoustic intensity and pressure in the far field of a source gives the following useful result:
+
+LI
+
+
+
+LP
+
+ 10 log10
+
+400 c
+
+(1.9)
+
+LI  LP  26 10 log10 (c) (dB) (1.10)
+At sea level and 20C the characteristic impedance, c , is 414 kg m-2 s-1, so that
+
+for both plane and spherical waves,
+
+LI  LP  0.2 (dB)
+
+(1.11)
+
+1.3.4 Sound Power Level The sound power level, Lw (or PWL), may be defined as follows:
+
+LW
+
+ 10 log10
+
+(sound power) (ref. sound power)
+
+
+
+10
+
+log10
+
+W Wref
+
+(dB)
+
+15
+
+(1.12)
+
+The internationally agreed reference power is 10-12 W.
+
+1.3.5 Combining Sound Pressures
+
+1.3.5.1 Addition of coherent sound pressures
+
+Often, combinations of sounds from many sources contribute to the observed total
+
+sound. In general, the phases between sources of sound will be random and such sources
+
+are said to be incoherent. However, when sounds of the same frequency are to be
+
+combined, the phase between the sounds must be included in the calculation.
+
+For two sounds of the same frequency, characterized by mean square sound
+
+pressures
+
+p2 1rms
+
+and
+
+p2 2rms
+
+and phase difference
+
+1  2 , the total mean square sound
+
+pressure is given by the following expression [43]:
+
+p2 t rms
+
+
+
+p2 1rms
+
+
+
+p2 2 rms
+
+ 2[ p1 p2 ]rms cos(1  2 )
+
+(1.13)
+
+When two sounds of slightly different frequencies are added an expression similar
+
+to that given by the above equation is obtained but with the phase difference replaced
+
+with the frequency difference, , multiplied by time, t. In this case the total mean square
+
+sound pressure rises and falls cyclically with time and the phenomenon known as beating
+
+is observed, as illustrated in Figure 1-7.
+
+16
+
+Figure 1-7 Illustration of beating.
+
+1.3.5.2 Addition of incoherent sound pressures (logarithmic addition)
+
+When bands of noise are added and the phases are random, the limiting form of
+
+the previous equation reduces to the case of addition of incoherent sounds; that is [43]:
+
+p  p  p 2 trms
+
+2 1rms
+
+2 2rms
+
+(1.14)
+
+Incoherent sounds add together on a linear energy (pressure squared) basis. A
+
+simple procedure which may easily be performed on a standard calculator will be
+
+described. The procedure accounts for the addition of sounds on a linear energy basis and
+
+their representation on a logarithmic basis. Note that the division by 10 in the exponent is
+
+because the process involves the addition of squared pressures.
+
+It should be noted that the addition of two or more levels of sound pressure has a
+
+physical significance only if the levels to be added were obtained in the same measuring
+
+point.
+
+17
+
+Example
+
+Assume that three sounds of different frequencies (or three incoherent noise
+
+sources) are to be combined to obtain a total sound pressure level. Let the three sound
+
+pressure levels be (a) 90 dB, (b) 88 dB and (c) 85 dB. The solution is obtained by use of
+
+the previous equation.
+
+Solution:
+
+For source (a):
+
+p2 1rms
+
+
+
+p2 ref
+
+1090 /10
+
+
+
+p2 ref
+
+10 108
+
+For source (b):
+
+p2 2rms
+
+
+
+p2 ref
+
+ 6.31108
+
+For source (c):
+
+p2 3rms
+
+
+
+p2 ref
+
+ 3.16 108
+
+The total mean square sound pressure is,
+
+p2 trms
+
+
+
+p2 1rms
+
+ p2 2rms
+
+ p2 3rms
+
+
+
+p2 ref
+
+19.47 108
+
+The total sound pressure level is,
+
+L pt
+
+ 10 log10
+
+p2 t rms
+pref 2
+
+ 10 log10 (19.47 108 )  92.9 dB
+
+Alternatively, in short form,
+
+Lpt  10 log10 (1090 /10  1088 /10  1085 /10 )  92.9 dB
+
+The Table of Figure 1-8 can be used as an alternative for adding combinations of
+
+decibel values. As an example, if two independent noises with levels of 83 and 87 dB are
+
+produced at the same time at a given point, the total noise level will be 87 + 1.5 = 88.5
+
+18
+
+dB, since the amount to be added to the higher level, for a difference of 4 dB between the two levels, is 1.5 dB.
+Figure 1-8 Table for combining decibel levels.
+As can be seen in these examples, it is only when two noise sources have similar acoustic powers, and are therefore generating similar levels, that their combination leads to an appreciable increase in noise levels above the level of the noisier source. The maximum increase over the level radiated by the noisier source, by the combination of two random noise sources occurs when the sound pressures radiated by each of the two sources are identical, resulting in an increase of 3 dB over the sound pressure level generated by one source. If there is any difference in the original independent levels, the combined level will exceed the higher of the two levels by less than 3 dB. When the difference between the two original levels exceeds 10 dB, the contribution of the less noisy source to the combined noise level is negligible; the sound source with the lower level is practically not heard.
+19
+
+1.4 PROPAGATION OF NOISE
+1.4.1 Free Field A free field is a homogeneous medium, free from boundaries or reflecting
+surfaces. Considering the simplest form of a sound source, which would radiate sound equally in all directions from an apparent point, the energy emitted at a given time will diffuse in all directions and, one second later, will be distributed over the surface of a sphere of 340 m radius. This type of propagation is said to be spherical and is illustrated in Figure 1-9.
+
+Figure 1-9 A representation of the radiation of sound from a simple source in free field.
+
+In a free field, the intensity and sound pressure at a given point, at a distance r (in
+
+meters) from the source, is expressed by the following equation:
+
+p2
+
+
+
+cI
+
+
+
+cW 4r 2
+
+(1.15)
+
+where ρ and c are the air density and speed of sound respectively.
+
+20
+
+In terms of sound pressure the preceding equation can be written as:
+
+LP
+
+
+
+LW
+
+
+
+10
+
+log10
+
+ 
+
+c 400
+
+ 
+
+
+
+10
+
+log10
+
+(4r
+
+2
+
+)
+
+which is often approximated as:
+
+(1.16)
+
+LP  LW  10 log10 (4r 2 ) (1.17)
+Measurements of source sound power, LW, can be complicated in practice (see [43], Ch. 6). However, if the sound pressure level, Lm, is measured at some reference distance, rm, from the noise source (usually greater than 1 meter to avoid source near field effects which complicate the sound field close to a source), then the sound pressure level at some other distance, r, may be estimated using:
+
+LP
+
+
+
+Lm
+
+
+
+20
+
+log10
+
+
+
+r rm
+
+
+
+(1.18)
+
+From the preceding expression it can be seen that in free field conditions, the
+
+noise level decreases by 6 dB each time the distance between the source and the observer
+
+doubles. However, true free-field conditions are rarely encountered in practice, so in
+
+general the equation relating sound pressure level and sound power level must be
+
+modified to account for the presence of reflecting surfaces. This is done by introducing a
+
+directivity factor, Q, which may also be used to characterize the directional sound
+
+radiation properties of a source.
+
+21
+
+1.4.2 Directivity
+
+Provided that measurements are made at a sufficient distance from a source to
+
+avoid near field effects (usually greater than 1 meter), the sound pressure will decrease
+
+with spreading at the rate of 6 dB per doubling of distance and a directivity factor, Q,
+
+may be defined which describes the field in a unique way as a function solely of
+
+direction.
+
+A simple point source radiates uniformly in all directions. In general, however,
+
+the radiation of sound from a typical source is directional, being greater in some
+
+directions than in others. The directional properties of a sound source may be quantified
+
+by the introduction of a directivity factor describing the angular dependence of the sound
+
+intensity. For example, if the sound intensity I is dependent upon direction, then the mean
+
+intensity, Iav, averaged over an encompassing spherical surface is introduced and,
+
+I av
+
+
+
+W 4r 2
+
+(1.19)
+
+The directivity factor, Q, is defined in terms of the intensity I in direction (, ) and the mean intensity [43]:
+
+Q
+
+
+
+I I av
+
+(1.20)
+
+The directivity index is defined as [43]:
+
+DI  10 log10 Q
+
+(1.21)
+
+22
+
+1.4.3 Reflection effects
+
+The presence of a reflecting surface near to a source will affect the sound radiated
+
+and the apparent directional properties of the source. Similarly, the presence of a
+
+reflecting surface near to a receiver will affect the sound received by the receiver. In
+
+general, a reflecting surface will affect not only the directional properties of a source but
+
+also the total power radiated by the source. As the problem can be quite complicated the
+
+simplifying assumption is often made and will be made here, that the source is of
+
+constant power output which means that its output sound power is not affected by
+
+reflecting surfaces (see [43] for a more detailed discussion).
+
+For a simple source near to a reflecting surface outdoors ([43], Ch. 5):
+
+W
+
+
+
+I
+
+4r 2 Q
+
+
+
+p2 rms
+
+4r 2 cQ
+
+(1.22)
+
+which may be written in terms of levels as
+
+LP
+
+
+
+LW
+
+
+
+10
+
+log10
+
+ 
+
+Q 4r
+
+2
+
+ 
+
+
+
+LW
+
+
+
+10
+
+log10
+
+ 
+
+1 4r
+
+2
+
+  
+
+DI
+
+(1.23)
+
+For a uniformly radiating source, the intensity I is independent of angle in the
+
+restricted region of propagation, and the directivity factor Q takes the value listed in the
+
+Table of Figure 1-10. For example, the value of Q for the case of a simple source next to
+
+a reflecting wall is 2, showing that all of the sound power is radiated into the half-space
+
+defined by the wall.
+
+23
+
+Figure 1-10 Table of Directivity factors for a simple source near reflecting surfaces.
+1.4.4 Reverberant fields Whenever sound waves encounter an obstacle, such as when a noise source is
+placed within boundaries, part of the acoustic energy is reflected, part is absorbed and part is transmitted. The relative amounts of acoustic energy reflected, absorbed and transmitted greatly depend on the nature of the obstacle. Different surfaces have different ways of reflecting, absorbing and transmitting an incident sound wave. A hard, compact, smooth surface will reflect much more, and absorb much less, acoustic energy than a porous, soft surface.
+If the boundary surfaces of a room consist of a material which reflects the incident sound, the sound produced by a source inside the room - the direct sound - rebounds from one boundary to another, giving origin to the reflected sound. The higher the proportion of the incident sound reflected, the higher the contribution of the reflected sound to the total sound in the closed space.
+24
+
+This "built-up" noise will continue even after the noise source has been turned off. This phenomenon is called reverberation and the space where it happens is called a reverberant sound field, where the noise level is dependent not only on the acoustic power radiated, but also on the size of the room and the acoustic absorption properties of the boundaries. As the surfaces become less reflective, and more absorbing of noise, the reflected noise becomes less and the situation tends to a "free field" condition where the only significant sound is the direct sound. By covering the boundaries of a limited space with materials which have a very high absorption coefficient, it is possible to arrive at characteristics of sound propagation similar to free field conditions. Such a space is called an anechoic chamber, and such chambers are used for acoustical research and sound power measurements.
+In practice, there is always some absorption at each reflection and therefore most work spaces may be considered as semi-reverberant.
+The phenomenon of reverberation has little effect in the area very close to the source, where the direct sound dominates. However, far from the source, and unless the walls are very absorbing, the noise level will be greatly influenced by the reflected, or indirect, sound. The sound pressure level in a room may be considered as a combination of the direct field (sound radiated directly from the source before undergoing a reflection) and the reverberant field (sound which has been reflected from a surface at least once) and for a room for which one dimension is not more than about five times the other two, the sound pressure level generated at distance r from a source producing a sound power level of LW may be calculated using ([43], Ch. 7):
+25
+
+LP
+
+
+
+LW
+
+
+
+10
+
+log10
+
+
+
+Q 4r
+
+2
+
+
+
+4(1   S
+
+)
+
+
+
+(1.24)
+
+Where  is the average absorption coefficient of all surfaces in the room.
+
+1.4.5 Types of Noise Noise may be classified as steady, non-steady or impulsive, depending upon the
+temporal variations in sound pressure level (see ISO 12001). The various types of noise and instrumentation required for their measurement are illustrated in the Table of Figure 1-11.
+Steady noise is a noise with negligibly small fluctuations of sound pressure level within the period of observation. If a slightly more precise single-number description is needed, assessment by NR (Noise Rating) curves may be used.
+A noise is called non-steady when its sound pressure levels shift significantly during the period of observation. This type of noise can be divided into intermittent noise and fluctuating noise.
+Fluctuating noise is a noise for which the level changes continuously and to a great extent during the period of observation.
+Tonal noise may be either continuous or fluctuating and is characterized by one or two single frequencies. This type of noise is much more annoying than broadband noise characterized by energy at many different frequencies and of the same sound pressure level as the tonal noise.
+
+26
+
+Figure 1-11 Table of noise types and their measurement.
+27
+
+Intermittent noise is noise for which the level drops to the level of the background noise several times during the period of observation. The time during which the level remains at a constant value different from that of the ambient background noise must be one second or more.
+This type of noise can be described by o the ambient noise level o the level of the intermittent noise o the average duration of the on and off period.
+In general, however, both levels are varying more or less with time and the intermittence rate is changing, so that this type of noise is usually assimilated to a fluctuating noise as described below, and the same indices are used.
+Impulsive noise consists of one or more bursts of sound energy, each of a duration less than about 1s. Impulses are usually classified as type A and type B as described in Figure 1-12, according to the time history of instantaneous sound pressure (ISO 10843). Type A characterizes typically gun shot types of impulses, while type B is the one most often found in industry (e.g., punch press impulses). The characteristics of these impulses are the peak pressure value, the rise time and the duration (as defined in Figure 1-12) of the peak.
+28
+
+Figure 1-12 Idealized waveforms of impulse noises. Peak level = pressure difference AB; rise time = time difference AB; A duration = time difference AC; B duration = time difference AD ( + EF when a reflection is present). (a) Explosive generated noise. (b) Impact generated noise.
+29
+
+2 AERODYNAMIC SOUND
+In contrast to computational aerodynamics, which has advanced to a fairly mature state, computational aeroacoustics (CAA) has only recently emerged as a separate area of study. Due to the nonlinearity of the governing equations it is very difficult to predict the sound production of fluid flows. This sound production occurs typically at high speed flows, for which nonlinear inertial terms in the equation of motion are much larger than the viscous terms (high Reynolds numbers). As sound production represents only a very minute fraction of the energy in the flow the direct prediction of sound generation is very difficult. This is particularly dramatic in free space and at low subsonic speeds. The fact that the sound field is in some sense a small perturbation of the flow, can, however, be used to obtain approximate solutions. Aeroacoustics provides such approximations and at the same time a definition of the acoustical field as an extrapolation of an ideal reference flow. The difference between the actual flow and the reference flow is identified as a source of sound. This idea was introduced by Lighthill who called this an analogy. While in acoustics of quiescent media it is rather indifferent whether we consider a wave equation for the pressure or the density, in aero-acoustics the choice of a different variable corresponds to a different choice of the reference flow and hence to another analogy [47].
+31
+
+2.1 HOMOGENOUS WAVE PROPAGATION
+
+In order to make a simplification, let us consider a zero averaged flow field and the viscosity effects negligible. Since to an acoustic wave are related fluctuations of all the motion variables, each quantity can be considered the sum of an averaged component and a fluctuating component, usually called the acoustic component:
+
+p(x,t)  p  p'(x,t) (x,t)    '(x,t) ui (x, t)  ui  ui '(x,t)
+(2.1)
+
+Because of the hypothesis on the averaged flow field, ui =0, the quantities p and
+
+ have to be considered constants. Thanks to these assumptions and neglecting the higher
+
+order terms, the Navier Stokes equations can be linearized:
+
+'   ui '  0
+
+t
+
+xi
+
+(2.2)
+
+ ui '  ' t xi
+
+(2.3)
+
+assuming the air to be a perfect gas ( p  RT )
+
+p' co 2 '
+
+(2.4)
+
+32
+
+Taking the time derivative of the 2.2, and the divergence of 2.3 and then
+
+subtracting the first from the second:
+
+2' t 2
+
+
+
+2 p' xi 2
+
+
+
+0
+
+(2.5)
+
+Applying the relation 2.4 to the equation 2.5 it is possible to obtain an
+
+homogeneous equation for the pressure fluctuation:
+
+1 co 2
+
+2 p' t 2
+
+
+
+2 p' xi 2
+
+0
+
+(2.6)
+
+In a mono-dimensional case a solution of this equation is:
+
+p(x,t)  f1(cot  x)  f2(cot  x)
+
+(2.7)
+
+where f1 and f2 are two arbitrarily functions.
+
+2.2 NON-HOMOGENEOUS WAVE PROPAGATION
+
+The theories that describes the aerodynamic sound often lead to a nonhomogeneous wave equation. For a better understanding of these theories, the purpose of this section is to give a brief introduction to the way of solving a non-homogenous wave equation. In general a wave equation assumes the following form:
+
+
+
+1 co 2
+
+2 t 2
+
+ 2  p
+
+
+
+f (x,t)
+
+(2.8)
+
+33
+
+Where co is the wave speed propagation and f (x,t ) is a generic distribution of
+sources. In order to solve this equation there is the need to use the Green function, which is defined as the solution of the wave equation related to a punctual and impulsive source,
+
+localized in the point x = y , that exists only at time t  . The Green function is the
+
+solution of the differential equation:
+
+
+
+1 co 2
+
+2 t 2
+
+ 2
+
+G
+
+  (x 
+
+y) (t
+
+ )
+
+(2.9)
+
+which leads to the following result,
+
+G(x, y,t
+
+) 
+
+4
+
+1 x
+
+y
+
+ t
+
+
+
+
+
+x co
+
+y
+
+ 
+
+(2.10)
+
+The analysis of the Green function shows that it represents a spherical impulsive
+
+wave which expands at the speed co starting from the point y . The wave amplitude has
+
+an inverse proportionality with a distance x  y from the point y . If we consider f (x,t)
+
+a generically distribution of infinitesimal impulsive sources, we have:
+
+f (x,t)   f ( y, ) (x  y) (t  )dV ( y)d
+The solution of the wave equation of the type
+
+(2.11)
+
+f ( y, ) (x  y) (t  )dV ( y)d
+
+(2.12)
+
+34
+
+is given by the wave
+
+f ( y, )G(x, y,t  )dV ( y)d
+
+(2.13) Summing all the contributions, it’s possible to obtain a solution for the nonhomogeneous wave equation:
+
+p( x, t )
+
+
+
+
+
+
+f ( y, )G(x, y,t   )dV ( y)d
+
+
+
+1 4
+
+
+
+
+f
+
+(
+
+y,
+
+)
+
+
+
+ 
+
+t
+
+
+
+
+
+x  y 
+
+
+
+x co
+
+y
+
+dV ( y)d 
+
+
+
+
+
+1 4
+
+
+
+
+f
+
+ 
+
+y,
+
+t
+
+
+
+
+
+x
+
+x co y
+
+y
+
+  dV ( y)d
+
+(2.14)
+
+2.3 LIGHTHILL’S ANALOGY
+
+For a long period since Lighthill’s ([1],1952) classical paper appeared,
+
+aeroacoustic computation has focused on solution of his acoustic analogy equation or
+
+variations thereof. In brief, Lighthill devised an arrangement of the continuity and
+
+momentum equations of fluid mechanics where all terms not appearing in the linear-wave
+
+operator are grouped into a double divergence of a source-like term now known as the
+
+Lighthill stress tensor. The result of the aforementioned manipulations is an equation
+
+featuring the wave operator (operating on the density perturbation) on the left-hand side
+
+and with all nonlinear effects accounted for by the Lighthill stress tensor:
+
+2 t 2
+
+ co2
+
+2 xi 2
+
+
+
+ 2Tij xix j
+
+35
+
+(2.15)
+
+where
+
+Tij  uiu j   ij  ( p  c0 2  ) ij
+
+(2.16)
+
+This equation is obtained by subtracting to the time derivative of the continuity
+
+equation the divergence of the momentum equation and the term
+
+co 2
+
+2 xi 2
+
+.
+
+Assuming the right hand side of equation 2.15 is known and independent from the
+
+left hand side of the previous equation, it’s possible to apply the methodology shown in
+
+the previous section, which leads to
+
+  (x,t)  o
+
+
+
+1 4co2
+
+1 r
+
+2Tij dV ( y) yiy j
+
+
+
+1 4co2
+
+2 yiy j
+
+Tij dV ( y) r
+
+(2.17)
+
+The square brackets indicate evaluation of the integrand at the retarded time,
+
+  t  r and r is the distance between the source and the observer. It represents the time co
+at which the source emits the sound wave that will arrive to the observer location at time
+
+t. This equation shows that the sound generated by turbulence is equivalent to the sound
+
+generated in a steady fluid with a tensions distribution described by the Lighthill’s tensor.
+
+2.4 CURLE’S EQUATION The Lighthill’s theory sometimes can’t be immediately applied since it doesn’t
+consider the presence of solid boundaries in the fluid domain. Curle extended the 36
+
+Lighthill’s theory in order to consider these effects, [3]. The general integral of the non
+
+homogeneous wave equation in a limited domain is
+
+  (x,t)
+
+
+
+o
+
+
+
+1
+
+4c
+
+2 o
+
+
+
+1 r
+
+ 2Tij dV ( y) yi y j
+
+
+
+1 4
+
+S
+
+
+
+1 r
+
+ n
+
+
+
+1 r2
+
+r  n
+
+
+
+1 rco
+
+r n
+
+ 
+
+dS (
+
+y)
+
+(2.18)
+
+where n is the unit versor orthogonal to the surface, pointing to the fluid domain.
+
+Starting from this solution, Curle obtains a formulation analogous to Lighthill’s, with the
+
+addition of an integration on an integration on the surface immersed in the fluid domain.
+
+To obtain this formulation the integrals of the previous equation have been rearranged.
+
+For the volume integration we have:
+
+   1
+4co2
+
+
+
+1 r
+
+ 2Tij yiy j
+
+dV
+
+( y)
+
+
+
+2Tij ( y, )G(x  y,t  )dV ( y)d
+
+ V
+
+yiy j
+
+(2.19)
+
+Since the argument of the Green function is x  y it is possible to say that
+
+G   G . Using the divergence theorem we have:
+
+yi
+
+xi
+
+   1
+4co2
+
+
+
+1 r
+
+ 2Tij yiy j
+
+dV ( y)
+
+
+
+ V
+
+ yi
+
+
+
+Tij yi
+
+( y, )G(x
+
+
+
+y, t
+
+ )dV ( y)d
+
+
+
+    
+
+ V
+
+ Tij yi
+
+(y, )  yi
+
+G(x  y,t  )dV ( y)d
+
+
+
+ ni S
+
+Tij yi
+
+( y, )G(x  y,t  )dS( y)d
+
+
+
+    Tij ( y, )  G(x  y,t  )dV ( y)d
+
+ V
+
+yi
+
+xi
+
+(2.20)
+
+37
+
+Since the dependent variables are  and y ,  can be carried out from the
+xi
+
+integral. The same work for the yi leads to
+
+   1
+4co2
+
+
+
+1 r
+
+ 2Tij yi y j
+
+dV ( y)
+
+
+
+
+
+
+
+S
+
+ni
+
+Tij yi
+
+( y, )G(x
+
+
+
+y, t
+
+
+
+)dS( y)d
+
+
+
+        xi
+
+ V
+
+ yi
+
+Tij ( y, )G(x 
+
+y,t  )
+
+dV ( y)d
+
+
+
+ xi
+
+
+
+V
+
+Tij
+
+(
+
+y,
+
+)
+
+ yi
+
+G(x 
+
+y,t
+
+ )dV ( y)d
+
+
+
+    
+
+
+
+
+
+S
+
+ni
+
+Tij yi
+
+( y, )G(x
+
+
+
+y, t
+
+ )dS( y)d
+
+
+
+ xi
+
+ n jTij ( y, )G(x  y,t  )dS( y)d  S
+
+   2 xi x j
+
+ Tij ( y, )G(x  y,t  )dV ( y)d V
+
+making an integration over the delta Dirac functions, it leads to
+
+(2.21)
+
+   1
+4co2
+
+
+
+1 r
+
+2Tij dV ( y) yiy j
+
+
+
+1 4co2
+
+2 xix j
+
+Tij ( y, )dV ( y) r
+
+
+
+1 4co2
+
+ xi
+
+S
+
+nj
+
+Tij ( y, )dS ( y) r
+
+
+
+ 
+
+1 4co2
+
+S
+
+ni r
+
+Tij
+
+(
+
+y,
+
+) dS
+
+(
+
+y
+
+)
+
+yi
+
+(2.22)
+
+where  represents the retarded time. The last steps of Curle’s formulation are the
+
+rearrangements of the surface integrals making use of the following relationships,
+
+ n
+
+
+
+ni
+
+ yi
+
+ xi
+
+ 
+
+f
+
+( ) r 
+
+
+
+ 
+
+f r2
+
+
+
+1 co r
+
+ 
+
+ r
+
+ 
+
+xi
+
+Hence the surface integral becomes,
+
+(2.23)
+
+38
+
+  S
+
+
+
+1 r
+
+ n
+
+
+
+1 r2
+
+r   1 n rco
+
+r n
+
+ 
+
+dS (
+
+y)
+
+
+
+S
+
+ni
+
+
+
+1 r
+
+ yi
+
+
+
+1 r2
+
+r   1
+
+yi
+
+rco
+
+r yi
+
+ 
+
+dS
+
+(
+
+y)
+
+
+
+       
+
+S
+
+ni
+
+
+
+1 r
+
+
+
+ yi
+
+ij
+
+
+
+1 r2
+
+r yi
+
+
+
+
+
+1 rco
+
+r yi
+
+ 
+
+dS ( y)
+
+
+
+ni   ij S r yi
+
+dS ( y) 
+
+ xi
+
+S
+
+ni r
+
+ ij dS ( y)
+
+(2.24)
+
+which leads to
+
+    (x,t)  o
+
+
+
+1 4co2
+
+2 xix j
+
+Tij dV ( y)  r
+
+1 4co2
+
+ xi
+
+S
+
+nj r
+
+Tij
+
+ co 2  ij
+
+dS( y) 
+
+   
+
+1 4co2
+
+S
+
+ni r
+
+ yi
+
+Tij
+
+ co 2  ij
+
+dS( y)
+
+(2.25)
+
+From the definition of the Lighthill tensor and from the momentum equation it is
+
+possible to obtain
+
+  ni 
+r yi
+
+Tij  co 2  ij
+
+  ni ui r t
+
+(2.26)
+
+leading to
+
+    (x,t)  o
+
+
+
+1 4co2
+
+2 xix j
+
+Tij dV ( y)  r
+
+1 4co2
+
+ xi
+
+nj Sr
+
+uiu j  p ij   ij
+
+dS( y) 
+
+ 
+
+1 4co2
+
+S
+
+uini dS( y) r
+
+(2.27)
+
+For solid surfaces the velocity on the surface vanishes, hence the final result of
+
+Curle’s equation is:
+
+39
+
+    (x,t)  o
+
+
+
+1 4co2
+
+2 xix j
+
+Tij dV ( y)  r
+
+1 4co2
+
+ xi
+
+S
+
+nj r
+
+p ij  ij dS( y)
+
+(2.28)
+
+2.5 THE FFOWCS WILLIAMS & HAWKINGS’S ANALOGY
+A generalization of Lighthill’s theory to include aerodynamic surfaces in motion, proposed by Ffowcs Williams & Hawkings ([6], 1969) has provided the basis for a significant amount of analysis of the noise produced by rotating blades, including helicopter rotors, propeller blades, and fans,
+The Ffowcs Williams & Hawkings (FW-H) theory includes surface source terms in addition to the quadrupole-like source introduced by Lighthill. The surface sources are generally referred to as thickness (or monopole) sources and loading (or dipole) sources.
+They are also often termed linear in that no explicitly nonlinear terms appear in them and the propagation from the surfaces has no nonlinear component. It should be noted, however, that the loading sources, which consist of surface pressures, may be computed using nonlinear aerodynamic methods.
+The following work is the same reported by Crighton [4]. Let us consider a surface S immersed in a fluid, which moves at a speed equal to
+vi and defined by the function f (x,t) :
+
+ 
+
+f
+
+( x, t )
+
+
+
+0,
+
+inside S
+
+ f (x,t)  0 on S
+
+ 
+
+f
+
+(x,
+
+t
+
+)
+
+
+
+0
+
+outside S
+
+40
+
+(2.29) Typically S is the surface of the body. However it is not strictly necessary since the theory developed in this section is not only true for surfaces that limit the body but also for surfaces that simply contain the body.
+
+The f (x,t) function satisfies the following,
+
+f t
+
+ vi
+
+f xi
+
+0
+
+(2.30)
+
+since the density at an infinite distance from the body is constant, it’s possible to
+
+obtain
+
+  o   ui  0
+
+t
+
+xi
+
+(2.31)
+
+Multiplying the continuity equation by the Heaviside function:
+
+  o  H ( f )  ui H ( f )  0
+
+t
+
+xi
+
+(2.32)
+
+or equivalently
+
+
+
+
+
+o t
+
+H (
+
+f
+
+)
+
+
+
+ui H xi
+
+(
+
+f
+
+)
+
+
+
+H ( t
+
+f
+
+)
+
+
+
+
+
+o
+
+
+
+H ( f xi
+
+)
+
+ui
+
+Remembering the proprieties of the Heaviside function:
+
+(2.33)
+
+41
+
+
+
+ o H ( f
+t
+
+)
+
+
+
+ui H ( f xi
+
+)
+
+
+
+ f
+
+ 
+
+t
+
+
+
+ o 
+
+f xi
+
+ui  ( f 
+
+)
+
+
+
+
+
+ o vi
+
+
+
+ ui
+
+ vi
+
+ f
+xi
+
+(
+
+f
+
+)
+
+
+
+Q f
+
+(
+
+f
+
+)
+
+(2.34)
+
+where it
+
+has been considered that f xi
+
+ ni f
+
+, while for Q it
+
+has been considered
+
+that
+Q  ovi  ui  vi ni
+
+(2.35)
+
+and it has to be considered like a source term which exist only on the surface S.
+
+It’s possible to rearrange the momentum equation in the same way, leading to
+
+ui H ( t
+
+f
+
+)
+
+
+
+uiu j H ( x j
+
+f
+
+)
+
+
+
+pH ( xi
+
+f
+
+)
+
+
+
+ ij H ( xi
+
+f
+
+)
+
+
+
+ui
+
+H ( f t
+
+)
+
+
+
+uiu j
+
+H ( f x j
+
+)
+
+
+
+
+
+p H ( f ) xi
+
+  ij
+
+H ( f ) xi
+
+
+
+ ui 
+
+f t
+
+ uiu j
+
+f x j
+
+
+
+p ij
+
+f x j
+
+  ij
+
+f x j
+
+  ( f )  
+
+
+
+  
+
+ui
+
+ui
+
+
+
+vi
+
+
+
+f x
+
+j
+
+
+
+p ij
+
+f x j
+
+  ij
+
+f x j
+
+  ( f )  
+
+Fi
+
+f
+
+( f )
+
+(2.36)
+
+where
+
+    Fi  u i u j  v j  p ij   ij ni
+
+(2.37)
+
+42
+
+ 2
+
+ 
+
+t
+
+2
+
+ co2
+
+2 xi 2
+
+
+
+
+ o H (
+
+f
+
+)
+
+
+
+ 2T 'ij H ( f xix j
+
+)
+
+
+
+Fi
+
+f  ( f xi
+
+)
+
+
+
+Q f  ( f t
+
+)
+
+(2.38)
+
+where
+
+    Tij'  uiu j ij  p  co2   o ij
+
+(2.39)
+
+looks similar to Lighthill’s tensor and o does not affect the sound generation,
+
+since it is a constant.
+
+The solution of this wave equation is given by
+
+  (x,t)  o
+
+ 2 xix j
+
+
+
+Tij H (
+
+f
+
+)
+
+( y, )  (r
+
+ co (t  )) 4co r
+
+dV
+
+( y)d
+
+
+
+     xi
+
+
+
+Fi
+
+f
+
+(
+
+f
+
+)
+
+( y, )
+
+ (r
+
+ co (t  4co r
+
+))
+
+dV ( y)d
+
+
+
+  
+
+ t
+
+
+
+
+Q f
+
+(
+
+f
+
+)
+
+( y, )  (r
+
+ co (t  )) 4co r
+
+dV ( y)d
+
+(2.40)
+
+In the case of a moving surface, the f (x,t) function and the sources terms are
+
+better expressed in a surface reference system. If we refer to the new reference system
+*
+with y , it follows that:
+
+yi  yi*  vi ui  ui*  vi
+
+(2.41)
+
+The Jacobean of this transformation is equal to unit. Since y and r are now both
+functions of  , we have to consider the following variable substitution to integrate on  :
+43
+
+g ( )  r  co t   
+
+dg  (r /   c0 )d
+
+(2.42)
+
+where
+
+r 
+
+
+
+r yi
+
+yi 
+
+
+
+ 2(xi  yi )
+2 xi  yi 2
+
+yi 
+
+  xi
+
+ yi r
+
+vj
+
+ l j v j
+
+(2.43)
+
+Where l j is the j-component of a unit versor pointing from the source to the
+
+observer location. Hence we have,
+
+  dg  co  l j v j d
+
+(2.44)
+
+Applying the variable substitution to the previous solution it yields:
+
+    (x,t) 
+
+o
+
+
+
+2 xix j
+
+
+
+T
+
+H ' *
+ij
+
+(
+
+f
+
+*
+
+)
+
+(
+
+*
+y ,
+
+)
+
+ (g) 4co r co 
+
+l
+
+jv
+
+j
+
+*
+dV ( y )d 
+
+      xi
+
+
+
+Fi *
+
+f
+
+*
+
+
+
+(
+
+f
+
+*
+
+)
+
+(
+
+*
+y
+
+,
+
+)
+
+ (g) 4cor co 
+
+l
+
+j
+
+v
+
+j
+
+*
+dV ( y )d 
+
+     
+
+Q*
+
+f
+
+*
+
+
+
+(
+
+f
+
+*
+
+)
+
+(
+
+*
+y ,
+
+)
+
+ (g)
+
+*
+dV ( y )d
+
+t 
+
+4co r co  l j v j
+
+(2.45)
+
+Where the source terms in the new reference system are
+  Q*  ovi  ui* ni
+
+    Fi* 
+
+u j* ui*  vi
+
+
+
+pij
+
+
+
+* ij
+
+ni
+
+(2.46)
+
+(2.47) 44
+
+    Tij' *  (ui*  vi )(u j*  v j )  ij*  p  co2   o ij
+
+(2.48)
+
+It
+
+has
+
+to
+
+be
+
+noticed
+
+that
+
+
+
+* ij
+
+=  ij .
+
+Integrating on dg,
+
+   (x,t) 
+
+o
+
+
+
+1 4co 2
+
+2 xix j
+
+
+
+T
+
+H ' *
+ij
+
+(
+
+f
+
+*)
+
+r 1 l jv j co
+
+*
+dV ( y )d 
+
+        
+
+1 4co 2
+
+ xi
+
+
+
+Fi* f *  ( f * ) r 1  l jv j co
+
+*
+dV ( y )d
+
+
+
+1 4co 2
+
+ t
+
+
+
+Q* f *  ( f * )
+
+*
+
+dV ( y )d
+
+r 1  l jv j co
+
+(2.49)
+
+Where the integrand functions have to be evaluated at g=0 or at   t  r co .
+
+Integrating on the  -functions it is possible to obtain the final formulation of the
+
+wave equation
+
+   (x,t)  o
+
+
+
+1 4co 2
+
+2 xix j
+
+T
+
+' ij
+
+*
+
+ r 1ljvj
+
+co
+
+*
+dV ( y )d 
+
+      
+
+1 4co 2
+
+ xi
+
+Fi *  r 1ljvj
+
+co
+
+*
+dS ( y )d
+
+
+
+1 4co 2
+
+ t
+
+Q*  r 1 ljvj
+
+co
+
+*
+dS ( y )d
+
+For a solid surface we have, ui* =0, thus
+Q *   o vi ni
+
+(2.50)
+
+  Fi*
+
+
+
+pij
+
+
+
+* ij
+
+ni
+
+(2.51)
+
+(2.52)
+
+45
+
+The Q* term is equal to zero in the case of steady surface. In the case of a steady surface and S equal to the body surface the FW-H’s equation reduces to the Curle equation.
+
+2.6 CONSIDERATIONS ON THE SOUND GENERATED AERODYNAMICALLY
+
+A first way to proceed is the direct calculation of the acoustic pressure through a
+
+direct simulation of the compressible fluid.
+
+Typically this method is not widely used since it is too computationally
+
+expensive, requiring higher order numerical schemes to reduce the dissipation and the
+
+dispersion of the acoustic waves, and complicated boundary conditions. For example,
+
+non-reflecting boundary conditions (NRBCs) may be required to avoid unphysical
+
+reflections contaminating the computational domain. Other methods exist to avoid this
+
+phenomenon when NRBCs are not available, including the use of purposefully
+
+dissipative grid regions close to domain boundaries.
+
+Alternatively to make an estimation of the aerodynamically generated sound, the
+
+acoustic analogy with a turbulence model simulation for computing the sources can be
+
+used. This last approach needs sophisticated turbulence models since the good resolution
+
+of the flow field is the primary requirement to obtain an accurate prediction of sound
+
+sources. Let us investigate the advantages and the weaknesses of the acoustic analogy. In
+
+obtaining Lighthill’s equation, from a simple manipulation of the Navier-Stokes
+
+Equations, we have supposed that
+
+co 2
+
+2 xi 2
+
+was independent from the left hand side of
+
+46
+
+equation 2.15. This hypothesis is never satisfied since the Lighthill’s tensor is dependent
+
+on the density itself. In other word the acoustic analogy leads to a good result if the
+
+turbulent flow field and the acoustics one are not coupled, that is when we can neglect the
+
+effect of acoustics on the flow. The acoustic analogies divide the generation of sound
+
+from the propagation, computing the latter by a wave operator.
+
+Let us consider the Lighthill’s tensor, 2.16,
+
+Tij  uiu j   ij  ( p  c0 2  ) ij
+
+(2.16)
+
+The dominant term, if the flow is turbulent, is the fluctuating Reynolds tensor,
+
+hence it’s possible to consider
+
+Tij  u i u j
+
+(2.54)
+
+The Reynolds tensor represents a stress related to the particles exchanges in the
+
+fluid. Hence this tensor has an effect similar to the viscous stress. In the same way, from
+
+a generation of sound point of view, the fluctuating Reynolds tensor has an effect similar
+
+to the viscous stresses and is relatively more important than them.
+
+The double divergence of the Reynolds fluctuating tensor, as noticed by Howe
+
+[5], can be rearranged for low-Mach number as
+
+2ouiu j xi x j
+
+ div(o  v)
+
+(2.55) This relationship shows that the vorticity is the main cause of the aerodynamic sound and the main acoustic sources are related to surfaces.
+
+47
+
+A better evaluation of the wall effect can be made analyzing the order of
+
+magnitude of the various terms of the FW-H equation
+
+   (x, t)  o
+
+
+
+1 4co 2
+
+2 xix j
+
+
+
+T' * ij
+r 1 ljvj
+
+co
+
+dV ( y* )d 
+
+      
+
+1 4co 2
+
+ xi
+
+
+
+Fi * r 1 ljvj
+
+co
+
+dS ( y* )d
+
+
+
+1 4co 2
+
+ t
+
+
+
+Q* r 1 ljvj
+
+co
+
+dS ( y* )d
+
+(2.56) If S corresponds to the body surface, the three terms of the right hand side of
+
+previous equation are related to different causes. The first term corresponds to the sound
+
+produced by turbulent structures and from dimensional analysis it results
+
+p( x, t )
+
+
+
+D 4rc 2
+
+U
+
+4
+
+(2.57)
+
+and the sound intensity is
+
+I (r)
+
+
+
+p2 (x,t)  o co
+
+
+
+D2 16 2r 2c5
+
+U8
+
+or equivalently
+
+I(r)  U 3M 5
+
+(2.58)
+
+known as the Lighthill’s v8-law
+
+(2.59)
+
+The second term represents the component due to the forces that act on the
+
+surface, for which the pressure fluctuations can be estimated as
+
+48
+
+p(x,t)  D U 3 4rc
+
+and the sound intensity results in
+
+I(r) 
+
+p2 ( x, t ) oco
+
+
+
+D2 16 2r2c3
+
+U
+
+6
+
+(2.60)
+
+or equivalently
+
+I(r)  U 3M 3
+
+(2.61)
+
+(2.62) The third term is equal to zero if the surface S is attached to the body and this last one is not affected by vibration. Comparing the first and the second term it is possible to say that the contribution of the surface sources (second term) is dominant. Another approximation in an acoustic analogy is the use of a linear wave operator, in fact this one describes well the wave propagation only for low speed cases (M<0.4).
+
+2.7 FLUENT IMPLEMENTATION OF ACOUSTIC ANALOGY
+The commercial code FLUENT estimates the acoustic pressure through the use of the Ffowcs Williams and Hawkings Analogy, neglecting the terms related to the Lighthill’s tensor as they are relatively unimportant compared to the other source terms.. The formulation used is the one of Farassat and Brentner:
+
+49
+
+ 4 ( p(x, t) 
+
+po )
+
+
+
+1 c0
+
+S
+
+  
+
+c0
+
+
+
+0
+
+(U n  U n ) r(1  M r )2
+
+
+
+Lr
+
+dS 
+
+
+
+S
+
+ 
+
+c0U
+
+n
+
+(rM
+
+r
+
+
+
+
+
+c0 (M r r 2 (1 
+
+ M 2 )) M r )3
+
+
+
+Lr
+
+
+
+LM
+
+dS 
+
+ 
+
+1 c0
+
+S
+
+ 
+
+Lr
+
+(rM
+
+r
+
+
+
+
+
+a0 (M r  M 2 ))  r 2 (1  M r )3
+
+Lr
+
+
+
+LM
+
+dS 
+
+where
+
+Ui
+
+
+
+vi
+
+
+
+ 0
+
+(uivi )
+
+(2.63) (2.64)
+
+Li  Pij n j  ui (un  vn )
+
+(2.65)
+
+Pij
+
+
+
+p ij
+
+
+
+
+
+  
+
+u x
+
+i j
+
+
+
+u j xi
+
+
+
+2 3
+
+uk xk
+
+
+
+
+
+ij
+
+ 
+
+; LM  Li M i
+
+(2.66)
+
+and Mi is the Mach number estimated using the velocity in the i-direction .
+
+This formulation is equivalent to the FW-H proposed in the section 2.5 with all
+
+the derivatives carried inside the integrals.
+
+All the integrand functions have to be evaluated at the retarded time. The sources
+
+have to be evaluated in a time instant dependent on their position. This causes the
+
+complication to save the entire time history of the fluid-dynamic variables that constitute
+
+the acoustic sources. To clarify let us consider two different punctual sources located at a
+
+certain distance from observer and indicated by r1 and r2.
+
+50
+
+The acoustic pressure is given by a relationship
+
+p(x, t)  f1 ( y1,1 )  f2 ( y2 , 2 )
+
+(2.67)
+
+Where f1 and f2 are generic function that depend on the acoustic analogy adopted. This equation can only be resolved if f1 and f2 are known at the times 1 and 2 coming before the time t.
+
+Simulation Incompressible Incompressible Compressible Compressible
+
+Surface S Wall
+Porous surface Wall
+Porous surface
+
+Quantities stored p
+p, u, v, w P
+p, ρ, u, v, w
+
+Simulation Incompressible Incompressible Compressible Compressible
+
+In the case of steady surfaces:
+
+  4 ( p(x, t) 
+
+po )
+
+
+
+1 c0
+
+S
+
+
+
+c0
+
+
+
+0U n r
+
+
+
+Lr
+
+dS
+
+
+
+S
+
+Lr r2
+
+dS
+
+In the case of non-permeable surfaces:
+
+ 4 ( p(x, t)
+
+
+
+po )
+
+
+
+S
+
+
+
+Lr c0r
+
+
+
+Lr r2
+
+dS
+
+
+
+S 
+
+p  ij  ij c0r
+
+
+
+p ij   ij r2
+
+dS
+
+(2.68)
+
+(2.69) the contributions related to the viscous stresses are negligible compared to that due to pressure source. The pressure fluctuation is finally calculated by
+
+51
+
+ p(x, t)  po
+
+
+
+1 4
+
+N f  p  ij
+
+f 1
+
+ 
+
+c0r
+
+
+
+p ij r2
+
+  
+
+f
+
+,
+
+Af
+
+(2.70)
+
+52
+
+3 AEROACOUSTICS SIMULATION APPROACHES
+As we have seen in the previous Chapters, Aeroacoustics is a subtopic of acoustics pertaining to situations where sound is generated by fluid flow.
+In contrast, Vibro-Acoustics is the field pertaining to sound caused by vibrating objects such as the diaphragm of a speaker.
+Figure 3-1 Pressure fluctuations on an aircraft landing gear.
+There are four primary entities in any aeroacoustics problem: the acoustic medium, sources (flow), sound, and receivers [48]. The acoustic medium in most problems is the air and sound sources are the flow structures that induce pressure fluctuations in air.
+The sources can be in the form of any unsteady flow structure such as vortices, shear-layers, or turbulent eddies. Sounds are pressure waves travelling through the
+53
+
+acoustic medium and the receiver is the observer of these sound waves, which can be a microphone or the human ear in practice.
+Computational Fluid Dynamics (CFD) is an essential part of aeroacoustics simulations since it is the only viable way to simulate all varieties of source flow structures such as vortices, shear-layers, turbulent eddies, and others. There are four primary ways to model sound generation and transmission with a general purpose CFD solver. In decreasing order of accuracy, extent of applicability, and computational effort they are:
+· Computational Aeroacoustics (CAA) · Coupling of CFD and wave-equation-solver · Using integral acoustic models · Acoustics source strength estimation from local turbulence scales
+3.1 COMPUTATIONAL AEROACOUSTICS
+Computational Aeroacoustics (CAA) is the most comprehensive way to simulate aeroacoustics. It does not rely on any model and therefore in aeroacoustics its position is analogous to that of Direct Numerical Simulation (DNS) in the field of turbulent flow simulation. CAA essentially is a general transient simulation of the entire fluid region encompassing the sources, receivers, and the entire sound transmission path in between. The simulation computes pressure disturbances created in the source regions by rigorously calculating the time-varying flow structure in these regions. It also simulates sound transmission by actually resolving the pressure waves travelling in the fluid. Finally at the receiver location it records the time-varying static pressure. This is the
+54
+
+sound signal heard by the receiver. As can be imagined, such a simulation needs to incorporate a range of physical phenomena.
+It is essential to properly capture turbulence in the source region in order to predict source pressure fluctuations accurately. Likewise, fluid compressibility needs to be incorporated in the simulation for properly simulating the transmission of sound (pressure) waves. The most general equations that govern all these physical phenomena in a fluid region are the Navier-Stokes equations. A CAA simulation therefore involves obtaining a complete transient solution of the Navier-Stokes equations on a fluid domain encompassing the sound sources, receivers, and the transmission path in between.
+Though CAA is the most general and accurate theoretical approach for simulating aeroacoustics, it is unrealistic for most engineering problems due to a number of practical limitations, as range of scales and range of pressure.
+3.1.1 Range of Scales A CAA simulation needs to resolve a wide range of both time and length scales. Sound frequencies audible to the human ear span from 20 Hz to 20,000 Hz. To
+properly simulate the highest frequency, it is necessary to use a time-step (sampling duration) nearly 10-20 times smaller than the time period of that frequency. Likewise, for accurately capturing the lowest frequency, at least 10 time periods of that frequency need to be simulated. Thus the real time to be simulated is more than 100,000 times greater than the time-step size, necessitating many time-steps. Similarly, the simulation needs to be carried out at a very fine spatial resolution to capture both the generation and transmission of high frequency sound. The source of high pitch sound often are tiny micron sized turbulent eddies. Also the wavelength of high frequency sound waves is of
+55
+
+the order of a few cm. Yet the computational domain has to span large distances to encompass the sources and receivers. For instance, for sound produced by an aircraft jet, the distance between the source (jet) and the receiver (an observer standing on the ground) is many kilometres. In effect to resolve such a wide range of length and time scales a CAA simulation needs a massive number of computational cells, a very short time-step and to model for a relatively long time period. Such computational expense is unrealistic for most practical applications with current state-of-the-art computing resources.
+3.1.2 Range of Pressures Another complication in CAA simulations is the wide range of pressures
+involved. Typically, pressure fluctuations are in the range of a few to a few hundred kPa in a transient flow such as that in the wake of a cylinder. On the other hand, sound pressure is of the order of milli-Pascals. As seen in Figure 3.2, sound pressure corresponding to a 60 dB sound pressure level (SPL) is 20 mPa. A CAA simulation therefore needs to keep track of pressures that differ by a factor of 106 or more. Thus the accuracy of the simulation becomes highly sensitive to truncation error. Even second order discretization schemes typically used for flow computations rapidly deteriorate the tiny sound pressure component in the overall pressure.
+56
+
+Figure 3-2 Relation between sound pressure (Pa) and sound pressure level (dB).
+Computationally expensive higher order schemes are essential to accurately transport the sound signal through the computational domain. However, even 6th or 7th order schemes are unable to accurately transport small sound signals over large distances encountered in many practical problems.
+3.2 CFD-WAVE-EQUATION-SOLVER COUPLING
+Computational Aeroacoustics (CAA) is prohibitively expensive for most practical problems due to the large difference in time, length, and pressure scales involved in sound generation and transmission. However, this large difference in scales provides a good opportunity of greatly simplifying the simulation by splitting the problem into two parts and modeling them separately. Sound generation involves small length scales and tiny pressure scales. Since the scales involved in these two phenomena differ so significantly, the two can be treated separately. The Navier-Stokes equations govern the first part while the latter is governed by the wave equation.
+57
+
+Splitting the problem into two parts thus is advantageous in several ways. First, the expensive high-resolution, transient solution of Navier-Stokes equations can be restricted only to a small area close to the source regions. Secondly, the computational grid can be optimized to suit flow simulation requirements close to the source region, and to meet the transmission simulation requirements in the transmission region.
+Further, this approach allows easier use of analytical models for the source as well as the transmission part, e.g. the analytical model proposed by Ffowcs-Williams and Hawkings can be used for the transmission.
+However, splitting the problem into two parts this way has inherent limitations. First, the approach is valid only when the scales involved in sound generation and transmission are distinctly different. Secondly, this approach cannot effectively handle the backward effect of sound on the flow field. For example, Ffowcs-Williams and Hawkings approach cannot be used to simulate whistles in automotive air intake manifolds since a whistle is caused by resonance between a shear-layer fluctuating in the mouth of a cavity and the sound waves reflecting off the cavity bottom.
+Solving the wave equation using the Boundary Element Method can take into account reflection and scattering. Generally it can be used in closed domain too or when obstacles or reflective surfaces are present in the propagation region, but it can not still handle the backward effect of sound on the flow field. For example, a CFD simulation can be used to calculate the time varying pressure signals at a multitude of points on the acoustics source surfaces as dipole boundary conditions, which will be used by the BEM solver performing the computation of the radiated acoustic field in the region of interest.
+58
+
+3.3 INTEGRAL ACOUSTICS METHODS
+The approach of splitting the flow and sound fields from each other and solving them separately can be simplified further if the receiver is in straight, unobstructed view from every individual point of the source region. Sound transmission from a source point to the receiver can be computed by simple analytical formulation. By integration of such sound transmission over all points on the source surface, the complete sound signal at the receiver can be obtained. As we saw in the previous Chapter, the Lighthill Acoustic Analogy provides the mathematical foundation for such an integral approach. The Ffowcs-Williams and Hawkings (FW-H) method extends the analogy to cases were solid, permeable, or rotating surfaces are sound sources, and is the most complete formulation of the acoustic analogy to date.
+To compute sound with the FW-H method, one needs to perform a well-resolved transient CFD simulation only in the source region. Flow quantities, such as pressure and velocity are stored as functions of time on every point of every source surface during the simulation. At the end, this source data is in the FW-H integral to compute sound at the receiver. Since the FW-H is quite general and allows arbitrarily moving source surfaces, it can also be applied to predicting noise radiating from fans.
+3.4 SYNTHETIC NOISE GENERATION METHOD
+All the three methods described so far require well-resolved transient CFD simulations since they aim at determining the actual time-varying sound pressure signal at the receiver and from that the sound spectrum. In several practical engineering
+59
+
+situations one needs to determine locations and relative strengths of sound sources rather than such spectra at the receivers. If the sound is broadband, i.e. without any prominent tones characterized by sharp peaks in spectrum, then source strengths can be evaluated with reasonable accuracy from the time-averaged structure of the turbulent flow in the source regions.
+Figure 3-3 Iso-surface of Lilley’s acoustic source (total) strength around a generic sedan [48].
+Turbulence is the primary cause of sound in aeroacoustics, therefore, in a broad sense, regions of the flow field where turbulence is strong are louder sources of sound. To-date there are a number of analytical models which synthesize sound at points in the flow field from local flow and turbulence quantities to estimate local sound source strengths. These are collectively referred to as broad-band noise source models and are based on an approach referred to as the synthetic noise generation method. The key advantage of these models is that they require very modest computational resources compared to the methods described in the previous sections. Broadband noise models only need a steady state flow solution whereas the other methods essentially require wellresolved transient flow solutions.
+60
+
+4 NOISE GENERATION MECHANISM
+In the following section we will discuss in detail the mechanism of noise generation for some typical problems of strong engineering interest. A good understanding of the physics involved in sound generation is crucial when choosing the models and methodologies to simulate it. This will also help in interpreting the results obtained from a simulation and to figure out the limitations of the information we can get.
+4.1 CAVITY NOISE
+A typical example of Aeroacoustics is cavity noise. Air flowing past a cavity produces a distinct sound. There are no moving parts in this case. The flow itself is the source of sound. A shear layer establishes in the mouth of the cavity and oscillates at a particular frequency causing pressure fluctuations to propagate away from the cavity mouth that manifest as sound.
+The flow over a cavity is characterized by a complex feedback process that can lead to large-amplitude, self-sustained oscillations of the pressure, velocity, and density fields in and around the cavity. The feedback process involves the growth and convection of instability waves in the shear layer spanning the cavity, the generation of a largeamplitude acoustic source associated with shear-layer impingement on the cavity trailing edge, feedback of an acoustic disturbance to the separation edge, and conversion of the
+62
+
+feedback disturbance to shear-layer instability waves through a receptivity process, Figure 4-1.
+Figure 4-1 Triggering of vortex shedding.
+Hence the process involves a time-dependent, quasi-periodic vortex shedding that can interact with the acoustic resonance of the cavity which acts as a Helmholtz resonator. When the frequency of the flow fluctuations is far from that of acoustic resonance, the two phenomena are weakly coupled and can be treated independently. However, when these two frequencies are close an intense energy exchange between the driving flow oscillations and fluid inside the cavity can occur.
+These strong oscillations are undesirable in many engineering applications as they can induce structural vibration and fatigue, noise radiation, and drag on bodies possessing the cavity. Cavity flows are pertinent to a wide range of real-world applications, ranging from landing gear and weapons bays in aircraft to flow over ground vehicles. The importance of cavity flows in these engineering applications is evidenced by the large number of review articles on the subject.
+The whole phenomena can be simplified by the following mechanical analogy of a mass-spring-damped oscillator, Figure 4-2. The driving force in our case can be the vortex shedding over the opening of the cavity, the mass M is the mass of the air in the neck, the spring constant K corresponds to the elasticity of the air contained in the cavity,
+63
+
+the resistance R is related to the viscous and radiation losses through the neck of the cavity and to the absorption and compliance of the walls.
+Figure 4-2 Mechanical analogy of acoustic resonant cavity.
+Figure 4-3 Acoustic cavity.
+If we assume that the volume of the cavity is V, the length of the neck is L, the speed of sound to be c, and S is the cross section area of the neck of the cavity as shown in Figure 4-3, the frequency of the Helmholtz resonator can be shown to be:
+64
+
+fH
+
+
+
+c 2
+
+S VL
+
+(4.1)
+
+A classic example of the use of CAA is the cavity noise that can be generated in
+
+the cabin of a car, sometimes called aerodynamic buffeting. Buffeting is a wind noise of
+
+high intensity and low frequency heard in a moving vehicle when a window or sunroof is
+
+open. There are two sources of this sound (1) the transient vortex shedding in the wake of
+
+the side view mirror and (2) a shear-layer flapping in the window or sun-roof opening.
+
+Both sources contribute to side window buffeting while only the latter acts as a source of
+
+sun-roof buffeting. Pressure fluctuations induced by these flow structures propagate in
+
+the vehicle cabin and are heard by the driver and passengers. Consequently, the sources
+
+and receivers are located fairly close to each other.
+
+Two other characteristics of buffeting allow it to be modelled with CAA. First,
+
+buffeting sound frequency is very low, in the range of 15 to 25 Hz. As a result the CAA
+
+simulation can be conducted with a relative few number of large time-steps without
+
+exorbitant computational expense. Secondly, buffeting sound pressure levels are very
+
+high, often over 100 dB. Thus, the sound pressure fluctuation is fairly large (2 Pa as per
+
+Figure 3-2) and can be captured accurately without undue truncation errors with usual
+
+second order discretization schemes.
+
+Similar considerations can be used for the cavity noise that is generated in the
+
+door gap of any ground vehicle at moderate speed, although the frequency of the noise
+
+produced can be up to thousands of hertz as it depends on the velocity of the shed
+
+vortices (proportional to the free stream velocity) and on the characteristic dimension of
+
+65
+
+the cavity. The higher frequencies involved make the CAA simulation more difficult, but it will be shown that is still affordable with a moderate computational effort.
+4.2 VORTEX SHEDDING NOISE
+For describing this type of noise we can refer, to the noise generated by a cylinder in a flow field, which is representative of several bluff body flows found in engineering applications (e.g., automobile antenna noise, aircraft landing gear noise, etc.). As it was said in the Chapter 3, it was shown ("The influence of solid boundaries on aerodynamic sound", Curle, 1955, Proc. Roy. Soc. London A 231, 505.) that the sound generated by turbulent flow in the region of a solid body is exactly analogous to the sound radiated by a “free space” distribution of quadrupole sources plus a surface distribution of dipoles. When the Mach number is low the main contribution to noise is the dipole surface distribution.
+Let’s first introduce the Kármán vortex street. A Kármán vortex street is a repeating pattern of swirling vortices caused by the unsteady separation of flow over bluff bodies. They are named after the engineer and fluid-dynamicist, Theodore von Kármán.
+A vortex street will only be observed over a given range of Reynolds numbers Re, typically above a limiting Re value of about 70. The range of Re values will vary with the size and shape of the body from which the eddies are being shed, as well as with the kinematic viscosity of the fluid. The governing parameter, the Reynolds number, is essentially a measure of the ratio of inertial to viscous forces in the flow and is defined as
+(4.2) 66
+
+where:  d = diameter of the cylinder (or some other suitable measure of width of non-circular bodies)  V = steady velocity of the flow upstream of the cylinder  = The kinematic viscosity of the fluid.
+Over a large Re range (70<Re<107 for circular cylinders), eddies are shed continuously from each side of the body, forming rows of vortices in its wake. The alternation leads to the core of a vortex in one row being opposite the point midway between two vortex cores in the other row, giving rise to the distinctive pattern shown in Figure 4-4.
+Figure 4-4 Von Karman vortex street in the wake of a cylinder (Reynolds>70).
+67
+
+Ultimately, the energy of the vortices is consumed by viscosity as they move further down stream and the regular pattern disappears, Figure 4-5.
+Figure 4-5 Von Kármán vortex street off the Chilean coast near the Juan Fernandez Islands.
+The mechanism of noise generation is that the vortex shedding due to the unsteady wake induces a pressure fluctuation on the surface that radiates as sound, this will often be in form of tonal noise as the vortices are shed with a precise frequency. This vortex shedding can result in the production of whistles such as around car aerials or even structural damage as in the case of tall chimneys. This problem can be reduced dramatically by wrapping a helical strake around the cylinder, Figure 4-6.
+The ability to accurately compute cylinder noise across a broad range of Reynolds numbers with numerical methods would enhance the understanding of bluff body noise generation mechanisms.
+Anyway, a complete understanding of circular cylinder flow is particularly elusive because transition from laminar to turbulent flow occurs in a distinct succession over an enormous range of Reynolds numbers, and each transition state is sensitive to extremely
+68
+
+Figure 4-6 The helical strake around the cylinder breaks up the vortex shedding coherence along the span.
+small disturbances. These disturbances, such as free stream turbulence and surface roughness, can significantly alter the range of Reynolds numbers over which each transition state occurs. Especially at Reynolds numbers at and above roughly 100,000, experiments can show widely different behaviour due to differences in the experimental flow conditions.
+The flow around a circular cylinder is often characterized into three distinct flow regimes: subcritical, supercritical, and transcritical. Subcritical flow indicates purely laminar boundary layer separation. In this regime, regular vortex shedding at a Strouhal number of about 0.2 is observed over a range of Reynolds numbers from roughly 200 to 100,000. The supercritical regime, from Reynolds numbers of roughly 100,000 to 4 million, is characterized by either a dramatic rise in the Strouhal number or else a loss of organized vortex shedding altogether. Also, the wake is noticeably narrower and the forces are much smaller in magnitude. [17] It is somewhere in this regime that transition
+69
+
+to turbulence begins to occur on the body at or near the point of separation. In the transcritical regime, above a Reynolds number of roughly 4 million, periodic vortex shedding re-establishes at a higher Strouhal number of 0.26 - 0.30. The cylinder now experiences fully turbulent boundary layer separation and higher force coefficients than in the supercritical regime.
+Any attempt to numerically model circular cylinder flow is complicated by the fact that the flow above a Reynolds number of around 180 is three-dimensional, [19,20] raising doubts about the applicability of two-dimensional simulations. Additionally, transition occurs off-body in the wake or shear layer at Reynolds numbers between roughly 200 and the supercritical regime. [13] Without performing very expensive direct numerical simulations (DNS), this behaviour is not captured by numerical methods that solve the Navier-Stokes equations on typical grids used for aerodynamic analysis. This deficiency may or may not be important at lower Reynolds numbers, depending on how far behind the cylinder transition occurs and what feature of the flow is of interest. But it certainly has an adverse effect at higher Reynolds numbers for which transition occurs at or near the separation point on the cylinder. For Reynolds numbers at and above the supercritical regime, Reynolds-averaging with the use of a turbulence model is one way to introduce the important effect of turbulence into a numerical simulation. However, without an accurate built-in transition model, it is difficult, if not impossible, to model the important effects of transition, particularly when it occurs on or near the body. It is not surprising, then, that most numerical studies of flow around a circular cylinder have focused primarily on low Reynolds number flows less than about1000.
+70
+
+At Reynolds numbers of roughly 200 or less, many researchers have successfully computed the Strouhal number and mean drag over circular cylinders (see for example references [21]). At higher Reynolds numbers, however, two-dimensional numerical methods cannot predict the drag and lift forces accurately, due to the increasingly prominent three-dimensionality of the real flow field. Nonetheless, it is still important to try to understand and characterize the capabilities and limitations of two-dimensional analysis as this may yield a deeper insight into the physics of both Aerodynamics and Aeroacoustics at a relatively low cost.
+4.3 AIRFOIL SELF-NOISE
+Inflow turbulence noise caused by the interaction of the leading edge of an airfoil with a turbulent inflow is often called leading edge noise. Researchers currently think that sharp leading edge geometries are more susceptible to inflow turbulence noise.
+Airfoil self-noise is instead due to the interaction between an airfoil blade and the turbulence produced in its own boundary layer and near wake. It is important because it represents the total noise produced when an airfoil encounters smooth non-turbulent inflow. Over the last 20 years, research has been conducted (e.g. at NASA Langley Research Centre) to develop fundamental understanding, as well as prediction capability, of the various self-noise mechanisms. The interest is motivated by its importance to broadband helicopter rotor, wind turbine, and airframe noises.
+In Figure 4-7, the subsonic flow conditions for five self-noise mechanisms of concern here are illustrated. At high Reynolds number Rc (based on chord length), turbulent boundary layers (TBL) develop over most of the airfoil. Noise is produced as
+71
+
+this turbulence passes over the trailing edge (TE). At low Rc, largely laminar boundary layers (LBL) develop, whose instabilities result in vortex shedding (VS) and associated noise from the TE. For nonzero angles of attack, the flow can separate near the TE on the suction side of the airfoil to produce TE noise due to the shed turbulent vorticity. At very high angles of attack, the 'separated flow near the TE gives way to large-scale separation (deep stall) causing the airfoil to radiate low-frequency noise similar to that of a bluff body in flow.
+Figure 4-7 Airfoil self-noise generation mechanism.
+72
+
+Another noise source is vortex shedding occurring in the small separated flow region after of a blunt TE. The remaining source considered here is due to the formation of the tip vortex, containing highly turbulent flow, occurring near the tips of lifting blades or wings.
+Lots of semi-empirical models have been studied and developed to predict airfoil noise but as it will be shown in the next sections none of them has been really successful and robust over a wide range of different angles of attack, geometries and flow conditions.
+4.3.1 Turbulent-Boundary-Layer-Trailing-Edge (TBL-TE) Noise Using measured surface pressures, Brooks and Hodgson [24] demonstrated that if
+sufficient information is known about the TBL convecting surface pressure field passing the TE, then TBL-TE noise can be accurately predicted. Schlinker and Amiet [24] employed a generalized empirical description of surface pressure to predict measured noise. However, the lack of agreement for many cases indicated a need for a more accurate pressure description than was available. The NASA Langley Research Centre supported a research effort [24] to model the turbulence within boundary layers as a sum of discrete "hairpin" vortex elements. In a parallel and follow-up effort, in [24] the authors matched measured and calculated mean boundary layer characteristics to prescribed distributions of the discrete vortex elements so that associated surface pressure could be determined. The use of the model to predict TBL TE noise proved disappointing because of its inability to show correct trends with angle of attack or velocity. The results showed that to successfully describe the surface pressure the history of the turbulence must be accounted for in addition to the mean TBL characteristics.
+73
+
+4.3.2 Separation-Stall Noise Assessments of the separated flow noise mechanism for airfoils at moderate to
+high angles of attack have been very limited [24]. The relative importance of airfoil stall noise was illustrated in the data of Fink and Bailey [24] in an airframe noise study. At stall, noise increased by more than 10 dB relative to TBL-TE noise, emitted at low angles of attack. Paterson et al. [24] found evidence through surface to far field crosscorrelations that for mildly separated flow the dominant noise is emitted from the TE, whereas for deep stall the noise radiated from the chord as a whole. No predictive methods are known to have been developed. A successful method would have to account for the gradual introduction of separated flow noise as airfoil angle of attack is increased. Beyond limiting angles, deep stall noise would be the only major contributing source.
+4.3.3 Laminar-Boundary-Layer-Vortex-Shedding (LBL-VS) Noise When a LBL exists over most of at least one side of an airfoil, vortex shedding
+noise can occur. The vortex shedding is apparently coupled to acoustically excited aerodynamic feedback loops [24]. The feedback loop is taken between the airfoil TE and an upstream "source" point on the surface, where Tollmien-Schlichting instability waves originate in the LBL. The resulting noise spectrum is composed of quasi-tones related to the shedding rates at the TE. The gross trend of the frequency dependence was found by Paterson et al. [24] by scaling on a Strouhal number basis with the LBL thickness at the TE being the relevant length scale. Simple flat plate LBL theory was used to determine the boundary layer thicknesses  in the frequency comparisons. The use of measured values of  [24] verified the general Strouhal dependence. Additionally, for zero angle of
+74
+
+attack, Brooks and Marcolini [24] found that overall levels of LBL-VS noise could be normalized so that the transition from LBL-VS noise to TBL-TE noise is a unique function of Rc. There have been no LBL-VS noise prediction methods proposed, because most studies have emphasized the examination of the rather erratic frequency dependence of the individual quasi-tones in attempts to explain the basic mechanism. However, the scaling successes described above in [24] can offer initial scaling guidance for the development of predictions in spite of the general complexity of the mechanism.
+4.3.4 Tip Vortex Formation Noise The tip noise source has been identified with the turbulence in the local separated
+flow associated with formation of the tip vortex [24]. The flow over the blade tip consists of a vortex with a thick viscous turbulent core. The mechanism for noise production is taken to be TE noise due to the passage of the turbulence over the TE of the tip region. George and Chou [24] proposed a prediction model based on spectral data from delta wing studies (assumed to approximate the tip vortex flow of interest), mean flow studies of several tip shapes, and TE noise analysis. Brooks and Marcolini [24] conducted an experimental study to isolate tip noise in a quantitative manner. The data were obtained by comparing sets of two- and three-dimensional test results for different model sizes, angles of attack, and tunnel flow velocities.
+4.3.5 Noise Trailing-Edge-Bluntness Vortex-Shedding Noise due to vortex shedding from blunt trailing edges was established by Brooks
+and Hodgson [24] to be an important airfoil self-noise source. Other studies of bluntness effects, as reviewed by Blake and Brooks and Schlinker [24], were only aerodynamic in
+75
+
+scope and dealt with TE thicknesses that were large compared with the boundary-layer displacement thicknesses. For rotor blade and wing designs, the bluntness is likely to be small compared with boundary-layer thicknesses. Grosveld [24] to obtained a scaling law for TE bluntness noise. He found that the scaling model could explain the spectral behaviour of high-frequency broadband noise of wind turbines. Chou and George [24] followed suit with an alternative scaling of the data to model the noise. For both modelling techniques neither the functional dependence of the noise on boundary-layer thickness (as compared with the TE bluntness) nor the specifics of the blunted TE shape were incorporated. A more general model is needed.
+4.3.6 Airfoil Tonal Noise It is interesting to report the experimental investigations at National Aerospace
+Laboratory NLR in The Netherlands [49]. A wide testing was performed on different airfoils and airflow conditions to investigate leading edge, trailing edge and tonal noise.
+One of the most interesting observations of the test campaign was the presence of intense, narrowband peaks in the trailing edge noise spectra for several airfoils at different operating conditions. These are called “pure tones” and are perceived as such by a listener. They are illustrated in Figure 4-8 for the trailing edge noise spectra of the untripped S834 (α=10°), SG6043 (α=0°) and SD2030 (α=0°) airfoils. The nature of these tones was investigated in more detail at 22.4 m/s, because they were most pronounced at this tunnel speed. The spectra for these cases show peaks at around 1 kHz and 2 kHz for all three airfoils. The angle of attack range for which these tones occurred was estimated by listening in the test section during a sweep of angle of attack. This gave the following ranges: 7.5°<α<13° for S834, -8°<α<2° for SG 6043, and -10°<α<4° for SD 2030.
+76
+
+Figure 4-8 Narrowband trailing edge noise spectra for three untripped airfoils that showed intense tones (U=22.4 m/s; α=10° for S834, α=0° for SG 6043 and SD 2030).
+Although such tones sometimes result from blunt trailing edge vortex shedding, the extremely thin trailing edges of the models made this unlikely. Calculations of the Strouhal number (St), which is approximately 0.2 for von Kármán vortex shedding, confirmed this was not the cause. It was hypothesized, therefore, that laminar boundary layer vortex shedding caused the tones. To investigate this hypothesis, they applied a different thickness of zigzag tape and observed the effects. By tripping one side of the airfoil at a time, it could be determine where the tones originated. For the S834 and SD2030 airfoils, it was the pressure side, whereas for the SG6043 airfoil, the tones originated from the suction side. Stethoscope measurements on the pressure side of the untripped S834 model indicated a laminar boundary layer up to about 80% chord. With tripping, transition to a turbulent boundary layer occurred directly behind the trip at 5%
+77
+
+chord. This observation supported the hypothesis that the tones were due to laminar boundary layer vortex shedding.
+Another interesting observation was that the tones disappeared in the presence of upstream turbulence. Observation of the source plots with and without the turbulence grid showed that the inflow turbulence removed the trailing edge tones, and the grid noise became dominant. Evidently, the inflow turbulence interrupts the feedback mechanism responsible for the tones.
+Figure 4-9 shows the airfoils used for the tests at NLR.
+Figure 4-9 Wind tunnel airfoil models.
+78
+
+4.4 PROPELLER NOISE
+A propeller can be generally described as an open (un-shrouded), rotating, bladed device. Although there are many differences in details among various designs and applications, such as number of blades, blade shape, and airfoil section, the noisegenerating process is basically the same for all. The major propeller noise components are thickness noise (due to the volume displacement of the blades), steady-loading noise (due to the steady forces on the blades), unsteady-loading noise (due to circumferentially non-uniform loading), quadrupole (nonlinear) noise, and broadband noise. Although the relative importance of these sources depends on design and operating conditions, defining them will completely describe the acoustic signature of a propeller.
+One important consideration is the effect of installation on the noise produced by a propeller. This effect is essentially the difference between the laboratory environment and the real world. It is generally assumed that in a laboratory environment conditions are ideal, that is, the propeller is operating in perfectly uniform flow. For an operational propeller, this is never the case. Propellers are always operating in a flow field that has some distortion. This can be from the wing up-wash, the pylon wake, the airplane angle of attack, or the inflow turbulence. Since this distortion leads to additional noise, it is a factor which must be considered in defining the total noise of an operational propeller.
+4.4.1 High Performance Propeller and Installation Noise The blades of a propeller are designed to produce a region of low pressure on one
+side and high pressure on the other. The resulting forces induce air from the front and
+79
+
+push it back, resulting in thrust. Because propellers impart a relatively small amount of velocity to a large mass of air, their efficiencies are high.
+Figure 4-10 High Performance Propellers.
+However, the efficiencies of conventional propellers tend to fall off at high speed. This has led to a variation of the propeller called the propfan. The propfan is also an open rotor, but compared with conventional propellers it has a smaller diameter for a given
+80
+
+thrust and has more blades, which are swept. To improve efficiency further, a second rotor can be added behind a propeller, resulting in a counter-rotating propeller.
+A typical high-performance, modern propeller in widespread use on commuter airplanes is shown in Figure 4-10. These propellers have two to six relatively straight, narrow blades. Although this type of propeller is well-suited for moderate flight speed (below a Mach number of about 0.65), its performance decreases at higher flight speeds. The primary limitation of this propeller is associated with high drag at high speed due to blade thickness and large relative blade section speed.
+The propfan, shown in Figure 4-10, has been developed to extend the practical flight envelope of the propeller. Compared with conventional propellers, the propfan has more blades (from 6 to 12), uses thin airfoils and swept blades to provide good aerodynamic performance at high speed, and operates at much higher power loading to reduce the diameter. One factor leading to loss of efficiency in propellers is swirl in the wake resulting from engine torque. Generation of swirl uses energy but does not contribute to thrust. The amount of swirl is related to the power loading. One concept to recover the swirl losses is to add a second blade row behind the first. This is shown in Figure 4-10 for the propfan. The second blade row rotates in the direction opposite to that of the first, thus cancelling its swirl. This cancellation can result in performance increases of 8 to 10 percent compared with that of single rotation propellers [23].
+In considering the noise of propellers and propfans, it is important to address the installation of these devices, as this can have a significant effect on the noise generation process. In their simplest forms noise calculation procedures and analyses assume uniform conditions, that is, the loads on the blades are absolutely steady.
+81
+
+In actuality, that is rarely the case. Although laboratory tests can be conducted such that the incoming flow is uniform and free of turbulence, the real environment is never as ideal. The amount of distortion is generally related to two parameters: operating conditions and installation.
+Operating conditions include static (zero flight speed) or forward flight. In flight, the propeller can be at an angle of attack. Static conditions give rise to severe inflow distortion and the resulting noise is vastly different than that from propellers in flight. Angle of attack or skewed inflow causes unsteady loading, with periodicities equal to one cycle per rotation. Regarding installations, the cleanest configuration is in front of a long, slender, axisymmetric nacelle. The worst is probably behind a wing. Intermediate configurations include wing-mounted tractors, aft-mounted tractors in front of a pylon, and aft-mounted pushers behind a pylon. These installations result in varying degrees of inflow distortion which typically results in added sources (unsteady loading noise) and increases the noise produced by the propeller.
+It is thus important to evaluate the propeller as an installed system rather than as an isolated component when noise requirements are addressed. If a propeller is designed to meet the noise goals, even with a comfortable margin of error, ignoring installation effects can result in a substantial under-prediction of the system noise, with the strong possibility that the airplane will not meet the noise requirements.
+Thus, there is a growing interest in CFD Aeroacoustics Simulations because they could address the issue of modelling the whole system: installed propeller in real operating conditions.
+82
+
+4.4.2 Propeller Noise Characteristics Propeller noise can be classified into three categories: harmonic noise, broadband
+noise, and narrow-band random noise. Harmonic noise is the periodic component, that is, its time signature can be
+represented by a pulse which repeats at a constant rate. If an ideal propeller with B blades is operating at constant rotational speed N, then the resulting noise appears as a signal with fundamental frequency BN. The blade-passage period is 1/BN. Typically the generated pulse is not a pure sinusoid, so that many harmonics exist. These occur at integer multiples of the fundamental frequency. The first harmonic is the fundamental, the second harmonic occurs at twice the fundamental frequency, and so on. Figure 4-11 illustrates the characteristics of harmonic noise in both the time and frequency domains.
+Figure 4-11 Characteristics of propeller rotational noise.
+83
+
+Broadband noise is random in nature and contains components at all frequencies. A typical broadband noise signal for propellers is shown in Figure 4-12. The frequency spectrum is continuous, although there may be a “shape” to it because not all frequencies have the same amplitude.
+Figure 4-12 Characteristics of propeller broadband noise.
+Narrow-band random noise is almost periodic. However, examination of the harmonics reveals that the energy is not concentrated at isolated frequencies, but rather it is spread out. As illustrated in Figure 4-13 the signal may appear periodic, but certain components do not repeat exactly with time. The frequency spectrum shows discrete components, but these spread out, particularly at the higher frequencies.
+84
+
+Figure 4-13 Characteristics of propeller narrow-band random noise.
+The mechanisms which lead to the generation of the spectral characteristics discussed above are described in this section.
+4.4.3 Steady Sources Steady sources are those which would appear constant in time to an observer on
+the rotating blade. They produce periodic noise because of their rotation. Noise sources are usually divided into three categories: linear thickness, linear loading, and (nonlinear) quadrupole.
+Thickness noise arises from the transverse periodic displacement of the air by the volume of a passing blade element. The amplitude of this noise component is
+85
+
+proportional to the blade volume, with frequency characteristics dependent on the shape of the blade cross section (airfoil shape) and rotational speed.
+Thickness noise can be represented by a monopole source distribution and becomes important at high speeds. Thin blade sections and planform sweep are used to control this noise.
+Loading noise is a combination of thrust and torque (or lift and drag) components which result from the pressure field that surrounds each blade as a consequence of its motion. This pressure disturbance moving in the medium propagates as noise. Loading is an important mechanism at low to moderate speeds.
+For moderate blade section speed, the thickness and loading sources are linear and act on the blade surfaces. When flow over the blade sections is transonic, nonlinear effects can become significant. In aeroacoustic theory these can be modelled with quadrupole sources distributed in the volume surrounding the blades.
+In principle, the quadrupole could be used to account for all the viscous and propagation effects not covered by the thickness and loading sources. However, the only practical application of this term to propeller acoustics has been its evaluation in the non viscous flow close to the blade surface. At transonic blade section speeds the quadrupole enhances the linear thickness and loading sources and causes a noise increase for unswept, high-tip-speed propellers and helicopter rotors.
+4.4.4 Unsteady Sources Unsteady sources are time dependent in the rotating-blade frame of reference.
+They include periodic and random variation of loading on the blades. A typical example of periodic blade loading in propellers is the effect of shaft angle of attack. When the
+86
+

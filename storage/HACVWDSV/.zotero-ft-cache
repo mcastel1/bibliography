@@ -1,0 +1,1997 @@
+Benchmark Computations of Laminar Flow Around a Cylinder
+M. Sch¨afera and S. Turekb
+(With support by F. Dursta, E. Krausec and R. Rannacherb)
+aLehrstuhl fu¨r Str¨omungsmechanik, Universit¨at Erlangen-Nu¨rnberg Cauerstr. 4, D-91058 Erlangen, Germany
+bInstitut fu¨r Angewandte Mathematik, Universit¨at Heidelberg INF 294, D-69120 Heidelberg, Germany
+cAerodynamisches Institut, RWTH Aachen Wu¨llnerstr. zw. 5 u. 7, D-52062 Aachen, Germany
+SUMMARY
+An overview of benchmark computations for 2D and 3D laminar ﬂows around a cylinder is given, which have been deﬁned for a comparison of diﬀerent solution approaches for the incompressible Navier-Stokes equations developed within the Priority Research Programme. The exact deﬁnitions of the benchmarks are recapitulated and the numerical schemes and computers employed by the various participating groups are summarized. A detailed evaluation of the results provided is given, also including a comparison with a reference experiment. The principal purpose of the benchmarks is discussed and some general conclusions which can be drawn from the results are formulated.
+1. INTRODUCTION
+Under the DFG Priority Research Program “Flow Simulation on High Performance Computers” solution methods for various ﬂow problems have been developed with considerable success. In many cases, the computing times are still very long and, because of a lack of storage capacity and insuﬃcient resolution, the agreement between the computed results and experimental data is - even for laminar ﬂows - only qualitative in nature. If numerical solutions are to play a similar role to wind tunnels, they have to provide the same accuracy as measurements, in particular in the prediction of the overall forces.
+Several new techniques such as “unstructured grids”, “multigrid”, “operator splitting”, “domain decomposition” and “mesh adaptation” have been used in order to improve the performance of numerical methods. To facilitate the comparison of these solution approaches, a set of benchmark problems has been deﬁned and all participants of the Priority Research Program working on incompressible ﬂows have been invited to submit their solutions. This paper presents the results of these computations contributed by altogether 17 research groups, 10 from within of the Priority Research Program and 7 from outside. The major purpose of the benchmark is to establish, whether constructive conclusions can be drawn from a comparison of these results so that the solutions can be improved. It is not the aim to come to the conclusion that a particular solution A is better than another solution B; the intention is rather to determine whether and why certain
+1
+
+approaches are superior to others. The benchmark is particularly meant to stimulate future work.
+In the ﬁrst step, only incompressible laminar test cases in two and three dimensions have been selected which are not too complicated, but still contain most diﬃculties representative of industrial ﬂows in this regime. In particular, characteristic quantities such as drag and lift coeﬃcients have to be computed in order to measure the ability to produce quantitatively accurate results. This benchmark aims to develop objective criteria for the evaluation of the diﬀerent algorithmic approaches. For this purpose, the participants have been asked to submit a fairly complete account of their computational results together with detailed information about the discretization and solution methods used. As a result it should be possible, at least for this particular class of ﬂows, to distinguish between “efﬁcient” and “less eﬃcient” solution approaches. After this benchmark has been proved to be successful it will be extended to include also certain turbulent and compressible ﬂows.
+It is particularly hoped that this benchmark will provide the basis for reaching decisive answers to the following questions which are currently the subject of controversial discussion:
+1. Is it possible to calculate incompressible (laminar) ﬂows accurately and eﬃciently by methods based on explicitly advancing momentum?
+2. Can one construct an eﬃcient solver for incompressible ﬂow without employing multigrid components, at least for the pressure Poisson equation?
+3. Do conventional ﬁnite diﬀerence methods have advantages over new ﬁnite element or ﬁnite volume techniques?
+4. Can steady-state solutions be eﬃciently computed by pseudo-time-stepping techniques?
+5. Is a low-order treatment of the convective term competitive, possibly for smaller Reynolds numbers?
+6. What is the “best” strategy for time stepping: fully coupled iteration or operator splitting (pressure correction scheme)?
+7. Does it pay to use higher order discretizations in space or time?
+8. What is the potential of using unstructured grids?
+9. What is the potential of a posteriori grid adaptation and time step selection in ﬂow computations?
+10. What is the “best” approach to handle the nonlinearity: quasi-Newton iteration or nonlinear multigrid?
+These questions appear to be of vital importance in the construction of eﬃcient and reliable solvers, particularly in three space dimensions. Everybody who is extensively consuming computer resources for numerical ﬂow simulation should be interested.
+The authors have tried their best in presenting and evaluating the contributed results in as much detail as possible and hope that all participants of the benchmark will ﬁnd themselves correctly quoted.
+2
+
+2. DEFINITION OF TEST CASES
+This section gives a brief summary of the deﬁnitions of the test cases for the benchmark computations, including precise deﬁnitions of the quantities which had to be computed and also some additional instructions which were given to the participants.
+
+2.1 Fluid Properties
+
+The ﬂuid properties are identical for all test cases. An incompressible Newtonian ﬂuid is considered for which the conservation equations of mass and momentum are
+
+∂Ui ∂xi
+
+=
+
+0
+
+ρ
+
+∂Ui ∂t
+
++
+
+ρ
+
+∂ ∂xj
+
+(Uj Ui )
+
+=
+
+ρν
+
+∂ ∂xj
+
+∂Ui ∂xj
+
++
+
+∂Uj ∂xi
+
+∂P −
+∂xi
+
+The notations are time t, cartesian coordinates (x1, x2, x3) = (x, y, z), pressure P and velocity components (U1, U2, U3) = (U, V, W ). The kinematic viscosity is deﬁned as ν = 10−3 m2/s, and the ﬂuid density is ρ = 1.0 kg/m3.
+
+2.2 2D Cases
+
+For the 2D test cases the ﬂow around a cylinder with circular cross–section is considered. The geometry and the boundary conditions are indicated in Fig. 1. For all test cases the
+
+(0,H)
+
+0.16m
+
+0.15m
+
+inlet (0,0)
+
+0.15m
+
+U=V=0 0.1m
+
+U=V=0 U=V=0
+
+outlet y x
+
+2.2m
+
+Figure 1: Geometry of 2D test cases with boundary conditions
+
+outﬂow condition can be chosen by the user.
+Some deﬁnitions are introduced to specify the values which have to be computed. H = 0.41 m is the channel height and D = 0.1 m is the cylinder diameter. The Reynolds number is deﬁned by Re = U D/ν with the mean velocity U (t) = 2U (0, H/2, t)/3. The drag
+
+3
+
+and lift forces are
+
+FD =
+
+(ρν
+S
+
+∂vt ∂n
+
+ny
+
+−
+
+P
+
+nx)
+
+dS
+
+,
+
+FL = −
+
+S
+
+(ρν
+
+∂vt ∂n
+
+nx
+
++
+
+P
+
+ny
+
+)
+
+dS
+
+with the following notations: circle S, normal vector n on S with x-component nx and
+
+y-component ny, tangential velocity vt on S and tangent vector t = (ny, −nx). The drag
+
+and lift coeﬃcients are
+
+cD
+
+=
+
+2Fw ρU 2D
+
+,
+
+cL
+
+=
+
+2Fa ρU 2D
+
+The Strouhal number is deﬁned as St = Df /U , where f is the frequency of separation. The length of recirculation is La = xr − xe, where xe = 0.25 is the x-coordinate of the end of the cylinder and xr is the x-coordinate of the end of the recirculation area. As a further reference value the pressure diﬀerence ∆P = ∆P (t) = P (xa, ya, t) − P (xe, ye, t) is deﬁned, with the front and end point of the cylinder (xa, ya) = (0.15, 0.2) and (xe, ye) = (0.25, 0.2), respectively.
+
+a) Test case 2D-1 (steady):
+The inﬂow condition is U (0, y) = 4Umy(H − y)/H2, V = 0
+with Um = 0.3 m/s, yielding the Reynolds number Re = 20. The following quantities should be computed: drag coeﬃcient cD, lift coeﬃcient cL, length of recirculation zone La and pressure diﬀerence ∆P .
+
+b) Test case 2D-2 (unsteady):
+The inﬂow condition is
+U (0, y, t) = 4Umy(H − y)/H2, V = 0
+with Um = 1.5 m/s, yielding the Reynolds number Re = 100. The following quantities should be computed: drag coeﬃcient cD, lift coeﬃcient cL and pressure diﬀerence ∆P as functions of time for one period [t0, t0 + 1/f ] (with f = f (cL)), maximum drag coeﬃcient cDmax, maximum lift coeﬃcient cLmax, Strouhal number St and pressure diﬀerence ∆P (t) at t = t0 + 1/2f . The initial data (t = t0) should correspond to the ﬂow state with cLmax.
+
+c) Test case 2D-3 (unsteady):
+The inﬂow condition is U (0, y, t) = 4Umy(H − y) sin(πt/8)/H2, V = 0
+with Um = 1.5 m/s, and the time interval is 0 ≤ t ≤ 8 s. This gives a time varying Reynolds number between 0 ≤ Re(t) ≤ 100. The initial data (t = 0) are U = V = P = 0. The following quantities should be computed: drag coeﬃcient cD, lift coeﬃcient cL and pressure diﬀerence ∆P as functions of time for 0 ≤ t ≤ 8 s, maximum drag coeﬃcient cDmax, maximum lift coeﬃcient cLmax, pressure diﬀerence ∆P (t) at t = 8 s.
+4
+
+2.3 3D Cases
+For the 3D test cases the ﬂows around a cylinder with square and circular cross–sections are considered. The problem conﬁgurations and boundary conditions are illustrated in Figs. 2 and 3. The outﬂow condition can be selected by the user. Some deﬁnitions are
+
+U=V=W=0
+
+Outflow plane
+
+2.5m
+
+(0,H,0)
+
+0.16m
+
+0.1m
+0.41m 0.15m
+
+(0,0,0)
+
+0.41m Inflow plane
+
+U=V=W=0
+
+1.95m
+
+0.45m
+
+0.1m
+
+(0,0,H)
+
+U=V=W=0
+
+y
+x z
+
+Figure 2: Conﬁguration and boundary conditions for ﬂow around a cylinder with square cross–section.
+
+introduced to specify the values which have to be computed. The height and width of the channel is H = 0.41 m, and the side length and diameter of the cylinder are D = 0.1 m. The characteristic velocity is U (t) = 4U (0, H/2, H/2, t)/9, and the Reynolds number is deﬁned by Re = U D/ν. The drag and lift forces are
+
+FD =
+
+(ρν
+S
+
+∂vt ∂n
+
+ny
+
+−
+
+pnx)
+
+dS
+
+,
+
+FL = −
+
+S
+
+(ρν
+
+∂vt ∂n
+
+nx
+
++
+
+P
+
+ny )
+
+dS
+
+with the following notations: surface of cylinder S, normal vector n on S with x-component nx and y-component ny, tangential velocity vt on S and tangent vector t = (ny, −nx, 0). The drag and lift coeﬃcients are
+
+cD
+
+=
+
+2Fw ρU 2DH
+
+,
+
+cL
+
+=
+
+2Fa ρU 2DH
+
+The Strouhal number is St = Df /U with the frequency of separation f , and a pressure diﬀerence is deﬁned by ∆P = ∆P (t) = P (xa, ya, za, t) − P (xe, ye, ze, t) with coordinates (xa, ya, za) = (0.45, 0.20, 0.205) and (xe, ye, ze) = (0.55, 0.20, 0.205).
+
+5
+
+U=V=W=0
+
+2.5m
+
+Outflow plane
+
+(0,H,0)
+
+0.16m
+
+U=V=W=0
+
+1.95m
+
+0.1m
+0.41m 0.15m
+
+(0,0,0)
+
+0.41m Inflow plane
+
+0.45m
+
+0.1m
+
+(0,0,H)
+
+U=V=W=0
+
+y
+x z
+
+Figure 3: Conﬁguration and boundary conditions for ﬂow around a cylinder with circular cross–section.
+
+a) Test cases 3D-1Q and 3D-1Z (steady):
+The inﬂow condition is U (0, y, z) = 16Umyz(H − y)(H − z)/H4, V = W = 0
+with Um = 0.45 m/s, yielding the Reynolds number Re = 20. The following quantities should be computed: drag coeﬃcient cD, lift coeﬃcient cL and pressure diﬀerence ∆P .
+
+b) Test cases 3D-2Q and 3D-2Z (unsteady):
+The inﬂow condition is U (0, y, z, t) = 16Umyz(H − y)(H − z)/H4, V = W = 0
+with Um = 2.25 m/s, yielding the Reynolds number Re = 100. The following quantities should be computed: drag coeﬃcient cD, lift coeﬃcient cL and pressure diﬀerence ∆P as functions of time for three periods [t0, t0 + 3/f ] (with f = f (cL)), maximum drag coeﬃcient cDmax, maximum lift coeﬃcient cLmax and Strouhal number St. The initial data (t = t0) are arbitrary, however, for fully developed ﬂow.
+
+c) Test cases 3D-3Q and 3D-3Z (unsteady):
+The inﬂow condition is U (0, y, z, t) = 16Umyz(H − y)(H − z) sin(πt/8)/H4, V = W = 0 6
+
+with Um = 2.25 m/s. The time interval is 0 ≤ t ≤ 8 s. This yields a time-varying Reynolds number between 0 ≤ Re(t) ≤ 100. The initial data (t = 0) are U = V = P = 0. The following quantities should be computed: drag coeﬃcient cD, lift coeﬃcient cL and pressure diﬀerence ∆P as functions of time for 0 ≤ t ≤ 8 s, maximum drag coeﬃcient cDmax, maximum lift coeﬃcient cLmax and pressure diﬀerence ∆P (t) for t = 8 s.
+2.4 Instructions for Computations
+The following additional instructions concerning the computations were given to the participants:
+• In the case of the steady calculations 2D-1, 3D-1Q and 3D-1Z, the results have to be presented for three successively coarsened meshes (notation: h1, h2 and h3 with ﬁnest level h1).
+• Any iterative process used for the steady computations should start from zero values.
+• In the case of the unsteady calculations 2D-2, 2D-3, 3D-2Q, 3D-2Z, 3D-3Q and 3D3Z, the results have to be presented for three successively coarsened meshes (notation as in the steady case) with a ﬁnest time discretization (notation: ∆t1) and also for two successively coarsened time discretizations (notation: ∆t2 and ∆t3) together with the ﬁnest mesh h1.
+• The ﬁnest spatial mesh h1, the ﬁnest time discretization ∆t1 and the coarsening strategies can be chosen by the user.
+• The convergence criteria for the iterative method in the steady case and for each time step in the unsteady cases (in connection with implicit methods) can be chosen by the user.
+• The outﬂow condition can be chosen by the user.
+• If possible, the calculations should be performed on a workstation. For all computers used, the theoretical peak performance and the MFlop rate for the LINPACK1000benchmark (in 64-bit arithmetic) should be provided. The LINPACK1000 value should be obtained with the same compiler options as used for the ﬂow solver.
+• In addition to the benchmark results a description of the solution methods should be given.
+3. PARTICIPATING GROUPS AND NUMERICAL APPROACHES
+In Table 1 the diﬀerent groups that provided results for the present benchmark computation are listed, and the individual test cases for which results were provided are also indicated. In Table 2 the numerical methods and implementations of the participating groups are summarized. Only the major features which are the most important for the evaluation of the results are given. The following abbreviations are used in the table: Finite diﬀerence method (FD), Finite volume method (FV), Finite element method (FE), Navier-Stokes equations (NS) and Multigrid method (MG). PEAK means the peak performance in MFlops and LINP the Linpack1000 MFlop-rate.
+7
+
+Table 1: Participating groups and test cases for which results were provided. The p indicates that only parts of the required results for the corresponding test case were given, and x indicates a full set of results
+
+Participants/test cases
+1) RWTH Aachen, Aerodynamisches Institut E. Krause, M. Weimer, M. Meinke
+2) ASC GmbH (TASCﬂow) F. Menter, G. Scheuerer
+3) TU Berlin Inst. fu¨r Stro¨mungsmechanik F. Thiele, L. Xue
+4) TU Chemnitz, Fakulta¨t fu¨r Mathematik A. Meyer, S. Meinel, U. Groh, M. Pester
+5) Daimler-Benz AG (STAR-CD) F. Klimetzek
+6) Univ. Duisburg, Inst. fu¨r Verbrennung und Gasdyn. D. Ha¨nel, O. Filippova
+7) Univ. Erlangen, Lehrstuhl fu¨r Stro¨mungsmechanik F. Durst, M. Scha¨fer, K. Wechsler
+8) Univ. Freiburg, Inst. fu¨r Angewandte Mathematik E. Ba¨nsch, M. Schrul
+9) Univ. Hamburg, Inst. fu¨r Schiﬀbau M. Peri´c, S. Muzaferija, V. Seidl
+10) Univ. Heidelberg, Inst. fu¨r Angewandte Mathematik R. Rannacher, S. Turek
+11) TU Karlsruhe, Inst. fu¨r Hydromechanik W. Rodi, M. Pourquie
+12) Univ. Karlsruhe, Inst. fu¨r Therm. Stro¨mungsmasch. C.-H. Rexroth, S. Wittig
+13) Kyoto Inst. of Tech., Dept. of Mech. and Syst. Eng. N. Satofuka, H. Tokunaga, H. Hosomi
+14) Univ. Magdeburg, Inst. fu¨r Analysis und Numerik L. Tobiska, V. John, U. Risch, F. Schieweck
+15) TU Mu¨nchen, Inst. fu¨r Informatik C. Zenger, M. Griebel, R. Kreißl, M. Rykaschewski
+16) UBW Mu¨nchen, Inst. f. Stro¨mungsmech. u. Aerodyn. H. Wengle, M. Manhart
+17) Univ. Stuttgart, Inst. fu¨r Computeranwendungen G. Wittum, H. Rentz-Reichert
+
+2D
+
+3D
+
+1 2 3 1Q 1Z 2Q 2Z 3Q 3Z
+
+xxxxx
+
+ppp
+
+x
+
+ppppppppp
+
+xxx
+
+p
+
+xxppppppp
+
+xxxxx
+
+x
+
+x
+
+xxxxx
+
+pp
+
+xxx
+
+x
+
+p
+
+xxxxxxxxx
+
+x
+
+p
+
+x
+
+xx
+
+x
+
+x
+
+xxxx
+
+p
+
+p
+
+x
+
+p
+
+x
+
+8
+
+Table 2: Numerical methods and implementation of participating groups
+
+Space discretization Time discretization Solver
+
+Implementation
+
+1 FD, blockstructured fully implicit 2nd ord. artiﬁcial compressibility serial
+
+non-staggered
+
+equidistant
+
+expl. 5-step Runge-Kutta Fujitsu VPP500
+
+QUICK upwinding
+
+FAS-MG (steady) line-Jacobi (unsteady)
+
+1600 PEAK
+
+2 FV, blockstructured implicit Euler
+
+ILU with algebraic MG serial
+
+2nd ord. upwindig
+
+equidistant
+
+for linear problems
+
+IBM RS6000/370
+
+37 LINP
+
+3 FV, blockstructured fully implicit 2nd ord. stream function form
+
+serial
+
+non-staggered
+
+equidistant
+
+ﬁxed-point iteration
+
+SGI-Indigo2
+
+QUICK upwinding
+
+ILU for lin. subproblems 75 PEAK
+
+parallel
+
+Cray T3D/16
+
+16x88 LINP
+
+4 FE, blockstructured Projection 2 (Gresho) pseudo time step (steady) parallel
+
+4Q1-Q1
+
+Crank-Nicolson (diﬀ.) PCG for lin. subproblems GC/PP32
+
+BTD stabilisation
+
+explicit Euler (conv.) hierarch. preconditioning 32x13.9 LINP
+
+adaptive
+
+5a FV, unstructured
+
+STARCD software
+
+pressure correction
+
+serial
+
+1st ord. upwind
+
+HP 735
+
+13 LINP
+
+5b FV, unstructured
+
+STARCD software
+
+pressure correction
+
+serial
+
+CDS
+
+HP 735 13 LINP
+
+6 Lattice BGK
+
+explicit
+
+gaskinetic solution of
+
+serial
+
+equidistant orth. grid equidistant
+
+BGK-Boltzmann equation HP735
+
+evol. of distribution funct. 13 LINP
+
+7a FV, blockstructured Crank-Nicolson
+
+nonlinear MG
+
+serial
+
+non-staggered
+
+equidistant
+
+SIMPLE smoothing
+
+HP735
+
+CDS with def. corr.
+
+ILU for lin. subproblems 13 LINP
+
+7b FV, blockstructured fully implicit 2nd ord. nonlinear MG
+
+parallel
+
+non-staggered
+
+equidistant
+
+SIMPLE smoothing
+
+GC/PP128,32,8
+
+CDS with def. corr.
+
+ILU for lin. subproblems 128x13.9 LINP
+
+8a FE, unstructured
+
+2nd order fract. step nonlinear GMRES
+
+serial
+
+P2-P1 (Taylor-Hood) operator splitting
+
+PCG for lin. subproblems SGI R4000
+
+CDS
+
+equidistant
+
+8.3 LINP
+
+8b FE, unstructured
+
+2nd order fract. step nonlinear GMRES
+
+serial
+
+P2-P1 (Taylor-Hood) operator splitting
+
+PCG for lin. subproblems SGI R4400
+
+CDS adaptive reﬁnement
+
+equidistant
+
+13.2 LINP IBM RS6000/590
+
+58 LINP
+
+9a FV, blockstructured fully implicit 2nd ord. SIMPLE
+
+serial
+
+CDS
+
+equidistant
+
+ILU for lin. subproblems IBM RS6000/250
+
+34 LINP
+
+9b FV, unstructured
+
+fully implicit 2nd ord. SIMPLE
+
+serial
+
+CDS
+
+equidistant
+
+ILU-CGSTAB for lin.
+
+IBM RS6000/590
+
+subproblems
+
+90 LINP
+
+9
+
+Table 2: (continued)
+
+Space discretization Time discretization Solver
+
+Implementation
+
+10 FE, blockstructured 2nd order fract. step ﬁxed-point iteration
+
+serial
+
+Q1(rot)-Q0
+
+projection method
+
+MG for lin. NS with
+
+IBM RS6000/590
+
+adaptive upwind
+
+adaptive
+
+Vanka smoother (steady) 90 LINP
+
+MG for scalar lin.
+
+subproblems (unsteady)
+
+11 FV, structured
+
+explicit
+
+SIMPLE
+
+serial
+
+CDS with momentum 3rd ord. Runge-Kutta ILU for lin. subprobl.
+
+SNI S600/20
+
+interpolation
+
+equidistant
+
+5000 PEAK
+
+12 FV, unstructured
+
+SIMPLEC
+
+serial
+
+non-staggered
+
+–
+
+ILU-BICGSTAB for lin.
+
+SUN SS10
+
+adapt. 2nd ord. DISC
+
+subproblems
+
+5.5 LINP
+
+deferred correction
+
+13a FD, structured
+
+explicit Euler
+
+stream function form
+
+serial
+
+equidistant
+
+pseudo time step
+
+IBM RS6000/590
+
+SOR for lin. subprobl.
+
+90 LINP
+
+13b FD, structured
+
+explicit 4th order
+
+stream function form
+
+serial
+
+Runge-Kutta-Gill
+
+SOR for lin. subprobl.
+
+IBM RS6000/590
+
+equidistant
+
+90 LINP
+
+14a FE, blockstructured
+
+nonlinear MG
+
+serial
+
+P1-P0
+
+Vanka smoother
+
+HP737/125
+
+(Crouzeix-Raviart)
+
+–
+
+6.6 LINP
+
+1st order upwind
+
+14b FE, blockstructured
+
+ﬁxed-point iteration
+
+parallel
+
+Q1(rot)-Q0
+
+MG for lin. NS with
+
+GC/PP96
+
+1st order upwind
+
+Vanka smoother
+
+96x13.9 LINP
+
+14c FE, unstructured
+
+BDF(2), equidistant ﬁxed-point iteration
+
+parallel
+
+P1-P0 (Cr.-Rav.)
+
+GMRES for
+
+GC/PP24
+
+Samarskij upwind
+
+pressure Schur-complement 24x13.9 LINP
+
+adaptive reﬁnement
+
+lin. MG for velocity
+
+15a FD, structured
+
+explicit Euler
+
+SOR for pressure
+
+serial
+
+staggered, orthogonal adaptive
+
+HP720
+
+CDS/UDS ﬂux-blend.
+
+7.4 LINP
+
+15b FD, structured
+
+explicit Euler
+
+SOR for pressure
+
+parallel
+
+staggered, orthogonal adaptive
+
+HP720 cluster
+
+CDS/UDS ﬂux blend.
+
+8x7.4 LINP
+
+16 FV, blockstructured explicit
+
+pressure correction
+
+serial
+
+CDS
+
+2nd ord. leap-frog
+
+Gauss-Seidel for
+
+SGI Indigo
+
+time-lagged diﬀ.
+
+lin. subproblems
+
+9.6 LINP
+
+Convex C3820
+
+19.2 LINP
+
+17 FV, unstructured
+
+–
+
+ﬁxed-point iteration
+
+serial
+
+adaptive upwind
+
+MG for lin. NS
+
+SGI R4400
+
+BILUβ smoother
+
+8.3 LINP
+
+10
+
+4. RESULTS The results of the benchmark computations are summarized in Tables 3-11. The number in the ﬁrst column refers to the methods given in Table 2. The last column contains the performance of the computer used (as given by the contributors), either the Linpack1000 Mﬂop rate (LINP) or the peak performance (PEAK), which of course should be taken into account when comparing the diﬀerent computing times. The column ”unknowns” refers to the total number, i.e. the sum of unknowns for all velocity components and pressure. The CPU timings are all given in seconds. In the last row of each table estimated intervals for the “exact” results are indicated (as suggested by the authors on the basis of the obtained solutions). We remark that for the 2D time-periodic test case 2D-2 also measurements were carried out, where the Strouhal number and time-averaged velocity proﬁles at diﬀerent locations along the channel are determined experimentally. However, a direct comparison with the numerical results in Table 4 is problematic, because owing to the short distance between the inlet and the cylinder for the computations, the ﬂow conditions in front of the cylinder are slightly diﬀerent. To give some comparison with method 7a (see Table 2), a computation with a longer distance between the inlet and cylinder was carried out. The experimentally obtained Strouhal number of St = 0.287 ± 0.003 agrees very well with the numerically computed value of St = 0.289. A comparison of time-averaged velocity proﬁles can be seen in Fig. 4, which also are in fairly good agreement.
+Figure 4: Comparison of experimental and numerical time-averaged velocity proﬁles for test case 2D-2 with extended inlet part.
+11
+
+Table 3: Results for steady test case 2D-1
+
+Unknowns
+
+cD
+
+cL
+
+La ∆P Mem. CPU time MFlop rate
+
+1
+
+200607 5.5567 0.0106 0.0845 0.1172 15
+
+51159 5.5567 0.0106 0.0843 0.1172
+
+4
+
+13299 5.5661 0.0105 0.0835 0.1169
+
+1
+
+788 1600 PEAK 273 144
+
+3a
+
+10800 5.6000 0.0120 0.0720 0.1180 2.5
+
+121 75 PEAK
+
+4
+
+297472 5.5678 0.0105 0.0847 0.1179 137
+
+31000 445 LINP
+
+75008 5.5606 0.0107 0.0849 0.1184 73
+
+8000
+
+19008 5.5528 0.0118 0.0857 0.1199 57
+
+2000
+
+6
+
+1314720 5.8190 0.0110 0.0870 0.1230 40
+
+80374 13 LINP
+
+332640 5.7740 0.0030 0.0830 0.1230 10
+
+10461
+
+85140 5.7890 -0.0060 0.0870 0.1230 2.6
+
+1262
+
+7a
+
+294912 5.5846 0.0106 0.0846 0.1176 75
+
+73728 5.5852 0.0105 0.0845 0.1176 19
+
+18432 5.5755 0.0102 0.0842 0.1175
+
+5
+
+192 13 LINP 47 13
+
+8a
+
+20487 5.5760 0.0110 0.0848 0.1170 9.0
+
+2574 8.3 LINP
+
+6297 5.5710 0.0130 0.0846 0.1160 2.9
+
+362
+
+2298 5.4450 0.0200 0.0810 0.1110 1.3
+
+109
+
+9a
+
+240000 5.5803 0.0106 0.0847 0.1175 53
+
+9200 34 LINP
+
+60000 5.5786 0.0106 0.0847 0.1173 10
+
+1400
+
+15000 5.5612 0.0109 0.0848 0.1166 2.5
+
+200
+
+10
+
+2665728 5.5755 0.0106 0.0780 0.1173 350
+
+667264 5.5718 0.0105 0.0770 0.1169 89
+
+167232 5.5657 0.0102 0.0730 0.1161 22
+
+42016 5.5608 0.0091 0.0660 0.1139
+
+5
+
+677 90 LINP 169 52 18
+
+12
+
+32592 5.5069 0.0132 0.0830 0.1155 18
+
+1796 5.5 LINP
+
+26970 5.5125 0.0056 0.0827 0.1154 15
+
+1099
+
+22212 5.6026 -0.0031 0.0815 0.1167 13
+
+3437
+
+13a
+
+25410 5.6145 0.0159 0.8315 3.0002
+
+4
+
+14203 90 LINP
+
+12738 5.6114 0.0169 0.8224 2.9943
+
+2
+
+3018
+
+6562 5.7377 0.0514 0.8107 3.2277
+
+1
+
+14a
+
+3077504 5.6323 0.0137 0.0782 0.1159 214
+
+15300 6.6 LINP
+
+768704 5.6382 0.0102 0.0775 0.1156 53
+
+5490
+
+191840 5.5919 -0.0009 0.0750 0.1143 13
+
+2800
+
+14b
+
+30775296 5.5902 0.0108 0.0853 0.1174 5340
+
+7695104 5.6010 0.0110 0.0844 0.1174 1341
+
+1922432 5.6227 0.0113 0.0833 0.1172 338
+
+1534 1334 LINP 400 119
+
+14c
+
+797010 5.5708 0.0167 0.0837 0.1168 460
+
+8000 334 LINP
+
+363457 5.5598 0.0142 0.0835 0.1166 230
+
+3290
+
+176396 5.5106 0.0046 0.0835 0.1150 110
+
+2560
+
+15a
+
+432960 5.5602 0.0329 0.0730 0.1054 4.4 179986 7.4 LINP
+
+108240 5.6300 0.0751 0.0720 0.1037 1.1
+
+13593
+
+27060 5.7769 0.2085 0.0680 0.0998 0.3
+
+688
+
+17
+
+111342 5.5610 0.0107
+
+60804 5.5520 0.0102
+
+19416 5.5160 0.0099
+
+0.1170 87 0.1168 47 0.1158 15
+
+2568 1092 373
+
+8.3 LINP
+
+lower bound 5.5700 0.0104 0.0842 0.1172 upper bound 5.5900 0.0110 0.0852 0.1176
+
+12
+
+Table 4: Results for time–periodic test case 2D-2
+
+Unknowns Space Time cDmax cLmax
+
+St ∆P Mem. CPU time MFlop rate
+
+1 267476
+
+67 3.2224 0.9672 0.2995 2.4814
+
+—
+
+267476
+
+34 3.2030 0.9223 0.2941 2.4664
+
+—
+
+267476
+
+18 3.1605 0.8026 0.2901 2.4466
+
+—
+
+68212
+
+67 3.2171 0.9591 0.2995 2.5009
+
+—
+
+17732
+
+68 3.2168 0.9295 0.2979 2.5573
+
+—
+
+— 1600 PEAK — — — —
+
+3 12800
+
+34 3.2200 0.9720 0.2960 2.4700 2.5
+
+789 75 PEAK
+
+4 297472 670 3.2460 0.9840 0.2985 2.4900 137
+
+297472 338 3.2710 0.9800 0.2959 2.4870 137
+
+297472 172 3.3200 0.9720 0.2907 2.4810 137
+
+75008 670 3.2410 0.9910 0.2985 2.5020
+
+73
+
+19008 674 3.2320 1.0260 0.2967 2.5320
+
+57
+
+6600 3400 1700 2350 1350
+
+445 LINP
+
+6 332640 12000 4.1210 1.6120 0.3330 3.1420
+
+10
+
+85140 6000 4.7330 2.0600 0.3380 3.4300 2.6
+
+10086 1259
+
+13 LINP
+
+7a 294912
+
+36 3.2358 1.0069 0.3003 2.4892
+
+75
+
+294912
+
+19 3.2356 1.0000 0.2973 2.4871
+
+75
+
+294912
+
+10 3.2152 0.9028 0.2881 2.4715
+
+75
+
+73728
+
+36 3.2443 1.0261 0.2994 2.4929
+
+19
+
+18432
+
+36 3.2706 1.0695 0.2968 2.5035
+
+5
+
+6167 6391 4994 1946
+445
+
+13 LINP
+
+8a 29084 29084 29084 8764 2978
+
+66 3.2240 1.0060 0.3020 2.4860
+
+11
+
+33 3.2470 1.0740 0.3030 2.5010
+
+11
+
+16 3.2900 1.2500 0.3130 2.5700
+
+11
+
+66 3.1740 0.9640 0.3000 2.4630 3.6
+
+70 2.8920 0.5540 0.2890 2.2870 1.5
+
+4992 3777 3217 1000 339
+
+8.3 LINP
+
+9a 240000 5000 3.2267 0.9862 0.3017 2.4833
+
+53
+
+60000 10000 3.2232 0.9830 0.3012 2.4773
+
+10
+
+60000 5000 3.2232 0.9832 0.3012 2.4773
+
+10
+
+60000 2500 3.2232 0.9836 0.3012 2.4773
+
+10
+
+15000 5000 3.2058 0.9651 0.2994 2.4587 2.5
+
+32500 8550 4500 3400 3240
+
+34 LINP
+
+10 667264 612 3.2314 0.9999 0.2973 2.4707 128
+
+667264 204 3.2351 1.0123 0.2957 2.4734 128
+
+667264
+
+68 3.2771 1.1205 0.2997 2.4961 128
+
+167232 188 3.2498 1.0081 0.2927 2.4410
+
+32
+
+42016 164 3.2970 0.8492 0.2713 2.3423
+
+8
+
+8545 2850 1065
+655 147
+
+90 LINP
+
+13b 25410 6755 3.1822 1.0692 0.2960 2.6066 5.1 25410 3877 3.1895 1.0883 0.2968 2.6057 4.8 25410 1678 3.2043 1.1268 0.2979 2.5307 4.7 12738 6799 3.1945 1.1233 0.2941 2.6140 2.9 6562 7223 3.1317 1.2961 0.2768 3.0253 1.8
+
+44710 27175
+13045
+
+90 LINP
+
+15a 432960 7790 3.0804 0.7256 0.2778 2.1330 4.4 108240 4003 3.1677 0.6880 0.2646 2.0954 1.1 108240 3859 3.1096 0.8249 0.2841 2.1105 1.1 27060 1985 3.2544 0.5658 0.2336 1.9727 0.3 27060 1670 3.1759 0.7656 0.2740 1.9961 0.3
+
+108844 34876 58003 3796 4188
+
+7.4 LINP
+
+lower bound 3.2200 0.9900 0.2950 2.4600 upper bound 3.2400 1.0100 0.3050 2.5000
+
+13
+
+Table 5: Results for unsteady test case 2D-3
+
+Unknowns Space Time cDmax cLmax
+
+∆P Mem. CPU time MFlop rate
+
+1 267476 400 2.9387 0.3504 -0.1048
+
+—
+
+68212 800 2.9459 0.4492 -0.1057
+
+—
+
+17732 800 2.9532 0.3908 -0.1007
+
+—
+
+— 1600 PEAK — —
+
+3 12800 800 2.9600 0.4300 -0.0976 2.5
+
+7567 75 PEAK
+
+4 297472 16000 2.9715 0.4806 -0.1101 137
+
+297472 8000 2.9984 0.4794 -0.1035 137
+
+297472 4000 3.0508 0.4750 -0.1018 137
+
+75008 16000 2.9660 0.4903 -0.1098
+
+73
+
+19008 16000 2.9551 0.5228 -0.1061
+
+57
+
+160000 88000 48000 47000 31000
+
+445 LINP
+
+6 332640 36960 3.8420 1.1100 0.0200
+
+10
+
+85140 9460 4.5310 1.7610 0.0090 2.6
+
+19772 2511
+
+13 LINP
+
+7a 294912 800 2.9520 0.4793 -0.1086
+
+75
+
+294912 400 2.9520 0.4787 -0.1016
+
+75
+
+294912 200 2.9512 0.4021 -0.1047
+
+75
+
+73728 800 2.9511 0.4711 -0.0995
+
+19
+
+18432 800 2.9461 0.4638 -0.1024
+
+5
+
+43119 29165 22141 10003 2847
+
+13 LINP
+
+8a 21508 1600 2.9200 0.4910 -0.1110
+
+8
+
+21508 800 2.9210 0.5390 -0.1140
+
+8
+
+21508 400 2.9230 0.7250 -0.1160
+
+8
+
+5822 1600 2.8160 0.3560 -0.1060 2.5
+
+1705 1600 2.7220 0.0055 -0.1220 1.1
+
+44028 31481 25512 9294 2109
+
+8.3 LINP
+
+9a 240000 5000 2.9505 0.4539 -0.1095
+
+53
+
+220000 34 LINP
+
+60000 10000 2.9483 0.4651 -0.1062
+
+10
+
+92000
+
+60000 5000 2.9483 0.4630 -0.1062
+
+10
+
+64000
+
+60000 2500 2.9482 0.4575 -0.1039
+
+10
+
+38000
+
+15000 5000 2.9397 0.4349 -0.1095 2.5
+
+22000
+
+10 667264 4540 2.9538 0.4782 -0.1053 128
+
+667264 1612 2.9566 0.5533 -0.1029 128
+
+667264 704 3.0650 0.8443 -0.1090 128
+
+167232 4068 2.9776 0.4768 -0.1097
+
+32
+
+42016 2908 3.0949 0.3223 -0.0951
+
+8
+
+62734 22431 11832 14005 2532
+
+90 LINP
+
+14c 638880 800 3.0599 0.6326 -0.1100 550 858848 800 3.1441 0.5266 -0.1142 850
+
+740000 334 LINP 660000 668 LINP
+
+15a 432960 9060 2.8916 0.2649 -0.0987 4.4 237397 7.4 LINP
+
+108240 4070 2.8927 0.3171 -0.0956 1.1
+
+29140
+
+108240 4020 3.0134 0.2921 -0.0945 1.1
+
+25697
+
+27060 2857 3.1817 0.2702 -0.1138 0.3
+
+3371
+
+27060 2013 3.0098 0.3973 -0.0941 0.3
+
+2541
+
+lower bound 2.9300 0.4700 -0.1150 upper bound 2.9700 0.4900 -0.1050
+
+14
+
+Table 6: Results for steady test case 3D-1Q
+
+Unknowns
+
+cD
+
+cL ∆P Mem. CPU time MFlop rate
+
+1
+
+2530836 7.6415 0.0673 0.1740 251
+
+1975 5000 PEAK
+
+657492 7.6029 0.0665 0.1738
+
+72
+
+702 1600 PEAK
+
+3
+
+634872 7.6100 0.0642 0.1730
+
+72
+
+1935 1408 LINP
+
+5a
+
+1472000 7.9200 0.0645 0.1751 121 127984 13 LINP
+
+184000 8.0400 0.0642 0.1722
+
+17
+
+3805
+
+23000 7.6600 0.0720 0.1609
+
+3
+
+73
+
+5b
+
+1472000 7.4400 0.0615 0.1721
+
+184000 7.2800 0.0582 0.1673
+
+23000 6.7400 0.0615 0.1509
+
+6
+
+6303750 8.0930 0.0700
+
+43
+
+168657 13 LINP
+
+7a
+
+454656 7.5395 0.0797 0.1715 115
+
+9525 13 LINP
+
+56832 7.1280 0.0861 0.1616
+
+13
+
+1280
+
+7104 6.4590 0.0988 0.1385
+
+3
+
+88
+
+8a
+
+362613 7.6480 0.0670 0.1751 126
+
+46970 13.2 LINP
+
+73262 7.6530 0.0590 0.1766
+
+28
+
+6590
+
+8b
+
+97822 7.6340 0.0660 0.1742
+
+38
+
+8648 13.2 LINP
+
+10
+
+6094976 7.6148 0.0600 0.1729 690
+
+8244 90 LINP
+
+768544 7.5622 0.0503 0.1683
+
+88
+
+1267
+
+97736 7.3069 0.0348 0.1590 10
+
+380
+
+11
+
+1425600 7.7583 0.0511 0.1744 100
+
+2538 5000 PEAK
+
+460800 7.7673 0.0406 0.1721 38
+
+536
+
+128000 7.2372 0.0602 0.1611 17
+
+86
+
+15b
+
+6724000 6.0770 0.0859 0.0825 64
+
+10600 52 LINP
+
+1681000 5.5060 0.1420 0.0796 16
+
+1400
+
+16
+
+2007040 7.3700 0.0619 0.1720 25
+
+45000 19.2 LINP
+
+405503 7.2500 0.0549 0.1680
+
+6
+
+11000 9.6 LINP
+
+lower bound 7.5000 0.0600 0.1720 upper bound 7.7000 0.0800 0.1800
+
+15
+
+Table 7: Results for steady test case 3D-1Z
+
+Unknowns
+
+cD
+
+cL ∆P Mem. CPU time MFlop rate
+
+1
+
+2426292 6.1295 0.0093 0.1693 233
+
+2097 5000 PEAK
+
+630564 6.1230 0.0095 0.1680
+
+71
+
+1238 1600 PEAK
+
+2
+
+555000 6.1440 0.0074 0.1604 122
+
+8731 26 LINP
+
+276800 5.8600 0.0042 0.1616
+
+67
+
+6094
+
+3
+
+608496 6.1600 0.0095 0.1690
+
+74
+
+4150 1408 LINP
+
+6
+
+6303750 6.2330 -0.0040
+
+43
+
+221706 13 LINP
+
+7b
+
+12582912 6.1932 0.0093 0.1709 3571
+
+1572864 6.1868 0.0092 0.1703 518
+
+196608 6.1366 0.0098 0.1673
+
+71
+
+2630 1779 LINP 1120 445 LINP 460 111 LINP
+
+8a
+
+362613 6.1430 0.0084 0.1694 126
+
+51280 13.2 LINP
+
+73262 6.0990 0.0067 0.1695
+
+28
+
+7178
+
+9
+
+2355712 6.1800 -0.0010 0.1691
+
+753664 6.1720 0.0090 0.1680
+
+94208 6.1310 0.0100 0.1605
+
+62000 6000
+950
+
+90 LINP
+
+10
+
+6116608 6.1043 0.0079 0.1672 700
+
+771392 5.9731 0.0059 0.1605
+
+89
+
+98128 5.8431 0.0061 0.1482
+
+11
+
+8440 1466 290
+
+90 LINP
+
+lower bound 6.0500 0.0080 0.1650 upper bound 6.2500 0.0100 0.1750
+
+Table 8: Results for time–periodic test case 3D-2Q
+
+Unknowns Space Time cDmax
+
+cLmax
+
+St Mem. CPU time MFlop rate
+
+3 634872 188 4.3170 0.0495 0.3130 74
+
+634872
+
+95 4.3170 0.0495 0.3210
+
+74
+
+3368 1408 LINP 2754
+
+6 6303750 18000 4.5870 -0.0050
+
+– 43 168657 13 LINP
+
+10 6094976 142 4.3923 0.0146 0.2777 840
+
+6094976 124 4.3932 0.0191 0.2806 840
+
+6094976
+
+84 4.4071 0.0896 0.2400 840
+
+768544
+
+– 4.4819 0.0036
+
+– 105
+
+97736
+
+– 4.5529 -0.0080
+
+– 13
+
+29428 29945 30372
+– –
+
+90 LINP
+
+16 2007040 1726 4.6738 0.0389 0.3488 25
+
+405503 833 4.8808 0.0392 0.3610
+
+6
+
+20040 19.2 LINP 10020 9.6 LINP
+
+lower bound
+
+?
+
+upper bound
+
+?
+
+?
+
+?
+
+?
+
+?
+
+16
+
+Table 9: Results for time–periodic test case 3D-2Z
+
+Unknowns Space Time cDmax
+
+cLmax
+
+St Mem. CPU time MFlop rate
+
+1
+
+630564 177 3.3018 -0.0014 0.3390
+
+78
+
+26115 1600 PEAK
+
+3
+
+608496
+
+608496
+
+– 3.2250 -0.0142 – 3.2250 -0.0142
+
+– 74 –
+
+1408 LINP
+
+6 6303750 18000 3.7920 -0.0210
+
+–
+
+43
+
+142646 13 LINP
+
+7b 12582912 1572864 1572864 1572864 196608
+
+93 3.3052 -0.0105 0.3409
+
+378 3.3057 -0.0118 0.3172
+
+261 3.3054 -0.0118 0.2250
+
+126 3.3050 -0.0018 0.2400
+
+– 3.3121 -0.0150
+
+–
+
+3571 518 518 518 71
+
+24459 9487 2740 1956
+–
+
+1779 LINP 445 LINP 445 LINP 445 LINP 111 LINP
+
+9b 2355712 753664 94208
+
+3.2968 3.3254 3.3284
+
+90 LINP
+
+10 6116608 128 3.2950 -0.0081 0.2912 840
+
+6116608 120 3.2970 -0.0025 0.2830 840
+
+6116608
+
+80 3.3200 0.0480 0.2684 840
+
+771392
+
+68 3.3801 0.0086 0.2343 105
+
+98128
+
+– 3.4593 -0.0102
+
+–
+
+13
+
+31145 31730 21586 2163
+–
+
+90 LINP
+
+lower bound 3.2900 -0.0110 0.2900 upper bound 3.3100 -0.0080 0.3500
+
+Table 10: Results for unsteady test case 3D-3Q
+
+Unknowns
+
+Space Time cDmax cLmax
+
+∆P Mem. CPU time MFlop rate
+
+1 657492 800 4.3804 0.0308 -0.1392 78 121960 1600 PEAK
+
+3 634872 1600 4.3030 0.0476 -0.1361 74
+
+51253 1408 LINP
+
+634872 800 4.3020 0.0473 -0.1354 74
+
+37241
+
+6 6303750 18000 4.8680 0.0310
+
+43 168657 13 LINP
+
+8a 362613 1000 4.5530 0.0137 -0.1436 126 398000 58 LINP
+
+8b 228451 1000 4.5080 0.0432 -0.1427 105 915000 13.2 LINP
+
+10 6094976 772 4.4086 0.0133 -0.1264 840 164749 90 LINP
+
+6094976 392 4.5698 0.0262 -0.1213 840
+
+89679
+
+6094976
+
+82 5.5709 0.1230 0.0183 840
+
+35600
+
+768544 696 4.5223 0.0061 -0.1113 105
+
+22747
+
+97736 588 4.5820 0.0033 -0.0718 13
+
+3031
+
+11 3712800 7720 4.3400 0.0500 -0.0810 105
+
+5711 5000 PEAK
+
+1523200 7720 4.4000 0.0480 -0.1160 48
+
+2741
+
+352000 7720 4.3600 0.0680 -0.1090 18
+
+706
+
+lower bound 4.3000 0.0100 -0.1400
+
+upper bound 4.5000 0.0500 -0.1200
+
+17
+
+Table 11: Results for unsteady test case 3D-3Z
+
+Unknowns Space Time cDmax cLmax
+
+∆P Mem. CPU time MFlop rate
+
+1 630564 800 3.2826 0.0027 -0.1117 79 156460 1600 PEAK
+
+3 608496 1600 3.2590 0.0026 -0.1072 74 608496 800 3.2590 0.0026 -0.1157 74
+
+76142 1408 LINP 50764
+
+6 6303750 18000 4.1600 0.0200
+
+43
+
+142646 13 LINP
+
+7b 1572864 1600 3.3011 0.0026 -0.1102 518 1572864 800 3.3008 0.0026 -0.1105 518 1572864 400 3.3006 0.0026 -0.1107 518 196608 1600 3.3053 0.0028 -0.1066 71
+
+149923 93055 62026 63057
+
+445 LINP 445 LINP 445 LINP 111 LINP
+
+8a 362613 1000 3.2340 0.0028 -0.1114 126 347000 58 LINP
+
+8b 199802 1000 3.2120 0.0122 -0.1112 105
+
+98637 1000 3.2350 0.0123 -0.1114
+
+39
+
+846000 13.2 LINP 243000
+
+10 6116608 668 3.2802 0.0034 -0.0959 840
+
+6116608 272 3.3748 0.0360 -0.0603 840
+
+6116608
+
+60 2.7312 0.0069 -0.0682 840
+
+771392 724 3.3323 0.0033 -0.0766 105
+
+98128 660 3.4200 0.0040 -0.0407
+
+13
+
+164837 77538 29742 24745 5687
+
+90 LINP
+
+lower bound 3.2000 0.0020 -0.0900 upper bound 3.3000 0.0040 -0.1100
+
+5. DISCUSSION OF RESULTS
+On the basis of the results obtained by these benchmark computations some conclusions can be drawn. These have to be considered with care, as the provided results depend on parameters which are not available for the authors of this report, e.g., design of the grids, setting of stopping criteria, quality of implementation, etc.
+For ﬁve of the ten questions above the answers seem to be clear:
+1. In order to compute incompressible ﬂows of the present type (laminar) accurately and eﬃciently, one should use implicit methods. The step size restriction enforced by explicit time stepping can render this approach highly ineﬃcient, as the physical time scale may be much larger than the maximum possible time step in the explicit algorithm. This is obvious from the results for the stationary cases in 2D and 3D, and also for the nonstationary cases in 2D. For the nonstationary cases in 3D only too few results on apparently too coarse meshes have been provided, in order to draw clear conclusions. This question requires further investigation.
+2. Flow solvers based on conventional iterative methods on the linear subproblems have on ﬁne enough grids no chance against those employing suitable multigrid techniques. The use of multigrid can allow computations on workstations (provided the problem ﬁts into the RAM) for which otherwise supercomputers would have to be used. In the submitted solutions supercomputers (Fujitsu, SNI, CRAY) have mainly been used for their high CPU power but not for their large storage capacities. For example, in test case 3D-3Z
+18
+
+(Table 11) the solutions 1 and 3 require with about 600,000 unknowns on supercomputers signiﬁcantly more CPU time than the solution 10 with the same number of unknowns on a workstation.
+3. The most eﬃcient and accurate solutions are based either on ﬁnite element or ﬁnite volume discretizations on contour adapted grids.
+4. The computation of steady solutions by pseudo time-stepping techniques is ineﬃcient compared with using directly a quasi-Newton iteration as stationary solver.
+5. For computing sensitive quantities such as drag and lift coeﬃcients, higher order treatment of the convective term is indispensable. The use of only ﬁrst order upwinding (or crude approximation of curved boundaries) does not lead to satisfactory accuracy even on very ﬁne meshes (several million unknowns in 2D).
+For the remaining ﬁve questions the answers are not so clear. More test calculations will be necessary to reach more decisive conclusions. The following preliminary interpretations of the results obtained so far may become the subject of further discussion:
+6. In computing nonstationary solutions, the use of operator splitting (pressure correction) schemes tends to be superior to the more expensive fully coupled approach, but this may depend on the problem as well as the quantity to be calculated (compare, e.g., for the test case 2D-3 (Table 5), the solution 14c with 7a and 10). Further, as fully coupled methods also use iterative correction within each time step (possibly adaptively controlled), the distinction between fully coupled and operator splitting approach is not so clear.
+7. The use of higher than second-order discretizations in space appears promising with respect to accuracy, but there remains the question of how to solve eﬃciently the resulting algebraic problems (see the results of 8 for all test cases). The results provided for this benchmark are too sparse to allow a deﬁnite answer.
+8. The most eﬃcient solutions in this benchmark have been obtained on blockwise structured grids which are particularly suited for multigrid algorithms. There is no indication that fully unstructured grids might be superior for this type of problem, particularly with respect to solution eﬃciency (compare the CPU times reported for the solutions 7 and 9 in 2D). The winners may be hierarchically structured grids which allow local adaptive mesh reﬁnement together with optimal multigrid solution.
+9. From the contributed solutions to this benchmark there is no indication that aposteriori grid adaptation in space is superior to good hand-made grids (see the results of 14c). This, however, may drastically change in the future, particularly in 3D. Intensive development in this direction is currently in progress. For nonstationary calculations, adaptive time step selection is advisible in order to achieve reliability and eﬃciency (see the results of 10).
+10. The treatment of the nonlinearity by nonlinear multigrid has no clear advantage over the quasi-Newton iteration with multigrid for the linear subproblems (compare the results of 7 with those of 10). Again, it is the extensive use of well-tuned multigrid (wherever in the algorithm) which is decisive for the overall eﬃciency of the method.
+19
+
+6. CONCLUDING REMARKS The authors would like to add some ﬁnal remarks to the report presented. Although, this benchmark has been fairly successful as it has made possible some solidly based comparison between various solution approaches, it still needs further development. Particularly the following points are to be considered: 1. In the case 3D-3Z it should be the maximum absolute value of the lift which has to be computed as cL may become negative. 2. In the nonstationary test cases further characteristic quantities (e.g., time averages, pressure values, etc.) should be computed, as in some cases, by chance, “maximum values” may be obtained with good accuracy even without capturing the general pattern of the ﬂow at all. 3. For the nonstationary 3D problems a higher Reynolds number should be considered, since in the present case (Re = 100) the problem may be particularly hard as the ﬂow tends to become almost stationary. Even in the laminar case, the chosen nonstationary 3D problems showed to be harder than expected. In particular, it was apparently not possible to achieve reliable reference solutions for the test cases 3D-2Q and 3D-2Z. Hence the benchmark has to be considered as still open and everybody is invited to try again.
+ACKNOWLEDGMENTS The authors thank all members of the various groups who have contributed results for the benchmark computations, K. Wechsler for his help in evaluating the results and J. Jovanovic and M. Fischer for carrying out the experiments.
+20
+

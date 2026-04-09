@@ -1,0 +1,1022 @@
+Donea, J., Huerta, A., Ponthot, J.-Ph. and Rodríguez-Ferran, A., Arbitrary Lagrangian-Eulerian methods, The Encyclopedia of Computational Mechanics, Wiley, Vol. 1, Chapter 14, pp. 413-437, 2004
+
+Chapter 14
+Arbitrary Lagrangian–Eulerian Methods
+Jean Donea1, Antonio Huerta2, J.-Ph. Ponthot1 and A. Rodr´ıguez-Ferran2
+1 Universite´ de Lie`ge, Lie`ge, Belgium 2 Universitat Polite`cnica de Catalunya, Barcelona, Spain
+
+1 Introduction
+
+413
+
+2 Descriptions of Motion
+
+415
+
+3 The Fundamental ALE Equation
+
+417
+
+4 ALE Form of Conservation Equations
+
+419
+
+5 Mesh-update Procedures
+
+420
+
+6 ALE Methods in Fluid Dynamics
+
+422
+
+7 ALE Methods in Nonlinear Solid Mechanics 426
+
+References
+
+433
+
+1 INTRODUCTION
+The numerical simulation of multidimensional problems in ﬂuid dynamics and nonlinear solid mechanics often requires coping with strong distortions of the continuum under consideration while allowing for a clear delineation of free surfaces and ﬂuid–ﬂuid, solid–solid, or ﬂuid–structure interfaces. A fundamentally important consideration when developing a computer code for simulating problems in this class is the choice of an appropriate kinematical description of the continuum. In fact, such a choice determines the relationship between the deforming continuum and the ﬁnite grid or mesh of computing zones, and thus conditions the ability of the numerical method to deal with large distortions and provide an accurate resolution of material interfaces and mobile boundaries.
+
+The algorithms of continuum mechanics usually make use of two classical descriptions of motion: the Lagrangian description and the Eulerian description; see, for instance, Malvern (1969). The arbitrary Lagrangian–Eulerian (ALE, in short) description, which is the subject of the present chapter, was developed in an attempt to combine the advantages of the above classical kinematical descriptions, while minimizing their respective drawbacks as far as possible.
+Lagrangian algorithms, in which each individual node of the computational mesh follows the associated material particle during motion (see Figure 1), are mainly used in structural mechanics. The Lagrangian description allows an easy tracking of free surfaces and interfaces between different materials. It also facilitates the treatment of materials with history-dependent constitutive relations. Its weakness is its inability to follow large distortions of the computational domain without recourse to frequent remeshing operations.
+Eulerian algorithms are widely used in ﬂuid dynamics. Here, as shown in Figure 1, the computational mesh is ﬁxed and the continuum moves with respect to the grid. In the Eulerian description, large distortions in the continuum motion can be handled with relative ease, but generally at the expense of precise interface deﬁnition and the resolution of ﬂow details.
+Because of the shortcomings of purely Lagrangian and purely Eulerian descriptions, a technique has been developed that succeeds, to a certain extent, in combining the best features of both the Lagrangian and the Eulerian approaches. Such a technique is known as the arbitrary Lagrangian–Eulerian (ALE) description. In the ALE description, the nodes of the computational mesh may be moved with the continuum in normal Lagrangian fashion, or be held ﬁxed in Eulerian manner, or, as suggested in
+
+1
+
+t
+
+Lagrangian description
+
+(a)
+
+(b)
+
+t
+
+Eulerian description
+
+t
+
+ALE description
+
+Material point Node
+
+Particle motion Mesh motion
+
+Figure 1. One-dimensional example of Lagrangian, Eulerian and ALE mesh and particle motion.
+
+Figure 1, be moved in some arbitrarily speciﬁed way to give a continuous rezoning capability. Because of this freedom in moving the computational mesh offered by the ALE description, greater distortions of the continuum can be handled than would be allowed by a purely Lagrangian method, with more resolution than that afforded by a purely Eulerian approach. The simple example in Figure 2 illustrates the ability of the ALE description to accommodate signiﬁcant distortions of the computational mesh, while preserving the clear delineation of interfaces typical of a purely Lagrangian approach. A coarse ﬁnite element mesh is used to model the detonation of an explosive charge in an extremely strong cylindrical vessel partially ﬁlled with water. A comparison is made of the mesh conﬁgurations at time t = 1.0 ms obtained respectively, with the ALE description (with automatic continuous rezoning) and with a purely Lagrangian mesh description. As further evidenced by the details of the charge–water interface, the Lagrangian approach suffers from a severe degradation of the computational mesh, in contrast with the ability of the ALE approach to maintain quite a regular mesh conﬁguration of the charge–water interface.
+The aim of the present chapter is to provide an indepth survey of ALE methods, including both conceptual
+
+(c)
+
+(d)
+
+Figure 2. Lagrangian versus ALE descriptions: (a) initial FE mesh; (b) ALE mesh at t = 1 ms; (c) Lagrangian mesh at t = 1 ms; (d) details of interface in Lagrangian description.
+
+aspects and numerical implementation details in view of the applications in large deformation material response, ﬂuid dynamics, nonlinear solid mechanics, and coupled ﬂuid–structure problems. The chapter is organized as follows. The next section introduces the ALE kinematical description as a generalization of the classical Lagrangian and Eulerian descriptions of motion. Such generalization rests upon the introduction of a so-called referential domain and on the mapping between the referential domain and the classical, material, and spatial domains. Then, the fundamental ALE equation is introduced, which provides a relationship between material time derivative and referential time derivative. On this basis, the ALE form of the basic conservation equations for mass, momentum, and energy is established. Computational aspects of the ALE algorithms are then addressed. This includes mesh-update procedures in ﬁnite element analysis, the combination of ALE and mesh-reﬁnement procedures, as well as the use of ALE in connection with mesh-free methods. The chapter closes with a discussion of problems commonly encountered in the computer implementation of ALE algorithms in ﬂuid dynamics, solid mechanics, and coupled problems describing ﬂuid–structure interaction.
+
+2
+
+or, in matrix format:
+
+ ∂x  ∂X
+
+ ∂x v   ∂χ
+
+vˆ
+
+ 
+
+ 
+
+∂χ ∂X
+
+ w 
+
+(12)
+
+0T 1
+
+0T 1
+
+0T 1
+
+which yields, after block multiplication,
+
+v = vˆ + ∂x · w
+
+(13)
+
+∂χ
+
+This equation may be rewritten as
+
+c := v − vˆ = ∂x · w
+
+(14)
+
+∂χ
+
+thus deﬁning the convective velocity c, that is, the relative velocity between the material and the mesh.
+The convective velocity c (see equation 14), should not be confused with w (see equation 10). As stated before, w is the particle velocity as seen from the referential domain Rχ, whereas c is the particle velocity relative to the mesh as seen from the spatial domain Rx (both v and vˆ are variations of coordinate x). In fact, equation (14) implies that c = w if and only if ∂x/∂χ = I (where I is the identity tensor), that is, when the mesh motion is purely translational, without rotations or deformations of any kind.
+After the fundamentals on ALE kinematics have been presented, it should be remarked that both Lagrangian or Eulerian formulations may be obtained as particular cases. With the choice = I , equation (3) reduces to X ≡ χ and a Lagrangian description results: the material and mesh velocities, equations (4) and (7), coincide, and the convective velocity c (see equation 14), is null (there are no convective terms in the conservation laws). If, on the other hand, = I , equation (2) simpliﬁes into x ≡ χ, thus implying a Eulerian description: a null mesh velocity is obtained from equation (7) and the convective velocity c is simply identical to the material velocity v.
+In the ALE formulation, the freedom of moving the mesh is very attractive. It helps to combine the respective advantages of the Lagrangian and Eulerian formulations. This could, however, be overshadowed by the burden of specifying grid velocities well suited to the particular problem under consideration. As a consequence, the practical implementation of the ALE description requires that an automatic mesh-displacement prescription algorithm be supplied.
+
+3 THE FUNDAMENTAL ALE EQUATION
+In order to express the conservation laws for mass, momentum, and energy in an ALE framework, a relation between material (or total) time derivative, which is inherent in conservation laws, and referential time derivative is needed.
+
+3.1 Material, spatial, and referential time derivatives
+
+In order to relate the time derivative in the material, spatial, and referential domains, let a scalar physical quantity be described by f (x, t), f ∗(χ, t), and f ∗∗(X, t) in the spatial, referential, and material domains respectively. Stars are employed to emphasize that the functional forms are, in general, different.
+Since the particle motion ϕ is a mapping, the spatial description f (x, t), and the material description f ∗∗(X, t) of the physical quantity can be related as
+f ∗∗(X, t) = f (ϕ(X, t), t) or f ∗∗ = f ◦ ϕ (15)
+
+The gradient of this expression can be easily computed as
+
+∂f ∗∗ (X, t) = ∂f (x, t)
+
+∂ϕ (X, t) (16)
+
+∂(X, t)
+
+∂(x, t)
+
+∂(X, t)
+
+which is amenable to the matrix form
+
+ ∂x 
+
+∂f ∗∗ ∂f ∗∗ = ∂f ∂f  ∂X v  (17)
+
+∂X ∂t
+
+∂x ∂t
+
+0T 1
+
+which renders, after block multiplication, a ﬁrst expression, which is obvious, that is, (∂f ∗∗/∂X) = (∂f/∂x)(∂x/∂X);
+however, the second one is more interesting:
+
+∂f ∗∗ = ∂f + ∂f · v
+
+(18)
+
+∂t ∂t ∂x
+
+Note that this is the well-known equation that relates the material and the spatial time derivatives. Dropping the stars to ease the notation, this relation is ﬁnally cast as
+
+∂f = ∂f + v · ∇f or df = ∂f + v · ∇f
+
+∂t X ∂t x
+
+dt ∂t
+
+(19)
+
+which can be interpreted in the usual way: the variation of
+
+a physical quantity for a given particle X is the local varia-
+
+tion plus a convective term taking into account the relative
+
+motion between the material and spatial (laboratory) sys-
+
+tems. Moreover, in order not to overload the rest of the text
+
+with notation, except for the speciﬁc sections, the material
+
+time derivative is denoted as
+
+d · := ∂ ·
+
+(20)
+
+dt ∂t X
+
+and the spatial time derivative as
+
+∂· ∂·
+
+:=
+
+(21)
+
+∂t ∂t x
+
+The relation between material and spatial time derivatives is now extended to include the referential time derivative.
+
+5
+
+With the help of mapping , the transformation from the referential description f ∗(χ, t) of the scalar physical quantity to the material description f ∗∗(X, t) can be written
+as
+
+f ∗∗ = f ∗ ◦ −1
+
+(22)
+
+and its gradient can be easily computed as
+
+∂f ∗∗ (X, t) =
+
+∂f ∗ (χ, t)
+
+∂ −1 (X, t)
+
+(23)
+
+∂(X, t)
+
+∂(χ, t)
+
+∂(X, t)
+
+or, in matrix form
+
+ ∂χ 
+
+∂f ∗∗ ∂X
+
+∂f ∗∗ ∂t
+
+=
+
+∂f ∗ ∂χ
+
+∂f ∗ ∂t
+
+ ∂X 0T
+
+w  1
+
+(24)
+
+which renders, after block multiplication,
+
+∂f ∗∗ = ∂f ∗ + ∂f ∗ · w
+
+(25)
+
+∂t ∂t ∂χ
+
+Note that this equation relates the material and the referential time derivatives. However, it also requires the evaluation of the gradient of the considered quantity in the referential domain. This can be done, but in computational mechanics it is usually easier to work in the spatial (or material) domain. Moreover, in ﬂuids, constitutive relations are naturally expressed in the spatial conﬁguration and the Cauchy stress tensor, which will be introduced next, is the natural measure for stresses. Thus, using the deﬁnition of w given in equation (14), the previous equation may be rearranged into
+
+∂f ∗∗ = ∂f ∗ + ∂f · c
+
+(26)
+
+∂t ∂t ∂x
+
+The fundamental ALE relation between material time derivatives, referential time derivatives, and spatial gradient is ﬁnally cast as (stars dropped)
+
+∂f
+
+∂f
+
+∂f
+
+∂f
+
+=
+
++ ·c =
+
++ c · ∇f
+
+(27)
+
+∂t X ∂t χ ∂x
+
+∂t χ
+
+and shows that the time derivative of the physical quantity f for a given particle X, that is, its material derivative, is its local derivative (with the reference coordinate χ held ﬁxed) plus a convective term taking into account the relative velocity c between the material and the reference system. This equation is equivalent to equation (19) but in the ALE formulation, that is, when (χ, t) is the reference.
+
+3.2 Time derivative of integrals over moving volumes
+
+To establish the integral form of the basic conservation laws for mass, momentum, and energy, we also need to consider the rate of change of integrals of scalar and vector functions over a moving volume occupied by ﬂuid.
+Consider thus a material volume Vt bounded by a smooth closed surface St whose points at time t move with the material velocity v = v(x, t) where x ∈ St . A material volume is a volume that permanently contains the same particles of the continuum under consideration. The material time derivative of the integral of a scalar function f (x, t) (note that f is deﬁned in the spatial domain) over the time-varying material volume Vt is given by the following well-known expression, often referred to as Reynolds transport theorem (see, for instance, Belytschko et al., 2000 for a detailed proof):
+
+d f (x, t) dV =
+
+∂f (x, t) dV
+
+dt Vt
+
+Vc≡Vt ∂ t
+
++
+
+f (x, t) v · n dS (28)
+
+Sc≡St
+
+which holds for smooth functions f (x, t). The volume
+integral in the right-hand side is deﬁned over a control
+volume Vc (ﬁxed in space), which coincides with the moving material volume Vt at the considered instant, t, in time. Similarly, the ﬁxed control surface Sc coincides at time t with the closed surface St bounding the material volume Vt . In the surface integral, n denotes the unit outward normal to the surface St at time t, and v is the material velocity of points of the boundary St . The ﬁrst term in the right-hand side of expression (28) is the local time
+derivative of the volume integral. The boundary integral
+represents the ﬂux of the scalar quantity f across the ﬁxed boundary of the control volume Vc ≡ Vt .
+Noting that
+
+f (x, t) v · n dS = ∇ · (f v) dV
+
+(29)
+
+Sc
+
+Vc
+
+one obtains the alternative form of Reynolds transport theorem:
+
+d
+
+∂f (x, t)
+
+f (x, t) dV =
+
++ ∇ · (f v) dV
+
+dt Vt
+
+Vc ≡Vt
+
+∂t
+
+(30)
+
+Similar forms hold for the material derivative of the volume
+
+integral of a vector quantity. Analogous formulae can be
+
+developed in the ALE context, that is, with a referential
+
+time derivative. In this case, however, the characterizing
+
+6
+
+velocity is no longer the material velocity v, but the grid velocity vˆ.
+4 ALE FORM OF CONSERVATION EQUATIONS
+To serve as an introduction to the discussion of ALE ﬁnite element and ﬁnite volume models, we establish in this section the differential and integral forms of the conservation equations for mass, momentum, and energy.
+
+4.1 Differential forms
+
+The ALE differential form of the conservation equations for mass, momentum, and energy are readily obtained from the corresponding well-known Eulerian forms
+
+Mass:
+
+dρ = ∂ρ + v · ∇ρ = −ρ∇ · v dt ∂t x
+
+Momentum: ρ dv = ρ ∂v + (v · ∇)v = ∇ · σ + ρb
+
+dt
+
+∂t x
+
+Energy:
+
+dE
+
+∂E
+
+ρ =ρ
+
++ v · ∇E
+
+dt
+
+∂t x
+
+= ∇ · (σ · v) + v · ρb
+
+(31)
+
+where ρ is the mass density, v is the material velocity vector, σ denotes the Cauchy stress tensor, b is the speciﬁc body force vector, and E is the speciﬁc total energy. Only mechanical energies are considered in the above form of the energy equation. Note that the stress term in the same equation can be rewritten in the form
+
+∇·
+
+(σ · v)
+
+=
+
+∂ ∂xi (σij
+
+vj )
+
+=
+
+∂ σij ∂ xi
+
+vj
+
++ σij
+
+∂ vj ∂ xi
+
+= (∇ · σ) · v + σ:∇v
+
+(32)
+
+where ∇v is the spatial velocity gradient. Also frequently used is the balance equation for the
+internal energy
+
+ρ de = ρ ∂e + v · ∇e = σ:∇sv
+
+(33)
+
+dt
+
+∂t x
+
+where e is the speciﬁc internal energy and ∇sv denotes the stretching (or strain rate) tensor, the symmetric part of the velocity gradient ∇v; that is, ∇sv = (1/2)(∇v + ∇Tv).
+All one has to do to obtain the ALE form of the above conservation equations is to replace in the various convective terms, the material velocity v with the convective
+
+velocity c = v − vˆ. The result is
+
+Mass:
+
+∂ρ + c · ∇ρ = −ρ ∇ · v ∂t χ
+
+Momentum:
+
+ρ
+
+∂v ∂t χ + c ·∇ v
+
+= ∇ · σ + ρb
+
+Total energy: ρ ∂E + c · ∇E = ∇ · (σ · v) + v · ρb ∂t χ
+
+Internal energy:
+
+ρ
+
+∂e ∂t
+
+χ
+
++ c · ∇e
+
+= σ:∇sv.
+
+(34)
+
+It is important to note that the right-hand side of equation (34) is written in classical Eulerian (spatial) form, while the arbitrary motion of the computational mesh is only reﬂected in the left-hand side. The origin of equations (34) and their similarity with the Eulerian equations (31) have induced some authors to name this method the quasiEulerian description; see, for instance, Belytschko et al. (1980).
+
+Remark (Material acceleration) Mesh acceleration plays no role in the ALE formulation, so, only the material acceleration a, the material derivative of velocity v, is needed, which is expressed in the Lagrangian, Eulerian, and ALE formulation respectively as
+
+a = ∂v ∂t X
+
+a = ∂v + v ∂v ∂t x ∂x
+
+a=
+
+∂v ∂t
+
+χ
+
++
+
+c
+
+∂v ∂x
+
+(35a) (35b) (35c)
+
+Note that the ALE expression of acceleration (35c) is simply a particularization of the fundamental relation (27), taking the material velocity v as the physical quantity f . The ﬁrst term in the right-hand side of relationships (35b) and (35c) represents the local acceleration, the second term being the convective acceleration.
+
+4.2 Integral forms
+
+The starting point for deriving the ALE integral form of
+the conservation equations is Reynolds transport theorem
+(28) applied to an arbitrary volume Vt whose boundary St = ∂Vt moves with the mesh velocity vˆ:
+
+∂
+
+∂f (x, t)
+
+f (x, t) dV =
+
+dV
+
+∂t χ Vt
+
+Vt ∂ t x
+
++ f (x, t) vˆ · n dS (36)
+St
+
+7
+
+where, in this case, we have explicitly indicated that the time derivative in the ﬁrst term of the right-hand side is a spatial time derivative, as in expression (28). We then successively replace the scalar f (x, t) by the ﬂuid density ρ, momentum ρv, and speciﬁc total energy ρE. Similarly, the spatial time derivative ∂f/∂t is substituted with expressions (31) for the mass, momentum, and energy equation. The end result is the following set of ALE integral forms:
+
+∂ ∂t χ ∂ ∂t χ ∂ ∂t χ
+
+ρ dV + ρ c · n dS = 0
+
+Vt
+
+St
+
+ρv dV + ρv c · n dS =
+
+Vt
+
+St
+
+ρE dV + ρE c · n dS
+
+Vt
+
+St
+
+(∇ · σ + ρb) dV
+Vt
+
+= (v · ρb + ∇ · (σ · v)) dV
+
+(37)
+
+Vt
+
+Note that the integral forms for the Lagrangian and Eulerian mesh descriptions are contained in the above ALE forms. The Lagrangian description corresponds to selecting vˆ = v (c = 0), while the Eulerian description corresponds to selecting vˆ = 0 (c = v).
+The ALE differential and integral forms of the conservation equations derived in the present section will be used as a basis for the spatial discretization of problems in ﬂuid dynamics and solid mechanics.
+
+5 MESH-UPDATE PROCEDURES
+The majority of modern ALE computer codes are based on either ﬁnite volume or ﬁnite element spatial discretizations, the former being popular in the ﬂuid mechanics area, the latter being generally preferred in solid and structural mechanics. Note, however, that the ALE methodology is also used in connection with so-called mesh-free methods (see, for instance, Ponthot and Belytschko, 1998 for an application of the element-free Galerkin method to dynamic fracture problems). In the remainder of this chapter, reference will mainly be made to spatial discretizations produced by the ﬁnite element method.
+As already seen, one of the main advantages of the ALE formulation is that it represents a very versatile combination of the classical Lagrangian and Eulerian descriptions. However, the computer implementation of the ALE technique requires the formulation of a mesh-update procedure that assigns mesh-node velocities or displacements at each station (time step, or load step) of a calculation. The meshupdate strategy can, in principle, be chosen by the user.
+
+However, the remesh algorithm strongly inﬂuences the success of the ALE technique and may represent a big burden on the user if it is not rendered automatic.
+Two basic mesh-update strategies may be identiﬁed. On one hand, the geometrical concept of mesh regularization can be exploited to keep the computational mesh as regular as possible and to avoid mesh entanglement during the calculation. On the other hand, if the ALE approach is used as a mesh-adaptation technique, for instance, to concentrate elements in zones of steep solution gradient, a suitable indication of the error is required as a basic input to the remesh algorithm.
+5.1 Mesh regularization
+The objective of mesh regularization is of a geometrical nature. It consists in keeping the computational mesh as regular as possible during the whole calculation, thereby avoiding excessive distortions and squeezing of the computing zones and preventing mesh entanglement. Of course, this procedure decreases the numerical errors due to mesh distortion.
+Mesh regularization requires that updated nodal coordinates be speciﬁed at each station of a calculation, either through step displacements, or from current mesh velocities vˆ. Alternatively, when it is preferable to prescribe the relative motion between the mesh and the material particles, the referential velocity w is speciﬁed. In this case, vˆ is deduced from equation (13). Usually, in ﬂuid ﬂows, the mesh velocity is interpolated, and in solid problems, the mesh displacement is directly interpolated.
+First of all, these mesh-updating procedures are classiﬁed depending on whether the boundary motion is prescribed a priori or its motion is unknown.
+When the motion of the material surfaces (usually the boundaries) is known a priori, the mesh motion is also prescribed a priori. This is done by deﬁning an adequate mesh velocity in the domain, usually by simple interpolation. In general, this implies a Lagrangian description at the moving boundaries (the mesh motion coincides with the prescribed boundary motion), while a Eulerian formulation (ﬁxed mesh velocity vˆ = 0) is employed far away from the moving boundaries. A transition zone is deﬁned in between. The interaction problem between a rigid body and a viscous ﬂuid studied by Huerta and Liu (1988a) falls in this category. Similarly, the crack propagation problems discussed by Koh and Haber (1986) and Koh et al. (1988), where the crack path is known a priori, also allow the use of this kind of mesh-update procedure. Other examples of prescribed mesh motion in nonlinear solid mechanics can be found in the works by Liu et al. (1986), Hue´tink et al. (1990), van
+
+8
+
+Haaren et al. (2000), and Rodr´ıguez-Ferran et al. (2002), among others.
+In all other cases, at least a part of the boundary is a material surface whose position must be tracked at each time step. Thus, a Lagrangian description is prescribed along this surface (or at least along its normal). In the ﬁrst applications to ﬂuid dynamics (usually free surface ﬂows), ALE degrees of freedom were simply divided into purely Lagrangian (vˆ = v) or purely Eulerian (vˆ = 0). Of course, the distortion was thus concentrated in a layer of elements. This is, for instance, the case for numerical simulations reported by Noh (1964), Franck and Lazarus (1964), Hirt et al. (1974), and Pracht (1975). Nodes located on moving boundaries were Lagrangian, while internal nodes were Eulerian. This approach was used later for ﬂuid–structure interaction problems by Liu and Chang (1984) and in solid mechanics by Haber (1984) and Haber and Hariandja (1985). This procedure was generalized by Hughes et al. (1981) using the so-called Lagrange–Euler matrix method. The referential velocity, w, is deﬁned relative to the particle velocity, v, and the mesh velocity is determined from equation (13). Huerta and Liu (1988b) improved this method avoiding the need to solve any equation for the mesh velocity inside the domain and ensuring an accurate tracking of the material surfaces by solving w · n = 0, where n is the unit outward normal, only along the material surfaces. Once the boundaries are known, mesh displacements or velocities inside the computational domain can in fact be prescribed through potential-type equations or interpolations as is discussed next.
+In ﬂuid–structure interaction problems, solid nodes are usually treated as Lagrangian, while ﬂuid nodes are treated as described above (ﬁxed or updated according to some simple interpolation scheme). Interface nodes between the solid and the ﬂuid must generally be treated as described in Section 6.1.2. Occasionally they can be treated as Lagrangian (see, for instance, Belytschko and Kennedy, 1978; Belytschko et al., 1980, 1982; Belytschko and Liu, 1985; Argyris et al., 1985; Huerta and Liu, 1988b).
+Once the boundary motion is known, several interpolation techniques are available to determine the mesh rezoning in the interior of the domain.
+5.1.1 Transﬁnite mapping method
+This method was originally designed for creating a mesh on a geometric region with speciﬁed boundaries; see e.g. Gordon and Hall (1973), Haber and Abel (1982), and Eriksson (1985). The general transﬁnite method describes an approximate surface or volume at a nondenumerable number of points. It is this property that gives rise to the term transﬁnite mapping. In the 2-D case, the transﬁnite mapping can be made to exactly model all domain
+
+boundaries, and, thus, no geometric error is introduced by the mapping. It induces a very low-cost procedure, since new nodal coordinates can be obtained explicitly once the boundaries of the computational domain have been discretized. The main disadvantage of this methodology is that it imposes restrictions on the mesh topology, as two opposite curves have to be discretized with the same number of elements. It has been widely used by the ALE community to update nodal coordinates; see e.g. Ponthot and Hogge (1991), Yamada and Kikuchi (1993), Gadala and Wang (1998, 1999), and Gadala et al. (2002).
+5.1.2 Laplacian smoothing and variational methods
+As in mesh generation or smoothing techniques, the rezoning of the mesh nodes consists in solving a Laplace (or Poisson) equation for each component of the node velocity or position, so that on a logically regular region the mesh forms lines of equal potential. This method is also sometimes called elliptic mesh generation and was originally proposed by Winslow (1963). This technique has an important drawback: in a nonconvex domain, nodes may run outside it. Techniques to preclude this pitfall either increase the computational cost enormously or introduce new terms in the formulation, which are particular to each geometry. Examples based on this type of meshupdate algorithms are presented, among others, by Benson (1989, 1992a,b), Liu et al. (1988, 1991), Ghosh and Kikuchi (1991), Chenot and Bellet (1995), and Lo¨hner and Yang (1996). An equivalent approach based on a mechanical interpretation: (non)linear elasticity problem is used by Schreurs et al. (1986), Le Tallec and Martin (1996), Belytschko et al. (2000), and Armero and Love (2003), while Cescutti et al. (1988) minimize a functional quantifying the mesh distortion.
+5.1.3 Mesh-smoothing and simple interpolations
+In fact, in ALE, it is possible to use any mesh-smoothing algorithm designed to improve the shape of the elements once the topology is ﬁxed. Simple iterative averaging procedures can be implemented where possible; see, for instance, Donea et al. (1982), Batina (1991), Tre´panier et al. (1993), Ghosh and Raju (1996), and Aymone et al. (2001). A more robust algorithm (especially in the neighborhood of boundaries with large curvature) was proposed by Giuliani (1982) on the basis of geometric considerations. The goal of this method is to minimize both the squeeze and distortion of each element in the mesh. Donea (1983) and Huerta and Casadei (1994) show examples using this algorithm; Sarrate and Huerta (2001) and Hermansson and Hansbo (2003)
+
+9
+
+the convective velocity c replaces the material velocity v, which appears in the convective term of Eulerian formulations (see equations 31 and 34). Note that the mesh motion may increase or decrease the convection effects. Obviously, in pure convection (for instance, if a fractional-step algorithm is employed) or when convection is dominant, stabilization techniques must be implemented. The interested reader is urged to consult Chapter 2, Volume 3, for a thorough exposition of stabilization techniques available to remedy the lack of stability of the standard Galerkin formulation in convection-dominated situations, or the textbook by Donea and Huerta (2003).
+It is important to note that in standard ﬂuid dynamics, the stress tensor only depends on the pressure and (for viscous ﬂows) on the velocity ﬁeld at the point and instant under consideration. This is not the case in solid mechanics, as discussed below in Section 7. Thus, stress update is not a major concern in ALE ﬂuid dynamics.
+6.1 Boundary conditions
+The rest of the discussion of the speciﬁcities of the ALE formulation in ﬂuid dynamics concerns boundary conditions. In fact, boundary conditions are related to the problem, not to the description employed. Thus, the same boundary conditions employed in Eulerian or Lagrangian descriptions are implemented in the ALE formulation, that is, along the boundary of the domain, kinematical and dynamical conditions must be deﬁned. Usually, this is formalized as
+v = vD on D n · σ = t on N
+where vD and t are the prescribed boundary velocities and tractions respectively; n is the outward unit normal to N, and D and N are the two distinct subsets (Dirichlet and Neumann respectively), which deﬁne the piecewise smooth boundary of the computational domain. As usual, stress conditions on the boundaries represent the ‘natural boundary conditions’, and thus, they are automatically included in the weak form of the momentum conservation equation (see 34).
+If part of the boundary is composed of a material surface whose position is unknown, then a mixture of both conditions is required. The ALE formulation allows an accurate treatment of material surfaces. The conditions required on a material surface are: (a) no particles can cross it, and (b) stresses must be continuous across the surface (if a net force is applied to a surface of zero mass, the acceleration is inﬁnite). Two types of material surfaces are discussed here: free surfaces and ﬂuid–structure interfaces, which
+
+may or may not be frictionless (whether or not the ﬂuid is inviscid).
+6.1.1 Free surfaces
+The unknown position of free surfaces can be computed using two different approaches. First, for the simple case of a single-valued function z = z(x, y, t), a hyperbolic equation must be solved,
+∂z + (v · ∇)z = 0 ∂t
+This is the kinematic equation of the surface and has been used, for instance, by Ramaswamy and Kawahara (1987), Huerta and Liu (1988b, 1990), and Souli and Zolesio (2001). Second, a more general approach can be obtained by simply imposing the obvious condition that no particle can cross the free surface (because it is a material surface). This can be imposed in a straightforward manner by using a Lagrangian description (i.e. w = 0 or v = vˆ) along this surface. However, this condition may be relaxed by imposing only the necessary condition: w equal to zero along the normal to the boundary (i.e. n · w = 0, where n is the outward unit normal to the ﬂuid domain, or n · v = n · vˆ). The mesh position, normal to the free surface, is determined from the normal component of the particle velocity and remeshing can be performed along the tangent; see, for instance Huerta and Liu (1989) or Braess and Wriggers (2000). In any case, these two alternatives correspond to the kinematical condition; the dynamic condition expresses the stress-free situation, n · σ = 0, and since it is a homogeneous natural boundary condition, as mentioned earlier, it is directly taken into account by the weak formulation.
+6.1.2 Fluid–structure interaction
+Along solid-wall boundaries, the particle velocity is coupled to the rigid or ﬂexible structure. The enforcement of the kinematic requirement that no particles can cross the interface is similar to the free-surface case. Thus, conditions n · w = 0 or n · v = n · vˆ are also used. However, due to the coupling between ﬂuid and structure, extra conditions are needed to ensure that the ﬂuid and structural domains will not detach or overlap during the motion. These coupling conditions depend on the ﬂuid.
+For an inviscid ﬂuid (no shear effects), only normal components are coupled because an inviscid ﬂuid is free to slip along the structural interface; that is,
+n · u = n · uS continuity of normal displacements n · v = n · vS continuity of normal velocities
+
+11
+
+where the displacement/velocity of the ﬂuid (u/v) along the normal to the interface must be equal to the displacement/velocity of the structure (uS/vS) along the same direction. Both equations are equivalent and one or the other is used, depending on the formulation employed (displacements or velocities).
+For a viscous ﬂuid, the coupling between ﬂuid and structure requires that velocities (or displacements) coincide along the interface; that is,
+
+u = uS continuity of displacements v = vS continuity of velocities
+
+In practice, two nodes are placed at each point of the interface: one ﬂuid node and one structural node. Since the ﬂuid is treated in the ALE formulation, the movement of the ﬂuid mesh may be chosen completely independent of the movement of the ﬂuid itself. In particular, we may constrain the ﬂuid nodes to remain contiguous to the structural nodes, so that all nodes on the sliding interface remain permanently aligned. This is achieved by prescribing the grid velocity vˆ of the ﬂuid nodes at the interface to be equal to the material velocity vS of the adjacent structural nodes. The permanent alignment of nodes at ALE interfaces greatly facilitates the ﬂow of information between the ﬂuid and structural domains and permits ﬂuid–structure coupling to be effected in the simplest and the most elegant manner; that is, the imposition of the previous kinematic conditions is simple because of the node alignment.
+The dynamic condition is automatically veriﬁed along ﬁxed rigid boundaries, but it presents the classical difﬁculties in ﬂuid–structure interaction problems when compatibility at nodal level in velocities and stresses is required (both for ﬂexible or rigid structures whose motion is coupled to the ﬂuid ﬂow). This condition requires that the stresses in the ﬂuid be equal to the stresses in the structure. When the behavior of the ﬂuid is governed by the linear Stokes law (σ = −p I + 2ν∇sv) or for inviscid ﬂuids this condition is
+
+−p n + 2ν(n · ∇s)v = n · σS
+
+or
+
+− p n = n · σS
+
+respectively, where σS is the stress tensor acting on the structure. In the ﬁnite element representation, the continuous interface is replaced with a discrete approximation and instead of a distributed interaction pressure, consideration is given to its resultant at each interface node.
+There is a large amount of literature on ALE ﬂuid–structure interaction, both for ﬂexible structures and for rigid solids; see, among others, Liu and Chang (1985), Liu and Gvildys (1986), Nomura and Hughes (1992), Le Tallec and Mouro (2001), Casadei et al. (2001), Sarrate et al. (2001), and Zhang and Hisada (2001).
+
+Remark (Fluid–rigid-body interaction) In some circumstances, especially when the structure is embedded in a ﬂuid and its deformations are small compared with the displacements and rotations of its center of gravity, it is justiﬁed to idealize the structure as a rigid body resting on a system consisting of springs and dashpots. Typical situations in which such an idealization is legitimate include the simulation of wind-induced vibrations in highrise buildings or large bridge girders, the cyclic response of offshore structures exposed to sea currents, as well as the behavior of structures in aeronautical and naval engineering where structural loading and response are dominated by ﬂuid-induced vibrations. An illustrative example of ALE ﬂuid–rigid-body interaction is shown is Section 6.2.
+Remark (Normal to a discrete interface) In practice, especially in complex 3-D conﬁgurations, one major difﬁculty is to determine the normal vector at each node of the ﬂuid–structure interface. Various algorithms have been developed to deal with this issue; Casadei and Halleux (1995) and Casadei and Sala (1999) present detailed solutions. In 2-D, the tangent to the interface at a given node is usually deﬁned as parallel to the line connecting the nodes at the ends of the interface segments meeting at that node.
+Remark (Free surface and structure interaction) The above discussion of the coupling problem only applies to those portions of the structure that are always submerged during the calculation. As a matter of fact, there may exist portions of the structure, which only come into contact with the ﬂuid some time after the calculation begins. This is, for instance, the case for structural parts above a ﬂuid-free surface. For such portions of the structural domain, some sort of sliding treatment is necessary, as for Lagrangian methods.
+
+6.1.3 Geometric conservation laws
+
+In a series of papers (see Lesoinne and Farhat, 1996; Koobus and Farhat, 1999; Guillard and Farhat, 2000; and Farhat et al., 2001), Farhat and coworkers have discussed the notion of geometric conservation laws for unsteady ﬂow computations on moving and deforming ﬁnite element or ﬁnite volume grids.
+The basic requirement is that any ALE computational method should be able to predict exactly the trivial solution of a uniform ﬂow. The ALE equation of mass balance (37)1 is usually taken as the starting point to derive the geometric conservation law. Assuming uniform ﬁelds of density ρ and material velocity v, it reduces to the continuous geometric conservation law
+
+∂
+
+dV = vˆ · n dS
+
+(38)
+
+∂t χ Vt
+
+St
+
+12
+
+t = 0 t = 25 ms
+
+t = 50 ms
+
+2.50E + 04
+
+5.00E + 04
+
+7.50E + 04
+
+1.00E + 05
+
+1.25E + 05
+
+1.50E + 05
+
+1.75E + 05
+
+2.00E + 05
+
+2.25E + 05
+
+2.50E + 05
+
+2.75E + 05
+
+3.00E + 05
+
+Fluid
+
+3.25E + 05
+
+(a)
+
+pressure 3.50E + 05
+
+t = 0 (b)
+
+t = 25 ms
+
+t = 50 ms
+
+Fluid pressure
+
+2.50E + 04 5.00E + 04 7.50E + 04 1.00E + 05 1.25E + 05 1.50E + 05 1.75E + 05 2.00E + 05 2.25E + 05 2.50E + 05 2.75E + 05 3.00E + 05 3.25E + 05 3.50E + 05
+
+(c)
+
+t = 0
+
+t = 25 ms
+
+Fluid pressure
+t = 50 ms
+
+2.50E + 04 5.00E + 04 7.50E + 04 1.00E + 05 1.25E + 05 1.50E + 05 1.75E + 05 2.00E + 05 2.25E + 05 2.50E + 05 2.75E + 05 3.00E + 05 3.25E + 05 3.50E + 05
+
+Figure 9. Explosions in a 3-D labyrinth. Deformation in structure and pressure in ﬂuid are properly captured with ALE ﬂuid–structure interaction: (a) whole model; (b) zoom of diaphragm #1; (c) zoom of diaphragms #2 and #3. A color version of this image is available at http://www.mrw.interscience.wiley.com/ecm
+
+15
+
+7.1 ALE treatment of steady, quasistatic and dynamic processes
+
+and the momentum balance equation is given by expression (40b).
+
+In discussing the ALE form (40b) of the momentum equation, we shall distinguish between steady, quasistatic, and dynamic processes. In fact, the expression for the inertia forces ρa critically depends on the particular type of process under consideration.
+A process is called steady if the material velocity v in every spatial point x is constant in time. In the Eulerian description (35b), this results in zero local acceleration ∂v/∂t|x and only the convective acceleration is present in the momentum balance, which reads
+
+ρa = ρ(v · ∇)v = ∇ · σ + ρb
+
+(42)
+
+In the ALE context, it is also possible to assume that a
+process is steady with respect to a grid point χ and neglect the local acceleration ∂v/∂t|χ in the expression (35c); see, for instance, Ghosh and Kikuchi (1991). The momentum
+balance then becomes
+
+ρa = ρ(c · ∇)v = ∇ · σ + ρb
+
+(43)
+
+However, the physical meaning of a null ALE local acceleration (that is, of an “ALE-steady” process) is not completely clear, due to the arbitrary nature of the mesh velocity and, hence, of the convective velocity c.
+A process is termed quasistatic if the inertia forces ρa are negligible with respect to the other forces in the momentum balance. In this case, the momentum balance reduces to the static equilibrium equation
+
+∇ · σ + ρb = 0
+
+(44)
+
+in which time and material velocity play no role. Since the inertia forces have been neglected, the different descriptions of acceleration in equations (35a, b and c) do not appear in equation (44), which is therefore valid in both Eulerian and ALE formulations. The important conclusion is that there are no convective terms in the ALE momentum balance for quasistatic processes. A process may be modeled as quasistatic if stress variations and/or body forces are much larger than inertia forces. This is a common situation in solid mechanics, encompassing, for instance, various metal-forming processes. As discussed in the next section, convective terms are nevertheless present in the ALE (and Eulerian) constitutive equation for quasistatic processes. They reﬂect the fact that grid points are occupied by different particles at different times.
+Finally, in transient dynamic processes, all terms must be retained in expression (35c) for the material acceleration,
+
+7.2 ALE constitutive equations
+
+Compared to the use of the ALE description in ﬂuid dynamics, the main additional difﬁculty in nonlinear solid mechanics is the design of an appropriate stress-update procedure to deal with history-dependent constitutive equations. As already mentioned, constitutive equations of ALE nonlinear solid mechanics contain convective terms that account for the relative motion between mesh and material. This is the case for both hypoelastoplastic and hyperelastoplastic models.
+
+7.2.1 Constitutive equations for ALE hypoelastoplasticity
+
+Hypoelastoplastic models are based on an additive decomposition of the stretching tensor ∇sv (symmetric part of the velocity gradient) into elastic and plastic parts; see, for instance, Belytschko et al. (2000) or Bonet and Wood (1997). They were used in the ﬁrst ALE formulations for solid mechanics and are still the standard choice. In these models, material behavior is described by a rate-form constitutive equation
+
+σ = f (σ, ∇sv)
+
+(45)
+
+relating an objective rate of Cauchy stress σ to stress and stretching. The material rate of stress
+
+∂σ ∂σ
+
+σ˙ =
+
+=
+
++ (c · ∇)σ
+
+(46)
+
+∂t X ∂t χ
+
+cannot be employed in relation (45) to measure the stress rate because it is not an objective tensor, so large rigidbody rotations are not properly treated. An objective rate of stress is obtained by adding to σ˙ some terms that ensure the objectivity of σ ; see, for instance, Malvern (1969) or Belytschko et al. (2000). Two popular objective rates are the Truesdell rate and the Jaumann rate
+
+σ = σ˙ − ∇wv · σ − σ · (∇wv)T
+
+(47)
+
+where
+
+∇wv
+
+=
+
+1 2
+
+(∇v
+
+−
+
+∇Tv)
+
+is
+
+the
+
+spin
+
+tensor.
+
+Substitution of equation (47) (or similar expressions for
+
+other objective stress rates) into equation (45) yields
+
+σ˙ = q(σ, ∇sv, . . .)
+
+(48)
+
+where q contains both f and the terms in σ , which ensure its objectivity.
+
+16
+
+In the ALE context, referential time derivatives, not material time derivatives, are employed to represent evolution in time. Combining expression (46) of the material rate of stress and the constitutive relation (48) yields a rate-form constitutive equation for ALE nonlinear solid mechanics
+
+σ˙ = ∂σ + (c · ∇)σ = q ∂t χ
+
+(49)
+
+where, again, a convective term reﬂects the motion of material particles relative to the mesh. Note that this relative motion is inherent in ALE kinematics, so the convective term is present in all the situations described in Section 7.1, including quasistatic processes.
+Because of this convective effect, the stress update cannot be performed as simply as in the Lagrangian formulation, in which the element Gauss points correspond to the same material particles during the whole calculation. In fact, the accurate treatment of the convective terms in ALE rate-type constitutive equations is a key issue in the accuracy of the formulation, as discussed in Section 7.3.
+
+7.2.2 Constitutive equations for ALE hyperelastoplasticity
+Hyperelastoplastic models are based on a multiplicative decomposition of the deformation gradient into elastic and plastic parts, F = FeFp; see, for instance, Belytschko et al. (2000) or Bonet and Wood (1997). They have only very recently been combined with the ALE description (see Rodr´ıguez-Ferran et al., 2002 and Armero and Love, 2003).
+The evolution of stresses is not described by means of a rate-form equation, but in closed form as
+
+τ
+
+=
+
+dW 2 dbe
+
+be
+
+(50)
+
+where be = Fe · (Fe)T is the elastic left Cauchy–Green tensor, W is the free energy function, and τ = det(F)σ is the Kirchhoff stress tensor.
+Plastic ﬂow is described by means of the ﬂow rule
+
+b˙e − ∇v · be − be · (∇v)T = −2γ˙ m(τ) · be
+
+(51)
+
+The left-hand side of equation (51) is the Lie derivative of be with respect to the material velocity v. In the right-hand side, m is the ﬂow direction and γ˙ is the plastic multiplier.
+Using the fundamental ALE relation (27) between material and referential time derivatives, the ﬂow rule (51) can be recast as
+∂be + (c · ∇)be = ∇v · be + be · (∇v)T − 2γ˙ m(τ) · be ∂t χ
+(52)
+
+Note that, like in equation (49), a convective term in this constitutive equation reﬂects the relative motion between mesh and material.
+7.3 Stress-update procedures
+In the context of hypoelastoplasticity, various strategies have been proposed for coping with the convective terms in equation (49). Following Benson (1992b), they can be classiﬁed into split and unsplit methods.
+If an unsplit method is employed, the complete rate equation (49) is integrated forward in time, including both the convective term and the material term q. This approach is followed, among others, by Liu et al. (1986), who employed an explicit time-stepping algorithm and by Ghosh and Kikuchi (1991), who used an implicit unsplit formulation.
+On the other hand, split, or fractional-step methods treat the material and convective terms in (49) in two distinct phases: a material (or Lagrangian) phase is followed by a convection (or transport) phase. In exchange for a certain loss in accuracy due to splitting, split methods are simpler and especially suitable in upgrading a Lagrangian code to the ALE description. An implicit split formulation is employed by Hue´tink et al. (1990) to model metal-forming processes. An example of explicit split formulation may be found in Huerta and Casadei (1994), where ALE ﬁnite elements are used to model fast-transient phenomena.
+The situation is completely analogous for hyperelastoplasticity, and similar comments apply to the split or unsplit treatment of material and convective effects. In fact, if a split approach is chosen (see Rodr´ıguez-Ferran et al., 2002), the only differences with respect to the hypoelastoplastic models are (1) the constitutive model for the Lagrangian phase (hypo/hyper) and (2) the quantities to be transported in the convection phase.
+7.3.1 Lagrangian phase
+In the Lagrangian phase, convective effects are neglected. The constitutive equations recover their usual expressions (48) and (51) for hypo- and hyper-models respectively. The ALE kinematical description has (momentarily) disappeared from the formulation, so all the concepts, ideas, and algorithms of large strain solid mechanics with a Lagrangian description apply (see Bonet and Wood (1997), Belytschko et al. (2000), and Chapter 7, Volume 2).
+The issue of objectivity is one of the main differences between hypo- and hypermodels. When devising timeintegration algorithms to update stresses from σn to σn+1
+
+17
+
+in hypoelastoplastic models, a typical requirement is incremental objectivity (that is, the appropriate treatment of rigid-body rotations over the time interval [tn, tn+1]). In hyperelastoplastic models, on the contrary, objectivity is not an issue at all, because there is no rate equation for the stress tensor.
+
+7.3.2 Convection phase
+The convective effects neglected before have to be accounted for now. Since material effects have already been treated in the Lagrangian phase, the ALE constitutive equations read simply
+
+∂σ + (c · ∇)σ = 0; ∂t χ ∂α + (c · ∇)α = 0 ∂t χ
+
+∂be + (c · ∇)be = 0; ∂t χ
+(53)
+
+Equations (53)1 and (53)2 correspond to hypo- and hyperelastoplastic models respectively (cf. with equations 49 and 52). In equation (53)3, valid for both hypoand hyper-models, α is the set of all the material-dependent variables, i.e. variables associated with the material particle X: internal variables for hardening or softening plasticity, the volume change in nonisochoric plasticity, and so on (see Rodr´ıguez-Ferran et al., 2002).
+The three equations in (53) can be written more compactly as
+
+∂ ∂t
+
+χ + (c · ∇)
+
+=0
+
+(54)
+
+where represents the appropriate variable in each case. Note that equation (54) is simply a ﬁrst-order linear hyperbolic PDE, which governs the transport of ﬁeld by the velocity ﬁeld c. However, two important aspects should be considered in the design of numerical algorithms for the solution of this equation:
+
+1. is a tensor (for σ and be) or vector-like (for α) ﬁeld,
+
+so equation (54) should be solved for each component
+
+of :
+
+∂ +c·∇ = 0
+
+(55)
+
+∂t χ
+
+Since the number of scalar equations (55) may be relatively large (for instance: eight for a 3-D computation with a plastic model with two internal variables), the need for efﬁcient convection algorithms is a key issue in ALE nonlinear solid mechanics. 2. is a Gauss-point-based (i.e. not a nodal-based) quantity, so it is discontinuous across ﬁnite element edges. For this reason, its gradient ∇ cannot be
+
+reliably computed at the element level. In fact, handling ∇ is the main numerical challenge in ALE stress update.
+Two different strategies may be used to tackle the difﬁculties associated with ∇ . One possible approach is to approximate by a continuous ﬁeld , and replace ∇ by ∇ in equation (55). The smoothed ﬁeld can be obtained, for instance, by least-squares approximation (see Hue´tink et al., 1990).
+Another possibility is to retain the discontinuous ﬁeld and devise appropriate algorithms that account for this fact. To achieve this aim, a fruitful observation is noting that, for a piecewise constant ﬁeld , equation (55) is the wellknown Riemann problem. Through this connection, the ALE community has exploited the expertise on approximate Riemann solvers of the CFD community (see Le Veque, 1990).
+Although is, in general, not constant for each element (expect for one-point quadratures), it can be approximated by a piecewise constant ﬁeld in a simple manner. Figure 10 depicts a four-noded quadrilateral with a 2 × 2 quadrature subdivided into four subelements. If the value of for each Gauss point is taken as representative for the whole subelement, then a ﬁeld constant within each subelement results.
+In this context, equation (55) can be solved explicitly by looping all the subelements in the mesh by means of a Godunov-like technique based on Godunov’s method for conservation laws (see Rodr´ıguez-Ferran et al., 1998):
+n+1 = L − t N f ( c − L) 1 − sign(f ) (56) V =1
+Node Gauss point
+Figure 10. Finite element subdivided into subelements for the Godunov-like stress update.
+
+18
+
+According to equation (56), the Lagrangian (i.e. after the Lagrangian phase) value L is updated into the ﬁnal value
+n+1 by taking into account the ﬂux of across the subelement edges. In the second term on the right-hand side,
+t is the time step, V is the volume (or area, in 2-D) of the subelement, N is the number of edges per subelement, c is the value of in the contiguous subelement across edge
+, and f is the ﬂux of convective velocity across edge , f = (c · n) d . Note that a full-donor (i.e. full upwind) approach is obtained by means of sign(f ).
+Remark (Split stress update and iterations) In principle, the complete stress update must be performed at each iteration of the nonlinear equilibrium problem. However, a common simpliﬁcation consists in leaving the convection phase outside the iteration loop (see Baaijens, 1993; Rodr´ıguezFerran et al., 1998; and Rodr´ıguez-Ferran et al., 2002); that is, iterations are performed in a purely Lagrangian fashion up to equilibrium and the convection phase is performed after remeshing, just once per time step. Numerical experiments reveal that disruption of equilibrium caused by convection is not severe and can be handled as extra residual forces in the next load step (see references just cited).
+Remark (ALE ﬁnite strain elasticity) Since hyperelasticity can be seen as a particular case of hyperelastoplasticity, we have chosen here the more general situation for a more useful presentation. In the particular case of large elastic strains (hyperelasticity), where F = Fe, an obvious option is to particularize the general approach just described by solving only the relevant equation (i.e. equation 52 for be; note that there are no internal variables α in elasticity). In the literature, other approaches exist for this speciﬁc case. Yamada and Kikuchi (1993) and Armero and Love (2003) exploit the relationship F = F F−1, where F and F are the deformation gradients of mappings and respectively (see Figure 4), to obtain an ALE formulation for hyperelasticity with no convective terms. In exchange for the need to handle the convective term in the update of be (see equations 52 and 532), the former approach has the advantage that only the quality of mapping needs to be controlled. In the latter approaches, on the contrary, both the quality of and must be ensured; that is, two meshes (instead of only one) must be controlled.
+7.4 Applications in ALE nonlinear solid mechanics
+For illustrative purposes, two powder compaction ALE simulations are brieﬂy discussed here. More details can be found in Rodr´ıguez-Ferran et al. (2002) and Pe´rez-Foguet et al. (2003).
+
+The ﬁrst example involves the bottom punch compaction of an axisymmetric ﬂanged component (see Figure 11). If a Lagrangian description is used (see Figure 11(a)), the large upward mass ﬂow leads to severe element distortion in the reentrant corner, which in turn affects the accuracy in the relative density. With an ALE description (see Figure 11(b)), mesh distortion is completely precluded by means of a very simple ALE remeshing strategy: a uniform vertical mesh compression is prescribed in the bottom, narrow part of the piece, and no mesh motion (i.e. Eulerian mesh) in the upper, wide part.
+The second example involves the compaction of a multilevel component. Owing to extreme mesh distortion, it is not possible to perform the simulation with a Lagrangian approach. Three ALE simulations are compared in Figure 12, corresponding to top, bottom, and simultaneous top–bottom compaction. Even with an unstructured mesh and a more complex geometry, the ALE description avoids mesh distortion, so the ﬁnal relative density proﬁles can be computed (see Figure 13).
+7.5 Contact algorithms
+Contact treatment, especially when frictional effects are present, is a very important feature of mechanical modeling and certainly remains one of the more challenging problems in computational mechanics. In the case of the classical Lagrangian formulation, much attention has been devoted to contact algorithms and the interested reader is referred to references by Chapter 6, Volume 2, Zhong (1993), Wriggers (2002), and Laursen (2002) in order to get acquainted with the subject. By contrast, modeling of contact in connection with the ALE description has received much less attention. Paradoxically, one of the interesting features of ALE is that, in some situations, the formulation can avoid the burden of implementing cumbersome contact algorithms. The coining problem in Figure 14 is a good illustration of the versatility of ALE algorithms in the treatment of frictionless contact over a known (moving) surface. The material particle M located at the punch corner at time t has been represented. At time t + t, the punch has moved slightly downwards and, due to compression, the material particle M has moved slightly to the right. When a Lagrangian formulation is used in the simulation of such a process, due to the fact that the mesh sticks to the material, a contact algorithm has to be used to obtain a realistic simulation. On the contrary, using an ALE formalism, the implementation of a contact algorithm can be avoided. This is simply because the ALE formulation allows us to prevent the horizontal displacement of the mesh nodes located under the
+
+19
+
+Argyris JH, Doltsinis JSt, Fisher H and Wu¨stenberg H. TA ANTA PEI. Comput. Methods Appl. Mech. Eng. 1985;
+51(1 – 3):289 – 362.
+Armero F and Love E. An arbitrary Lagrangian-Eulerian ﬁnite element method for ﬁnite strain plasticity. Int. J. Numer. Methods Eng. 2003; 57(4):471–508.
+Askes H and Rodr´ıguez-Ferran A. A combined rh-adaptive scheme based on domain subdivision. Formulation and linear examples. Int. J. Numer. Methods Eng. 2001; 51(3):253–273.
+Askes H, Rodr´ıguez-Ferran A and Huerta A. Adaptive analysis of yield line patterns in plates with the arbitrary LagrangianEulerian method. Comput. Struct. 1999; 70(3):257–271.
+Askes H and Sluys LJ. Remeshing strategies for adaptive ALE analysis of strain localisation. Eur. J. Mech., A-Solids 2000; 19(3):447 – 467.
+Askes H, Sluys LJ and de Jong BBC. Remeshing techniques for r-adaptive and combined h/r-adaptive analysis with application to 2D/3D crack propagation. Struct. Eng. Mech. 2001; 12(5):475 – 490.
+Aymone JLF, Bittencourt E and Creus GJ. Simulation of 3D metal forming using an arbitrary Lagrangian-Eulerian ﬁnite element method. J. Mater. Process. Technol. 2001; 110(2): 218 – 232.
+Baaijens FPT. An U-ALE formulation of 3-D unsteady viscoelastic ﬂow. Int. J. Numer. Methods Eng. 1993; 36(7): 1115–1143.
+Batina JT. Implicit ﬂux-split Euler schemes for unsteady aerodynamic analysis involving unstructured dynamic meshes. AIAA J. 1991; 29(11):1836–1843.
+Belytschko T and Kennedy JM. Computer methods for subassembly simulation. Nucl. Eng. Des. 1978; 49:17–38.
+Belytschko T and Liu WK. Computer methods for transient ﬂuid-structure analysis of nuclear reactors. Nucl. Saf. 1985; 26(1):14 – 31.
+Belytschko T, Flanagan DP and Kennedy JM. Finite element methods with user-controlled meshes for ﬂuid-structure interaction. Comput. Methods Appl. Mech. Eng. 1982; 33(1–3): 669 – 688.
+Belytschko T, Kennedy JM and Schoeberle DF. Quasi-Eulerian ﬁnite element formulation for ﬂuid-structure interaction. Proceedings of Joint ASME/CSME Pressure Vessels and Piping Conference. ASME: New York, 1978; p. 13, ASME paper 78-PVP-60.
+Belytschko T, Kennedy JM and Schoeberle DF. Quasi-Eulerian ﬁnite element formulation for ﬂuid-structure interaction. J. Press. Vessel Technol.-Trans. ASME 1980; 102:62–69.
+Belytschko T, Liu WK and Moran B. Nonlinear Finite Elements for Continua and Structures. Wiley: Chichester, 2000.
+Benson DJ. An efﬁcient, accurate, simple ALE method for nonlinear ﬁnite element programs. Comput. Methods Appl. Mech. Eng. 1989; 72(3):305–350.
+Benson DJ. Vectorization techniques for explicit ALE calculations. An efﬁcient, accurate, simple ALE method for nonlinear ﬁnite element programs. Comput. Methods Appl. Mech. Eng. 1992a; 96(3):303–328.
+Benson DJ. Computational methods in Lagrangian and Eulerian hydrocodes. Comput. Meth. Appl. Mech. Eng. 1992b; 99(2 – 3):235 – 394.
+
+Boman R and Ponthot JP. Finite elements for the lubricated contact between solids in metal forming processes. Acta Metall. Sinica 2000; 13(1):319–327.
+Boman R and Ponthot JP. Numerical simulation of lubricated contact in rolling processes. J. Mater. Process. Technol. 2002; 125 – 126:405 – 411.
+Bonet J and Wood RD. Nonlinear Continuum Mechanics for Finite Element Analysis. Cambridge University Press: Cambridge, 1997.
+Braess H and Wriggers P. Arbitrary Lagrangian-Eulerian ﬁnite element analysis of free surface ﬂow. Comput. Methods Appl. Mech. Eng. 2000; 190(1–2):95–110.
+Casadei F and Halleux JP. An algorithm for permanent ﬂuidstructure interaction in explicit transient dynamics. Comput. Methods Appl. Mech. Eng. 1995; 128(3–4):231–289.
+Casadei F and Potapov S. Permanent ﬂuid-structure interaction with nonconforming interfaces in fast transient dynamics. Comput. Methods Appl. Mech. Eng. 2004; 193: to appear in the Special Issue on the ALE formulation.
+Casadei F and Sala A. Finite element and ﬁnite volume simulation of industrial fast transient ﬂuid-structure interactions. In Proceedings European Conference on Computational Mechanics – Solids, Structures and Coupled Problems in Engineering, Wunderlich W (ed.). Lehrstuhl fu¨r Statik: Technische Universita¨t Mu¨nchen, 1999.
+Casadei F, Halleux JP, Sala A and Chille` F. Transient ﬂuidstructure interaction algorithms for large industrial applications. Comput. Methods Appl. Mech. Eng. 2001; 190(24–25): 3081 – 3110.
+Castro-Diaz MJ, Bourouchaki H, George PL, Hecht F and Mohammadi B. Anisotropic adaptative mesh generation in two dimensions for CFD. In Proceedings of the Third ECCOMAS Computational Fluid Dynamics Conference, Paris, 9–13 September, 1996, 181–186.
+Cescutti JP, Wey E and Chenot JL. Finite element calculation of hot forging with continuous remeshing. In Modelling of Metal Forming Processes, EUROMECH-233, Chenot JL and On˜ate E (eds). Sophia-Antipolis, 1988; 207–216.
+Chenot JL and Bellet M. The ALE method for the numerical simulation of material forming processes. In Simulation of Materials Processing: Theory, Methods and Applications – NUMIFORM 95, Shen SF and Dawson P (eds). Balkema: Ithaca, New York, 1995; 39–48.
+Donea J. Arbitrary Lagrangian-Eulerian ﬁnite element methods. In Computational Methods for Transient Analysis, Belytschko T and Hughes TJR (eds). North-Holland: Amsterdam, 1983; 474 – 516.
+Donea J and Huerta A. Finite Element Methods for Flow Problems. Wiley: Chichester, 2003.
+Donea J, Fasoli-Stella P and Giuliani S. Lagrangian and Eulerian ﬁnite element techniques for transient ﬂuid-structure interaction problems. In Trans. 4th Int. Conf. on Structural Mechanics in Reactor Technology, Paper B1/2, San Francisco, 1977.
+Donea J, Giuliani S and Halleux JP. An arbitrary LagrangianEulerian ﬁnite element method for transient dynamic ﬂuidstructure interactions. Comput. Methods Appl. Mech. Eng. 1982; 33(1 – 3):689 – 723.
+
+22
+
+Eriksson LE. Practical three-dimensional mesh generation using transﬁnite interpolation. SIAM J. Sci. Statist. Comput. 1985; 6(3):712 – 741.
+Farhat C, Geuzaine Ph and Grandmont C. The discrete geometric conservation law and the nonlinear stability of ALE schemes for the solution of ﬂow problems on moving grids. J. Comput. Phys. 2001; 174(2):669–694.
+Fortin M, Vallet M-G, Dompierre J, Bourgault Y and Habashi WG. Anisotropic mesh adaptation: theory, validation and applications. In Proceedings of the Third ECCOMAS Computational Fluid Dynamics Conference, Paris, 9–13 September, 1996, 174 – 180.
+Franck RM and Lazarus RB. Mixed Eulerian-Lagrangian method. In Methods in Computational Physics, Vol. 3: Fundamental methods in Hydrodynamics, Alder B, Fernbach S and Rotenberg M (eds). Academic Press: New York, 1964; 47–67.
+Gadala MS and Wang J. ALE formulation and its application in solid mechanics. Comput. Methods Appl. Mech. Eng. 1998; 167(1 – 2):33 – 55.
+Gadala MS and Wang J. Simulation of metal forming processes with ﬁnite element methods. Int. J. Numer. Methods Eng. 1999; 44(10):1397 – 1428.
+Gadala MS, Movahhedy MR and Wang J. On the mesh motion for ALE modeling of metal forming processes. Finite Elem. Anal. Des. 2002; 38(5):435–459.
+Ghosh S. Arbitrary Lagrangian-Eulerian ﬁnite element analysis of large deformation in contacting bodies. Int. J. Numer. Methods Eng. 1992; 33(9):1891–1925.
+Ghosh S and Kikuchi N. An arbitrary Lagrangian-Eulerian ﬁnite element method for large deformation analysis of elasticviscoplastic solids. Comput. Methods Appl. Mech. Eng. 1991; 86(2):127 – 188.
+Ghosh S and Raju S. R-S adapted arbitrary Lagrangian Eulerian ﬁnite element method for metal-forming problems with strain localization. Int. J. Numer. Methods Eng. 1996; 39(19): 3247 – 3272.
+Giuliani S. An algorithm for continuous rezoning of the hydrodynamic grid in arbitrary Lagrangian-Eulerian computer codes. Nucl. Eng. Des. 1982; 72:205–212.
+Gordon WJ and Hall CH. Construction of curvilinear co-ordinate systems and applications to mesh generation. Int. J. Numer. Methods Eng. 1973; 7(4):461–477.
+Guillard H and Farhat C. On the signiﬁcance of the geometric conservation law for ﬂow computations on moving meshes. Comput. Methods Appl. Mech. Eng. 2000; 190(11 – 12):1467 – 1482.
+Habashi WG, Fortin M, Vallet M-G, Dompierre J, Bourgault Y and Ait-Ali-Yahia D. Anisotropic mesh adaptation: towards user-independent, mesh-independent and solver-independent CFD solutions. Part I: Theory. Int. J. Numer. Methods Fluids 2000; 32(6):725–744.
+Haber RB. A mixed Eulerian-Lagrangian displacement model for large-deformation analysis in solid mechanics. Comput. Methods Appl. Mech. Eng. 1984; 43(3):277–292.
+Haber R and Abel JF. Discrete transﬁnite mappings for the description and meshing of three-dimensional surfaces using
+
+interactive computer graphics. Int. J. Numer. Methods Eng. 1982; 18(1):41–66.
+Haber RB and Hariandja BH. Computational strategies for nonlinear and fracture mechanics problems. An Eulerian-Lagrangian ﬁnite element approach to large deformation frictional contact. Comput. Struct. 1985; 20(1–3):193–201.
+Hermansson J and Hansbo P. A variable diffusion method for mesh smoothing. Commun. Numer. Methods Eng. 2003; 19(11):897 – 908.
+Hirt CW, Amsden AA and Cook JL. An arbitrary LagrangianEulerian computing method for all ﬂow speeds. J. Comput. Phys. 1974; 14:227–253. Reprinted in J. Comput. Phys. 1997; 135(2):203 – 216.
+Hogge M and Ponthot JP. Metal forming analysis via EulerianLagrangian FEM with adaptive mesh. Latin Am. Res. 1991; 21:217 – 224.
+Hu YK and Liu WK. ALE ﬁnite element formulation for ring rolling analysis. Int. J. Numer. Methods Eng. 1992; 33(6):1217 – 1236.
+Hu YK and Liu WK. An ALE hydrodynamic lubrication ﬁnite element method with application to strip rolling. Int. J. Numer. Methods Eng. 1993; 36(5):855–880.
+Hu YK and Liu WK. Finite element hydrodynamic friction model for metal forming. Int. J. Numer. Methods Eng. 1994; 37(23):4015 – 4037.
+Huerta A and Casadei F. New ALE applications in nonlinear fast-transient solid dynamics. Eng. Comput. 1994; 11(4):317 – 345.
+Huerta A and Liu WK. Viscous ﬂow structure interaction. J. Press. Vessel Technol.-Trans. ASME 1988a; 110(1):15–21.
+Huerta A and Liu WK. Viscous ﬂow with large free-surface motion. Comput. Methods Appl. Mech. Eng. 1988b; 69(3): 277 – 324.
+Huerta A and Liu WK. ALE formulation for large boundary motion. In Trans. 10th Int. Conf. Structural Mechanics in Reactor Technology, Vol. B, Anaheim, 1989; 335–346.
+Huerta A and Liu WK. Large amplitude sloshing with submerged blocks. J. Press. Vessel Technol.-Trans. ASME 1990; 112:104 – 108.
+Huerta A, Rodr´ıguez-Ferran A, D´ıez P and Sarrate J. Adaptive ﬁnite element strategies based on error assessment. Int. J. Numer. Methods Eng. 1999; 46(10):1803–1818.
+Hue´tink J, Vreede PT and van der Lugt J. Progress in mixed Eulerian-Lagrangian ﬁnite element simulation of forming processes. Int. J. Numer. Methods Eng. 1990; 30(8):1441–1457.
+Hughes TJR, Liu WK and Zimmermann TK. LagrangianEulerian ﬁnite element formulation for incompressible viscous ﬂows. Comput. Methods Appl. Mech. Eng. 1981; 29(3):329–349; Presented at the U.S.-Japan conference on Interdisciplinary Finite Element Analysis, Cornell University, August 7–11, 1978.
+Koh HM and Haber RB. Elastodynamic formulation of the Eulerian-Lagrangian kinematic description. J. Appl. Mech.Trans. ASME 1986; 53(4):839–845.
+Koh HM, Lee HS and Haber RB. Dynamic crack propagation analysis using Eulerian-Lagrangian kinematic descriptions. Comput. Mech. 1988; 3:141–155.
+
+23
+
+Koobus B and Farhat C. Second-order accurate and geometrically conservative implicit schemes for ﬂow computations on unstructured dynamic meshes. Comput. Methods Appl. Mech. Eng. 1999; 170(1–2):103–129.
+Laursen TA. Computational Contact and Impact Mechanics. Springer: Berlin, 2002.
+Lesoinne M and Farhat C. Geometric conservation laws for ﬂow problems with moving boundaries and deformable meshes, and their impact on aeroelastic computations. Comput. Methods Appl. Mech. Eng. 1996; 134(1–2):71–90.
+Le Tallec P and Martin C. A nonlinear elasticity model for stuctured mesh adaptation. In Proceedings of the Third ECCOMAS Computational Fluid Dynamics Conference, Paris, 1996; 174 – 180.
+Le Tallec P and Mouro J. Fluid-structure interaction with large structural displacements. Comput. Methods Appl. Mech. Eng. 2001; 190(24–25):3039–3067.
+Le Veque RJ. Numerical Methods for Conservation Laws. Lectures in Mathematics, ETH Zu¨rich. Birkha¨user Verlag: Basel, 1990.
+Liu WK and Chang HG. Efﬁcient computational procedures for long-time duration ﬂuid-structure interaction problems. J. Press. Vessel Technol.-Trans. ASME 1984; 106:317–322.
+Liu WK and Chang HG. A method of computation for ﬂuid structure interaction. Comput. Struct. 1985; 20(1–3):311–320.
+Liu WK and Gvildys J. Fluid-structure interaction of tanks with an eccentric core barrel. Comput. Methods Appl. Mech. Eng. 1986; 58(1):51–77.
+Liu WK, Belytschko T and Chang H. An arbitrary LagrangianEulerian ﬁnite element method for path-dependent materials. Comput. Methods Appl. Mech. Eng. 1986; 58(2):227–245.
+Liu WK, Chang H, Chen JS and Belytschko T. Arbitrary Lagrangian-Eulerian Petrov-Galerkin ﬁnite elements for nonlinear continua. Comput. Methods Appl. Mech. Eng. 1988; 68(3):259 – 310.
+Liu WK, Chen JS, Belytschko T and Zhang YF. Adaptive ALE ﬁnite elements with particular reference to external work rate on frictional interface. Comput. Methods Appl. Mech. Eng. 1991; 93(2):189 – 216.
+Lo¨hner R and Yang C. Improved ALE mesh velocities for moving bodies. Commun. Numer. Methods Eng. 1996; 12(10):599–608.
+Malvern LW. Introduction to the Mechanics of a Continuous Medium. Prentice-Hall: Englewood Cliffs, 1969.
+Martinet F and Chabrand P. Application of ALE ﬁnite element method to a lubricated friction model in sheet metal forming. Int. J. Solids Struct. 2000; 37(29):4005–4031.
+Mu¨ller J-D. Anisotropic adaptation and multigrid for hybrid grids. Int. J. Numer. Methods Fluids 2002; 40(3–4):445–455.
+Noh WF. CEL:A time-dependent two-space dimensional coupled Eulerian-Lagrangian code. In Methods in Computational Physics, Alder B, Fernbach S and Rotenberg M (eds), vol. 3. Academic Press: New York, 1964; 117–179.
+Nomura T and Hughes TJR. An arbitrary Lagrangian-Eulerian ﬁnite element method for interaction of ﬂuid and a rigid body. Comput. Methods Appl. Mech. Eng. 1992; 95(1):115–138.
+
+Pe´rez-Foguet A, Rodr´ıguez-Ferran A and Huerta A. Efﬁcient and accurate approach for powder compaction problems. Comput. Mech. 2003; 30(3):220–234.
+Pijaudier-Cabot G, Bode´ L and Huerta A. Arbitrary LagrangianEulerian ﬁnite element analysis of strain localization in transient problems. Int. J. Numer. Methods Eng. 1995; 38(24): 4171 – 4191.
+Ponthot JP and Belytschko T. Arbitrary Lagrangian-Eulerian formulation for element-free Galerkin method. Comput. Methods Appl. Mech. Eng. 1998; 152(1–2):19–46.
+Ponthot JP and Hogge M. The use of the Eulerian-Lagrangian FEM in metal forming applications including contact and adaptive mesh. In Advances in Finite Deformation Problems in Material Processing, Chandra N and Reddy JN (eds). ASME Winter Annual Meeting, ASME: AMD-125, ASME (American Society of Mechanical Engineers): Atlanta, 1991; 44 – 64.
+Pracht WE. Calculating three-dimensional ﬂuid ﬂows at all ﬂow speeds with an Eulerian-Lagrangian computing mesh. J. Comput. Phys. 1975; 17:132–159.
+Ramaswamy B and Kawahara M. Arbitrary Lagrangian-Eulerian ﬁnite element method for unsteady, convective, incompressible viscous free surface ﬂuid ﬂow. Int. J. Numer. Methods Fluids 1987; 7(10):1053–1075.
+Rodr´ıguez-Ferran A, Casadei F and Huerta A. ALE stress update for transient and quasistatic processes. Int. J. Numer. Methods Eng. 1998; 43(2):241–262.
+Rodr´ıguez-Ferran A, Pe´rez-Foguet A and Huerta A. Arbitrary Lagrangian-Eulerian (ALE) formulation for hyperelastoplasticity. Int. J. Numer. Methods Eng. 2002; 53(8):1831–1851.
+Sarrate J and Huerta A. An improved algorithm to smooth graded quadrilateral meshes preserving the prescribed element size. Commun. Numer. Methods Eng. 2001; 17(2):89–99.
+Sarrate J, Huerta A and Donea J. Arbitrary Lagrangian-Eulerian formulation for ﬂuid rigid-body interaction. Comput. Methods Appl. Mech. Eng. 2001; 190(24–25):3171–3188.
+Schreurs PJG, Veldpaus FE and Brekelmans WAM. Simulation of forming processes using the Arbitrary Eulerian-Lagrangian formulation. Comput. Methods Appl. Mech. Eng. 1986; 58(1):19 – 36.
+Souli M and Zolesio JP. Arbitrary Lagrangian-Eulerian and freesurface methods in ﬂuid mechanics. Comput. Methods Appl. Mech. Eng. 2001; 191(3–5):451–466.
+Smith RW. AUSM(ALE): a geometrically conservative Arbitrary Lagrangian-Eulerian ﬂux splitting scheme. J. Comput. Phys. 1999; 150(1):268–286.
+Tre´panier JY, Reggio M, Paraschivoiu M and Camarero R. Unsteady Euler solutions for arbitrarily moving bodies and boundaries. AIAA J. 1993; 31(10):1869–1876.
+Trulio JG. Theory and Structure of the AFTON Codes. Report AFWL-TR-66-19, Air Force Weapons Laboratory: Kirtland Air Force Base, 1966.
+van Haaren MJ, Stoker HC, van den Boogaard AH and Hue´tink J. The ALE method with triangular elements: Direct convection of integration point values. Int. J. Numer. Methods Eng. 2000; 49(5):697 – 720.
+
+24
+
+Winslow AM. Equipotential Zoning of Two-dimensional Meshes. Report UCRL-7312, University of California, Lawrence Livermore Laboratory: Livermore, California, 1963.
+Wriggers P. Computational Contact Mechanics. Wiley: Chichester, 2002.
+Yamada T and Kikuchi F. An arbitrary Lagrangian-Eulerian ﬁnite element method for incompressible hyperelasticity. Comput. Methods Appl. Mech. Eng. 1993; 102(2):149–177.
+
+Zhang Q and Hisada T. Analysis of ﬂuid-structure interaction problems with structural buckling and large domain changes by ALE ﬁnite element method. Comput. Methods Appl. Mech. Eng. 2001; 190(48):6341–6357.
+Zhong ZH. Finite Element Procedures for Contact-Impact Problems. Oxford University Press: Oxford, 1993.
+
+25
+

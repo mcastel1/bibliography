@@ -1,0 +1,5672 @@
+A Nitsche cut ﬁnite element method for the Oseen problem with general Navier boundary conditions
+M. Wintera, B. Schotta,∗, A. Massingb, W.A. Walla
+aInstitute for Computational Mechanics, Technical University of Munich, Boltzmannstraße 15, 85747 Garching, Germany bDepartment of Mathematics and Mathematical Statistics, Umeå University, SE-901 87 Umeå, Sweden
+
+arXiv:1706.05897v1 [math.NA] 19 Jun 2017
+
+Abstract
+In this work a Nitsche-based imposition of generalized Navier conditions on cut meshes for the Oseen problem is presented. Other methods from literature dealing with the generalized Navier condition impose this condition by means of substituting the tangential Robin condition in a classical Galerkin way. These methods work ﬁne for a large slip length coeﬃcient but lead to conditioning and stability issues when it approaches zero. We introduce a novel method for the weak imposition of the generalized Navier condition which remains well-posed and stable for arbitrary choice of slip length, including zero. The method proposed here builds on the formulation done by Juntunen and Stenberg [1]. They impose a Robin condition for the Poisson problem by means of Nitsche’s method for an arbitrary combination of the Dirichlet and Neumann parts of the condition. The analysis conducted for the proposed method is done in a similar fashion as in Massing et al. [2], but is done here for a more general type of boundary condition. The analysis proves stability for all ﬂow regimes and all choices of slip lengths. Also an L2-optimal estimate for the velocity error is shown, which was not conducted in the previously mentioned work. A numerical example is carried out for varying slip lengths to verify the robustness and stability of the method with respect to the choice of slip length. Even though proofs and formulations are presented for the more general case of an unﬁtted grid method, they can easily be reduced to the simpler case of a boundary-ﬁtted grid with the removal of the ghost-penalty stabilization terms.
+Keywords: Oseen problem, general Navier boundary condition, cut ﬁnite element method, Nitsche’s method, slip boundary condition, Navier-Stokes equations
+
+1. Introduction
+For an incompressible Newtonian ﬂuid in Ω ⊂ Rd, d = 2, 3, which is a bounded, connected domain with the boundary ∂Ω, the following Navier-Stokes equations with a general Navier boundary condition are valid,
+
+∂tu + u · ∇u − ∇ · (2ν (u)) + ∇p = f in Ω,
+
+(1.1)
+
+∇ · u = 0 in Ω,
+
+(1.2)
+
+(u − g) Pn = 0 on ∂Ω,
+
+(1.3)
+
+(ε(2ν (u)n − h) + ν(u − g)) Pt = 0 on ∂Ω,
+
+(1.4)
+
+where
+
+(u)
+
+:=
+
+1 2
+
+(∇u
+
++
+
+(∇u)T
+
+)
+
+and
+
+u,
+
+g, h
+
+:
+
+[0, T ] × Ω
+
+→
+
+Rd
+
+and
+
+ν, p
+
+:
+
+[0, T ]
+
+×Ω
+
+→
+
+R.
+
+Here
+
+u
+
+is
+
+the
+
+velocity
+
+and
+
+p and ν the pressure and kinematic viscosity of the ﬂuid respectively. The terms g and h are the velocity and traction
+
+∗Corresponding author Email addresses: winter@lnm.mw.tum.de (M. Winter), schott@lnm.mw.tum.de (B. Schott), andre.massing@umu.se (A. Massing), wall@lnm.mw.tum.de (W.A. Wall) URL: www.lnm.mw.tum.de/staff/magnus-winter (M. Winter), www.lnm.mw.tum.de/staff/benedikt-schott (B. Schott), www.andremassing.com (A. Massing), www.lnm.mw.tum.de/staff/wall (W.A. Wall)
+
+Preprint submitted to
+
+June 20, 2017
+
+prescribed at the boundary ∂Ω. The projection matrices (Pn, Pt ∈ Rd×d) are constructed from the outward pointing unit normal n of the boundary ∂Ω. The projection in normal direction is deﬁned as Pn := n ⊗ n and the projection onto the tangential plane of the surface as Pt := I − n ⊗ n, where I is the d × d identity matrix.
+The boundary condition applied to the problem (1.1)-(1.2) is the general Navier boundary condition. It prescribes a Dirichlet condition in the normal direction (1.3), where the normal velocity of the ﬂuid needs to be the same as the normal velocity prescribed at the boundary. In the tangential plane (1.4), a Robin condition is imposed, which is a condition comprised of a linear combination of a Dirichlet and Neumann condition. The slip length parameter ε : ∂Ω → R+0 ∪ {∞} determines the inﬂuence of the two parts in the tangential direction. In the limiting case where ε → 0, the formulation reduces to the classic Dirichlet condition u = g on ∂Ω; and in the case where ε → ∞, a combination of a Dirichlet condition in normal direction uPn = gPn and a Neumann condition in tangential direction 2ν (u)nPt = hPt is enforced.
+This type of boundary condition was ﬁrst proposed by Navier [3] with g = h = 0 as a boundary condition for incompressible ﬂuids at solid walls. However, in the majority of cases, it has been veriﬁed that the slip length is negligibly small and as such the no-slip condition, which is a pure Dirichlet type condition with u = g, is normally used to describe the motion of ﬂuids. Nevertheless, there are some cases where a Navier slip type model has merit, such as for ﬂow over super-hydrophobic surfaces [4] and in the modeling of rough surfaces [5]. It can also be shown that for contact between smooth rigid bodies in an incompressible ﬂuid, the no-slip condition is not a feasible boundary condition [6]. One option to alleviate this issue is to employ a Navier slip boundary condition at the boundaries of the rigid bodies [7, 8]. Furthermore, in modeling the motion of contact lines for multiphase ﬂows, it is well known that the use of the no-slip boundary condition yields non-physical inﬁnite dissipation in the vicinity of the contact line [9]. To overcome this issue, an alternative is to model the contact line motion by using a Navier slip type boundary condition [10, 11].
+The work done on how to impose the Navier boundary condition can be divided based on how it enforces the nopenetration condition (1.3), i.e. the condition in normal direction. In the work done by Verfürth, a strong imposition is proposed in [12], and by means of a weak imposition through Lagrange multipliers in [13, 14]. The constraint in normal direction can also be enforced weakly by means of Nitsche’s method [15] or by a penalty method [16]. In all the previously mentioned works, the tangential condition (1.4) is treated by substituting the traction in the variational formulation at the boundary with the following,
+
+2ν
+
+(u)nPt
+
+=
+
+h Pt
+
+−
+
+ν ε
+
+(u
+
+−
+
+g)
+
+Pt
+
+on ∂Ω.
+
+(1.5)
+
+This method of imposing the boundary condition leads to numerical diﬃculties when ε → 0 and is not deﬁned for a Dirichlet condition ε = 0. Thus, the slip length can not be chosen arbitrarily, and it is diﬃcult to predict at what value numerical issues will arise. The same problem can be observed in the Poisson equation with Robin boundary conditions, for which a solution was presented by Juntunen and Stenberg [1]. In their formulation, the Robin condition is imposed weakly by means of Nitsche’s method, which permits any choice of ε. Based on this method, the present work proposes a formulation to extend these results to the Navier-Stokes equations.
+A few examples have already been mentioned, such as contact between rigid bodies in an incompressible ﬂuid and moving contact lines in multi-phase ﬂows, where large deformation and topological changes occur and where the Navier slip boundary condition has merit. To simulate these types of problems, an unﬁtted mesh instead of a boundary-ﬁtted mesh method is advantageous. This is due to the fact that the boundary-ﬁtted mesh methods, which require Arbitrary-Lagrangian-Eulerian (ALE) based mesh moving algorithms, will break down and necessitate expensive remeshing [17] under those conditions.
+Unﬁtted mesh methods have already successfully been used in simulating a variety of diﬀerent problems. These include single-phase [18] and multi-phase ﬂows [19–22], which were conducted by using an implicit level set to describe the interface between the ﬂuids and an unﬁtted ﬁnite element approach for solving the governing equations. For ﬂuid-structure interaction problems with large deformations of the structure [23–26], and in the case of contact of submerged bodies [27], a ﬁxed-grid Eulerian approach for the ﬂuid and a Lagrangian description for the structure have been applied successfully. Unﬁtted mesh methods also oﬀer the possibility to use embedding meshes [28–31] to simplify meshing or to improve accuracy in certain regions of the mesh.
+The Cut Finite Element Method (CutFEM) is the unﬁtted mesh method of choice in this work. This method stems from the eXtended Finite Element Method [32, 33]; for an overview of CutFEM see, e.g., [34]. To prescribe
+
+2
+
+boundary conditions on non-ﬁtted domain boundaries, a common choice is to impose them weakly. This can be done for instance with Nitsche’s method [35]. Stability and a priori error estimates have been derived for this setup for the Poisson [36], Stokes [37] and recently for the Oseen problem [2] with weakly imposed Dirichlet boundary conditions. Another advantage of Nitsche’s method is its ﬂexibility and straightforward extensibility to coupled multiphysics problems [26], where the strength of the imposition of the boundary conditions is regulated by the resolution of the physical variables of the computational mesh.
+The Oseen equations, which are addressed in this work, can be viewed as a linearized version of the Navier-Stokes equations when time-stepping methods are applied. Since this work is also investigating the stability and a priori error properties of an unﬁtted Nitsche’s method for the Oseen problem, but with a more general type of boundary condition, a large portion of the analysis relies on the work done in [2]. As the proposed method uses equal order continuous ﬁnite elements for the velocity and pressure, stabilization of the discretized equations is a necessity. The method chosen here is the continuous interior penalty (CIP) method by Burman et al. [38]; see [39] for an overview of diﬀerent stabilization methods applicable to the Oseen problem. Further stabilization is necessary at the boundaries as these are cut out from the background mesh. If such stabilization is not applied, the method is not necessarily stable for pathological cut cases. Our choice of stabilization at the boundary is the ghost-penalty method introduced by Burman [40] for the Poisson equation and adapted to the Oseen and Navier-Stokes equations by [2] and [18].
+The contributions of this work can be summarized as follows: A weakly imposed general Navier boundary condition is introduced. It consists of a normal and a tangential component, which are separated by the use of projection operators at the boundary. In the normal direction a Dirichlet condition is imposed by means of Nitsche’s method. In the tangential plane a Robin condition is also imposed by a Nitsche’s method, which has the advantage over the classical Galerkin substitution (1.5) in that it remains stable and well-posed for all slip lengths ε. The formulation in the tangential plane is inspired by the work of [1], where a similar problem was solved for the Robin boundary condition for the Poisson equation. A numerical analysis is conducted to prove that our formulation is stable and has optimal convergence behavior. The analysis builds upon the work done in [2], where stability and optimality of the error estimates for the Oseen equations with CutFEM was done for a weak imposition of a Dirichlet boundary condition. Here, however, the analysis is carried out for a more general case of the boundary condition.
+The paper is organized as follows. Section 2 introduces the Oseen problem, and the necessary spaces and assumptions are speciﬁed; also the variational formulation of the problem is presented. In Section 3 the deﬁnitions for the cut ﬁnite element spaces are introduced. The general Navier boundary condition imposed by Nitsche’s method is presented and its diﬀerences and advantages are highlighted against alternative methods. The stabilized weak form of the Oseen equations, discretized by means of the CutFEM and the necessary stabilizations of the domain through the CIP method and the cut boundaries by means of ghost-penalty stabilization, are also explained in this section. In Section 4 basic approximation properties and interpolation operators and norms are introduced. Sections 5 and 6 are dedicated to proving the inf-sup stability and the optimal a priori error of the proposed method. In Section 7 the method is applied to a numerical example and a convergence study is conducted to verify the theoretical results. The ﬁnal Section 8 gives a summary and conclusion of this work.
+
+2. The Oseen Problem with General Navier Boundary Conditions
+
+2.1. Basic Notation on Function Spaces
+
+We deﬁne our domain as Ω ⊂ Rd, d ∈ {2, 3}, where Ω is either a bounded convex domain or a plane bounded
+
+domain with Lipschitz and piecewise C2 boundary with convex angles. The standard Sobolev spaces are denoted by
+
+Wm,q(U) for U ∈ {Ω, Γ} where 0 m < ∞ and 1 q ∞ with associated norms · m,q,U . We write Hm(U) = Wm,2(U)
+
+with norm · m,U . For the associated inner products we write (·, ·)m,U for measurable subsets U ⊆ Rd and ·, · m,U
+
+for subsets U ⊆ Rd−1. Occasionally, we write (·, ·)U, ·, · U and · U if m = 0. Fractional Sobolev trace spaces
+
+[H
+
+s−
+
+1 2
+
+(Y
+
+)]d
+
+at
+
+subsets
+
+Y
+
+⊂
+
+Rd−1,
+
+which
+
+in
+
+practice
+
+will
+
+be
+
+a
+
+part
+
+of
+
+the
+
+domain
+
+boundary
+
+Γ,
+
+denote
+
+the
+
+set
+
+of
+
+boundary
+
+traces of all Rd-valued functions in [Hs(Ω)]d. For the Oseen problem, we make use of the speciﬁc function spaces
+
+H0(∇·; Ω) ⊂ [L2(U)]d, which denotes the space of divergence-free functions, and L02(Ω), which denotes the function space consisting of functions in L2(Ω) with zero average on Ω. To shorten the presentation, for broken norms and inner
+
+products which involve a collection of geometric entities Ph, i.e. ﬁnite elements or facets, we write
+
+·
+
+2 Ph
+
+=
+
+P∈Ph
+
+·
+
+2 P
+
+whenever · P is well-deﬁned.
+
+3
+
+2.2. Problem Formulation
+Considering the non-linear Navier-Stokes equations (1.1)–(1.2), after applying a time discretization method and a linearization step, many solution algorithms can be reduced to solving a sequence of auxiliary problems of Oseen type for the velocity ﬁeld u : Ω → Rd and the pressure ﬁeld p : Ω → R:
+
+σu + β · ∇u − ∇ · (2ν (u)) + ∇p = f in Ω,
+
+(2.1)
+
+∇ · u = 0 in Ω,
+
+(2.2)
+
+(u − g) Pn = 0 on Γ,
+
+(2.3)
+
+(ε(2ν (u)n − h) + ν(u − g)) Pt = 0 on Γ,
+
+(2.4)
+
+where
+
+(u)
+
+:=
+
+1 2
+
+(∇u
+
++
+
+(∇u)T
+
+)
+
+denotes
+
+the
+
+strain
+
+rate
+
+tensor,
+
+β
+
+∈
+
+[W1,∞(Ω)]d ∩ H0(∇·; Ω) the given divergence-free
+
+advective velocity ﬁeld and f ∈ [L2(Ω)]d the body force. The assumption is made that the reaction coeﬃcient σ and
+
+the viscosity ν are positive real-valued constants. For the boundary conditions (2.3)–(2.4) the functions are deﬁned as
+
+g ∈ [H3/2(Γ)]d
+
+and
+
+h ∈ [H1/2(Γ)]d,
+
+(2.5)
+
+and the normal and tangential projection matrices are constructed from the outward pointing unit normal n of the boundary Γ as Pn := n ⊗ n and Pt := I − n ⊗ n, where I is the d × d identity matrix. Utilizing a non-negative slip length function ε : Γ → R+0 ∪ {∞}, the classical full Dirichlet boundary conditions can be recovered by setting ε = 0, which for ν > 0 states that u = g on ΓD := {x ∈ Γ with ε = 0} ⊆ Γ; however, the tangential condition (2.4) does not contribute in the Darcy limit, i.e. for ν = 0, and as such, the normal condition (2.3) is suﬃcient to deﬁne a Dirichlet
+boundary condition. By choosing ε = ∞ and h = 0 the boundary condition reduces to a full-slip condition as the tangential velocity on Γ is not constrained anymore. The part of Γ with 0 ε < ∞ is denoted by Γε and is assumed being non-vanishing, i.e. meas(Γε) > 0, to avoid not well-posed pure slip-boundary problems. It is further assumed
+that the inﬂow boundary Γin := {x ∈ Γ | β · n < 0} is part of the Dirichlet boundary, i.e. Γin ⊆ ΓD. In the discrete
+setting, the constant pressure mode needs to be ﬁltered out during the solution procedure, as it is determined only up
+to a constant.
+
+2.3. Variational Formulation Let us denote the velocity and pressure space by
+
+Vg := {u ∈ [H1(Ω)]d | (u − g)Pn = 0 on Γ ∧ u = g on ΓD}, V0n := {u ∈ [H1(Ω)]d | uPn = 0 on Γ ∧ u = 0 on ΓD},
+Q := L02(Ω).
+
+(2.6) (2.7) (2.8)
+
+The corresponding weak formulation of the Oseen problem (2.1)–(2.4) is to ﬁnd the velocity and the pressure ﬁeld (u, p) ∈ Vg × Q such that
+
+a(u, v) + b(p, v) − b(q, u) + ν uPt, v Γ = l(v) + (h + ν g)Pt, v Γ ∀ (v, q) ∈ V0n × Q,
+
+(2.9)
+
+where
+
+a(u, v) := (σu, v)Ω + (β · ∇u, v)Ω + (2ν (u), (v))Ω, b(p, v) := −(p, ∇ · v)Ω,
+l(v) := ( f , v)Ω.
+
+(2.10) (2.11) (2.12)
+
+For the well-posedness and solvability of the continuous Oseen problem (2.9), we refer the reader to, e.g. [14, 41, 42].
+
+4
+
+n
+
+Ω
+
+Ω
+
+TΓ
+
+Th, Ω∗h
+
+Th
+
+FΓ
+
+Fh
+
+Γ = ∂Ω
+
+∂Ω∗h
+
+Γ = ∂Ω
+
+Figure 3.1: Left: The physical domain Ω is deﬁned as the inside of a given boundary Γ with outward pointing unit normal n embedded into a ﬁxed background mesh Th. Right: The ﬁctitious domain Ω∗h is the union of the minimal subset Th ⊂ Th covering Ω and deﬁnes the active computational mesh. Sets of elements TΓ and facets FΓ are indicated.
+
+3. A Stabilized Nitsche-type Cut Finite Element Method for the Oseen Problem
+This section is devoted to the presentation of our cut ﬁnite element method. After deﬁning suitable cut ﬁnite element function spaces, we address the weak imposition of general Navier boundary conditions for the Oseen problem by a Nitsche-type method. A possible stabilization technique to overcome issues of classical ﬁnite element approximations is recalled and we discuss how the resulting discrete formulation can be extended to non-boundary-ﬁtted approximation with the help of boundary-zone ghost-penalty stabilizations. Finally, we summarize our cut ﬁnite element formulation and introduce suitable norms for the numerical stability and a priori error analysis.
+
+3.1. Computational Meshes and Cut Finite Element Spaces
+While for standard ﬁnite element methods the computational mesh is ﬁtted to the boundary or an interpolatory approximation is given, in cut ﬁnite element methods the boundary is allowed to intersect the mesh. For the sake of simplicity, in this work, we assume a sequence of quasi-uniform meshes Th = {T }, each consisting of shape-regular ﬁnite elements T with mesh size parameter h and covering the physical domain Ω. For each background mesh Th, the ﬁnite element solution is then approximated on an active part of the background mesh
+
+Th := {T ∈ Th : T ∩ Ω ∅},
+
+(3.1)
+
+consisting of all elements in Th which intersect the physical domain Ω. The possibly enlarged domain which is covered by the union of all elements T ∈ Th is denoted by Ω∗h. A mesh Th is called a ﬁtted mesh if Ω = Ω∗h and an unﬁtted mesh if Ω Ω∗h. The subset of all elements of the respective active mesh which are located in the vicinity of the boundary Γ are denoted as
+
+TΓ := {T ∈ Th : T ∩ Γ ∅}.
+
+(3.2)
+
+For stabilization purposes we need to deﬁne the set of all facets by Fh, where Fi is the set of all interior facets F which are shared by exactly two elements, denoted by TF+ and TF−. The notation FΓ is used for the set of all interior facets belonging to elements intersected by the boundary Γ,
+
+FΓ := {F ∈ Fi :
+
+T
+
++ F
+
+∩
+
+Γ
+
+∅
+
+∨
+
+T
+
+− F
+
+∩
+
+Γ
+
+∅}.
+
+(3.3)
+
+Figure 3.1 summarizes the notation. By analogy to other preceding works on cut ﬁnite element methods [2, 36, 43–45], we assume that the domain and
+the boundary are reasonably resolved by each quasi-uniform mesh Th. This entails that the intersection between the facet F ∈ Fi and the boundary Γ is simply connected. Furthermore, there needs to exist a plane S T with a piecewise smooth parametrization Φ : S T ∩ T → Γ ∩ T for each element T intersected by Γ. Finally an assumption is made
+5
+
+that for each element T ∈ TΓ there exists T ∈ Th \ TΓ such that the sequence {T }Nj=1 with T1 = T, TN = T and T j ∩ T j+1 ∈ Fi, j = 1, . . . , N − 1 is at most N elements.
+Let Xh be the ﬁnite element spaces consisting of continuous piecewise polynomials of order k for a given mesh Th
+
+Xh = vh ∈ C0(Ω∗h) : vh|T ∈ Pk(T ) ∀ T ∈ Th .
+
+(3.4)
+
+For the discrete cut ﬁnite element approximation of the solution to the Oseen problem, we use equal-order interpolations for velocity and pressure, where
+
+Vh = [Xh]d, Qh = Xh, Wh = Vh × Qh
+
+(3.5)
+
+are the discrete velocity space, the discrete pressure space and the total approximation space.
+
+3.2. Weak Imposition of Generalized Navier Boundary Conditions
+In this section, we present the imposition of generalized Navier boundary conditions for the Oseen problem. As previously mentioned, this boundary condition consists of a Dirichlet condition in normal direction to the boundary and a Robin condition in the tangential plane of the boundary. Since the boundary-normal constraint (2.3) is of Dirichlet-type, either a strong or a weak imposition can be used. Nevertheless, in the case of an unﬁtted mesh, a weak imposition is recommended. In the case when the slip-length coeﬃcient is suﬃciently large, the tangential constraint (2.4) can be imposed by direct substitution of the boundary terms, which stems from integrating the viscous bulk term in (2.1) by parts, i.e. by substituting
+
+− (2ν (uh)n)Pt, vh Γ = (−h + ε−1ν(u − g))Pt, vh Γ.
+
+(3.6)
+
+Such a formulation provides a reasonable and stable method for large slip-length coeﬃcients ε. However, it is well known that for ε → 0, i.e. when we approach a Dirichlet condition in the tangential direction, the conditioning of the formulation deteriorates and, as a result, does not provide an accurate and stable formulation, see discussion by Juntunen and Stenberg [1]. To overcome this issue in the case of the Poisson problem, Juntunen and Stenberg proposed a Nitsche’s method of imposing a Robin boundary condition, which provides stability, optimal a priori error estimates and a bounded conditioning w.r.t. small choices of ε ∈ [0, ∞].
+Next, we present our novel Nitsche-type method for the Oseen problem with general Navier boundary conditions. It combines the advantages of the Nitsche-type method by Juntunen and Stenberg [1] for generalized Robin-type conditions with the Nitsche formulations developed by Burman et al. [38] and Massing et al. [2] for incompressible low- and high-Reynolds-number ﬂow with Dirichlet-type constraints.
+The unﬁtted Nitsche-type ﬁnite element formulation for the Oseen problem is to ﬁnd Uh = (uh, ph) ∈ Wh such that for all Vh = (vh, qh) ∈ Wh
+
+Ah(Uh, Vh) + S h(Uh, Vh) + Gh(Uh, Vh) = Lh(Vh),
+
+(3.7)
+
+where
+
+Ah(Uh, Vh) := ah(uh, vh) + bh(ph, vh) − bh(qh, uh),
+
+(3.8)
+
+6
+
+with
+
+ah(uh, vh) := a(uh, vh) − 2ν (uh)n, vh Γ ν
+− ζu uh · n, (2ν (vh)n) · n Γ + γnh uh · n, vh · n Γ
+
++
+
+φu γnh
+
+uh
+
+·
+
+n,
+
+vh
+
+·
+
+n
+
+Γ
+
+−
+
+(β · n)uh, vh Γin
+
++
+
+ε
+
+1 + γt
+
+h
+
+ε(2ν
+
+(uh)n)Pt, vh
+
+Γ+
+
+ε
+
+1 + γt
+
+h
+
+νuh
+
+Pt
+
+,
+
+vh
+
+Γ
+
+− ζu
+
+ε
+
+γt +
+
+h γt
+
+h
+
+ε(2ν
+
+(uh)n)Pt, 2
+
+(vh)n Γ − ζu
+
+ε
+
+γth + γt
+
+h
+
+νuh
+
+Pt
+
+,
+
+2
+
+(vh)n Γ,
+
+bh(ph, vh) := b(ph, vh) + ph, vh · n Γ,
+
+Lh(Vh) := l(vh)
+
+− ζu
+
+g · n, (2ν (vh)n) · n Γ +
+
+ν γnh
+
+g
+
+·
+
+n,
+
+vh
+
+·
+
+n
+
+Γ
+
+−
+
+g · n, qh Γ +
+
+φu γnh
+
+g
+
+·
+
+n,
+
+vh
+
+·
+
+n
+
+Γ
+
+−
+
+(β · n) g, vh Γin
+
++
+
+ε
+
+1 + γt
+
+h
+
+εh
+
+Pt
+
+,
+
+vh
+
+Γ
+
++
+
+ε
+
+1 + γt
+
+h
+
+ν
+
+g
+
+Pt
+
+,
+
+vh
+
+Γ
+
+− ζu
+
+ε
+
+γt +
+
+h γt
+
+h
+
+εh
+
+Pt,
+
+2
+
+(vh)n Γ − ζu
+
+ε
+
+γt +
+
+h γt
+
+h
+
+ν
+
+g
+
+Pt
+
+,
+
+2
+
+(vh)n Γ,
+
+where φu : Ω∗h → R is deﬁned on each element as
+
+φu,T := ν + β 0,∞,T h + σh2.
+
+(3.9) (3.10) (3.11) (3.12) (3.13) (3.14) (3.15) (3.16) (3.17) (3.18) (3.19)
+(3.20)
+
+The stabilization operators S h, Gh will be speciﬁed later in Sections 3.3 and 3.4. Starting from the weak formulation (2.9), it can be seen that due to the weak constraint enforcement the standard consistency boundary terms remain in the momentum equation (3.9) and (3.14). Equivalent to a Nitsche formulation for a pure Dirichlet boundary condition, these standard consistency terms on the boundary Γ are potential sources for instabilities and are analyzed further in Sections 5 and 6. The constraints being imposed in wall-normal and tangential directions, i.e. (2.3) and (2.4), are enforced by adding additional consistent boundary terms. Wall-normal constraint: The enforcement of the boundary-normal constraint follows the standard Nitsche-technique by adding an adjoint (in-)consistent viscous term (depending on ζu ∈ {−1, 1}) and a consistent and optimal convergent viscous symmetric penalty term (3.10) with appropriate right-hand-side terms (3.16). Choosing an adjoint-consistent method (ζu = 1), the discrete formulation requires the penalty parameter 0 < γn C to be chosen small enough, where the constant C depends on the shape and polynomial order of the ﬁnite element, cf. the trace estimate (4.1) in Section 4. Furthermore, this choice allows to deduce optimal convergence for the velocity L2-error as stated in Theorem 6.5. Even though an adjoint-inconsistent formulation (ζu = −1) enjoys improved inf-sup stability for any 0 < γn < ∞ and thereby ensures optimal convergence w.r.t. an energy norm, optimality for the velocity L2-error is not guaranteed in this case anymore. For an analysis of penalty-free Nitsche methods, i.e. for γn = ∞, the interested reader is referred to, e.g. [46, 47]. Note that even for vanishing viscosity the wall-normal constraints needs to be enforced. Thus, to ensure inf-sup stability and optimal convergence for all ﬂow regimes, an adjoint-consistent pressure term (3.14) and a symmetric penalty term (3.11), which accounts for the diﬀerent ﬂow regimes as reﬂected by the deﬁnition of the piecewise constant stabilization scaling function φu, are added to the formulation. The respective right-hand-side terms (3.17) again guarantee consistency of the method. Note that additionally at inﬂow boundaries Γin ⊆ ΓD where it holds that ε = 0 and β · n < 0, Dirichlet boundary conditions need to be imposed in all spatial directions as stated by the additional advective inﬂow stabilization terms in (3.11) and (3.17). Wall-tangential constraint: The enforcement of the tangential boundary condition follows the technique introduced by Juntunen and Stenberg [1]. By adding terms where the tangential condition (2.4) is tested with vh and (vh), consistency is ensured. Thereby, choosing the weights of these added terms as presented, guarantees coercivity,
+7
+
+optimal a priori error estimates and bounded system conditioning w.r.t. the choice of the slip-length coeﬃcient
+ε ∈ [0, ∞]. Similar to the viscous wall-normal constraint enforcement, the choice between an adjoint-consistent (ζu = 1) and an adjoint-inconsistent (ζu = −1) formulation poses equivalent restrictions to γt, i.e. 0 < γt C for ζu = 1 (with C stemming from estimate (4.1)) and 0 < γt < ∞ for ζu = −1.
+
+Remark 3.1. In the limiting case of ε → 0, it can easily be seen that the formulation (3.7) ends up the same as already presented in [2] for the imposition of weak Dirichlet boundary conditions by means of Nitsche’s method.
+
+Remark 3.2. For the case where ε → ∞ and γth ε the formulation does not return the familiar imposition of a Neumann condition in the tangential plane. For clarity, we explicitly state the terms ah(uh, vh) and Lh(Vh) here,
+
+ah(uh, vh) := a(uh, vh) − 2ν (uh)n, vh Γ + (2ν (uh)n)Pt, vh Γ ν
+− ζu uh · n, (2ν (vh)n) · n Γ + γnh uh · n, vh · n Γ
+
++
+
+φu γnh
+
+uh
+
+·
+
+n,
+
+vh
+
+·
+
+n
+
+Γ
+
+−
+
+(β · n)uh, vh Γin
+
+− ζu γth(2ν (uh)n)Pt, 2 (vh)n Γ,
+
+Lh(Vh) := l(vh) + hPt, vh Γ ν
+− ζu g · n, (2ν (vh)n) · n Γ + γnh g · n, vh · n Γ
+
+−
+
+g · n, qh Γ +
+
+φu γnh
+
+g
+
+·
+
+n,
+
+vh
+
+·
+
+n
+
+Γ
+
+−
+
+(β · n) g, vh Γin
+
+− ζu γthhPt, 2 (vh)n Γ.
+
+(3.21) (3.22)
+(3.23) (3.24) (3.25) (3.26)
+(3.27) (3.28)
+
+This limiting case gives a standard Neumann condition as in (3.26) with the addition of the terms (3.24) and (3.28).
+These terms are, however, added consistently to the formulation and as such do not ruin its validity. Nevertheless, these terms are of importance as they impose limitations on the choice of γt. The conditioning of this formulation becomes increasingly bad as γt is increasing. From this it is clear that the parameter is eﬀectively limited from above even in the case of an adjoint-inconsistent formulation, i.e. ζu = −1, which is proven to be inf-sup stable for 0 γt < ∞ in Section 5. Another observation is that in the other limiting case where γt → 0 we end up with a
+classical standard Galerkin imposition of a Neumann boundary condition in the tangential plane, as the terms (3.24)
+and (3.28) disappear.
+
+3.3. The Continuous Interior Penalty (CIP) Stabilizations
+It is well-known that a ﬁnite element based discretization of formulation (2.9) needs to be stabilized to allow for equal-order interpolation spaces Wh = Vh × Qh due to its saddle-point structure, see e.g. [48], and to suppress spurious oscillations in the numerical solution in the case of convection-dominant ﬂow. For a detailed overview of diﬀerent stabilization techniques, see e.g. the overview article [39].
+Following the presentation of the cut ﬁnite element formulation from [2], we apply continuous interior penalty (CIP) stabilization operators originally introduced by Burman et al. [38] and adapted by Massing et al. [2] such that
+
+S h(Uh, Wh) := sβ(uh, vh) + su(uh, vh) + sp(ph, qh)
+
+(3.29)
+
+consists of symmetric stabilization terms, which penalize the jump of the velocity and pressure gradients over interior element facets F ∈ Fi. The stabilization operators are deﬁned by
+
+sβ(uh, vh) := γβ φβ,F h β · ∇uh , β · ∇vh F ,
+F∈Fi
+su(uh, vh) := γu φu,F h ∇ · uh , ∇ · vh F ,
+F∈Fi
+sp(ph, qh) := γp φp,F h nF · ∇ph , nF · ∇qh F ,
+F∈Fi
+
+(3.30) (3.31) (3.32)
+
+8
+
+where for any, possibly vector-valued, piecewise discontinuous function φ on the computational mesh Th, we denote
+
+the jump and average over an interior facet F ∈ Fi with
+
+φ
+
+:=
+
+(φ+F − φ−F ) and φF
+
+:=
+
+1 2
+
+(φ+F
+
++
+
+φ−F )
+
+where
+
+φ±(x)
+
+=
+
+limt→0+ φ(x ± tnF) for some chosen normal unit vector nF on F. The element-wise constant stabilization parameter φu
+
+is as deﬁned in (3.20) and φβ, φp are given as
+
+φβ,T = φp,T = h2φ−u,1T .
+
+(3.33)
+
+Throughout this work, we use the notation a b for a Cb for some positive generic constant C which varies
+with the context, however, is always independent of the mesh size h and the intersection of the mesh Th by Γ. For a (Lipschitz)-continuous β ∈ [W1,∞(Ω)]d ⊆ [C0,1(Ω)]d, in the forthcoming numerical analysis we assume a
+piecewise constant approximation satisfying
+
+β − β0h 0,∞,T h β 1,∞,T and β0h 0,∞,T
+
+β 0,∞,T ∀ T ∈ Th.
+
+(3.34)
+
+Furthermore, in the unﬁtted mesh case we assume that there exists an extension β∗ ∈ [W1,∞(Ω∗)]d from Ω to Ω∗
+
+satisfying β∗ 1,∞,Ω∗
+
+β 1,∞,Ω. Similar to the preceding works by [2, 38], we assume that the ﬂow ﬁeld β is
+
+suﬃciently resolved by the mesh such that ∀ T ∈ Th
+
+β 0,∞,T
+
+β 0,∞,T β 0,∞,T ∀ T ∈ ω(T ),
+
+(3.35)
+
+where ω(T ) denotes a local patch of elements neighboring T . As a result, the piecewise constant stabilization parameters are comparable locally in a neighborhood of elements, i.e.
+
+φT ∼ φT ∀T ∈ ω(T ) and φF ∼ φT ∀T ∈ ω(F) for φ ∈ {φu, φβ, φp}.
+
+(3.36)
+
+Remark 3.3. Note that for facets F ∈ Fi, which are intersected by the boundary Γ, the inner products of all CIP stabilization operators (3.30)–(3.32) have to be evaluated along the entire cut facets.
+
+3.4. Stabilizing Cut Elements – The Role of Ghost Penalties
+To strengthen the stability properties of the discrete formulation in the boundary zone for non-boundary-ﬁtted meshes Th, additional measures are required. So-called ghost-penalty stabilizations, comprised in the operator Gh, are active in the boundary zone and augment the stabilized bilinear form Ah + S h to account for small cut elements |T ∩ Ω| |T |, T ∈ Th, in the vicinity of the boundary Γ. For detailed elaborations on this concept see, e.g., the works [2, 36, 40, 44].
+Ghost-penalty stabilizations extend the stability and approximation properties of the discrete scheme to the entire active background mesh, i.e. from Ω to Ω∗h, and thus give control of the discrete velocity and pressure solutions, where they have no physical signiﬁcance. As a major advantage, the resulting scheme has improved optimality properties with highly reduced sensitivity of the errors and guaranteed uniformly bounded conditioning irrespective of how the boundary Γ intersects the underlying mesh Th. For this purpose, the diﬀerent terms need to be designed such that inf-sup stability is guaranteed for all ﬂow regimes and (weak) consistency and optimality of the numerical scheme is maintained.
+In the preceding work by Massing et al. [2], a set of diﬀerent ghost-penalty terms have been developed to stabilize the Oseen equations. The suggested terms consist of CIP-type jump penalties of polynomial order k for velocity and pressure and are recalled in the following
+
+Gh(Uh, Vh) = gσ(uh, vh) + gν(uh, vh) + gβ(uh, vh) + gu(uh, vh) + gp(ph, qh)
+
+(3.37)
+
+9
+
+with
+
+gσ(uh, vh) :=γσ
+
+σh2 j+1 ∂nj uh , ∂nj vh F ,
+
+F∈FΓ 1 j k
+
+gν(uh, vh) :=γν
+
+νh2 j−1 ∂nj uh , ∂nj vh F ,
+
+F∈FΓ 1 j k
+
+gβ(uh, vh) :=γβ
+
+φβ,F h2 j+1 β · ∇∂nj uh , β · ∇∂nj vh F ,
+
+F∈FΓ 0 j k−1
+
+gu(uh, vh) :=γu
+
+φu,F h2 j+1 ∇ · ∂nj uh , ∇ · ∂nj vh F ,
+
+F∈FΓ 0 j k−1
+
+gp(ph, qh) :=γp
+
+φp,F h2 j−1 ∂nj ph , ∂nj qh F ,
+
+F∈FΓ 1 j k
+
+(3.38) (3.39) (3.40) (3.41) (3.42)
+
+where the j-th normal derivative ∂nj v is given by ∂nj v = |α|= j Dαv(x)nα for multi-index α = (α1, . . . , αd), |α| = i αi and nα = nα11 nα22 · · · nαdd . In contrast to the related CIP stabilizations, these terms need to control the entire discrete polynomial, this entails all the higher-order normal derivatives contained in the adjacent elements polynomials. How-
+ever, they are only evaluated along facets in the vicinity of the boundary, i.e. ∀ F ∈ FΓ. The ghost-penalty terms (3.40)–(3.42) extend control over the respective instabilities to the enlarged domain Ω∗h, whereas the reactive and viscous ghost-penalties (3.38)–(3.39) extend control over the scaled L2- and H1-norms in the following fashion:
+
+Proposition 3.4. Let Ω, Ω∗h and FΓ be deﬁned as in Section 3.1 and the ghost penalty operators be given as in (3.38)– (3.42). Then for scalar functions ph ∈ Qh as well as for vector-valued equivalents uh ∈ Vh the following estimates
+hold
+
+σ
+
+1 2
+
+uh
+
+2 Ω∗h
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω∗h
+
+σ
+
+1 2
+
+uh
+
+2 Ω
+
++
+
+gσ(uh,
+
+uh)
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω
+
++
+
+gν(uh,
+
+uh)
+
+σ
+
+1 2
+
+uh
+
+2 Ω∗h
+
+,
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω∗h
+
+.
+
+(3.43) (3.44)
+
+Furthermore, let the scaling functions φβ, φu and φp be deﬁned as in (3.20) and (3.33) and let β0h ∈ [Xdhc,0]d be a piecewise constant approximation to β on Th, which satisﬁes the approximation properties speciﬁed in (3.34). Then the following estimates hold
+
+Φ
+
+ph
+
+2 Ω∗h
+
+1
+
+φu2 ∇ · uh
+
+2 Ω∗h
+
+1
+φβ2
+
+(β0h
+
+−
+
+β)
+
+·
+
+∇uh
+
+2 Ω∗h
+
+1
+φβ2
+
+(β0h
+
+· ∇uh
+
++ ∇ph)
+
+2 Ω∗h
+
+Φ
+
+ph
+
+2 Ω
+
++ gp(ph, ph),
+
+1
+
+φu2 ∇ · uh
+
+2 Ω
+
++
+
+gu(uh,
+
+uh),
+
+ωh
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω∗h
+
++
+
+σ
+
+1 2
+
+uh
+
+2 Ω∗h
+
+,
+
+1
+φβ2 (β
+
+·
+
+∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
++
+
+gβ(uh, uh)
+
++
+
+g p ( ph ,
+
+ph)
+
++
+
+ωh
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω∗h
+
++
+
+σ
+
+1 2
+
+uh
+
+2 Ω∗h
+
+,
+
+with the non-dimensional scaling functions ωh and Φ given as in [2] by
+
+ωh
+
+:=
+
+h2|β|1,∞,Ω ν + σh2
+
+,
+
+
+
+2
+
+Φ−1
+
+:=
+
+σC
+
+2 P
+
++
+
+β 0,∞,ΩCP + ν + 
+
+β 0,∞,ΩCP ν + σCP2
+
+
+
+.
+
+(3.45) (3.46) (3.47) (3.48)
+(3.49)
+
+Note that the hidden constants in (3.45)–(3.48) depend only on the shape-regularity and the polynomial order, but not on the mesh or the location of Γ within Th.
+
+Proof. For detailed proofs of these estimates, the reader is referred to the preceding work by Massing et al. [2] (cf. Lemma 5.4, Corollary 5.5 and 5.7 and Lemma 5.8) and the references therein.
+
+10
+
+Remark 3.5. Note that the function β occurring in the stabilization operators sβ (3.30) and gβ (3.40) can be replaced
+by a proper continuous interpolation βh satisfying the assumption speciﬁed in (3.34), without changing the ﬁnal results of the stability and a priori estimates. When solving the incompressible Navier-Stokes equations, βh is the ﬁnite element approximation of u from a previous time or iteration step.
+
+Remark 3.6. As suggested in [2], the convection and the incompressibility related stabilization forms sβ, su and gβ, gu, i.e. (3.30), (3.31) and (3.40), (3.41), can be replaced by single operators
+
+sβ(uh, vh) := γβ φβh( ∂nuh , ∂nvh )F ,
+
+F∈Fi
+
+gβ(uh, vh) := γβ
+
+φβh2 j−1( ∂nj uh , ∂nj vh )F ,
+
+F∈FΓ 1 j k
+
+with φβ =
+
+β
+
+2 0,∞,F
+
+φβ
+
+,
+
+which
+
+simpliﬁes
+
+the
+
+implementation
+
+of
+
+the
+
+purposed
+
+method.
+
+(3.50) (3.51)
+
+3.5. Final Discrete Formulation and Norms
+The full stabilized cut ﬁnite element method for the Oseen problem with generalized Navier boundary conditions then reads: ﬁnd Uh = (uh, ph) ∈ Wh such that ∀ Vh = (vh, qh) ∈ Wh
+
+Ah(Uh, Vh) + S h(Uh, Vh) + Gh(Uh, Vh) = Lh(Vh),
+
+(3.52)
+
+where Ah, Lh are the discrete operators including the weak constraint enforcement of the boundary conditions (see Section 3.2, (3.8)–(3.19)), S h(·, ·) is the CIP operator to balance instabilities in the interior of the physical domain (see Section 3.3, (3.29)–(3.32)) and Gh(·, ·) the ghost-penalty operator, which extends stability control to the boundary zone when non-boundary-ﬁtted meshes are used for the approximation (see Section 3.4, (3.37)–(3.42)).
+Following the works by Massing et al. [2] on a related cut ﬁnite element method with Dirichlet boundary conditions
+and the work by Juntunen and Stenberg [1] on a Nitsche-type method for Robin-type constraints, for the subsequent
+numerical stability and convergence analysis we introduce the following (semi-)norms according to our cut ﬁnite element method (3.52). For functions U = (u, p) with u ∈ H1(Ω) and p ∈ L2(Ω) we deﬁne the mesh-dependent energy norms related to our Nitsche-type formulation
+
+|||u|||2 :=
+
+σ
+
+1 2
+
+u
+
+2 Ω
+
++
+
+ν
+
+1 2
+
+∇u
+
+2 Ω
+
++
+
+(ν/(γn
+
+h))
+
+1 2
+
+u
+
+·
+
+n
+
+2 Γ
+
++
+
+(ν/(ε
+
++
+
+γt
+
+h))
+
+1 2
+
+u
+
+Pt
+
+2 Γ
+
++
+
+|β ·
+
+1
+n| 2 u
+
+2 Γ
+
++
+
+(φu
+
+/(γn
+
+h))
+
+1 2
+
+u
+
+·
+
+n
+
+2 Γ
+
+,
+
+|||p|||2φ :=
+
+φ−
+
+1 2
+
+p
+
+2 Ω
+
+.
+
+(3.53) (3.54)
+
+Throughout the stability analysis control over discrete functions is required on unﬁtted meshes Th, which can be achieved thanks to the continuous interior and ghost penalty operators for velocity and pressure. For discrete functions uh ∈ Vh ⊂ H1(Th) and ph ∈ Qh ⊂ L2(Th) the following norms are used
+
+|||uh|||2h := |||uh|||2 + |uh|2h, |||ph|||2h,φ := |||ph|||2φ + |ph|2h,
+
+(3.55) (3.56)
+
+with a piecewise constant scaling function φ and semi-norms which are deﬁned by the stabilization operators
+
+|uh|2h := sβ(uh, uh) + su(uh, uh) + gσ(uh, uh) + gν(uh, uh) + gβ(uh, uh) + gu(uh, uh), |ph|2h := sp(ph, ph) + gp(ph, ph).
+
+(3.57) (3.58)
+
+For the stability analysis we will also utilize the augmented natural energy norm for Uh ∈ Vh × Qh
+
+|||Uh|||2h := |Uh|2h +
+
+1
+φu2 ∇ · uh
+
+2 Ω
+
++
+
+1 1 + ωh
+
+1
+
+φβ2 (β
+
+·
+
+∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
++
+
+Φ
+
+ph 2Ω,
+
+(3.59)
+
+11
+
+and a semi-norm which is deﬁned as
+
+|Uh|2h := |(uh, ph)|2h = |||uh|||2h + |ph|2h = |||uh|||2 + |uh|2h + |ph|2h.
+
+(3.60)
+
+Note that it holds that Φ φ−u1, which allows us to create a lower bound of the locally scaled pressure norms. Moreover, CP denotes the so-called Poincaré constant as deﬁned in (4.3) in Section 4, which scales as the diameter of Ω.
+For the a priori error analysis, additional control over boundary ﬂuxes on Γ and the divergence of the velocity is desired. For this purpose, for suﬃciently regular functions U = (u, p) ∈ H2(Ω) × H1(Ω) we deﬁne
+
+|||u|||2∗ := |||u|||2 +
+
+(νh)
+
+1 2
+
+∇u
+
+·
+
+n
+
+2Γ,
+
+|||p|||2∗,φ := |||p|||2φ +
+
+φ−
+
+1 2
+
+h
+
+1 2
+
+p
+
+2Γ,
+
+1
+
+|||U|||2∗ := |||u|||2∗ +
+
+φu2 ∇ · u
+
+2 Ω
+
++ |||p|||2∗,Φ−1 .
+
+(3.61) (3.62) (3.63)
+
+From the inverse estimate (4.1) (see Section 4) and the norm equivalences from Proposition 3.4, discrete functions satisfy
+
+|||uh|||2∗ ||| ph |||2∗,Φ−1
+|||Uh|||2∗
+
+|||uh|||2 + gν(uh, uh) |||uh|||2h |||ph|||2Φ−1 + gp(ph, ph) |||ph|||2h,Φ−1 |||Uh|||2h
+
+∀ uh ∈ Vh, ∀ ph ∈ Qh, ∀ Uh ∈ Wh.
+
+(3.64) (3.65) (3.66)
+
+4. Preliminary Estimates
+In this section, we collect important and useful estimates, which will be used frequently throughout the stability and a priori error analysis of the proposed cut ﬁnite element method (3.52) in Sections 5 and 6. First, we collect trace inequalities and inverse estimates and comment on the Korn-type inequality for the strain-rate tensor in combination with Nitsche boundary terms to enforce a generalized Navier boundary condition. Finally, we introduce suitable interpolation error estimates, which will be used to establish a priori error estimates.
+
+4.1. Useful Inequalities and Estimates
+For discrete functions vh ∈ Xh the following well-known generalized inverse and trace inequalities hold for elements T which are arbitrarily intersected by the boundary Γ:
+
+D jvh
+
+T
+
++
+
+1
+h2
+
+∂nj vh
+
+∂T
+
++
+
+h
+
+1 2
+
+∂nj vh
+
+Γ∩T
+
+hi− j Divh T ∀ T ∈ Th, 0 i
+
+j.
+
+(4.1)
+
+For functions v ∈ H1(Ω∗h), the following trace inequalities are valid
+
+v ∂T + v Γ∩T h−1/2 v T + h1/2 ∇v T ∀ T ∈ Th,
+
+(4.2)
+
+as shown in [43, 49]. Finally, assuming that meas(Γε) > 0, we recall the generalized Poincaré inequality for [H1(Ω)]d functions with non-vanishing boundary trace from [50]
+
+v 0,Ω CP( ∇v 0,Ω + v Γε ) ∀ vh ∈ [H1(Ω)]d.
+
+(4.3)
+
+In the following, a generalized Korn-type inequality is presented and it is shown how to control the kernel of the strain-rate-deformation tensor (·) with the help of Nitsche-type penalty terms.
+
+Proposition 4.1. Let assume that meas(Γε)
+
+a >
+
+semi-norm 0, then ·
+
+on [H1(Ω)]d be deﬁned Γε deﬁnes a norm on the
+
+as u space
+
+2 Γε
+of
+
+:= Γε u2 ds, where rigid body motions
+
+ε ∞,Γε
+
+cε < ∞. Let us
+
+RM(Ω) := {u ∈ [H1(Ω)]d | u(x) := c + W x, c ∈ Rd, W ∈ S d ∀ x ∈ Ω},
+
+(4.4)
+
+where S d is the space of anti-symmetric d×d matrices, i.e. W = −WT . Note, that RM(Ω) is the kernel of the symmetric strain-rate-deformation tensor (·) in [H1(Ω)]d with d ∈ {2, 3}.
+
+12
+
+Proof. For a more explicit description of why RM(Ω) is the kernel of the tensor (·) in [H1(Ω)]d, the reader is referred to, e.g. [51, 52]. The claim regarding the norm property follows directly from the fact that meas(Γε) > 0 and from the uniqueness of the trivial solution (c, W) = (0, 0) ∈ Rd × S d of the linear system c + W x = 0 on Γε.
+
+Theorem 4.2 (Korn-type inequality). Let meas(Γε) > 0 and · Γε be as deﬁned in Proposition 4.1, then there exists a constant CK such that
+
+∇u Ω u 1,Ω CK( (u) Ω + u Γε ) ∀ u ∈ [H1(Ω)]d.
+
+(4.5)
+
+Proof. The proof follows the technique proposed in [47] and [52] for Korn-type inequalities and is therefore only
+
+sketched in the following. Let [Hˆ 1(Ω)]d := {v ∈ [H1(Ω)]d : | Ω ∇ × v dx| = 0 ∧ | Ω v dx| = 0}, then it holds [H1(Ω)]d = [Hˆ 1(Ω)]d ⊕ RM(Ω) such that for each u ∈ [H1(Ω)]d there exists a unique pair (z, w) ∈ [Hˆ 1(Ω)]d ⊕ RM(Ω)
+
+with u = z + w satisfying z 1,Ω + w 1,Ω u 1,Ω (open mapping theorem by Lax [53]). Following [47] the claim
+
+can be proven via contradiction. Assuming non-boundedness in (4.5), there exists a sequence {un} ⊆ [H1(Ω)]d with
+
+un 1,Ω = 1 and
+
+(un) Ω +
+
+un Γε
+
+<
+
+1 n
+
+.
+
+Splitting un
+
+=
+
+zn + wn
+
+∈
+
+[Hˆ 1(Ω)]d ⊕ RM(Ω) for each n it holds that
+
+(zn) Ω =
+
+(un)
+
+Ω
+
+<
+
+1 n
+
+,
+
+since
+
+(wn) = 0. Applying the second Korn’s inequality, see e.g. [54], we obtain
+
+zn 1,Ω
+
+(zn) Ω + | ∇ × zn dx| + | zn dx| = (zn) Ω → 0 in [H1(Ω)]d.
+
+Ω
+
+Ω
+
+(4.6)
+
+Since zn + wn is a bounded sequence and RM(Ω) is ﬁnite dimensional, {wn} is a bounded sequence and as such there exists a convergent subsequence for which holds u = limnk→∞ wnk with u ∈ RM(Ω) since limnk→∞ znk = 0 in [H1(Ω)]d. Note that by assumption u Γε = 0 and u 1,Ω = 1. Since · Γε deﬁnes a norm on RM(Ω) whenever meas(Γε) > 0 (see Proposition 4.1), it follows that u = 0 ∈ RM(Ω) and therefore u = 0 ∈ [H1(Ω)]d, which contradicts u 1,Ω = 1.
+As a result, the assumption of unboundedness of (4.5) is refuted, which proves the claim.
+
+The subsequent corollary states that the Nitsche penalty terms occurring in our Nitsche-type cut ﬁnite element formulation (3.52) are suﬃcient to control the rigid body motions in [H1(Ω)]d, which remain undetermined by the
+strain-rate-deformation tensor (·).
+
+Corollary 4.3. Let the domain be bounded, i.e. diam(Ω) < ∞, the Nitsche penalty parameters γt, γn < ∞ and assume
+that normal and tangential velocities are constrained by Nitsche-type penalty terms on a non-vanishing part of the boundary Γε, i.e. meas(Γε) > 0, then
+
+∇uh
+
+2 Ω
+
+uh
+
+2 1,Ω
+
+(uh)
+
+2 Ω
+
++
+
+(γn
+
+h)−
+
+1 2
+
+uh
+
+·
+
+n
+
+2 Γ
+
++
+
+ε + γth
+
+−
+
+1 2
+
+uh Pt
+
+2 Γε
+
+.
+
+(4.7)
+
+Proof. The proof follows immediately from applying the Korn-type inequality deduced in Theorem 4.2, the deﬁnition of Γ and the speciﬁed assumptions in the corollary
+
+(uh)
+
+2 Ω
+
++
+
+(γn
+
+h)−
+
+1 2
+
+uh
+
+·
+
+n
+
+2 Γ
+
++
+
+ε + γth
+
+−
+
+1 2
+
+uh Pt
+
+2 Γε
+
+(uh)
+
+2 Ω
+
++
+
+(γn
+
+diam(Ω))−1
+
+uh · n
+
+2 Γ
+
++
+
+(
+
+ε
+
+∞,Γε
+
++ γt diam(Ω))−1
+
+uh Pt
+
+2 Γε
+
+(uh)
+
+2 Ω
+
++
+
+uh
+
+2 Γε
+
+uh
+
+2 1,Ω
+
+∇uh 2Ω.
+
+(4.8) (4.9) (4.10)
+
+13
+
+4.2. Interpolation Operators
+Since the ﬁnite element approximation space is deﬁned on the enlarged domain Ω∗h, we ﬁrst comment on the construction of an appropriate interpolation operator L2(Ω) → Xh. From [55] it is well known that for the Sobolev spaces Wm,q(Ω), 0 m < ∞, 1 q ∞, a linear extension operator can be deﬁned
+
+E : Wm,q(Ω) → Wm,q(Ω∗) with
+
+Ev m,q,Ω∗
+
+v m,q,Ω,
+
+(4.11)
+
+and we write v∗ := Ev. Following the analysis provided by Massing et al. [2], let πh denote the Clément operator, see for instance [56], then for u ∈ Hs(Ω) we deﬁne its “ﬁctitious domain” extension π∗h : Hs(Ω) → Xh by π∗hu := πh(u∗). For some ﬁxed Lipschitz-domain Ω∗ satisfying Ω∗h ⊆ Ω∗ for h 1, then the following interpolation estimates hold for functions v ∈ Hr(Ω∗) and its ﬁctitious domain variant
+
+v − πhv s,T ht−s|v|t,ω(T), 0 s t m ∀ T ∈ Th, v∗ − π∗hv s,Th ht−s v t,Ω, 0 s t m,
+
+(4.12) (4.13)
+
+owing to the boundedness of the extension operator (4.11), with s, t ∈ N, m = min{r, k + 1}, k the interpolation order of Xh and ω(T ) the set of elements in Th sharing at least one vertex with T . Throughout the analysis we write π∗h for the Clément interpolant of vector-valued functions v and Π∗h for functions in a product space.
+
+5. Continuity and Stability Estimates
+
+In this section, we establish stability properties of the proposed cut ﬁnite element method (3.52). Our presentation is closely related to the analysis presented in the preceding work by Massing et al. [2] and mainly diﬀers in the analysis of the boundary terms related to the weak enforcement of general Navier boundary conditions. The major stability result relies on a modiﬁed coercivity estimate for the total bilinear form Ah + S h + Gh. Since ﬂuid instabilities and the extension of the ﬁnite element method to unﬁtted meshes can be treated almost equivalently to Massing et al. [2], we only recall the required statements from the latter publication without presenting proofs.
+After deriving continuity estimates for parts of the stabilized bilinear form in Lemma 5.1, we start by proving a coercivity estimate for our stabilized formulation w.r.t. the semi-norm |Uh|h on Wh in Lemma 5.2. We then recall how to recover required control over three additional (semi-)norms
+
+1
+φu2 ∇ · uh Ω,
+
+1
+φβ2 (β · ∇uh + ∇ph) Ω
+
+and
+
+Φ1 2
+
+ph Ω,
+
+(5.1)
+
+in Lemmas 5.3, 5.4 and 5.6 with the help of CIP and ghost-penalty stabilizations as introduced in Sections 3.3 and 3.4 using techniques provided in [2, 57]. By combining the above mentioned estimates, a global inf-sup stability on Wh is shown in Theorem 5.7.
+
+Lemma 5.1 (Continuity Estimates). For an arbitrary choice of functions u, v ∈ [H2(Ω)]d, p ∈ H1(Ω) and discrete functions uh, vh ∈ Vh, ph ∈ Qh the following continuity estimates hold provided that γn, γt < ∞
+
+ah(u + uh, v + vh) − (β · ∇(u + uh), (v + vh))Ω ah(u + uh, v + vh) + ((u + uh), β · ∇(v + vh))Ω
+ah(uh, vh) − (β · ∇uh, vh)Ω ah(uh, vh) + (uh, β · ∇vh)Ω
+|bh(p + ph, v + vh)|
+|bh(p + ph, vh)|
+
+|||u + uh|||∗|||v + vh|||∗,
+|||u + uh|||∗|||v + vh|||∗,
+−|||uh|||h|||vh|||h,
+−|||uh|||h|||vh|||h,
+1
+|||p + ph|||∗,φu (|||v + vh|||∗ + φu2 ∇ · (v + vh) Ω),
+1
+|||p + ph|||∗,φu (|||vh|||h + φu2 ∇ · vh Ω).
+
+(5.2) (5.3) (5.4) (5.5)
+(5.6)
+(5.7)
+
+Proof. We start by proving the continuity estimate for ah with neglected advective bulk term as in (5.2). The proof is
+
+14
+
+straightforward as it follows directly from applying the Cauchy-Schwarz inequality for each term. For the bulk terms we have
+
+|(σ(u + uh), (v + vh))Ω| + |(2ν (u + uh), (v + vh))Ω|
+
+(
+
+σ
+
+1 2
+
+(u
+
++
+
+uh)
+
+Ω
+
++
+
+ν
+
+1 2
+
+∇(u
+
++
+
+uh)
+
+Ω)(
+
+σ
+
+1 2
+
+(v
+
++
+
+vh)
+
+Ω
+
++
+
+ν
+
+1 2
+
+∇(v
+
++
+
+vh)
+
+Ω)
+
+|||u + uh|||∗|||v + vh|||∗.
+
+(5.8) (5.9)
+
+It remains to estimate the boundary terms. By analogy, the estimate for all symmetric viscous and advective inﬂow
+
+Nitsche penalty terms follows directly from applying Cauchy-Schwarz inequality and the deﬁnition of ||| · |||∗. The non-symmetric boundary terms in ah can be estimated as
+
+|
+
+ε ( ε + γth
+
+− 1)(2ν
+
+(u + uh)n)Pt, (v + vh)
+
+Γ|
+
+2(γt)
+
+1 2
+
+||(
+
+ε
+
+γt +
+
+h γth
+
+)
+
+1 2
+
+(νh)
+
+1 2
+
+(∇(u
+
++
+
+uh)
+
+·
+
+n)||Γ||(
+
+ε
+
+ν + γt
+
+h
+
+)
+
+1 2
+
+(v
+
++
+
+vh)
+
+Pt
+
+||Γ
+
+(5.10)
+
+|||u + uh|||∗|||v + vh|||∗,
+
+(5.11)
+
+which
+
+holds
+
+if
+
+γt
+
+<
+
+∞,
+
+since
+
+γt h ε+γt h
+
+1.
+
+Similarly,
+
+utilizing
+
+that
+
+γt ε ε+γt h
+
+γt we have
+
+|ζu
+
+ε
+
+γt +
+
+h γt
+
+h
+
+ε(2ν
+
+(u + uh)n)Pt, 2
+
+(v + vh)n Γ|
+
+4(
+
+ε
+
+γtε + γth
+
+)||(νh)
+
+1 2
+
+(∇(u
+
++
+
+uh)
+
+·
+
+n)||Γ||(νh)
+
+1 2
+
+(∇(v
+
++
+
+vh)
+
+·
+
+n)||Γ
+
+γt|||u + uh|||∗|||v + vh|||∗.
+
+(5.12) (5.13)
+
+All remaining boundary terms in ah can be estimated analogously, which yields
+
+|ah(u + uh, v + vh) − (β · ∇(u + uh), (v + vh))Ω| |||u + uh|||∗|||v + vh|||∗
+
+(5.14)
+
+and as a consequence (5.2). Estimate (5.3) can easily be deduced by integrating the advective bulk term by parts and applying the Cauchy-Schwarz inequality for the resulting boundary term
+
+|ah(u + uh, v + vh) + ((u + uh), β · ∇(v + vh))Ω| = |ah(u + uh, v + vh) − (β · ∇(u + uh), (v + vh))Ω + (β · n)(u + uh), (v + vh) Γ| |ah(u + uh, v + vh) − (β · ∇(u + uh), (v + vh))Ω| + |||u + uh|||∗|||v + vh|||∗.
+
+(5.15) (5.16)
+
+Setting v = u = 0 in (5.14)–(5.16) and applying relation (3.64), i.e. |||vh|||∗ |||vh|||h, gives
+|ah(uh, vh) − (β · ∇uh, vh)Ω| |||uh|||h|||vh|||h, |ah(uh, vh) + (uh, β · ∇vh)Ω| |||uh|||h|||vh|||h,
+
+(5.17) (5.18)
+
+which leads to (5.4) and (5.5). Similar estimates can be established for bh by applying the Cauchy-Schwarz inequality
+
+|bh(p + ph, v + vh)|
+
+|(p + ph, ∇ · (v + vh))Ω| + | p + ph, (v + vh) · n Γ|
+
+(
+
+φu−
+
+1 2
+
+(
+
+p
+
++
+
+ph)
+
+Ω
+
++
+
+φu−
+
+1 2
+
+h
+
+1 2
+
+(
+
+p
+
++
+
+ph)
+
+Γ)(
+
+1
+φu2 ∇ · (v + vh)
+
+Ω
+
++
+
+(φu
+
+/h)
+
+1 2
+
+(v
+
++
+
+vh)
+
+·
+
+n
+
+Γ)
+
+1
+|||p + ph|||∗,φu (|||v + vh|||∗ + φu2 ∇ · (v + vh) Ω),
+
+which proves (5.6). Choosing v = 0 and using (3.64) yields estimate (5.7).
+
+(5.19) (5.20) (5.21)
+
+The next lemma shows how the Nitsche-type boundary terms, which have been consistently added to enforce the general Navier boundary conditions, guarantee stability of the bilinear form with respect to a semi-norm on Wh and how ghost-penalty terms extend stability to the enlarged domain Ω∗h.
+15
+
+Lemma 5.2 (Coercivity estimate). The stabilized cut ﬁnite element formulation is coercive, i.e.
+
+|Uh|2h Ah(Uh, Uh) + S h(Uh, Uh) + Gh(Uh, Uh) ∀ Uh = (uh, ph) ∈ Wh
+
+(5.22)
+
+holds whenever the CIP and ghost penalty stability parameters γν, γσ, γβ, γu, γp are chosen large enough. For ζu = 1, the Nitsche penalty parameters need to be chosen small enough, i.e. 0 < γn, γt C < ∞, where C depends on
+the shape and polynomial order of the elements (see inverse estimate (4.1)), however, it is independent of how the boundary intersects the element. By contrast, for ζu = −1, the bilinear form is coercive for any choice 0 < γn, γt < ∞. Note that meas (Γε) > 0 is assumed.
+
+Proof. Starting from the deﬁnition of Ah, see (3.8), we have
+
+Ah(Uh, Uh) =
+
+σ
+
+1 2
+
+uh
+
+2 Ω
+
++
+
+(2ν)
+
+1 2
+
+(uh)
+
+2 Ω
+
++
+
+(β
+
+·
+
+∇uh, uh)Ω
+
+−
+
+(β · n)uh, uh Γin +
+
+1
+
++
+
+ν γnh
+
+2
+
+uh
+
+·
+
+n
+
+2 Γ
+
+−
+
+(1
+
++
+
+ζu)
+
+(2ν
+
+(uh)n) · n, uh · n Γ
+
++
+
+ν ε + γth
+
+1 2
+uh Pt
+
+2 Γ
+
+−
+
+(1
+
++
+
+ζu)
+
+ε
+
+γth + γt
+
+h
+
+2ν
+
+(uh)n, uh Pt Γ − ζu
+
+1
+
+φu γnh
+
+2
+
+uh
+
+·
+
+n
+
+2 Γ
+
+4γthε ε + γth
+
+1
+
+2
+
+ν
+
+1 2
+
+(
+
+(uh ) n) Pt
+
+2 Γ
+
+.
+
+(5.23)
+
+Integration by parts for the advective term together with continuity of β yields
+
+(β · ∇uh, uh)Ω
+
+=
+
+1 2
+
+(β · n)uh, uh
+
+Γ−
+
+1 2
+
+((∇
+
+·
+
+β)uh,
+
+uh)Ω.
+
+(5.24)
+
+Using the assumption ∇ · β = 0, with the help of the advective inﬂow control imposed on Γin ⊆ ΓD ⊆ Γ, the boundary control can be recovered at the entire boundary Γ as
+
+(β · ∇uh, uh)Ω −
+
+(β
+
+·
+
+n)uh, uh
+
+Γin
+
+=
+
+1 2
+
+(β · n)uh, uh Γ −
+
+(β · n)uh, uh
+
+Γin
+
+=
+
+1 2
+
+|β
+
+·
+
+n|
+
+1 2
+
+uh
+
+2 Γ
+
+.
+
+(5.25)
+
+For the viscous boundary terms, the following estimates can be established. By applying a δ-scaled Cauchy-Schwarz inequality, a trace inequality (4.1) and the viscous norm equivalence from Proposition 3.4 for cut meshes, the following estimate can be established
+
+(1 + ζu)| (2ν (uh)n) · n, uh · n Γ|
+
+4 2δ1
+
+(1
+
++
+
+ζu
+
+)γn
+
+(νh)
+
+1 2
+
+(uh)n
+
+2 Γ
+
++
+
+δ1 (1 2
+
++
+
+ζu)
+
+(ν/(γn
+
+h))
+
+1 2
+
+uh
+
+·
+
+n
+
+2 Γ
+
+4 2δ1
+
+(1
+
++
+
+ζu
+
+)γn
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω
+
++
+
+gν(uh,
+
+uh)
+
++
+
+δ1 2
+
+(1
+
++
+
+ζu)
+
+(ν/(γn
+
+h))
+
+1 2
+
+uh
+
+·
+
+n
+
+2 Γ
+
+.
+
+By analogy, the following boundary term from (5.23) can be estimated as
+
+(1 + ζu)|
+
+ε
+
+γth + γt
+
+h
+
+2ν
+
+(uh)n, uh Pt
+
+Γ|
+
+4 2δ2
+
+(1
+
++
+
+ζu)γt
+
+(γt
+
+h)/(ε
+
++
+
+γt
+
+h)
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω
+
++
+
+gν(uh,
+
+uh)
+
++
+
+δ2 2
+
+(1
+
++
+
+ζu)
+
+(ν/(ε
+
++
+
+γt
+
+h))
+
+1 2
+
+uh
+
+Pt
+
+2 Γ
+
+.
+
+The last term in (5.23) can be bounded by applying a trace inequality, such that
+
+(5.26) (5.27)
+(5.28)
+
+ζu
+
+4γthε ε + γth
+
+1
+
+2
+
+ν
+
+1 2
+
+(
+
+(uh ) n) Pt
+
+2 Γ
+
+4ζuγt
+
+ε ε + γth
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω
+
++
+
+gν(uh,
+
+uh)
+
+.
+
+(5.29)
+
+16
+
+From the Corollary 4.3 a part of the remaining viscous terms in (5.23) can be estimated as
+
+ν1 2
+
+(uh)
+
+2 Ω
+
++
+
+1 2
+
+1
+
+ν γnh
+
+2
+
+uh
+
+·
+
+n
+
+2 Γ
+
++
+
+1 2
+
+1
+
+ν ε + γth
+
+2
+uh Pt
+
+2 Γε
+
+ν
+
+1 2
+
+∇uh
+
+2Ω,
+
+(5.30)
+
+and by combining the previous inequalities (5.23), (5.25), (5.27), (5.28), (5.29) with (4.8), the following estimate can be done
+
+Ah(Uh, Uh) + gν(uh, uh)
+
+σ
+
+1 2
+
+uh
+
+2 Ω
+
++
+
+1 2
+
+|β
+
+·
+
+1
+n| 2
+
+uh
+
+2 Γ
+
++
+
+1
+
+−
+
+4 2δ1
+
+(1
+
++
+
+ζu)
+
+γn
+
+−
+
+4 2δ2
+
+(1
+
++
+
+ζu) γt
+
+γth ε + γth
+
+− 4ζuγt
+
+ε ε + γth
+
++
+
+1 2
+
+−
+
+δ1 2
+
+(1
+
++
+
+ζu)
+
+(ν/(γn
+
+h))
+
+1 2
+
+uh
+
+·
+
+n
+
+2 Γ
+
++
+
+1 2
+
+−
+
+δ2 2
+
+(1
+
++
+
+ζu)
+
+1
+
+ν/(ε + γth)
+
+2
+
+uh Pt
+
+2 Γ
+
+.
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω
+
++
+
+gν(uh,
+
+uh)
+
+(5.31)
+
+At this stage it is trivial to see that if an adjoint-inconsistent approach, i.e. ζu = −1, is chosen, stability is guaranteed for any positive choice of γn, γt < ∞. More delicate is to show stability in the adjoint-consistent case, i.e. ζu = 1, which is considered from here on. From the last two rows we have an upper bound with δ1, δ2 c < 1. The second
+row can be rewritten as
+
+1
+
+−
+
+4 2δ1
+
+(1
+
++
+
+ζu)
+
+γn
+
+−
+
+4 2δ2
+
+(1
+
++
+
+ζu)
+
+γt
+
+γth ε + γth
+
+− 4ζuγt
+
+ε ε + γth
+
+=
+
+ε
+
+1 + γth
+
+ε
+
+1
+
+−
+
+4 δ1
+
+γn
+
+−
+
+4γt
+
++ γth
+
+1
+
+−
+
+4 δ1
+
+γn
+
+−
+
+4 δ2
+
+γt
+
+.
+
+(5.32)
+
+Choosing, for instance, δ1 = δ2 = 1/2, stability of the adjoint-consistent Nitsche-type method can be guaranteed by bounding the stabilization parameters γn, γt by γn δ1/8 = 1/16 and γt δ2/8 = 1/16. Note that the parameters also need to be lower bounded, i.e. γn, γt > 0, not to lose contributions of the bulk measures contained in the energy-type
+semi-norm |Uh|h and to prevent ill-conditioning. Finally, the claim follows by adding all other stabilization terms in
+S h and Gh, not already included in the analysis.
+
+The next three lemmas are recalled from the work by Massing et al. [2] and show how the CIP, the ghost-penalty
+
+and the Nitsche-related stabilization terms can be used to recover the missing velocity and pressure semi-norm parts
+
+which are included in |||Vh|||h.
+
+First, we start by recovering control over the incompressibility constraint with the help of the stabilization terms
+
+su and gu. This is required for low Reynolds-numbers when the viscous H1-semi-norm control
+
+ν1 2
+
+(uh) Ω vanishes.
+
+Lemma 5.3. There is a constant c1 > 0 such that for each uh ∈ Vh there exists a qh ∈ Qh satisfying
+
+−bh(qh, uh)
+
+1
+φu2 ∇ · uh
+
+2 Ω
+
+−
+
+c1
+
+su(uh, uh) + gu(uh, uh) +
+
+h−
+
+1 2
+
+1
+φu2
+
+uh
+
+·
+
+n
+
+2 Γ
+
+(5.33)
+
+and the stability estimate
+
+|||qh|||2h,φ =
+
+φ−
+
+1 2
+
+qh
+
+2 Ω
+
++
+
+|qh|2h
+
+1
+φu2 ∇ · uh
+
+2 Th
+
+1
+φu2 ∇ · uh
+
+2 Ω
+
++
+
+gu(uh,
+
+uh)
+
+with φ ∈ {φu, Φ−1} whenever the CIP and ghost-penalty parameter γu is chosen large.
+
+(5.34)
+
+Proof. A detailed proof can be found in Massing et al. [2] (cf. Lemma 6.3).
+
+1
+
+The next lemma shows how additional control over a mixed semi-norm of the form
+
+φβ2 (β
+
+·
+
+∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
+can
+
+be
+
+recovered with the help of the CIP stabilizations sβ, sp and the ghost penalty stabilizations.
+
+17
+
+Lemma 5.4. There is a constant c2 > 0 such that for each Uh = (uh, ph) ∈ Wh we can construct a vh ∈ Vh satisfying
+
+(β · ∇uh + ∇ph, vh)Ω
+
+1
+φβ2 (β · ∇uh + ∇ph)
+
+2 Ω
+
+−
+
+c2(
+
+sβ
+
+(uh,
+
+uh
+
+)
+
++
+
+sp
+
+(
+
+ph
+
+,
+
+ph
+
+)
+
++
+
+ωh
+
+ν
+
+1 2
+
+∇uh
+
+2 Ω∗h
+
++
+
+σ
+
+1 2
+
+uh
+
+2 Ω∗h
+
+)
+
+1
+φβ2 (β · ∇uh
+
++ ∇ph)
+
+2 Ω
+
+− c2(1 + ωh)|Uh|2h
+
+(5.35) (5.36)
+
+and the stability estimate
+
+h−
+
+1 2
+
+1
+φu2
+
+vh
+
+·
+
+n
+
+2 Γ
+
++
+
+|||vh|||2h
+
++
+
+1
+φβ2 β · ∇vh
+
+2 Ω
+
++
+
+1
+φu2 ∇ · vh
+
+2 Ω
+
+1
+φβ2 (β
+
+·
+
+∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
++
+
+(1
+
++
+
+ωh)|Uh|2h,
+
+(5.37)
+
+whenever the stability parameters γβ, γp, γν, γσ are chosen suﬃciently large and the Nitsche penalty parameter γn is chosen suﬃciently small.
+
+Proof. A detailed proof of this estimate has been presented in Massing et al. [2] (cf. Lemma 6.4).
+
+Next, we recall two estimates from [2] which will be useful in deriving the ﬁnal stability estimate in Theorem 5.7.
+
+Lemma 5.5. Let uh, vh ∈ Vh, then the following estimates hold
+
+|||vh|||2h + (1 + ωh)−1
+
+1
+φβ2 β · ∇vh
+
+2 Ω
+
++
+
+1
+φu2 ∇ · vh
+
+2 Ω
+
+ν + β 0,∞,Ωh + σCP2
+
+∇vh
+
+2 Th
+
++
+
+h−
+
+1 2
+
+vh
+
+2 Γ
+
+Φ−1
+
+∇vh
+
+2 Th
+
++
+
+h−
+
+1 2
+
+vh
+
+2 Γ
+
+,
+
+(5.38) (5.39)
+
+|(uh, β · ∇vh)Ω|
+
+|||uh|||h β 0,∞,ΩCP ∇vh Ω ν + σCP2
+
+|||uh
+
+|||h
+
+Φ−
+
+1 2
+
+∇vh
+
+Ω.
+
+(5.40)
+
+Proof. A detailed proof can be found in Massing et al. [2] (cf. Lemma 6.5).
+
+Finally, a stabilized inf-sup condition for the operator bh(ph, vh) holds, provided that the pressure stabilization operator sp is added, which gives the desired L2-pressure norm control.
+Lemma 5.6. There is a constant c3 > 0 such that for each pressure ph ∈ Qh there exists a velocity ﬁeld vh ∈ Vh satisfying
+
+bh(ph, vh)
+
+Φ
+
+ph
+
+2 Ω
+
+− c3 sp(ph, ph)
+
+(5.41)
+
+and the stability estimate
+
+|||vh|||2h + (1 + ωh)−1
+
+1
+φβ2 β · ∇vh
+
+2 Ω
+
++
+
+1
+
+φu2 ∇ · vh
+
+2 Ω
+
+Φ−1(
+
+∇vh
+
+2 Th
+
++
+
+h−
+
+1 2
+
+vh
+
+2Γ)
+
+whenever the stability parameters γν, γσ, γβ, γu, γp are chosen large enough.
+
+Φ
+
+ph
+
+2 Ω
+
++ gp(ph, ph),
+
+(5.42)
+
+Proof. A detailed proof of this modiﬁed inf-sup condition has been presented in Massing et al. [2] (cf. Lemma 6.6).
+Collecting the previous lemmas, the ﬁnal inf-sup stability estimate of our stabilized cut ﬁnite element method Ah + S h + Gh, see (3.52), can be stated with respect to the energy norm |||Uh|||2h. The subsequent theorem ensures existence and uniqueness of a discrete velocity and pressure solution. Theorem 5.7. Let Uh = (uh, ph) ∈ Wh. Then, under the assumptions of Lemma 5.2 on the Nitsche penalty parameter γt depending on ζu ∈ {−1, 1}, on γn being suﬃciently small as stated in Lemmas 5.2 and 5.4 and that CIP and ghost
+18
+
+penalty stability parameters γν, γσ, γβ, γu, γp are chosen large enough (see Lemmas 5.2–5.6), the cut ﬁnite element method (3.52) is inf-sup stable
+
+|||Uh|||h
+
+sup Ah(Uh, Vh) + S h(Uh, Vh) + Gh(Uh, Vh) .
+
+Vh ∈Wh \{0}
+
+|||Vh|||h
+
+(5.43)
+
+Note that the hidden stability constant is independent of the mesh size h, the slip-length coeﬃcient ε ∈ [o, ∞] and in case of unﬁtted meshes independent of the position of the boundary relative to the background mesh.
+
+Proof. Since the proof follows the procedure proposed by Massing et al. [2], the major steps are only sketched in the
+following. For a given Uh ∈ Wh we construct a test function Vh ∈ Wh based on estimates derived in Lemmas 5.2,
+5.3, 5.4 and 5.6. Step 1. Choosing the test function Vh1 := (0, q1h) with q1h from Lemma 5.3 to recover divergence control and utilizing its stability bounds (5.33) and (5.34) we have
+
+(Ah + S h + Gh)(Uh, Vh1) = −bh(q1h, uh) + sp(ph, q1h) + gp(ph, q1h)
+
+1
+φu2 ∇ · uh
+
+2 Ω
+
+−
+
+c1
+
+|uh|2h +
+
+h−
+
+1 2
+
+1
+φu2
+
+uh
+
+·
+
+n
+
+2 Γ
+
+− δ−1|ph|2h − δ
+
+1
+φu2 ∇ · uh
+
+2 Th
+
+(1 − δ)
+
+1
+φu2 ∇ · uh
+
+2 Ω
+
+−
+
+C1(δ)|Uh|2h
+
+(5.44) (5.45) (5.46)
+
+for any positive γn C < ∞. This shows the need for the boundary-normal Nitsche penalty term at Γ for convective
+and reactive dominant ﬂows as well as the need for the pressure and divergence CIP and ghost penalty terms. Step 2. Inserting Vh2 := (v2h, 0) with v2h, from Lemma 5.4 into the formulation Ah + S h + Gh, followed by applying the continuity estimate (5.4) for ah and the stability bounds (5.36) and (5.37) yields the following
+
+(Ah + S h + Gh)(Uh, Vh2) = ah(uh, v2h) + bh(ph, v2h) + (S h + Gh)(Uh, Vh2)
+
+−δ−1|||uh|||2h − δ|||v2h|||2h +
+
+1
+
+φβ2 (β
+
+· ∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
+− c2(1
+
++
+
+ωh)|Uh|2h
+
+(1
+
+− δ)
+
+1
+φβ2 (β
+
+·
+
+∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
+− C2(δ)(1
+
++
+
+ωh)|Uh|2h.
+
+(5.47) (5.48) (5.49)
+
+Step 3. The L2-pressure norm term can be constructed by testing with Vh3 := (v3h, 0), where v3h is now chosen as in Lemma 5.6. Utilizing the continuity estimate (5.5) for ah and making use of the estimates (5.39), (5.40), and the
+stability bound (5.42) for the chosen test function allows us to deduce that
+
+(Ah + S h + Gh)(Uh, Vh3) = ah(uh, v3h) + bh(ph, v3h) + (S h + Gh)(Uh, Vh3)
+
+−|||uh|||h|||v3h|||h
+
+− (uh, β · ∇v3h)Ω + Φ
+
+ph
+
+2 Ω
+
+− c3 sp(ph, ph)
+
+−δ−1|||uh|||2h − δΦ−1(
+
+∇v3h
+
+2 Th
+
++
+
+h−
+
+1 2
+
+v3h
+
+2Γ) − δ−1|||uh|||2h − δΦ−1
+
+∇v3h
+
+2 Ω
+
++Φ
+
+ph
+
+2 Ω
+
+− c3 sp(ph, ph)
+
+(1 − 2δ)Φ
+
+ph
+
+2 Ω
+
+− 2δ−1|||uh|||2h − c3 sp(ph, ph) − 2δgp(ph, ph)
+
+Φ
+
+ph
+
+2 Ω
+
+−
+
+C3(δ)|Uh|2h.
+
+(5.50) (5.51)
+(5.52) (5.53) (5.54)
+
+Step 4. From the coercivity estimate in Lemma 5.2 we obtain the positive semi-norm term |Uh|h with Vh4 := Uh
+
+Ah(Uh, Vh4) + S h(Uh, Vh4) + Gh(Uh, Vh4) |Uh|2h.
+
+(5.55)
+
+Step 5. It remains to combine Step 1–4 by choosing δ suﬃciently small and deﬁning the ﬁnal test function
+
+Vh5 := η(Vh1 + (1 + ωh)−1Vh2 + Vh3) + Vh4
+
+(5.56)
+
+for a given Uh. Choosing η > 0 suﬃciently small for some 2η ∼ (C1(δ) + C2(δ) + C3(δ))−1 allows us to gain control over all desired norm parts in |||Uh|||h and at the same time to absorb the defective |Uh|h-contribution, which stem from
+
+19
+
+testing with Vh1, Vh2, Vh3. Consequently,
+
+(Ah + S h + Gh)(Uh, Vh5)
+
+(1 − η(C1(δ) + C2(δ) + C3(δ)))|Uh|2h
+
++η
+
+1
+φu2 ∇ · uh
+
+2 Ω
+
++
+
+1
+
+1 + ωh
+
+1
+φβ2 (β · ∇uh
+
++ ∇ph)
+
+2 Ω
+
++Φ
+
+ph
+
+2 Ω
+
+|||Uh|||2h.
+
+(5.57)
+
+The inf-sup stability estimate can be concluded as
+
+(Ah + S h + Gh)(Uh, Vh5) |||Uh|||h|||Vh5|||h,
+
+(5.58)
+
+after dividing by |||Vh5|||h and choosing the supremum over Vh ∈ Wh\{0}. To conclude the proof, it remains to prove that |||Vh5|||h |||Uh|||h. Note that
+
+|||Vh5|||h
+
+|||Uh|||h
+
++
+
+η|||Vh1|||h
+
++
+
+1
+
+η + ωh
+
+|||Vh2|||h
+
++
+
+η|||Vh3|||h.
+
+(5.59)
+
+Thanks to the stability estimate (5.37) and norm deﬁnitions (3.59) and (3.60) it holds that
+
+|||Vh2|||2h = |||v2h|||2h + gp(0, 0) + sp(0, 0) + (1 + ωh)−1
+
+1
+φβ2 β · ∇v2h
+
+2 Ω
+
++
+
+1
+φu2 ∇ · v2h
+
+2 Ω
+
+(1
+
++
+
+(1 +
+
+ωh)−1)(
+
+1
+φβ2 (β
+
+·
+
+∇uh
+
++
+
+∇ ph )
+
+2 Ω
+
++
+
+(1
+
++
+
+ωh)|Uh|2h)
+
+(1 + ωh)|||Uh|||2h.
+
+(5.60) (5.61) (5.62)
+
+Similarly,
+
+the
+
+stability bound
+
+(5.34) for q1h
+
+implies that |||Vh1|||2h
+
+=
+
+Φ
+
+q1h
+
+2 Ω
+
++
+
+|q1h|2h
+
+|||Uh|||2h and from (5.42) it is obtained
+
+1
+
+1
+
+that |||Vh3|||2h
+
+=
+
+|||v3h|||2h
+
++ (1 + ωh)−1
+
+φβ2 β · ∇v3h
+
+2 Ω
+
++
+
+φu2 ∇ · v3h
+
+2 Ω
+
+|||Uh|||2h. As a result it holds
+
+|||Vh5|||h
+
+(1
+
++
+
+η
+
++
+
+η(1
+
++
+
+ωh
+
+)−
+
+1 2
+
++
+
+η)|||Uh|||h
+
+|||Uh|||h,
+
+(5.63)
+
+which concludes the proof.
+
+6. A Priori Error Estimates
+This section is devoted to the a priori error analysis of our cut ﬁnite element method. We derive an energy-norm error estimate for the discrete velocity and pressure solution in Theorem 6.4 and use a standard duality technique to establish optimal error convergence in the velocity L2-norm for the adjoint-consistent formulation with dominating viscous ﬂow eﬀects in Theorem 6.5.
+
+6.1. Consistency and Interpolation Error Estimates We start by showing that the discrete formulation (3.52) satisﬁes a weakened form of the Galerkin orthogonality.
+
+Lemma 6.1 (Weakened Galerkin Orthogonality). Assume that the solution U = (u, p) of the formulation (2.1)–(2.4) is suﬃciently regular, i.e. in [H2(Ω)]d × H1(Ω), and let Uh = (uh, ph) ∈ Vh × Qh be the cut ﬁnite element solution to
+the discrete weak formulation (3.52). Then, the error U − Uh satisﬁes a weak Galerkin orthogonality property
+
+Ah(U − Uh, Vh) = S h(Uh, Vh) + Gh(Uh, Vh) ∀ Vh ∈ Vh × Qh.
+
+(6.1)
+
+Proof. The proof follows standard techniques. Multiplying the problem formulation (2.1)–(2.2) with test functions Vh = (vh, qh) ∈ Vh × Qh, integrating over Ω, performing integration by parts and using the fact that all additional Nitsche-related terms vanish for U satisfying the boundary condition, yields
+
+I = Ah(U, Vh) − Lh(Vh) = 0
+
+∀ Vh ∈ Vh × Qh,
+
+II = Ah(Uh, Vh) + S h(Uh, Vh) + Gh(Uh, Vh) − Lh(Vh) = 0 ∀ Vh ∈ Vh × Qh,
+
+(6.2) (6.3)
+
+20
+
+where the last equation holds for the discrete solution Uh ∈ Vh × Qh. The combination I − II yields the claim.
+
+The subsequent lemma recalls the well known weak consistency property of continuous interior penalty and ghost penalty stabilization operators S h, Gh, and as such they do not deteriorate the optimality of our cut ﬁnite element scheme.
+
+Lemma 6.2 (Weak Consistency). For all functions (u, p) ∈ [Hr(Ω)]d × Hs(Ω) there holds
+
+S h(Π∗hU, Π∗hU) + Gh(Π∗hU, Π∗hU)
+
+(ν +
+
+β
+
+0,∞,Ωh + σh2)h2ru−2
+
+u
+
+2 ru ,Ω
+
++ max
+T ∈Th
+
+(ν +
+
+β 0,∞,T h + σh2)−1
+
+h2sp
+
+p
+
+2 sp
+
+,Ω
+
+,
+
+(6.4)
+
+where k is the polynomial degree of the respective Clément interpolants Π∗hU = (π∗hu, π∗h p) for the velocity and pressure and ru := min{r, k + 1} and sp := min{s, k + 1}.
+
+Proof. A detailed proof of the weak consistency of the proposed continuous interior penalty and ghost penalty operators S h and Gh has been given in [2] (see Lemma 7.2) and the references therein. The next lemma ensures that the interpolation error between a continuous solution and its Clément interpolation converges with optimal rates.
+
+Lemma 6.3 (Interpolation Estimates). Assume that (u, p) ∈ [Hr(Ω)]d × Hs(Ω) and let ru := min{r, k + 1} 2, sp := min{s, k + 1} 1 where k is the polynomial degree of the approximation spaces for the velocity and pressure. Then
+
+|||u − π∗hu|||∗ +
+
+1
+φu2
+
+∇
+
+·
+
+(u
+
+−
+
+π∗hu)
+
+Ω
+
+|||p − π∗h p|||∗,φ
+
+(ν +
+
+β
+
+0,∞,Ωh
+
++
+
+σh2)
+
+1 2
+
+hru−1
+
+u
+
+ru,Ω,
+
+1
+
+max
+T ∈Th
+
+(ν +
+
+β 0,∞,T h + σh2)−1
+
+2 hsp
+
+p sp,Ω
+
+(6.5) (6.6)
+
+with φ ∈ {φu, Φ−1} in the pressure estimate.
+
+Proof. The proof follows the techniques proposed in [2] (see Lemma 7.4). By applying the interpolation estimate (4.13), the viscous, the reactive and the divergence bulk error measures can be estimated as
+
+ν
+
+1 2
+
+∇(u∗
+
+− π∗hu)
+
+2 Ω
+
++
+
+σ
+
+1 2
+
+(u∗
+
+− π∗hu)
+
+2 Ω
+
++
+
+1
+φu2
+
+∇
+
+·
+
+(u∗
+
+− π∗hu)
+
+2 Ω
+
+and similarly for the pressure
+
+(ν +
+
+β
+
+0,∞,Ωh + σh2)h2(ru−1)
+
+u
+
+2 ru ,Ω
+
+(6.7)
+
+φu−
+
+1 2
+
+(
+
+p∗
+
+− π∗h p)
+
+2 Ω
+
+(ν +
+
+β 0,∞,T h + σh2)−1h2sp
+
+p∗
+
+2 sp,ω(T )
+
+T ∈Th
+
+max
+T ∈Th
+
+(ν +
+
+β 0,∞,T h + σh2)−1
+
+h2sp
+
+p
+
+2 sp
+
+,Ω
+
+.
+
+(6.8)
+
+Considering the normal and tangential boundary semi-norms with γt, γn c > 0 and ε 0, the claim follows by combining the interpolation estimate (4.13), the trace inequality (4.2) and the deﬁnition of the scaling function φu such that
+
+((ν
+
++
+
+φu
+
+)/(γn
+
+h))
+
+1 2
+
+(u∗
+
+− π∗hu)Pn
+
+2 Γ
+
+(ν/(ε
+
++
+
+γt
+
+h))
+
+1 2
+
+(u∗
+
+− π∗hu)Pt
+
+2 Γ
+
+((ν
+
++
+
+φu
+
+)/h)
+
+1 2
+
+(u∗
+
+− π∗hu)
+
+2 Γ
+
+(ν +
+
+β
+
+0,∞,Ωh + σh2)
+
+h−2
+
+u∗ − π∗hu
+
+2 Th
+
++
+
+∇(u∗
+
+− π∗hu)
+
+2 Th
+
+(ν +
+
+β
+
+0,∞,Ωh + σh2)h2(ru−1)
+
+u
+
+2 ru
+
+,Ω
+
+,
+
+(ν/h)
+
+1 2
+
+(u∗
+
+− π∗hu)
+
+2 Γ
+
+ν
+
+h−2
+
+u∗ − π∗hu
+
+2 Th
+
++
+
+∇(u∗
+
+− π∗hu)
+
+2 Th
+
+νh2(ru−1)
+
+u
+
+2 ru
+
+,Ω
+
+.
+
+21
+
+(6.9) (6.10) (6.11) (6.12) (6.13) (6.14)
+
+The remaining boundary terms can be estimated in a similar fashion,
+
+|β ·
+
+n|
+
+1 2
+
+(u∗
+
+− π∗hu)
+
+2 Γ
+
+(νh)
+
+1 2
+
+∇(u∗
+
+−
+
+π∗hu)
+
+·
+
+n
+
+2 Γ
+
+φu−
+
+1 2
+
+h
+
+1 2
+
+(
+
+p∗
+
+− π∗h p)
+
+2 Γ
+
+β
+
+0,∞,Ω(h−1
+
+u∗ − π∗hu
+
+2 Th
+
++h
+
+∇(u∗ − π∗hu)
+
+2 Th
+
+)
+
+(
+
+β
+
+0,∞,Ωh)h2(ru−1)
+
+u
+
+2 ru
+
+,Ω
+
+,
+
+ν
+
+∇(u∗ − π∗hu)
+
+2 Th
+
++ νh2
+
+D2(u∗ − π∗hu)
+
+2 Th
+
+νh2(ru−1)
+
+u
+
+2 ru
+
+,Ω
+
+,
+
+φu−
+
+1 2
+
+( p∗
+
+−
+
+π∗h
+
+p)
+
+2 Th
+
++ h2
+
+φu−
+
+1 2
+
+∇( p∗
+
+−
+
+π∗h
+
+p)
+
+2 Th
+
+max
+T ∈Th
+
+φ−u 1
+
+h2sp
+
+p
+
+2 sp
+
+,Ω
+
+.
+
+Collecting all estimates and noting that Φ φ−u1 yields the claim.
+
+(6.15) (6.16) (6.17)
+
+6.2. A Priori Error Estimates Subsequently, the main a priori estimate for the velocity and pressure errors w.r.t a natural energy norm is stated.
+
+Theorem 6.4 (Energy norm error estimate). Assume that the continuous solution of the Oseen problem (2.1)–(2.4) resides in U = (u, p) ∈ [Hr(Ω)]d × Hs(Ω) and let Uh = (uh, ph) ∈ Vh × Qh be the discrete solution of problem (3.52). Let the energy type norm be deﬁned as in (3.63), then
+
+|||U − Uh|||∗
+
+(1
+
++
+
+ωh)
+
+1 2
+
+ν+
+
+β 0,∞,Ωh + σh2
+
+h1
+2
+
+ru −1
+
+u
+
+ru ,Ω
+
++
+
+max
+T ∈Th
+
+(ν +
+
+β 0,∞,Ωh + σh2)−1
+
+1
+2 hsp
+
+p sp,Ω,
+
+(6.18)
+
+where ru := min{r, k + 1} 2 and sp := min{s, k + 1} 1. Note that the hidden constants are independent of h, are bounded with respect to the slip length coeﬃcient ε ∈ [0, ∞] and, owing to the ghost penalty stabilization terms Gh, independent of how the boundary intersects the mesh Th. The (hidden) scaling functions ωh, Φ are as deﬁned in (3.49).
+
+Proof. We ﬁrst split the total discretization error into a discrete error and an interpolation part by applying (3.66) and the norm deﬁnitions in Section 3.5
+
+|||U − Uh|||∗ |||U − Π∗hU|||∗ + |||Π∗hU − Uh|||∗ |||U − Π∗hU|||∗ + |||Π∗hU − Uh|||h.
+
+(6.19)
+
+As the term |||U − Π∗hU|||∗ is readily estimated from the interpolation estimates (6.5) and (6.6), only the discrete error |||Π∗hU − Uh|||h is considered from here on. From the inf-sup condition (5.43) there exists a |||Vh|||h = 1 such that
+
+|||Π∗hU − Uh|||h Ah(Π∗hU − Uh, Vh) + S h(Π∗hU − Uh, Vh) + Gh(Π∗hU − Uh, Vh) = Ah(Π∗hU − U, Vh) + S h(Π∗hU, Vh) + Gh(Π∗hU, Vh),
+
+(6.20) (6.21)
+
+where the last step follows from applying the weak Galerkin orthogonality (6.1). By applying a Cauchy-Schwarz
+inequality on the stabilization terms S h(Π∗hU, Vh) and Gh(Π∗hU, Vh) and utilizing the results from Lemma 6.2 the following estimate can be made
+
+S h(Π∗hU, Vh) + Gh(Π∗hU, Vh)
+
+(ν +
+
+β
+
+0,∞,Ωh
+
++
+
+σh2)
+
+1 2
+
+hru−1
+
+u
+
+ru ,Ω
+
++
+
+max
+T ∈Th
+
+(ν +
+
+β 0,∞,T h + σh2)−1
+
+1
+2 hsp
+
+p sp,Ω.
+
+(6.22)
+
+The term Ah(Π∗hU −U, Vh) can be estimated by integrating bh(qh, π∗hu−u) by parts and applying the continuity estimates (5.3) and (5.7) to ah(π∗hu − u, vh) and bh(π∗h p − p, vh) respectively, such that
+
+Ah(Π∗hU − U, Vh)
+
+= ah(π∗hu − u, vh) + bh(π∗h p − p, vh) − bh(qh, π∗hu − u)
+
+|||π∗hu − u|||∗|||vh|||h − (π∗hu − u, β · ∇vh)Ω + |||π∗h p − p|||∗,φu (|||vh|||h +
+
+1
+φu2 ∇ · vh
+
+Ω) − (π∗hu − u, ∇qh)Ω
+
+(|||π∗hu − u|||∗ + |||π∗h p − p|||∗,φu )(|||vh|||h +
+
+1
+φu2 ∇ · vh
+
+Ω) − (π∗hu − u, β · ∇vh + ∇qh)Ω.
+
+(6.23) (6.24) (6.25)
+
+22
+
+1
+Thanks to the interpolation estimate Lemma 6.3 and keeping in mind that |||vh|||h + φu2 ∇ · vh Ω |||Vh|||h = 1, it only
+remains to estimate the last term. Its estimate follows readily from applying a Cauchy-Schwarz inequality, using
+(4.12) and the deﬁnition of φβ to arrive at
+
+|(π∗hu − u, β · ∇vh + ∇qh)|
+
+(1
+
++
+
+ωh)
+
+1 2
+
+φβ−
+
+1 2
+
+(π∗hu
+
+−
+
+u)
+
+Ω
+
+·
+
+(1
+
++
+
+ωh)−
+
+1 2
+
+1
+φβ2 (β · ∇vh + ∇qh) Ω
+
+(1
+
++
+
+ωh
+
+)
+
+1 2
+
+(ν
+
++
+
+β
+
+0,∞,Ωh
+
++
+
+σh2)
+
+1 2
+
+hru−1
+
+u
+
+ru,Ω|||Vh|||h,
+
+(6.26) (6.27)
+
+which concludes the proof of the a priori error estimate (6.18).
+
+6.3. L2-Optimal Estimate for Flows with Large Viscosity
+We now proceed to deduce an optimal L2-error estimate for the velocity of an adjoint-consistent (ζu = 1) formulation for ﬂows dominated by viscous forces, i.e. from here on we assume
+
+ν β 0,∞,T hT + σh2T ∀ T ∈ Th.
+
+(6.28)
+
+The proof follows the standard Aubin–Nitsche duality argument, see e.g. [58, 59], and requires the established optimal energy-type error estimate from Theorem 6.4. A similar estimate for the Oseen problem has been derived for boundary-ﬁtted meshes by Burman et al. [38]. We introduce the following dual problem to (2.1)–(2.4): ﬁnd adjoint velocity and pressure (w, r) such that
+
+σw + (−β) · ∇w − ∇ · (2ν (w)) + ∇(−r) = ˜f ∇·w=0 wPn = 0
+(ε2ν (w)n + (ν + εβ · n)w) Pt = 0
+
+in Ω, in Ω, on Γ, on Γ,
+
+(6.29) (6.30) (6.31) (6.32)
+
+for which we assume additional elliptic regularity and that the solution belongs to (w, r) ∈ [H2(Ω)]d × H1(Ω) so that it satisﬁes
+
+ν w 2,Ω + r 1,Ω C ˜f 0,Ω,
+
+(6.33)
+
+provided that the boundaries are suﬃciently smooth, see e.g. [41, 60, 61]. Note that due to the homogeneous boundary conditions in (6.31)–(6.32) the estimate (6.33) is independent of the boundary data. However, the dimensionless constant C depends on the physical parameters ν, σ, β and the domain Ω. By choosing ˜f = u − uh ∈ L2(Ω) as the right hand side of the dual momentum equation, the desired error quantity bounds the dual solution (w, r) in (6.33).
+Note that the dual advective velocity is set as the negative advective velocity ﬁeld of the primal problem (2.1)–(2.4).
+As a result, inﬂow and outﬂow parts of the boundary of primal and dual problems swap, respectively. Similarly, the
+dual pressure solution r changes the sign compared to the pressure solution p of the primal problem. For further explanations on the dual problem, see e.g. the textbook [61]. Furthermore, it is assumed that β · n = 0 on Γ \ ΓD, which simpliﬁes (6.32) in the following.
+
+Theorem 6.5 (Velocity L2-error estimate). Let U = (u, p) ∈ [Hr(Ω)]d × Hs(Ω) be the continuous solution to the Oseen problem (2.1)–(2.4) and Uh = (uh, ph) ∈ Vh × Qh be the discrete solution of problem (3.52). Under previously speciﬁed assumptions, for an adjoint-consistent Nitsche-type formulation (ζu = 1) we have
+
+u − uh 0,Ω hru u ru,Ω + hsp+1ν−1 p sp,Ω,
+
+(6.34)
+
+provided that viscous forces dominate the ﬂow as assumed in (6.28) with ru := min{r, k + 1} and sp := min{s, k + 1}. Note that the hidden constant is independent of h and independent of how the boundary intersects the mesh Th. However, the constant depends on the physical parameters.
+
+23
+
+Proof. We need to estimate the desired velocity L2-error u − uh 0,Ω. For this purpose, we choose ˜f = u − uh as right hand side of the dual momentum equation (6.29) and multiply (6.29)–(6.30) with test functions v := u − uh and −q := −(p − ph), respectively. After integrating by parts, using ∇ · β = 0 and the relation
+
+((−β) · n)w, v Γ = 0
+
+(6.35)
+
+as w = 0 on ΓD and β · n = 0 on Γ \ ΓD, we obtain
+
+u − uh
+
+2 0,Ω
+
+=
+
+( ˜f , v)Ω
+
+=
+
+(σw, v)Ω + ((−β) · ∇w, v)Ω − (∇ · (2ν
+
+(w)), v)Ω + (∇(−r), v)Ω
+
+− (∇ · w, q)Ω
+
+(6.36)
+
+= (σw, v)Ω + (w, β · ∇v)Ω + ( (w), 2ν (v))Ω − 2ν (w)n, v Γ + (r, ∇ · v)Ω − r, v · n Γ − (∇ · w, q)Ω (6.37)
+
+= a(v, w) − 2ν (w)n, v Γ − bh(r, v) + b(q, w).
+
+(6.38)
+
+Using the boundary conditions for the normal and tangential directions (6.31)–(6.32) with the assumption that β· n = 0 on Γ\ΓD, which then reduce to w·n = 0 on Γ and (ε(2ν (w)n)+νw)Pt = 0 on Γ, the following terms can be consistently
+added to (6.38)
+
+0=
+
+w · n, q Γ −
+
+w · n, (2ν (v)n) · n Γ +
+
+ν γnh w
+
+·
+
+n,
+
+v
+
+·
+
+n
+
+Γ
+
++
+
+φu γnh
+
+w
+
+·
+
+n,
+
+v
+
+·
+
+n
+
+Γ
+
+=
+
+I
+
++
+
+II
+
++
+
+III
+
++
+
+IV,
+
+0=
+
+ε
+
+1 + γt
+
+h
+
+(ε(2ν
+
+(w)n) + νw)Pt, v
+
+Γ−
+
+ε
+
+γth + γt
+
+h
+
+(ε(2ν
+
+(w)n) + νw)Pt, 2
+
+(v)n
+
+Γ
+
+=
+
+V
+
++ VI
+
++ VII
+
++ VIII.
+
+(6.39) (6.40)
+
+Continuing in (6.38), we note that b(q, w) + I = bh(q, w). The viscous term can be split into directional parts such that
+
+− 2ν (w)n, v Γ + V = − (2ν (w)n) · n, v · n Γ −
+
+ε
+
+γth + γt
+
+h
+
+(2ν
+
+(w)n)Pt, v
+
+Γ
+
+(6.41)
+
+and
+
+II + V III = − w · n, (2ν (v)n) · n Γ −
+
+(ε
+
++ ε
+
+γth) − + γth
+
+ε
+
+νw
+
+Pt,
+
+2
+
+(v)n
+
+Γ
+
+= − w, 2ν (v)n Γ +
+
+ε
+
+ε + γth
+
+νw
+
+Pt
+
+,
+
+2
+
+(v)n
+
+Γ.
+
+(6.42) (6.43)
+
+Collecting all terms from (6.38)–(6.43) and deﬁning W := (w, r), the L2-error can be expressed as
+
+u − uh
+
+2 0,Ω
+
+=
+
+ah(u − uh, w) + bh(p −
+
+ph, w) − bh(r, u − uh)
+
+=
+
+Ah(U
+
+− Uh, W),
+
+(6.44)
+
+i.e. it can be expressed in terms of the discrete bilinear operator (3.8) associated to the primal problem (2.1)–(2.4), where the suﬃciently smooth solution W of the dual problem now takes the role of the test function.
+Note that under the assumption of dominating viscous forces (6.28), it holds for the advective term occurring in the continuity estimate of ah in (5.2) that
+
+|(β · ∇(u − uh), w − π∗hw)Ω|
+
+ν−
+
+1 2
+
+ν
+
+1 2
+
+∇(u
+
+−
+
+uh)
+
+Ω
+
+max{
+
+T ∈Th
+
+ν−
+
+1 2
+
+|||u
+
+−
+
+uh||| ·
+
+hν
+
+w
+
+2,Ω,
+
+β 0,∞,T h ν
+
+} · νh−1 w − π∗hw Ω
+
+1
+
+(6.45) (6.46)
+
+where the interpolation estimate (4.13) for the Clément interpolant was used in the last step. The L2-velocity error can then be further estimated by using the weak Galerkin orthogonality from Lemma 6.1 with Π∗hW ∈ Vh × Qh, the continuity of ah, bh provided in Lemma 5.1 (equations (5.2) and (5.6)) and by applying a Cauchy Schwarz inequality
+
+24
+
+to the remaining stabilization operators
+
+u − uh
+
+2 0,Ω
+
+=
+
+Ah(U
+
+− Uh, W
+
+− Π∗hW) + S h(Uh, Π∗hW) + Gh(Uh, Π∗hW))
+
+= ah(u − uh, w − π∗hw) + bh(p − ph, w − π∗hw) − bh(r − π∗hr, u − uh) + (S h + Gh)(Uh, Π∗hW)
+
+|||u − uh|||∗|||w − π∗hw|||∗ + |(β · ∇(u − uh), w − π∗hw)Ω| + |||U − Uh|||∗|||r − π∗hr|||∗,φu
+
++ |||p −
+
+ph
+
+|||∗,Φ−1
+
+(νΦ)−
+
+1 2
+
+(
+
+ν
+
+1 2
+
+∇(w
+
+−
+
+π∗hw)
+
+Ω
+
++
+
+(ν/h)
+
+1 2
+
+(w
+
+−
+
+π∗hw)
+
+·
+
+n
+
+Γ)
+
++ (S h
+
++
+
+Gh
+
+)(Uh
+
+,
+
+Uh
+
+)
+
+1 2
+
+· (S h
+
++
+
+Gh
+
+)(Π∗h
+
+W,
+
+Π∗h
+
+W
+
+)
+
+1 2
+
+|||U
+
+−
+
+Uh|||∗
+
+·
+
+(|||w
+
+− π∗hw|||∗
+
++ |||r
+
+−
+
+π∗hr|||∗,φu )
+
++
+
+(S h
+
++
+
+Gh
+
+)(Uh
+
+,
+
+Uh
+
+)
+
+1 2
+
+·
+
+(S h
+
++
+
+Gh
+
+)(Π∗h
+
+W,
+
+Π∗h
+
+W
+
+)
+
+1 2
+
+ν−
+
+1 2
+
+(|||U
+
+−
+
+Uh|||∗
+
++
+
+(S h
+
++ Gh)(Uh
+
+−
+
+Π∗hU, Uh
+
+−
+
+Π∗h
+
+U
+
+)
+
+1 2
+
++
+
+(S h
+
++
+
+Gh
+
+)(Π∗h
+
+U,
+
+Π∗h
+
+U
+
+)
+
+1 2
+
+)
+
+·
+
+ν1 2
+
+(|||w
+
+−
+
+π∗hw|||∗
+
++
+
+|||r
+
+−
+
+π∗hr|||∗,φu
+
++
+
+(S
+
+h
+
++
+
+Gh)(Π∗hW,
+
+Π∗h
+
+W
+
+)
+
+1 2
+
+)
+
+ν−
+
+1 2
+
+(|||U
+
+−
+
+Uh|||∗
+
++
+
+|||Uh
+
+−
+
+Π∗h U |||h
+
++
+
+(S h
+
++
+
+Gh
+
+)(Π∗h
+
+U,
+
+Π∗h
+
+U
+
+)
+
+1 2
+
+)
+
+·
+
+h(ν
+
+w
+
+2,Ω
+
++
+
+r 1,Ω)
+
+(1
+
++
+
+ωh)
+
+1 2
+
+ν−
+
+1 2
+
+(ν
+
+1 2
+
+hru−1
+
+u
+
+ru ,Ω
+
++
+
+ν−
+
+1 2
+
+hsp
+
+p sp,Ω) · h ·
+
+u − uh 0,Ω
+
+(hru u ru,Ω + hsp+1ν−1 p sp,Ω) · u − uh 0,Ω.
+
+(6.47) (6.48)
+(6.49) (6.50)
+(6.51) (6.52) (6.53) (6.54)
+
+In line (6.52) we use the energy-norm a priori error estimate from Theorem 6.4 in (6.18) and (6.20) for (u, p) ∈ [Hru (Ω)]d × Hsp (Ω) under the assumption of dominant viscous eﬀects (6.28). Note that for φ ∈ {φu, Φ−1} it holds that ν/φ 1. Thanks to the interpolation estimate Lemma 6.3, in (6.52) we gain the desired additional power of h for (w, r) ∈ [H2(Ω)]d × H1(Ω) by estimating
+
+ν
+
+1 2
+
+(|||w
+
+−
+
+π∗hw|||∗
+
++
+
+|||r
+
+−
+
+π∗hr|||∗,φ
+
++
+
+(S
+
+h
+
++
+
+Gh)(Π∗hW,
+
+Π∗h W )
+
+1 2
+
+)
+
+ν
+
+1 2
+
+h(ν
+
+1 2
+
+w
+
+2,Ω
+
++
+
+ν−
+
+1 2
+
+r
+
+1,Ω)
+
+h u − uh 0,Ω,
+
+(6.55)
+
+together with the boundedness (6.33) of the solution to the dual problem (6.29)–(6.32). Note that for S h and Gh the weak consistency estimates from Lemma 6.2 hold. Finally, the claim follows after dividing by u−uh 0,Ω in (6.54).
+
+7. Numerical Example
+To ensure the validity of the proposed method and the theoretical results presented, a numerical example is conducted. The error estimates obtained in the a priori error analysis, as summarized in the Theorems 6.4 and 6.5, are validated by the results of a 2D box-ﬂow case.
+The stabilization parameters used for the following simulations are taken by large from Massing et al. [2] and Schott and Wall [18] and are repeated here for completeness. The CIP-stabilization terms (3.30)–(3.32) are set as γβ = γp = 0.01 and γu = 0.05γβ, as suggested in [62]. For the convective, pressure and velocity ghost penalty stabilizations (3.40)–(3.42) the same parameters as for the CIP-stabilization are used. In the case of the viscous (3.39) and (pseudo-) reactive (3.38) ghost-penalty a value of γν = 0.05 and γσ = 0.005 is prescribed, respectively. The second order terms of the ghost-penalties (i.e. for j = 2 in the equations (3.38),(3.39) and (3.42) and j = 1 in (3.40) and (3.41)) are scaled by an extra 0.05, as without it too strong enforcement of these terms were observed, ruining the solution. Higher order terms of the ghost-penalties, i.e. j > 2 are neglected as their inﬂuence on the solution and stability is negligible for linear and quadratic elements. Note that for simulations with higher-order approximations, i.e. k > 1, the simpliﬁed variant gβ (3.51) for the convective and divergence ghost penalty terms gβ, gu (see (3.40) and (3.41)) and the related continuous interior penalty stabilizations sβ, su (see (3.30) and (3.31)) are used.
+The diﬀerent ﬂow regimes appearing in φu, φβ, φp (see (3.20) and (3.33)) are weighted as ν+cu( β 0,∞,T h)+cσ(σh2) with cu = 1/6 and cσ = 1/12 as suggested in [21]. If nothing else is mentioned, then the simulations are conducted with an adjoint-consistent Nitsche’s method (i.e. ζu = 1) and with penalty parameters of 1/γn = 1/γt = 10.0. Furthermore, as there is a need to integrate cut elements of non-regular shapes, standard integration rules can not be applied. To overcome this issue, the integration rules proposed by Sudhakar et al. [63] are used.
+All simulations presented in this publication have been performed using the parallel ﬁnite element software environment “Bavarian Advanced Computational Initiative” (BACI), see [64].
+25
+
+7.1. Problem Setup – 2D Box Flow
+This numerical example is inspired from the example done for Stokes ﬂow in [15], but made somewhat more complex and extended to the Oseen equations. We use the technique of manufactured solution to create the example. A divergence-free velocity ﬁeld (∇ · u = 0) and a suitable pressure ﬁeld are chosen which, when put into the Oseen equations with β = u, generate an associated volumetric body force f . By providing the volumetric body force and appropriate boundary conditions the solution is known and error studies can be carried out for the example. The domain Ω used here is a square {(x, y), −1 < x < 1, −1 < y < 1} and the following choice for the solution ﬁeld is
+
+u1(x, y) = 0.75y3(1 − x4) + 1.25y(1 − x2),
+
+u2(x, y) = −0.75x3(1 − y4) − 1.25x(1 − y2),
+
+p(x, y) =
+
+2  i=0
+
+(3x)2i+1 (2i + 1)!
+
+ 
+
+ 
+
+3 j=0
+
+(3y)2 j (2 j)!
+
+ 
+
+,
+
+(7.1) (7.2)
+(7.3)
+
+as visualized in Figure 7.1. The geometry here is chosen such that we have no geometric approximation error by the
+meshes, thus avoiding issues stemming from the Babuška paradox [65]. It can easily be seen that the chosen analytical velocity ﬁeld (u = (u1, u2)) satisﬁes ∇ · u = 0. The volume force ﬁeld f is chosen in accordance with the given ﬁelds (7.1)–(7.3) such that the Oseen equations (2.1)–(2.2) are satisﬁed. In the discrete case, the force ﬁeld f h and the advective velocity βh are given by the nodal interpolations of their continuous counterparts.
+
+u
+
+0
+
+1
+
+2
+
+Figure 7.1: The analytic velocity (left) and pressure (right) solution to the two-dimensional box-ﬂow problem.
+
+The boundary conditions applied to this problem are the same as introduced in the Oseen problem (2.3)–(2.4). The velocity at the boundary is prescribed as g = u, and the traction at the boundary as h = 2ν (u). It should be mentioned that uPn = 0 on Γ, which satisﬁes the conditions assumed throughout the analysis. Furthermore, with this choice of g and h, the prescribed solution is independent of the choice of slip length ε. The boundary condition is imposed on Γ by the method (3.52) introduced in Section 3.2.
+The background mesh Th covers a rectangular domain [−1.6, 1.6]2 which is rotated by the angle θ = 0.25π around the origin to ensure a non-trivial computational mesh Th, see Figure 7.2. It consists of N × N equally sized square elements equipped with either bi-linear Q1 or bi-quadratic Q2 equal-order approximations for velocity and pressure, i.e. Vhk × Qkh where k ∈ {1, 2}. As a consequence the element length is h = 3.2/N. The parameters for the Oseen
+26
+
+problem are chosen as ν = 1.0 and σ = 1.0. In the case of convection dominated ﬂow (i.e. for small ν), the tangential components disappear as they scale with ν, and eﬀectively the same formulation as presented and studied in [2] is retained. For this reason, we focus on investigating viscous ﬂows here. As the pressure is only deﬁned up to a constant, the constant pressure mode is ﬁltered out by imposing Ω phdx = 0 during the solution process.
+Figure 7.2: This ﬁgure shows the background mesh Th rotated at 0.25 radians. The active computational mesh Th is covered by the green and blue domains. In the green domain, the elements are cut and ghost-penalties are applied on their facets. The red domain indicates the inactive part of the background mesh.
+7.2. Mesh Reﬁnement Study To verify the results from the a priori error analysis, mesh reﬁnement studies are conducted for both linear and
+quadratic interpolations. In the case of the linear Q1 elements, a series of mesh sizes are chosen with N ∈ [8; 512] and for the quadratic Q2 case N ∈ [8; 224]. To demonstrate the robustness to the choice of slip length, the convergence studies are conducted with a choice of three diﬀerent ε ∈ [10−10; 1.0; 1010].
+In Figure 7.3 the L2-errors of uh, ∇uh and ph are presented for the linear Q1 approximations evaluated in Ω and on Γ. The convergence plots verify the optimal convergence O(h2) for the velocity L2-error (see Theorem 6.5) for all choices of ε. Furthermore, the errors for the diﬀerent choices of the various slip lengths remain of comparable size throughout the mesh reﬁnement. The convergence of the velocity gradient and pressure, as seen from the error at the boundary, converges with at least ﬁrst order, in accordance with theory stated in Theorem 6.4.
+For the quadratic Q2 interpolation case the same error norms as for the linear case are studied, as shown in Figure 7.4. Similar conclusions can be drawn as for the linear case. An optimal convergence O(h3) for the velocity L2-error and an order of at least O(h2) for the velocity gradient and pressure are observed for all ε, in accordance with theory. This veriﬁes the applicability of the method for higher order elements as well. Also notable is that the quadratically interpolated elements demonstrate less sensitivity to the cut position than the linear elements.
+7.3. Nitsche Stabilization Parameter Study To observe the behavior of the method for diﬀerent choices of the Nitsche parameter, a sensitivity study is con-
+ducted. For the adjoint consistent case the study is done with Q1 elements and for the adjoint inconsistent case for both Q1 and Q2 elements. In the case of linear elements a 512 × 512 mesh is used and for the quadratic case a 224 × 224 mesh. Both the tangential and normal stabilization parameters are varied at the same time, i.e. γ = γt = γn, and studies are conducted for three diﬀerent choices of slip length ε = {10−10; 1.0; 1010}.
+27
+
+||u − uh||L2(Ω)
+
+101 ε = 10−10
+
+100
+
+ε = 1.0
+
+ε = 1010
+
+10−1
+
+h2
+
+10−2
+
+10−3
+
+10−4
+
+||p − ph||L2(Ω)
+
+101 ε = 10−10
+
+100
+
+ε = 1.0 ε = 1010
+
+h2 10−1
+
+10−2
+
+10−3
+
+||∇(u − uh)||L2(Ω)
+
+101 ε = 10−10
+
+ε = 1.0
+
+100
+
+ε = 1010
+
+h
+
+10−1
+
+10−2
+
+10−150−3
+
+10−2
+
+10−1
+
+100
+
+10−140−3
+
+10−2
+
+10−1
+
+100
+
+10−130−3
+
+10−2
+
+10−1
+
+100
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+101 ε = 10−10
+
+100
+
+ε = 1.0
+
+ε = 1010
+
+10−1
+
+h2
+
+100 ε = 10−10
+
+ε = 1.0
+
+ε = 1010
+
+10−1
+
+h
+
+101 ε = 10−10
+
+ε = 1.0
+
+100
+
+ε = 1010
+
+h
+
+||∇(u − uh) · n||L2(Γ)
+
+||p − ph||L2(Γ)
+
+||u − uh||L2(Γ)
+
+10−2
+
+10−1
+
+10−3 10−4
+
+10−2
+
+10−2
+
+10−150−3
+
+10−2
+
+10−1
+
+100
+
+10−130−3
+
+10−2
+
+10−1
+
+100
+
+10−130−3
+
+10−2
+
+10−1
+
+100
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+Figure 7.3: Error convergence study for an adjoint-consistent Nitsche’s method with Q1 elements: bulk errors (top row) and boundary errors (bottom row) for velocity, pressure and velocity gradient (from left to right).
+
+||u − uh||L2(Ω)
+
+10−1
+
+101
+
+ε = 10−10
+
+10−2
+
+ε = 1.0 ε = 1010
+
+h3
+
+100 10−1
+
+10−3
+
+10−2
+
+101 ε = 10−10
+
+100
+
+ε = 1.0 ε = 1010
+
+h2 10−1
+
+||∇(u − uh)||L2(Ω)
+
+||p − ph||L2(Ω)
+
+10−4
+
+10−3
+
+ε = 10−10
+
+10−2
+
+10−5
+
+10−4 10−5
+
+ε = 1.0
+
+ε = 1010 h2
+
+10−3
+
+h3
+
+10−160−2
+
+10−1
+
+100
+
+10−160−2
+
+10−1
+
+100
+
+10−140−2
+
+10−1
+
+100
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+||u − uh||L2(Γ)
+
+10−1
+
+101
+
+ε = 10−10
+
+10−2
+
+ε = 1.0
+
+100
+
+ε = 1010
+
+10−3
+
+h3
+
+10−1
+
+101 ε = 10−10
+
+ε = 1.0
+
+100
+
+ε = 1010
+
+h2
+
+||∇(u − uh) · n||L2(Γ)
+
+||p − ph||L2(Γ)
+
+10−2
+
+10−4
+
+10−1
+
+10−3
+
+ε = 10−10
+
+10−5
+
+10−4
+
+ε = 1.0
+
+ε = 1010
+
+10−2
+
+10−6
+
+10−5
+
+h2
+
+h3
+
+10−170−2
+
+10−1
+
+100
+
+10−160−2
+
+10−1
+
+100
+
+10−130−2
+
+10−1
+
+100
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+Mesh size h [m]
+
+Figure 7.4: Error convergence study for an adjoint-consistent Nitsche’s method with Q2 elements: bulk errors (top row) and boundary errors (bottom row) for velocity, pressure and velocity gradient (from left to right).
+
+In Figure 7.5 the results for the adjoint-consistent formulation (ζu = 1) can be seen. As is veriﬁed from the infsup stability analysis in Section 5, the error diverges as 1/γ becomes too small, and in this case the stability limit is
+28
+
+reached at around 1/γ ≈ 4.0. Notable from the ﬁgure is the diﬀerent behavior of the velocity error at the interface for varying ε. In the case of ε = 10−10 the error is slowly decreasing for a choice of larger 1/γ, whereas for the cases with ε = 1.0 and ε = 1010 the error is strongly increasing. This discrepancy can be explained by the fact that in the latter cases the penalty eﬀect on the normal constraint is way stronger than for the tangential part and thus allows for
+worsening of the imposition of the tangential condition while better enforcing the normal constraint for a large penalty parameter 1/γ. In contrast, in the former case the velocity is enforced in both normal and tangential direction, thus imposing the velocity well at the boundary. However, note that at the same time larger 1/γ inﬂuences the velocity
+gradient and pressure at the boundary negatively, as expected.
+
+10−3
+
+10−1
+
+10−1
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 1.0
+
+ε = 1.0
+
+ε = 1.0
+
+ε = 1010
+
+ε = 1010
+
+ε = 1010
+
+10−2
+
+||p − ph||L2(Ω)
+
+10−4
+
+10−3
+
+||u − uh||L2(Ω)
+
+||∇(u − uh)||L2(Ω)
+
+10−1500
+
+101
+
+102
+
+103
+
+104
+
+10−1400
+
+101
+
+102
+
+103
+
+104
+
+10−1200
+
+101
+
+102
+
+103
+
+104
+
+Nitsche parameter 1/γ
+
+Nitsche parameter 1/γ
+
+Nitsche parameter 1/γ
+
+10−2
+
+100
+
+ε = 10−10
+
+ε = 1.0
+
+ε = 1010
+
+10−3
+
+10−1
+
+100 ε = 10−10
+ε = 1.0 ε = 1010
+
+||∇(u − uh) · n||L2(Γ)
+
+||p − ph||L2(Γ)
+
+||u − uh||L2(Γ)
+
+10−1
+
+10−4
+
+10−2
+
+ε = 10−10
+
+ε = 1.0
+
+ε = 1010
+
+10−1500
+
+101
+
+102
+
+103
+
+104
+
+10−1300
+
+101
+
+102
+
+103
+
+104
+
+10−1200
+
+101
+
+102
+
+103
+
+104
+
+Nitsche parameter 1/γ
+
+Nitsche parameter 1/γ
+
+Nitsche parameter 1/γ
+
+Figure 7.5: Nitsche stabilization parameter study for an adjoint-consistent Nitsche’s method with Q1 elements: bulk errors (top row) and boundary errors (bottom row) for velocity, pressure and velocity gradient (from left to right).
+
+The introduced method also works for the adjoint-inconsistent case (ζu = −1). This enables the choice of smaller values of 1/γ, as predicted from theory. However, the choice of both a small 1/γt and a large ε leads to conditioning
+issues, see Remark 3.2. This can be seen in Figures 7.6 and 7.7 where for both the linear and quadratic case with ε = 1010 small values of the stabilization parameter lead to the case where the used solver will not converge to the desired tolerance. This occurs for the linear case with 1/γ < 10−3 and for the quadratic case with 1/γ < 10−4. For the other choices of ε, the error remains stable for smaller choices of 1/γ conﬁrming the results from theory which states that 1/γ > 0 is a suﬃcient choice for stability. In the quadratic case, see Figure 7.7, similar results as for the linear case are observed. However, the two observed minima for the pressure error are not present. This indicates that
+this phenomenon stems from the linear elements and is not an inherent property of the proposed method. Another
+observation is the fact that the error for the quadratic approximations remains stable longer before a large stabilization parameter 1/γ eﬀects the solution negatively.
+From the graphs 1/γ ≈ 10 gives a clear minimum for the pressure error for both the linear and quadratic approximations. However, in the quadratic case the velocity error is smaller for a choice of 1/γ ≈ 35. From these observations a good choice of the stabilization parameter should be around 1/γ ∈ (10, 50). This proposed interval agrees well with
+the observed results in Schott and Wall [18].
+
+29
+
+||∇(u − uh)||L2(Ω)
+
+10−3
+
+10−1
+
+10−1
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 1.0 ε = 1010
+
+ε = 1.0 ε = 1010
+
+ε = 1.0 ε = 1010
+
+10−2
+
+||p − ph||L2(Ω)
+
+10−4
+
+10−3
+
+||u − uh||L2(Ω)
+
+10−150−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−140−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−120−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−3
+
+100
+
+100
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 1.0 ε = 1010
+
+ε = 1.0 ε = 1010
+
+ε = 1.0 ε = 1010
+
+10−1
+
+||p − ph||L2(Γ)
+
+10−4
+
+10−1
+
+10−2
+
+||∇(u − uh) · n||L2(Γ)
+
+||u − uh||L2(Γ)
+
+10−150−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−130−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−120−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+Figure 7.6: Nitsche stabilization parameter study for an adjoint-inconsistent Nitsche’s method with Q1 elements: bulk errors (top row) and boundary errors (bottom row) for velocity, pressure and velocity gradient (from left to right).
+
+10−5
+
+10−4 ε = 10−10
+
+10−3 ε = 10−10
+
+ε = 1.0
+
+ε = 1.0
+
+ε = 1010
+
+ε = 1010
+
+||∇(u − uh)||L2(Ω)
+
+||p − ph||L2(Ω)
+
+||u − uh||L2(Ω)
+
+10−160−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−150−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+ε = 10−10
+ε = 1.0 ε = 1010 10−140−5 10−4 10−3 10−2 10−1 100 101 102 103 104
+Nitsche parameter 1/γ
+
+10−5
+
+10−2
+
+10−2
+
+ε = 10−10
+
+ε = 10−10
+
+ε = 1.0 ε = 1010
+
+ε = 1.0 ε = 1010
+
+10−6
+
+10−3
+
+||∇(u − uh) · n||L2(Γ)
+
+||p − ph||L2(Γ)
+
+||u − uh||L2(Γ)
+
+10−3
+
+10−7
+ε = 10−10
+ε = 1.0 ε = 1010 10−180−5 10−4 10−3 10−2 10−1 100 101 102 103 104
+Nitsche parameter 1/γ
+
+10−4
+10−150−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+10−140−5 10−4 10−3 10−2 10−1 100 101 102 103 104 Nitsche parameter 1/γ
+
+Figure 7.7: Nitsche stabilization parameter study for an adjoint-inconsistent Nitsche’s method with Q2 elements: bulk errors (top row) and boundary errors (bottom row) for velocity, pressure and velocity gradient (from left to right).
+
+30
+
+7.4. Slip Length Sensitivity Study
+To demonstrate the robustness of the method to the choice of slip length, errors are evaluated for a series of ε ∈ [10−10, 1010] for linear Q1 elements. A comparison is done with the substitution method (3.6) explained in Section 3.2 to emphasize the advantages of our method. As can be seen in Figure 7.8, when imposing the general Navier condition by means of our Nitsche’s method the error remains almost constant and the diﬀerence between the errors of the limiting cases (i.e. ε → 0 or ε → ∞) are small. Even though the analytic solution is independent of ε some diﬀerence between the limiting cases are expected for the numerical simulations. Furthermore, the advantage of the proposed method to the substitution method is clear from this Figure. The substitution method starts to produce noticeably larger errors for ε < 10−5, and for smaller choices of slip length consecutively worse results are observed up until our linear solver could not solve the system for ε < 10−8. These results are expected for the substitution method (3.6) as the conditioning of the system becomes increasingly bad when the slip length approaches zero, as discussed in Section 3.2. Furthermore, it is worth to be noted that in the limiting case of ε → ∞ the errors between the two methods are of comparable size and the additional consistent terms (3.24) and (3.28) do not deteriorate the error.
+
+10−2
+
+10−1
+
+100
+
+Substitution
+
+Substitution
+
+Substitution
+
+Nitsche
+
+Nitsche
+
+Nitsche
+
+10−3
+
+10−2
+
+||p − ph||L2(Ω)
+
+10−1
+
+10−4
+
+10−3
+
+||u − uh||L2(Ω)
+
+||∇(u − uh)||L2(Ω)
+
+10−105−10 10−8 10−6 10−4 10−2 100 102 104 106 108 1010 Slip length ε [m]
+
+10−104−10 10−8 10−6 10−4 10−2 100 102 104 106 108 1010 Slip length ε [m]
+
+10−102−10 10−8 10−6 10−4 10−2 100 102 104 106 108 1010 Slip length ε [m]
+
+10−3
+
+100
+
+101
+
+Substitution
+
+Substitution
+
+Substitution
+
+Nitsche
+
+Nitsche
+
+Nitsche
+
+10−1
+
+100
+
+||p − ph||L2(Γ)
+
+10−4
+
+10−2
+
+10−1
+
+||∇(u − uh) · n||L2(Γ)
+
+||u − uh||L2(Γ)
+
+10−105−10 10−8 10−6 10−4 10−2 100 102 104 106 108 1010 Slip length ε [m]
+
+10−103−10 10−8 10−6 10−4 10−2 100 102 104 106 108 1010 Slip length ε [m]
+
+10−102−10 10−8 10−6 10−4 10−2 100 102 104 106 108 1010 Slip length ε [m]
+
+Figure 7.8: Slip length parameter study for an adjoint-consistent Nitsche’s method with Q1 elements: bulk errors (top row) and boundary errors (bottom row) for velocity, pressure and velocity gradient (from left to right).
+
+8. Conclusions
+In this work, a novel method for the Oseen problem with a general Navier slip boundary condition is introduced. This boundary condition is best explained as a Robin condition in the tangential plane and a Dirichlet condition in the normal direction of the boundary. The proposed method imposes the boundary condition weakly by means of a Nitsche’s method for both the tangential and normal parts of the condition. It remains well-posed and stable for all choices of slip lengths and for both low and high Reynolds numbers. Furthermore, the presented formulation is a ﬁrst step for building a more general formulation for the imposition of boundary conditions for the Oseen and NavierStokes equations since in the tangential direction it allows for any linear combination of Dirichlet and Neumann conditions to be set within the same framework, which previously was not possible. This method is presented for the
+31
+
+case of unﬁtted grids and an equal-order interpolated cut ﬁnite element method is used for the discretization. In the analysis, it is shown that the proposed formulation remains stable irrespective of where the boundary intersects the background mesh. The theoretical ﬁndings in this work remain valid also for the simpler boundary-ﬁtted grid case and can thus readily be applied for this case as well.
+To show the validity of the proposed formulation, inf-sup stability is shown. Furthermore, an a priori error analysis for an energy-type norm and for the L2–error of the velocity are conducted for the adjoint-consistent formulation. A numerical example corroborates the ﬁndings, where optimal order of convergence was observed for the error norms of both linear and quadratic approximations. Also observed in a numerical example is that our proposed method performs better for small slip lengths compared to the classical substitution method, and for larger values of the slip length it performs just as well. This is in agreement with theory, as our method is well-posed in both the Dirichlet and Neumann limits for the tangential condition, whereas the classical substitution method is not deﬁned in the Dirichlet limit, which coincides with the choice of a small slip length.
+As the proposed method enables the possibility to use both no-slip and slip with the same method, it is a promising approach for a number of future applications. These include for instance ﬂuid-structure-contact interaction as pure no-slip walls may lead to a not well-posed problem in the region where submerged bodies are close to each other. Another promising application currently investigated by the authors is the use of a localized Navier-slip condition in the modeling of contact line motion for multi-phase ﬂows.
+Acknowledgement
+This work is supported by the International Graduate School of Science and Engineering (IGSSE) of the Technical University of Munich, Germany, under project 6.02 and the Erasmus Mundus Joint Doctorate SEED project (European Commission). The authors would also like to thank Antonio Huerta for the discussions had about the formulation.
+References
+References
+[1] M. Juntunen, R. Stenberg, Nitsche’s method for general boundary conditions, Mathematics of Computation 78 (2009) 1353–1374. [2] A. Massing, B. Schott, W. A. Wall, A stabilized Nitsche cut ﬁnite element method for the Oseen problem, Computer Methods in Applied
+Mechanics and Engineering, ArXiv e-prints http://arxiv.org/abs/1611.02895v2 (2017) submitted. [3] C. Navier, Mémoire sur les lois du mouvement des ﬂuids, Mémoires de l’Académie Royale des Sciences de l’Institut de France 6 (1823)
+389–416. [4] J. Ou, B. Perot, J. P. Rothstein, Laminar drag reduction in microchannels using ultrahydrophobic surfaces, Physics of Fluids 16 (2004)
+4635–4643. [5] A. Mikelic´, Rough boundaries and wall laws, Qualitative properties of solutions to partial diﬀerential equations, Lecture Notes of Necas
+Center for Mathematical Modeling, edited by E. Feireisl, P. Kaplicky and J. Malek 5 (2009) 103–134. [6] M. Hillairet, T. Takahashi, Collisions in three-dimensional ﬂuid structure interaction problems, SIAM Journal on Mathematical Analysis 40
+(2009) 2451–2477. [7] J. Neustupa, P. Penel, A Weak Solvability of the Navier-Stokes Equation with Navier’s Boundary Condition Around a Ball Striking the Wall,
+Advances in mathematical ﬂuid mechanics (2010) 385–407. [8] D. Gérard-Varet, M. Hillairet, C. Wang, The inﬂuence of boundary conditions on the contact problem in a 3D Navier–Stokes ﬂow, Journal
+de Mathématiques Pures et Appliquées 103 (2015) 1–38. [9] C. Huh, L. E. Scriven, Hydrodynamic model of steady movement of a solid/liquid/ﬂuid contact line, Journal of Colloid and Interface Science
+35 (1971) 85–101. [10] T. Qian, X.-P. Wang, P. Sheng, A variational approach to moving contact line hydrodynamics, Journal of Fluid Mechanics 564 (2006)
+333–360. [11] J.-F. Gerbeau, T. Lelievre, Generalized Navier boundary condition and geometric conservation law for surface tension, Computer Methods
+in Applied Mechanics and Engineering 198 (2009) 644–656. [12] R. Verfürth, Finite element approximation of steady Navier-Stokes equations with mixed boundary conditions, RAIRO-Modélisation mathé-
+matique et analyse numérique 19 (1985) 461–475. [13] R. Verfürth, Finite element approximation on incompressible Navier-Stokes equations with slip boundary condition, Numerische Mathematik
+50 (1986) 697–721. [14] R. Verfürth, Finite Element Approximation of incompressible Navier-Stokes equations with slip boundary condition II, Numerische Mathe-
+matik 59 (1991) 615–636. [15] J. M. Urquiza, A. Garon, M.-I. Farinas, Weak imposition of the slip boundary condition on curved boundaries for Stokes ﬂow, Journal of
+Computational Physics 256 (2014) 748–767.
+32
+
+[16] V. John, Slip with friction and penetration with resistance boundary conditions for the Navier–Stokes equations—numerical tests and aspects of the implementation, Journal of Computational and Applied Mathematics 147 (2002) 287–300.
+[17] W. A. Wall, P. Gamnitzer, A. Gerstenberger, Fluid–structure interaction approaches on ﬁxed grids based on two diﬀerent domain decomposition ideas, International Journal of Computational Fluid Dynamics 22 (2008) 411–427.
+[18] B. Schott, W. A. Wall, A new face-oriented stabilized XFEM approach for 2D and 3D incompressible Navier-Stokes equations, Computer Methods in Applied Mechanics and Engineering 276 (2014) 233–265.
+[19] J. Chessa, T. Belytschko, An extended ﬁnite element method for two-phase ﬂuids, Journal of Applied Mechanics 70 (2003) 10–17. [20] S. Groß, A. Reusken, An extended pressure ﬁnite element space for two-phase incompressible ﬂows with surface tension, Journal of
+Computational Physics 224 (2007) 40–58. [21] B. Schott, U. Rasthofer, V. Gravemeier, W. A. Wall, A face-oriented stabilized Nitsche-type extended variational multiscale method for
+incompressible two-phase ﬂow, International Journal for Numerical Methods in Engineering 104 (2015) 721–748. [22] P. Hansbo, M. G. Larson, S. Zahedi, A cut ﬁnite element method for a Stokes interface problem, Applied Numerical Mathematics 85 (2014)
+90–114. [23] A. Gerstenberger, W. A. Wall, An eXtended Finite Element Method/Lagrange multiplier based approach for ﬂuid-structure interaction,
+Computer Methods in Applied Mechanics and Engineering 197 (2008) 1699–1714. [24] A. Legay, J. Chessa, T. Belytschko, An Eulerian–Lagrangian method for ﬂuid–structure interaction based on level sets, Computer Methods
+in Applied Mechanics and Engineering 195 (2006) 2070–2087. [25] S. Court, M. Fournié, A ﬁctitious domain ﬁnite element method for simulations of ﬂuid-structure interactions: The Navier-Stokes equations
+coupled with a moving solid, Journal of Fluids and Structures 55 (2015) 398–408. [26] E. Burman, M. A. Fernández, An unﬁtted Nitsche method for incompressible ﬂuid–structure interaction using overlapping meshes, Computer
+Methods in Applied Mechanics and Engineering 279 (2014) 497–514. [27] U. M. Mayer, A. Popp, A. Gerstenberger, W. A. Wall, 3D ﬂuid-structure-contact interaction based on a combined XFEM FSI and dual mortar
+contact approach, Computational Mechanics 46 (2010) 53–67. [28] A. Hansbo, P. Hansbo, M. G. Larson, A ﬁnite element method on composite grids based on Nitsche’s method, ESAIM: Mathematical
+Modelling and Numerical Analysis 37 (2003) 495–514. [29] S. Shahmiri, A. Gerstenberger, W. A. Wall, An XFEM-based embedding mesh technique for incompressible viscous ﬂows, International
+Journal for Numerical Methods in Fluids 65 (2011) 166–190. [30] A. Massing, M. G. Larson, A. Logg, M. E. Rognes, A Nitsche-based cut ﬁnite element method for a ﬂuid-structure interaction problem,
+Communications in Applied Mathematics and Computational Science 10 (2015) 97–120. [31] B. Schott, S. Shahmiri, R. Kruse, W. A. Wall, A stabilized Nitsche-type extended embedding mesh approach for 3D low- and high-Reynolds-
+number ﬂows, International Journal for Numerical Methods in Fluids 82 (2016) 289–315. [32] N. Moës, J. E. Dolbow, T. Belytschko, A ﬁnite element method for crack growth without remeshing, International Journal for Numerical
+Methods in Engineering 46 (1999) 131–150. [33] T. Belytschko, T. Black, Elastic crack growth in ﬁnite elements with minimal remeshing, International Journal for Numerical Methods in
+Engineering 45 (1999) 601–620. [34] E. Burman, S. Claus, P. Hansbo, M. G. Larson, A. Massing, CutFEM: Discretizing geometry and partial diﬀerential equations, International
+Journal for Numerical Methods in Engineering 104 (2015) 472–501. [35] J. Nitsche, Über ein Variationsprinzip zur Lösung von Dirichlet-Problemen bei Verwendung von Teilräumen, die keinen Randbedingungen
+unterworfen sind, Abhandlungen aus dem Mathematischen Seminar der Universität Hamburg 36 (1971) 9–15. [36] E. Burman, P. Hansbo, Fictitious domain ﬁnite element methods using cut elements: II. A stabilized Nitsche method, Applied Numerical
+Mathematics 62 (2012) 328–341. [37] E. Burman, P. Hansbo, Fictitious domain methods using cut elements: III. A stabilized Nitsche method for Stokes’ problem, ESAIM:
+Mathematical Modelling and Numerical Analysis 48 (2014) 859–874. [38] E. Burman, M. A. Fernández, P. Hansbo, Continuous interior penalty ﬁnite element method for Oseen’s equations, SIAM Journal on
+Numerical Analysis 44 (2006) 1248–1274. [39] M. Braack, E. Burman, V. John, G. Lube, Stabilized ﬁnite element methods for the generalized Oseen problem, Computer Methods in
+Applied Mechanics and Engineering 196 (2007) 853–866. [40] E. Burman, Ghost penalty, Comptes Rendus Mathématique 348 (2010) 1217–1220. [41] V. Girault, P. A. Raviart, Finite Element Methods for Navier-Stokes Equations, volume 5 of Springer Series in Computational Mathematics,
+Springer-Verlag, Berlin-Heidelberg, 1986. [42] V. Solonnikov, Solvability of a three-dimensional boundary value problem with a free surface for the stationary Navier-Stokes system, Banach
+Center Publications 10.1 (1983) 361–403. [43] A. Hansbo, P. Hansbo, An unﬁtted ﬁnite element method, based on Nitsche’s method, for elliptic interface problems, Computer Methods in
+Applied Mechanics and Engineering 191 (2002) 5537–5552. [44] A. Massing, M. G. Larson, A. Logg, M. E. Rognes, A Stabilized Nitsche Fictitious Domain Method for the Stokes Problem, Journal of
+Scientiﬁc Computing 61 (2014) 1–28. [45] E. Burman, S. Claus, A. Massing, A Stabilized Cut Finite Element Method for the Three Field Stokes Problem, SIAM Journal on Scientiﬁc
+Computing 37 (2015) A1705–A1726. [46] E. Burman, A penalty-free nonsymmetric Nitsche-type method for the weak imposition of boundary conditions, SIAM Journal on Numerical
+Analysis 50 (2012) 1959–1981. [47] T. Boiveau, E. Burman, A penalty-free Nitsche method for the weak imposition of boundary conditions in compressible and incompressible
+elasticity, IMA Journal of Numerical Analysis 36 (2016) 770–795. [48] F. Brezzi, M. Fortin, Mixed and hybrid ﬁnite element methods, volume 15 of Springer Series in Computational Mathematics, Springer-Verlag,
+New York, 1991. [49] E. Burman, P. Hansbo, M. G. Larson, A. Massing, Cut Finite Element Methods for Partial Diﬀerential Equations on Embedded Manifolds of
+33
+
+Arbitrary Codimensions, ArXiv e-prints (2016) http://arxiv.org/abs/1610.01660v1. [50] S. C. Brenner, Poincaré–Friedrichs Inequalities for Piecewise H1 Functions, SIAM Journal on Numerical Analysis 41 (2003) 306–324. [51] K. A. Mardal, R. Winther, An observation on Korn’s inequality for nonconforming ﬁnite element methods, Mathematics of Computation 75
+(2005) 1–6. [52] S. C. Brenner, L. R. Scott, The mathematical theory of ﬁnite element methods, volume 15 of Texts in Applied Mathematics, 3. ed., Springer-
+Verlag, Berlin-Heidelberg, 2008. [53] P. D. Lax, Functional analysis, Pure and applied mathematics, John Wiley & Sons, Chichester, 2002. [54] S. C. Brenner, Korn’s inequalities for piecewise H1 vector ﬁelds, Mathematics of Computation (2004) 1067–1087. [55] E. Stein, Singular Integrals and Diﬀerentiability Properties of Functions, Princeton University Press, Princeton, 1970. [56] A. Ern, J. L. Guermond, Theory and Practice of Finite Elements, volume 159 of Applied Mathematical Sciences, Springer-Verlag, New York,
+2004. [57] E. Burman, A. Ern, A continuous ﬁnite element method with face penalty to approximate Friedrichs’ systems, ESAIM: Mathematical
+Modelling and Numerical Analysis 41 (2007) 55–76. [58] J. Aubin, Behavior of the error of the approximate solutions of boundary value problems for linear elliptic operators by Galerkin’s and ﬁnite
+diﬀerence methods, Annali della Scuola Normale Superiore di Pisa 21 (1967) 599–637. [59] J. Nitsche, Ein Kriterium für die Quasi-Optimalität des Ritzschen Verfahrens, Numerische Mathematik 11 (1968) 346–348. [60] H. G. Roos, M. Stynes, L. Tobiska, Robust Numerical Methods for Singularly Perturbed Diﬀerential Equations, volume 24 of Springer Series
+in Computational Mathematics, Springer, Berlin-Heidelberg, 2008. [61] A. Quarteroni, Numerical Models for Diﬀerential Problems, Modeling, Simulation and Applications, Springer-Verlag, Berlin-Heidelberg,
+2009. [62] E. Burman, Interior penalty variational multiscale method for the incompressible Navier–Stokes equation: Monitoring artiﬁcial dissipation,
+Computer Methods in Applied Mechanics and Engineering 196 (2007) 4045–4058. [63] Y. Sudhakar, J. Moitinho de Almeida, W. A. Wall, An accurate, robust, and easy-to-implement method for integration over arbitrary polyhedra:
+Application to embedded interface methods, Journal of Computational Physics 273 (2014) 393–415. [64] W. A. Wall, C. Ager, M. Grill, M. Kronbichler, A. Popp, B. Schott, A. Seitz, BACI: A multiphysics simulation environment, Technical Report,
+Institute for Computational Mechanics, Technical University of Munich, 2017. [65] I. Babuška, The theory of small changes in the domain of existence in the theory of partial diﬀerential equations and its applications,
+Diﬀerential equations and their applications (1963) 13–26.
+34
+

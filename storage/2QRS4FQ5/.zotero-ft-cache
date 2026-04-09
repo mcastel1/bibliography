@@ -1,0 +1,507 @@
+Math. Model. Nat. Phenom. Vol. 6, No. 5, 2011, pp. 25-43
+DOI: 10.1051/mmnp/20116502
+Dynamics of Biomembranes: Effect of the Bulk Fluid
+A. Bonito 1∗, R.H. Nochetto 2, and M.S. Pauletti 1
+1 Department of Mathematics, Texas A&M University, College Station, Texas, USA 2 Department of Mathematics, University of Maryland, College Park, Maryland, USA
+Abstract. We derive a biomembrane model consisting of a fluid enclosed by a lipid membrane. The membrane is characterized by its Canham-Helfrich energy (Willmore energy with area constraint) and acts as a boundary force on the Navier-Stokes system modeling an incompressible fluid. We give a concise description of the model and of the associated numerical scheme. We provide numerical simulations with emphasis on the comparisons between different types of flow: the geometric model which does not take into account the bulk fluid and the biomembrane model for two different regimes of parameters.
+Key words: biomembrane, vesicle, red blood cell, helfrich, willmore, bending energy, parametric finite element, Lagrange multipliers
+AMS subject classification: 65M60, 76Z99, 74F10, 92C05
+1. Introduction
+Lipids consist of a hydrophilic head group and one or more hydrophobic hydrocarbon tails. When lipid molecules are immersed in aqueous environment at a proper concentration and temperature they spontaneously aggregate into a bilayer or membrane which forms an encapsulating bag called vesicle. Lipid membranes are ubiquitous in biological systems, and an understanding of vesicles provides an important element to understand real cells. Equilibrium shapes discarding the effect of the bulk fluid are obtained by minimizing the surface bending energy under area and volume constraints, namely the Canham-Helfrich energy. In this vein, a parametric approach is advocated in [6, 4] while a phase field method is used in [17, 18].
+∗Corresponding author. E-mail: bonito@math.tamu.edu
+25
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+It is worth mentioning the related works [22, 16], which focus on the minimization of the bending energy without constraints. In [6] we obtained equilibrium shapes by minimizing the membrane energy following a gradient flow. We consider in this paper a biomembrane model which incorporates the effect of the bulk fluid. The principal motivations are
+• Obtain more faithful physical dynamics compared with the artificial gradient flow dynamics;
+• Investigate how the presence of the fluid may affect the final equilibrium configuration, for example the equilibrium shapes achieved by the gradient flow might not be realistic due to possible membrane self-intersection. Moreover, it turns out that the inertia might lead to pinching not predicted by the geometric flow.
+Numerical simulations are performed using parametric finite elements yielding a precise computation of curvatures. However, topological changes cannot be handled with the present method. We refer to the work of Du et al. [19] for a phase-field method on a similar system. The rest of the paper is organized as follows. We introduce notations in Section 2., which are employed in Sections 3. and 4.. They are devoted to the description of the geometric and fluid biomembrane models together with their corresponding numerical schemes. In Section 5., we present numerical simulations of both models and discuss their qualitative differences.
+2. Notations
+Let ω be a bounded domain of R3 with smooth boundary γ. We denote by x the identity on γ which can be seen as a parametrization of γ from a reference surface γˆ. In our dynamical(discrete) context, γˆ is taken to be either the initial surface or the surface at the previous time step. The outward unit normal of γ is denoted by ν. Let E be the canonical (along the normal direction [1]) extension operator from γ to a tubular neighborhood of γ. Let φ be C1 vector valued functions defined on γ. The tangential gradient of φ is defined to be the orthogonal projection of ∇E(φ) to the tangent hyperplane of γ
+∇γφ := (I − ν ⊗ ν)∇E(φ)|γ.
+This definition is independent of the extension since only depends on the tangential variation of E(φ)|γ = φ over γ. The tangential divergence of φ is defined by divγ φ := Trace(∇γφ). Finally, when φ is C2, the surface Laplacian or Laplace Beltrami operator is defined by ∆γφ := divγ (∇γφ).
+We end this section by recalling the fundamental relation between the parametrization x of a surface γ and its vector total curvature h (sum of its principal curvatures in the normal direction)
+h = −∆γx. (2.1)
+This formula is classical in differential geometry and was first used by Dziuk [20] in the context of finite element methods for the mean curvature flow.
+26
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+3. The Canham-Helfrich Flow
+The first type of flow proposed is purely geometric in the sense that the membrane deformation is uniquely determined by its shape. In particular, the effect of the bulk fluid is not taken into account, except as a global volume constraint. We refer to Section 4. for the fluid effect.
+3.1. The Canham-Helfrich Energy
+We consider membranes with the following properties:
+• The membrane is endowed with a bending or elastic energy [26, 25, 34, 27, 7]
+W (γ, h) := 1
+2
+∫
+γ
+h2 (3.1)
+and in particular no topological changes are allowed in this model. In order to account for the effect of the latter, one should add ∫
+γ K in (3.1), where K is the Gaussian curvature.
+• The membrane is impermeable (no osmosis), the number of molecules remains fixed in each layer, and the energetic cost of stretching or compressing the membrane is much larger than the cost of bending deformations [33, 23, 35].
+As a consequence, the membrane γ minimizes its bending energy under global area A(γ) = ∫
+γ1 and volume V(γ) = 1
+3
+∫
+γ x · ν constraints. Note that invoking the divergence theorem, V(γ) indeed corresponds to the enclosed volume of γ (provided there is no self-intersection). Under the above assumptions, the membrane shapes are minimizers of the Canham-Helfrich energy
+J(γ, h, λ, π) := W (γ) + λ (A(γ) − A(γ0)) + π (V(γ) − V(γ0)) , (3.2)
+where λ and π are scalar Lagrange multiplier to enforce area and volume conservation. Note that the dependency on h is made explicit even though h is completely determined by γ. As we shall see in Sections 3.3. and 4.4., this is crucial for the time discretization since a semi-implicit discretization of the total curvature is proposed.
+3.1.1. Critical Points
+The critical points (γ∞, h∞, λ∞, π∞) of the Canham-Helfrich energy (3.2) are defined by
+dJ(γ∞, h∞, λ∞, π∞; φ) = 0, ∀φ : γ → R3, (3.3)
+and correspond to local minimizers of (3.2). Here dJ is the shape differential [13] of J, i.e. the infinitesimal energy variation when deforming γ in the direction φ : γ → R3. An expression of dJ is given at the end of this section.
+Definition 1 (Geometric Equilibrium Shapes). We say that γ∞ is a geometric equilibrium shape if (3.3) is satisfied for some Lagrange multipliers λ∞ ∈ R and π∞ ∈ R.
+27
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+The existence of Lagrange multipliers associated to equilibrium shapes is provided in the next lemma.
+Lemma 2 (Existence of Lagrange Multipliers at Critical Points). Let γ∞ be an equilibrium shape (see Definition 1), which is not the trivial case of the sphere. Then the multipliers λ∞ ∈ R and π∞ ∈ R exist.
+Proof. According to [24, Theorem 2 p.91], a sufficient condition for the Lagrange multipliers to exist at equilibrium is given by the existence of φ and ψ such that
+B=
+(∫
+γh·φ ∫
+γh·ψ
+∫
+γν·φ ∫
+γν ·ψ
+)
+is nonsingular. Since h is not constant along the normal direction, because the sphere is the only closed surface γ with constant h · ν, the Cauchy-Schwarz inequality implies
+(∫
+γ
+h·ν
+)2
+<
+(∫
+γ
+|h|2
+) (∫
+γ
+1
+)
+.
+Therefore, if φ = h and ψ = ν then det(B) 6= 0, as asserted.
+We end this section by providing an expression for dJ that will be used in Section 3.2. to find equilibrium shapes. Several formulations of dJ are available in the literature [21, 31, 6]. They are all equivalent provided that the surface γ is smooth but lead to different discrete schemes. In this paper, we consider an expression of dJ directly obtained in [6] from shape differential calculus, namely
+dJ(γ, h, λ, π; φ) = dW (γ, h; φ) + λdA(γ; φ) + πdV (γ; φ), ∀φ : γ → R3, (3.4)
+where
+dW (γ, h; φ) :=
+∫
+γ
+∇γφ : ∇γh −
+∫
+γ
+(∇γIdγ + ∇γIdγT )∇γφ : ∇γh (3.5)
++1
+2
+∫
+γ
+divγ h divγ φ,
+dA(γ; φ) :=
+∫
+γ
+h · φ, (3.6)
+dV (γ; φ) :=
+∫
+γ
+ν · φ, (3.7)
+where Idγ denotes the identity on γ. Even though the shape derivative dJ depends solely on deformations of γ in the normal direction [13], we emphasize that the above formulation allows for any vector deformation and follows an idea of Rusu [31]. This extra freedom leads to a variational formulation which is well suited for C0 finite element methods; see [6, 31, 21] for more details. Moreover, the term ∇γIdγ in (3.5) is symmetric so that
+∇γIdγ + ∇γIdγT = 2∇γIdγ.
+Although our numerical scheme uses a symmetric approximation of ∇γIdγ, we prefer to remain general at this point and discard the above simplification.
+28
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+3.2. L2-Gradient Flow
+The critical points defined by (3.3) are determined by considering a pseudo-time evolution. In fact, they are stationary states of a nonlinear geometric evolution PDE, namely an L2-gradient flow for the Canham-Helfrich energy (3.2): given an initial surface γ0, find for t ≥ 0 a velocity v(t) : γ(t) → R3 and Lagrange multipliers λ(t), π(t) ∈ R satisfying
+∫
+γ(t)
+v(t) · φ = −dJ(γ(t), h(t), λ(t), π(t); φ), ∀φ : γ(t) → R3. (3.8)
+where γ(t) is given by
+γ(t) :=
+{
+x(t) : γ0 → R3 : Dx
+Dt (t, ξ) = v(t, x(t, ξ)), x(0) = ξ ∈ γ0
+}
+. (3.9)
+In addition, the constraints associated to the Lagrange multipliers are
+A(γ(t)) = A(γ0) and V (γ(t)) = V (γ0).
+We now justify the surface update (3.9) by observing that gradient flows always decrease the energy (provided that v 6= 0). Indeed if γ and v are the surface and velocity given by (3.9) and (3.8), we compute
+d
+dtJ(γ, h, λ, π) = dJ(γ, h, λ, π; D
+Dtx) = dJ(γ, h, λ, π; v) = −
+∫
+γ
+v2 ≤ 0.
+Note that the above property holds when the L2−scalar product in the left hand side of (3.8) is replaced by any scalar product. Whether our choice of scalar product is optimal to lead to equilibrium states remains an open question. However, we note that incorporating the effect of the bulk fluid in Section 4. corresponds to a scalar product more physically realistic.
+3.3. Discrete Scheme
+Let t ≥ 0 and τ be the current time and time-step. In [6] we pointed out the numerical benefits (initialization, time-stepping, tangential motions, mesh quality, precision) in using continuous piecewise quadratics over linears. Therefore, we employ quadratics to approximate both the parametrization x of the surface γ and its total curvature vector h. Let Γ be a piecewise quadratic approximation of the surface γ(t) and S2(Γ) be the space of continuous piecewise quadratic finite elements defined over Γ; see for instance [20, 14, 6]. We describe in this section how we compute Γ∗ ≈ γ(t∗) where t∗ = t + τ .
+We resort to the same semi-implicit Euler discretizaton as in [2, 3, 4, 9, 11, 12, 15, 20, 21, 31, 6]. The intermediate approximations X∗ ∈ S2(Γ)3 and V∗ ∈ S2(Γ)3 of the surface parametrization and velocity at time t∗ are linked via the relation
+X∗(ξ) := ξ + τ V∗(ξ), ∀ξ ∈ Γ. (3.10)
+29
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Hence, in view of (2.1) and (3.8), we obtain an approximation of the velocity V∗ ∈ S2(Γ)3, a semi-implicit discretization of the total curvature H∗ ∈ S2(Γ)3 and approximation of the Lagrange multipliers Λ∗ ∈ R, Π∗ ∈ R by solving
+∫
+Γ
+H∗ · Ψ − τ
+∫
+Γ
+∇ΓV∗ : ∇ΓΨ =
+∫
+Γ
+∇ΓIdΓ : ∇ΓΨ, ∀Ψ ∈ S2(Γ)3 (3.11)
+and ∫
+Γ
+V∗ · Φ + dJ(Γ, H∗, Λ∗, Π∗; Φ) = 0, ∀Φ ∈ S2(Γ)3. (3.12)
+The above system is supplemented by the area and volume constraints
+A(Γ∗) = A(Γ) and V(Γ∗) = V(Γ). (3.13)
+The numerical treatment of the saddle point problem (3.11), (3.12) and (3.13), is discussed in Section 3.4.. Moreover, in view of (3.10), the approximation of the surface at time t∗ is given by
+Γ∗ := {X∗(ξ) = ξ + τ V∗(ξ) : ξ ∈ Γ} , (3.14)
+and corresponds to a semi-implicit discretization of γ(t∗) defined by (3.9). We point out that, compared to (3.9), the surface at the previous time step Γ is used in (3.14) as reference surface. Finding the new time step τ ∗ depends on V∗ and the geometry of Γ∗ to avoid node crossing and inverted elements; more details are provided in [6]. No stability CFL constraint seems necessary.
+Remark 3 (Choice on the Polynomial Order). As we already mentioned, it is advantageous to describe the surface using quadratic polynomials. It is therefore natural according to (3.14) to use the same polynomial degree for the representation of the surface parametrization, i.e. X∗ ∈ S2(Γ)3. Moreover, we also use the same polynomial degree to describe the approximation of its total curvature H∗ ∈ S2(Γ)3 typical of mixed methods (recall that h = −∆γx).
+3.4. Numerical Treatment of the Lagrange Multipliers
+We briefly explain in this section how the solution of the saddle point problem (3.11), (3.12) and (3.13) is obtained. More precisely, we describe a quasi-Newton method able to enforce the constraints up to machine precision. The algorithm relies on the decomposition of V∗ into three parts
+V∗ = V∗
+W + Λ∗V∗
+A + Π∗V∗
+V , (3.15)
+where V∗
+K ∈ S2(Γ)3, K ∈ {W, A, V }, satisfy
+∫
+Γ
+V∗
+W · Φ + dW (Γ, H∗
+W ; Φ) = 0, ∀Φ ∈ S2(Γ)3,
+∫
+Γ
+V∗
+A · Φ + dW (Γ, H∗
+A; Φ) = −dA(Γ, Φ), ∀Φ ∈ S2(Γ)3,
+∫
+Γ
+V∗
+V · Φ + dW (Γ, H∗
+A; Φ) = −dV (Γ, Φ), ∀Φ ∈ S2(Γ)3,
+30
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+supplemented by the discrete definition of the total curvatures
+∫
+Γ
+H∗
+K ·Ψ−τ
+∫
+Γ
+∇ΓV∗
+K : ∇ΓΨ = FK(Ψ), ∀Ψ ∈ S2(Γ)3,
+for K ∈ {W, A, V } where FW (Ψ) = ∫
+Γ ∇ΓIdΓ : ∇ΓΨ and FA(Ψ) = FV (Ψ) = 0. We emphasize
+that the resolution of the above three systems for each couples (V∗
+W , H∗
+W ) are, in fact, the same systems but with three different right-hand sides. Therefore, they can be solved simultaneously with the same complexity as a single system. Finally, a quasi-Newton method is advocated to determine Λ∗ and Π∗ so that the updated surface Γ∗ (3.14) with V∗ given by (3.15) satisfies the constraints (3.13) to machine precision. We refer to [6] for details on the quasi-Newton method and the determination of the initial guess.
+4. The Fluid Biomembrane System
+We now add to the geometric model described above the effect of the bulk fluid to capture physical dynamics and to avoid self-intersecting equilibrium shapes.
+4.1. The Navier-Stokes System
+At each time t, the temperature and the osmotic pressure of the vesicle ω(t) are assumed to be constant. Moreover, the bulk fluid is assumed to be incompressible and Newtonian characterized by its Reynolds number Re = ρvL/η, where ρ, η are the fluid density and viscosity, v and L the characteristic velocity and length. Given an external force f (t) : ω(t) → R3 applied to the fluid, the velocity v(t) : ω(t) → R3 and the pressure p(t) : ω(t) → R are related through the Navier-Stokes equations (without writing the time dependence explicitly)
+Re
+∫
+ω
+D
+Dtv · w +
+∫
+ω
+2 (v) : ∇w −
+∫
+ω
+p div(w) +
+∫
+ω
+div(v) q
+−
+∫
+γ
+{(2 (v) − p) · ν} · w =
+∫
+ω
+f · w, ∀w : ω → R3, ∀q : ω → R,
+(4.1)
+where (v) = 1/2(∇v + (∇v)T ) is the symmetric part of the velocity gradient and
+D
+Dt. = ∂
+∂t. + (v · ∇).
+is the material derivative. The Navier-Stokes system (4.1) written in Lagrangian formulation is supplemented by an initial condition for the velocity v(0) = v0 and boundary conditions described in the following section.
+31
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Remark 4 (Symmetric Form of Viscous Term). Taking the transpose of the Navier-Stokes system (4.1) one deduces that any solution (v, p) of (4.1) also satisfy
+Re
+∫
+ω
+D
+Dtv · w +
+∫
+ω
+2 (v) : ∇wT −
+∫
+ω
+p div(w) +
+∫
+ω
+div(v) q
+−
+∫
+γ
+{(2 (v) − p) · ν} · w =
+∫
+ω
+f · w, ∀w : ω → R3, ∀q : ω → R,
+Hence, adding the above relation to (4.1), we conclude its equivalence with the symmetric version
+Re
+∫
+ω
+D
+Dtv · w +
+∫
+ω
+2 (v) : (w) −
+∫
+ω
+p div(w) +
+∫
+ω
+div(v) q
+−
+∫
+γ
+{(2 (v) − p) · ν} · w =
+∫
+ω
+f · w, ∀w : ω → R3, ∀q : ω → R.
+4.2. Fluid-Membrane Interaction
+The fluid-membrane interaction manifests itself through the fluid boundary condition at the interface γ(t) = ∂ω(t). Forces balance at γ(t) implies that (2 (v) − p) · ν is opposite in sign but equal in magnitude with the force exerted by the membrane (see Section 3.1.). This is,
+∫
+γ
+{(2 (v) − p) · ν} · w = −Be dJ(γ, h, λ, 0; w), ∀w : γ(t) → R3, (4.2)
+where Be = κ/(ηvL2) is the non-dimensionalized “bending number” and κ is the membrane bending rigidity.
+Remark 5 (Volume Conservation). Note that in (4.2) the Lagrange multiplier π for the volume constraint is discarded since it can be absorbed into the pressure p ← p + Be π; compare (3.4) and (4.2). In fact, the volume conservation is already inherent to the incompressible Navier-Stokes equations and imposed by the pressure p (not necessarily constant in space).
+Assuming no-slip boundary condition for the fluid at the interface γ(t), the fluid and membrane velocities are equal thereby leading to
+Dx
+Dt (t, ξ) = v(t, x(t, ξ)) ∀ξ ∈ γ0. (4.3)
+The above relation yields, as for the L2−gradient flow, the interface motion given by (3.9).
+Remark 6 (Outer Fluid). The outer fluid can easily be taken into account by replacing the left hand side of (3.4) by ∫
+γ
+[1
+Be (2 (v) − p)] · ν · w, where [.] denotes the jump over γ.
+We end this section by providing an energy estimate for the coupled system.
+32
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Lemma 7 (Energy Dissipation). The following energy dissipation relation is satisfied for any velocity v(t) and membrane γ(t) (of total curvature h(t)) given by (4.1), (4.2), and (4.3)
+d
+dt
+( Re
+2
+∫
+Ω(t)
+v(t)2 + Be
+∫
+γ(t)
+h(t)2
+)
+=
+∫
+Ω(t)
+f · v(t) −
+∫
+Ω(t)
+2 (v(t)) : (v(t)).
+Proof. In view of Remark 4, classical energy techniques for the Navier-Stokes system (see for instance [36]) yield
+d
+dt
+( Re
+2
+∫
+Ω(t)
+v(t)2
+)
++ Be dJ(γ(t), h(t), λ(t), 0; v(t)) =
+∫
+Ω(t)
+f · v(t) −
+∫
+Ω(t)
+2 (v(t)) : (v(t)).
+(4.4) Recalling the interface update relation (4.3), the desired result readily follows from the identity
+dJ(γ, h, λ, π; v) = dJ(γ, h, λ, π; D
+Dtx) = d
+dtJ(γ, h, λ, π).
+Remark 8 (Uniqueness). The arguments provided in the proof of Lemma 7 together with the Gronwall lemma yield the uniqueness of the (smooth) velocity-pressure couple satisfying (4.1), (4.2), and (4.3). Refer to [36] for more details.
+4.3. Effect of the Bulk Fluid on Equilibrium Shapes
+In this section we discuss the relation between equilibrium shapes obtained following the geometric flow (3.8) and the more realistic dynamic dictated by (4.1)-(4.2). In the following lemma, (u, p, γ) are assumed to be sufficiently smooth.
+Lemma 9 (Partial Equilibrium Equivalences). We have the following relations between the equilibrium states of (4.1)-(4.2) and (3.8):
+• If the terminal velocity v∞ := limt→∞ v(t) = 0 is achieved while following the flow (4.1)(4.2) with f = 0, then the corresponding equilibrium surface γ∞ is a geometric equilibrium surface in the sense of Definition 1.
+• Let (γ∞, λ∞, π∞) be any non self-intersecting equilibrium shape of (3.8) and denote by ω∞ the domain enclosed by γ∞. Then ω∞ is an equilibrium shape of (4.1)-(4.2) with v0 = f = 0 and ω(0) = ω∞.
+Proof. We start by proving the first assertion. Since v∞ = 0, (4.3) implies that an equilibrium shape for the enclosed domain ω∞ and therefore an equilibrium pressure p∞ are reached. We denote by h∞, λ∞ the total curvature of γ∞ and the Lagrange multiplier associated to the area constraint. The Navier-Stokes system (4.1) with the boundary force (4.2) imply
+Be
+∫
+γ∞
+dJ(γ∞, h∞, λ∞, 0; w) +
+∫
+ω∞
+p∞ div(w) = 0, ∀w : ω∞ → R3.
+33
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Integrating by part the second term we arrive at
+Be
+∫
+γ∞
+dJ(γ∞, h∞, λ∞, 0; w) +
+∫
+γ∞
+p∞w · ν −
+∫
+ω∞
+∇p∞ · w = 0, ∀w : ω∞ → R3. (4.5)
+Restricting w to have compact support inside ω∞ we realize that p∞ is a constant on ω∞. Thus, in view of the definition (3.4) of dJ, we deduce from (4.5) that γ∞ is an equilibrium shape (see Definition 1 with π∞ = 1
+Be p∞). We now focus on the second assertion and let (γ∞, h∞, λ∞, π∞) be an geometric equilibrium shape, i.e.
+dJ(γ∞, h∞, λ∞, π∞; w) = 0, ∀w : ω∞ → R3. (4.6)
+From (4.6), we deduce that v = 0, p = 0, ω = ω∞, λ = λ∞ and π = π∞ satisfy (4.1) and (4.2). The uniqueness of the velocity solution, see Remark 8, proves the second assertion and complete the proof.
+Remark 10 (Equivalence of Equilibria). We emphasize that the above lemma ensures the equivalence of the equilibrium shapes provided they are unique and non self-intersecting.
+4.4. Discrete Scheme
+We now describe the approximation of (4.1), (4.2) and (4.3). Let t > 0 and τ > 0 be the current time and time-step. We recall that Γ denotes a piecewise quadratic approximation of γ(t) and we let Ω to be the domain enclosed by Γ. Also, we denote by T a shape-regular subdivision of Ω in the sense of [8] into tetrahedrons and let Pq(T ) be the space of continuous, piecewise polynomial of degree q ≥ 1 subordinated to T . In order to take full advantage of the second order approximation of the surface (recall that the surface and the total curvature are piecewise quadratics), we employ the Taylor-Hood finite elements for the velocity-pressure couple, namely velocities in P2(T )3 and pressures in P1(T ). We refer to [5] for a discussion of the potentially disastrous effect of polynomial mismatch between the velocity and surface parametrization. Let t∗ = t + τ , given Γ and V ∈ P2(T )3 an approximation of v(t), we seek H∗ ∈ S2(Γ)3, V∗ ∈ P2(Ω)3, P ∗ ∈ P1(Ω) and Λ∗ ∈ R approximations of h(t∗), v(t∗), p(t∗) and λ(t∗) satisfying
+Re
+∫
+Ω
+1
+τ (V∗ − V) · W +
+∫
+Ω
+2 (V∗) : ∇W −
+∫
+Ω
+P ∗ div(W) +
+∫
+Ω
+div(V∗) Q
+− Be dJ(Γ, H∗, Λ∗, 0; W) =
+∫
+Ω
+f · W, ∀W ∈ P2(Ω)3, ∀Q ∈ P1(Ω).
+(4.7)
+The above system is the discrete counterpart of the Lagrangian formulation of the Navier-Stokes system (4.1)- (4.2) and therefore requires that the nodes of the mesh are moved using the velocity V∗. In particular, the new interface Γ∗ is described by
+Γ∗ = {X∗(ξ) = ξ + τ V∗(ξ) : ξ ∈ Γ}
+which corresponds to the semi-implicit discretization (3.10) of (4.3); compare to (3.14).
+34
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+The new time-step τ ∗ depends on the mesh quality, the interface velocity, and geometric quantities, and is meant to avoid mesh shape-regularity deterioration but not to enforce stability. In fact, the semi-implicit structure of (4.7) appears to be enough to avoid a CFL constraint. In addition, a selective hybrid smoothing algorithm is used. These are described in [30]. Finally, the algorithm described in Section 3.4. to compute the Lagrange multipliers is applied in this context as well with the exception that the volume constraint is already imposed by the Navier-Stokes system (see Remark 5), i.e. we formally take Π∗ = V∗
+V = 0.
+5. Numerical Simulations
+In this section we present some numerical simulations to illustrate the features of both numerical methods introduced in Sections 3. and 4.. For this purpose, three different type of flows are considered
+• The geometric flow governed by (3.8);
+• The high inertia (HI) flow given by (4.1) and (4.2) where the nondimensional parameters are taken to be Re = Be = 1 as in [19] where a phase field approach is advocated.
+• The low inertia (LI) flow also given by (4.1) and (4.2) but with more realistic physical parameters, with ranges Re ∈ [10−8, 10−6] and Be ∈ [10−1, 103] according to [33] and [29]. We choose Re = 10−6 and Be = 103 for the LI flow to maximize the inertia among the range of realistic parameters.
+The software implementation made use of the finite element library ALBERTA 2.0 [32, 28], the sparse direct solver UMFPACK [10] and the visualization tool Paraview. The fluid simulations were run in an 8 node cluster with 32G of RAM and the geometric simulations in a PC with an AMD Athlon 64 5000+ processor and 4GB of memory. The CPU time for interesting 3D geometric flows was about 30 minutes (for 20K-50K DOFs), and fluid-membrane interaction took about 2 days (for 200K-500K DOFs).
+5.1. Bended Shape: The Banana
+For the first simulation, we propose an initial “banana” shape, an interesting candidate because of its intrinsic bending which should eventually disappear with these flows. Figure 1 reports the evolution of the banana under the HI flow confirming its un-bended equilibrium shape. For comparison, the equilibrium shape obtained following the geometric flow is also provided in Figure 1 and is similar to the one obtained by the HI flow. Moreover, the bending energy ∫
+Γ H2 and kinetic energy ∫
+Ω V2 are shown in Figure 2 and reveal the energy exchange between the membrane and the bulk fluid. However, we point out that the total energy ∫
+Ω V2 + ∫
+Γ H2 is monotone decreasing as suggested by the continuous energy dissipation lemma (Lemma 7). From Figure 2, we also deduce that both flows lead to the same equilibrium energy once the kinetic energy of the HI flow is damped out by friction. Finally, a glimpse at the quite nontrivial fluid behavior is depicted in Figure 3 where the fluid streamlines are displayed.
+35
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Figure 1: (Clockwise: from top-left to bottom-right) Evolution of an initial non axisymmetric 3D banana shaped volume mesh subject to the HI flow. The inertia leads to an overshoot of the equilibrium (un-bended) shape and oscillates about it until the viscous damping dissipates all the kinetic energy. Figure 3 shows some streamlines associated to this flow. (Bottom-left) Equilibrium shape obtained under the geometric flow. Both equilibrium shapes are identical; refer to Figure 2 for an energy comparison.
+5.2. Biconcave Shapes: Geometry vs Fluid
+In this section we investigate the behavior of different flows leading to typical biconcave red blood cell (RBC) shapes. We compare the geometric flow, the LI flow and the HI flow for two different initial configurations: one that leads to a thick RBC shape and the other that leads to an almost pinching scenario. A typical RBC shape is obtained starting from an axisymmetric 3x3x1 ellipsoid. The same final equilibrium is achieved when this shape is evolved with the geometric, the LI or the HI flows as shown in Figure 4. However, the energy behavior is similar for the geometric and the LI flows, but different for the HI flow because of its inertia.
+36
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Figure 2: (Left) Graph of the bending and kinetic energies as function of time. Observe how there seems to be a coincidence between the points of maximum bending energy and minimum kinetic energy and vice-versa. Also, notice the damped behavior of the kinetic energy characteristic of the viscous dissipation while the total energy ∫
+Ω V2 + ∫
+Γ H2 is monotone decreasing. In particular, the bending energy approaches the equilibrium as the kinetic energy approaches zero. (Right) Evolution of the bending energies for the gradient and HI flows. Both leads to the same value.
+We now turn out our attention to a 5x5x1 ellipsoid as initial shape. Figure 4 reports the evolution of the HI flow in this context: we realize that
+The effect of the bulk fluid is significant when pinching is taken into account.
+In fact, unlike for the 3x3x1 ellipsoid starting shape (see Figure 4), the inertia of the HI flow leads to a shape more inclined to pinching as reported in Figure 5. Figure 6 provides a comparison of the equilibrium shapes. On the one hand, the geometric and LI fluid models both lead to an equilibrium shape where the top and bottom concavities are relatively close together but not yet touching. On the other hand, the inertial effect of the HI flow is responsible for a much flatter and thinner depression than predicted by the other models. We finally note that the final state depicted for the HI flow in Figures 5 and 6 is not an equilibrium shape as indicated by a non-zero kinetic energy in Figure 6. If the HI flow does not undergo pinching, then it is likely to return to the equilibrium shape predicted by the other models.
+5.3. Numerical Conclusions
+The dynamic of a Newtonian fluid surrounded by a lipid membrane is approximated by a parametric FEM. We present several three dimensional simulations illustrating the properties of the physical model and the numerical scheme. The experiments indicate that the effect of the bulk fluid is negligible for low inertia fluid. However, we realize that close to topological changes, the presence of the fluid can have drastic effects on the biomembrane evolution.
+37
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Figure 3: 3D streamlines for the HI flow (see also Figure 1). (Top-left) The fluid moves from the center to the ends. At this point there is no indication of unbending. Only after the ends have been thickened by the pumped fluid, taking the characteristic spherical shape, some unbending of the banana appears. (Top-right) The fluid located at the ends now flows in an unbending direction. Observe that still fluid moves from the center of the banana toward the ends in a direction favorable for bending. (Bottom-right) Eventually this latter behavior changes to a favorable unbending direction and the fluid goes from the center to the ends but coming from the opposite side. (Bottom-left) Two distinctive vortices result from this evolution.
+38
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Figure 4: Initial axisymmetric ellipsoid of aspect ratio 3x3x1 and final equilibrium configurations obtained for the geometric and the LI and HI flows. All the flows leads to the same final equilibrium. For the energy comparison there is a time rescaling by a factor of 1.3 and .0015 for the geometric and LI flows respectively. The graph on the right is a zoom into the graph on the left.
+Our method cannot handle topological changes with ease, but requires modest computational resources while providing an accurate and stable approximation of curvature. Eulerian methods, such as phase-field and level-set methods, can in principle deal with topological changes to the expense of being computationally more intensive.
+Acknowledgment
+We wish to acknowledge funding support. Bonito was partially supported by NSF grants DMS0807811 and DMS-0914977 and by Award No. KUS-C1-016-04 made by King Abdullah University of Science and Technology (KAUST). Nochetto was partially supported by NSF grants DMS-0505454 and DMS-0807811. Pauletti was partially supported by NSF grants DMS-0505454 and DMS-0807811 and by Award No. KUS-C1-016-04 made by King Abdullah University of Science and Technology (KAUST).
+39
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Figure 5: An initial axisymmetric ellipsoid of aspect ratio 5x5x1 subject to a HI biomembrane fluid model evolution (clockwise). Each frame shows the membrane mesh and a symmetry cut along a big axis. (Top-left) Initial ellipsoid of aspect ratio 5x5x1. (Top-right) The fluid flows from an annular region between 2 and 3 fourths of the circular radius toward the circumference. As it reaches the circumference, it is pumped vertically upwards and downwards producing the thickening of the circumference and a circular annular depression. (Bottom-right) As this behavior continues, the fluid from the depressed annular region also flows toward the center producing a central bump. (Bottom-left) Finally, the central bump is squeezed thereby pumping fluid back to the circumference and leading to the central flat pinching shape depicted in the last frame.
+References
+[1] R.A. Adams, J.J.F. Fournier. Sobolev spaces. Pure and Applied Mathematics, second edition, Amsterdam, 2003.
+[2] E. B ̈ansch. Finite element discretization of the Navier-Stokes equations with a free capillary surface. Numer. Math., 88 (2001), No. 2, 203–235.
+[3] E. B ̈ansch, P. Morin, R.H. Nochetto. A finite element method for surface diffusion: the parametric case. J. Comput. Phys., 203 (2005), No. 1, 321–343.
+40
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+Figure 6: Comparison of the evolution of an initial axisymmetric ellipsoid of aspect ratio 5x5x1 subject to a geometric, a LI flow and a HI flow. Top: 2D cuts through a symmetry plane, on the left we see the similar final equilibrium shape of the geometric and LI flows. On the right we observe the different final shape obtained for the geometric equilibrium and the HI flow. Below: graph of the bending energy for the geometric and the HI fluid. At about t = 2 it can be observed that a local minimum corresponding more or less to the minimum of the geometric flow was reached. However, the HI flow overpasses this equilibrium leading to a much flatter and thinner shape in the center.
+[4] J.W. Barrett, H. Garcke, R. N ̈urnberg. Parametric approximation of Willmore flow and related geometric evolution equations. SIAM J. Sci. Comput., 31 (2008), No. 1, 225–253.
+[5] A. Bonito, R. H. Nochetto, M. S. Pauletti. Geometrically consistent mesh modification. SIAM J. Numer. Anal., 48 (2010), No. 5, 1877–1899.
+[6] A. Bonito, R.H. Nochetto, M.S. Pauletti. Parametric fem for geometric biomembranes. J. Comput. Phys., 229 (2010), No. 9, 3171 – 3188.
+[7] P.B. Canham. The minimum energy of bending as a possible explanation of the biconcave shape of the human red blood cell. Journal of Theoretical Biology, 26 (1970), No. 1, 61–81.
+[8] P.G. Ciarlet, J.-L. Lions, editors. Finite element methods. Part 1. Handbook of numerical analysis, 2, North-Holland, Amsterdam, 1991.
+41
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+[9] U. Clarenz, U. Diewald, G. Dziuk, M. Rumpf, R. Rusu. A finite element method for surface restoration with smooth boundary conditions. Comput. Aided Geom. Design, 21 (2004), No. 5, 427–445.
+[10] T.A. Davis. Algorithm 832: UMFPACK V4.3—an unsymmetric-pattern multifrontal method. ACM Trans. Math. Software, 30 (2004), No. 2, 196–199.
+[11] K. Deckelnick, G. Dziuk. Error analysis of a finite element method for the Willmore flow of graphs. Interfaces Free Bound., 8 (2006), No. 1, 21–46.
+[12] K. Deckelnick, G. Dziuk, C.M. Elliott. Computation of geometric partial differential equations and mean curvature flow. Acta Numer., 14 (2005), 139–232.
+[13] M.C. Delfour, J.-P. Zole ́sio. Shapes and geometries. Advances in Design and Control, Society for Industrial and Applied Mathematics, Philadelphia, PA, 2001.
+[14] A. Demlow. Higher-order finite element methods and pointwise error estimates for elliptic problems on surfaces. SIAM J. Numer. Anal., 47 (2009), No. 2, 805–827.
+[15] G. Doˇgan, P. Morin, R.H. Nochetto, M. Verani. Discrete gradient flows for shape optimization and applications. Comput. Methods Appl. Mech. Engrg., 196 (2007), No. 37-40, 3898–3914.
+[16] M. Droske, M. Rumpf. A level set formulation for Willmore flow. Interfaces Free Bound., 6 (2004), No. 3, 361–378.
+[17] Q. Du, C. Liu, X. Wang. A phase field approach in the numerical study of the elastic bending energy for vesicle membranes. J. Comput. Phys., 198 (2004), No. 2, 450–468.
+[18] Q. Du, C. Liu, X. Wang. Simulating the deformation of vesicle membranes under elastic bending energy in three dimensions. J. Comput. Phys., 212 (2006), No. 2, 757–777.
+[19] Q. Du, Ch. Liu, R. Ryham, X. Wang. Energetic variational approaches in modeling vesicle and fluid interactions. Physica D, 238 (2009), No. 9-10, 923–930.
+[20] G. Dziuk. An algorithm for evolutionary surfaces. Numer. Math., 58 (1991), No. 6, 603–611.
+[21] G. Dziuk. Computational parametric willmore flow. Numer. Math., 111 (2008), No. 1, 55–80.
+[22] S. Esedoglu, S.J. Ruuth, R. Tsai. Threshold dynamics for high order geometric motions. Interfaces Free Bound., 10 (2008), No. 3, 263–282.
+[23] E.A. Evans, R. Skalak. Mechanics and thermodynamics of biomembranes .2. CRC Critical reviews in bioengineering, 3 (1979), No. 4, 331–418.
+[24] M. Giaquinta, S. Hildebrandt. Calculus of variations. I, Grundlehren der Mathematischen Wissenschaften [Fundamental Principles of Mathematical Sciences], 310, Springer-Verlag, Berlin, 1996.
+42
+
+
+A. Bonito, R.H. Nochetto, and M.S. Pauletti Dynamics of Biomembranes
+[25] W. Helfrich. Elastic properties of lipid bilayers - theory and possible experiments. Zeitschrift Fur Naturforschung C-A Journal Of Biosciences, 28 (1973), 693.
+[26] D. Hu, P. Zhang, W. E. Continuum theory of a moving membrane. Phys. Rev. E (3), 75 (2007), No. 4, 11.
+[27] J.T. Jenkins. The equations of mechanical equilibrium of a model membrane. SIAM J. Appl. Math., 32 (1977), No. 4, 755–764.
+[28] D. K ̈oster, O. Kriessl, K.G. Siebert. Design of finite element tools for coupled surface and volume meshes. Numer. Math. Theor. Meth. Appl., 1 (2008), No. 3, 245–274.
+[29] W. Losert. Personal communication, 2009.
+[30] M.S. Pauletti. Parametric AFEM for geometric evolution equation and coupled fluidmembrane interaction. Thesis (Ph.D.)–University of Maryland, College Park, 2008.
+[31] R.E. Rusu. An algorithm for the elastic flow of surfaces. Interfaces Free Bound., 7 (2005), No. 3, 229–239.
+[32] A. Schmidt, K.G. Siebert. Design of adaptive finite element software: The finite element toolbox ALBERTA, Lecture Notes in Computational Science and Engineering, 42, SpringerVerlag, Berlin, 2005.
+[33] U. Seifert. Configurations of fluid membranes and vesicles. Advances in Physics, 46 (1997), No. 1, 13–137.
+[34] D.J. Steigmann. Fluid films with curvature elasticity. Arch. Ration. Mech. Anal., 150 (1999), No. 2, 127–152.
+[35] D.J Steigmann, E. Baesu, R.E. Rudd, J. Belak, M. McElfresh. On the variational theory of cell-membrane equilibria. Interfaces Free Bound., 5 (2003), No. 4, 357–366.
+[36] R. Temam. Navier-Stokes equations. Theory and numerical analysis. North-Holland Publishing Co., Amsterdam, 1977.
+43
