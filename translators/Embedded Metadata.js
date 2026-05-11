@@ -1,15 +1,15 @@
 {
 	"translatorID": "951c027d-74ac-47d4-a107-9c3069ab7b48",
-	"translatorType": 4,
 	"label": "Embedded Metadata",
 	"creator": "Simon Kornblith and Avram Lyon",
-	"target": null,
+	"target": "",
 	"minVersion": "3.0.4",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 320,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-10-14 17:35:00"
+	"lastUpdated": "2026-04-27 15:11:51"
 }
 
 /*
@@ -327,7 +327,9 @@ function init(doc, url, callback, forceLoadRDF) {
 	}
 
 	// WordPress indicators:
-	if (doc.getElementById("wp-block-library-css") || doc.getElementsByClassName("yoast-schema-graph").length) {
+	if (doc.getElementById("wp-block-library-css")
+			|| doc.getElementById("wp-block-library-inline-css")
+			|| doc.getElementsByClassName("yoast-schema-graph").length) {
 		heuristicType = "blogPost";
 	}
 
@@ -1962,6 +1964,38 @@ var testCases = [
 				"date": "2023-05-15",
 				"language": "en-US",
 				"url": "https://optimization-online.org/2023/05/maximum-likelihood-probability-measures-over-sets-and-applications-to-data-driven-optimization/",
+				"attachments": [
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://acoup.blog/2026/04/10/collections-raising-carthaginian-armies-part-i-finding-carthaginians/",
+		"items": [
+			{
+				"itemType": "blogPost",
+				"title": "Collections: Raising Carthaginian Armies, Part I: Finding Carthaginians",
+				"creators": [
+					{
+						"firstName": "Bret",
+						"lastName": "Devereaux",
+						"creatorType": "author"
+					}
+				],
+				"date": "2026-04-10T23:14:43+00:00",
+				"abstractNote": "This is the first part of a series looking at the structure of the Carthaginian army. Although Carthage has an (unfair!) reputation for being a country of “peaceful merchants who tended to av…",
+				"blogTitle": "A Collection of Unmitigated Pedantry",
+				"language": "en-US",
+				"shortTitle": "Collections",
+				"url": "https://acoup.blog/2026/04/10/collections-raising-carthaginian-armies-part-i-finding-carthaginians/",
 				"attachments": [
 					{
 						"title": "Snapshot",

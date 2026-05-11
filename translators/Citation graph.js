@@ -16,13 +16,13 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "4b302463f644956262956bf839664d989b52f9433498789cb5cdc8a71c9c81ab"
+		"hash": "512ca36eb24a9746b90074e880ada8bc0b1b26355572f9a4656e5dd1e5f935d2"
 	},
 	"priority": 100,
-	"lastUpdated": "2026-02-17"
+	"lastUpdated": "2026-04-30"
 }
 
-if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = undefined
+if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
 
         if (typeof ZOTERO_TRANSLATOR_INFO === 'undefined') var ZOTERO_TRANSLATOR_INFO = {}; // declare if not declared
         Object.assign(ZOTERO_TRANSLATOR_INFO, {"translatorID":"19afa3fd-1c7f-4eb8-a37e-8d07768493e8","label":"Citation graph","description":"exports a citation graph in graphml format. Use gephi or yEd to clean up and visualize","creator":"Emiliano heyns","target":"dot","minVersion":"4.0.27","maxVersion":"","translatorType":2,"browserSupport":"gcsv","inRepository":false,"displayOptions":{"Title":false,"Authors":false,"Year":false},"configOptions":{"getCollections":true},"priority":100}); // assign new data
@@ -1166,8 +1166,6 @@ var { doExport } = (() => {
     autoExportPathReplaceDirSep: "-",
     autoExportPathReplaceSpace: " ",
     automaticTags: true,
-    autoPinDelay: 0,
-    autoPinOverwrite: false,
     auxImport: false,
     baseAttachmentPath: "",
     biblatexExtendedDateFormat: true,
@@ -1198,6 +1196,7 @@ var { doExport } = (() => {
     extraMergeCitekeys: false,
     extraMergeCSL: false,
     extraMergeTeX: false,
+    fillKeyAfter: 2,
     git: "config",
     import: true,
     importBibTeXStrings: true,
@@ -1217,7 +1216,7 @@ var { doExport } = (() => {
     japanese: false,
     keyScope: "library",
     language: "langid",
-    logEvents: true,
+    logEvents: false,
     mapMath: "",
     mapText: "",
     packages: "",
@@ -1236,6 +1235,8 @@ var { doExport } = (() => {
     rawImports: false,
     rawLaTag: "#LaTeX",
     relativeFilePaths: false,
+    remigrate: false,
+    resetKeyOnChange: false,
     scrubDatabase: false,
     separatorList: "and",
     separatorNames: "and",
@@ -1394,7 +1395,7 @@ var { doExport } = (() => {
     },
     "quickCopyMode": {
       "latex": "LaTeX citation",
-      "citekeys": "Cite Keys",
+      "citekeys": "Citation Keys",
       "eta": "Eta template",
       "gitbook": "GitBook",
       "orgRef": "org-ref citation",
@@ -1402,11 +1403,11 @@ var { doExport } = (() => {
       "orgcite": "Org-mode citation link",
       "orgmode": "Org-mode select link",
       "pandoc": "Pandoc citation",
-      "roamCiteKey": "Roam Cite Key",
+      "roamCiteKey": "Roam Citation Key",
       "rtfScan": "RTF Scan marker",
       "selectlink": "Zotero select link",
       "jupyter": "Jupyter notebook",
-      "jekyll": "Jekyll cite"
+      "jekyll": "Jekyll"
     },
     "quickCopyOrgMode": {
       "zotero": "using Zotero item key",
@@ -1481,6 +1482,7 @@ var { doExport } = (() => {
         this.registerCollection(collection, "");
       }
     }
+    items;
     byKey = {};
     erase() {
       this.byKey = {};
@@ -1553,6 +1555,7 @@ var { doExport } = (() => {
       this.preferences.testing = Zotero.getHiddenPref("better-bibtex.testing");
       this.platform = Zotero.getHiddenPref("better-bibtex.platform");
     }
+    translator;
     input = "";
     items;
     collections;
@@ -1612,26 +1615,30 @@ ${obj.stack}]`;
   function replacer() {
     const seen = /* @__PURE__ */ new WeakSet();
     return (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) return "[Circular]";
-        seen.add(value);
+      try {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) return "[Circular]";
+          seen.add(value);
+        }
+        if (value === null) return value;
+        if (value instanceof Set) return [...value];
+        if (value instanceof Map) return Object.fromEntries(value);
+        if (value instanceof RegExp) return value.source;
+        if (Array.isArray(value)) return value;
+        switch (typeof value) {
+          case "string":
+          case "number":
+          case "boolean":
+          case "function":
+          case "undefined":
+            return value;
+          case "object":
+            return stringifyXPCOM(value) || stringifyError(value) || value;
+        }
+        if (value.openDialog || value.querySelector) return value.toString();
+      } catch (err) {
+        return `{error: ${err.message}}`;
       }
-      if (value === null) return value;
-      if (value instanceof Set) return [...value];
-      if (value instanceof Map) return Object.fromEntries(value);
-      if (value instanceof RegExp) return value.source;
-      if (Array.isArray(value)) return value;
-      switch (typeof value) {
-        case "string":
-        case "number":
-        case "boolean":
-        case "function":
-        case "undefined":
-          return value;
-        case "object":
-          return stringifyXPCOM(value) || stringifyError(value) || value;
-      }
-      if (value.openDialog || value.querySelector) return value.toString();
       return "{object}";
     };
   }
@@ -1657,11 +1664,11 @@ ${obj.stack}]`;
     }
     info(...msg) {
       Zotero.debug(`${this.#prefix()}${format(...msg)}
-`);
+`, 1);
     }
     error(...msg) {
       Zotero.debug(`${this.#prefix(true)}${format(...msg)}
-`);
+`, 1);
     }
     dump(msg, error) {
       if (error) {
@@ -1753,6 +1760,7 @@ ${e.stack}
       this.exportPath = this.collected.displayOptions.exportPath;
       this.exportDir = this.collected.displayOptions.exportDir;
     }
+    collected;
     orig;
     exportPath;
     exportDir;
@@ -1851,6 +1859,8 @@ ${e.stack}
       if (!this.verbatimFields.length) this.verbatimFields = null;
       this.csquotes = this.collected.preferences.csquotes ? { open: this.collected.preferences.csquotes[0], close: this.collected.preferences.csquotes[1] } : null;
     }
+    collected;
+    mode;
     importToExtra;
     skipFields;
     skipField;

@@ -1,0 +1,219 @@
+1 Temporal discretization of Navier Stokes equations
+Incompressible Newtonian viscous flows are governed by the Navier-Stokes equations
+∂u
+∂t + (u · ∇)u = ν∇2u − ∇p + f , (1)
+∇ · u = 0, (2)
+where u, p, ν and f are the velocity vector, pressure (divided by density), kinematic viscosity and body forces respectively. In three dimensional space and time there are four equations (3 momentum, one continuity) and four unknowns (3 velocity components and 1 pressure). The system of equations may be solved sequentially or all at the same time. Either way, the equations need to be discretized in both space and time. Here we will only consider methods for discretization in time. The methods will be applicable for any spatial discretization - e.g., finite volume/element/difference. We discretize time, t = [0, T ], into equal intervals 4t = T /N , such that t = k4t, where k = 0, 1, ..., N . The velocity vector and pressure at time step k are denoted as uk and pk respectively. The velocity vector must be specified at t = 0. There are of course several possible discretizations in time, but here we will consider two that are second order accurate in time.
+1.1 Backwards differencing schemes
+Backwards differencing schemes approximate all terms in the momentum equation at k + 1
+(∂u ∂t
+)k+1
++ [(u · ∇)u]k+1 = ν∇2uk+1 − ∇pk+1, (3)
+∇ · uk+1 = 0. (4)
+Here the linear viscous term, the pressure gradient and the velocity divergence constraint are already discretized on time step k + 1 and requires no further attention. The first two terms in the momentum equation, though, must be discretized in time. A generic q’th order backwards differencing scheme for the transient term can then be written as
+(∂u ∂t
+)k+1
+4t = Dq
+t uk+1 = βquk+1 +
+q−1
+∑
+j=0
+βj uk−j , (5)
+where, for example,
+D1
+t uk+1 = uk+1 − uk, (6)
+D2
+t uk+1 = 1
+2
+(3uk+1 − 4uk + uk−1) . (7)
+(8)
+The coefficients, β, may be found using Taylor expansions. Such expansions will show that the second approximation, Dt2, is second order accurate in time. The convection term is nonlinear, which calls for linearizations if the term is to be included implicitly. We use notation uk+1
+_ for an explicit approximation of velocity, i.e.,
+uk+1
+_=
+q
+∑
+j=0
+γj uk−j , (9)
+for an approximation using q previous velocities. The γj’s are constant coefficients. For example, we may have a second order accurate approximation of the velocity at t = (k + 1)4t using the
+velocities uk and uk−1
+uk+1
+_ = 2uk − uk−1 + O(4t2). (10)
+1
+
+
+The convection term may as such be written in a linearized, implicit and second order accurate form as [(u · ∇)u]k+1 = ((2uk − uk−1) · ∇) uk+1, (11)
+and a second order accurate scheme in time for the Navier-Stokes equations can then be written as
+1 24t
+(3uk+1 − 4uk + uk−1) + ((2uk − uk−1) · ∇) uk+1 = ν∇2uk+1 − ∇pk+1, (12)
+∇ · uk+1 = 0. (13)
+Note that to compute the solution at u1 the scheme requires the solution to be initialized on two time steps, u−1 and u0. This is usually not possible except for a few problems where we are able to start from an analytical solution. Bottom line we have to initialize using u−1 = u0. Furthermore, the transient derivative should be modified on the first time step by using 34t instead of 24t in the denominator. We may also use iterations on the first time step, where the convective velocity is the latest approximation to uk+1. Starting from rest, iterations are actually required for the convective term to be taken into acount on the first time step, since u0 = u−1 = 0.
+1.2 Crank-Nicolson scheme
+A midpoint Crank-Nicolson scheme may similarily to (3-4) be written as
+(∂u ∂t
+)k+1/2
++ [(u · ∇)u]k+1/2 = ν∇2uk+1/2 − ∇pk+1/2, (14)
+∇ · uk+1 = 0, (15)
+where k + 1/2 is used to donate a time discretization midway between k and k + 1. A two-step second order central scheme may the be used for the temporal derivative
+(∂u ∂t
+)k+1/2
+= uk+1 − uk
+4t + O(4t2). (16)
+Similarily, an implicit approximation to the velocity at k + 1/2 is
+uk+1/2 = uk+1 + uk
+2 + O(4t2). (17)
+The convective term may thus be written as
+[(u · ∇)u]k+1/2 = (uk+1/2
+_ · ∇)uk+1/2, (18)
+where the explicit (only known velocities allowed) convecting velocity uk+1/2
+_ needs to be approximated at time k + 1/2. To this end we may use a second order accurate Adams-Bashforth projection
+uk+1/2
+_ =3
+2 uk − 1
+2 uk−1 + O(4t2). (19)
+Using this Crank-Nicolson scheme the pressure will naturally find its place at the midpoint between k and k + 1. Hence, we will be solving for pressure directly at pk+1/2, and not pk. In other words, the pressure and velocity will be staggered in time. The final scheme reads
+1 4t
+(uk+1 − uk) +
+(
+(3
+2 uk − 1
+2 uk−1) · ∇
+)
+uk+1/2 = ν∇2uk+1/2 − ∇pk+1/2, (20)
+∇ · uk+1 = 0. (21)
+2
+
+
+Note that, like for the BDF scheme, the velocity is required to be initialized on two time steps. Unlike the BDF scheme, though, no modifications are strictly necessary on the first time step since the convection term simply will degrade to the first order accurate
+(u0 · ∇) u1/2. (22)
+Alternatively, iterations may be used for the first time step, where the latest known approximation from an explicit midpoint rule (17) is used in computing the convecting velocity
+(
+u1/2
+_ ·∇
+)
+u1/2. (23)
+2 Projection/splitting methods
+The system of equations (12-13) or (20-21) may be solved all at once (brute force) by setting up a large single coefficient matrix and solving for velocity and pressure simultaneously. This is referred to as a coupled solver. Coupled solvers are known to be robust, stable, and with exact treatment of the implicit coupling between pressure and velocity. Unfortunately, though, coupled solvers demand much computer memory and iterative methods for solving the large coupled system are not very efficient. For large scale applications we often have to resort to segregated methods where the velocity and pressure coupling is split up and we are solving for velocity and pressure sequentially, often in an iterative fashion. In this section we consider projection methods that may or may not be used with iteration over the pressure and velocity. Note that SIMPLE and PISO are segregated pressure-velocity coupling schemes tailored for finite volume methods.
+2.1 Non-incremental pressure correction scheme
+We consider the following two steps for solving Eqs (12-13) in a computational domain bounded by the wall Γ
+I: 1
+24t
+(3u∗ − 4uk + uk−1) + (uk+1
+_ · ∇) u∗ = ν∇2u∗, u∗|Γ = 0 (24)
+II:
+{1 24t
+(3uk+1 − 3u∗) = −∇pk+1,
+∇ · uk+1 = 0, uk+1 · n|Γ = 0 (25)
+Here I represents a step where it is solved for a tentative velocity vector u∗ with no-slip on the boundary. The pressure takes no part in the first step. The second step makes a correction for velocity using the pressure gradient. The second step is implemented by taking the divergence of the correction and using the divergence free condition. This leads to the following equation to be solved for pk+1
+∇2pk+1 = 3
+24t ∇ · u∗, ∇pk+1 · n|Γ = 0, (26)
+followed by velocity being updated as
+uk+1 = u∗ − 24t
+3 ∇pk+1. (27)
+Note that velocity update is performed without boundary conditions and as such it is only ensured that uk+1 · n = 0 and in principle one may obtain non-zero velocities on Γ. For this reason boundary conditions are often enforced also after the velocity update, which is a slight inconsistency with the formulation in (24 and 25). The sum of the two steps (24 and 25) is
+1 24t
+(3uk+1 − 4uk + uk−1) + (uk+1
+_ · ∇) u∗ = ν∇2u∗ − ∇pk+1, (28)
+3
+
+
+and we see that the scheme is sub-optimal in that the tentative velocity has been used instead of uk+1 in both convection and diffusion. This is a direct consequence of the splitting, and for the current scheme the splitting error is of order O(4t). In other words, our originally second order temporal discretization error has been degraded to first order because of the splitting.
+2.2 Incremental pressure correction scheme
+We may improve the splitting error by including the pressure gradient in the tentative velocity step. Consider the incremental pressure correction scheme (IPCS)
+I: 1
+24t
+(3u∗ − 4uk + uk−1) + (uk+1
+_ · ∇) u∗ = ν∇2u∗ − ∇pk, u∗|Γ = 0 (29)
+II:
+{1 24t
+(3uk+1 − 3u∗) = −∇φk+1,
+∇ · uk+1 = 0, uk+1 · n|Γ = 0 (30)
+III: pk+1 = pk + φk+1, (31)
+where φk+1 is a pressure correction. Summing the two steps again leads to Eq. (28), so apparently there is no obvious improvement. However, the tentative velocity step is closer to the optimal, and as such the tentative velocity u∗ is closer two the final uk+1 and thus the convective and diffusive terms are closer to the optimal (where uk+1 is used instead of u∗). It may be shown that the splitting error is now second order accurate in time, which is the same as the temporal discretization. Another feature of IPCS is that, since the pressure is included in the tentative velocity step, the scheme can be used iteratively. With a slight modification of the pressure the scheme can be written
+I: 1
+24t
+(3u∗ − 4uk + uk−1) + (uk+1
+_ · ∇) u∗ = ν∇2u∗ − ∇p∗, u∗|Γ = 0 (32)
+II:
+{1 24t
+(3uk+1 − 3u∗) = −∇φk+1,
+∇ · uk+1 = 0, uk+1 · n|Γ = 0 (33)
+III: pk+1 = p∗ + φk+1. (34)
+The iterative algorithm is shown in Algorithm (1). Note that it is only the pressure gradient that changes in Eq. (32) and as such the coefficient matrix of the linear algebra system only needs to be assembled on the first iteration.
+2.3 Incremental pressure correction in rotational form
+The incremental pressure correction scheme in rotational form (IPCSR) may be formulated as
+I: 1
+24t
+(3u∗ − 4uk + uk−1) + (uk+1
+_ · ∇) u∗ = ν∇2u∗ − ∇p∗, u∗|Γ = 0 (35)
+II:
+{1 24t
+(3uk+1 − 3u∗) = −∇φk+1,
+∇ · uk+1 = 0, uk+1 · n|Γ = 0, (36)
+III: pk+1 = p∗ + φk+1 − ν∇ · u∗. (37)
+The only difference from IPCS is the velocity update. The reason for making this slight modification is the vector identity
+∇2u = ∇(∇ · u) − ∇ × ∇ × u, (38)
+and the observation that (by taking the curl of (36))
+∇ × ∇ × uk+1 = ∇ × ∇ × u∗. (39)
+4
+
+
+Algorithm 1 Iterative incremental pressure correction
+1: Initialize u0, u−1, p0, k = 0, t = 0 2: while t < T do 3: t ← t + 4t 4: k ← k + 1 5: p∗ ← pk
+6: while error > tol do 7: Solve Eq. (32) for u∗ 8: Solve Eq. (33) for φk+1 9: Update pk+1 and uk+1 10: p∗ ← pk+1
+11: error ← ‖uk+1 − u∗‖ 12: end while 13: uk−1 ← uk 14: uk ← uk+1 15: pk ← pk+1 16: end while
+The sum of the three steps now leads to
+1 24t
+(3uk+1 − 4uk + uk−1) + (uk+1
+_ · ∇) u∗ = −ν∇ × ∇ × uk+1 − ∇pk+1, (40)
+and the only splitting error is found in the convective term. An argument for the IPCSR is that the boundary condition for the pressure at a solid wall is ∇pk+1 · n|Γ = −ν∇ × ∇ × uk+1 · n|Γ, which, unlike ∇pk+1 · n|Γ = 0, is a consistent boundary condition for pressure.
+2.4 Non-incremental velocity correction scheme
+Velocity correction schemes switches the order and computes the pressure first in a projection step, and then subsequently the momentum equation. A first order in time non-incremental velocity correction scheme is given as
+I:
+{1 4t
+(u∗ − uk) = −∇pk+1,
+∇ · u∗ = 0, u∗ · n|Γ = 0 (41)
+II: 1
+4t
+(uk+1 − u∗) + (uk+1
+_ · ∇) uk+1 = ν∇2uk+1, uk+1|Γ = 0. (42)
+Note that only the intermediate u∗ and not the end-of-step velocity uk+1 is divergence-free. The implementation of the first step becomes
+∇2pk+1 = 1
+4t ∇ · uk, ∇pk+1 · n|Γ = 0, (43)
+with velocity update u∗ = uk − 4t∇pk+1. (44)
+Note that the intermediate velocity may be used for the explicit convecting velocity to get a different model, e.g., uk+1
+_ = u∗. The sum of the two steps is
+1 4t
+(uk+1 − uk) + (uk+1
+_ · ∇) uk+1 = ν∇2uk+1 − ∇pk+1, (45)
+with no visible splitting error. However, remember that uk+1 is not divergence free and the pressure is computed only from uk.
+5
+
+
+2.5 Incremental velocity correction scheme
+Better accuracy may be obtained with an incremental velocity correction scheme, where diffusion is included in the computation of the pressure:
+I:
+{1 24t
+(3u∗ − 4uk + uk−1) = ν∇2uk+1
+_ − ∇pk+1,
+∇ · u∗ = 0, u∗ · n|Γ = 0 (46)
+II: 1
+24t
+(3uk+1 − 3u∗) + (uk+1
+_ · ∇) uk+1 = ν∇2(uk+1 − uk+1
+_ ), uk+1|Γ = 0. (47)
+Here uk+1
+_ is an explicit representation of velocity, e.g., by (9). Since uk is not divergence free the implementation of the first step becomes
+∇2pk+1 = − 1
+24t
+(−4∇ · uk + 3∇ · uk−1) + ν∇2(∇ · uk+1
+_ ), (48)
+with velocity updated through
+u∗ = 4
+3 uk − 1
+3 uk−1 + 2ν4t
+3 ∇2uk+1
+_ − 24t
+3 ∇pk+1. (49)
+The sum of the two steps is the same as for the non-incremental scheme, but accuracy is second order in time.
+6

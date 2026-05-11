@@ -13,16 +13,16 @@
 	"configOptions": {
 		"getCollections": true,
 		"cached": true,
-		"hash": "94db544d6a1f6d73854f570e15793a114cee1da9f01e292638bc92719fdf5aa0"
+		"hash": "204088011bc79695e171d6951969e4ed1b538ef9cccde57f6cee81043eea3d52"
 	},
 	"translatorType": 3,
 	"browserSupport": "gcsv",
 	"priority": 800,
 	"inRepository": false,
-	"lastUpdated": "2026-02-17"
+	"lastUpdated": "2026-04-30"
 }
 
-if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = undefined
+if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
 
         if (typeof ZOTERO_TRANSLATOR_INFO === 'undefined') var ZOTERO_TRANSLATOR_INFO = {}; // declare if not declared
         Object.assign(ZOTERO_TRANSLATOR_INFO, {"translatorID":"0f238e69-043e-4882-93bf-342de007de19","label":"Better CSL YAML","description":"exports items in pandoc-compatible CSL-YAML format, with added citation keys and parsing of metadata","creator":"Emiliano heyns","target":"yaml","minVersion":"4.0.27","maxVersion":"","displayOptions":{"keepUpdated":false,"worker":true},"configOptions":{"getCollections":true,"cached":true},"translatorType":3,"browserSupport":"gcsv","priority":800,"inRepository":false}); // assign new data
@@ -274,8 +274,6 @@ var { detectImport, doExport, doImport } = (() => {
     autoExportPathReplaceDirSep: "-",
     autoExportPathReplaceSpace: " ",
     automaticTags: true,
-    autoPinDelay: 0,
-    autoPinOverwrite: false,
     auxImport: false,
     baseAttachmentPath: "",
     biblatexExtendedDateFormat: true,
@@ -306,6 +304,7 @@ var { detectImport, doExport, doImport } = (() => {
     extraMergeCitekeys: false,
     extraMergeCSL: false,
     extraMergeTeX: false,
+    fillKeyAfter: 2,
     git: "config",
     import: true,
     importBibTeXStrings: true,
@@ -325,7 +324,7 @@ var { detectImport, doExport, doImport } = (() => {
     japanese: false,
     keyScope: "library",
     language: "langid",
-    logEvents: true,
+    logEvents: false,
     mapMath: "",
     mapText: "",
     packages: "",
@@ -344,6 +343,8 @@ var { detectImport, doExport, doImport } = (() => {
     rawImports: false,
     rawLaTag: "#LaTeX",
     relativeFilePaths: false,
+    remigrate: false,
+    resetKeyOnChange: false,
     scrubDatabase: false,
     separatorList: "and",
     separatorNames: "and",
@@ -421,6 +422,7 @@ var { detectImport, doExport, doImport } = (() => {
         this.registerCollection(collection, "");
       }
     }
+    items;
     byKey = {};
     erase() {
       this.byKey = {};
@@ -493,6 +495,7 @@ var { detectImport, doExport, doImport } = (() => {
       this.preferences.testing = Zotero.getHiddenPref("better-bibtex.testing");
       this.platform = Zotero.getHiddenPref("better-bibtex.platform");
     }
+    translator;
     input = "";
     items;
     collections;

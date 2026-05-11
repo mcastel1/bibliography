@@ -11,7 +11,7 @@
 	"configOptions": {
 		"getCollections": true,
 		"cached": true,
-		"hash": "4644faa4792992eb245a165aed9d13cfd2508b826830ccedaf8f3be4ad043374"
+		"hash": "17d8e553d1d8bc720ae1dd2c5b493d702ab34928c4f75cd4e8112a26386a15cc"
 	},
 	"displayOptions": {
 		"exportNotes": false,
@@ -24,10 +24,10 @@
 	},
 	"priority": 50,
 	"inRepository": false,
-	"lastUpdated": "2026-02-17"
+	"lastUpdated": "2026-04-30"
 }
 
-if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = undefined
+if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
 
         if (typeof ZOTERO_TRANSLATOR_INFO === 'undefined') var ZOTERO_TRANSLATOR_INFO = {}; // declare if not declared
         Object.assign(ZOTERO_TRANSLATOR_INFO, {"translatorID":"f895aa0d-f28e-47fe-b247-2ea77c6ed583","translatorType":2,"label":"Better BibLaTeX","description":"exports items in BibLaTeX format","creator":"Simon Kornblith, Richard Karnesky, Anders Johansson and Emiliano Heyns","target":"bib","minVersion":"4.0.27","maxVersion":"","browserSupport":"gcsv","configOptions":{"getCollections":true,"cached":true},"displayOptions":{"exportNotes":false,"exportFileData":false,"useJournalAbbreviation":false,"biblatexAPA":false,"biblatexChicago":false,"keepUpdated":false,"worker":true},"priority":50,"inRepository":false}); // assign new data
@@ -277,8 +277,6 @@ var { doExport } = (() => {
     autoExportPathReplaceDirSep: "-",
     autoExportPathReplaceSpace: " ",
     automaticTags: true,
-    autoPinDelay: 0,
-    autoPinOverwrite: false,
     auxImport: false,
     baseAttachmentPath: "",
     biblatexExtendedDateFormat: true,
@@ -309,6 +307,7 @@ var { doExport } = (() => {
     extraMergeCitekeys: false,
     extraMergeCSL: false,
     extraMergeTeX: false,
+    fillKeyAfter: 2,
     git: "config",
     import: true,
     importBibTeXStrings: true,
@@ -328,7 +327,7 @@ var { doExport } = (() => {
     japanese: false,
     keyScope: "library",
     language: "langid",
-    logEvents: true,
+    logEvents: false,
     mapMath: "",
     mapText: "",
     packages: "",
@@ -347,6 +346,8 @@ var { doExport } = (() => {
     rawImports: false,
     rawLaTag: "#LaTeX",
     relativeFilePaths: false,
+    remigrate: false,
+    resetKeyOnChange: false,
     scrubDatabase: false,
     separatorList: "and",
     separatorNames: "and",
@@ -424,6 +425,7 @@ var { doExport } = (() => {
         this.registerCollection(collection, "");
       }
     }
+    items;
     byKey = {};
     erase() {
       this.byKey = {};
@@ -496,6 +498,7 @@ var { doExport } = (() => {
       this.preferences.testing = Zotero.getHiddenPref("better-bibtex.testing");
       this.platform = Zotero.getHiddenPref("better-bibtex.platform");
     }
+    translator;
     input = "";
     items;
     collections;
