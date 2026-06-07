@@ -1,15 +1,15 @@
 {
 	"translatorID": "f3f092bf-ae09-4be6-8855-a22ddd817925",
-	"translatorType": 4,
 	"label": "ACM Digital Library",
 	"creator": "Guy Aglionby",
 	"target": "^https://dl\\.acm\\.org/(doi|do|profile|toc|topic|keyword|action/doSearch|acmbooks|browse)",
 	"minVersion": "3.0",
-	"maxVersion": null,
+	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
+	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-01-07 17:55:00"
+	"lastUpdated": "2026-03-09 12:52:09"
 }
 
 /*
@@ -184,7 +184,7 @@ async function scrape(doc) {
 	
 	if (item.itemType == 'journalArticle') {
 		// Publication name in the CSL is shortened; scrape from page to get full title.
-		let expandedTitle = text(doc, 'span.epub-section__title');
+		let expandedTitle = attr(doc, 'meta[name="citation_journal_title"]', 'content');
 		if (expandedTitle) {
 			item.journalAbbreviation = item.publicationTitle;
 			item.publicationTitle = expandedTitle;

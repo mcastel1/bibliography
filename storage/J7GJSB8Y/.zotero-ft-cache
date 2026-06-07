@@ -42,7 +42,7 @@ _ = 2uk − uk−1 + O(4t2). (10)
 1
 
 
-The convection term may as such be written in a linearized, implicit and second order accurate form as [(u · ∇)u]k+1 = ((2uk − uk−1) · ∇) uk+1, (11)
+ The convection term may as such be written in a linearized, implicit and second order accurate form as [(u · ∇)u]k+1 = ((2uk − uk−1) · ∇) uk+1, (11)
 and a second order accurate scheme in time for the Navier-Stokes equations can then be written as
 1 24t
 (3uk+1 − 4uk + uk−1) + ((2uk − uk−1) · ∇) uk+1 = ν∇2uk+1 − ∇pk+1, (12)
@@ -84,7 +84,7 @@ uk+1/2 = ν∇2uk+1/2 − ∇pk+1/2, (20)
 2
 
 
-Note that, like for the BDF scheme, the velocity is required to be initialized on two time steps. Unlike the BDF scheme, though, no modifications are strictly necessary on the first time step since the convection term simply will degrade to the first order accurate
+ Note that, like for the BDF scheme, the velocity is required to be initialized on two time steps. Unlike the BDF scheme, though, no modifications are strictly necessary on the first time step since the convection term simply will degrade to the first order accurate
 (u0 · ∇) u1/2. (22)
 Alternatively, iterations may be used for the first time step, where the latest known approximation from an explicit midpoint rule (17) is used in computing the convecting velocity
 (
@@ -117,7 +117,7 @@ _ · ∇) u∗ = ν∇2u∗ − ∇pk+1, (28)
 3
 
 
-and we see that the scheme is sub-optimal in that the tentative velocity has been used instead of uk+1 in both convection and diffusion. This is a direct consequence of the splitting, and for the current scheme the splitting error is of order O(4t). In other words, our originally second order temporal discretization error has been degraded to first order because of the splitting.
+ and we see that the scheme is sub-optimal in that the tentative velocity has been used instead of uk+1 in both convection and diffusion. This is a direct consequence of the splitting, and for the current scheme the splitting error is of order O(4t). In other words, our originally second order temporal discretization error has been degraded to first order because of the splitting.
 2.2 Incremental pressure correction scheme
 We may improve the splitting error by including the pressure gradient in the tentative velocity step. Consider the incremental pressure correction scheme (IPCS)
 I: 1
@@ -158,7 +158,7 @@ and the observation that (by taking the curl of (36))
 4
 
 
-Algorithm 1 Iterative incremental pressure correction
+ Algorithm 1 Iterative incremental pressure correction
 1: Initialize u0, u−1, p0, k = 0, t = 0 2: while t < T do 3: t ← t + 4t 4: k ← k + 1 5: p∗ ← pk
 6: while error > tol do 7: Solve Eq. (32) for u∗ 8: Solve Eq. (33) for φk+1 9: Update pk+1 and uk+1 10: p∗ ← pk+1
 11: error ← ‖uk+1 − u∗‖ 12: end while 13: uk−1 ← uk 14: uk ← uk+1 15: pk ← pk+1 16: end while
@@ -190,7 +190,7 @@ with no visible splitting error. However, remember that uk+1 is not divergence f
 5
 
 
-2.5 Incremental velocity correction scheme
+ 2.5 Incremental velocity correction scheme
 Better accuracy may be obtained with an incremental velocity correction scheme, where diffusion is included in the computation of the pressure:
 I:
 {1 24t
