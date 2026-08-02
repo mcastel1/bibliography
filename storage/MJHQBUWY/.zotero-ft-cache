@@ -1,0 +1,3673 @@
+Springer Series in Computational Mathematics 44
+Mixed Finite Element Methods and Applications
+Daniele Boffi Franco Brezzi Michel Fortin
+
+
+Springer Series in 44 Computational Mathematics
+Editorial Board
+R.E. Bank R.L. Graham J. Stoer R.S. Varga H. Yserentant
+For further volumes: http://www.springer.com/series/797
+
+
+
+
+Daniele Boffi Franco Brezzi Michel Fortin
+Mixed Finite Element
+Methods and Applications
+123
+
+
+Daniele Boffi Dipartimento di Matematica “F. Casorati” University of Pavia Pavia Italy
+Michel Fortin D ́epartement de math ́ematiques et de statistique Universit ́e Laval Qu ́ebec Canada
+Franco Brezzi IUSS (Istituto Universitario di Studi Superiori) Pavia Italy
+ISSN 0179-3632 ISBN 978-3-642-36518-8 ISBN 978-3-642-36519-5 (eBook) DOI 10.1007/978-3-642-36519-5 Springer Heidelberg New York Dordrecht London
+Library of Congress Control Number: 2013940257
+Mathematics Subject Classification (2010): 6502, 65N15
+c Springer-Verlag Berlin Heidelberg 2013 This work is subject to copyright. All rights are reserved by the Publisher, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilms or in any other physical way, and transmission or information storage and retrieval, electronic adaptation, computer software, or by similar or dissimilar methodology now known or hereafter developed. Exempted from this legal reservation are brief excerpts in connection with reviews or scholarly analysis or material supplied specifically for the purpose of being entered and executed on a computer system, for exclusive use by the purchaser of the work. Duplication of this publication or parts thereof is permitted only under the provisions of the Copyright Law of the Publisher’s location, in its current version, and permission for use must always be obtained from Springer. Permissions for use may be obtained through RightsLink at the Copyright Clearance Center. Violations are liable to prosecution under the respective Copyright Law. The use of general descriptive names, registered names, trademarks, service marks, etc. in this publication does not imply, even in the absence of a specific statement, that such names are exempt from the relevant protective laws and regulations and therefore free for general use. While the advice and information in this book are believed to be true and accurate at the date of publication, neither the authors nor the editors nor the publisher can accept any legal responsibility for any errors or omissions that may be made. The publisher makes no warranty, express or implied, with respect to the material contained herein.
+Printed on acid-free paper
+Springer is part of Springer Science+Business Media (www.springer.com)
+
+
+Preface
+About 10 years ago, Mixed and Hybrid Finite Element Methods by F. Brezzi and M. Fortin went out of print and we were asked to allow a second printing. The world had evolved and we thought that a revision was due and that some topics had to be added to the book. For this task, D. Boffi joined the team and we began to write the improved version. It turned out that this meant doubling the number of pages and essentially producing a new book. We hope that the result is now a better, self-contained, presentation of the underlying issues, either from linear algebra or from functional analysis. The presentation of the basic results should now be accessible to readers which are not familiar with functional analysis, although willing to invest some effort in understanding mathematical issues. The scope of finite element approximations was extended to H.curlI  ̋/ and the three-dimensional cases are now fully covered. Tensor elements were also considered for elasticity problems. The approximation of eigenvalue problems has been included as well. Moreover, new applications have been introduced: mixed elasticity and electromagnetism. New results have been added to already treated applications such as the Stokes problem or mixed formulations of elliptic problems. Even so, some topics have been merely addressed. This is, for example, the case of a posteriori estimators, Discontinuous Galerkin methods and new developments on virtual elements which would have required a long development in an already (too?) long book. Indeed, each of these topics could be the subject of a whole book. The analysis of mixed methods is also relevant to many applications such as mortar methods or contact problems which were also reduced to a few remarks. This does not mean that these are not important. We had to stop somewhere. Indeed, we took a long time to do so. We thus hope that this book will provide a good starting point for all those interested in mixed (and related) finite element methods.
+Pavia, Italy D. Boffi and F. Brezzi Que ́bec, Canada M. Fortin
+v
+
+
+
+
+Contents
+1 Variational Formulations and Finite Element Methods . . . . . . . . . . . . . . . . 1 1.1 Classical Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 1 1.2 Model Problems and Elementary Properties of Some Functional Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 3 1.2.1 Eigenvalue Problems . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 15 1.3 Duality Methods .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 16 1.3.1 Generalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 16 1.3.2 Examples for Symmetric Problems .. . .. . . . . . . . . . . . . . . . . . . . 19 1.3.3 Duality Methods for Non Symmetric Bilinear Forms . . . . 28 1.3.4 Mixed Eigenvalue Problems . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 29 1.4 Domain Decomposition Methods, Hybrid Methods .. . . . . . . . . . . . . . . 31 1.5 Modified Variational Formulations .. . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 37 1.5.1 Augmented Formulations . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 38 1.5.2 Perturbed Formulations . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 45 1.6 Bibliographical Remarks. . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 46
+2 Function Spaces and Finite Element Approximations.. . . . . . . . . . . . . . . . . 47 2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ . . . . 47 2.1.1 Basic Properties.. . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 47 2.1.2 Properties Relative to a Partition of  ̋ . . . . . . . . . . . . . . . . . . . . 55 2.1.3 Properties Relative to a Change of Variables .. . . . . . . . . . . . . 58 2.1.4 De Rham Diagram .. . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 64 2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ . . . . . . . . . . . 65 2.2.1 Conforming Methods .. . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 65 2.2.2 Explicit Basis Functions on Triangles and Tetrahedra .. . . 73 2.2.3 Nonconforming Methods.. . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 74 2.2.4 Quadrilateral Finite Elements on Non Affine Meshes . . . . 77 2.2.5 Quadrilateral Approximation of Scalar Functions . . . . . . . . 79 2.2.6 Non Polynomial Approximations .. . . . .. . . . . . . . . . . . . . . . . . . . 80 2.2.7 Scaling Arguments . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 82
+vii
+
+
+viii Contents
+2.3 Simplicial Approximations of H.divI  ̋/ and H.curlI  ̋/ .. . . . . . . . 84 2.3.1 Simplicial Approximations of H.divI  ̋/ . . . . . . . . . . . . . . . . . 84 2.3.2 Simplicial Approximation of H.curlI  ̋/ . . . . . . . . . . . . . . . . . 92 2.4 Approximations of H.divI K/ on Rectangles and Cubes . . . . . . . . . . 96 2.4.1 Raviart-Thomas Elements on Rectangles and Cubes . . . . . 97 2.4.2 Other Approximations of H.divI K/ on Rectangles .. . . . . 98 2.4.3 Other Approximations of H.divI K/ on cubes .. . . . . . . . . . . 101 2.4.4 Approximations of H.curlI K/ on Cubes . . . . . . . . . . . . . . . . . 101 2.5 Interpolation Operator and Error Estimates . . . . .. . . . . . . . . . . . . . . . . . . . 103 2.5.1 Approximations of H.divI K/ . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 103 2.5.2 Approximation Spaces for H.divI  ̋/ .. . . . . . . . . . . . . . . . . . . . 109 2.5.3 Approximations of H.curlI  ̋/ . . . . . . . .. . . . . . . . . . . . . . . . . . . . 110 2.5.4 Approximation Spaces for H.curlI  ̋/ . . . . . . . . . . . . . . . . . . . . 113 2.5.5 Quadrilateral and Hexahedral Approximation of Vector-Valued Functions in H.divI  ̋/ and H.curlI  ̋/ . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 114 2.5.6 Discrete Exact Sequences . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 115 2.6 Explicit Basis Functions for H.divI K/ and H.curlI K/ on Triangles and Tetrahedra . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 116 2.6.1 Basis Functions for H.divI K/: The Two-Dimensional Case . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 117 2.6.2 Basis Functions for H.divI K/: The Three-Dimensional Case . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 119 2.6.3 Basis Functions for H.curlI K/: The Two-Dimensional Case . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 120 2.6.4 Basis Functions for H.curlI K/: The Three-Dimensional Case . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 120 2.7 Concluding Remarks .. . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 121
+3 Algebraic Aspects of Saddle Point Problems . . . . . . . .. . . . . . . . . . . . . . . . . . . . 123 3.1 Notation, and Basic Results in Linear Algebra .. . . . . . . . . . . . . . . . . . . . 126 3.1.1 Basic Definitions . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 126 3.1.2 Subspaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 127 3.1.3 Orthogonal Subspaces .. . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 129 3.1.4 Orthogonal Projections .. . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 130 3.1.5 Basic Results . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 132 3.1.6 Restrictions of Operators .. . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 136 3.2 Existence and Uniqueness of Solutions: The Solvability Problem . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 140 3.2.1 A Preliminary Discussion . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 141 3.2.2 The Necessary and Sufficient Condition . . . . . . . . . . . . . . . . . . 142 3.2.3 Sufficient Conditions . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 144 3.2.4 Examples .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 146 3.2.5 Composite Matrices . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 148
+
+
+Contents ix
+3.3 The Solvability Problem for Perturbed Matrices . . . . . . . . . . . . . . . . . . . 151 3.3.1 Preliminary Results . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 151 3.3.2 Main Results . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 153 3.3.3 Examples .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 154 3.4 Stability .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 155 3.4.1 Assumptions on the Norms . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 157 3.4.2 The inf-sup Condition for the Matrix B: An Elementary Discussion . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 161 3.4.3 The inf-sup Condition and the Singular Values . . . . . . . . . . . 164 3.4.4 The Case of A Elliptic on the Whole Space .. . . . . . . . . . . . . . 166 3.4.5 The Case of A Elliptic on the Kernel of B . . . . . . . . . . . . . . . . 172 3.4.6 The Case of A Satisfying an inf-sup on the Kernel of B . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 174 3.5 Additional Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 176 3.5.1 Some Necessary Conditions . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 176 3.5.2 The Case of B Not Surjective. Modification of the Problem . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 177 3.5.3 Some Special Cases . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 178 3.5.4 Composite Matrices . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 181 3.6 Stability of Perturbed Matrices . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 183 3.6.1 The Basic Estimate . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 183 3.6.2 The Symmetric Case for Perturbed Matrices .. . . . . . . . . . . . . 190
+4 Saddle Point Problems in Hilbert Spaces . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 197 4.1 Reminders on Hilbert Spaces . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 197 4.1.1 Scalar Products, Norms, Completeness.. . . . . . . . . . . . . . . . . . . 198 4.1.2 Closed Subspaces and Dense Subspaces . . . . . . . . . . . . . . . . . . 201 4.1.3 Orthogonality . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 202 4.1.4 Continuous Linear Operators, Dual spaces, Polar Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 205 4.1.5 Bilinear Forms and Associated Operators; Transposed Operators . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 210 4.1.6 Dual Spaces of Linear Subspaces .. . . . .. . . . . . . . . . . . . . . . . . . . 215 4.1.7 Identification of a Space with its Dual Space . . . . . . . . . . . . . 218 4.1.8 Restrictions of Operators to Closed Subspaces . . . . . . . . . . . 219 4.1.9 Quotient Spaces. . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 221 4.2 Existence and Uniqueness of Solutions . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 223 4.2.1 Mixed Formulations in Hilbert Spaces . . . . . . . . . . . . . . . . . . . . 223 4.2.2 Stability Constants and inf-sup Conditions .. . . . . . . . . . . . . . . 226 4.2.3 The Main Result . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 228 4.2.4 The Case of ImB ¤ Q0 . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 230 4.2.5 Examples .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 232 4.3 Existence and Uniqueness for Perturbed Problems .. . . . . . . . . . . . . . . . 238 4.3.1 Regular Perturbations . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 238 4.3.2 Singular Perturbations .. . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 257
+
+
+x Contents
+5 Approximation of Saddle Point Problems . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 265 5.1 Basic Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 266 5.1.1 The Basic Assumptions . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 266 5.1.2 The Discrete Operators .. . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 269 5.2 Error Estimates for Finite Dimensional Approximations . . . . . . . . . . 273 5.2.1 Discrete Stability and Error Estimates .. . . . . . . . . . . . . . . . . . . . 273 5.2.2 Additional Error Estimates for the Basic Problem .. . . . . . . 276 5.2.3 Variants of Error Estimates. . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 279 5.2.4 A Simple Example.. . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 285 5.2.5 An Important Example: The Pressure in the Homogeneous Stokes Problem ... . . . . . . . . . . . . . . . . . . . 293 5.3 The Case of KerBt
+h ¤ f0g.. . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 295
+5.3.1 The Case of KerBt
+h KerBt . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 295
+5.3.2 The Case of KerBt
+h a KerBt . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 297
+5.3.3 The Case of ˇh or ˇQh going to zero . . . . . . . . . . . . . . . . . . . . . . . . 299 5.4 The inf-sup Condition: Criteria . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 301 5.4.1 Some Linguistic Considerations . . . . . . .. . . . . . . . . . . . . . . . . . . . 301 5.4.2 General Considerations.. . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 302 5.4.3 The inf-sup Condition and the B-Compatible Interpolation Operator  ̆h . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 303 5.4.4 Construction of  ̆h . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 305 5.4.5 An Alternative Strategy: Switching Norms . . . . . . . . . . . . . . . 306 5.5 Extensions of Error Estimates . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 309 5.5.1 Perturbed Problems .. . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 309 5.5.2 Penalty Methods .. . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 312 5.5.3 Singular Perturbations .. . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 315 5.5.4 Nonconforming Methods.. . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 317 5.5.5 Dual Error Estimates . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 323 5.6 Numerical Properties of the Discrete Problem ... . . . . . . . . . . . . . . . . . . . 326 5.6.1 The Matrix Form of the Discrete Problem . . . . . . . . . . . . . . . . 327 5.6.2 And if the inf-sup Condition Does Not Hold?.. . . . . . . . . . . . 329 5.6.3 Solution Methods .. . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 331 5.7 Concluding Remarks .. . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 335
+6 Complements: Stabilisation Methods, Eigenvalue Problems . . . . . . . . . . 337 6.1 Augmented Formulations . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 337 6.1.1 An Abstract Framework for Stabilised Methods .. . . . . . . . . 337 6.1.2 Stabilising Terms . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 339 6.1.3 Stability Conditions for Augmented Formulations . . . . . . . 342 6.1.4 Discretisations of Augmented Formulations . . . . . . . . . . . . . . 346 6.1.5 Stabilising with the “Element-Wise Equations” . . . . . . . . . . 350 6.2 Other Stabilisations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 355 6.2.1 General Stability Conditions .. . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 355 6.2.2 Stability of Discretised Formulations ... . . . . . . . . . . . . . . . . . . . 358
+
+
+Contents xi
+6.3 Minimal Stabilisations . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 360 6.3.1 Another Form of Minimal Stabilisation . . . . . . . . . . . . . . . . . . . 374 6.4 Enhanced Strain Methods .. . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 379 6.5 Eigenvalue Problems .. . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 381 6.5.1 Some Classical Results . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 384 6.5.2 Eigenvalue Problems in Mixed Form ... . . . . . . . . . . . . . . . . . . . 385 6.5.3 Special Results for Problems of Type .f; 0/ and .0; g/ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 387 6.5.4 Eigenvalue Problems of the Type .f; 0/ .. . . . . . . . . . . . . . . . . . 389 6.5.5 Eigenvalue Problems of the Form .0; g/ . . . . . . . . . . . . . . . . . 392
+7 Mixed Methods for Elliptic Problems . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 401 7.1 Non-standard Methods for Dirichlet’s Problem.. . . . . . . . . . . . . . . . . . . . 401 7.1.1 Description of the Problem.. . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 401 7.1.2 Mixed Finite Element Methods for Dirichlet’s Problem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 403 7.1.3 Eigenvalue Problem for the Mixed Formulation . . . . . . . . . . 408 7.1.4 Primal Hybrid Methods . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 410 7.1.5 Primal Macro-hybrid Methods and Domain Decompositions .. . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 419 7.1.6 Dual Hybrid Methods . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 420 7.2 Numerical Solutions . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 426 7.2.1 Preliminaries .. . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 426 7.2.2 Inter-element Multipliers .. . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 426 7.3 A Brief Analysis of the Computational Effort . .. . . . . . . . . . . . . . . . . . . . 430 7.4 Error Analysis for the Multiplier . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 432 7.5 Error Estimates in Other Norms . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 437 7.6 Application to an Equation Arising from Semiconductor Theory .. . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 439 7.7 Using Anisotropic Meshes . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 441 7.8 Relations with Finite Volume Methods . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 445 7.8.1 The One and Two-Dimensional Cases. . . . . . . . . . . . . . . . . . . . . 446 7.8.2 The Two-Dimensional Case . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 447 7.8.3 The Three-Dimensional Case . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 452 7.9 Nonconforming Methods: A Trap to Avoid. . . .. . . . . . . . . . . . . . . . . . . . 453 7.10 Augmented Formulations (Galerkin Least Squares Methods) . . . . . 455 7.11 A Posteriori Error Estimates . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 457
+8 Incompressible Materials and Flow Problems . . . . . .. . . . . . . . . . . . . . . . . . . . 459 8.1 Introduction .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 460 8.2 The Stokes Problem as a Mixed Problem . . . . . . .. . . . . . . . . . . . . . . . . . . . 462 8.2.1 Mixed Formulation . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 462 8.3 Some Examples of Failure and Empirical Cures . . . . . . . . . . . . . . . . . . . 466 8.3.1 Continuous Pressure: The P 1 P1 Element .. . . . . . . . . . . . . 466 8.3.2 Discontinuous Pressure: The P 1 P0 Approximation .. . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 467
+
+
+xii Contents
+8.4 Building a B-Compatible Operator: The Simplest Stable Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 468 8.4.1 Building a B-Compatible Operator . . . .. . . . . . . . . . . . . . . . . . . . 469 8.4.2 A Stable Case: The MINI Element . . . .. . . . . . . . . . . . . . . . . . . . 470 8.4.3 Another Stable Approximation: The Bi-dimensional P 2 P0 Element . . . . . . . . . . . . . . . . . . . . 471 8.4.4 The Nonconforming P 1 P0 Approximation . . . . . . . . . . . . 475 8.5 Other Techniques for Checking the inf-sup Condition . . . . . . . . . . . . . 477 8.5.1 Projection onto Constants . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 477 8.5.2 Verfu ̈rth’s Trick . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 478 8.5.3 Space and Domain Decomposition Techniques .. . . . . . . . . . 480 8.5.4 Macro-element Technique.. . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 482 8.5.5 Making Use of the Internal Degrees of Freedom . . . . . . . . . 484 8.6 Two-Dimensional Stable Elements .. . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 486 8.6.1 Continuous Pressure Elements . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 487 8.6.2 Discontinuous Pressure Elements. . . . . .. . . . . . . . . . . . . . . . . . . . 488 8.6.3 Quadrilateral Elements, Qk Pk 1 Elements . . . . . . . . . . . . 489
+8.7 Three-Dimensional Stable Elements . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 491 8.7.1 Continuous Pressure 3-D Elements . . . .. . . . . . . . . . . . . . . . . . . . 491 8.7.2 Discontinuous Pressure 3-D Elements.. . . . . . . . . . . . . . . . . . . . 491 8.8 P k Pk 1 Schemes and Generalised Hood–Taylor Elements . . . . 494 8.8.1 Discontinuous Pressure P k Pk 1 Elements . . . . . . . . . . . . 494 8.8.2 Generalised Hood–Taylor Elements . . .. . . . . . . . . . . . . . . . . . . . 496 8.9 Other Developments for Divergence-Free Stokes Approximation and Mass Conservation .. . . . . . . .. . . . . . . . . . . . . . . . . . . . 504 8.9.1 Exactly Divergence-Free Stokes Elements, Discontinuous Galerkin Methods .. . . . .. . . . . . . . . . . . . . . . . . . . 505 8.9.2 Stokes Elements Allowing for Element-Wise Mass Conservation . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 506 8.10 Spurious Pressure Modes . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 507 8.10.1 Living with Spurious Pressure Modes: Partial Convergence . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 510 8.10.2 The Bilinear Velocity-Constant Pressure Q1 P0 Element .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 511
+8.11 Eigenvalue Problems .. . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 517 8.12 Nearly Incompressible Elasticity, Reduced Integration Methods and Relation with Penalty Methods .. .. . . . . . . . . . . . . . . . . . . . 519 8.12.1 Variational Formulations and Admissible Discretisations . . . . . . . .. . . . . . . . . . . . . . . . . . . . 519 8.12.2 Reduced Integration Methods .. . . . . . . . .. . . . . . . . . . . . . . . . . . . . 520 8.12.3 Effects of Inexact Integration . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 523 8.13 Other Stabilisation Procedures.. . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 527 8.13.1 Augmented Method for the Stokes Problem . . . . . . . . . . . . . . 528 8.13.2 Defining an Approximate Inverse S 1
+h . . . . . . . . . . . . . . . . . . . . 530 8.13.3 Minimal Stabilisations for Stokes. . . . . .. . . . . . . . . . . . . . . . . . . . 534
+
+
+Contents xiii
+8.14 Concluding Remarks: Choice of Elements. . . . . .. . . . . . . . . . . . . . . . . . . . 537 8.14.1 Choice of Elements .. . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 537
+9 Complements on Elasticity Problems . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 539 9.1 Introduction .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 539 9.1.1 Continuous Formulation of Stress Methods .. . . . . . . . . . . . . . 540 9.1.2 Numerical Approximations of Stress Formulations.. . . . . . 543 9.2 Relaxed Symmetry . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 544 9.3 Tensors, Tensorial Notation and Results on Symmetry.. . . . . . . . . . . . 544 9.3.1 Continuous Formulation of the Relaxed Symmetry Approach.. . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 548 9.3.2 Numerical Approximation of Relaxed-Symmetry Formulations .. . . . .. . . . . . . . . . . . . . . . . . . . 551 9.4 Some Families of Methods with Reduced Symmetry . . . . . . . . . . . . . . 555 9.4.1 Methods Based on Stokes Elements . . .. . . . . . . . . . . . . . . . . . . . 555 9.4.2 Stabilisation by H.curl/ Bubbles . . . . . .. . . . . . . . . . . . . . . . . . . . 558 9.4.3 Two Examples . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 561 9.4.4 Methods Based on the Properties of  ̆ 1
+h . . . . . . . . . . . . . . . . . . . 563 9.5 Loosing the Inclusion of Kernel: Stabilised Methods . . . . . . . . . . . . . . 567 9.6 Concluding Remarks .. . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 572
+10 Complements on Plate Problems . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 575 10.1 A Mixed Fourth-Order Problem . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 575 10.1.1 The ! Biharmonic Problem . . . . . .. . . . . . . . . . . . . . . . . . . . 575 10.1.2 Eigenvalues of the Biharmonic Problem .. . . . . . . . . . . . . . . . . 578 10.2 Dual Hybrid Methods for Plate Bending Problems .. . . . . . . . . . . . . . . . 579 10.3 Mixed Methods for Linear Thin Plates . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 588 10.4 Moderately Thick Plates . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 596 10.4.1 Generalities . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 596 10.4.2 The Mathematical Formulation . . . . . . . .. . . . . . . . . . . . . . . . . . . . 598 10.4.3 Mixed Formulation of the Mindlin-Reissner Model . . . . . . 600 10.4.4 A Decomposition Principle and the Stokes Connection .. . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 606 10.4.5 Discretisation of the Problem . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 609 10.4.6 Continuous Pressure Approximations .. . . . . . . . . . . . . . . . . . . . 622 10.4.7 Discontinuous Pressure Elements. . . . . .. . . . . . . . . . . . . . . . . . . . 622
+11 Mixed Finite Elements for Electromagnetic Problems . . . . . . . . . . . . . . . . . 625 11.1 Useful Results About the Space H.curlI  ̋/, its Boundary Traces, and the de Rham Complex . . . . . . . . . . . . . . . . . . . 626 11.1.1 The de Rham Complex and the Helmholtz Decomposition When  ̋ Is Simply Connected . . . . . . . . . . . 626 11.1.2 The Friedrichs Inequality.. . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 627 11.1.3 Extension to More General Topologies .. . . . . . . . . . . . . . . . . . . 627 11.1.4 H.curlI  ̋/ in Two Space Dimensions . . . . . . . . . . . . . . . . . . . . 628
+
+
+xiv Contents
+11.2 The Time Harmonic Maxwell System . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 629 11.2.1 Maxwell’s Eigenvalue Problem .. . . . . . .. . . . . . . . . . . . . . . . . . . . 630 11.2.2 Analysis of the Time Harmonic Maxwell System . . . . . . . . 633 11.2.3 Approximation of the Time Harmonic Maxwell Equations . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 636 11.3 Approximation of the Maxwell Eigenvalue Problem .. . . . . . . . . . . . . . 639 11.3.1 Analysis of the Two-Dimensional Case . . . . . . . . . . . . . . . . . . . 641 11.3.2 Discrete Compactness Property .. . . . . . .. . . . . . . . . . . . . . . . . . . . 644 11.3.3 Nodal Finite Elements .. . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 647 11.3.4 Edge Finite Elements .. . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 653 11.4 Enforcing the Divergence-Free Condition by a Penalty Method .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 654 11.5 Some Remarks on Exterior Calculus .. . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 658 11.6 Concluding remarks .. . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 662
+References .. .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 663
+Index . . . . . . . . .. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . . . . . 681
+
+
+Chapter 1 Variational Formulations and Finite Element Methods
+Although we shall not define in this chapter mixed and hybrid (or other nonstandard) finite element methods in a very precise way, we would like to situate them in a sufficiently clear setting. As we shall see, boundaries between different methods are sometimes rather fuzzy. This will not be a real drawback if we nevertheless know how to apply correctly the principles underlying their analysis. After having briefly recalled some basic facts about classical methods, we shall present a few model problems. The study of these problems will be the kernel of this book. Thereafter, we rapidly recall basic principles of duality theory as this will be our starting point to introduce mixed methods. Domain decomposition methods (allied to duality) will lead us to hybrid methods. Then we shall briefly discuss modified variational formulations that can be used to obtain better stability properties for the discretised versions.
+1.1 Classical Methods
+We recall here, in a very simplified way, some facts about optimisation methods and the classical finite element method. Such an introduction cannot be complete and does not want to be. We refer the reader to [146] or [334], among others, where standard finite element methods are clearly exposed. We also refer to [167] where an exhaustive analysis of many of our model problems can be found. Let us consider a very common situation where the solution of a physical problem minimises some functional (usually an “energy functional”), in a “well chosen” space of admissible functions V that we take for the moment as a Hilbert space:
+vi2nVf J.v/: (1.1.1)
+D. Boffi et al., Mixed Finite Element Methods and Applications, Springer Series in Computational Mathematics 44, DOI 10.1007/978-3-642-36519-5 1, © Springer-Verlag Berlin Heidelberg 2013
+1
+
+
+2 1 Variational Formulations and Finite Element Methods
+If the functional J. / is differentiable (cf. [184] for instance) the minimum (whenever it exists) will be characterised by avariationalequation
+hJ 0.u/; viV 0 V D 0; 8v 2 V; (1.1.2)
+where h ; iV 0 V denotes duality between V and its topological dual V 0, the derivative J 0.u/ at point u being considered as a linear form on V . The classical Ritz’s method to approximate the solution of (1.1.1) consists in choosing a finite dimensional subspace Vm of V , and then looking for um 2 Vm solution of the problem
+inf
+vm 2Vm
+J.vm/; (1.1.3)
+or, differentiating,
+hJ 0.um/; vmiV 0 V D 0; 8vm 2 Vm: (1.1.4)
+Let us consider, to fix ideas, a quadratic functional
+J.v/ WD 1
+2 a.v; v/ L.v/; (1.1.5)
+where a. ; / is a bilinear form on V , which we suppose continuous and symmetric, and L. / a linear form on V . The variational equation (1.1.2) can then be written as
+a.u; v/ D L.v/ 8v 2 V; (1.1.6)
+while the discrete problem (1.1.4) becomes
+a.um; vm/ D L.vm/; 8 vm 2 Vm; um 2 Vm: (1.1.7)
+If a basis w1; w2; : : : ; wm of Vm is chosen, and if we write
+um D
+Xm
+i D1
+ ̨i wi ; (1.1.8)
+problem (1.1.7) is reduced to the solution of the linear system
+m X
+i D1
+aij ̨i D bj ; 1 j m; (1.1.9)
+where we set
+aij WD a.wi ; wj /; bj WD L.wj /: (1.1.10)
+This formulation can be extended to the case where the bilinear form a. ; / is not symmetric and where problem (1.1.7) no longer corresponds to a minimisation
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 3
+problem. This is then usually called a Galerkin method. Let us recall that problems of type (1.1.7) will have a unique solution if, in particular, the bilinear form a. ; / is coercive, that is if there exists a positive real number  ̨ such that for all v in V
+a.v; v/  ̨kvk2
+V : (1.1.11)
+The above described methodology is very general and classical. We can consider the finite element method as a special case in the following sense. The finite element method is a general technique to build finite dimensional subspaces of a Hilbert space V in order to apply the Ritz-Galerkin method to a variational problem. This technique is based on a few simple ideas. The fundamental one is the partition of the domain  ̋ in which the problem is posed, into a set of “simple” sub-domains, called elements. These elements are usually triangles, quadrilaterals, tetrahedra, etc. A space V of functions defined on  ̋ is then approximated by “simple” functions, defined on each sub-domain with suitable matching conditions at interfaces. Simple functions are usually polynomials or functions obtained from polynomials by a change of variables. This, of course, a very summarised way of defining finite elements and this is surely not the best way to understand it from the computational point of view. We shall come back to this in Chap. 2 with a much more workable approach. The point that we want to emphasise here is the following. A finite element method can only be considered in relation with a variational principle and a functional space. Changing the variational principle and the space in which it is posed leads to a different finite element approximation(even if the solution for the continuous problems can remain the same). In the remaining of this Chapter, we shall see how different variational formulations can be built for the same physical problem. Each of these formulations will lead to a new setting for finite element approximations. The common point of the methods analysed in this book is that they are founded on a variational principle expressing an equilibrium (saddle point) condition rather than on a minimisation principle. We shall now try to see, on some examples, how such equilibrium principles can be built.
+1.2 Model Problems and Elementary Properties of Some Functional Spaces
+The aim of this section is to introduce some notation and to present five model problems that will underlie almost all cases analysed in this book. They will be the Dirichlet problem for Laplace’s equation, the linear elasticity problem, Stokes’ problem, a fourth-order problem modelling the deflection of a thin clamped plate, and, finally, the time-harmonic Maxwell system. These problems are closely interrelated and methods to analyse them will also be.
+
+
+4 1 Variational Formulations and Finite Element Methods
+We shall present, in this section, the most classical variational formulation of these problems. The following sections will lead us to less standard forms. We shall assume, in our exposition, that the problems are posed in a domain  ̋ of Rn, with a sufficiently smooth boundary @ ̋ D (for instance a Lipschitz continuous boundary). In practice n D 2 or 3 and we shall present most of our examples in a two-dimensional setting for the sake of simplicity. In the problems considered here, working in R2 rather than in R3 is not really restrictive and extensions are generally straightforward. (This is however not always the case for numerical methods.) Let us first recall some definitions. We shall constantly use Sobolev spaces [3, 281, 309]. They are based on
+L2. ̋/ WD v
+ˇˇˇ
+Z
+ ̋
+jvj2 dx D kvk2
+L2. ̋/ < C1 ; (1.2.1)
+the space of square integrable functions on  ̋. To be precise, instead of functions we should actually say classes of measurable functions, meaning that a class is made of functions that differ from each other only on a subset of  ̋ of zero Lebesgue measure. Having said this once, we shall keep calling them simply functions. We then define in general, for m integer 0,
+H m. ̋/ WD  ̊vˇˇ D ̨v 2 L2. ̋/; 8j ̨j m ; (1.2.2)
+where
+D ̨v WD @j ̨jv
+@x ̨1
+1 @xn ̨n
+; j ̨j D  ̨1 C C  ̨n;
+these derivatives being taken in the sense of distributions. On this space, we shall use the semi-norms
+jvj2
+k; ̋ WD X j ̨jDk
+jD  ̨ vj2
+L2. ̋/; k D 0; 1; : : : ; m; (1.2.3)
+and the norm
+kvk2
+m; ̋ WD X km
+jvj2
+k; ̋ : (1.2.4)
+Remark 1.2.1. The norm in (1.2.4) is definitely the weirdest aspect of the whole theory of Sobolev spaces. Indeed, one should take a typical length ` of the problem (as for instance the diameter of  ̋) and use, instead of (1.2.4):
+kvk2
+m; ̋ WD X km
+`2k jvj2
+k; ̋ ; (1.2.5)
+avoiding, in this way, to sum objects with different physical dimensions. The expression (1.2.4), which is by far the most widely used in all the international literature assumes implicitly that the problem has been adimensionalised, something that one
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 5
+is not always willing to do. Needless to say, (1.2.4) has a lot of advantages, and we are often going to use it. Nevertheless, we felt compelled to give at least a minor warning to our readers. ut
+The space L2. ̋/ is then H 0. ̋/ and we shall usually write kvk0; ̋ , to denote its norm kvkL2. ̋/. Let us denote as usual by D. ̋/ the space of infinitely differentiable functions having a compact support in  ̋. We denote by H m
+0 . ̋/ the completion of D. ̋/ for the topology defined by the norm (1.2.4). If the boundary is smooth enough (e.g. Lipschitz continuous boundary) this simple definition will coincide, without troublesome pathologies, with the more common
+Hm
+0 . ̋/ WD  ̊vj v 2 H m. ̋/ s. t. v D @v
+@n D D @m 1v
+@nm 1 D 0 on ; (1.2.6)
+where n is the normal direction to D @ ̋. The drawback in the definition (1.2.6) is however the difficulty in giving sense to the value of v (and, if m > 1, to its derivatives) on the boundary of  ̋. We shall shortly give a hint on how this could be made precise for the most common cases m D 1 and m D 2. Indeed, among the spaces introduced so far, the most commonly used, apart from L2. ̋/, will be H 1. ̋/, H 1
+0 . ̋/, H 2. ̋/ and H 2
+0 . ̋/.
+If the boundary @ ̋ is sufficiently smooth (and, again, Lipschitz continuity will be enough), one can show that there exists a linear and continuous operator 0 W H 1. ̋/ ! L2. / such that 0v coincides with the restriction of v to whenever
+v is smooth (say, to fix the ideas, for every v 2 C 1. ̋N /). It seems then natural to call 0v “the trace of v on ” and denote it by vj even if v is a general function in
+H 1. ̋/ that might not be in C 1. ̋N /. A deeper analysis shows that by taking all the traces of all the functions of H 1. ̋/, one does not obtain the whole space L2. / but only a subspace of it. Further investigations show that such a subspace contains H 1. / as a proper subset. Hence we have,
+H 1. / 0.H 1. ̋// L2. / H 0. /; (1.2.7)
+where every inclusion is strict. It is finally recognised that the space 0.H 1. ̋// belongs to a family of spaces H s. / (defined for all s 2 R, that we are not going to detail here) and corresponds exactly to the value s D 1
+2 . Hence we have
+H1
+2 . / WD 0.H 1. ̋//; (1.2.8)
+with
+kgkH 12 . / WD inf
+v2H 1. ̋/
+0 vDg
+kvkH 1. ̋/: (1.2.9)
+In a similar way we could see that the traces of functions in H 2. ̋/ belong to a space H s. / for s D 3
+2 . We may therefore set
+
+
+6 1 Variational Formulations and Finite Element Methods
+H3
+2 . / WD 0.H 2. ̋//; (1.2.10)
+kgkH 32 . / WD inf
+v2H 2. ̋/
+0 vDg
+kvkH 2. ̋/: (1.2.11)
+This can be generalised to the traces of higher order derivatives. For instance, if the boundary is Lipschitz continuous, one can define a linear continuous operator 1 W H 2. ̋/ ! L2. ̋/ such that 1v coincides with the trace of the normal derivative
+of v whenever v is smooth (say, v 2 C 2. ̋N /). Proceeding as before we could then define, for v 2 H 2. ̋/, the trace of the normal derivative:
+@v
+@n
+ˇˇ 1v:
+If the boundary is smooth enough (but, here, Lipschitz continuity will not be enough: one needs at least C 1) one gets
+1.H 2. ̋// D H 1
+2 . / .for @ ̋ smoother: not for a polygon/:
+Note however that for less regular domains this will no longer be true: for instance, if  ̋ is a polygon we have that 1v belongs to a more complicated space that, roughly speaking, is made of functions whose restriction to each edge e belongs to H 1
+2 .e/. We shall not discuss in a more precise way trace theorems on Sobolev spaces of fractional order. (The reader may refer to the authors quoted above.) Intuitively, Sobolev spaces of fractional order can be considered as having regularity properties that are intermediate between the properties of the neighbouring integer order spaces and they can indeed be defined as interpolation spaces. Taking this as granted, we then have
+H1
+0 . ̋/ WD  ̊vj v 2 H 1. ̋/; vˇˇ WD 0 ; (1.2.12)
+H2
+0 . ̋/ D vj v 2 H 2. ̋/; vˇˇ D 0; @v
+@n
+ˇˇ D 0 : (1.2.13)
+For v 2 H 1
+0 . ̋/, we have the Poincare ́ inequality
+kvk0; ̋ C. ̋/jvj1; ̋ ; (1.2.14)
+and the semi-norm j j1; ̋ is therefore a norm on H 1
+0 . ̋/, equivalent to k k1; ̋ . We shall also need to consider functions that vanish on a part of the boundary; suppose that D D [ N is a “reasonable” partition of into disjoint parts; then we can define
+H1
+0;D. ̋/ WD fvj v 2 H 1. ̋/; vˇˇD D 0g; (1.2.15)
+and one has H 1
+0 . ̋/ H 1
+0;D . ̋/ H 1. ̋/.
+When considering vector-valued functions, additional spaces will be useful. In particular we shall use
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 7
+H.divI  ̋/ WD fv 2 L2. ̋/nj div v 2 L2. ̋/g; (1.2.16)
+H.curlI  ̋/ WD fv 2 L2. ̋/nj curl v 2 L2. ̋/d g; (1.2.17)
+where in (1.2.17) we have d D 1 when n D 2 and d D 3 when n D 3. The divergence and curl operators are defined as usual; particular care has to be taken for the definition of the two-dimensional curl operator which in this case is understood as curl v D div.v?/, where v? is the rotation of v by an angle of =2. It can be shown that functions in H.divI  ̋/ (resp. H.curlI  ̋/) admit traces of the normal (resp. tangential) component on ; namely, there exists a linear and continuous operator n W H.divI  ̋/ ! H 1=2. / such that nv D trace of v n for every smooth v, where n is the outward normal unit vector, and a similar property holds for the traces of the tangential components of vectors in H.curlI  ̋/. More details on H.divI  ̋/ and H.curlI  ̋/ will be given in Chap. 2. Spaces including homogeneous boundary conditions are denoted as follows
+H0.divI  ̋/ WD fv j v 2 H.divI  ̋/; v n D 0 on g; (1.2.18)
+H0.curlI  ̋/ WD fv j v 2 H.curlI  ̋/; v n D 0 on g: (1.2.19)
+We shall come back in Chap. 2 to the properties of these spaces; the above definitions are sufficient to allow us to present some examples.
+Example 1.2.1 (Boundary value problems for the Laplace equation). This is a very classical case that in fact led to the definition of Sobolev spaces. For f given in L2. ̋/, let us consider the following minimisation problem on H 1
+0 . ̋/:
+inf
+q2H 1
+0 . ̋/
+1
+2
+Z
+ ̋
+j grad qj2 dx
+Z
+ ̋
+f q dx ; (1.2.20)
+where j grad qj2 D ˇˇ @q
+@x1
+ˇˇ2 C ˇˇ @q
+@x2
+ˇˇ2 D grad q grad q. One shows easily (cf. [141,
+281, 309] for instance) that this problem has a unique solution p, characterised by: p 2 H1
+0 . ̋/ and
+Z
+ ̋
+grad p grad q dx D
+Z
+ ̋
+f q dx; 8q 2 H 1
+0 . ̋/: (1.2.21)
+This is of the form (1.1.6), by setting
+a.p; q/ D
+Z
+ ̋
+grad p grad q dx
+This solution p satisfies, in the sense of distributions,
+
+
+8 1 Variational Formulations and Finite Element Methods
+( p D f in  ̋;
+pˇˇ D 0;
+(1.2.22)
+which is a standard Dirichlet problem for the Laplace operator , commonly called Poisson problem. If H 1
+0 . ̋/ were replaced by H 1
+0;D. ̋/ one would get instead of (1.2.22) a mixed type problem
+8ˆˆˆ<
+ˆˆˆ:
+p D f in  ̋;
+p D 0 on D;
+@p
+@n D 0 on N :
+(1.2.23)
+We thus have Dirichlet boundary conditions on D and Neumann conditions on N . In particular for N D , we get a Neumann problem. It must be noted that minimising (1.2.20) on H 1. ̋/ instead of H 1
+0 . ̋/ will define p up to an additive constant and requires the compatibility condition Z
+ ̋
+f dx D 0;
+which can be seen to be necessary from (1.2.21) by taking q 1 in  ̋. If we denote by H 1
+2 . / the dual space of H 1
+2 . /, and we take g 2 H 1
+2 . /, we can consider the functional
+1
+2
+Z
+ ̋
+j grad qj2 dx
+Z
+ ̋
+f q dx C hg; qi; (1.2.24)
+where the bracket h ; i denotes the duality between H 1
+2 . / and H 1
+2 . /. We
+shall sometimes write formally R gq ds instead of hg; vi. Minimising (1.2.24) on H1
+0;D. ̋/ leads to the problem
+8ˆˆˆ<
+ˆˆˆ:
+p D f in  ̋;
+p D 0 on D;
+@p
+@n D g on N :
+(1.2.25)
+When D D ; the solution is defined up to an additive constant and we must choose f and g such that
+Z
+ ̋
+f dx
+Z
+g ds D 0:
+These problems are among the most classical of mathematical physics and we do not have to emphasise their importance. In the following chapters we shall need to use regularity results for the problems introduced above. We have supposed up to now f 2 L2. ̋/. For the Poisson problem (1.2.22) we could have assumed f to
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 9
+belong to a weaker space, namely f 2 H 1. ̋/ D .H 1
+0 . ̋//0, and nevertheless
+obtained p 2 H 1
+0 . ̋/. On the other hand if f is taken in L2. ̋/ and  ̋ is convex
+one can prove [309] that p 2 H 2. ̋/ and that
+kpk2; ̋ ckf k0; ̋ ; (1.2.26)
+where c is a constant depending only on  ̋. Regularity results are essential to many approximations results and are fundamental to obtain error estimates. We refer the reader to [233] for the delicate questions of the regularity of the general problem (1.2.23) in a domain with corners. ut
+Example 1.2.2 (Linear elasticity). We want to determine the displacement u D fu1; u2g of an elastic material under the action of some external forces. We suppose the displacement to be small and the material to be isotropic and homogeneous [146, 295]. The domain  ̋ is the initial configuration of the body. To set our problem, we must introduce some notation from continuum mechanics. First we define the linearised strain tensor ".u/ by
+".u/ WD 1
+2
+@ui
+@xj
+C @uj
+@xi
+: (1.2.27)
+The trace, tr."/, of this tensor is nothing but the divergence of the displacement field
+tr."/.v/ D div v: (1.2.28)
+We shall also use the deviatoric "D of the tensor " that is
+"D WD " 1
+n tr."/ı; (1.2.29)
+where ı is the standard Kronecker tensor and n is the space dimension. The
+deviatoric is evidently built to have tr."D/ D 0. Let then 0 be a part of on which we assume u D 0. We also assume the existence in  ̋ of a distributed force f (e.g. gravity) and on 1 of a traction g that is decomposed into a normal part gn and a tangential part gt . We denote by n and t the normal and tangential unit vectors to . Let us denote
+j"j2 D " W " WD X
+i;j
+"2
+ij (1.2.30)
+and let us consider in V WD .H 1
+0; 0 . ̋//2 the minimisation problem
+vi2nVf
+Z
+ ̋
+1
+2 j div vj2 C 2 j".v/j2 dx
+Z
+ ̋
+f v dx
+Z
+1
+gnv n ds
+Z
+1
+gt v t ds :
+(1.2.31)
+
+
+10 1 Variational Formulations and Finite Element Methods
+Constants and , the Lame ́ coefficients, depend on the physical properties of the material considered. The solution u of this problem is then characterised by
+2
+Z
+ ̋
+".u/ W ".v/ dx C
+Z
+ ̋
+div u div v dx
+D
+Z
+ ̋
+f v dx C
+Z
+ ̋1
+gnv n ds C
+Z
+2
+gt v t ds; 8v 2 V;
+(1.2.32)
+which is still clearly of the form (1.1.6). We now use the classical integration by parts formula
+Z
+ ̋
+m W ".v/ dx D
+Z
+ ̋
+.div m/ v dx C
+Z
+mnnv nds C
+Z
+mnt v t ds (1.2.33)
+where m is a (smooth enough) tensor, and mnn and mnt denote the normal and tangential parts of the traction vector mn, i.e.
+8ˆˆˆˆ<
+ˆˆˆˆ:
+mnn WD X
+i;j
+mij ni nj D X
+i
+nX
+j
+mij nj
+o
+ni D X
+i
+.mn/i ni ;
+mnt WD X
+i;j
+mij ti nj D X
+i
+nX
+j
+mij nj
+o
+ti D X
+i
+.mn/i ti :
+(1.2.34)
+Equation (1.2.32) can now be interpreted as
+8ˆˆˆˆˆ<
+ˆˆˆˆˆ:
+.2 div ".u/ C grad div u/ D f in  ̋;
+uˇˇ
+0 D 0;
+2 "nn C div u D gn;
+2 "nt D gt on 1:
+(1.2.35)
+Let us now introduce the stress tensor WD sD C pı and the constitutive law
+( sD WD 2 "D.u/;
+p WD 2. C / div u;
+(1.2.36)
+relating stresses to displacements. It is now clear that the first equation of (1.2.35) expresses the equilibrium condition of continuum mechanics,
+div C f D 0: (1.2.37)
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 11
+In applications, the constitutive law (1.2.36) will vary depending on the type of materials and will sometimes take very non linear forms. In this case, the expression of the energy functional (1.2.31) will change accordingly. Moreover, large displacements will require a much more complex treatment. Nevertheless, the problem described above remains valuable as a model for more complicated situations. The case of an incompressible material is especially important. It leads to the same equations as in the study of viscous incompressible flows. ut
+Example 1.2.3 (Stokes’ problem for viscous incompressible flow.). We now consider a low velocity flow of a viscous incompressible fluid in a domain  ̋. We denote by u the velocity field and by ".u/ the (linearised) strain rate tensor defined in the same way as in (1.2.27). We thus consider the minimisation problem with the same notation and the same space V as in Example 1.2.2, but now with the incompressibility condition div v D 0, that is,
+vi2nVf div vD0
+Z
+ ̋
+j".v/j2
+Z
+ ̋
+f v dx C
+Z
+1
+gn v n ds C
+Z
+1
+gt v t ds: (1.2.38)
+As we shall see later, problem (1.2.31) can be considered, when is large, as an approximation (by a “penalty method”) of problem (1.2.38). Indeed when is large the second constitutive relation of (1.2.36) forces, in some sense, div v to be zero. In the limit for D C1 (1.2.36) becomes meaningless: we shall see in Sect. 1.3 that pressure can then be introduced as a Lagrange multiplier associated with the constraint div u D 0. ut
+We now present a fourth-order problem. It is again, from the physical point of view, an elasticity problem but in a special modelling.
+Example 1.2.4 (Deflection of a thin clamped plate). We consider here the problem of a thin clamped plate deflected under a distributed load f . The physical model will be described in Chap. 10. We also refer to [147, 148] and [149] for more details on plate problems. Under reasonable assumptions (and setting, for simplicity, some physical constants equal to 1), one obtains that the vertical deflection is solution of the minimisation problem
+inf
+'2H 2
+0 . ̋/
+1
+2
+Z
+ ̋
+j 'j2 dx
+Z
+ ̋
+f ' dx: (1.2.39)
+The unique solution is characterised by
+Z
+ ̋
+' dx D
+Z
+ ̋
+f ' dx; 8' 2 H 2
+0 . ̋/; (1.2.40)
+
+
+12 1 Variational Formulations and Finite Element Methods
+and is the solution of the boundary value problem
+8ˆˆˆ<
+ˆˆˆ:
+2 D f;
+j D 0;
+@
+@n j D 0:
+(1.2.41)
+For these boundary conditions (representing a clamped plate) (1.2.39) is equivalent to
+inf
+'2H 2
+0 . ̋/
+( 1
+2
+Z
+ ̋
+"
+@2'
+@x2
+1
+2
+C 2 @2'
+@x1@x2
+2
+C @2v'
+@x2
+2
+2#
+dx
+Z
+ ̋
+f ' dx
+)
+;
+(1.2.42)
+which is, in general, more physically sound. These two mathematically equivalent forms can lead to different numerical methods. It must also be noted that natural boundary conditions (those arising from integration by parts) will not be the same if (1.2.39) and (1.2.42) are minimised on a space larger than H 2
+0 . ̋/, so that the equivalence only holds for plates that are clamped all over the boundary. Actually the true potential energy of the plate (that is, the true functional which has to be minimised) is given, for a clamped plate, by
+J.'/ WD Et3
+12.1 2/
+Z
+ ̋
+n
+j 'j2 C .1 /
+h @2'
+@x2
+1
+2C2 @2'
+@x1@x2
+2
+C @2'
+@x2
+2
+2io dx
+Z
+ ̋
+f ' dx; (1.2.43)
+where E is Young’s modulus, is the Poisson’s coefficient and t is the thickness of the plate. In particular E and can be expressed in terms of the Lame ́ coefficients , in the following way
+E WD .3 C 2 /
+C ; WD 2. C / : (1.2.44)
+We also recall that the Stokes problem (1.2.38) can also be expressed as a biharmonic problem by the introduction of a stream function such that
+uD
+n@
+@x2
+;@
+@x1
+o
+: (1.2.45)
+We shall come back to this point in Sect. 1.3. ut
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 13
+Example 1.2.5 (The time-harmonic Maxwell system). Maxwell’s equations represent one of the most elegant and concise ways to state the fundamentals of electricity and magnetism. The classical electromagnetic field is described by the four vectors E, D, H, and B which are functions of the position x 2 R3 and of the time t 2 R. The vectors E and H are referred to as the electric and magnetic field, while D and B are the electric and magnetic displacements, respectively. The Faraday law of induction states
+Z
+@ ̇
+E ds D d
+dt
+Z
+ ̇
+B n; (1.2.46)
+for any closed orientable surface  ̇ in R2 with normal n; namely, the circulation of the electric field equals the negative of the rate of change of the magnetic flux. The Ampe`re law says
+Z
+@ ̇
+H ds D d
+dt
+Z
+ ̇
+D nC
+Z
+ ̇
+J n; (1.2.47)
+with the same notation as above and where J denotes the current density vector. From Eqs. (1.2.46) and (1.2.47) it can be noticed that the fields E, H, B and D have a different nature. Indeed, the first two are integral 1-forms, while the latter two are integral 2-forms in the spirit of [247] (Definition 1). This remark is of fundamental importance for the design of finite element schemes. The differential forms of (1.2.46) and (1.2.47) read
+@B
+@t C curl E D 0;
+@D
+@t curl H D J ;
+(1.2.48)
+which are usually referred to as Maxwell’s equations, together with the two Gauss Laws
+div D D ;
+div B D 0;
+(1.2.49)
+where denotes the charge density function. It is clear that in (1.2.48) and (1.2.49) the quantities J and cannot be taken independently: taking the divergence of the second equation in (1.2.48) and comparing with the time derivative of the first equation in (1.2.49) we have indeed:
+@
+@t C div J D 0; (1.2.50)
+which could be seen as a compatibility condition when J and are considered as given data.
+
+
+14 1 Variational Formulations and Finite Element Methods
+The time-harmonic Maxwell system is considered, for instance, when the Fourier transform in time is used or when the propagation of electromagnetic waves at a given frequency is studied. Then, given a frequency !, we consider the ansatz:
+E.x; t/ D < e i!t E.x/ ;
+D.x; t/ D < e i!t D.x/ ;
+H.x; t/ D < e i!t H.x/ ;
+B.x; t/ D < e i!t B.x/ ;
+(1.2.51)
+where < denotes the real part. We define also
+J .x; t/ D < e i!t J.x/ ;
+.x; t/ D < e i!t r.x/ :
+(1.2.52)
+Standard constitutive equations for linear media read
+D D "E; B D H; (1.2.53)
+where " and denote the electric permittivity and the magnetic permeability,
+respectively. For general inhomogeneous, anisotropic materials " and are 3 3
+positive definite matrix functions. Inserting constitutive relations (1.2.53) into (1.2.48) and (1.2.49), and considering the time-harmonic assumptions (1.2.51) and (1.2.52), we get the time harmonic Maxwell equations
+curl E i ! H D 0;
+div."E/ D r;
+curl H C i !"E D J;
+div. H / D 0:
+(1.2.54)
+It is a standard procedure to eliminate one variable and to write (1.2.54) as a second order system. Eliminating for instance the field H , we get
+curl. 1 curl E/ !2"E D F; (1.2.55)
+where F is given by i !J , together with the divergence condition (which follows from the equation)
+!2 div."E/ D div F: (1.2.56)
+
+
+1.2 Model Problems and Elementary Properties of Some Functional Spaces 15
+Equation (1.2.55) is usually equipped with suitable boundary conditions. The simplest one is the perfect conducting boundary condition which reads:
+E n D 0; (1.2.57)
+where n is the outward unit vector. We shall discuss variational formulations of the time harmonic Maxwell equations in Chap. 11. ut
+The examples presented above are among the most fundamental of mathematical physics and engineering problems. A good understanding of their properties will enable to extend the results obtained to more complex situations.
+1.2.1 Eigenvalue Problems
+The above examples can also be associated to eigenvalue problems. It is worth making them explicit as we shall be concerned later with alternate formulations and their numerical properties. In the case of Example 1.2.1, restricting ourselves to the case of Dirichlet’s conditions, we have
+( p D p in  ̋;
+pˇˇ D 0:
+(1.2.58)
+The solutions of this problem describe, for instance, the vibrational modes of a membrane. It can be written in a more precise way as, Z
+ ̋
+grad p grad q dx D
+Z
+ ̋
+p q dx; 8q 2 H 1
+0 . ̋/: (1.2.59)
+It is classical [172, 382] that this problem has an infinite countable set of solutions .pk; k; k 2 N / with k ! 1 as k increases. The key to this result is the compact inclusion of H 1
+0 . ̋/ into L2. ̋/.
+In the same way, the eigenvalue problem associated with the elasticity problem of Example 1.2.2 is fundamental for the study of vibrations in elastic structures. The problem is then, restricting ourselves again to Dirichlet’s conditions,
+8<
+:
+.2 div ".u/ C grad div u/ D Q u in  ̋;
+uˇˇ
+0 D 0:
+(1.2.60)
+We have denoted the eigenvalue as Q to distinguish it from the Lame ́ coefficients. The variational form is then,
+2
+Z
+ ̋
+".u/ W ".v/ dx C
+Z
+ ̋
+div u div v dx
+DQ
+Z
+ ̋
+u v dx ds; 8v 2 V: (1.2.61)
+
+
+16 1 Variational Formulations and Finite Element Methods
+Here again we have an infinite set of eigenvalues. Introducing in this problem the constraint div u D 0, we would get an eigenvalue problem for the Stokes problem of Example 1.2.3, or to a problem of incompressible elasticity as we shall see later. Eigenvalue problems related to Maxwell’s equations will be discussed in Chap. 11.
+1.3 Duality Methods
+1.3.1 Generalities
+Up to now, we have introduced equations that can be written as minimisation problems of some functionals in properly chosen functional spaces. This is the most classical way of setting these problems. Finite element approximations, based on the formulations described above, are routinely used in commercial codes. Various reasons justified the introduction, for these same problems and many other ones, of different variational formulations and therefore different finite element approximations. This was done at the beginning by many engineers. The reader may refer, for example to [321, 335, 336]. Thefirstreason can be the presence in the variational formulation of a constraint, such as the condition div u D 0 in problem (1.2.38). As we shall see, it is difficult (and not necessary) to build finite element approximations satisfying exactly this constraint. It will be more efficient to modify the variational formulation and to introduce pressure. Asecondreason may lie in the physical “importance” of the variables appearing in the problem. In elasticity problems, for example, it is often more useful to compute accurately stresses rather than displacements. In the standard formulation, stresses can be recovered from the displacements by (1.2.36) or some other similar law. Their computation requires the derivatives of the displacement field u. From a numerical point of view, differentiating implies a loss of precision. It is therefore appealing to look for a formulation in which constraints are readily accessible. A third reason comes from the difficulties arising in the discretisation of spaces of regular functions such as H 2
+0 . ̋/ appearing in Example 1.2.4. Approximating this space by a finite element method implies ensuring continuity of the derivatives at interfaces between elements. This is possible but more cumbersome than approximating, say, H 1. ̋/ or H 1
+0 . ̋/. A variational formulation enabling to decompose a fourth-order problem into a system of second order problems permits to avoid building complicated elements, at the price of introducing some other difficulties. Finally, a last reason could be to look for a weaker variational formulation corresponding better in some cases to available data (e.g. punctual loads) for which standard formulations may become meaningless due to a lack of regularity of the solution. We must also point out that the “non-standard” formulations which we shall now describe have been initially introduced by engineers for one or some of the reasons discussed above. We quote in this respect, but in a totally non exhaustive way, [210, 243,245,320,370]. On the other hand, very powerful tools for the transformation of
+
+
+1.3 Duality Methods 17
+variational problems can be found in convex analysis and duality theory [38,50,184, 338]. It is neither possible nor desirable to develop here duality theory and we shall restrict ourselves to the most basic facts. The fundamental idea of duality theory is that one can represent a convex function by the family of its tangent affine functions. This is indeed the principle of the classical Legendre transformation. More precisely, let us define for a given convex function G.v/, defined from a space V to R, the conjugate function G .v / on the dual space V 0 of V by
+G .v / WD sup
+v2V
+hv; v iV V 0 G.v/: (1.3.1)
+Note that when V D R, G .v / is the intercept with the v axis of the tangent to G of slope v . The important point for what follows is that one can build G.v/ from G .v / by the following formula, symmetrical to (1.3.1)
+G.v/ D sup
+v 2V 0
+hv ; viV 0 V G .v /: (1.3.2)
+Given then a problem of the form
+vi2nVf F .v/ C G.v/; (1.3.3)
+we can use (1.3.2) to obtain
+vi2nVf
+n
+F .v/ C sup
+v 2V 0
+hv ; viV 0 V G .v /
+o
+(1.3.4)
+that is, the saddle point problem
+inf
+v2V
+sup
+v 2V 0
+F .v/ C hv ; viV 0 V G .v /: (1.3.5)
+Under simple regularity assumptions, one can also consider the dualproblem
+sup
+v 2V 0
+n
+vi2nVf F .v/ C hv ; viV 0 V G .v /
+o
+: (1.3.6)
+To fix ideas, it is worth considering a special and important case where we have as in (1.1.2), for f 2 V 0,
+F .v/ WD 1
+2 a.u; v/ hf; vi: (1.3.7)
+We then introduce another Hilbert space Q and an operator B from V into Q0 defined by a continuous bilinear form on V Q,
+hBv; qi D b.v; q/: (1.3.8)
+
+
+18 1 Variational Formulations and Finite Element Methods
+We then want to solve for g 2 Q0 the constrained problem
+inf
+BvDg J.v/: (1.3.9)
+This constrained problem can be written as an unconstrained problem, introducing the characteristic function ı. jf0g/ defined on Q0 by
+ı.qjfgg/ WD
+(
+0 if v D g;
+C1 otherwise.
+(1.3.10)
+We can then write (1.3.9) as
+vi2nVf F .v/ C ı.Bvjfgg/; (1.3.11)
+which can be readily transformed into the saddle-point problem
+inf
+v2V
+sup
+q2Q
+1
+2 a.u; v/ b.v; q/ hf; viV 0 V C hg; qiQ0 Q; (1.3.12)
+for which the optimality system is
+( a.u; v/ C b.v; p/ D hf; viV 0 V ; 8v 2 V;
+b.u; q/ D hg; qiQ0 Q; 8q 2 Q;
+(1.3.13)
+or in operator form, denoting A the operator from V into V 0 defined by a. ; /,
+( Au C Bt p D f;
+Bu D g:
+(1.3.14)
+Remark 1.3.1. Problem (1.3.12) has the general form
+inf
+v2V
+sup
+q2Q
+L.v; q/; (1.3.15)
+where L.v; q/ is a convex-concave functional on V Q. If one first eliminates q by computing
+J.v/ D sup
+q2Q
+L.v; q/;
+one falls back on the original problem, the primal problem. Reversing the order of operations, (this cannot always be done, but no problems arise in the examples we present) and eliminating v from L.v; q/ by defining
+D.q/ WD invf L.v; q/ (1.3.16)
+
+
+1.3 Duality Methods 19
+leads to the dual problem
+sup
+q2Q
+D.q/: (1.3.17)
+ut
+The dual problem in Q corresponding to (1.3.12) would take the form
+inq f
+1
+2 hA 1Bt q; Bt qiV V 0 hA 1f; Bt qiV V 0 C hg; qiQ0 Q; (1.3.18)
+or in operator form,
+BA 1Bt p D BA 1f g: (1.3.19)
+We now apply this idea to the previous examples. This form of problem and its variants will be central to our study and we shall proceed to introduce some examples.
+1.3.2 Examples for Symmetric Problems
+Example 1.3.1 (Introduction of pressure in Stokes’ problem.). Let us consider problem (1.2.38) in which, to make the presentation easier, we take 0 D that is pure Dirichlet conditions on the boundary. This constrained problem can be written as an unconstrained problem, introducing as above the characteristic function ı. jf0g/ defined on L2. ̋/ by
+ı.vjf0g/ WD
+(
+0 if v D 0;
+C1 otherwise.
+(1.3.20)
+It is thus a pure change of notations to write instead of (1.2.38)
+vi2nVf
+Z
+ ̋
+j".v/j2 dx
+Z
+ ̋
+f v dx C ı.div vjf0g/ ; (1.3.21)
+where V D .H 1
+0 . ̋//2. On the other hand, one clearly has,
+ı.div ujf0g/ D sup
+q 2L2 . ̋ /
+Z
+ ̋
+q div u dx; 8u 2 .H 1
+0 . ̋//2; (1.3.22)
+and the minimisation problem (1.3.21) can be transformed into the saddle point problem,
+inf
+v2V
+sup
+q 2L2 . ̋ /
+Z
+ ̋
+j".v/j2 dx
+Z
+ ̋
+f v dx
+Z
+ ̋
+q div v dx: (1.3.23)
+
+
+20 1 Variational Formulations and Finite Element Methods
+This apparently simple trick has in reality completely changed the nature of the problem. We now have to find a pair .u; p/ solution of the variational system
+8ˆˆ<
+ˆˆ:
+2
+Z
+ ̋
+".u/ W ".v/ dx
+Z
+ ̋
+f v dx
+Z
+ ̋
+p div v dx D 0; 8v 2 V;
+Z
+ ̋
+q div u dx D 0; 8q 2 L2. ̋/:
+(1.3.24)
+The second equation of (1.3.24) evidently expresses the condition div u D 0. In order to use (1.3.24), we shall have to show the existence of a saddle point .u; p/, and in particular the existence of the Lagrange multiplier p. This will be done in Chap. 4. The variational system (1.3.24) can be interpreted in the form
+8ˆˆ<
+ˆˆ:
+2 Au C grad p D f ;
+div u D 0;
+uj D 0;
+(1.3.25)
+where we used the operator Au D div ".u/
+Au D
+0
+BBBB@
+@2u1
+@x2
+1
+C@
+@x2
+1
+2
+@u1
+@x2
+C @u2
+@x1
+@2u2
+@x2
+2
+C@
+@x1
+1
+2
+@u1
+@x2
+C @u2
+@x1
+1
+CCCCA
+: (1.3.26)
+Under the divergence-freecondition div u D 0, this can also be written as
+( u C grad p D f ;
+div u D 0;
+(1.3.27)
+which is the classical form of the Stokes problem. ut
+Example 1.3.2 (Dual problem for the Stokes problem). In the case of the Stokes problem, the dual problem can be expressed, as we shall see, in many equivalent ways. In order to find it we must, q being given, find the minimum in respect to v
+of L.v; q/ D R
+ ̋ j".v/j2 dx R
+ ̋ f v dx R
+ ̋ q div v dx. The minimum, that we denote by uq, is characterised by
+2
+Z
+ ̋
+".uq/ W ".v/ dx
+Z
+ ̋
+f v dx
+Z
+ ̋
+q div v dx D 0; 8v 2 V: (1.3.28)
+
+
+1.3 Duality Methods 21
+Taking v D uq this gives,
+2
+Z
+ ̋
+j".uq/j2 dx
+Z
+ ̋
+f uq dx
+Z
+ ̋
+q div uq dx D 0: (1.3.29)
+Using (1.3.29) to evaluate L.uq; q/, the dual problem can be written as an optimal control problem,
+sup
+q 2L2 . ̋ /
+Z
+ ̋
+j".uq/j2 dx; (1.3.30)
+where uq is the solution of
+( 2 Auq C grad q D f ;
+uqj D 0:
+(1.3.31)
+Denoting by G the Green operator defining the solution of (1.3.31), that is
+uq D G.f grad q/ (1.3.32)
+and using (1.3.32) in (1.3.30), one can get from (1.3.29)
+inq f
+Z
+ ̋
+grad q G.grad q/ dx
+Z
+ ̋
+G.f / grad q dx: (1.3.33)
+One notices that this dual problem is a problem in grad q. It is well-known that the solution p is defined (for Dirichlet conditions on u) only up to an additive constant. One can interpret (1.3.33) as the equation,
+div.G grad q/ D div.Gf /: (1.3.34)
+If one defines on V 0 WD .H 1. ̋//2 the norm
+kf k2
+G WD hGf ; f iV V 0 ; (1.3.35)
+problem (1.3.33) can be written as a least-squares problem
+inf
+q 2L2 . ̋ /
+1
+2 k grad q f k2
+G: (1.3.36)
+ut
+The presence of a Green operator makes this dual problem difficult to handle directly. It is however implicitly the basis of some numerical solution procedures [205, 368]. We shall meet below other dual problems that will have a large direct importance and that will be handled as such.
+
+
+22 1 Variational Formulations and Finite Element Methods
+Example 1.3.3 (A duality method for nearly incompressible elasticity). We already noted in Examples 1.2.2 and 1.2.3 that the linear elasticity problem and the Stokes problem are very similar when a nearly incompressible material is considered. We now develop this analogy in the framework of Example 1.3.1. The starting point will be the obvious result,
+2
+Z
+ ̋
+j div vj2 dx D sup
+q 2L2 . ̋ /
+Z
+ ̋
+q div v dx 1
+2
+Z
+ ̋
+jqj2 dx: (1.3.37)
+Substituting (1.3.37) into (1.2.31) we get, by the same methods as in the previous examples, the problem
+inf
+v2V
+sup
+q 2L2 . ̋ /
+Z
+ ̋
+j".v/j2 dx C
+Z
+ ̋
+q div v dx 1
+2
+Z
+ ̋
+jqj2 dx
+Z
+ ̋
+f v dx
+Z
+1
+gn v n ds
+Z
+1
+gt v t ds:
+(1.3.38)
+The solution .u; p/ of problem (1.3.38) is characterised by the system,
+8ˆˆˆˆˆˆˆ<
+ˆˆˆˆˆˆˆ:
+2
+Z
+ ̋
+".u/ W ".v/ dx C
+Z
+ ̋
+p div v dx
+D
+Z
+ ̋
+f v dx C
+Z
+1
+.gnv n C gt v t/ ds; 8v 2 V;
+Z
+ ̋
+q div u dx 1 Z
+ ̋
+pq dx D 0; 8q 2 L2. ̋/:
+(1.3.39)
+This can be summarised by saying that we transformed our original problem into a system by introducing the auxiliary variable p D div u. It must be noted that this also makes our minimisation problem become a saddle point problem. We shall see in Chap. 8, that this apparently tautologicalchangehas implicationsin the building ofnumericalapproximationsto (1.2.31) thatremainvalidwhen is large. ut
+Example 1.3.4 (Dualisation of the Poisson problem). The result that we shall get here can be obtained by many methods. Techniques of convex analysis permit one to extend what appears to be a trick to much more complex situations. However it will be sufficient for our purpose to follow the simple development below. Let us then consider the Dirichlet problem,
+inf
+q2H 1
+0 . ̋/
+1
+2
+Z
+ ̋
+j grad qj2 dx
+Z
+ ̋
+f q dx: (1.3.40)
+In many applications grad p rather than p is the interesting variable. For instance in thermo-diffusion problems, grad p will be the heat flux which is (very often) more important to know than the temperature p. What we now do is essentially to
+
+
+1.3 Duality Methods 23
+introduce the auxiliary variable u D grad p to transform our problem into a system. To do so, we use the same trick as in Example 1.3.3 and write
+1
+2
+Z
+ ̋
+j grad qj2 dx D sup
+v 2.L2 . ̋ //2
+Z
+ ̋
+v grad q dx 1
+2
+Z
+ ̋
+jvj2 dx; (1.3.41)
+which we use in (1.3.40) to get the saddle point problem,
+inf
+q2Q
+sup
+v2V
+1
+2
+Z
+ ̋
+jvj2 dx
+Z
+ ̋
+f q dx C
+Z
+ ̋
+v grad q dx; (1.3.42)
+where Q WD H 1
+0 . ̋/ and V WD .L2. ̋//2. The saddle point .p; u/ is characterised by
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+u v dx
+Z
+ ̋
+v grad p dx D 0 8v 2 V;
+Z
+ ̋
+u grad q dx D
+Z
+ ̋
+f q dx; 8q 2 Q;
+(1.3.43)
+and this can be read as
+( u D grad p; p 2 H 1
+0 . ̋/;
+div u C f D 0;
+(1.3.44)
+which is evidently equivalent to a standard Dirichlet problem for Laplace operator. The dualproblem is readily made explicit. Writing it as a minimisation problem by changing the sign of the objective functional, we have
+inf
+v2Zf
+1
+2
+Z
+ ̋
+jvj2 dx; where Zf WD fv 2 .L2. ̋//2j div v C f D 0g: (1.3.45)
+This is the classical complementaryenergyprinciple. ut
+We now want to get a weaker form of this problem. In order to do so, we recall a functional space already introduced in (1.2.16):
+H.divI  ̋/ WD fvj v 2 .L2. ̋//2; div v 2 L2. ̋/g; (1.3.46)
+and we consider on it the following norm
+kvk2
+H.divI ̋/ WD kvk2
+0; ̋ C k div vk2
+0; ̋ ; (1.3.47)
+that makes it a Hilbert space. As we have already said, vectors of H.divI  ̋/ admit a well defined normaltraceon WD @ ̋. This normal trace v n, lies in H 1=2. / and one has the following “integration by parts” formula,
+
+
+24 1 Variational Formulations and Finite Element Methods
+Z
+ ̋
+v grad q dx C
+Z
+ ̋
+div v q dx D hq; v niH 12 . / H 21 . /; (1.3.48)
+for any v 2 H.divI  ̋/ and any q 2 H 1. ̋/. We shall often write formally R qv n ds instead of the duality product hq; v ni.
+Remark 1.3.2. The norm (1.3.47) is surely as weird as many other Sobolev norms. See Remark 1.2.1. The proper way to write it would be to take a characteristic length ` of the problem (for instance, the diameter of  ̋), and consider instead
+kvk2
+H.divI ̋/ WD kvk2
+0; ̋ C `2k div vk2
+0; ̋ : (1.3.49)
+We do not do it here, nor, in general, throughout the book, in order to have simpler formulae to deal with. But, nevertheless, we consider it as not healthy. ut
+Example 1.3.5 (Weak form of the dual Poisson problem). If we take f 2 L2. ̋/, problem (1.3.45) which is a constrained problem can be changed into a saddle point problem, as in Example 1.3.1, by introducing a Lagrange multiplier p 2 L2. ̋/, that is, as v now belongs to H.divI  ̋/,
+inf
+v2H.divI ̋/
+sup
+q 2L2 . ̋ /
+1
+2
+Z
+ ̋
+jvj2 dx C
+Z
+ ̋
+f q dx C
+Z
+ ̋
+q div v dx: (1.3.50)
+The functional spaces employed precisely enable us to write every term in (1.3.50) without ambiguity. We now look for a saddle point .p; u/ satisfying the variational system,
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+u v dx C
+Z
+ ̋
+p div v dx D 0 8v 2 H.divI  ̋/;
+Z
+ ̋
+.div u C f /q dx D 0 8q 2 L2. ̋/:
+(1.3.51)
+Using (1.3.48) with v nj D 0, we obtain from (1.3.51)
+u D grad p: (1.3.52)
+Now p 2 L2. ̋/ and grad p D u 2 .L2. ̋//2 imply that p 2 H 1. ̋/ and it is justified to consider its trace. Using again (1.3.48) with a general v shows that pj D 0. The solution of our “weaker” problem is then the solution of the standard problem. However the discretisations of problem (1.3.51) will be quite different from those used for the standard formulation. ut
+Remark 1.3.3. The previous formulation enables us to write directly in a variational form a non-homogeneous Dirichlet problem. Indeed the solution .p; u/ of the saddle point problem with g 2 H 1
+2 . /,
+
+
+1.3 Duality Methods 25
+inf
+v
+sup
+q
+1
+2
+Z
+ ̋
+jvj2 dx C
+Z
+ ̋
+.div v C f /q dx
+Z
+gv n ds; (1.3.53)
+leads to u D grad p; div u C f D 0; pj D g. On the other hand, Neumann conditions become essential conditions that have to be incorporated into the construction of u, that is in the choice of the functional space. ut
+Example 1.3.6 (Dualisation for the linear elasticity problem). We now want to extend the previous results to the case of the linear elasticity problem. We shall thus get a second way to dualise problem (1.2.31). It is a general fact that there is no unique way to use duality techniques. The lines of the development are the same as for the Poisson problem and we shall avoid to write the details. We just point out that now u and v play the role of p and q, while and play the role of u and v, respectively. We start by introducing the space
+H .divI  ̋/s WD f j ij 2 L2. ̋/; ij D ji; div 2 .L2. ̋//2g; (1.3.54)
+where div is the vector @
+@x1 i1 C @
+@x2 i2. On this space we use the norm,
+k k2
+H .divI ̋/s WD X i;j
+Z
+ ̋
+j ijj2 dx C k div k2
+.L2. ̋//2 ; (1.3.55)
+which makes it a Hilbert space. One can then define, as for H.divI  ̋/, the vector n 2 .H 1
+2 . //2
+. n/i WD X
+j
+ij nj (1.3.56)
+and we shall mostly use the normal and tangential components, nn and nt , of this vector, as defined in (1.2.34). We then have the following “integration by parts” formula, Z
+ ̋
+W ".v/ dx C
+Z
+ ̋
+div v dx D h n; vi D h nn; v ni C h nt ; v ti; (1.3.57)
+which is valid for any and v smooth enough. We have denoted h ; i the duality
+between H 1
+2 . / and H 1
+2 . / and shall often write the formal expression R
+nn v
+n ds C R
+nt v t ds.
+We can now write our dual formulation for the linear elasticity problem. Following the same line as for the Poisson problem, we now write
+
+
+26 1 Variational Formulations and Finite Element Methods
+Z
+ ̋
+j".v/j2 dx C 2
+Z
+ ̋
+j div vj2 dx D sup
+2H .divI ̋/s
+Z
+ ̋
+D W "D dx
+C
+Z
+ ̋
+tr tr " dx 1
+4
+Z
+ ̋
+j Dj2 dx 1
+2. C /
+Z
+ ̋
+.t r /2 dx;
+(1.3.58)
+which leads us to the saddle point problem in H .divI  ̋/ .L2. ̋//2,
+inf sup
+v
+1
+2. C /
+Z
+ ̋
+jtr j2 dxC 1
+4
+Z
+ ̋
+j Dj2 dxC
+Z
+ ̋
+.div Cf / v dx: (1.3.59)
+The solution . ; u/ of this saddle point problem is characterised by the system
+8ˆˆˆ<
+ˆˆˆ:
+div C f D 0;
+tr D . C / t r ".u/;
+D D 2 "D.u/;
+(1.3.60)
+which are the equilibrium condition (1.2.37) and the constitutive relations (1.2.36). The dual problem then consists in minimising the complementaryenergy
+inf 1
+4
+Z
+ ̋
+j Dj2 dx C 1
+2. C /
+Z
+ ̋
+jt r j2 dx; (1.3.61)
+under the constraint div C f D 0. Both the mixed formulation (1.3.59) and the dual formulation (1.3.61) are used in practice. They lead to different although similar approximations. ut
+We now consider the thin plate problem of Example 1.2.4 to introduce a mixed formulation due to [152] and [298].
+Example 1.3.7 (Decomposition of a biharmonic problem). Again using the same technique as in the dualisation of the Dirichlet problem in Example 1.3.4, it is a simple exercise to transform problem (1.2.39) into the saddle point problem
+inf
+2L2 . ̋ /
+sup
+'2H 2
+0 . ̋/
+1
+2
+Z
+ ̋
+j j2 dx C
+Z
+ ̋
+' dx C
+Z
+ ̋
+f ' dx; (1.3.62)
+and to get the dual problem,
+i2nfM
+1
+2
+Z
+ ̋
+j j2 dx; (1.3.63)
+where M WD f 2 L2. ̋/; C f D 0g. Integrating by parts the term
+R
+ ̋ ' dx, we get, as in Example 1.3.5, a weaker formulation
+
+
+1.3 Duality Methods 27
+inf
+2L2 . ̋ /
+sup
+'2H 2
+0 . ̋/
+1
+2
+Z
+ ̋
+j j2 dx
+Z
+ ̋
+grad grad ' dx C
+Z
+ ̋
+f ' dx: (1.3.64)
+Assume that (1.3.64) has a saddle point .!; / with ! 2 H 1. ̋/. Then .!; / is characterised by the variational system
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+! dx
+Z
+ ̋
+grad grad dx D 0 8 2 H 1. ̋/;
+Z
+ ̋
+grad ! grad ' dx D
+Z
+ ̋
+f ' dx 8' 2 H 1
+0 . ̋/:
+(1.3.65)
+It is not difficult to see that the two equations of (1.3.65) imply
+8ˆ<
+ˆ:
+D ! and @
+@n ˇˇ D 0;
+! D f:
+(1.3.66)
+As we already have j D 0 (since 2 H 1
+0 . ̋/), we have in (1.3.66) too many boundary conditions on and none on !. The system however has a solution .!; / (provided  ̋ and f are smooth enough) such that the solution of the Dirichlet problem in also satisfies (through the choice of the right-hand side) the extra Neumann condition. ut
+Example 1.3.8 (Decomposition of the plate bending problem). We now consider the plate bending problem (1.2.43). In order to make the dual problem easier to introduce, we first write the energy functional in the form
+1
+2
+Et3
+12.1 2/
+Z
+ ̋
+M.D2'/ W D2' dx
+Z
+ ̋
+f ' dx; (1.3.67)
+where the operator D2 is defined by
+.D2'/ij WD @2'
+@xi @xj
+; 1 i; j 2; (1.3.68)
+and the operator M by
+M. / WD 11 C 22 .1 / 12
+.1 / 12 11 C 22
+; (1.3.69)
+for any symmetric tensor . Using the same kind of analysis as in the previous examples, we then get the saddle point problem
+
+
+28 1 Variational Formulations and Finite Element Methods
+inf
+2.L2 . ̋ //s4
+sup
+'2H 2
+0 . ̋/
+1
+2
+12.1 2/
+Et3
+Z
+ ̋
+M 1. / W dx
+C
+Z
+ ̋
+W D 2' dx
+Z
+ ̋
+f ' dx; (1.3.70)
+where .L2. ̋//4
+s is the space of square integrable 2 2 symmetric tensors. We introduce, as dual variables, the bending moments, obtained from the second derivatives of the primal solution by
+WD Et 3
+12.1 2/ M.D 2u/; (1.3.71)
+or explicitly
+8ˆˆˆˆˆˆˆˆˆ<
+ˆˆˆˆˆˆˆˆˆ:
+11 D Et 3
+12.1 2/
+@2
+@x2
+1
+C @2
+@x2
+2
+;
+22 D Et 3
+12.1 2/
+@2
+@x2
+1
+C @2
+@x2
+2
+;
+12 D Et 3
+12.1 C /
+@2
+@x1@x2
+:
+(1.3.72)
+The dual problem can then be written as
+inf 1
+2
+12
+Et3
+Z
+ ̋
+Œ. 11 C 22/2 C 2.1 C /. 2
+12 11 22/Ł dx; (1.3.73)
+under the constraint
+D2 D f: (1.3.74)
+In (1.3.74) we denoted by D2 the transpose of the operator D 2 so that
+D2 D @2 11
+@x2
+1
+C 2 @2 12
+@x1@x2
+C @2 22
+@x2
+2
+: (1.3.75)
+It is possible, as in the previous case, to integrate by parts the expressions (1.3.74) and to obtain formulations in different functional spaces. We shall see an example of such a procedure in Sect. 10.2. ut
+1.3.3 Duality Methods for Non Symmetric Bilinear Forms
+In all previous examples, our variational formulations were based on a minimisation problem for a functional and we were led to introduce a genuine saddle point
+
+
+1.3 Duality Methods 29
+problem. Even if this classical framework is suitable for a first presentation, it is not the sole possible, and the techniques developed before can also be applied to problems which are not optimisation problems. Let us consider for instance in H1
+0 . ̋/ a continuous and coercive bilinear form a.p; q/. If we do not require a. ; / to be symmetric, the variational problem
+a.p; q/ D
+Z
+ ̋
+f q dx; 8q 2 H 1
+0 . ̋/; (1.3.76)
+has for f 2 L2. ̋/ a unique solution p 2 H 1
+0 . ̋/ but does not correspond to the minimisation of any functional. To fix ideas, let us suppose that a.p; q/ can be written as
+a.p; q/ D m. grad p; grad q/ D
+Z
+ ̋
+M. grad p/ grad q dx (1.3.77)
+where m. ; / is a continuous bilinear form on .L2. ̋//2, which, of course, is non symmetric, and M is the associated linear operator from .L2. ̋//2 into .L2. ̋//2. We can now introduce the auxiliary variable
+u D M. grad p/ (1.3.78)
+and write problem (1.3.67) in the form
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+u grad q dx D
+Z
+ ̋
+f q dx;
+Z
+ ̋
+M 1u v dx D
+Z
+ ̋
+v grad p dx:
+(1.3.79)
+This can be integrated by parts to yield, as in Example 1.3.5, for u in H.divI  ̋/ and p in L2. ̋/:
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+div u q dx C
+Z
+ ̋
+f q dx D 0; 8q 2 L2. ̋/;
+Z
+ ̋
+M 1u v dxC
+Z
+ ̋
+p div v dx D 0; 8v 2 H.divI  ̋/:
+(1.3.80)
+We shall thus consider in Chaps. 3 and 4 problems such as (1.3.80) without making reference to a saddle point problem. The same remark would apply to the methods of the following section. ut
+1.3.4 Mixed Eigenvalue Problems
+We have considered earlier in Sect. 1.2.1 some eigenvalue problems associated with our examples. We shall now rapidly consider their counterpart in mixed form. Let
+
+
+30 1 Variational Formulations and Finite Element Methods
+us thus come back to problem (1.3.13). It is now possible to consider three distinct eigenvalue problems.
+1. The primal eigenvalue problem,
+( a.u; v/ C b.v; p/ D .u; v/V ; 8v 2 V;
+b.u; q/ D 0; 8q 2 Q:
+(1.3.81)
+2. The dual eigenvalue problem,
+( a.u; v/ C b.v; p/ D 0; 8v 2 V;
+b.u; q/ D .p; q/Q; 8q 2 Q:
+(1.3.82)
+3. The global eigenvalue problem,
+( a.u; v/ C b.v; p/ D .u; v/V ; 8v 2 V;
+b.u; q/ D .p; q/Q; 8q 2 Q:
+(1.3.83)
+In practice, the interesting cases, from the physical point of view, will be either the primal or the dual problem.
+Example 1.3.9 (Eigenvalue problem for incompressible elasticity and the Stokes problem). This case is the simplest instance of a primal eigenvalue problem of type (1.3.81). We consider the eigenvalue problem corresponding to (1.3.39) in the limiting case of infinitely large.
+8ˆˆ<
+ˆˆ:
+2
+Z
+ ̋
+".u/ W ".v/ dx C
+Z
+ ̋
+p div v dx D
+Z
+ ̋
+u v dx; 8v 2 V;
+Z
+ ̋
+q div u D 0; 8q 2 L2. ̋/:
+(1.3.84)
+This problem is the equivalent of (1.2.60) in the incompressible case. The Lagrange multiplier p ensures the incompressibility of the eigenmodes. ut
+Example 1.3.10 (Eigenvalue problem for the mixed Poisson problem). This is the simplest example of a dual problem of type (1.3.82). We consider the eigenvalue problem associated with the saddle-point problem of (1.3.51).
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+u v dx C
+Z
+ ̋
+p div v dx D 0; 8v 2 H.divI  ̋/;
+Z
+ ̋
+div u q dx D
+Z
+ ̋
+p q dx; 8q 2 L2. ̋/:
+(1.3.85)
+
+
+1.4 Domain Decomposition Methods, Hybrid Methods 31
+This corresponds to the standard eigenvalue problem of (1.2.58). The Lagrange multiplier p is now the important variable. ut
+As we shall see later in Chap. 6, the approximation of those two kinds of problems will need specific assumptions.
+1.4 Domain Decomposition Methods, Hybrid Methods
+We have shown in Sect. 1.3 that duality techniques enable us to obtain alternate variational formulations for some problems. The method that we shall now describe will yield a new family of variational principles that can be more or less grouped under the name of hybrid methods. The common point between the examples that follow is that in all cases the variational principle will depend explicitly, independently of any discretisation, on a partition of the domain  ̋ into subdomains. To clarify some of the facts that will appear later, we first recall a very classical result.
+Example 1.4.1 (A transmission problem). We consider the very classical case in which a domain  ̋ is split into two sub-domains  ̋1 and  ̋2 by a smooth enough internal boundary S (Fig. 1.1). We consider the case of a Dirichlet problem with variable coefficients a1.x/, a2.x/, defined respectively in  ̋1 and  ̋2 and being discontinuous on S . This classically leads to the variational problem: find p 2 H1
+0 . ̋/ such that
+Z
+ ̋1
+a1.x/ grad p grad q dx C
+Z
+ ̋2
+a2.x/ grad p grad q dx
+D
+Z
+ ̋
+f q dx; 8q 2 H 1
+0 . ̋/: (1.4.1)
+We would like to decouple the above problem into two problems, one in each  ̋i , and add suitable continuity conditions at the interface S . For this we recall the following classical result.
+Proposition 1.4.1. Assume that  ̋ is a domain in R2 with a Lipschitz continuous boundary, and let S be a Lipschitz continuous curve that splits  ̋ in the two subdomains  ̋1 and  ̋2. Let moreover a.x/ be a piecewise smooth function, and denote by ai .x/ .i D 1; 2/ the restriction of a.x/ to  ̋i . Let f 2 L2. ̋/ and let p be solution of the problem (1.4.1) Then, setting p1 D pj ̋1 and p2 D pj ̋2 , it is equivalent to say that p is solution of the problem
+8ˆˆ<
+ˆˆ:
+div .a1.x/ grad p1/ D f in  ̋1;
+div .a2.x/ grad p2/ D f in  ̋2;
+p1j \@ ̋1 D 0; p2j \@ ̋2 D 0;
+(1.4.2)
+
+
+32 1 Variational Formulations and Finite Element Methods
+S
+12
+Fig. 1.1 The decomposed domain
+p1 D p2 on S; a1
+@p1
+@n1
+C a2
+@p2
+@n2
+D 0 on S; (1.4.3)
+where n1 and n2 are the exterior normals to  ̋1 and  ̋2 (respectively) on S . ut ut
+An important special case is a1.x/ D a2.x/ D 1. In that case, problem (1.4.1) is obviously equivalent to
+( p D f;
+uj D 0
+(1.4.4)
+and conditions (1.4.2) and (1.4.3) can be written as
+8ˆˆ<
+ˆˆ:
+p1 D f in  ̋1;
+p2 D f in  ̋2;
+p1j \@ ̋1 D 0; p2j \@ ̋2 D 0;
+(1.4.5)
+and 8ˆ<
+ˆ:
+p1 D p2 on S;
+@p1
+@n1
+C @p2
+@n2
+D 0 on S:
+(1.4.6)
+Example 1.4.2 (A domain decomposition method for the Dirichlet problem). What we really want to do is to consider a general partition of  ̋
+ ̋N WD
+N [
+i D1
+KNi : (1.4.7)
+We now write the classical Dirichlet functional of Example 1.2.1 in the following way. First, we write the Dirichlet functional as
+J.q/ WD
+N X
+i D1
+n1
+2
+Z
+Ki
+j grad qj2 dx
+Z
+Ki
+f q dx
+o
+: (1.4.8)
+
+
+1.4 Domain Decomposition Methods, Hybrid Methods 33
+Then, introducing the functional space
+X. ̋/ WD fqj qjKi 2 H 1.Ki /g
+N Y
+i D1
+H 1.Ki /; (1.4.9)
+we can extend J.q/ on X. ̋/. Moreover, H 1
+0 . ̋/ is a closed subspace of X. ̋/
+and we may consider “q 2 H 1
+0 . ̋/” as a linear constraint on q 2 X. ̋/. This
+constraint states that on eij D @Ki \ @Kj we must have (in H 1
+2 .eij/) pi D pj , where p` D pjK`. We shall therefore, following a now familiar procedure, impose this constraint through a Lagrange multiplier properly chosen in H 1
+2 .eij/. As we shall see in Chap. 2, it will be more convenient to introduce v 2 H.divI  ̋/ and to use the normal trace of v on @Ki as a multiplier. This leads us to the saddle point problem
+inf
+p2X. ̋/
+sup
+v2H.divI ̋/
+N X
+i D1
+n1
+2
+Z
+Ki
+j grad qj2 dx
+Z
+@Ki
+v ni q ds
+Z
+Ki
+f q dx
+o ;
+(1.4.10)
+for which we have the following optimality conditions: for i D 1; : : : ; N , find pi 2 H 1.Ki / such that, Z
+Ki
+gradpi grad qi dx D
+Z
+Ki
+f qi dx C
+Z
+@Ki
+u n qi ds; 8qi 2 H 1.Ki /;
+(1.4.11)
+N X
+i D1
+Z
+@Ki
+v ni pi ds D 0; 8v 2 H.divI  ̋/: (1.4.12)
+Condition (1.4.12) expresses continuity of p at interfaces eij and condition pj D 0. Condition (1.4.11) shows that each pi is solution in Ki of a Neumann problem
+8ˆ<
+ˆ:
+pi D f in Ki ;
+@pi
+@ni
+D u n i on @Ki :
+(1.4.13)
+Solving this problem obviously requires a compatibility condition (take qi D 1 in (1.4.11))
+Z
+@Ki
+u ni ds C
+Z
+Ki
+f dx D 0 (1.4.14)
+on every sub-domain Ki . This condition can also be written as Z
+Ki
+.div u C f / dx D 0: (1.4.15)
+
+
+34 1 Variational Formulations and Finite Element Methods
+From (1.4.13) we have that the multiplier u n can be seen as the normal derivative of p. Indeed, when equilibrium is attained, we have on interfaces @pi
+@ni D u n i D
+u nj D @pj
+@nj and pi D pj . A suitable lifting of u in each Ki in order to have
+div u C f D 0 can always be done because of (1.4.14) and (1.4.15). ut
+Example 1.4.3 (Dual problem of the domain decomposition method). We now consider the dual problem of the above saddle point formulation. It will be, as it can be expected, very similar to the dual problem introduced in Sect. 1.3 for the Poisson problem. Let us first remark that taking the infimum on the constant part of q 2 X. ̋/ on each Ki leads to the constraint (1.4.15) on u. It is therefore possible to suppose div uCf D 0 as this can be attained by modifications to u that are internal to Ki (that is not modifying u n i ) and are transparent to formulation (1.4.10). Writing
+Z
+@Ki
+v n i q ds D
+Z
+Ki
+div u q dx C
+Z
+Ki
+v grad q dx; (1.4.16)
+one may write from (1.4.10)
+sup
+div .v/Cf D0 inf
+qi 2H 1.Ki /=R
+N X
+i D1
+n1
+2
+Z
+Ki
+j grad qi j2 dx
+Z
+Ki
+v grad qi dx
+o
+: (1.4.17)
+From (1.4.17) we evidently get, setting u i D ujKi ,
+grad pi D P .ui /; (1.4.18)
+where P is the projection operator in .L2.Ki //2 on grad.H 1.Ki //. We shall indeed prove in Chap. 2 that one has
+.L2. ̋//2 D fgrad H 1. ̋/g  ̊ curl H 1
+0 . ̋/g: (1.4.19)
+From this we can eliminate qi and write the dual problem,
+sup
+v2H.divI ̋/ div.v/Cf D0
+1
+2
+N X
+i D1
+Z
+Ki
+jP .vi /j2 dx: (1.4.20)
+We are therefore back to a variant of (1.3.45). Indeed, (1.3.45) shows that the projection operator P in (1.4.20) is unnecessary. ut
+Remark 1.4.1. One could obtain a variant of the above dual problem, without constraint (1.4.15) by using a “least-squares” solution of (1.4.13) whenever (1.4.14) does not hold. This could be done, for instance by solving on Ki , in a weak formulation that we shall not describe,
+
+
+1.4 Domain Decomposition Methods, Hybrid Methods 35
+8ˆˆˆˆˆˆ<
+ˆˆˆˆˆˆ:
+2pi D f in Ki ;
+@
+@ni
+pi D @f
+@ni
+on @Ki ;
+@pi
+@ni
+D v ni on @Ki ;
+(1.4.21)
+for which a solution always exists, defined up to an additive constant. Such a procedure could be useful for algorithmic purposes for (1.4.21) is a local simple problem even if it is a fourth-order problem. ut
+Example 1.4.4 (Dual hybrid methods). We now consider the dual problem (1.3.45), that is the complementary energy principle, that we now pose in H.divI  ̋/,
+inf
+v2H.divI ̋/ div .v/Cf D0
+1
+2
+Z
+ ̋
+jvj2 dx: (1.4.22)
+We can apply the domain decomposition principle to such a problem by introducing
+Y . ̋/ WD fvj vjKi 2 H.divI Ki /g
+N Y
+i D1
+H.divI Ki /: (1.4.23)
+As we shall see in Chap. 2, H.divI  ̋/ is now a closed subspace of Y . ̋/ characterised by
+N X
+i D1
+Z
+@Ki
+.v ni / q ds D 0; 8q 2 H 1
+0 . ̋/: (1.4.24)
+We can then transform (1.4.22) into the saddle point problem
+inf
+v2Y . ̋ /
+sup
+q2H 1
+0 . ̋/
+N X
+i D1
+n1
+2
+Z
+Ki
+jvi j2 dx C
+Z
+@Ki
+vi ni q ds
+o
+(1.4.25)
+under the local constraint
+div v i C f D 0 on Ki : (1.4.26)
+An advantage of this formulation is that it is easy to find v i satisfying (1.4.26). We shall meet discretisation methods, based on such a principle, under the name of dual hybrid methods for the treatment of almost any example considered in this book: Dirichlet problems, elasticity problems, fourth-order problems, etc. ut
+Example 1.4.5 (The Hellan-Hermann-Johnson method in elasticity). This is an example in which a domain decomposition is introduced, not by dualising a
+
+
+36 1 Variational Formulations and Finite Element Methods
+continuity condition but by defining a variational formulation able to bypass this continuity by approximating weak derivatives. This formulation will not be developed but is amenable to the techniques of the book. We shall first present formal results and postpone a precise presentation of the functional framework. Our starting point will be the saddle point problem (1.3.59) and its optimality conditions (1.3.60) that we write, in variational form (with functional spaces to be defined), as
+1Z
+ ̋
+D W D dx C 1
+2. C /
+Z
+ ̋
+tr tr dx
+C
+Z
+ ̋
+".u/ W dx D 0; 8 2 H .divI  ̋/s; (1.4.27)
+Z
+ ̋
+".v/ W dx C
+Z
+ ̋
+f v dx D 0 8v 2 .H 1
+0 . ̋//2: (1.4.28)
+These conditions make sense for a space of chosen so that div is well defined, which implies, as we have seen, continuity of n at interfaces. On the other hand v can be taken as completely discontinuous on these same interfaces. What we now try to do is to split continuity conditions between n and v. Let us consider indeed the well-known integration by parts formula,
+Z
+ ̋
+div v dx C
+Z
+ ̋
+W ".v/ dx D
+Z
+@ ̋
+nn v n ds C
+Z
+@ ̋
+nt v t ds: (1.4.29)
+Whenever v is a smooth (let us say H 1. ̋/) vector, and nt is continuous, we thus have
+Z
+ ̋
+".v/ W dx D
+N X
+i D1
+Z
+Ki
+div v dx C
+Z
+@Ki
+nn v n ds ; (1.4.30)
+so that we can rewrite (1.4.27) and (1.4.28) in the following form,
+1Z
+ ̋
+D W D dx C 1
+2. C /
+Z
+ ̋
+tr tr dx
+C
+N X
+i D1
+nZ
+Ki
+div u dx
+Z
+@Ki
+nn u n ds
+o
+D0 8 ;
+(1.4.31)
+N X
+i D1
+nZ
+Ki
+div v dx
+Z
+@Ki
+nn v n ds
+o C
+Z
+ ̋
+f v dx D 0 8v: (1.4.32)
+Formally, this is well defined for chosen with nt continuous at interfaces while u n is continuous. Then the term
+
+
+1.5 Modified Variational Formulations 37
+N X
+i D1
+nZ
+@Ki
+nn v n ds
+o
+(1.4.33)
+depends on the jump of nn on @Ki and (1.4.32) can be read as div C f D 0 in the sense of distributions. Up to now we considered a purely formal problem. Giving a good framework to (1.4.31), and (1.4.32) is a task that requires some care. The presence of traces, appearing explicitly in the variational formulation, leads to deal with spaces H1
+2 .@Ki / and H 1
+2 .@Ki / and to subtle considerations about the behaviour of functions in these rather pathological spaces. Let us define
+ ̇ WD Y
+Ki
+.H 1.Ki //4
+s D f j ijjKi 2 H 1.Ki /; ij D jig: (1.4.34)
+This is a space of smooth tensors and we can consider nt on each interface eij D
+@Ki \ @Kj , (cf. Chap. 2). We have nt 2 H 1
+2 .eij/ but we do not have nt 2 H 1
+2 .@K/ for this would require some continuity at vertices which cannot in general take place due to the change of direction of n and t . We can nevertheless consider in  ̇ tensor functions such that nt is continuous on eij. To make (1.4.33) meaningful, we now have to choose v with v n continuous on eij. We have already seen that for v in
+H.divI Ki / we can define v n in H 1
+2 .@Ki /. Unfortunately it is not possible to restrict v njeij and get a result in H 1
+2 .eij/: something is lost at corners. In reality we only need an “infinitesimal” amount of extra smoothness and this will lead us to look for v in .Lp. ̋//2 \ H.divI  ̋/ for p > 2. This will cause some problems in applying the theory of Chap. 4 and existence of a solution will have to be deduced through special considerations. ut
+1.5 Modified Variational Formulations
+We shall present in this section modified variational principles associated to saddlepoint problems or more general mixed methods. We shall distinguish between augmented formulations and perturbed formulations. In the following, augmented formulations will correspond to a modification of the variational formulation of the continuous problem. This will be done so that the solution is not changed (under perhaps some regularity conditions). The discretised versions will however in general be different. On the other hand, perturbed formulations will be meaningful only on a discrete problem. The rationale behind the introduction of these modified formulations is that they will have, for some discretisations, a better behaviour than the original one, in particular with respect to stability issues.
+
+
+38 1 Variational Formulations and Finite Element Methods
+1.5.1 Augmented Formulations
+As an example, let us consider the Galerkin least-squares methods introduced by Hughes and Franca [256]. To fix ideas, let us consider the simple cases of the saddle point formulation of the Poisson problem of Sect. 1.3,
+inf
+v2H.divI ̋/
+sup
+q 2L2 . ̋ /
+1
+2
+Z
+ ̋
+jvj2 dx C
+Z
+ ̋
+f q dx C
+Z
+ ̋
+q div v dx; (1.5.1)
+for which the Euler equations are
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+u v dx C
+Z
+ ̋
+p div v dx D 0 8v 2 H.divI  ̋/;
+Z
+ ̋
+.div u C f /q dx D 0 8q 2 L2. ̋/:
+(1.5.2)
+To better understand stability issues, it will be convenient to write (1.5.2) using an antisymmetric bilinear form, obtained by subtracting the two equations
+E..p; u /; .q; v // W D
+Z
+ ̋
+u v dx C
+Z
+ ̋
+p div v dx
+Z
+ ̋
+q div u dx
+D
+Z
+ ̋
+f q dx; 8v 2 H.divI  ̋/; 8q 2 L2. ̋/:
+(1.5.3)
+One sees that
+E..p; u /; .p; u // D
+Z
+ ̋
+juj2 dx; (1.5.4)
+so that our bilinear form is non-negative, but not coercive. The approximation of (1.5.1) thus requires the special constructions that will be described in Chaps. 3–5.
+Remark 1.5.1. A basic philosophical issue: It is important, at this point, to underline a basic philosophical issue: Assume that you are given a bilinear form (say, E) on H H, where H is a Hilbert space. There are several ways that could be used to prove that E induces an isomorphism from H to its dual space H0. We mean by that that there are several properties that will imply such a result. For instance, if for simplicity H Rn, you can show that the associated matrix ME has a determinant that is different from zero. Otherwise, you can show that the associated homogeneous system has only the (trivial) zero solution. Alternatively, you can show that the associated non-homogeneous system has at least one solution for every right-hand side, or you can show that there exists a constant c such that for every pair .X; F / that satisfies ME X D F you have kX k c kF k. All
+
+
+1.5 Modified Variational Formulations 39
+these properties are indeed equivalent to each other (in finite dimension). As a last possibility, you can show that E is coercive:
+E.X; X /  ̨kX k2 8X 2 H: (1.5.5)
+This last condition (some sort of Cinderella among the other equivalent stepsisters) is not necessary and sufficient (as all the others are), but only sufficient. Indeed, there are zillions of non-singular matrices that are not coercive. Assume now that you want to play an additional game. You would like to consider proper subspaces HQ of Rn (say, to fix ideas, Rm with m < n) and the restriction EQ of
+the bilinear form E to HQ HQ . We ask whether the bilinear form EQ induces an
+isomorphism from HQ to its dual HQ 0. In fact, not a single one of the above necessary
+and sufficient conditions will be automatically inherited by EQ . Actually, as they are all equivalent, if one does not the others cannot do either. Surely there are zillions of non-singular matrices M whose first entry M1;1 is equal to 0. Then you take HQ equal to R1 (using the first component of every X 2 H Rn) and you are done:
+EQ is 0.
+But Cinderella survives : if E is coercive on H, then EQ is coercive on HQ , for
+every subspace HQ H and the same value of  ̨ that makes (1.5.5) true will make
+EQ .XQ ; XQ /  ̨kXQ k2 8XQ 2 HQ ; (1.5.6)
+hold true as well. Hence, Cinderella becomes princess and superstar, and everybody, for every problem, would like to have a coercive bilinear form. If it is not, one would struggle to change the problem into an equivalent one, whose associated bilinear form is coercive. This, in short, is the essence of many stabilisation techniques. ut
+We have already seen in Sect. 1.3 that the solution of the “weaker” problem (1.5.2) is in fact the solution of the standard problem p D f , written as the system
+( u grad p D 0; p 2 H 1
+0 . ̋/;
+div u C f D 0; u 2 H.divI  ̋/:
+(1.5.7)
+Starting from this system, we can also consider the other formulation
+inf
+v 2.L2 . ̋ //2
+sup
+q2H 1
+0 . ̋/
+1
+2
+Z
+ ̋
+jvj2 dx C
+Z
+ ̋
+f q dx
+Z
+ ̋
+grad q v dx; (1.5.8)
+for which the Euler equations are now
+8ˆˆ<
+ˆˆ:
+Z
+ ̋
+u v dx
+Z
+ ̋
+grad p v dx D 0; 8v 2 .L2. ̋//2;
+Z
+ ̋
+u grad q dx C
+Z
+ ̋
+f q dx D 0; 8q 2 H 1
+0 . ̋/:
+(1.5.9)
+
+
+40 1 Variational Formulations and Finite Element Methods
+Note that, comparing to (1.5.2), we had to change the regularity requirements on q in order to make the functional meaningful. One checks that the solution of the continuous Poisson problem, which belongs to H 1
+0 . ̋/, is a solution of our new saddle point problem. However, it is now clear that the discrete problems will now have to employ finite element approximations of H 1
+0 . ̋/.
+It is clear that we can always add (or subtract) the square of one of the equations (1.5.7) to the Lagrangian of (1.5.1) or (1.5.8) without changing the min-max point. For instance, we can add to (1.5.1) the square of the second equation of (1.5.7) to obtain
+inf
+v2H.divI ̋/
+sup
+q 2L2 . ̋ /
+( 1
+2
+Z
+ ̋
+jvj2 dx C
+Z
+ ̋
+f q dx C
+Z
+ ̋
+q div v dx
+C1
+2
+Z
+ ̋
+.div vCf /2 dx
+)
+; (1.5.10)
+where 1 0 is arbitrary. We write again the Euler equations using an antisymmetric bilinear form,
+E..p; u/; .q; v// D
+Z
+ ̋
+u v dx C 1
+Z
+ ̋
+div u div v dx
+C
+Z
+ ̋
+p div v dx
+Z
+ ̋
+q div u dx
+D
+Z
+ ̋
+f q dx 1
+Z
+ ̋
+f div v dx;
+8v 2 H.divI  ̋/; 8q 2 L2. ̋/: (1.5.11)
+It is clear that the solution of problem (1.5.10) is exactly the same as that of problem (1.5.1). Approximate solutions might however be different and some choices of elements will be stable for (1.5.10) but not for (1.5.1). Indeed, we now have
+E..q; v/; .q; v// D
+Z
+ ̋
+jvj2 dx C 1
+Z
+ ̋
+j div vj2 dx
+min.1; 1/kvk2
+H.divI ̋/; (1.5.12)
+which is not yet the coercivity property (1.5.5), but is much better than (1.5.4), as now at least the full norm of v is under control. Indeed, as we shall see, this enables the construction of otherwise impossible approximations such as in [124].
+Remark 1.5.2. Terms like min.1; 1/ appearing in (1.5.12) are also weird. Their presence has still to do with the weird choice of the norm (1.3.47) in H.divI  ̋/. Had we chosen the more reasonable (but, alas!, almost never used in the literature) definition (1.3.49), we would, instead, have reached a min.1; 1=`/ which looks much more healthy, as 1 is clearly a length. ut
+
+
+1.5 Modified Variational Formulations 41
+Another reasonable possibility is available: one might take (1.5.8) and subtract from it the square of the first equation of (1.5.7), to get
+inf
+v2.L2 . ̋ //2
+sup
+q2H 1
+0 . ̋/
+1
+2
+Z
+ ̋
+jvj2 dx C
+Z
+ ̋
+f q dx
+Z
+ ̋
+grad q v dx
+2
+2
+Z
+ ̋
+jv grad qj2dx (1.5.13)
+and the Euler equations of this Lagrangian yield
+E..p; u/; .q; v// D .1 2/
+Z
+ ̋
+u v dx .1 2/
+Z
+ ̋
+grad p v dx
+C .1 2/
+Z
+ ̋
+u grad q dx C 2
+Z
+ ̋
+grad p grad q dx
+D
+Z
+ ̋
+f q dx 8v 2 .L2. ̋//2; 8q 2 H 1
+0 . ̋/: (1.5.14)
+This equation is a convex combination of equation (1.5.3) and of a standard formulation of the Poisson problem. Although this may seem silly at first sight, such methods have been used in [208] to stabilise formulations in which the discrete space Vh for the approximation of u was too small with respect to the space spanned by grad qh, resulting in a failure of the inf-sup condition. The reason to employ such a strange approximation was that the first equation was much more complex than u grad p D 0 but rather of the form u grad p D F .u; p/ where the function F .u; p/ contained terms prescribing low order elements in order to be manageable. Unsurprisingly, we now have
+E..q; v/; .q; v// D .1 2/
+Z
+ ̋
+jvj2 dx C 2
+Z
+ ̋
+j grad qj2 dx; (1.5.15)
+and we have coercivity on .L2. ̋//2 H 1
+0 . ̋/ for 0 < 2 < 1.
+Now, if one is really eager for stability, one could consider a “super-stabilised” formulation
+inf
+v2H.divI ̋/
+sup
+q2H 1
+0 . ̋/
+1
+2
+Z
+ ̋
+jvj2 dx
+Z
+ ̋
+v grad q dx C
+Z
+ ̋
+f q dx
+C2
+2
+Z
+ ̋
+jv grad qj2dx C 1
+2
+Z
+ ̋
+.div vCf /2 dx
+C3
+2 k q f k2 ; (1.5.16)
+where k k is the norm in H 1. ̋/, which we can define from the corresponding scalar product:
+hp0; q0i WD h. / 1p0; q0iH 1
+0 . ̋/ H 1. ̋/: (1.5.17)
+
+
+42 1 Variational Formulations and Finite Element Methods
+Taking the Euler equation and using
+h p f; qi D h p f; qiH 1. ̋/ H 1
+0 . ̋/ D
+Z
+ ̋
+grad p grad q dx
+Z
+ ̋
+f q dx;
+one obtains
+.1 C 2/
+Z
+ ̋
+u v dx C 1
+Z
+ ̋
+div u div v dx .1 C 2/
+Z
+ ̋
+grad p v dx
+D1
+Z
+ ̋
+f div v dx; 8v 2 H.divI  ̋/
+(1.5.18)
+.1 C 2/
+Z
+ ̋
+u grad q dx C . 2 C 3/
+Z
+ ̋
+grad p grad q dx
+D . 3 1/
+Z
+ ̋
+f q dx; 8q 2 H 1
+0 . ̋/:
+Remark 1.5.3. If we take 3 D 1; 2 D 1=2; 1 D 1=2, the above system (1.5.18) reduces to Z
+ ̋
+.u grad p/ v dx C
+Z
+ ̋
+.div u C f / div v dx D 0; 8v 2 H.divI  ̋/
+(1.5.19)
+Z
+ ̋
+.u grad p/ grad q dx D 0; 8q 2 H 1
+0 . ̋/
+which are the Euler equations of the problem
+inf
+v2H.divI ̋/ inf
+q2H 1
+0 . ̋/
+2
+2
+Z
+ ̋
+jv grad qj2dx C 1
+2
+Z
+ ̋
+.div vCf /2 dx; (1.5.20)
+which is the least squares method introduced by Bramble et al. [108] and has given rise to a vast literature. ut
+Let us now consider the question of the stability of (1.5.18). This can be done in two ways. In the first one we subtract the two equations to get an antisymmetric bilinear form, Ea..p; u/; .q; v//. Then, we clearly have
+Ea..q; v/; .q; v// D .1 C 2/
+Z
+ ̋
+jvj2 dx C 1
+Z
+ ̋
+j div vj2 dx
+. 2 C 3/
+Z
+ ̋
+j grad qj2 dx: (1.5.21)
+We thus get coercivity if 1 > 0; .1 C 2/ > 0; . 2 C 3/ < 0. It is easy to see that
+these conditions imply 3 < 1 and that, this being given, one can take 2 D 3C1
+2.
+
+
+1.5 Modified Variational Formulations 43
+On the other hand, one could want to consider a symmetrical bilinear form by adding the two equations instead of subtracting them. One then has
+Es..q; v/; .q; v// D .1 C 2/
+Z
+ ̋
+jvj2 dx C 1
+Z
+ ̋
+j div vj2 dx
+2.1 C 2/
+Z
+ ̋
+grad q v dx C . 2 C 3/
+Z
+ ̋
+j grad qj2 dx: (1.5.22)
+It is not difficult to check that (1.5.22) yields coercivity if
+1 > 0; 2 > 1; 2 C 3 > 0;
+and finally
+. 2 C 3/minf 1; 1 C 2g > .1 C 2/2:
+Now, if minf 1; 1 C 2g D 1 C 2, the last condition implies 2 C 3 < 1 C 2, that is 3 < 1.
+Remark 1.5.4. As in Remark 1.5.2, instead of the expression minf 1; 1 C 2g, we should actually have minf 1=`; 1 C 2g where ` is a characteristic length of the problem. ut
+Remark 1.5.5. We thus see that the least-squares formulation of Remark 1.5.3, which is obtained with 3 D 1, is a difficult case which cannot be studied by simple arguments and is therefore not a simple way to obtain a stable method. ut
+Remark 1.5.6. We presented here an example of a quite general idea which was introduced in [256] and [213]. Other examples of these ideas will be developed in the following sections of this chapter or in the following chapters. ut
+Remark 1.5.7. In the example presented above, Euler equations (1.5.2) were a system of first order equations. This is not the case of the Stokes problem
+inf
+v2.H 1
+0 . ̋//2
+sup
+q 2L2 . ̋ /
+Z
+ ̋
+j"P.v/j2dx
+Z
+ ̋
+f v dx
+Z
+ ̋
+q div v dx; (1.5.23)
+for which one of the equations in strong form contains second derivatives. Applying the same procedure would lead to a fourth order problem in the variable u which would lead to undesirable complications. Indeed the analogue of (1.5.13) would here be obtained from (1.5.23) as follows:
+inf
+v2.H 1
+0 . ̋//2
+sup
+q 2L2 . ̋ /
+Z
+ ̋
+j"P.v/j2dx
+Z
+ ̋
+f v dx
+Z
+ ̋
+q div v dx ˇ
+Z
+ ̋
+jAuC grad p f j2dx; (1.5.24)
+
+
+44 1 Variational Formulations and Finite Element Methods
+which would force us to use a very regular approximation for the variable u or to rather consider the formulation
+inf
+v2.H 1
+0 . ̋//2
+sup
+q 2L2 . ̋ /
+Z
+ ̋
+j"P.v/j2dx
+Z
+ ̋
+f v dx
+Z
+ ̋
+q div v dx ˇkAuC grad p f k2 ; (1.5.25)
+where k k denotes the norm in H 1. ̋/. If we take the derivative of (1.5.25) with respect to v, we could write as in (1.5.17),
+hAuC grad p f ; Avi D hAuC grad p f ; viV 0 V ; (1.5.26)
+but the derivative with respect to p will yield a term of the form
+hAuC grad p f ; Avi ;
+which is not readily computable and which will require some special handling when considering discrete approximations. The typical solution, when dealing with a decomposition of  ̋ into elements K and piecewise smooth functions u, v, p and q, is to consider terms of the form
+X
+K
+ˇK .diam.K //2
+Z
+K
+jAuC grad p f j2dx: (1.5.27)
+We shall consider solutions to this question in Chap. 8 where Stokes’ problem will be studied in detail. ut
+Remark 1.5.8. If one looks carefully at the Euler equations of (1.5.14), one sees that we could be in some trouble for ˇ D 1 as the first equation disappears and we obviously loose control over p. This justified, in [179], the introduction of another variant of the general idea developed above. The formulation cannot in this case be written as a modified Lagrangian but is rather derived from the antisymmetric bilinear form (1.5.3). Indeed, let us write,
+E..u; p/; .v; q// D
+Z
+ ̋
+p q dx C
+Z
+ ̋
+p grad v dx
+Z
+ ̋
+q grad u dx
+Cˇ
+Z
+ ̋
+.p grad u/ .q grad v/dx
+D
+Z
+ ̋
+f v dx; 8.q; v/ 2 .L2. ̋//2 H 1
+0 . ̋/:
+(1.5.28)
+
+
+1.5 Modified Variational Formulations 45
+This formulation cannot be obtained from a Lagrangian. It can easily be seen that it remains valid for ˇ > 0 arbitrary. Indeed (1.5.28) can also be written as
+.1Cˇ/
+Z
+ ̋
+.p grad u/ q dx D 0; 8q 2 .L2. ̋//2;
+ˇ
+Z
+ ̋
+grad u grad v dxC.1 ˇ/
+Z
+ ̋
+p grad v dx
+Z
+ ̋
+f v dx D 0; 8v2H 1
+0 . ̋/;
+(1.5.29)
+and this is equivalent to (1.5.7) for any ˇ 0 with the control of p remaining untouched. Moreover, we can easily see that, as long as ˇ > 0, there exists a ı > 0 such that
+E..v; p/; .v; q// D
+Z
+ ̋
+jqj2 dx C ˇ
+Z
+ ̋
+jq grad vj2 dx > ı
+Z
+ ̋
+jqj2 dx C
+Z
+ ̋
+j grad vj2 dx:
+(1.5.30)
+We shall see later on how this technique can indeed be included in the same general framework as the previous one. ut
+1.5.2 Perturbed Formulations
+We can also consider another type of modified variational formulation which is introduced in the discretised problems and in which, hopefully, the additional term vanishes when the mesh is refined and the numerical solution converges to the solution of the original problem. As an example, we consider the Stokes problem presented above in (1.5.23). We now suppose that we have a subspace Vh of .H 1
+0 . ̋//2 and Qh of L2. ̋/ and we try to solve
+inf
+vh 2Vh
+sup
+qh 2Qh
+Z
+ ̋
+j".vh/j2dx
+Z
+ ̋
+f vh dx
+Z
+ ̋
+qh div vh dx: (1.5.31)
+Let us suppose that the couple Vh Qh does not satisfy the stability conditions developed on Chap. 8 but that there exists a subspace QS
+h of Qh such that the couple
+Vh QS
+h is stable. If for some reason we want to use Qh instead of QS
+h we could retrieve stability by working with the problem
+inf
+vh 2Vh
+sup
+qh 2Qh
+Z
+ ̋
+j".vh/j2dx
+Z
+ ̋
+f vh dx
+Z
+ ̋
+qh div vh dx
+ ̨
+2
+Z
+ ̋
+jqh P qhj2 dx; (1.5.32)
+
+
+46 1 Variational Formulations and Finite Element Methods
+where P qh stands for the projection of qh on QS
+h , which we suppose to be (easily) computable. This is now a stable formulation which, for 1 large, yields almost exactly the solution in Vh QS
+h . It must be noted that the modified problem is meaningless for the continuous problem so that we have a different way of stabilising. However, the difference sometimes disappears when augmented versions are discretised.
+1.6 Bibliographical Remarks
+The purpose of this chapter was to present examples which will be used later as a standing ground for our development. It was not possible in such a context to consider every case. We already referred the reader to [166, 167] or [277] where the mathematical analysis of the problems selected here (and of many others problems) can be found in a unified setting. Advanced presentation of elasticity problems can be found in [295] or in [147]. For the Navier-Stokes equations, among the huge amount of literature, one may consult [278, 350, 363] or [159], and for electromagnetic problems the classical [273]. We also refer to more engineeringoriented presentations such as [53, 254, 271] and [387]. In particular, non-linear problems and their treatment are described in these references.
+
+
+Chapter 2 Function Spaces and Finite Element Approximations
+In this chapter we present function spaces and suitable finite element approximations of them, which we shall use in order to apply the abstract theory of the previous chapters to problems of practical interest. We do not aim at a general presentation of the subject of a vast literature, but we present the basic properties of the spaces we are going to use in the sequel of this book. In particular, we consider standard results about the finite element approximation of Sobolev spaces and about approximations of H.divI  ̋/ and H.curlI  ̋/. The results of Sect. 2.1 are technical and may be skipped by a reader interested mostly in numerical results. Mainly for historical reasons, we present the finite element approximation of the spaces H 1. ̋/, H.divI  ̋/, and H.curlI  ̋/ separately, although they could be seen altogether in the framework of de Rham diagram. We shall briefly comment on it in Sect. 2.1.4.
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/
+2.1.1 Basic Properties
+Some of the results of this section have been already anticipated in Chap. 1. Here, we present them in a unified setting.
+• Sobolev spaces Hm. ̋/. Given an integer number m 1, standard Sobolev spaces read
+H m. ̋/ WD fv j v 2 L2. ̋/; D ̨v 2 L2. ̋/; j ̨j mg; (2.1.1)
+D. Boffi et al., Mixed Finite Element Methods and Applications, Springer Series in Computational Mathematics 44, DOI 10.1007/978-3-642-36519-5 2, © Springer-Verlag Berlin Heidelberg 2013
+47
+
+
+48 2 Function Spaces and Finite Element Approximations
+where
+D ̨v WD @j ̨jv
+@x ̨1
+1 @x ̨2
+2 : : : @xn ̨n
+; j ̨j WD  ̨1 C  ̨2 C C  ̨n: (2.1.2)
+We shall consider the standard norm
+kvk2
+m; ̋ WD X j ̨j m
+Z
+jD ̨vj2 dx; (2.1.3)
+associated with the usual inner product and the semi-norm
+jvj2
+m; ̋ WD X j ̨jDm
+Z
+jD ̨vj2 dx: (2.1.4)
+The most important of these spaces will be for us H 1. ̋/ (and some of its subspaces) and for fourth-order problems H 2. ̋/. For the study of Sobolev spaces, we refer the reader to [281, 309], and [3]. It is well-known that if D @ ̋ is smooth enough (for instance Lipschitz continuous), it is possible to define the trace u D uj of u 2 H 1. ̋/ on the boundary . The traces of functions in H 1. ̋/ span a Hilbert space, denoted by H 1
+2 . /, that is a proper dense subspace of L2. /. The mapping,
+W H 1. ̋/ ! H 1
+2 . /; (2.1.5)
+is surjective and possesses a continuous lifting. The norm
+k vk1
+2 ; WD inf
+w2H 1. ̋/
+wDv
+kwk1; ̋ (2.1.6)
+is then equivalent to more standard norms on H 1. ̋/ as defined in [281]. Then we can write
+kvk 1
+2 ; D kvNk1; ̋ ; (2.1.7)
+where vN is the unique solution in H 1. ̋/ of the Dirichlet problem,
+( 4vN C vN D 0;
+vNj D v:
+(2.1.8)
+We shall denote by H 1
+2 . / the dual space of H 1
+2 . / with the dual norm,
+kv k 1
+2 ; WD sup
+v2H 1=2. /
+hv; v i kvk 1
+2;
+; (2.1.9)
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 49
+where the bracket h ; i denotes duality between H 1=2. / and H 1=2. /. It is easily checked that one has
+kv k 1
+2 ; D kvN k1; ̋ ; (2.1.10)
+where vN is the solution of the variational Neumann problem,
+Z
+ ̋
+grad vN grad v dx C
+Z
+ ̋
+vN v dx D hv ; vi; 8v 2 H 1. ̋/: (2.1.11)
+Remark 2.1.1. We shall sometimes write formally R v v d instead of hv ; vi, to
+denote duality between H 1
+2 . / and H 1
+2 . /. ut
+We can define in the same way a trace operator on H 2. ̋/: It is now possible to define vj in a space denoted H 3
+2 . / but also traces of grad vj 2 H 1
+2 . /n and thus the trace of the normal derivative @v
+@n . We then define
+H1
+0 . ̋/ WD fv j v 2 H 1. ̋/; vj D 0g; (2.1.12)
+H2
+0 . ̋/ WD fv j v 2 H 2. ̋/; vj D 0; @v
+@n j D 0g: (2.1.13)
+Remark 2.1.2. Spaces H 1=2. / and H 3=2. / are particular cases of generalized Sobolev spaces H s. / for s 2 RC. The reader should be aware that handling Sobolev spaces H s. / where s D integer C1=2 requires some caution [281]. In the case of H 1=2. / it is important to recall some facts. Let 0 be a part of ; then 2 H 1=2. 0/ cannot be extended by zero outside 0 to a function in H 1=2. / (even if paradoxically D. 0/ is dense in H 1=2. 0/). Dually, if D 0 [ 1, one does not get the whole of H 1=2. / by patching functions of H 1=2. 0/ and H 1=2. 1/. Unfortunately, spaces H 1=2.@K/ and H 1=2.@K/ with K an element of a partition of  ̋ are met very often in the analysis of hybrid and mixed methods and one must be very careful in handling them. ut
+• The space H.divI  ̋/. Having considered standard Sobolev spaces, we now present some properties of a space specially adapted to the study of mixed and hybrid methods. The mathematical analysis of mixed methods will use constantly
+H.divI  ̋/ WD fq j q 2 .L2. ̋//n; div q 2 L2. ̋/g (2.1.14)
+with the norm
+kqk2
+div; ̋ WD jqj2
+0; ̋ C j div qj2
+0; ̋ : (2.1.15)
+It is then possible to define q nj , the normal trace of q on .
+Lemma 2.1.1. For q 2 H.div;  ̋/, we can define q nj 2 H 1
+2 . / and we have Green’s formula,
+
+
+50 2 Function Spaces and Finite Element Approximations
+Z
+ ̋
+div q v dx C
+Z
+ ̋
+q grad v dx D hq n; vi; 8v 2 H 1. ̋/: (2.1.16)
+Proof. For q 2 .D. ̋N //n and v 2 D. ̋N /, we have the standard Green’s formula
+Z
+q nvd D
+Z
+ ̋
+div q v dx C
+Z
+ ̋
+q grad v dx; (2.1.17)
+and therefore
+j
+Z
+q n v d j kqkdiv; ̋ kvk1; ̋ : (2.1.18)
+Moreover, the expression R
+ ̋ div q v dx C R
+ ̋ q grad v dx depends only on the trace
+vj 2 H 1
+2 . /. The result follows by density of D. ̋N / and .D. ̋N //n in H 1. ̋/ and H.divI  ̋/, respectively. ut
+The operator defined above also satisfies a surjectivity property.
+Lemma 2.1.2. The trace operator q 2 H.divI  ̋/ ! q nj 2 H 1
+2 . / is surjective.
+Proof. Let g 2 H 1
+2 . / be given. Then, solving in H 1. ̋/ Z
+ ̋
+grad grad v dx C
+Z
+ ̋
+v dx D hg; vi; 8v 2 H 1. ̋/; (2.1.19)
+and making q D grad implies q nj D g. ut
+Let us now suppose a partition . D D [ N / of the boundary . We define
+H1
+0;D. ̋/ WD fv j v 2 H 1. ̋/; vjD D 0g: (2.1.20)
+In particular, we have H 1
+0;D . ̋/ D H 1
+0 . ̋/ if D D and H 1
+0;D . ̋/ D H 1. ̋/ if D D ;. We shall also need the space
+H0;N .divI  ̋/ WD fq j q 2 H.div  ̋/; hq n; vi D 0; 8v 2 H 1
+0;D. ̋/g: (2.1.21)
+Remark 2.1.3. This space contains functions of H.divI  ̋/ whose normal traces vanish on N . For reasons related to pathological properties of H 1
+2 .D/ and H1
+2 .N /, it is necessary to use definition (2.1.21) and not an expression such as q njN D 0 in H 1
+2 .N /. ut
+In particular, we denote H0.divI  ̋/ D H0;N .divI  ̋/ when N D . Finally, another important subspace of H.divI  ̋/ will be
+H 0.divI  ̋/ WD fq j q 2 H.divI  ̋/; div q D 0g; (2.1.22)
+from which we deduce the following result.
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 51
+Lemma 2.1.3. The normal trace operator q ! q nj is surjective from H 0.divI  ̋/
+onto f j 2 H 1
+2 . /; h ; 1i D 0g.
+Proof. By Green’s formula (2.1.14), we have hq n; 1i D 0 if q 2 N 0.divI  ̋/.
+Reciprocally, if g 2 H 1
+2 . / is given with hg; 1i D 0, we can solve in H 1. ̋/=R the Neumann problem
+Z
+ ̋
+grad grad v dx D hg; i; 8 2 H 1. ̋/; (2.1.23)
+and taking q D grad yields q n D g. ut
+Remark 2.1.4. In applications, D will be the part of where Dirichlet’s conditions are given, and N the part with Neumann’s conditions. ut
+• The space H.curlI  ̋/. To conclude this section, we consider the space H.curlI  ̋/ which will be used, in particular, for the approximation of problems arising from electro-magnetics in Chap. 11. For  ̋ 2 R3, we define
+H.curlI  ̋/ WD f j 2 .L2. ̋//3; curl 2 .L2. ̋//3g; (2.1.24)
+where the curl operator is as usual defined as
+curl D r ^ WD det
+0
+B@
+ijk
+@ @x1
+@ @x2
+@ @x3
+123
+1
+CA (2.1.25)
+and where we are using the standard norm
+k k2
+curl; ̋ WD j j2
+0; ̋ C j curl j2
+0; ̋ : (2.1.26)
+Remark 2.1.5. To complete these definitions, we must discuss the definition of H.curlI  ̋/ when  ̋ belongs to R2. First of all, we recall the possible definitions of the curl operator in this setting. Given a vector u.x1; x2/ D .u1; u2/, we can evaluate curl.u1; u2; 0/, which is a vector oriented in the direction of x3. This suggests the definition
+curl u WD @u2
+@x1
+@u1
+@x2
+: (2.1.27)
+On the other hand, given a scalar function .x1; x2/, the vector curl.0; 0; / is perpendicular to the direction of x3 and drives to the following definition
+curl WD @
+@x1
+;@
+@x2
+: (2.1.28)
+
+
+52 2 Function Spaces and Finite Element Approximations
+x2
+x3 = n
+x1
+Fig. 2.1 H.curlI  ̋/ traces on the flat surface .x1; x2/
+It is clear that the operators curl and curl introduced above are equivalent to the operators div and grad, respectively, after rotation of the vectors by a right angle. More precisely, we have
+curl u D div.u?/; (2.1.29)
+curl D .grad /?; (2.1.30)
+with the standard notation .v1; v2/? D . v2; v1/. It turns out that in two dimensions the space H.curlI  ̋/ is isomorphic to H.divI  ̋/. This fact has important consequences for the construction of approximations of H.curlI  ̋/; namely, any finite element space which is a good approximation of H.divI  ̋/ can be turned into a good approximation of H.curlI  ̋/ just by rotating the vectors by a right angle and vice versa. ut
+We are now going to state results concerning traces of H.curlI  ̋/ in three dimensions, in analogy of what has been done in the previous subsection for H.divI  ̋/. Traces of H.curlI  ̋/ have been the object of a recent and active research by several authors [6,133–135,143,223,317] and it turns out that the theory is not as straightforward as in the case of H.divI  ̋/; in particular we shall see that different trace definitions can be considered. In order to get the reader acquainted with the topics which we are going to present, let us start with an easy but significant example.
+Example 2.1.1 (Traces of H.curlI  ̋/ on a flat surface). Let  ̋ R3 be the half space x3 < 0 and let be the plane x3 D 0. The aim of this example is to consider the basic situation of a flat boundary, i.e., when the tangent plane at any point of coincides with the surface itself. Given the vector D . 1; 2; 3/T 2 H.curlI  ̋/, we investigate the possible definitions of tangential component of
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 53
+along (see Fig. 2.1). As usual, we denote by n D .0; 0; 1/T the unit vector pointing in the outward normal direction of with respect to  ̋. We are going to give a meaning to the trace of the tangential component of
+along . Whenever 2 C 0. ̋/, it makes sense to consider the vector t D . ^ n/j which, by definition, is orthogonal to n and hence is aligned with the tangent plane x3 D 0. More precisely, it can be easily checked that
+tD
+0
+@
+2
+1
+0
+1
+A
+j
+: (2.1.31)
+On the other hand, we can also consider the projection of along the plane , that is the vector t D n ^ . ^ n/j , which is again orthogonal to n and can be evaluated explicitly as follows:
+tD
+0
+@
+1
+2
+0
+1
+A
+j
+: (2.1.32)
+It is clear that in this simple example we have that t is orthogonal to t . Moreover, let us denote by div and curl the divergence and the curl operators in the .x1; x2/ plane (see Remark 2.1.5 for the definition of curl in two space dimensions and the relation between operators); then, the following relationships are easy to derive
+div t D curl t D .curl n/j : (2.1.33)
+Although it should be clear from the context, we remark that in (2.1.33) we are formally applying surface operators div and curl to three dimensional vectors t and t . On the other hand, vectors t and t are orthogonal to the direction of x3 so that we can identify them with two dimensional vectors in the tangent space x3 D 0. We shall implicitly make use of this standard abuse of notation in the sequel of this chapter. ut
+Let us now come back to the general picture and see how the quantities considered in the previous example extend to general domains and boundaries. The following integration by parts, which is valid for smooth functions, constitutes the starting point for the analysis
+Z
+ ̋
+curl dx
+Z
+ ̋
+curl dx D
+Z
+. ^ n/ ds: (2.1.34)
+Green’s formula (2.1.34) allows us to define the trace t of a function 2 H.curlI  ̋/ by extending the classical tangential trace . ^ n/j . The following lemma is the analogue of Lemma 2.1.1 and can be proved by a similar technique.
+
+
+54 2 Function Spaces and Finite Element Approximations
+Lemma 2.1.4. For 2 H.curlI  ̋/, we can define the tangential trace t D
+. ^ n/j 2 .H 1=2. //3 and we have Green’s formula
+Z
+ ̋
+curl dx
+Z
+ ̋
+curl dx D h t ; i; 8 2 .H 1. ̋//3: (2.1.35)
+In particular, it is clear from our construction that, for smooth functions, the tangential trace t is equal to . ^ n/j in the classical sense. Let us now consider the range of the trace operator t . The linear and continuous operator t cannot be surjective onto .H 1=2. //3 since it has vanishing component in the direction of n. Moreover, as we already observed in the simplified situation of Example 2.1.1, we remark that for smooth functions it makes sense to evaluate the surface divergence of t along and that the following identity holds true
+div . t / D .curl n/j : (2.1.36)
+Indeed, the range of t is usually denoted by H 1=2.divI / and its dual space by H 1=2.curlI /. In the case of smooth domains, it turns out that we have the following identities
+H 1=2.divI / D fq 2.H 1=2. //3jq n D 0 a.e. on ; div q 2H 1=2. /g
+H 1=2.curlI / D fq 2.H 1=2. //3jq n D 0 a.e. on ; curl q 2H 1=2. /g;
+(2.1.37)
+where the surface operators div and curl are applied, by abuse of notation, to the (two-dimensional) tangential component of q. In the case of non smooth domains, several insidious aspects have to be taken into account. In general, computational domains are polyhedra and a polyhedron is not a smooth domain. In particular, one major issue is hidden in (2.1.37) and is related to the regularity of the normal vector n. If is a polyhedral surface, then n jumps across the edges of and the product q n is not well defined for q 2 .H 1=2. //3
+since n is not a multiplier for .H 1=2. //3 where jumps are not allowed. We refer the interested reader to [136] for the general picture and for more details on this issue.
+Remark 2.1.6. In the most general situation, the definition of div and curl is not trivial. Even for smooth domains, we need suitable definitions of differential operators on curved surfaces. This is a typical task of differential geometry and can be performed by means of covariant derivatives. We refer the interested reader, for instance, to [168] for a thorough introduction to this subject. On the other hand, if the considered finite elements have flat faces (as it is the case for usual tetrahedra), surface differential operators reduce to standard two-dimensional ones in a local coordinate system on the face and covariant derivatives along the face are plain directional derivatives. The situation is not trivial (and not completely understood yet for what concerns the construction of good finite element spaces) in the case
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 55
+of non-flat faces (as it usually occurs for isoparametric elements or general nonaffine hexahedral decompositions). We shall detail some issues for non-affine finite elements in Sect. 2.2.4. ut
+Looking again at Example 2.1.1, another definition which arises when dealing with the space H.curlI  ̋/ is the projection of along the tangent plane of , also known as the tangential trace t , which can be defined as follows for smooth functions:
+t D n ^ . ^ n/j : (2.1.38)
+The following Theorem is a consequence of the results of [134–136] and states the well-posedness of the trace operator t together with the link between t and t .
+Theorem 2.1.1. The trace operator t can be extended to an operator from H.curlI  ̋/ to H 1=2.curlI / and the following Green’s formula holds
+Z
+ ̋
+curl dx
+Z
+ ̋
+curl dx D h t ; t i; 8 ; 2 H.curlI  ̋/; (2.1.39)
+where the brackets denote the duality pairing between H 1=2.divI / and H 1=2.curlI /.
+If the boundary of  ̋ is split into two parts D D [ N , then we can consider the space
+H0;N .curlI  ̋/ WD f j 2 H.curlI  ̋/; h t ; i D 0; 8 2 .H 1
+0;D . ̋//3g;
+(2.1.40)
+in analogy to what we have done in the previous subsection. When D D ; (and hence N D ), we shall make use of the notation H0.curlI  ̋/ D H0; .curlI  ̋/.
+2.1.2 Properties Relative to a Partition of  ̋
+This section presents a short introduction to properties of some functional spaces. We refer to [331, 366] for more details. Partitioning  ̋ into sub-domains is an essential feature of both standard and nonstandard methods. Continuity properties at interfaces between sub-domains are an essential part in the definition of a finite element approximation. Moreover, we shall introduce here some notations that will be used throughout the book.
+Let  ̋ D Sm
+rD1 Kr be partitioned into a family of sub-domains. In practice, Kr will be a triangle or a quadrilateral (resp., a tetrahedron or a hexahedron in three dimensions) and we shall call it element. We shall denote by Th a partition of  ̋ into elements. The edges of elements will be denoted by ei (i D 1; 2; 3 or i D 1; 2; 3; 4) in the two-dimensional case. For three-dimensional elements, unless differently stated, we denote again the faces of the elements by ei (1 i 4 or 1 i 6). We also
+
+
+56 2 Function Spaces and Finite Element Approximations
+denote by
+eij D @Ki \ @Kj ; (2.1.41)
+the interface between element Ki and Kj and
+Eh D [
+ij
+eij
+[
+hD[
+K
+@K; (2.1.42)
+where h is the set of boundary edges or faces. We only deal with compatible meshes in the sense that the intersection between two elements is a common face, side or vertex. The situation when a mesh contains hanging nodes is out of the aims of this work.
+Remark 2.1.7. The index h will of course be related to mesh size, that is to the size of elements. With an abuse of notation, we shall also use the symbol h for denoting the maximum diameter of the elements of the decomposition. ut
+We introduce the functional spaces
+X. ̋/ WD fv j v 2 L2. ̋/; vjKi 2 H 1.Ki /; 8i g D Y
+r
+H 1.Kr /; (2.1.43)
+with the norm
+kvk2
+X. ̋/ WD X r
+kvk2
+1;Kr ; (2.1.44)
+Y . ̋/ WD fq j q 2 L2. ̋/; q jKi 2 H.divI Ki /; 8i g D Y
+r
+H.divI Kr /; (2.1.45)
+with the norm
+kqk2
+Y. ̋/ WD X r
+kqk2
+div; ̋ (2.1.46)
+and
+W . ̋/ WD f j 2 L2. ̋/; jKi 2 H.curlI Ki /; 8i g D Y
+r
+H.curlI Kr /;
+(2.1.47)
+with the norm
+k k2
+W. ̋/ WD X r
+k k2
+curl; ̋ : (2.1.48)
+We shall now characterize H 1
+0;D. ̋/, H0;N .divI  ̋/, and H0;N .curlI  ̋/ as subspaces of X. ̋/, Y . ̋/, and W . ̋/ respectively. Let us first remark that for v 2 H 1. ̋/ and q 2 H.divI  ̋/, we have, denoting nr the normal to r D @Kr , X
+r
+hq nr ; vi r D hq n; vi ; (2.1.49)
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 57
+where h ; i denotes duality between H 1
+2 . r / and H 1
+2 . r /. Indeed we can decompose the Green formula as
+hq n; vi D X
+r
+Z
+Kr
+div q v dx C
+Z
+Kr
+q grad v dx (2.1.50)
+and apply it inside each element. A similar splitting holds for the functions 2
+H.curlI  ̋/ and 2 H 1. ̋/ when we consider the tangential trace t , namely
+X
+r
+h tr ; i r D h t ; i : (2.1.51)
+We can now state the following proposition.
+Proposition 2.1.1. H 1
+0;D. ̋/ D fvjv 2 X. ̋/; P
+r
+hq nr ; vi D 0; 8q 2 H0;N .divI
+ ̋ /g:
+Proof. It is clear by definition that if v 2 H 1
+0;D. ̋/ we have by (2.1.49) that
+P
+r
+hq nr ; vi D 0; 8q 2 H0;N .divI  ̋/. Let us consider the reciprocal. Using Green’s
+formula, we get
+Z
+ ̋
+v div q dx D X
+r
+Z
+Kr
+grad v q dx; 8q 2 H0;N .divI  ̋/: (2.1.52)
+This implies for all q, for instance q 2 .D. ̋//n,
+j
+Z
+v div q dxj X
+r
+jvj2
+1;Kr
+1
+2 kqk0; ̋ ; (2.1.53)
+and therefore grad v 2 .L2. ̋//n, thus v 2 H 1. ̋/. We then have hq n; vi D 0, 8q 2 H0;N .divI  ̋/, so that v 2 H 1
+0;D. ̋/. ut
+The same kind of proof would yield the following analogous results for H.divI  ̋/ and H.curlI  ̋/.
+Proposition 2.1.2. H0;N .divI  ̋/ D fq j q 2 Y . ̋/; P
+r
+hq nr ; vi D 0; 8v 2
+H1
+0;D . ̋/g. ut
+Proposition 2.1.3. H0;N .curlI  ̋/ D f j 2 W . ̋/; P
+r
+h t ; i D 0; 8 2
+H1
+0;D . ̋/g. ut
+The last results state that functions of Y . ̋/ (resp. W . ̋/) belong to H.divI  ̋/ (resp. H.curlI  ̋/) if and only if their normal (resp. tangential) traces are “continuous” at the interfaces. This will be an essential point for finite element approximations.
+
+
+58 2 Function Spaces and Finite Element Approximations
+2.1.3 Properties Relative to a Change of Variables
+The use of a referenceelement, and therefore of coordinate changes, is an essential ingredient of finite element methods, whether for convergence studies or for practical implementation. We must therefore study the effect of a change of variables on our function spaces. We refer to [147, 148] for a more complete presentation. Let KO Rn. We denote by @KO its boundary, by On the outward oriented normal,
+by d xO the Lebesgue measure on KO and by d O the superficial measure induced by it
+on @KO . Let F be a smooth (at least C 1) mapping from Rn into Rn. We define K D F .KO /. We suppose that the Jacobian matrix DF.xO / is invertible for any xO and that F is globally invertible on K. We then have
+DF 1.x/ D .DF.xO // 1: (2.1.54)
+An important case is F .xO / D x0 C BxO , that is if F is an affine mapping. Then DF.xO / D B is a constant matrix. We denote
+kDFk1 WD sup
+xO 2K
+sup 2Rn
+jDF.xO / j
+j jRn
+!
+; (2.1.55)
+the norm in L1.KO / of function xO ! kDF.xO /k, that is, matrix norm of DF.xO /. In the same way, we have
+kDF 1k1 WD sup
+x2K
+sup 2Rn
+j.DF 1.x// j
+j jRn
+!
+: (2.1.56)
+We write
+J.xO / WD jdet DF.xO /j (2.1.57)
+and, for xO 2 @KO ,
+JnO .xO / WD J.xO / k.DF 1/t OnkRn : (2.1.58)
+• Sobolev spaces Hs. ̋/. If vO.xO / is a function on KO , we define v.x/ on K by
+v WD vO ı F 1; (2.1.59)
+and we denote this by v D F .vO/. We then have the classical formulas,
+grad v D .DF 1/t grad vO ı F 1 D F ..DF 1/t grad vO/ (2.1.60)
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 59
+and
+Z
+K
+F .vO/ dx D
+Z
+KO
+vO J d xO ; (2.1.61)
+Z
+@K
+F .vO/ d D
+Z
+@KO
+vO JnO d O : (2.1.62)
+From this, it is immediate to deduce the following lemma.
+Lemma 2.1.5. The mapping F is an isomorphism from L2.KO / onto L2.K/ and
+from H 1.KO / onto H 1.K/, satisfying,
+jvj0;K sup
+xO
+J.xO / 1=2 jvOj0;KO ; (2.1.63)
+jvOj0;KO inxOf
+J.xO / 1=2 jvj0;K ; (2.1.64)
+jvj1;K sup
+xO
+J.xO / 1=2 kDF 1k1 jvOj0;KO ; (2.1.65)
+jvOj1;KO inxOf
+J.xO / 1=2 kDFk1 jvj1;K : (2.1.66)
+Remark 2.1.8. If F is an affine mapping, we also have [146]
+jvjm;K c .det B/ 1
+2 kB 1km jvOjm;KO (2.1.67)
+and similarly,
+jvOjm;KO c .det B/ 1
+2 kBkm jvjm;K ; (2.1.68)
+where the constant c depends only on m and on the space dimension n. ut
+In the general case, one must use Leibnitz’s formula and the final result is much more complex. For some comments in this directions, see Sect. 2.2.4.
+• The space H.divI  ̋/. When building approximations of H.divI  ̋/ in Sect. 2.3, we shall be led to use the normal component of vectors as degrees of freedom. This is pretty natural according to Proposition 2.1.2. The above transformation obviously does not preserve normal components. It does neither map H.divI KO / into H.divI K/. To overcome this problem, we have to introduce a special (contravariant) transformation known as Piola’s transformation.
+Let, as before, DF.xO / be the Jacobian matrix of the transformation F .xO /.
+We consider, for qO 2 .L2.KO //n, the mapping,
+G.qO /.x/ WD 1
+J.xO / DF.xO / qO .xO /; x D F .xO /: (2.1.69)
+
+
+60 2 Function Spaces and Finite Element Approximations
+It is then elementary to check that one has (in R2, but the result holds for Rn)
+@q1 @x
+@q1 @y @q2 @x
+@q2 @y
+!
+D1
+J .DF/
+@qO1 @xO
+@qO1 @yO
+@qO2 @xO
+@qO2 @yO
+!
+.DF 1/: (2.1.70)
+As the trace of a matrix is invariant by a change of variables, we have
+div q D 1
+J div qO : (2.1.71)
+More generally, we have [366]
+Lemma 2.1.6. Let v D F .vO/ and q D G.qO /, then
+Z
+K
+q grad v dxD
+Z
+KO
+qO grad vO d xO ; (2.1.72)
+Z
+K
+v div q dx D
+Z
+KO
+vO div qO d xO ; (2.1.73)
+Z
+@K
+q nv d D
+Z
+@KO
+qO On vO d O : (2.1.74)
+We refer to [366] and [331] for the proof of this result and most of the following ones.
+From (2.1.74), we see that G preserves the normal trace in H 1
+2 and enables us to define subspaces of H.divI K/ through the reference element KO . More precisely we have,
+Lemma 2.1.7. The mapping G is an isomorphism of H.divI KO / onto H.divI K/
+and of H 0.divI KO / onto H 0.divI K/. Moreover we have:
+jqj0;K inxOf
+J.xO /
+1
+2 kDFk1 jqj0;KO ; (2.1.75)
+jqO j0;KO sup
+xO
+J.xO /
+1
+2 kDF 1k1 jqj0;K ; (2.1.76)
+j div qj0;K inxOf
+J.xO /
+1
+2 j div qO j0;KO ; (2.1.77)
+j div qO j0;KO sup
+xO
+J.xO / 1
+2 j div qj0;K: (2.1.78)
+It is also possible to obtain relations between jqjm;K and jqO jm;KO or between
+j div qjm;K and j div qO jm;KO . We refer to [366] for details. The next lemma deals with
+the case where F is an affine transformation and q 2 H m.divI  ̋/, where
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 61
+H m.divI  ̋/ WD fq j q 2 .H m. ̋//n; div q 2 H m. ̋/g: (2.1.79)
+Lemma 2.1.8. If the mapping F is affine and if q 2 H m.divI  ̋/, the following estimates hold, with B D DF,
+jqjm;K .det B/ 1
+2 kB 1km kBk jqO jm;KO ; (2.1.80)
+j div qjm;K .det B/ 1
+2 kB 1km j div qO jm;KO : (2.1.81)
+The reverse inequalities also hold by a simple exchange of roles between K and KO . Such results are of course essential in the proofs of error estimates. The Piola transformation can be extended to tensor-valued functions with similar properties (cf. for instance [127, 295] or [146]).
+• The space H.curlI  ̋/. According to Remark 2.1.5, in this subsection we restrict
+the discussion to the three-dimensional situation where KO R3 since the twodimensional case can be easily deduced from the result of the previous subsection about approximations of H.divI  ̋/. In general, when dealing with reference
+elements, KO will be a simple geometric entity like a cube or a tetrahedron. In particular, it will contain vertices, edges and faces. We shall denote by eO and fO generic edges and faces, respectively, and by e and f their corresponding images under the action of F . We shall then refer to an edge e or a face f of K. It is clear that, for general isomorphisms F , an edge of K might be curved and a face of K might not be contained in a plane. On the other hand, if F is a trilinear map, then edges of K will be straight and if, moreover, F is affine, then faces of K will be flat. In order to deal with the approximation of H.curlI  ̋/, we shall make use of the following (covariant) transformation:
+H. O /.x/ WD ŒDF.xO /Ł T O .xO /; x D F .xO /: (2.1.82)
+We notice that formula (2.1.82) is formally identical to (2.1.60); i.e., we have chosen to transform vectors of H.curlI  ̋/ like gradients. In particular, one of the main features of transformation (2.1.82) is that it preserves the tangential components in a sense that will soon be made clear. Before stating the general results, let us go back to the setting of Example 2.1.1.
+Example 2.1.2 (Case when is flat.). We recall that, in our example,  ̋ R3 is the half space x3 < 0 and that is the plane x3 D 0. Let us consider a linear mapping F W R3 ! R3 defined as follows
+F .xO1; xO2; xO3/ D . ̨xO1 C ˇxO2; xO1 C ıxO2; xO3/T ; (2.1.83)
+
+
+62 2 Function Spaces and Finite Element Approximations
+so that
+DF D
+0
+@
+ ̨ˇ0 ı0 001
+1
+A : (2.1.84)
+Basically, we are considering a mapping that corresponds to a motion of  ̋ only in the direction of x1 and x2. In particular, the restriction of F to maps linearly the plane into itself. According to the notation introduced before, we shall denote by  ̋O the reference domain and by  ̋ the transformed domain; analogously, is the image of the reference boundary O . Let us consider a vector field O 2 H.curlI  ̋O /; we are interested in investigating how the traces of O transform under the effects of the covariant map (2.1.82). It is immediate to evaluate the determinant of DF, given by the constant J D  ̨ı ˇ , and the matrix ŒDFŁ T given by
+ŒDFŁ T D 1
+J
+0
+@
+ı0 ˇ ̨ 0 0 0J
+1
+A : (2.1.85)
+Hence, transformation (2.1.82) reads
+D
+0
+@
+1
+2
+3
+1
+A D H. O / D 1
+J
+0
+@
+ı O1 O2  ̨ O2 ˇ O1 J O3
+1
+A : (2.1.86)
+The first important result which we are going to check is that the trace Ot O
+transforms like vectors in H.divI O /. More precisely, let G denote the Piola transformation defined in (2.1.69) related to the plane , i.e.,
+G .qO / WD 1
+J
+ ̨ˇ
+ı qO : (2.1.87)
+From (2.1.31) we obtain
+G . Ot O / D 1
+J
+ ̨ˇ ı
+O2
+O1
+D1
+J
+ ̨ O2 ˇ O1 O2 ı O1
+: (2.1.88)
+On the other hand, comparing (2.1.31), (2.1.86), and (2.1.88), we easily get
+G . Ot O / D t .H. O // D t : (2.1.89)
+In a similar way, we can find how the trace O t O transforms when O is mapped
+like in (2.1.82). It turns out that O t O transforms like vectors in H.curlI O /. In this case, we can make use of the mapping H , defined as
+
+
+2.1 Properties of the Spaces H m. ̋/, H.divI  ̋/, and H.curlI  ̋/ 63
+H1 2
+WD 1
+J
+ı
+ˇ ̨
+1
+2
+; (2.1.90)
+in order to obtain the result
+H . O t O / D t .H. O // D t : (2.1.91)
+ut
+Let us now come back to the general situation. For properties of the covariant transformation (2.1.82) and for the proofs of most of the results presented in the sequel of this subsection, we refer the interested reader to [222], to the abstract theory of differential forms presented in [248], to the book [302], and to the comprehensive review [33]. We shall make use, in particular, of the following relationship between the curl of and the curl of O
+curl .x/ D 1
+J.xO / DF.xO / curl O .xO /; x D F .xO /; (2.1.92)
+so that we have curl D G.curl O /. Formula (2.1.92) is a consequence of the more general transformation rule (see [310, Theorem 2] and [223])
+curl .x/ D ŒDFŁ T curl O .xO /ŒDFŁ 1; x D F .xO /; (2.1.93)
+where the tensor is defined by curl D @ j
+@xi
+@i @xj i;j
+:
+Before stating results which relate quantities evaluated on the reference element to corresponding quantities evaluated on the actual element (in the spirit of Lemma 2.1.6), we need to recall how tangent and normal vectors behave under the action of the mapping F . Namely, if nO is a normal vector at a given point of @KO , then
+n.x/ D ŒDFŁ T nO .xO /
+kŒDFŁ T nO .xO /k (2.1.94)
+is the corresponding normal unit vector on @K. If tO is a tangent unit vector, then
+t.x/ D DF tO.xO /
+kDF tO.xO /k (2.1.95)
+is the corresponding tangent unit vector on @K. Moreover, if tO is tangent to an edge of KO , then t defined in (2.1.95) is tangent to the corresponding edge of K.
+Lemma 2.1.9. Let WD H. O /. Let additional functions on K be constructed from reference functions as follows: v WD F .vO/, q WD G.qO/, and WD H. O/. Then
+
+
+64 2 Function Spaces and Finite Element Approximations
+Z
+e
+tv ds D
+Z
+eO
+O tOvO d sO; (2.1.96)
+Z
+f
+t td D
+Z
+fO
+Ot O Ot O d O ; (2.1.97)
+Z
+K
+q dx D
+Z
+KO
+O qO d xO : (2.1.98)
+Remark 2.1.9. Formula (2.1.97) is worth some comments. For simplicity, let us consider the case where f is flat. From Example 2.1.2, it follows that, when WD H. O/, then . t /jf is related to . t O/jfO by means of the two-dimensional Piola transform (2.1.69) on the face f . If we call Gf such a transform, then we have t D Gf . Ot O /. On the other hand, in an analogous way we have that t D Hf . Ot O / on the face f . Then, Eq. (2.1.97) might be rephrased in terms of
+functions defined on the face f as follows: let O and O be vector fields on fO, then
+Z
+fO
+O OdO D
+Z
+f
+Hf . O / Gf . O / d : (2.1.99)
+ut
+Finally, the following analogue of Lemma 2.1.7 holds true.
+Lemma 2.1.10. The mapping H is an isomorphism of H.curlI KO / onto H.curlI K/. Moreover, we have:
+k k0;K sup
+xO
+J.xO /
+1 2
+kDF 1k1k O k0;KO ; (2.1.100)
+k O k0;KO inxf J.x/
+1
+2 kDFk1k k0;K ; (2.1.101)
+k curl k0;K inxOf
+J.xO /
+1 2
+kDFk1k curl O k0;KO ; (2.1.102)
+k curl O k0;KO sup
+x
+J.x/
+1 2
+kDF 1k1k curl k0;K : (2.1.103)
+2.1.4 De Rham Diagram
+The topics introduced in this chapter can be presented in a general unified approach by means of tools of exterior algebra. The De Rham complex, in particular, has been rediscovered recently as a very convenient tool in order to provide a general setting for handling function spaces and their finite element approximations. In this
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 65
+framework, the commuting diagram property which will be presented throughout this chapter can be seen as particular cases of a more general picture. Even though it is out of the aims of this book to give a detailed presentation of this topic, we would like to provide the reader with a short introduction to this subject, which proves to be a very useful technique not only for the analysis of known finite elements, but also for designing new ones. The importance of the de Rham complex in the analysis of finite element schemes has been detected independently by several authors in different fields. The commuting diagram properties for finite elements in H.divI  ̋/ (see [177, 178]) has been the driving force for an active research in the approximation of second order elliptic problems in mixed form. Bossavit [102] was the first one who used the full form of the de Rham complex for the approximation of problems arising from electromagnetism. His pioneer idea has been exploited by several authors (see, for instance, [75, 170, 247, 248]). The general framework has been designed in [31] and successfully applied to the construction of new finite element spaces for the elasticity equations (see [32]). References [33, 34] present an excellent review on the state of the art of this active research field. Here we recall the de Rham complex related with the spaces considered in this chapter. Let us suppose that  ̋ R3 is a simply connected domain, then the following sequence is exact
+R ,! H 1. ̋/ grad! H.curlI  ̋/ curl! H.divI  ̋/ div! L2. ̋/ ! 0: (2.1.104)
+We shall present in the sequel some discrete variants of (2.1.104), which will be useful to understand interconnections between different approximations.
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/
+This section will be mainly devoted to the approximation of H 1. ̋/ and its subspace of the form H 1
+0;D. ̋/. We shall moreover sketch some results concerning the approximation of H 2. ̋/. Standard approximations of Sobolev spaces can be subdivided into two classes: conforming and nonconforming methods. Even though nonconforming methods will be studied in the context of hybrid finite element methods, their importance makes it useful to introduce them here. We refer to [41, 146] or [334] for a detailed presentation of the following results.
+2.2.1 Conforming Methods
+Conforming methods are the most natural finite element methods. They yield internal approximations in the sense that they enable us to build finite dimensional subspaces of the function space that we want to approximate.
+
+
+66 2 Function Spaces and Finite Element Approximations
+Given a partition of the domain  ̋ into polygonal or polyhedral elements, a conforming approximation of H 1. ̋/ is a space of continuous functions defined by a finite number of parameters (or degrees of freedom). The last condition is usually met by using a space of piecewise polynomial functions or functions obtained from polynomials by a change of variables like (using the notation of Sect. 2.1.3)
+vhjK D vO ı F 1; (2.2.1)
+where K D F .KO / and vO is a polynomial function on KO . Continuity is obtained by a clever choice of degrees of freedom.
+Remark 2.2.1. For triangular elements, it is usual and convenient to use piecewise polynomial functions on K. For quadrilaterals, it is essential to use (2.2.1). It must then be noted that vhjK is not in general a polynomial on K. This will be the case only for affine transformations. More comments on this issue will be discussed in Sect. 2.2.4. ut
+To give a more precise definition of our finite element approximations, we shall need a few definitions. Let us define on an element K
+Pk.K/ WD the space of polynomials of degree k. (2.2.2)
+The dimension of Pk.K/ is 1
+2 .k C 1/.k C 2/ for n D 2 and, for n D 3, it is
+1
+6 .k C 1/.k C 2/.k C 3/. For a rectangular element, it will be convenient to define
+(for n D 2)
+Pk1;k2 .K/ WD
+n
+p.x1; x2/ j p.x1; x2/ D X
+i k1 j k2
+aij xi
+1 xj
+2
+o
+(2.2.3)
+the space of polynomials of degree k1 in x1 and k2 in x2. In the same way, we can define on a rectangular hexahedron Pk1;k2;k3 .K/ for n D 3. The dimension of these spaces is .k1 C 1/.k2 C 1/ and .k1 C 1/.k2 C 1/.k3 C 1/, respectively. We then define
+Qk.k/ WD
+(
+Pk;k.K/; for n D 2;
+Pk;k;k.K/; for n D 3: (2.2.4)
+We shall also need polynomial spaces on the edges (or faces) of the elements. Using the notations of Sect. 2.1.2, we define
+Rk.@K/WD f j 2 L2.@K/; jei 2 Pk .ei /; 8ei g; (2.2.5)
+Tk.@K/ WD f j 2 Rk.@K/ \ C 0.@K/g: (2.2.6)
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 67
+We define a subspace of Pk, which could have traces of a lower degree on the boundary of K
+Pr
+k WD fp j p 2 Pk j@K ; p 2 Tr .@K/; r kg: (2.2.7)
+Functions of Rk.@K/ are polynomials of degree k on each side (or face) of K. They do not have to be continuous at vertices. The dimensions of Rk.@K/ and Tk.@K/ are respectively for k 1:
+— 3.k C 1/ and 3k for triangles, — 4.k C 1/ and 4k for quadrilaterals, — 2.k C 1/.k C 2/ and 2.k2 C 1/ for tetrahedra.
+For hexahedra, it will usually be more convenient to consider functions in Qk.ei / in the definition of Rk.@K/ and Tk.@K/. In order to define a finite element, following [146], we need to specify three things.
+— The geometry: we choose a reference element KO , a change of variables F .xO /
+and we set K D F .KO /.
+— A set PO of polynomials on KO . For pO 2 PO we define on K; p D pO ı F 1. — A set of degrees of freedom  ̇O , that is, a set of linear forms f`Oi g1 i dim PO
+on PO . We say that this set is unisolvent when these linear forms are linearly independent, i.e. the knowledge of `Oi .pO/ for all i completely defines pO.
+A finite element is of Lagrangetype if its degrees of freedom are pointvalues, that is, if one is given a set faOi g1 i dim PO of points in KO and one defines
+`Oi .pO/ D pO.aOi /; 1 i dim PO : (2.2.8)
+For the approximation of H 1. ̋/, Lagrange type elements will be sufficient but approximating H 2. ̋/ requires Hermite type elements, that is degrees of freedom involving derivatives.
+Remark 2.2.2. The reader should be aware that not any choice of points will yield a unisolvent set of degrees of freedom. Moreover, the points have to be chosen in order to ensure inter-element continuity. ut
+Example 2.2.1 (Affine Finite Elements). This is the most classical family of finite elements. The reference element is the triangle KO of Fig. 2.2 and we use the affine transformation
+F .xO / D x0 C BxO : (2.2.9)
+The element K is still a triangle and it is not degenerate provided det.B/ ¤ 0.
+We now take PO D Pk.KO / and choose an appropriate set of degrees of freedom. The standard choices for k 3 are presented in Fig. 2.3. It can be easily observed that this choice of points ensures continuity at interfaces. ut
+
+
+68 2 Function Spaces and Finite Element Approximations
+Kˆ
+(0,1)
+(1,0)
+(0,0)
+xˆ2
+xˆ1
+K
+x0
+F
+Fig. 2.2 An affine tranformation
+P1(Kˆ) P2(Kˆ) P3(Kˆ)
+Fig. 2.3 Standard conforming elements
+ˆa3
+ˆa2
+ˆa1
+ˆa6
+ˆa4
+aˆ5
+Kˆ
+a2
+a3
+a1
+a6
+a4
+a5
+K
+F ∈ (Pk(K))2
+ˆ
+Fig. 2.4 Isoparametric triangle of degree 2
+Example 2.2.2 (Isoparametric triangular elements). We use the same reference element and the same set PO as in the previous example. We now take the transformation F .xO / such that each of its components Fi belongs to Pk.KO /. For k D 1, nothing is changed but for k 2, the element K now has curved boundaries. We present the case k D 2 in Fig. 2.4. Using such curved triangles enables us to obtain a better approximation of curved boundaries. It must be noted that the curvature of boundaries introduces additional terms in the approximation error and the curved elements should be used only when they are really necessary [152] or [146]. ut
+Example 2.2.3 (Isoparametric quadrilateral elements). This is also a very classical family of finite elements. The reference element is the square KO D Ł0; 1Œ Ł0; 1Œ.
+We take PO D Qk.KO / and a transformation F with each component in Qk.KO /.
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 69
+ˆa
+ˆa1 ˆa2
+ˆa3
+ˆa4
+Kˆ a4
+a1
+a2
+a3
+K
+F ∈ (Pk(K))2
+ˆ
+ˆa1 ˆa2
+ˆa3
+ˆa4
+ˆa5
+ˆa6
+ˆa7
+ˆa8 ˆa9
+Kˆ
+a4 a2
+a3
+a4
+a5
+a6
+a7
+a8 a9
+K
+F ∈ (Q2(K))2
+ˆ
+a
+b
+Fig. 2.5 (a) The Q1 isoparametric element. (b) The Q2 isoparametric element
+ˆa1 ˆa2
+ˆa3
+ˆa4
+ˆa5
+ˆa6
+ˆa7
+ˆa8 Kˆ
+a4 a2
+a3
+a4
+a5
+a6
+a7
+a8 K
+F ∈ (Q2(K))2
+ˆ
+Fig. 2.6 Serendipity element
+We present the standard choice of degrees of freedom for k 2 in Fig. 2.5. It must be noted that we need F 2 .Q1.KO //2 to define a general straight-sided quadrilateral. Finally we recall that it is possible to eliminate internal nodes to get the so-called serendipity finite elements. For instance, if we take
+PO D Q0
+2.KO / W D fpO j pO 2 Q2.KO /; 4pO.aO9/ C
+4 X
+i D1
+pO.aOi / 2
+8 X
+i D5
+pO.aOi / D 0g
+D P3.KO / \ Q2.KO / (2.2.10)
+we obtain the element of Fig. 2.6.
+
+
+70 2 Function Spaces and Finite Element Approximations
+Value of the function
+Value of the function and its first derivatives
+Value of the function and its first and second derivatives
+Value of the normal derivative
+ab
+Fig. 2.7 (a) P3 triangle. (b) Argyris’ triangle
+As before, the degrees of freedom have been chosen in order to ensure continuity between elements. The use of serendipity elements should be avoided on distorted (non-affine) meshes. More details on quadrilateral elements will be given in Sect. 2.2.4. ut
+Example 2.2.4 (Hermite type elements). Approximating H 2. ̋/ will require continuity of derivatives at inter-element boundaries and leads to the introduction of elements in which values of the derivatives are used as degrees of freedom. The simplest Hermite type element is the P3 triangle of Fig. 2.7a. Here, the degrees of freedom are values of the function and its derivatives at vertices plus the function value at the barycentre. This element does not enable us to build an approximation of H 2. ̋/. To do so, one must use Argyris’ triangle (see Fig. 2.7.b) where polynomials of degree 5 are used. (Composite elements can also been used.) For quadrilaterals, the analogues are easily built. The difficulty of building approximations of H 2. ̋/ by standard methods was one of the major reasons for the introduction of various kinds of mixed or hybrid methods for plate problems (cf. Sects. 10.2 or 10.3). ut
+The remaining part of this section is devoted to the analysis of the approximation of a given function v by the finite element spaces just described or similar ones. We shall not give proofs for which we refer to [146, 154, 358]. For a general set of degrees of freedom f`Oi g on KO , we define the interpolate rOhvO of v by
+`Oi .rOhvO/ WD M.vO/; 1 i dim PO : (2.2.11)
+The operator M must be a well-defined continuous form. When the linear forms `Oi are defined by (2.2.5), it is natural to set
+.rOhvO/.aOi / D vO.aOi /: (2.2.12)
+This definition makes sense only when vO is a continuous function which is not the case when v 2 H 1. ̋/. For Lagrange type elements in R2 or R3, vO 2
+H 2.KO / is a sufficient condition for (2.2.12) to be justified and rOhvO is just the
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 71
+Lagrange interpolate, in the classical sense, of vO. For v 2 H 1. ̋/, [154] hasdefined a continuous interpolate rOh using averages of u instead of point values. This also implies a more elaborate use of reference elements. In particular, the operator rOhvO is no longer defined on one single element. In fact the nodal values of rOhvO depend on the value of vO on the adjacent elements through an averaging process. Once rOhvO is defined, we can define on K
+rhv WD .rOh.v ı F // ı F 1 D .rOhvO/ ı F 1: (2.2.13)
+We rapidly recall a few classical results. We refer the reader to [146] for a detailed presentation. We first consider the case of affine elements, assuming first rh to be defined by a usual interpolate (2.2.12).
+Proposition 2.2.1. If the mapping F is affine, that is F .xO / D x0 C BxO , and if rhpk D pk for any pk 2 Pk .K/, we have for v 2 H s. ̋/, m s, 1 < s k C 1,
+jv rhvjm;K c kB 1km kBks jvjs;K: (2.2.14)
+The proof uses (2.1.67), its reciprocal, and the classical results stated below.
+Lemma 2.2.1. j jkC1; ̋ is a norm on H kC1. ̋/=Pk. ̋/, equivalent to the standard quotient norm.
+From this lemma, the following classical result can be deduced.
+Lemma 2.2.2 (Bramble-Hilbert’s lemma). Let L be a continuous linear form on H kC1. ̋/ such that L.pk/ D 0 for any pk 2 Pk. ̋/, then there exists a constant c (depending on L and  ̋) such that one has
+jL.v/j c jvjkC1; ̋ : (2.2.15)
+Results similar to (2.2.14), although more complex, can be obtained for general isoparametric elements [146, 151, 152]. Let then hK be the diameter of K. Provided some classical conditions on the shape of elements forbidding degeneracy are fulfilled [146], relation (2.2.14) can be converted into a relation involving a power of hK . For affine elements, one defines for instance
+K WD hK
+K
+; (2.2.16)
+where K is the diameter of the largest inscribed disk (or sphere) in K. We shall, in the following, always assume that the interpolation operator rh is defined by the method of [154], that is, by a local projection instead of a point-wise interpolate. This allows us to get rid of the condition s > 1 of Proposition 2.2.1. To state this result, we define
+
+
+72 2 Function Spaces and Finite Element Approximations
+4K WD fK0j KN 0 \ KN ¤ ;g; (2.2.17)
+h4K WD sup
+K 0 24K
+hK0 ; (2.2.18)
+4K WD sup
+K 0 24K
+K0 : (2.2.19)
+We then have the following proposition [154].
+Proposition 2.2.2. If the mapping F is affine and if rhpk D pk for any pk 2 Pk.K/, then there is a constant, depending on k and , such that for m s, 1 s k C 1,
+jv rhvjm;K c 4K hs m
+4K jvjs;4K : (2.2.20)
+ut
+We then say that a family oftriangulations .Th/h 0 is regular if
+K < ; 8K 2 Th; 8h: (2.2.21)
+For the geometrical meaning of this condition, we refer to [146]. We may recall however that (2.2.21) can be written as a condition on angles excluding degenerate elements. For general curved elements, there is also a condition on the curvature of the sides. We then have the following approximation result.
+Corollary 2.2.1. If .Th/h 0 is regular family of affine partitions, there exists a constant c depending on k and such that
+jv rhvj1;K chk jvjkC1;4K : (2.2.22)
+For more general partitions including general isoparametric elements, the result is qualitatively the same: we have an O.hk/ approximation provided the family of partitions is regular in a sense to be specified (see Sect. 2.2.4 for more details). We also refer the reader to [260] where some degenerate cases are analysed. From the elements described above, we can build approximations of H 1. ̋/ and H 2. ̋/. The idea is of course to use functions whose restriction to an element belongs to a set of polynomial (or image S of polynomial) functions. Let Sk.K/ be a subspace of Pk.K/. We define, for a partition Th of  ̋,
+Ls.Sk; Th/ WD fv j v 2 H s. ̋/; vjK 2 Sk.K/g: (2.2.23)
+Remark 2.2.3. Since the elements of Ls.Sk; Th/ are piecewise polynomials, we
+have Ls.Sk; Th/ C s 1. ̋N / although H s. ̋/ 6 C s 1. ̋N /. ut
+We shall reduce this notation when no confusion is to be feared and write
+Ls.Sk/ (2.2.24)
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 73
+when no ambiguity is possible as to Th and still more compactly
+Ls
+k D Ls.Pk; Th/; (2.2.25)
+when Th is built from triangles and Sk D Pk, the space of polynomials of degree k. In the same way, we shall write
+Ls
+ŒkŁ D Ls.Qk; Th/; (2.2.26)
+when Th is built from quadrilaterals.
+Remark 2.2.4 (Bubble functions). We shall often use in our constructions bubblefunctions. We consider them here in the case of H 1. For an element K, a bubble function is a function vanishing on @K. Thus, we say that Sk is a set of bubble functions if Sk H 1
+0 .K/. We then denote
+B.Sk/ D L1.Sk; Th/ D L0.Sk; Th/ (2.2.27)
+and we shall use the compact notation,
+(
+Bk D B.Pk \ H 1
+0 .K//;
+BŒkŁ D B.Qk \ H 1
+0 .K//; (2.2.28)
+when no ambiguity will be possible. Spaces of bubble functions will be used to build enriched spaces. For instance, the space L1
+2  ̊ B3 will be useful in Chap. 8 for the
+approximation of Stokes’ problem. This space could also be written as L1.P 2
+3 /: ut
+When approximating a standard elliptic problem, the finite element spaces introduced up to now can be used directly in the variational formulation of the problem and error estimates follow from interpolation error estimates [146]. In many cases, however, nonconforming methods have proved to yield accurate (and sometimes easier to handle) approximations.
+2.2.2 Explicit Basis Functions on Triangles and Tetrahedra
+In the case of affine elements, it is often possible to define explicitly the basis functions associated to a choice of degrees of freedom. This is done using the following classical result.
+Lemma 2.2.3. Let K be an affine element of dimension k with vertices xi ; .1 i k/. There exists a set i .x/; .1 i k/ of linear functions on K, called barycentric coordinates, satisfying
+i .xj / D ıij
+
+
+74 2 Function Spaces and Finite Element Approximations
+and
+X
+i
+i .x/ D 1:
+• It is then immediate that the barycentric coordinates are the basis functions of the affine P1.K/ element. • For the P2.K/ element of Fig. 2.3 the basis function associated to the vertex xi is i .2 i 1/=2 while for the node at midpoint of the edge tij between xi and xj , the basis function is 4 i j .
+The bubbles of lower degree are on affine elements
+b3;K D 1 2 3 in the two dimensional case ;
+b4;K D 1 2 3 4 in the three-dimensional case. (2.2.29)
+We shall also define nonconforming bubbles in (2.2.39). Barycentric coordinates will also be employed in Sect. 2.6.
+2.2.3 Nonconforming Methods
+We shall meet later nonconforming methods when studying hybrid finite element methods. In many cases, it will however be more convenient to see them in the framework of external approximations.
+Let us consider a variational problem (with f 2 V 0),
+a.u; v/ D hf; viV 0 V ; 8v 2 V; u 2 V; (2.2.30)
+where V is some Hilbert space and a.u; v/ is a bilinear (coercive) form on V V . Suppose that we can find a larger space S V such that there exists a canonical extension aQ . ; / of a to S S , satisfying
+aQ .u; v/ D a.u; v/; 8u; v 2 V: (2.2.31)
+Moreover, let Vh S be a family of finite-dimensional subspaces of S such that, given vh 2 Vh,
+v D hli!m0 vh ) v 2 V: (2.2.32)
+When (2.2.32) is satisfied, Vh is said to be an external approximation to V .
+Assuming that f can be extended to an element fQ in S 0, we can now approximate problem (2.2.30) by: find uh 2 Vh such that
+aQ.uh; vh/ D hfQ; vhiS0 S ; 8vh 2 Vh: (2.2.33)
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 75
+Using standard coerciveness and continuity assumptions, one gets from (2.2.30) and (2.2.33) a result known as Strang’s lemma [146, 358].
+ku uhkS c inf
+vh 2Vh
+ku vhkS C sup
+vh 2Vh
+jaQ.u; vh/ hfQ; vhij
+kvhkS
+D c inf
+vh 2Vh
+kv vhk C Eh.u; vh/: (2.2.34)
+The last term can be seen as a consistency term: it measures how well the exact solution satisfies the discrete equation. This term vanishes when Vh V and we get the standard result for the conforming case. In classical situations we have V D H 1. ̋/ or V D H 2. ̋/ (or one of their subspaces). Introducing a partition of the domain into m sub-domains Kr , and assuming V D H 1. ̋/, we take S D X. ̋/ as defined in Sect. 2.1.3. Any bilinear form of the type
+Z
+ ̋
+a.x/ grad u grad v dx (2.2.35)
+can immediately be extended to X. ̋/ by writing
+aQ .u; v/ D
+m X
+r D1
+Z
+Kr
+a.x/ grad u grad v dx: (2.2.36)
+We now want to find a subspace of X. ̋/ approximating H 1. ̋/ such that error estimates obtained from (2.2.27) are “optimal”. Optimality is here relative to the degree of the polynomials from which the approximation is built: we would like to get O.hk/ estimates when using polynomials of degree k. We are thus led to study the second term in the right-hand side of (2.2.34). We shall make this analysis later in the context of hybrid finite element methods; we shall therefore merely state the result which is quite classical [142, 165, 211, 259], which was discovered on empirical grounds, known as the Ce ́a patch test: the moments up to degree k 1 of uh on any interface of the partition must be continuous, that is, Z
+e
+uhpk 1 dx; 8pk 1 2 Pk 1.e/ (2.2.37)
+is continuous across any interface e between two adjacent elements. A more general form was given by Lascaux and Lesaint [275]. It states that the consistency term Eh.u; vh/ must vanish whenever u 2 Pr . ̋/. For plate problems, this implies a condition similar to (2.2.37) for uh and its derivatives. To fix ideas we recall a few classical examples. In conformity to notation (2.2.23), we denote by L1; NC .Sk; Th/ a nonconforming approximation of H 1. ̋/ built from functions of Sk.K/. We shall simplify this notation whenever possible as in the following example.
+
+
+76 2 Function Spaces and Finite Element Approximations
+abc
+Fig. 2.8 Continuity points for nonconforming elements. (a) k D 1. (b) k D 2. (c) k D 3
+Example 2.2.5 (Nonconforming elements on the triangle). Let us consider a partition of  ̋ into straight-sided triangles and an approximation
+L1;N C
+k WD fvh j vh 2 L2. ̋/; vhjK 2 Pk.K/; 8K 2 Th; X
+K
+Z
+@K
+vh ds D 0; 8 2 Rk.@K/g: (2.2.38)
+It is then easy to see that the patch test implies that the functions of L1;NC
+k should be continuous at the k Gauss-Legendre points on every side of the triangles (see Fig. 2.8). For k odd, those points, with internal points for k 3, can be used as degrees of freedom, but for k even it is not so and the values at these points are not independent. We shall come back to this point in Sect. 7.1.4, in particular in Example 7.1.4. The trouble is that the six Gaussian points of the k D 2 case lie on an ellipse centered at the barycentre. This ellipse is easily expressed, in terms of barycentric coordinates by defining the nonconforming bubble, an ellipsoid taking value one at the barycentre and vanishing at the Gaussian points of the edges
+bNC.K/ D 1 4
+3. 2
+1C 2
+2C 2
+3/: (2.2.39)
+It was however shown in [209] that this element can nevertheless be used in a very simple way. This was extended to the three-dimensional case in [200]. In this case the nonconforming bubble becomes
+bNC.K/ D 1 2. 2
+1C 2
+2C 2
+3C 2
+4/: (2.2.40)
+It must be noted that, in three-dimensional nonconforming elements, the patch test implies, in general, no point continuity. However, there exists a six-point quadrature formula on the triangle, exact for polynomials of degree 3, of which all points lie on the ellipse defined by (2.2.40) and this ensures the patch-test. ut
+Nonconforming approximations of H 2. ̋/, [147, 148], have been widely used because of the difficulty to obtain conforming elements. We refer the reader to [275] where several examples are given. We shall however use in Chaps. 8 and 10 the following nonconforming approximation of H 2. ̋/.
+Example 2.2.6 (Morley’s triangle). In plate problems, where an approximation of H 2. ̋/ is needed, an important nonconforming element is Morley’s triangle (Fig. 2.9).
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 77
+point value
+normal derivative value
+Fig. 2.9 Morley’s triangle
+The functions vh are supposed to be in P2.K/ for every K. The degrees of freedom are point values at the vertices of the triangle and normal derivatives at midside points. It can be shown by the method of [275] that this provides a consistent approximation that will converge as O.h/ in a discrete H 2. ̋/-norm. We shall denote by L2;NC
+2 the approximation of H 2. ̋/ built from such elements. ut
+Example 2.2.7 (Nonconforming elements on the rectangle). We consider a partition of  ̋ into straight-sided quadrilaterals, and an approximation of H 1. ̋/ defined by
+L1;N C
+ŒkŁ WD fuh j uh 2 L2. ̋/; uhjKr D uO h ı F 1
+r ; uOh 2 Qk.KO /
+and (2.2.37) holdsg: (2.2.41)
+Here again the patch test implies continuity at the Gauss-Legendre points of the interfaces. It is never possible to use these points as degrees of freedom. For k D 1, the function .xO 1
+2 /.yO 1
+2 / 2 Q.KO / vanishes at the four Gauss-Legendre points
+of the sides that are indeed midpoints in this case. For k D 2, the points lie on an ellipse, and so on. It is however possible to extend the method of [209] to these cases. Another example of a nonconforming quadrilateral element is presented in [330].
+ut The above examples are in no way exhaustive: many other nonconforming approximations can be built and some are indeed effectively used [244, 279]. As we shall see in the sequel, nonconforming methods are strongly related, and often equivalent, to hybrid methods or mixed methods. We think it is preferable to delay further examples until they are met in a proper context.
+2.2.4 Quadrilateral Finite Elements on Non Affine Meshes
+We present here some general results about finite elements on non affine meshes. A mesh Th is called affine when for all elements K 2 Th the mapping FK from the
+reference element KO to K is an affine function. If this is the case, the Jacobian matrix DFK is constant and this property has important consequences for the theoretical analysis.
+
+
+78 2 Function Spaces and Finite Element Approximations
+On the other hand, non affine meshes are met very frequently in real world applications. They may occur in the approximation of general domains, when isoparametric elements are used (see, for instance, Example 2.2.2). Moreover, non affine meshes are generated when quadrilateral or hexahedral elements are used. The fact that the Jacobian matrix DFK may not be constant not only makes the analysis of non affine elements more difficult, but may also lead to substantial degeneracy of their approximation properties. The aim of this section is to recall recent results which hold for the quadrilateral finite element approximation of scalar functions (see [20]) and of vector-valued functions in H.divI  ̋/ (see [21]). The possible sub-optimality of some quadrilateral finite elements has been observed by several authors, often as a result of numerical experiments; a non exhaustive list of relevant references is [270, 297, 330, 384, 386]. In order to understand where the trouble come from, let us make some comments on Corollary 2.2.1 in the case of non affine partitions. We consider, for instance, the reference triangle KO and its image K D FK .KO /. Let us take a smooth function
+vO W KO ! R, the corresponding mapped function v D vO ı F 1
+K W K ! R, and its linear interpolant rhv W K ! R. When FK is affine, then K is a triangle with straight sides, the Jacobian matrix DF.xO / D B is constant and Corollary 2.2.1 reads
+jv rhvj1;K chK jvj2;K : (2.2.42)
+A fundamental ingredient for such an estimate is the scaling (2.1.68), which in this particular situation reads
+jvOj2;KO cj det.B/j 1=2kBk2jvj2;K cj det.B/j 1=2h2
+K jvj2;K : (2.2.43)
+When the Jacobian matrix is not constant, we cannot use (2.1.68) and the chain rule gives
+jvOj2;KO c
+ˇˇˇˇinxO f
+.J.xO //
+ˇˇˇˇ
+1=2
+kDFk2
+L1.KO/jvj2;K C kD2F kL1.KO/jvj1;K : (2.2.44)
+The term kDFk2
+L1.KO/ in the right hand side is typically O.h2
+K/, while the norm of
+the Hessian matrix D2F might be a lower order term. This fact is clearly a potential source of trouble for optimal order approximation.
+Remark 2.2.5. Besides the situations presented in Sects. 2.2.5 and 2.5.5, there are other cases which could be studied but for which the analysis is not yet completed. Three dimensional H.div;  ̋/ and H.curlI  ̋/ approximations on general hexahedral meshes, for instance, do not have a complete analysis yet (see, for instance, [19, 191]), while it is known that standard finite elements are suboptimal in several situations [64, 307]. ut
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 79
+2.2.5 Quadrilateral Approximation of Scalar Functions
+Necessary and sufficient conditions for optimal order approximation by quadrilateral finite elements have been investigated in [20]. The theory applies to finite elements defined on a reference square element KO and mapped to the actual quadrilateral element K by the standard transformation (2.1.59). The generic mapping FK is bilinear in each component, so that K is a quadrilateral with straight sides. Before stating the main results, let us recall a measure of shape regularity for quadrilateral meshes.
+Definition 2.2.1. Let fThg be a family of partitions of convex quadrilaterals. For each K, consider the four triangles obtained by the possible choices of three vertices from the vertices of K and denote by K the smallest diameter of the circles inscribed in the four triangles. Define K D hK = K, where hK is as usual the diameter of K. The family of partitions fThg is said shape-regular if
+K C 8K;
+uniformly in h.
+The shape regularity is equivalent to a uniform bound on the ratio of any two sides of the elements and also to a bound away from 0 and for the element angles. Given a smooth function u W  ̋ ! R and a finite element space family Vh, we are interested in the following optimal approximation properties (k is the polynomial degree of the reference finite element space and gradh is the element-by-element gradient):
+inf
+vh 2Vh
+ku vhk0; ̋ D O.hkC1/; (2.2.45)
+inf
+vh 2Vh
+k gradh.u vh/k0; ̋ D O.hk/: (2.2.46)
+It is well known (see, for instance, [146, 223]) that a sufficient condition for (2.2.46) to hold is that the reference finite element space contains Qk.KO /, the space of polynomials of degree less than or equal to k in each variable, separately. In this case, the following estimates are known to hold
+inf
+vh2Vh
+ku vhk0; ̋ chkC1jujkC1; ̋ ; (2.2.47)
+inf
+vh 2Vh
+k gradh.u vh/k0; ̋ chkC1j grad ujkC1; ̋: (2.2.48)
+Indeed, this is also a necessary condition. This result has been proved in [20] by exhibiting a very simple (and far from pathological) counterexample: the domain is a square, the mesh sequence, sketched in Fig. 2.10, is made of self similar trapezoids and the function to be approximated is as smooth as possible (a polynomial of degree k).
+
+
+80 2 Function Spaces and Finite Element Approximations
+Fig. 2.10 Distorted quadrilateral mesh based on a trapezoid macro-element
+Remark 2.2.6. The presented result has important consequences for some commonly used finite element space families. In particular, serendipity elements, obtained from standard Qk elements by eliminating some internal degrees of freedom, cannot achieve optimal approximation order (2.2.46) on general quadrilateral meshes. ut
+Remark 2.2.7. The presented results extend to three space dimensions in a straightforward way [296]. ut
+Remark 2.2.8. The degeneracy of the approximation properties is related to the mesh distortion. In particular, on asymptotically affine partitions, the optimal approximation order is achieved. We refer the interested reader to [20] for the definition of an asymptotically affine mesh and for the proof of this result. ut
+2.2.6 Non Polynomial Approximations
+2.2.6.1 Spaces Ls
+k.Eh/
+In the applications involving hybrid methods, it will be useful to consider approximation spaces built from functions that have a polynomial trace on @K but which are not necessarily polynomials inside K. These spaces will be useful whenever only the trace is computationally important: they can be thought of as defined only on
+Eh D [
+K
+@K (cf. (2.1.42)). We thus define for s 1
+Ls
+h.Eh/ WD fv j v 2 H s. ̋/ vj@K 2 Tk.@K/; 8Kg (2.2.49)
+and for s D 0
+L0
+k.Eh/ WD fv jv 2 L2.Eh/; vj@K 2 Rk.@K/; 8Kg: (2.2.50)
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 81
+For s 1, functions of Ls
+k.Eh/ are evidently approximations of H 1. ̋/ of optimal order with respect to k. It is also possible to get error estimates on the traces.
+Virtual element methods. The spaces Ls
+k.Eh/ can easily be defined on polygons of arbitrary shape, but (as we already pointed out) they can be used only on the boundary of elements, and, even restricted to a single element, are infinite dimensional. To reach a finite dimensional version, one has to prolongate them inside the elements. This can be done in several ways (see e.g. [367, 377] or [306] and the reference therein). Recently a variant of these methods has been introduced, called Virtual Elements, in which the extension is made as the solution of a partial differential equation, but the construction is such that one does not need to know the solution of this PDE in order to compute the stiffness matrix. Let us see a simple example, just to give the flavour of the idea. On an element K (a polygon of a practically arbitrary shape), we define VM1.K/ as the space of functions that are linear on each edge of K and harmonic inside. The dimension of such a space is clearly equal to the number of vertices of K. If we want to compute
+aK.v; p/ WD
+Z
+K
+grad v grad p dx; (2.2.51)
+where v is generic in VM1.K/ and p is a polynomial of degree 1, we have
+aK .u; p/
+Z
+K
+grad v grad p dx D
+Z
+@K
+v @p
+@n ds; (2.2.52)
+which is easily computable from the knowledge of v on @K. This allows to compute a projection operator (that we denote by  ̆ r
+1 ) from VM1.K/ to P1.K/ by
+Z
+@K
+.v  ̆ r
+1 v/ ds D 0 and aK .v  ̆ r
+1 v; q/ D 0 8q 2 P1.K/: (2.2.53)
+Then we can take as approximate local stiffness matrix aK
+h the following expression:
+aK
+h .u; v/ WD aK . ̆ r
+1 u;  ̆ r
+1 v/ C S K.u  ̆ r
+1 u; v  ̆ r
+1 v/; (2.2.54)
+where S K is any bilinear form acting on the vertex values and scaling like 1 (for instance, for a polygon with, say, five vertices, the usual scalar product in R5 will do). This will provide an optimal error bound (see [57]). This can be extended to higher orders to improve the accuracy. Taking k D 2, for simplicity, we now define VM2.K/ as the space of functions that are quadratic on each edge of K and whose Laplacian, inside K, is a constant (in general: a polynomial in Pk 2.K/). The dimension of such a space is clearly equal to twice the number of vertices of K plus one. As degrees of freedom we take the values
+
+
+82 2 Function Spaces and Finite Element Approximations
+at the vertices, the values at the midpoints of the edges, and the mean value on K. Now, if we want to compute
+aK.v; p/ WD
+Z
+K
+grad v grad p dx; (2.2.55)
+where v is generic in VM2.K/ and p is a polynomial of degree 2, we have
+Z
+K
+grad v grad p dx D
+Z
+K
+v p dx C
+Z
+@K
+v @p
+@n ds; (2.2.56)
+which is easily computable, as we know v on @K and its average on K. This allows to compute a projection operator (that we now denote by  ̆ r
+2 ) from VM2.K/ to P2.K/ by
+Z
+K
+.v  ̆ r
+2 v/ ds D 0 and aK .v  ̆ r
+2 v; q/ D 0 8q 2 P2.K/: (2.2.57)
+Following (2.2.54) we can then take as approximate local stiffness matrix aK
+h the following one:
+aK
+h .u; v/ WD aK . ̆ r
+2 u;  ̆ r
+2 v/ C S K.u  ̆ r
+2 u; v  ̆ r
+2 v/; (2.2.58)
+where again S K is any bilinear form acting on the vertex and inside values and scaling like 1 (for instance, for a polygon with, say, five vertices, the usual scalar product in R11 will do). We still refer to [57] for more details.
+We observe that another possibility would be to consider the space VeM1 of functions that are linear on each edge, whose Laplacian is constant, and such that
+Z
+K
+.v  ̆ r
+1 v/ dx D 0; (2.2.59)
+where  ̆ r
+1 is still defined by (2.2.53) using only the boundary values of v. The
+advantage of VeM1 over VM1 is that in VeM1 we can compute exactly the mean value of a function using only its boundary values; this can be useful, for instance, to define the Virtual Element spaces on a polygonal face of a polyhedron, in particular, if thereafter we want to use a formula like (2.2.56). For more information in this direction see [4].
+2.2.7 Scaling Arguments
+We shall briefly recall here the basic idea of the scaling arguments of [180]. We shall do it on a very simple example, but it will be clear how the idea applies to more
+
+
+2.2 Finite Element Approximations of H 1. ̋/ and H 2. ̋/ 83
+general cases. Assume that we want to prove the following inverse inequality for elements vh 2 Ls
+k: there exists a constant c depending only on k and on the minimum angle 0 in Th such that, on every element K, we have
+jvhj1;K ch 1
+K jvhj0;K : (2.2.60)
+We construct first a new element KO such that the mapping F W KO ! K is simply given by
+x D hK xO C b (2.2.61)
+and K has a vertex at the origin. Formulas (2.1.67) and (2.1.68) then simply become (in two dimensions)
+jvOjm;KO D hm 1
+K jvjm;K (2.2.62)
+and we easily get
+jvhj1;K D jvOj1;KO c.k; KO / jvOj0;KO c.k; KO / h 1
+K jvj0;K : (2.2.63)
+Now we remark that c.k; KO / actually depends continuously on the shape of KO (a similar argument was already used in [127]). In particular, if one considers the family K 0 of all the triangles having diameter D 1, one vertex at the origin and a minimum angle 0, one easily gets
+sup
+KO 2K 0
+c.k; KO / c.k; 0/ (2.2.64)
+by compactness [180]. Hence from (2.2.63) and (2.2.64) we get
+jvhj1;K c.k; 0/ h 1
+K jvj0;K ; (2.2.65)
+that is (2.2.60). Note that, in this particular case, it would have been equally easy (or even easier) to derive directly (2.2.60) by using (2.1.67) and (2.1.68) and a fixed KO D unit triangle. However, (2.2.62) is easier to use and the continuity argument (2.2.64) is always essentially the same in many different applications, so that using the scaling (2.2.61) actually results in a simplification. For instance, one can get by this method the inequality
+Z
+@K
+jvhj d D hK
+Z
+@KO
+jvOhj d O c.k; 0/ hK jvOhjo;KO D c.k; o/ jvhj0;K: (2.2.66)
+In the same way, one can guess, for instance, that one has
+k@vh=@nkL1.@K/ c.k; 0/ h 2
+k jvhj0;K ; (2.2.67)
+
+
+84 2 Function Spaces and Finite Element Approximations
+because both sides scale like h 1
+K in the transformation (2.2.61) and the inequality holds on a fixed element of size D 1. However, note that an inequality of the type
+kvhkL1.@K/ c.k; 0/ jvhj1;K (2.2.68)
+is still hopeless (take vh D 1!) unless we specify, for instance, that vh has zero mean value in K.
+2.3 Simplicial Approximations of H.divI  ̋/ and H.curlI  ̋/
+Although this section and the following one are important by themselves (we shall use H.divI  ̋/ or H.curlI  ̋/ in many applications throughout this book), its importance also lies in its value as a model. The techniques introduced for the approximation of H.divI  ̋/ can indeed be applied to other situations and similar constructions have been employed in the discretisation of the Hellan-HermannJohnson mixed formulation for which we refer to [318] and [319]. The approximations that we shall present derive from the original work of [366], and [331] later generalized and extended to the three-dimensional case by Ne ́de ́lec [310]. We shall also use the results of [118, 120], and [311] for the definition of elements that contain (for simplicial elements) the elements of [310] and [331]. In the case of rectangles, we introduce a general element containing the elements of [331], the elements of [120] and the ones of [119], thus clarifying the relation between those two. As the simplicial case is simple and more intuitive, we shall first consider it in detail. Quadrilateral and hexahedral elements will be treated afterwards.
+2.3.1 Simplicial Approximations of H.divI  ̋/
+In this section, the element K will be either a triangle .n D 2/ or a tetrahedron .n D 3/ and we will suppose that we have a mesh Th built from such elements. We denote by ei .i D 1; 2; 3 or i D 1; 2; 3; 4/ the sides (or the faces) of K. We then start from the general space of piecewise polynomial vectors. It will be convenient to denote
+P k.K/ WD .Pk.K//n: (2.3.1)
+In analogy with (2.2.23), we want to build approximations of H.divI  ̋/ of the form
+Ldiv.S k; Th/ WD fp 2 H.divI  ̋/ W pjK 2 S k.K/g; (2.3.2)
+which will evidently imply continuity of the normal traces. We shall thus proceed to build suitable subspaces of to ensure this continuity. We first define, using (2.2.5)
+P n;s
+k .K/ WD fp 2 P k.K/ W p n 2 Rs.@K/g (2.3.3)
+
+
+2.3 Simplicial Approximations of H.divI  ̋/ and H.curlI  ̋/ 85
+and
+P n;s
+kCxk.K/ WD fp 2 .P k.K/ C xPk .K// W p n 2 Rs.@K/g; (2.3.4)
+where x D .x1; x2; : : : ; xn/. For these spaces, we shall write (2.3.2) in a compact way:
+Ldiv
+k;s.Th/ D Ldiv.P n;s
+k ; Th/ (2.3.5)
+Ldiv
+kCxk;s .Th/ D Ldiv.P n;s
+kCxk; Th/ (2.3.6)
+or even Ldiv
+k;s and Ldiv
+kCxk;s when there will be no ambiguity as to the choice of Th.
+The case s D k is the most natural and widely used. Taking s k 1 defines what we shall call reduced spaces. We introduce special names for a few classical cases. For s D k, the space P n;k
+k .K/ was introduced in [120] (for n D 2) and [118] (for
+n D 3). We shall thus call it the Brezzi-Douglas-Marini space and write,
+BDMk.K/ WD P n;k
+k .K/: (2.3.7)
+The dimension of BDMk.K/ is
+dim BDMk.K/ D
+(
+.k C 1/ C .k C 2/; for n D 2;
+1
+2 .k C 1/.k C 2/.k C 3/; for n D 3: (2.3.8)
+The space P n;k
+kCxk was defined in [310] following [331]. We shall call it the RaviartThomas space and write
+RT k.K/ WD P n;k
+kCxk: (2.3.9)
+Finally the reduced case P n;k 1
+k was considered in [119] and we shall write
+BDF Mk.K/ WD P n;k 1
+k .K/: (2.3.10)
+Remark 2.3.1. The original work of [331] used an expression equivalent to (2.3.4) with s D k on the reference element KO and defined RT k.K/ by the change of variable G of (2.1.69). It must be noted that this definition is not equivalent to the definition of RT k.K/ given above: it depends on the orientation of space. For simplicial elements, definition (2.3.4) is more natural and easier to handle. ut
+For the simplicial case, we thus have the following inclusions between the spaces just defined:
+RT k 1 BDF Mk BDMk RT k BDF MkC1 BDMkC1 RT kC1: (2.3.11)
+We now have to define suitable degrees of freedom. For q 2 P n;s
+k .K/, we
+evidently have div q 2 Pk 1.K/. Moreover, the normal trace q n on @K belongs

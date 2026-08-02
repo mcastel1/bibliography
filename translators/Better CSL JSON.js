@@ -13,13 +13,13 @@
 	"configOptions": {
 		"getCollections": true,
 		"cached": true,
-		"hash": "a3fa16ab70be4a2d91f527fa76f2ed99c5de4c533d01981837f47fbd3734bd3d"
+		"hash": "6623ef8ca8fd84be2dd0e50ef29dc20f223bdc7ffade672b44cfee2c39ab5cc0"
 	},
 	"translatorType": 2,
 	"browserSupport": "gcsv",
 	"inRepository": false,
 	"priority": 100,
-	"lastUpdated": "2026-04-30"
+	"lastUpdated": "2026-07-20"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -185,6 +185,27 @@ var { doExport } = (() => {
       "inRepository": false
     },
     {
+      "translatorID": "8a2f0d30-0b73-4f2c-8b5b-7c1a9e3f2d4e",
+      "label": "Better Hayagriva",
+      "description": "imports/exports items in Hayagriva YAML format",
+      "creator": "Emiliano heyns",
+      "target": "yaml",
+      "minVersion": "4.0.27",
+      "maxVersion": "",
+      "displayOptions": {
+        "keepUpdated": false,
+        "worker": true
+      },
+      "configOptions": {
+        "getCollections": true,
+        "cached": true
+      },
+      "translatorType": 3,
+      "browserSupport": "gcsv",
+      "inRepository": false,
+      "priority": 799
+    },
+    {
       "translatorID": "36a3b0b5-bad0-4a04-b79b-441c7cef77db",
       "label": "BetterBibTeX JSON",
       "description": "exports and imports items in BetterBibTeX debug format. Mostly for BBT-internal use",
@@ -264,7 +285,6 @@ var { doExport } = (() => {
     ascii: "",
     asciiBibLaTeX: false,
     asciiBibTeX: true,
-    autoAbbrev: false,
     autoExport: "immediate",
     autoExportDelay: 5,
     autoExportIdleWait: 10,
@@ -291,14 +311,14 @@ var { doExport } = (() => {
     citekeyFold: true,
     citekeyFormat: " auth.lower + shorttitle(3,3) + year",
     citekeyFormatEditing: "",
-    citekeySearch: true,
     citekeyUnsafeChars: `\\"#%'(),={}~`,
     csquotes: "",
     DOIandURL: "both",
     exportBibTeXStrings: "off",
     exportBraceProtection: true,
+    exportCaseProtection: "",
     exportSort: "citekey",
-    exportTitleCase: true,
+    exportTitlecase: "",
     extraMergeCitekeys: false,
     extraMergeCSL: false,
     extraMergeTeX: false,
@@ -320,6 +340,7 @@ var { doExport } = (() => {
     itemObserverDelay: 5,
     jabrefFormat: 0,
     japanese: false,
+    journalAbbreviation: "abbrev",
     keyScope: "library",
     language: "langid",
     logEvents: false,
@@ -343,19 +364,33 @@ var { doExport } = (() => {
     relativeFilePaths: false,
     remigrate: false,
     resetKeyOnChange: false,
-    scrubDatabase: false,
     separatorList: "and",
     separatorNames: "and",
     skipFields: "",
     skipWords: "a,ab,aboard,about,above,across,after,against,al,along,amid,among,an,and,anti,around,as,at,before,behind,below,beneath,beside,besides,between,beyond,but,by,d,da,das,de,del,dell,dello,dei,degli,della,dell,delle,dem,den,der,des,despite,die,do,down,du,during,ein,eine,einem,einen,einer,eines,el,en,et,except,for,from,gli,i,il,in,inside,into,is,l,la,las,le,les,like,lo,los,near,nor,of,off,on,onto,or,over,past,per,plus,round,save,since,so,some,sur,than,the,through,to,toward,towards,un,una,unas,under,underneath,une,unlike,uno,unos,until,up,upon,versus,via,von,while,with,within,without,yet,zu,zum",
-    startupProgress: "popup",
     strings: "",
     stringsOverride: "",
     testing: false,
-    verbatimFields: "url,doi,file,pdf,ids,eprint,/^verb[a-z]$/,groups,/^citeulike-linkout-[0-9]+$/, /^bdsk-url-[0-9]+$/, keywords",
+    verbatimFields: "url,doi,file,pdf,ids,eprint,/^verb[a-z]$/,groups,/^citeulike-linkout-[0-9]+$/,/^bdsk-url-[0-9]+$/, keywords",
     warnBulkModify: 10,
     warnTitleCased: false
   };
+
+  // content/string-compare.ts
+  var strcmp = ["base", "accent", "case", "variant"].reduce(
+    (acc, sensitivity) => {
+      const collator = new Intl.Collator(void 0, { sensitivity, usage: "sort" });
+      return {
+        ...acc,
+        [sensitivity]: collator.compare.bind(collator)
+      };
+    },
+    {}
+  );
+  for (const sensitivity of ["base", "accent", "case"]) {
+    const original = strcmp[sensitivity];
+    strcmp[sensitivity] = (a, b) => original(a, b) || strcmp.variant(a, b);
+  }
 
   // translators/lib/collect.ts
   var Items = class {
@@ -374,10 +409,10 @@ var { doExport } = (() => {
     sort(sort) {
       switch (sort) {
         case "id":
-          this.items.sort((a, b) => (a.dateAdded || "").localeCompare(b.dateAdded || ""));
+          this.items.sort((a, b) => strcmp.variant(a.dateAdded || "", b.dateAdded || ""));
           break;
         case "citekey":
-          this.items.sort((a, b) => this.sortkey(a).localeCompare(this.sortkey(b)));
+          this.items.sort((a, b) => strcmp.variant(this.sortkey(a), this.sortkey(b)));
           break;
       }
     }

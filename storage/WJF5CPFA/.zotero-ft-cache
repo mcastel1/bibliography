@@ -1,0 +1,2169 @@
+arXiv:2302.00779v2 [math.NA] 13 Oct 2023
+AN EULERIAN FINITE ELEMENT METHOD FOR TANGENTIAL NAVIER-STOKES EQUATIONS ON EVOLVING SURFACES
+MAXIM A. OLSHANSKII∗, ARNOLD REUSKEN†, AND PAUL SCHWERING‡
+Abstract. The paper introduces a geometrically unfitted finite element method for the numerical solution of the tangential Navier–Stokes equations posed on a passively evolving smooth closed surface embedded in R3. The discrete formulation employs finite difference and finite elements methods to handle evolution in time and variation in space, respectively. A complete numerical analysis of the method is presented, including stability, optimal order convergence, and quantification of the geometric errors. Results of numerical experiments are also provided.
+Key words. surface Navier–Stokes system, surface PDEs, evolving surfaces, TraceFEM
+AMS subject classifications. 65M12, 65M15, 65M60
+1. Introduction. Lipid membranes and liquid crystal shells are examples of deformable thin structures exhibiting lateral fluidity [6, 8, 21]. Continuum based modeling of such materials leads to systems of PDEs posed on evolving surfaces embedded in R3. For example, the motion of an inextensible viscous fluid layer represented by a material surface is governed by the evolving surface Navier–Stokes equations derived in e.g., [17, 22, 28, 44, 50]. While the evolving surface Navier–Stokes system was discussed in the literature, to the best of our knowledge there is no existing wellposedness or numerical analysis of this problem. The recent paper [37] addressed well-posedness of a simplified problem consisting of tangential surface Navier–Stokes equations (TSNSE) posed on a passively evolving surface embedded in R3. A weak variational formulation of TSNSE was shown to be well-posed for any finite final time and without smallness conditions on the data. For that variational formulation we introduce a discretization method and prove its stability and optimal order convergence. This is the first study addressing numerical analysis of a fluid PDE system posed on an evolving surface. For discretization of the TSNSE we consider a geometrically unfitted finite element method known as TraceFEM [32, 35]. The TraceFEM applies to a fully Eulerian formulation of the problem and does not require a surface triangulation, which makes it convenient for deforming surfaces. In TraceFEM one uses standard (bulk) finite element spaces to approximate unknown quantities on the surface Γ(t) which propagates through a given triangulation of an ambient volume Ω, i.e. Γ(t) ⊂ Ω for all times t. The discrete formulation does not need a surface parametrization and uses tangential calculus in the embedding space R3. For scalar PDEs on evolving surfaces, a space–time and a hybrid (finite difference in time – finite elements in space) variant of TraceFEM are known in the literature [26, 36]. For the TSNSE we choose the hybrid approach since it is more flexible in terms of implementation and the choice of elements. A variant of the hybrid FEM that we consider in this paper has recently been applied to timedependent Stokes equations in a moving volume domain Ω(t) ⊂ R3 in [4, 49]. In [49] Taylor-Hood finite elements are used, whereas in [4] equal order finite element spaces combined with a continuous interior penalty pressure stabilization are applied for space discretization. Both papers present a complete discretization error analysis. The resulting error bounds in [49] are suboptimal both for velocity and pressure and in [4] the bound for the pressure error is suboptimal. In both papers it is mentioned that the suboptimality of the bounds is essentially due to the lack of a uniform discrete pressure stability bound, cf [49, Remark 5.11], [4, Section 4.1]. Related to this we mention a further new contribution of this paper. We introduce, in the surface case, a new argument which leads to a discrete pressure stability bound that is uniform in the parameter range h2 . ∆t, cf. Remark 4.2. Using this we derive error estimates for velocity and pressure that are optimal in the parameter
+∗Department of Mathematics, University of Houston, Houston, Texas 77204-3008, USA maolshanskiy@uh.edu, www.math.uh.edu/ ̃molshan †Institut fu ̈r Geometrie und Praktische Mathematik, RWTH-Aachen University, D-52056 Aachen, Germany (reusken@igpm.rwth-aachen.de) ‡Institut fu ̈r Geometrie und Praktische Mathematik, RWTH-Aachen University, D-52056 Aachen, Germany (schwering@igpm.rwth-aachen.de)
+1
+
+
+range h2 . ∆t . h. These parameter range restrictions are reasonable if one considers BDF1 or BDF2 time discretization methods and low order finite element pairs, e.g. Taylor-Hood P2-P1. Concerning related work on numerical analysis and development of computational methods for fluid equations posed on surfaces we note the following. In the past few years there was an increasing interest is this research field; see, e.g., [2, 3, 7, 10, 13, 18, 23, 31, 33, 34, 37, 39, 40, 42–44, 46, 48]. In many of these papers the main topic is the development of numerical methods. The papers that focus on numerical (error) analysis mostly address the “simple” case of a homogeneous viscous surface fluid flow on a steady smooth surface. For the scope of this paper, the most relevant results can be found in [2,18,23,33], where first stability and error analyses of finite element discretizations for the Stokes problem on a steady surface are presented. The authors of [2, 23] analyzed H(div)-conforming finite elements for the surface Stokes equation. The surface Stokes problem has been discretized using unfitted P2-P1 elements in [33], and with higher order Taylor-Hood bulk elements [18]. We also mention the work in [14, 16, 20], where the surface FEM of Dziuk [9] and TraceFEM are analyzed for the surface vector-Laplace problem, which is closely related to the surface Stokes problem. Here we will use results from these papers for the analysis of the geometric error. The rest of the paper is organized in four sections. In section 2 we introduce necessary notations from tangential calculus and formulate the TSNSE as a well-posed variational problem. Section 3 presents the discretization method for this problem. We first explain the idea of how the system is integrated numerically in time and proceed to a fully discrete method. Section 4 contains the main results. The error analysis presented in this section is rather long and technical but its structure is canonical. We derive continuity and stability estimates for the discrete problem. Substituting the continuous solution in the discrete variational formulation results in consistency terms for which bounds are derived. A priori discretization error bounds are derived by using an established approach, based on discrete stability, consistency error bounds and interpolation error bounds. In Remark 4.1 we give more explanation concerning the structure and the key new ingredients of the error analysis. The main result of the paper is Theorem 4.14 which yields optimal order error estimates for the velocity in an energy norm and for pressure in a special H1-type norm. Results of a numerical experiment presented in section 5 illustrate the optimal order convergence of the method.
+2. Problem formulation. In this section we explain the tangential surface Navier-Stokes equations that we treat in this paper. Consider, for t ∈ [0, T ], a material surface Γ(t) embedded in R3 as defined in [15, 30], with a density distribution ρ(t, x). By u(t, x), x ∈ Γ(t), we denote the velocity field of the density flow on Γ(t), i.e. u(t, x) is the velocity of a material point x ∈ Γ(t). We further assume that the geometric evolution of Γ(t) is determined by a given smooth velocity field w = w(t, x), which passively advects the initial surface Γ0 := Γ(0):
+Γ(t) = {y ∈ R3 | y = x(t, z), z ∈ Γ0}, (2.1)
+with the trajectories x(t, z) being the unique solutions of the Cauchy problem
+d
+dt x(t, z) = w(t, x(t, z)), x(0, z) = z (2.2)
+for all z ∈ Γ0. This induces the smooth space-time manifold
+G= ⋃
+t∈[0,T ]
+{t} × Γ(t) ⊂ R4.
+We need a few notations of geometric quantities and tangential differential operators. For a given t ∈ [0, T ] we write Γ = Γ(t). The outward pointing normal vector on Γ is denoted by n. The normal projector on the tangential space at x ∈ Γ is given by P = P(x) = I − nnT . For a scalar function p : Γ → R or a vector field u : Γ → R3 their smooth extensions to a neighborhood O(Γ) of Γ are denoted by pe and ue, respectively. The surface gradient, covariant derivative and surface divergence on Γ can be defined through derivatives in R3 as ∇Γp = P∇pe, ∇Γu = P∇ueP, and divΓ u = tr(∇Γu). These definitions are independent of a particular smooth extension of p and u off
+Γ. The surface rate-of-strain tensor [15] is given by Es(u) = 1
+2 (∇Γu + ∇ΓuT ). By H = ∇Γn ∈ R3×3
+2
+
+
+we denote the Weingarten mapping and by κ := tr(H) twice the mean curvature. For velocity fields on Γ(t) we use a splitting into tangential and normal components
+u = uT + uN = uT + uN n, with uN = u · n.
+In our setting, the normal component of u is completely determined by the ambient flow w, i.e. uN = wN on Γ. For the normal component of the given smooth velocity field we have wN = wN n, wit wN = w · n the given smooth normal velocity of the surface Γ. Besides derivatives on Γ we also need the material derivative along G, denoted by g., which is the derivative of a surface quantity
+g along the trajectories x(t, z) of material points. It can be written as g. = ∂ge
+∂t + (u · ∇)ge on G.
+We also introduce the so-called normal time derivative of g, denoted by ∂◦g, which describes the variation of g along normal trajectories of points on Γ(t):
+∂◦g := g. − u · ∇Γg = ∂ge
+∂t + (wN · ∇)ge on G. (2.3)
+For a vector valued quantity we use this definition componentwise. Conservation of momentum and an inextensibility condition lead to the following system governing the free lateral motion of the material viscous surface [17, 37]: For a given density distribution ρ > 0, viscosity coefficient μ > 0, find the tangential velocity field uT and surface pressure p satisfying the initial condition uT (0) = u0 and the system of equations, which we call the tangential surface Navier-Stokes equations (TSNSE):
+{ρ( P∂◦uT + wN HuT + (∇ΓuT )uT
+) − 2μP divΓEs(uT ) + ∇Γp = f
+divΓuT = f on Γ(t), (2.4)
+with right-hand sides known in terms of geometric quantities, wN and the tangential component of the external area force b:
+f = −wN κ, f = bT + 2μP divΓ(wN H) + ρ
+2 ∇Γw2N . (2.5)
+The system can be seen as an idealized model for the motion of a thin fluid layer embedded in bulk fluid, where one neglects friction forces between the surface and bulk fluids as well as any effect of the layer on the bulk flow (more precisely, one may assume that a lateral component of the normal bulk stress is given by bT ). System (2.4)–(2.5) also appears as an auxiliary problem if one applies directional splitting to the full system of equations governing the evolution of a material inextensible fluidic surface; see [17]. We further set ρ = 1. In this paper, we represent Γ(t) as the zero level set of a smooth level-set function φ(t, x),
+Γ(t) = {x ∈ R3 : φ(t, x) = 0},
+such that |∇φ| ≥ c > 0 in O(G), a neighborhood of G. To simplify the presentation and analysis, we make the assumption that the level set function has the signed distance property. This assumption, however, is not essential. In Remark 3.2 we comment on the generalization of the method to the case where φ is not necessarily a signed distance function.
+3. Discretization method. In this section we present a fully Eulerian finite element method for the TSNSE (2.4). The method is based on the same ideas as used in [26], namely a combination of an implicit time stepping scheme with a TraceFEM in space. We start with the discretization of the system’s evolution in time.
+3.1. Time-stepping scheme. Consider uniformly distributed time nodes tn = n∆t, n = 0, . . . , N , with the time step ∆t = T /N and In := [tn−1, tn], 1 ≤ n ≤ N . We assume that the time step ∆t is sufficiently small such that
+Γ(tn) ⊂ O(Γ(tn−1)), n = 1, . . . , N, (3.1)
+with O(Γ(t)) a neighborhood of Γ(t) where a smooth extension of surface quantities from Γ(t) is well defined. Among smooth extensions of a (scalar or vector valued) function g we now choose the
+3
+
+
+constant extension in normal direction ge, i.e., ∇d · ∇ge = 0 in O(Γ(t)), with d = d(t, ·) the signed distance function to Γ(t). For the normal extension the last term in (2.3) vanishes and thus we have
+∂◦g = ∂ge
+∂t on G. (3.2)
+Based on this we introduce on Γ(tn) the normal time derivative approximation
+P∂◦uT = P ∂ueT
+∂t ≈ uT (tn) − P(tn)uT (tn−1)e
+∆t . (3.3)
+Due to (3.1) uT (tn−1)e is defined on Γ(tn). For the normal n on Γ(tj) its constant extension
+in O(Γ(tj)) is also denoted by n, i.e., n = ∇d. We further use the notation uj
+T and pj for an
+approximation of uT (tj)e and p(tj), respectively. Based on (3.3) and (3.1) we consider the following
+time discretization method for (2.4). Given u0T = uT (0)e in O(Γ0), for n = 1, . . . N , find uTn , defined
+in O(Γ(tn)) and tangential to Γ(tn), i.e. (uTn · n)|Γ(tn) = 0, and pn defined on Γ(tn) such that
+
+
+uTn − Pun−1
+T
+∆t + wnN HuTn + (∇ΓuTn )un−1
+T − 2μP divΓEs(uTn ) + ∇Γpn = f n
+divΓuTn = f n
+on Γ(tn), (3.4)
+n · ∇uTn = 0 in O(Γ(tn)), (3.5)
+with wnN := wN (tn), f n := f (tn), f n := f (tn). Note that in the inertia term we also use Pun−1
+T,
+since (∇ΓuTn )un−1
+T = (∇ΓuTn )Pun−1
+T holds. Geometric information in (3.4) is taken for Γ(tn),
+i.e. n = n(tn), P = P(tn), H = H(tn). In (3.4) we use a BDF1 (i.e., Euler implicit) type time
+discretization, which has local truncation error O(∆t2). Related to that we use a simple, first order in
+∆t accurate, linearization of the quadratic nonlinearity, i.e., (∇ΓuTn )uTn is replaced by (∇ΓuTn )un−1
+T.
+This approach has a straightforward extension to higher order in ∆t schemes, cf. the discussion in Remark 3.2 below. The space discretization of (3.4)–(3.5) is presented in the next section.
+3.2. Space discretization method. Consider a fixed polygonal domain Ω ⊂ R3 that strictly contains Γ(t) for all t ∈ [0, T ]. Let {Th}h>0 be a family of shape-regular consistent triangulations
+of Ω, with max
+K ∈Th
+diam(K) ≤ h. Corresponding to the bulk triangulation we define a standard finite
+element space of piecewise polynomial continuous functions of a fixed degree k ≥ 1:
+Vh,k = {vh ∈ C(Ω) : vh ∈ Pk(K), ∀K ∈ Th}. (3.6)
+The bulk velocity and pressure finite element spaces are standard Taylor–Hood spaces:
+Uh = (Vh,m+1)3, Qh = Vh,m, with m ≥ 1. (3.7)
+We want to avoid the assumption that all Γ(tn) are given in an explicit parametric form or that the exact level set functions φ(tn, ·) are known. If, for example, (2.4) is part of a system, where tangential surface motions are coupled to the normal ones, then finding Γ(tn) is part of the problem, and knowledge of only a (finite element) approximation to φ(tn, ·) would be a more realistic assumption. In turn, this results in approximation of all geometric quantities involved in (2.4). This issue of geometry approximation is explained in section 3.2.1 below. If not specified otherwise, all constants C, c, c0, c1, etc. appearing later in the text are generic positive constants which are independent of h, ∆t, other discretization parameters, time instance tn, and the position of Γ in the background mesh, but may depend on wN , G, u, and the shape regularity of Th. In order to reduce the repeated use of such constants, we often write x . y to state that the inequality x ≤ cy holds for quantities x, y with such generic constant c. Similarly for x & y, and x ≃ y will mean that both x . y and x & y hold.
+3.2.1. Geometry approximation. For any fixed t ∈ [0, T ], φh(·) = φh(t, ·) is a given continuous piecewise polynomial approximation (with respect to Th) of φ(·) = φ(t, ·), which satisfies
+‖φ − φh‖L∞(Ω) + h‖∇(φ − φh)‖L∞(Ω) . hq+1, (3.8)
+4
+
+
+with some q ≥ 1. For this estimate to hold, we assume that the level set function has the smoothness property φ(t, ·) ∈ Cq+1(Ω). Moreover, we assume that |∇φh| ≥ C > 0 in O(Γ(t)), t ∈ [0, T ], and
+that φh is sufficiently regular in time such that with φhn(x) = φh(tn, x), n = 0, . . . , N , there holds
+‖φn−1
+h − φhn‖L∞(Ω) . ∆t‖wN ‖L∞(In×Ω), (3.9a)
+‖∇φn−1
+h − ∇φhn‖L∞(Ω) . ∆t (‖wN ‖L∞(In×Ω) + ‖∇wN ‖L∞(In×Ω)
+) , for n = 1, . . . , N. (3.9b)
+We define the discrete surfaces Γh ≈ Γ as the zero level of φh:
+Γh(t) := {x ∈ R3 : φh(t, x) = 0}. (3.10)
+From the property (3.8) it follows that the Lipschitz surface Γh is an approximation to Γ with
+dist(Γhn, Γ) = max
+x∈Γh
+|φ(x)| = max
+x∈Γh
+|φ(x) − φh(x)| ≤ ‖φ − φh‖∞,Ω . hq+1. (3.11)
+Furthermore, it also follows that the vector field nh = ∇φh/|∇φh| (nh is the normal to Γh), and the
+extended normal vector to Γ satisfy
+|nh(x) − n(x)| ≤ c|∇φh(x) − ∇φ(x)| . hq, in O(Γ(t)). (3.12)
+On Γh we have the tangential projection operator Ph = I − nhnhT . Besides the geometric quantity
+nh we also need a discrete approximation of the Weingarten mapping Hh ≈ H. We assume that this approximation is of the form
+Hh = ∇Γh nh, with nh ∈ H1(Γh)3 that satisfies |nh(x) − n(x)| . hq, x ∈ Γh. (3.13)
+Here ∇Γh is defined (a.e. on Γh) analogous to ∇Γ. The normal approximation nh may be chosen as a suitable interpolation operator in a finite element space applied to nh, e.g., nh = Ihnh, with Ih
+the (componentwise) Oswald averaging operator that maps into the finite element space (Vh,q−1)3. We emphasize that all bounds in (3.8)–(3.13) are uniform in t (as well as in h, ∆t, n and position of Γ or Γh in the mesh). Remark 3.1. In the method that we present below integrals over Γh occur. We assume that these integrals can be computed accurately. In practice, this is straightforward for piecewise linear φh(·, t). The higher order case q > 1 is more involved and requires special approaches for the construction of quadrature rules or the use of an parametric FEM technique [11,12,24,29,38,45,47].
+3.2.2. Fully discrete method. For computational efficiency reasons, we use an extension not in the given (h and ∆t-independent) neighborhood O(Γ(tn)) of Γ(tn) but in a smaller (∆t-dependent)
+narrow band around Γhn = Γh(tn). This narrow band consists of all tetrahedra within a δn distance
+from the surface, with δn ≃ ∆t. More precisely, we define the mesh-dependent narrow bands
+Uδ(Γhn) := {x ∈ Ω : dist(x, Γhn) ≤ δn} ,
+Oδ(Γhn) := ⋃ {K : K ∈ Th and dist(x, Γhn) ≤ δn for some x ∈ K} ⊃ Uδ(Γhn). (3.14)
+We also need a subdomain of Oδ(Γhn) consisting of tetrahedra intersected by Γhn,
+ωΓn := ⋃ {K ∈ Th : K ∩ Γhn 6= ∅} .
+Note that the subdomains Oδ(Γhn) and ωΓn consist of unions of tetrahedra K ∈ Th. The finite
+element spaces for velocity and pressure are restrictions to these narrow bands Oδ(Γhn) and ωΓn of
+the time-independent bulk spaces Uh and Qh:
+Uhn := { v|Oδ(Γn
+h) | v ∈ Uh }, Qhn := { q|ωn
+Γ | q ∈ Qh }. (3.15)
+We also use the notation Vhn,m := { v|Oδ(Γn
+h) | v ∈ Vh,m }. In the derivation of a finite element
+formulation based on the discrete-in-time system (3.4)-(3.5), we need to address three important aspects: tangentiality of uTn , extension of the velocity along normal directions as in (3.5) and a
+5
+
+
+handling of the inertia term. First, we relax the condition for the solution to be tangential to Γ(tn)
+to allow for Uhn as trial and test velocity space. The tangentiality condition is weakly enforced using
+a penalty approach, which is often used in finite element methods for vector-valued surface PDEs [16, 19, 34, 39]. The constraint in (3.5) is also relaxed. For this we use a penalty (or stabilization) approach that is standard in trace finite element method and based on adding a volume normal derivative term to the discrete bilinear form. The treatment of inertia also follows an established approach. For this we rewrite the corresponding trilinear form, where we use integrals over the exact surface Γ = Γ(tn) and uT · ∇ΓvT = (∇ΓvT )uT : ∫
+Γ
+(uT · ∇ΓuT ) · vT ds = 1
+2
+∫
+Γ
+(uT · ∇ΓuT ) · vT − (uT · ∇ΓvT ) · uT ds − 1
+2
+∫
+Γ
+divΓuT (uT · vT ) ds.
+Using divΓuT = f on Γ, the second term on the right-hand side becomes linear. The first term is linearized using the uT approximation from the previous time step leading to an antisymmetric bilinear form, which is convenient for the stability analysis of the discretization. Putting these components together leads to the following fully discrete problem (one time step),
+where we use (sufficiently accurate) extensions weN , f e, f e of the data wN , f , f : For given un−1
+h∈
+Un−1
+h find uhn ∈ Uhn, phn ∈ Qhn, satisfying
+∫
+Γn
+h
+( uhn − un−1
+h
+∆t + we,n
+N Hhuhn
+)
+· Phvh dsh
++1
+2
+∫
+Γn
+h
+(un−1
+h · ∇Γh Phuhn) · vh − (un−1
+h · ∇Γh Phvh) · uhn dsh − 1
+2
+∫
+Γn
+h
+f e,nuhn · Phvh dsh
++ 2μ
+∫
+Γn
+h
+Es,h(Phuhn) : Es,h(Phvh) dsh + τ
+∫
+Γn
+h
+( ̃nh · uhn)( ̃nh · vh) dsh
+} {{ }
+penalty for n·un=0
+(3.16)
++
+∫
+Γn
+h
+∇Γh phn · vh dsh + ρu
+∫
+Oδ (Γn
+h)
+(nh · ∇uhn)(nh · ∇vh) dx
+} {{ }
+velocity stabilization and extension
+=
+∫
+Γn
+h
+f e,n · vh dsh ∀ vh ∈ Uhn,
+−
+∫
+Γn
+h
+∇Γh qh · uhn dsh + ρp
+∫
+ωn
+Γ
+(nh · ∇phn)(nh · ∇qh) dx
+} {{ }
+pressure stabilization
+=
+∫
+Γn
+h
+f e,nqh dsh ∀ qh ∈ Qhn. (3.17)
+Here we mimic the notation used in the PDE system on Γ. For example, ∇Γh vh = Ph∇vhPh,
+Es,h(wh) = 1
+2 (∇Γh wh + ∇Γh whT ). The additional term τ ∫
+Γn
+h ( ̃nh · uhn)( ̃nh · vh) ds with penalty
+parameter τ > 0 is included to weakly enforce the tangentiality condition  ̃nh · uhn = 0 on Γhn. In
+this term we use an “improved normal”, denoted by n ̃h, which has one order better accuracy (as approximation of n) than the discrete surface normal nh. We assume (compare to (3.12)):
+| ̃nh(x) − n(tn, x)| . hq+1, x ∈ Γhn. (3.18)
+From the literature it is known that such a more accurate normal in this penalty term is needed for optimal order discretization errors, cf. [16, 20]. In section 5 we explain how n ̃h is determined in
+our implementation of the method. The volumetric term ∫
+Oδ (Γn
+h)(nh · ∇uhn)(nh · ∇vh) dx, scaled by
+the parameter ρu, plays a twofold role. Firstly, due to this term instabilities caused by “small cuts” are damped, resulting in satisfactory conditioning of the stiffness matrix for velocity, cf. e.g. [5]. Secondly, this term weakly enforces the extension condition (3.5) with O(Γ(tn)) replaced by Oδ(Γhn). The volumetric term ρp
+∫
+ωn
+Γ
+(nh ·∇phn)(nh ·∇qh) dx is added for the purpose of numerical stabilization
+of pressure, both with respect to finite element (LBB) stability and conditioning of the resulting matrix, cf. [33]. Due to these stabilizations the algebraic system (in each time step) is well-posed and has conditioning properties comparable to those of a discretized linearized Navier-Stokes system in Euclidean domains.
+6
+
+
+The formulation (3.16)–(3.17) is consistent up to geometric errors: If Γhn is replaced by Γn =
+Γ(tn) and all geometric quantities by the corresponding exact ones (e.g., Hh by H), then the equa
+tions in (3.16)–(3.17) are satisfied with uhn, phn, un−1
+h replaced by the solution un, pn and un−1 of
+(3.4), extended along normal directions.
+3.3. Discussion of the method. In addition to the mesh size parameter h and time step ∆t, the finite element method involves several other discretization parameters summarized below. • ρu: a normal stabilization and extension parameter for velocity; • ρp: a normal stabilization parameter for pressure; • τ : a penalty parameter for nh · uh = 0 constraint; • δn: a narrow band parameter at time tn. We assume that these parameters satisfy the conditions
+h ≤ c1, ∆t ≤ c2, (3.19a)
+cρh−1 ≤ ρu . h−1, (3.19b)
+ρp ≃ h, (3.19c)
+τ ≃ h−2, (3.19d)
+∆t ≥ 2 τ −1, (3.19e)
+cδ∆t ≤ δn . h, (3.19f)
+where c1, c2 are sufficiently small O(1) and cδ, cρ are sufficiently large O(1) constants independent of the parameters, time, and position of Γh in the mesh. The parameter conditions (3.19b) and (3.19c) are known from the literature on trace finite element methods. The condition “cρ sufficiently large” is needed to obtain sufficient control of a velocity extension in the narrow band (it is used to prove a key estimate (4.10c)). Parameter τ as in (3.19d) guarantees accurate enough fulfillment of the tangentiality condition for the discrete velocity. Taking τ even larger may lead to a ’locking’ phenomenon. Eq. (3.19e) is a technical condition that we need to prove the stability estimate in Theorem 4.7. The upper bound in (3.19f) on the narrow band parameter δn keeps the complexity
+of the method optimal, i.e. the number of active degrees of freedom is O(h−2) on each time step. Concerning the lower bound on δn we note the following. In a time step from tn−1 to tn, the surface Γ(t) can move at most ∆t supt∈In ‖wN ‖L∞(Γ(t)) distance in normal direction. Thanks to assumption
+(3.9a) the maximum distance from Γhn to Γn−1
+h is also proportional to ∆t supt∈In ‖wN ‖L∞(Γ(t)).
+Therefore, cδ in (3.19f) can be taken such that
+ωΓn ⊂ Oδ(Γn−1
+h ). (3.20)
+This condition is the discrete analog of (3.1) and is essential for the well-posedness of the finite element problem. The assumptions (3.19d)–(3.19f) can be satisfied if we take ∆t and h such that the scaling conditions
+h2 . ∆t . h (3.21)
+hold. These scalings are reasonable. Consider Taylor–Hood elements with m = 1. For optimal O(h2)-convergence in the energy norm of (3.16) one needs ∆t ≃ h2. For the more time-accurate BDF2 scheme (this is our practical choice, cf. Remark 3.3) ∆t ≃ h leads to O(h2)-convergence in the energy norm, and ∆t ≃ h3/2 is the choice consistent with the best possible O(h3)-order in the velocity L2-norm. In the remarks below we briefly address a few further aspects of the method. Remark 3.2. In practice we typically do not use a level set function that has the signed distance property. Then the extension does not satisfy (3.5), but is approximately constant along the normals to the level lines and instead of P∂◦uT = P ∂uT
+∂t , cf. (3.2), one uses the general relation
+P∂◦uT = P
+( ∂ueT
+∂t + (∇ueT )wN
+) ,
+as basis for the discretization. Hence, for the case of a general level set function we include in (3.16)
+the term ∫
+Γn
+h (wN · ∇Phuhn) · Phvh dsh. Apart from this, the discretization method stays the same.
+7
+
+
+Remark 3.3. The BDF2 variant is very similar to the method introduced above. The time
+difference uhn − un−1
+h in the first line in (3.16) is then replaced by 3
+2 uhn − 2un−1
+h +1
+2 un−2
+h and in the
+linearization of the inertia term we use 2un−1
+h − un−2
+h instead of un−1
+h . All other terms in (3.16)
+(3.17) remain the same. For BDF2, in addition to (3.20) one has to guarantee ωΓn ⊂ Oδ(Γn−2
+h ),
+which means that the narrow bands Oδ(Γhn) have to be taken thicker than in the BDF1 method.
+Remark 3.4. In the surface gradient operators ∇Γh in the inertia term and the surface rateof-strain tensor Es,h(·) we use projected vector fields Phv. Differentiating projector Ph (which in
+general is discontinuous across element faces) we loose H1 conformity, cf. [20]. Based on the formula ∇ΓvT = ∇Γv − vN H, in order to avoid differentiation of Ph, in the implementation of the method we replace ∇Γh Phvh by ∇Γh vh − (nh · vh)Hh. Remark 3.5. For convenience, in the error analysis below we assume that the data extensions weN , f e, f e are constant extensions along the normals n. In practice one typically uses other (sufficiently accurate) extensions.
+4. Error analysis. We continue with an error analysis of the finite element scheme (3.16)(3.17). We assume the solution of (2.4) is sufficiently smooth, at least u ∈ W m+2,∞(G)3, p ∈ W m+1,∞(G). In the remainder we assume that the parameter conditions (3.19a)–(3.19f) are satisfied. As common in analysis of incompressible fluid problems, we assume a homogeneous divergence condition in (2.4):
+f = 0.
+See the Remark 4.3. We use the notations (·, ·)S and ‖ · ‖S to denote the L2-scalar product and
+L2-norm over a surface or volumetric domain S. To represent the discrete problem in a compact form, we introduce
+an(z; u, v) :=̂an(u, v) + cn(z; u, v), with
+̂an(u, v) :=
+∫
+Γn
+h
+we,n
+N v · Hhu dsh + 2μ
+∫
+Γn
+h
+(Es,h(Phu) : (Es,h(Phv)) dsh
++τ
+∫
+Γn
+h
+( ̃nh · u)( ̃nh · v) dsh + ρu
+∫
+Oδ (Γn
+h)
+(nh · ∇u)(nh · ∇v)d x
+cn(z; u, v) := 1
+2
+∫
+Γn
+h
+(z · ∇Γh Phu) · v − (z · ∇Γh Phv) · u dsh
+bn(p, v) :=
+∫
+Γn
+h
+∇Γh p · v dsh.
+(4.1)
+Using this, the discrete problem can be rewritten as follows (recall that f = 0): given un−1
+h ∈ Un−1
+h
+find uhn ∈ Uhn, phn ∈ Qhn such that for all (vh, qh) ∈ Uhn × Qhn:
+(uhn, Phvh)Γn
+h + ∆t an(un−1
+h ; uhn, vh) + ∆t bn(phn, vh) = (un−1
+h , Phvh)Γn
+h + ∆t(f e,n, Phvh)Γn
+h
+bn(qh, uhn) = ρp(nh · ∇phn, nh · ∇qh)ωn
+Γ . (4.2)
+We introduce the following natural energy norm
+|||v|||2Un := 1
+2 ‖v‖2Γn
+h + 2μ‖Es,h(Phv)‖2Γn
+h+τ
+2 ‖ ̃nh · v‖2Γn
+h + ρu‖nh · ∇v‖2Oδ(Γn
+h). (4.3)
+The norm that we use for the pressure will be introduced later in (4.27). Remark 4.1. We outline the structure of the error analysis. We first collect some preliminary results and prove a few helpful estimates, with a particular emphasis on having them uniform in discretization parameters, time and the surface position in the bulk mesh. Using these results it is easy to derive a suitable coercivity and continuity estimates for the trilinear form an(·; ·, ·) used in (4.2). Based on rather straightforward arguments we derive in Theorem 4.7 a stability result for the discrete velocity solution uhn of (4.2) in a natural energy norm. The analysis continues with
+addressing the more delicate question of the finite element pressure stability. Here we introduce new arguments, namely the use of a specific (non-standard) pressure norm and of a special discrete
+8
+
+
+velocity function that gives control of the pressure via the discrete inf-sup stability condition, cf. Remark 4.2. Thus we obtain a uniform discrete stability estimate (Theorem 4.8) in the parameter range (3.21). In Section 4.4 we present a consistency analysis that quantifies geometric errors resulting from the approximation of surface and geometric quantities (normal vectors, tangential projectors, curvatures) in the finite element formulation. In that analysis we use results already available in the literature on surface vector-Laplace and Stokes problems. Finally, in Section 4.5 we apply a standard technique for proving discretization error bounds. The discretization error is split into an interpolation error and an error component that lies in the finite element space. Bounds for the latter can be derived using the discrete stability, consistency error bounds, and bounds for the linearization error. With respect to the interpolation error a key point is that in the Euclidean setting of this trace method we can use a (nodal) interpolation operator on a fixed bulk mesh. Due to this the time differentiation and interpolation operator commute, which then leads to optimal bounds for the difference of interpolation errors at t = tn and t = tn−1, cf. Lemma 4.12.
+4.1. Preliminaries. We start with an equivalence result between norms on Γ and Γh, which
+is uniform in time and discretization parameters. We use a lifting vl of functions v defined on Γhn
+to a neighborhood O(Γhn), defined as follows:
+for y ∈ O(Γhn) : vl(y) := v(x) for x ∈ Γhn such that pn(y) = pn(x), (4.4)
+where pn is the closest point projection on Γn. Differentiating the identities vl(y) = vl(pn(y)) one obtains the useful transformation relation
+∇vl(y) = ∇vl(pn(y))(P(y) − d(y)H(y)), v ∈ H1(Γhn)3, (4.5)
+with d the signed distance function for Γn. For vector-valued functions we define componentwise
+H1 norms, namely ‖v‖2H1(Γ(tn)) := ∑3
+i=1 ‖vi‖2H1(Γ(tn)) for v ∈ H1(Γ(tn))3, and similarly on Γhn for v ∈ H1(Γhn)3. For any v ∈ H1(Γhn), v ∈ H1(Γhn)3 it holds
+‖v‖Lp(Γn
+h) ≃ ‖vl‖Lp(Γ(tn)), p ∈ [1, ∞], ‖v‖H1(Γn
+h) ≃ ‖vl‖H1(Γ(tn)). (4.6)
+The first equivalence in (4.6) is straightforward and follows from the uniform equivalence of the surface measures ds (on Γ(tn)) and dsh (on Γhn). A proof of the second equivalence in (4.6) is given
+in [20, Lemma 5.14]. We also need uniform interpolation and Korn-type inequalities:
+‖v‖L4(Γn
+h) . ‖v‖ 1
+2
+Γn
+h ‖v‖ 1
+2
+H 1 (Γn
+h) for all v ∈ H1(Γhn) (4.7)
+‖v‖L4(Γn
+h) . ‖v‖ 1
+2
+Γn
+h ‖v‖ 1
+2
+H 1 (Γn
+h) for all v ∈ H1(Γhn)3 (4.8)
+‖v‖H 1 (Γn
+h) . |||v|||Un for all v ∈ Uhn. (4.9)
+The results (4.6), (4.7) and (4.9) are derived in Appendix, Section A. Componentwise application of (4.7) yields (4.8). In [26] a finite-difference in time – trace finite element method in space was analyzed, but for a scalar parabolic type problem on an evolving surface. The following lemma collects some results from that paper, useful for our error analysis.
+Lemma 4.1. The following uniform estimates hold
+‖vh ‖2Uδ (Γn
+h) . δn‖vh‖2Γn
+h + δ2n‖nh · ∇vh‖2Oδ(Γn
+h) ∀ vh ∈ Vhn,m, (4.10a)
+‖vh ‖2Oδ (Γn
+h) . (δn + h)‖vh‖2Γn
+h + (δn + h)2‖nh · ∇vh‖2Oδ(Γn
+h) ∀ vh ∈ Vhn,m, (4.10b)
+‖vh‖2Γn
+h ≤ (1 + c∆t)‖vh‖2
+Γn−1
+h
++1
+2 ρu∆t‖nn−1
+h · ∇vh‖2
+Oδ (Γn−1
+h ) ∀ vh ∈ V n−1
+h,m . (4.10c)
+The results in (4.10a)–(4.10b) give control of the L2-norm of a finite element function in a narrow band volume based on a combination of the L2-norm on the surface and the normal derivative in the volume that is provided by the stabilization. Eq. (4.10c) provides a bound for the trace of a
+function on Γhn through its trace on Γn−1
+h and the volume normal derivative. We also need a slightly
+modified version of the bound in (4.10c), given in the following lemma.
+9
+
+
+Lemma 4.2. The following uniform estimate holds for all vh ∈ V n−1
+h,m ,
+‖vh‖2Γn
+h . ‖vh‖2
+Γn−1
+h
++ δn−1‖nn−1
+h · ∇vh‖2
+Oδ (Γn−1
+h ). (4.11)
+A proof is given in Appendix B. It uses arguments similar to those found in [26]. In the analysis of two-dimensional Navier-Stokes equations one typically needs bounds for ‖u‖L4 to control the quadratic nonlinearity. We will derive such a bound in Lemma 4.4. As a preparation, in the next lemma we give an analog of the result (4.11), with the norm ‖ · ‖L2 replaced by ‖ · ‖L4. Lemma 4.3. The following uniform estimate holds
+‖vh‖2L4(Γn
+h) . ‖vh‖2
+L4(Γn−1
+h ) + ‖nh · ∇vh‖2
+Oδ (Γn−1
+h ), for all vh ∈ V n−1
+h,m . (4.12)
+Proof. We use the notation Oδ = Oδ(Γn−1
+h ). First we consider an inverse estimate for ‖nh ·
+∇vh‖L4(Oδ). Using nh = |∇φh|−1∇φh, where φh is a finite element function with |∇φh| ≃ 1 in Oδ, and finite element inverse estimates we get
+‖nh · ∇vh‖L4(Oδ) ≤ ‖|∇φh|−1‖L∞(Oδ)‖∇φh · ∇vh‖L4(Oδ) . ‖∇φh · ∇vh‖L4(Oδ)
+. h− 3
+4 ‖∇φh · ∇vh‖L2(Oδ) . h− 3
+4 ‖|∇φh|‖L∞(Oδ)‖nh · ∇vh‖L2(Oδ)
+. h− 3
+4 ‖nh · ∇vh‖L2(Oδ).
+(4.13)
+Using this and (4.10b) applied to vh2 we get
+‖vh‖2L4(Oδ) = ‖vh2‖L2(Oδ) . (δn−1 + h) 1
+2 ‖vh2 ‖L2(Γn−1
+h ) + (δn−1 + h)‖nh · ∇vh2 ‖L2(Oδ)
+. (δn−1 + h) 1
+2 ‖vh‖2
+L4(Γn−1
+h ) + (δn−1 + h)‖vh‖L4(Oδ)‖nh · ∇vh‖L4(Oδ)
+≤ c0(δn−1 + h) 1
+2 ‖vh‖2
+L4(Γn−1
+h )+1
+2 ‖vh‖2L4(Oδ) + c1h− 3
+2 (δn−1 + h)2‖nh · ∇vh‖2L2(Oδ).
+Shifting the term ‖vh‖2L4(Oδ) to the left-hand side we obtain
+‖vh‖2L4(Oδ) . (δn−1 + h) 1
+2 ‖vh‖2
+L4 (Γn−1
+h ) + h− 3
+2 (δn−1 + h)2‖nh · ∇vh‖2L2(Oδ). (4.14)
+We use (4.11) with vh2, which is a finite element function of degree 2m and so (4.11) applies:
+‖vh‖2L4(Γn
+h) = ‖vh2 ‖L2(Γn
+h ) . ‖vh2 ‖L2(Γn−1
+h )+δ
+1
+n2−1‖nh · ∇vh2 ‖L2(Oδ). (4.15)
+From the chain rule and the result (4.13) above we obtain
+‖nh · ∇vh2 ‖L2(Oδ) ≤ ‖vh‖L4(Oδ)‖nh · ∇vh‖L4(Oδ) . h− 3
+4 ‖vh‖L4(Oδ)‖nh · ∇vh‖L2(Oδ)
+Substituting this in (4.15) and using (4.14) we get
+‖vh‖2L4(Γn
+h) . ‖vh‖2
+L4 (Γn−1
+h )+δ
+1
+n2−1h− 3
+4 ‖vh‖L4(Oδ)‖nh · ∇vh‖L2(Oδ)
+. ‖vh‖2
+L4 (Γn−1
+h ) + δn−1h− 3
+2 ‖vh‖2L4(Oδ) + ‖nh · ∇vh‖2L2(Oδ)
+. (1 + δn−1h− 3
+2 (δn−1 + h) 1
+2
+)‖vh‖2
+L4(Γn−1
+h ) + (δn−1h−3(δn−1 + h)2 + 1)‖nh · ∇vh‖2L2(Oδ).
+Due to (3.19f) (i.e. δn−1 . h) we get δn−1h− 3
+2 (δn−1 + h) 1
+2 . 1 and δn−1h−3(δn−1 + h)2 . 1, which completes the proof. Lemma 4.3 is used in the proof of the next lemma. Lemma 4.4. The following uniform estimate holds
+‖vh‖2L4(Γn
+h) . ‖vh‖Γn−1
+h |||vh|||Un−1 + h|||vh|||2Un−1 for all vh ∈ Un−1
+h . (4.16)
+10
+
+
+Proof. Take vh ∈ Un−1
+h . Component-wise application of (4.12) yields
+‖vh‖L4(Γn
+h ) . ‖vh‖L4(Γn−1
+h ) + ‖nh · ∇vh‖Oδ(Γn−1
+h ) . ‖vh‖L4(Γn−1
+h ) + h1
+2 |||vh|||Un−1 . (4.17)
+Using (4.8) and (4.9) we get
+‖vh ‖L4 (Γn−1
+h ) . ‖vh‖ 1
+2
+Γn−1
+h
+|||vh||| 1
+2
+U n−1 .
+Substituting the latter estimate in (4.17) completes the proof.
+4.2. Coercivity and continuity estimates. We derive coercivity and continuity estimates for the trilinear form an(· ; ·, ·).
+Lemma 4.5. For arbitrary z ∈ L2(Γhn) and vh ∈ Uhn it holds
+an(z; vh, vh) ≥ |||vh|||2Un − ξh‖Phvh‖2Γn
+h with ξh := 1 + max
+n=0,..,N ‖we,n
+N Hh(tn)‖L∞ . (4.18)
+Proof. From (3.12) and (3.18) it follows for sufficiently small h that
+|v|2 = |nh · v|2 + |Phv|2 ≤ (1 + chq)(| ̃nh · v|2 + |Phv|2) ∀ v ∈ R3.
+Using this, cn(z; vh, vh) = 0, Hh = PhHhPh, which follows from the definition of Hh, cf. (3.13),
+and τ ≥ 1 + chq (for h, τ satisfying (3.19a) and (3.19d)), we obtain the following lower estimate for an(z; ·, ·):
+an(z; vh, vh) = ̂an(vh, vh) = (we,n
+N Hhvh, vh)Γn
+h + |||vh|||2Un + τ
+2 ‖ ̃nh · v‖2Γn
+h−1
+2 ‖vh‖2Γn
+h
+≥ |||vh|||2Un − (‖we,n
+N Hh(tn)‖L∞ + 1
+2 (1 + chq))‖Phvh‖2Γn
+h ∀ vh ∈ Uhn,
+from which the result follows.
+Lemma 4.6. The following uniform estimate holds:
+an(z; u, v) . (‖Phz‖L4(Γn
+h) + 1)|||u|||Un |||v|||Un , z ∈ L4(Γhn), u, v ∈ Uhn. (4.19)
+Proof. For the terms in the trilinear form a(· ; ·, ·) that do not depend on the first argument, cf. (4.1), we apply Cauchy-Schwarz inequality:
+|̂an(u, v)| . |||u|||Un |||v|||Un . (4.20)
+We now consider the term ∫
+Γn
+h (z · ∇Γh Phu) · v dsh. The term ∫
+Γn
+h (z · ∇Γh Phv) · u dsh can be treated similarly. Using (4.8) and (4.9) we obtain
+∣∣∣
+∫
+Γn
+h
+(z · ∇Γh Phu) · v dsh
+∣∣∣ . ‖∇Γh Phu‖Γn
+h ‖Phz‖L4(Γn
+h )‖Phv‖L4(Γn
+h)
+. ‖Phz‖L4(Γn
+h )‖Phu‖H1(Γn
+h)‖Phv‖ 1
+2
+Γn
+h ‖Phv‖ 1
+2
+H1 (Γn
+h)
+. ‖Phz‖L4(Γn
+h)|||u|||Un |||v|||Un .
+(4.21)
+Combining this with the same estimate for the other trilinear term and with (4.20) we obtain the result (4.19).
+4.3. Stability estimate. First we derive a stability result for the discrete velocity. Using this stability result and a suitable discrete inf-sup property, we then derive a stability estimate for the discrete pressure in Theorem 4.8.
+Theorem 4.7. A solution of (3.4) satisfies the following estimate:
+‖uhn‖2Γn
+h+
+∑n
+k=1
+‖Phukh − uk−1
+h ‖2
+Γk
+h + ∆t
+n ∑
+k=1
+(|||ukh|||2
+Uk + 2ρp‖nh · ∇pkh‖2
+ωk
+Γ
+)
+. exp(c tn)
+(
+‖u0h‖2
+Γ0
+h + ∆t|||u0h|||2U0 + ∆t
+n ∑
+k=0
+‖f e,k‖2
+Γk
+h
+)
+, (4.22)
+11
+
+
+with c independent of h, ∆t and n.
+Proof. We test (4.2) with vh = uhn, qh = −∆tphn. Adding the two identities leads to
+1
+2 (‖Phuhn‖2Γn
+h + ‖Phuhn − un−1
+h ‖2Γn
+h ) + ∆t an(un−1
+h ; uhn, uhn) + ∆tρp‖nh · ∇phn‖2ωn
+Γ
+=1
+2 ‖un−1
+h ‖2Γn
+h + ∆t(f e,n, Phuhn)Γn
+h . (4.23)
+We use the lower bound (4.18) and apply (4.10c):
+‖Phuhn‖2Γn
+h + ‖Phuhn − un−1
+h ‖2Γn
+h + 2∆t(|||uhn|||2Un + ρp‖nh · ∇phn‖2ωn
+Γ
+)
+≤ ‖un−1
+h ‖2Γn
+h + 2ξh∆t‖Phuhn‖2Γn
+h + ∆t‖Phuhn‖2Γn
+h + ∆t‖f e,n‖2Γn
+h (4.24)
+≤ (1 + c ∆t)‖un−1
+h ‖2
+Γn−1
+h
++1
+2 ∆tρu‖nn−1
+h · ∇un−1
+h ‖2
+Oδ (Γn−1
+h ) + C∆t‖uhn‖2Γn
+h + ∆t‖f e,n‖2Γn
+h.
+Due to (3.19d) we have
+1
+2 ∆t|||uhn|||2Un ≥ 1
+2 ∆t τ ‖ ̃nh · uhn‖2Γn
+h≥1
+2 ∆t τ ‖nh · uhn‖2Γn
+h − c∆t τ h2q‖uhn‖2Γn
+h
+≥ ‖nh · uhn‖2Γn
+h − c∆th2q−2‖uhn‖2Γn
+h . (4.25)
+Using this and ‖uhn‖2Γn
+h = ‖Phuhn‖2Γn
+h + ‖nh · uhn‖2Γn
+h in (4.24) we obtain
+‖uhn‖2Γn
+h + ‖Phuhn − un−1
+h ‖2Γn
+h+3
+2 ∆t|||uhn|||2Un + 2∆tρp‖nh · ∇phn‖2ωn
+Γ
+≤ (1 + c ∆t)‖un−1
+h ‖2
+Γn−1
+h
++1
+2 ∆t|||un−1
+h |||2Un−1 + C∆t‖uhn‖2Γn
+h + ∆t‖f e,n‖2Γn
+h . (4.26)
+We sum up the inequalities for n = 1, . . . , k, and with c∗ = c + C we get
+‖ukh‖2
+Γk
+h+
+k ∑
+n=1
+‖Phuhn − un−1
+h ‖2Γn
+h + ∆t
+k ∑
+n=1
+(|||uhn|||2Un + 2ρp‖nh · ∇phn‖2ωn
+Γ
+)
+≤ (1 + c∆t)‖u0h‖2
+Γ0
+h+1
+2 ∆t|||u0h|||2U0 + ∆t
+k ∑
+n=0
+c∗‖uhn‖2Γn
+h + ∆t
+k ∑
+n=0
+‖f e,n‖2Γn
+h.
+Finally, we shift the term ∆t c∗‖ukh‖2
+Γk
+h
+from the right-hand side to the left hand side and apply, for
+∆t ≤ (2c∗)−1, a discrete Gronwall inequality. We now derive a stability bound for the discrete pressure. The analysis is based on results derived in [33]. We recall some results from that paper. We use the scaled H1(ωΓn)-norm given by
+‖q‖1,ωn
+Γ ,h := h 1
+2 ‖∇q‖ωn
+Γ . (4.27)
+Note that this norm is equivalent to the scaled H1(Γ(tn)) norm in the following sense. Assume
+Γ(tn) ⊂ ωΓn and qe is the normal extension of q ∈ H1(Γ(t)). Then h‖∇Γq‖Γ(t) ∼ ‖qe‖1,ωn
+Γ ,h holds.
+For a given qh ∈ Qhn we define a corresponding function ̂vh ∈ Uhn by
+̂vh(x) = ∑
+E∈Ereg
+h2EφE (x)(tE · ∇qh(x))tE , (4.28)
+with Ereg being a subset of edges of tetrahedra in ωΓn, tE the unit tangent vector along the edge E and φE the quadratic nodal basis function corresponding to the edge E (extended by zero to Ω). Recall that the finite element function φh(t, ·) defines the surface approximation Γh(t), cf. (3.10). The following result was shown in [18, Theorem 5.9]: For a fixed tn and φh a piecewise linear finite element function satisfying (3.8)–(3.9b) there exist a subset Ereg and C independent of qh, discretization parameters and the position of Γh in the mesh such that
+‖qh‖21,ωn
+Γ ,h ≤ C(b(qh, ̂vh) + ρp‖nh · ∇qh‖2ωn
+Γ
+) (4.29)
+|||̂vh|||Un ≤ C‖qh‖1,ωn
+Γ ,h. (4.30)
+12
+
+
+Assumption 4.1. We assume that (4.29)–(4.30) hold for a Pk finite element function φh satisfying (3.8)–(3.9b), with C independent of qh, discretization parameters, the position of Γh in the mesh and of tn.
+A result similar to (4.29)-(4.30) is also known if φh = φ, i.e., if the geometry approximation Γh ≈ Γ is exact (cf. [33]). This is a further support of the plausibility of Assumption 4.1. We claim that the analysis of [33] can be extended to the case of an arbitrary polynomial degree approximation φh of φ, with uniform constants as specified in Assumpton 4.1. Such an extension, however, will not be straighforward and is expected to be rather technical and therefore is not addressed here.
+Theorem 4.8. Let Assumption 4.1 be satisfied. Denote the upper bound in (4.22) by Fn =
+Fn(u0h, f e). The discrete problem (4.2) has a unique solution and for the discrete pressure solution the following holds:
+∆t
+n ∑
+k=1
+‖pkh‖1,ωk
+Γ,h . Fn + ( √h∆t + 1)F
+1
+n2 . Fn + F
+1
+n2 . (4.31)
+Proof. From the discrete inf-sup property (4.29) and standard results for saddle point problems it follows that the discrete problem (4.2) has a unique solution. Let phn, n = 1, . . . , N , be the pressure
+solution and, for given n, ̂vh ∈ Uhn as in (4.28) a corresponding discrete velocity. We then have
+‖phn‖21,ωn
+Γ ,h . b(phn, ̂vh) + ρp‖nh · ∇phn‖2ωn
+Γ . b(phn, ̂vh) + ρ
+1
+p2 ‖nh · ∇phn‖ωn
+Γ ‖phn‖1,ωn
+Γ ,h. (4.32)
+We use the test function ̂vh in (4.2) and thus get
+b(phn, ̂vh) = − 1
+∆t
+((uhn, Ph ̂vh)Γn
+h − (un−1
+h , Ph ̂vh)Γn
+h
+) − an(un−1
+h ; uhn, ̂vh) + (f e,n, Ph ̂vh)Γn
+h.
+Now note the following:
+‖̂vh‖2Γn
+h . h−1‖̂vh‖2ωn
+Γ . h3‖∇phn‖2ωn
+Γ . h2‖phn‖21,ωn
+Γ ,h. (4.33)
+Using this and the continuity estimate in (4.19), (4.16) and (4.30) we obtain
+|an(un−1
+h ; uhn, ̂vh)| . (|||un−1
+h |||Un−1 + 1)|||uhn|||Un |||̂vh|||Un
+. (|||un−1
+h |||2Un−1 + |||uhn|||2Un + |||uhn|||Un
+)‖phn‖1,ωn
+Γ ,h.
+Using this and (4.33) we get
+|b(phn, ̂vh)| . h
+∆t ‖Phuhn − un−1
+h ‖Γn
+h ‖phn‖1,ωn
+Γ ,h + h‖f e,n‖Γn
+h ‖phn‖1,ωn
+Γ ,h
++ (|||un−1
+h |||2Un−1 + |||uhn|||2Un + |||uhn|||Un
+)‖phn‖1,ωn
+Γ ,h.
+Hence, using (4.32) we obtain
+‖phn‖1,ωn
+Γ ,h . h
+∆t ‖Phuhn − un−1
+h ‖Γn
+h + h‖f e,n‖Γn
+h +ρ
+1
+p2 ‖nh · ∇phn‖ωn
+Γ
++ |||un−1
+h |||2Un−1 + |||uhn|||2Un + |||uhn|||Un .
+(4.34)
+Summing over n = 1, . . . , k, yields
+∆t
+k ∑
+n=1
+‖pkh‖1,ωk
+Γ,h . h
+k ∑
+n=1
+‖Phuhn − un−1
+h ‖Γn
+h + h∆t
+k ∑
+n=1
+‖f e,n‖Γn
+h (4.35)
++ ∆t
+k ∑
+n=1
+ρ
+1
+p2 ‖nh · ∇phn‖ωn
+Γ + ∆t
+k ∑
+n=0
+|||uhn|||2Un + ∆t
+k ∑
+n=0
+|||uhn|||Un .
+13
+
+
+We use the estimate (4.22), with upper bound denoted by Fn, and k . 1/∆t. The different terms on the right-hand side can be bounded as follows, using Cauchy-Schwarz,
+h
+k ∑
+n=1
+‖Phuhn − un−1
+h ‖Γn
+h . √h∆t
+( k ∑
+n=1
+‖Phuhn − un−1
+h ‖2Γn
+h
+)
+1
+2 . √h∆t F
+1 2
+k , (4.36)
+h∆t
+k ∑
+n=1
+‖f e,n‖Γn
+h + ∆t
+k ∑
+n=1
+ρ
+1
+p2 ‖nh · ∇phn‖ωn
+Γ
+. h(∆t
+k ∑
+n=1
+‖f e,n‖2Γn
+h
+)
+1
+2 + (∆t
+k ∑
+n=1
+ρp‖nh · ∇phn‖2ωn
+Γ
+)
+1
+2 .F
+1 2
+k,
+∆t
+k ∑
+n=0
+|||uhn|||2Un + ∆t
+k ∑
+n=0
+|||uhn|||Un . Fk + F
+1 2
+k.
+Combining these estimates completes the proof. Let us discuss the stability bound in (4.31). Note that the bound yields stability in a discrete L1(H1) type norm with a uniform constant for h2 . ∆t, which covers parameter choices typically used in practice for m = 1 (the lowest order Taylor–Hood pair), namely ∆t ∼ h2 (for BDF1) and ∆t ∼ h (BDF2). The stability bound can be compared with bounds derived in the recent papers [4, 49] in which a similar discretization method for the Stokes problem on moving domains is treated. The analyses in these papers yield a uniform (in ∆t and h) pressure bound only for
+∆t2 ∑n
+k=1 ‖pkh‖Ωk . Note the square in the scaling factor ∆t2 in this quantity. In particular these
+analyses do not yield uniform bounds for ∆t ∑n
+k=1 ‖pkh‖Ωk if ∆t ∼ h or ∆t ∼ h2.
+Remark 4.2. We briefly explain why our analysis yields a uniform bound if h2 . ∆t. First note that (4.29)–(4.30) implies the discrete inf-sup property. In the stability analysis of the discrete pressure we do not use this discrete inf-sup property. We rather use the specific choice of the function ̂vh in (4.29)–(4.30). For this function we have, cf. (4.33), ‖̂vh‖Γn
+h . h‖phn‖1,ωn
+Γ,h. Here we gain a
+power of h compared to the more naive estimate ‖̂vh‖Γn
+h . |||̂vh|||Un . ‖phn‖1,ωn
+Γ,h. Due to this we get
+the factor h in front of the time difference term ‖Phuhn − un−1
+h ‖Γn
+h in (4.34)-(4.35), which leads to
+√h∆t , instead of √1∆t in (4.36). Hence we have a uniform bound for h2 . ∆t. It looks plausible that this approach can be used to improve the suboptimal pressure stability estimate in [49] as well. Remark 4.3. The treatment of non-homogeneous divergence condition in (2.4) involves handling the (f e,n, ph)Γn
+h term on the right-hand side of eq. (4.23). Standard arguments would result
+in an additional term on the right hand side of the stability bound, which involves the quantity
+‖f ‖∗ = mnax supqh∈Qn
+h
+(f e,n,qh)Γhn
+‖qh ‖1,ωn
+Γ,h , which is dual to our discrete pressure norm. We cannot show
+that ‖f ‖∗ remains uniformly bounded for a smooth f if h → 0. For this reason, our stability and convergence analysis is limited to the case of a homogeneous divergence condition. A formal way to reduce the original problem to the one with an homogeneous divergence condition would be to solve for the potential ψ satisfying ∆Γψ = f on Γ(t) and substitute uT → uT + ψ. In practice, we do not use this approach and instead apply the FEM (3.16)–(3.17). We see optimal order convergence results, cf. Section 5. We now proceed with an error estimate. Its proof combines the arguments we used for the stability analysis with geometric and interpolation error estimates. The geometric and interpolation error estimates are treated at each time instance tn for ‘stationary’ surfaces Γhn and so results already
+available in the literature (cf. [18,35,41]) can be used. We start with a consistency estimate for (3.4).
+4.4. Consistency analysis. In this section we derive estimates for the consistency error. The analysis is based on a standard technique and uses estimates already available in the literature for surface vector-Laplace and surface Stokes equations. In the consistency and error bounds we need estimates on derivatives of the extended solution ue(t, x) = u(t, p(x)) in the strip O(G). To simplify the notation, the extension of (scalar or vector-valued) functions v defined on G is also denoted by v. By differentiating the identity v(t, x) = v(t, p(x)), (t, x) ∈ O(G), k ≥ 0 times one finds that for
+14
+
+
+Ck+1-smooth manifold G and v ∈ Ck(G) the following bound holds:
+‖v‖W k,∞(O(G)) . ‖v‖W k,∞(G). (4.37)
+Further calculations, see, for example, [41, Lemma 3.1], yield
+‖v‖Hk(Uε(Γ(t))) . ε 1
+2 ‖v‖Hk(Γ(t)), for t ∈ [0, T ] (4.38)
+and any ε > 0 such that Uε(Γ(t)) ⊂ O(Γ(t)), where Uε(Γ(t)) is an ε-neighborhood in R3.
+We next observe that the smooth solution un = u(tn), un−1 = u(tn−1) = u(tn−1)e, pn = p(tn) of (2.4) satisfies the identity ∫
+Γn
+h
+( un − un−1
+∆t
+)
+· Phvh ds + an(un−1; un, vh) + bn(pn, vh) = ECn (vh) +
+∫
+Γn
+f n · vlh ds, (4.39)
+for any vh ∈ Uhn and with an(·; ·, ·), bn(·, ·) as in (4.1) and ECn(vh) collecting consistency terms due
+to geometric errors, time derivative approximation and linearization, i.e.
+En
+C (vh) :=
+∫
+Γn
+h
+( un − un−1
+∆t
+)
+· Phvh dsh −
+∫
+Γn
+ut(tn) · vl
+h ds
+} {{ }
+I1
++ ρu
+∫
+Oδ (Γn
+h)
+((nh − n) · ∇un)(nh · ∇vh)dx
+} {{ }
+I2
++1
+2
+∫
+Γn
+h
+(un−1 · ∇Γh Phun) · vh − (un−1 · ∇Γh Phvh) · un dsh − 1
+2
+∫
+Γn
+(un · ∇Γun) · vl
+h − (un · ∇ΓPvl
+h) · un ds
+} {{ }
+I3
++ 2μ
+∫
+Γn
+h
+Es,h(Phun) : Es,h(Phvh) dsh − 2μ
+∫
+Γn
+Es(un) : Es(Pvl
+h) ds
+} {{ }
+I4
++
+∫
+Γn
+h
+we,n
+N vh · Hhun dsh −
+∫
+Γn
+wn
+N vl
+h · Hun ds
+} {{ }
+I5
++τ
+∫
+Γn
+h
+( ̃nh · un)( ̃nh · vh) dsh − τ
+∫
+Γn
+(n · un)(n · vl
+h) ds
+} {{ }
+I6
++
+∫
+Γn
+h
+∇Γh pn · vh dsh −
+∫
+Γn
+∇Γpn · vl
+h ds
+} {{ }
+I7
+.
+All terms above except I3 have been considered in consistency analyses of TraceFEM in the literature, [18, 20, 26]. In the next lemma we collect results which are essentially known and then treat the term I3 in Lemma 4.10.
+Lemma 4.9. The following uniform estimates hold
+|I1| . (∆t + hq)‖vh‖Γn
+h (4.40)
+|I2| . hqρ
+1
+u2 ‖nh · ∇vh‖Oδ(Γn
+h) (4.41)
+|I4| . hq (
+‖vh ‖H 1 (Γn
+h) + h−1‖ ̃nh · vh‖Γn
+h
+)
+(4.42)
+|I5| . hq‖vh‖H1(Γn
+h) (4.43)
+|I6| . hq+1τ ‖ ̃nh · vh‖Γn
+h . hqτ 1
+2 ‖ ̃nh · vh‖Γn
+h (4.44)
+|I7| . hq‖vh‖Γn
+h (4.45)
+where q + 1 is the order of geometry recovery defined in (3.8) and (3.13).
+Proof. Componentwise application of the arguments in the proof of Lemma 11 in [26] and ‖Ph −
+P‖L∞(Γn
+h) . hq yields the bound in (4.40). In the same proof the result (4.41) is derived, using the
+assumption (3.19b). Recall that Es,h(Phvh) represents Es,h(vh) − (nh · vh)Hh, cf. Remark 3.4. The result (4.42) is shown in Lemma 5.15 and (5.42) in [20]. For the estimate (4.43) we use assumption (3.13) and an appropriate partial integration to shift the derivatives in Hh and H to the function vh.
+15
+
+
+Details of a proof are given in Appendix C. The result (4.44) also follows with similar arguments, using (3.18), cf. proof of Lemma 5.18 in [20]. The result (4.45) is obtained with the same techniques. In the literature cited, bounds (4.42)–(4.45) were proved for the case of a stationary surface. However, the arguments need only norm equivalences as in (4.6) and geometry approximation inequalities formulated in section 3.2.1. Since in our setting these results hold uniformly in time, this implies uniform boundedness of the constants in (4.42)–(4.45) also with respect to time. The nonlinear term requires a more careful handling, which is carried out below. Lemma 4.10. It holds |I3| . (∆t + hq)‖vh‖H1(Γn
+h).
+Proof. Recall that the spatial-normal extension of u to O(G) is denoted by u, too. We start with estimating the differences between the quadratic nonlinear terms, i.e. the third and fourth terms in I3, and the corresponding linearized ones on the exact surface at time tn. For the fourth term in I3 we get, using the smoothness of u
+∣∣∣∣∣
+∫
+Γn
+(un · ∇ΓPvlh) · un ds −
+∫
+Γn
+(un−1 · ∇ΓPvlh
+) · un ds
+∣∣∣∣∣ =
+∣∣∣∣∣
+∫
+Γn
+( ∫ tn
+tn−1
+utdt · ∇ΓPvlh
+) · un ds
+∣∣∣∣∣
+≤ ∆t ‖∇ΓPvlh‖L2(Γn) . ∆t ‖vlh‖H1(Γn) . ∆t ‖vh‖H1(Γn
+h).
+With very similar arguments we obtain for the third term in I3:
+∣∣∣∣∣
+∫
+Γn
+(un · ∇Γun) · vlh ds −
+∫
+Γn
+(un−1 · ∇Γun) · vlh ds
+∣∣∣∣∣ . ∆t‖vh‖Γn
+h.
+For the approximate surface ∇Γh Phw represents ∇Γhw−(nh ·w)Hh. We now compare the linearized
+terms on the approximate surface Γhn (first and second one in I3) with the corresponding ones on
+the exact surface. For the second term in I3 we get
+∣∣∣∣∣
+∫
+Γn
+h
+(un−1 · ∇Γh Phvh) · un dsh −
+∫
+Γn
+(un−1 · ∇ΓPvlh) · un ds
+∣∣∣∣∣
+≤
+∣∣∣∣∣
+∫
+Γn
+h
+(un−1 · ∇Γh vh) · un dsh −
+∫
+Γn
+(un−1 · ∇Γvlh) · un ds
+∣∣∣∣∣
+} {{ }
+J1
++
+∣∣∣∣∣
+∫
+Γn
+h
+(nh · vh)un−1 · Hhun dsh −
+∫
+Γn
+(n · vlh)un−1 · Hun ds
+∣∣∣∣∣
+} {{ }
+J2
+For the term J1 we use ∇Γh vh = Ph∇vlhPh, the transformation relation (4.5) applied to vh,
+‖P − Ph‖L∞(Γn
+h) . hq and the bound in (A.1) for the change in surface measure. Thus we get
+J1 . hq ‖vlh‖H1(Γn) . hq‖vh‖H1(Γn
+h).
+For the term J2 we proceed as in the derivation of the bound for I5 in (4.43), cf. Appendix C. As in (C.1) we obtain ∫
+Γn
+(n · vlh)un−1 · Hun ds = −
+∫
+Γn
+(n · vlh)n · ∇(Pun−1)un ds. (4.46)
+In the other term in J2 we replace nh by n, with error bounded by Chq‖vh‖Γn
+h . With the same
+arguments as in (C.2)–(C.4) the resulting term ∫
+Γn
+h (n · vh)un−1 · Hhun dsh can be replaced by
+−∫
+Γn (n·vlh)nlh ·∇(Pun−1)un ds with error bounded by Chq‖vh‖Γn
+h . Comparing the latter term with
+the one on the right-hand side in (4.46) we get, using the assumption (3.13), a bound Chq‖vh‖Γn
+h.
+Summarizing we get J1 + J2 . hq‖vh‖H1(Γn
+h).
+16
+
+
+For the remaining first term in I3 we use similar arguments. First note
+∣∣∣∣∣
+∫
+Γn
+h
+(un−1 · ∇Γh Phun) · vh dsh −
+∫
+Γn
+(un−1 · ∇Γun) · vlh ds
+∣∣∣∣∣
+≤
+∣∣∣∣∣
+∫
+Γn
+h
+(un−1 · ∇Γh un) · vh dsh −
+∫
+Γn
+(un−1 · ∇Γun) · vlh ds
+∣∣∣∣∣ +
+∣∣∣∣∣
+∫
+Γn
+h
+(nh · un)un−1 · Hhvh dsh
+∣∣∣∣∣ .
+The first term | · | can be bounded by Chq‖vh‖Γn
+h using the same arguments as for J1 above. For the
+second | · | term we also obtain such a bound using nh · un = (nh − n) · un and ‖nh − n‖L∞(Γn
+h) . hq.
+Combining these estimates we obtain the result of the lemma. From the estimates in Lemmas 4.9,4.10 and eq. (4.9) we obtain the following corollary. Corollary 4.11. For the consistency error the following uniform estimate holds
+|ECn (vh)| . (∆t + hq)|||vh|||Un for all vh ∈ Uhn. (4.47)
+4.5. Error estimates. In this section we derive a bound for the velocity error En := un −uhn ∈
+H1(Oδ(Γhn)) and for the pressure error rn := pn − phn, rn ∈ H1(ωΓn). From (4.2) and (4.39) we get
+the error equation, for arbitrary vh ∈ Uhn,
+1
+∆t (En−En−1, Phvh)Γn
+h +cn(En−1; un, vh)+an(un−1
+h ; En, vh)+bn(rn, vh) = ECn(vh)+δfn(vh), (4.48)
+with the data error term δfn(vh) := ∫
+Γn f n · vlh ds − ∫
+Γn
+h
+f e,nPh · vlh dsh. Let uIn ∈ Uhn and pIn ∈ Qhn
+be the nodal interpolants for un in Oδ(Γhn) and pn in ωΓn, respectively.
+We proceed using standard techniques, based on splitting the error En into approximation and finite element parts,
+En = (un − uIn)
+} {{ }
+eIn
++ (uIn − uhn)
+} {{ }
+ehn
+.
+Using an(un−1
+h ; En, vh) = ̂an(eIn, vh) + ̂an(ehn, vh) + cn(un−1
+h ; En, vh) equation (4.48) can be refor
+mulated as
+1
+∆t (ehn − en−1
+h , Phvh)Γn
+h + ̂an(ehn, vh) + bn(pIn − phn, vh) = ECn (vh) + EIn(vh) + Cn(vh) + δfn(vh), (4.49)
+with the interpolation and nonlinear terms
+EIn(vh) := − 1
+∆t (eIn − en−1
+I , Phvh)Γn
+h − ̂an(eIn, vh) − bn(pn − pIn, vh),
+Cn(vh) := −cn(En−1; un, vh) − cn(un−1
+h ; En, vh).
+An estimate for the interpolation terms is given in the following lemma. Lemma 4.12. It holds
+|EIn(vh)| . (hm+1 + hq) |||vh|||Un , vh ∈ Uhn. (4.50)
+Proof. For this to hold it is important to use the nodal interpolation. This operator has the key property that it interpolates velocity in the fixed (i.e., time independent) finite element space Uh, which allows to shift time differentiation from outside the interpolation operator to inside. Using this approach, which is standard in the analysis of parabolic problems on Euclidean domains, one avoids a factor 1
+∆t while handling the first term in EIn(vh), cf. [26, Lemma 12]. Estimates of the
+remaining two terms in EIn(vh) follow by standard arguments of applying the Cauchy-Schwarz and
+uniform trace FE interpolation inequalities [35]; see e.g. [20, § 5.3] For the nonlinear terms a bound is given in the following lemma. Lemma 4.13. The following holds, with vh ∈ Uhn,
+|Cn(vh)| . (hm+2 + ‖en−1
+h ‖Γn−1
+h + h|||en−1
+h |||Un−1 + |||un−1
+h ||| 1
+2
+Un−1 (hm+1 + |||ehn|||Un ))|||vh|||Un (4.51)
+|Cn(ehn)| . (hm+2 + ‖en−1
+h ‖Γn−1
+h + h|||en−1
+h |||Un−1 + |||un−1
+h ||| 1
+2
+Un−1 hm+1)|||ehn|||Un . (4.52)
+17
+
+
+Proof. We estimate, using (4.11),
+|cn(En−1; un, vh)| . (‖en−1
+I ‖Γn
+h + ‖en−1
+h ‖Γn
+h )‖un‖W 1,∞(Γn
+h ) |||vh |||U n
+. (hm+2‖un‖W m+2,∞ + ‖en−1
+h ‖Γn
+h )‖un‖W 1,∞ |||vh|||Un
+. (hm+2 + ‖en−1
+h ‖Γn−1
+h +δ
+1
+n2−1‖nn−1
+h · ∇en−1
+h ‖Oδ(Γn−1
+h ))|||vh|||Un
+. (hm+2 + ‖en−1
+h ‖Γn−1
+h + h|||en−1
+h |||Un−1 )|||vh|||Un .
+For the other term in Cn(vh) we use the estimates in (4.21), (4.12), (4.8) and (4.9)
+|cn(un−1
+h ; En, vh)| . ‖un−1
+h ‖L4(Γn
+h)
+(hm+1 + |||ehn|||Un
+)|||vh |||U n
+. (‖un−1
+h ‖L4(Γn−1
+h ) + ‖nh · ∇un−1
+h ‖Oδ(Γn−1
+h ))(hm+1 + |||ehn|||Un
+)|||vh |||U n
+. (‖un−1
+h ‖1
+2
+Γn−1
+h
+|||un−1
+h ||| 1
+2
+U n−1 + h 1
+2 |||un−1
+h |||Un−1
+)(hm+1 + |||ehn|||Un
+)|||vh |||U n
+. (‖un−1
+h ‖1
+2
+Γn−1
+h
++ h1
+2 |||un−1
+h ||| 1
+2
+U n−1
+)|||un−1
+h ||| 1
+2
+U n−1
+(hm+1 + |||ehn|||Un
+)|||vh|||Un .
+From the stability result in Theorem 4.7 and h2 . ∆t we get ‖un−1
+h ‖Γn−1
+h ≤ C and h 1
+2 |||un−1
+h ||| 1
+2
+U n−1 .
+∆t 1
+4 |||un−1
+h ||| 1
+2
+Un−1 ≤ C, with C specified in (4.22), in particular depending only on the data. Com
+bining these results yields (4.51). If vh = ehn we use skew-symmetry and obtain
+|cn(un−1
+h ; En, ehn)| = |cn(un−1
+h ; eIn, ehn)| . |||un−1
+h ||| 1
+2
+Un−1 hm+1|||ehn|||Un .
+Now we are prepared to prove the main result of the paper. Let u0h = uI0 ∈ U0h be a suitable
+interpolant to u0 ∈ O(Γ0h).
+Theorem 4.14. Let Assumption 4.1 be satisfied. Let (u, p) be the solution of (2.4). Let uhn,
+phn, n = 1, . . . , N , be the finite element solution of (4.2). For the errors En = uhn − un, rn = phn − pn the following estimate holds:
+‖En‖2Γn
+h+1
+8 ∆t
+∑n
+k=1
+(|||Ek |||2
+Uk + ρp‖nh · ∇rk‖2ωn
+Γ
+) . exp(c tn)(∆t2 + h2(m+1) + h2q), (4.53)
+∆t
+n ∑
+k=1
+‖rk ‖1,ωn
+Γ,h . exp(c tn)(∆t + hm+1 + hq), (4.54)
+with c depending on the problem data and independent of h, ∆t, n and of the positions of the surface in the background mesh.
+Proof. The arguments used to prove (4.53) largely repeat those used to show the stability result in Theorem 4.7 and involve estimates from Corollary 4.11, Lemmas 4.12 and 4.13 to bound the arising right-hand side terms. We set vh = ∆tehn in (4.49). This yields
+‖Phehn‖2Γn
+h + ‖Phehn − en−1
+h ‖2Γn
+h + 2∆t|||ehn|||2Un + 2∆t bn(pIn − phn, ehn)
+≤ ‖en−1
+h ‖2Γn
+h + c∆t‖ehn‖2Γn
+h + 2∆t(|EIn(ehn)| + |ECn (ehn)| + |Cn(ehn)| + |δfn(ehn)|). (4.55)
+As in (4.25) we get
+‖ehn‖2Γn
+h ≤ ‖Phehn‖2Γn
+h+1
+2 ∆t|||ehn|||2Un + c∆th2q‖ehn‖2Γn
+h.
+Using this, (4.10c) and the relation
+bn(pIn − phn, ehn) = bn(pIn − phn, uIn) + ρp‖nh · ∇(phn − pIn)‖2ωn
+Γ + ρp
+(nh · ∇pIn, nh · ∇(phn − pIn))
+ωn
+Γ
+} {{ }
+E1 (pn
+h −pn
+I)
+18
+
+
+one gets
+‖ehn‖2Γn
+h + ‖Phehn − en−1
+h ‖2Γn
+h+3
+2 ∆t|||ehn|||2Un + 2∆tρp‖nh · ∇(phn − pIn)‖2ωn
+Γ
+≤ ‖en−1
+h ‖2
+Γn−1
+h
++ c∆t(‖en−1
+h ‖2
+Γn−1
+h
++ ‖ehn‖2Γn
+h
+)+ 1
+2 ∆t|||en−1
+h |||2Un−1
++ 2∆t(|EIn(ehn)| + |ECn (ehn)| + |Cn(ehn)| + |δfn(ehn)| + |bn(pIn − phn, uIn)| + |E1(phn − pIn)|).
+(4.56)
+We estimate the different terms in the last line of (4.56). From (4.50) we get
+|EIn(ehn)| ≤ C(hm+1 + hq)|||ehn|||Un ≤ C ̃(h2m+2 + h2q) + 1
+16 |||ehn|||2Un . (4.57)
+For the second term we obtain, using (4.47):
+|ECn(ehn)| ≤ C(∆t + hq)|||ehn|||Un ) ≤ C ̃(∆t2 + h2q) + 1
+16 |||ehn|||2Un . (4.58)
+For the third term we have the result (4.52):
+|Cn(ehn)| ≤ C(hm+2 + ‖en−1
+h ‖Γn−1
+h + h|||en−1
+h |||Un−1 + hm+1|||un−1
+h ||| 1
+2
+Un−1 )|||ehn|||Un
+≤ C ̃(h2m+2(1 + |||un−1
+h |||Un−1 ) + ‖en−1
+h ‖2
+Γn−1
+h
++ h2|||en−1
+h |||2Un−1
+)+ 1
+16 |||ehn|||2Un . (4.59)
+For the data error term we have |δfn(ehn)| ≤ Chq‖ehn‖Γn
+h ≤ C ̃h2q + 1
+2 ‖ehn‖2Γn
+h . Furthermore we have,
+using n · ∇pn = 0 and ‖nh · ∇(pIn − pn)‖ωn
+Γ . hm‖pn‖Hm+1(ωn
+Γ ) . hm+ 1
+2 ‖pn‖Hm+1(Γn):
+|E1(phn − pIn)| = ρp
+∣∣∣(nh · ∇(pIn − pn), nh · ∇(phn − pIn))
+ωn
+Γ
++ ((nh − n) · ∇pn, nh · ∇(phn − pIn))
+ωn
+Γ
+∣∣∣
+≤ Cρp(h2m+1 + h2q) + 1
+2 ρp‖nh · ∇(phn − pIn)‖2ωn
+Γ
+≤ C(h2m+2 + h2q+1) + 1
+2 ρp‖nh · ∇(phn − pIn)‖2ωn
+Γ.
+(4.60)
+It remains to estimate the term |bn(pIn − phn, uIn)| in the last line of (4.56). We use the splitting
+|bn(pIn − phn, uIn)| ≤ |bn(pIn − phn, uIn − u)| + |bn(pIn − phn, u)|
+For the first term on the right-hand side we get
+|bn(pIn − phn, uIn − u)| . hm+2‖∇Γh (pIn − phn)‖Γn
+h . hm+ 3
+2 ‖∇(pIn − phn)‖ωn
+Γ
+. hm+1‖pIn − phn‖1,ωn
+Γ ,h. (4.61)
+For the second term we define qh := pIn − phn ∈ H1(Γh) and note the following. For the lifting of this
+function we have ∫
+Γ ∇Γqlh · u ds = 0. Recall the transformation formula ∇Γh qh(y) = Ph(y)(P(y) −
+d(y)H(y))∇ql(p(y)). Using this and Pu = u we get
+bn(qh, u) =
+∫
+Γn
+h
+PPh(P − dH)∇ql(p(·)) · u dsh.
+Using ‖d‖L∞(Γn
+h) . hq+1 and ‖PPhP − P‖L∞(Γn
+h) = ‖PnhnhT P‖L∞(Γn
+h) . h2q we get
+∣∣∣∣∣bn(qh, u) −
+∫
+Γn
+h
+P∇qlh(p(·)) · u dsh
+∣∣∣∣∣ . hq+1‖∇Γh qh‖Γn
+h.
+Using ∫
+Γ ∇Γqlh · u ds = 0 and the bound for the change in surface measure in (A.1) we obtain
+∣∣∣∫
+Γn
+h
+P∇qlh(p(·)) · u dsh
+∣∣∣ . hq+1‖∇Γh qh‖Γn
+h . Combining these results yields the estimate
+|bn(pIn − phn, u)| . hq+1‖∇Γh (pIn − phn)‖Γn
+h . hq+ 1
+2 ‖∇(pIn − phn)‖ωn
+Γ . hq‖pIn − phn‖1,ωn
+Γ ,h.
+19
+
+
+Collecting these results, we see that the term between brackets (. . .) in the last line in (4.56) can be bounded by
+3
+16 |||ehn|||2Un + 1
+2 ρp‖nh · ∇(phn − pIn)‖2ωn
+Γ + C‖en−1
+h ‖2
+Γn−1
+h
++ Ch2|||en−1
+h |||2Un−1
++ C ̃(∆t2 + h2q + h2m+2(1 + |||un−1
+h |||Un−1 ) + (hm+1 + hq)‖pIn − phn‖1,ωn
+Γ ,h
+). (4.62)
+The first two terms in (4.62) can be shifted to the left in (4.56). We assume that h is sufficiently small such that Ch2 ≤ 1
+16 . Then we get
+‖ehn‖2Γn
+h + ‖Phehn − en−1
+h ‖2Γn
+h + ∆t|||ehn|||2Un + ∆tρp‖nh · ∇(phn − pIn)‖2ωn
+Γ
+≤ ‖en−1
+h ‖2
+Γn−1
+h
++ c∆t(‖en−1
+h ‖2
+Γn−1
+h
++ ‖ehn‖2Γn
+h
+)+ 5
+8 ∆t|||en−1
+h |||2Un−1
++ C∆t
+(
+∆t2 + h2q + h2m+2(1 + |||un−1
+h |||Un−1 ) + (hm+1 + hq)‖pIn − phn‖1,ωn
+Γ ,h
+) .
+(4.63)
+For deriving a bound for ‖pIn − phn‖1,ωn
+Γ,h we use the same approach as in the proof of Theorem 4.8.
+For the given qh := pIn − phn ∈ Qhn we take the corresponding ̂vh ∈ Uhn as in (4.28), for which the
+estimates (4.29) and (4.30) hold. We take vh = ̂vh in (4.49). For the right-hand side in (4.49) we
+introduce the notation Gh(vh) := ECn (vh) + EIn(vh) + Cn(vh) + δfn(vh). As in (4.34) we then get
+‖pIn − phn‖1,ωn
+Γ ,h . h
+∆t ‖Phehn − en−1
+h ‖Γn
+h +ρ
+1
+p2 ‖nh · ∇(pIn − phn)‖ωn
+Γ
++ |||en−1
+h |||2Un−1 + |||ehn|||2Un + |||ehn|||Un + |Gh(̂vh)|‖pIn − phn‖−1
+1,ωn
+Γ ,h.
+(4.64)
+We estimate the terms in |Gh(̂vh)|:
+|ECn (̂vh)| . (∆t + hq)|||̂vh|||Un . (∆t + hq)‖pIn − phn‖1,ωn
+Γ ,h
+|EIn(̂vh)| . (hm+1 + hq)|||̂vh|||Un . (hm+1 + hq)‖pIn − phn‖1,ωn
+Γ ,h
+|Cn(̂vh)| . (hm+2 + ‖en−1
+h ‖Γn−1
+h + h|||en−1
+h |||Un−1 + |||un−1
+h ||| 1
+2
+Un−1 (hm+1 + |||ehn|||Un ))|||̂vh|||Un
+. (hm+2 + |||en−1
+h |||Un−1 + |||un−1
+h ||| 1
+2
+Un−1 (hm+1 + |||ehn|||Un ))‖pIn − phn‖1,ωn
+Γ ,h
+|δfn(̂vh)| . hq‖̂vh‖Γn
+h . hq+1‖pIn − phn‖1,ωn
+Γ ,h.
+Thus we obtain
+‖pIn − phn‖1,ωn
+Γ ,h . h
+∆t ‖Phehn − en−1
+h ‖Γn
+h +ρ
+1
+p2 ‖nh · ∇(pIn − phn)‖ωn
+Γ
++ |||en−1
+h |||2Un−1 + |||ehn|||2Un + |||en−1
+h |||Un−1 + |||ehn|||Un
++ ∆t + hm+1 + hq + |||un−1
+h ||| 1
+2
+Un−1 (hm+1 + |||ehn|||Un ).
+(4.65)
+Now note that
+C∆t(hm+1 + hq)|||un−1
+h ||| 1
+2
+Un−1 (hm+1 + |||ehn|||Un ) ≤ ∆t
+16 |||ehn|||2Un + C ̃∆t(h2q + h2m+2) (1 + |||un−1
+h |||Un−1
+).
+Using this, (4.65) and h2 . ∆t we obtain (for h sufficiently small) for the last term in (4.63):
+C∆t(hm+1 + hq)‖pIn − phn‖1,ωn
+Γ ,h ≤ 1
+2 ‖Phehn − en−1
+h ‖2Γn
+h+1
+2 ∆tρp‖nh · ∇(pIn − phn)‖2ωn
+Γ
++1
+8 ∆t(|||en−1
+h |||2Un−1 + |||ehn|||2Un
+) + C ̃∆t(∆t2 + (h2q + h2m+2)(1 + |||un−1
+h |||Un−1 )).
+Substituting this in (4.63) and shifting terms from the right to the left-hand side we get
+‖ehn‖2Γn
+h+1
+2 ‖Phehn − en−1
+h ‖2Γn
+h+7
+8 ∆t|||ehn|||2Un + 1
+2 ∆tρp‖nh · ∇(phn − pIn)‖2ωn
+Γ
+≤ ‖en−1
+h ‖2
+Γn−1
+h
++ c1∆t(‖en−1
+h ‖2Γn
+h + ‖ehn‖2Γn
+h) + 6
+8 ∆t|||en−1
+h |||2Un−1
++ c2∆t(∆t2 + (h2q + h2m+2)(1 + |||un−1
+h |||Un−1 )).
+(4.66)
+20
+
+
+We drop the term 1
+2 ‖Phehn − en−1
+h ‖2Γn
+h , sum over n = 1, . . . , k, apply the discrete Gronwall inequality
+and use the discrete stability estimate ∆t ∑k
+n=1 |||un−1
+h |||Un−1 . (∆t ∑k
+n=1 |||un−1
+h |||2Un−1
+)
+1
+2 ≤ C to get
+Qe,k := ‖ekh‖2
+Γk
+h+1
+8 ∆t
+k ∑
+n=1
+(|||ehn|||2Un + ρp‖nh · ∇(phn − pIn)‖2ωn
+Γ
+) . exp(c tk)(∆t2 + h2m+2 + h2q). (4.67)
+The triangle inequality and standard FE interpolation properties give
+‖Ek ‖2
+Γk
+h+1
+8 ∆t
+k ∑
+n=1
+(|||En|||2Un + ρp‖nh · ∇rn‖2ωn
+Γ
+)
+≤ 2Qe,k + 2‖ek‖2
+Γk
+h+1
+4 ∆t
+k ∑
+n=1
+(|||en|||2Un + ρp‖nh · ∇(pn − pIn)‖2ωn
+Γ
+) . Qe,k + Ch2m+2.
+This completes the proof of (4.53). We now derive a pressure error bound. The approach is similar to the one used in the proof of Theorem 4.8. First note that if we do not drop the term 1
+2 ‖Phehn − en−1
+h ‖2Γn
+h when going from (4.66) to (4.67) we get
+Q ̃e,k := Qe,k + 1
+2
+k ∑
+n=1
+‖Phehn − en−1
+h ‖2Γn
+h . exp(c tk)(∆t2 + h2m+2 + h2q) =: Fk. (4.68)
+From (4.65) we obtain, with the same arguments as in the proof of Theorem 4.8:
+∆t
+k ∑
+n=1
+‖pIn−phn‖1,ωn
+Γ ,h .
+( √h∆t + 1
+) Q ̃
+1 2
+e,k +Qe,k +∆t+hm+1 +hq +∆t
+k ∑
+n=1
+|||un−1
+h ||| 1
+2
+Un−1 (hm+1+|||ehn|||Un )
+Similar to above, using discrete stability for the last term we get
+∆t
+k ∑
+n=1
+|||un−1
+h ||| 1
+2
+Un−1 (hm+1 + |||ehn|||Un ) . hm+1 + Q
+1 2
+e,k .
+Recall that h2 . ∆t. Hence, we obtain
+∆t
+k ∑
+n=1
+‖pIn − phn‖1,ωn
+Γ ,h . Q ̃
+1 2
+e,k + Q ̃e,k + ∆t + hm+1 + hq . F
+1 2
+k + Fk . F
+1 2
+k.
+Finally we combine this result with the interpolation error estimate
+‖pIn − pn‖1,ωn
+Γ ,h = h 1
+2 ‖∇(pIn − pn)‖ωn
+Γ . hm+ 1
+2 ‖p‖Hm(ωn
+Γ ) . hm+1‖p‖Hm(Γ)
+which then proves the result (4.54). Both bounds in (4.53) and in (4.54) are optimal in terms of convergence order in ∆t and h.
+5. Numerical experiments. In this section, we present the results of numerical experiments with the proposed method. We consider a simple geometry evolution, namely a slowly moving sphere which does not change its shape. The exact level set function is given by φ(t, x) = ‖x − g(t)‖2 − 1,
+with g(t) = (0.2t, 0, 0)T . The normal velocity can be determined using wN = − ∂φ
+∂t /‖∇φ‖. The exact
+tangential velocity uT is chosen as uT = P(n × ∇Γψ) with the stream function ψ = xy − 2t. Hence,
+divΓuT = 0 holds. The pressure is taken as p = (x − 0.2t)y + z, which satisfies ∫
+Γ(t) p ds = 0. The time interval is I = [0, 2] and the evolving sphere is embedded in the domain Ω = [− 4
+3 , 10
+3 ] × [− 4
+3, 4
+3 ]2.
+Using Maple [27], we calculate the corresponding exact force terms f and f .
+21
+
+
+The method introduced in this paper is implemented in Netgen/Ngsolve [1] with the add-on ngsxfem [25]. The geometry approximation is based on an Oswald type quasi-interpolation in the
+finite element space Vh,q (cf. (3.6)), denoted by Iq
+h:
+φhn = Iq
+h(φ(tn, ·)), φ ̃hn = Iq+1
+h (φ(tn, ·)), nhn := ∇φhn
+‖∇φhn‖ , n ̃hn := ∇φ ̃hn
+‖∇φhn‖ .
+For the approximation of the Weingarten mapping we use Hhn = ∇Γh nhn, with nhn = Iq
+hnhn the (Os
+wald type) componentwise quasi-interpolation of nhn in the finite element space (Vh,q)3. In the experiments below we use the Taylor-Hood pair (cf. (3.7)) with m = 1, q = 1 or q = 2, and m = 2, q = 3. For the cases q = 2 and q = 3 the zero level of φhn is not easy to determine,
+cf. Remark 3.1, and we use the parametric finite element technique developed in [12, 24]. For the time discretization, we use the BDF1, BDF2, or BDF3 scheme. We start with a uniform tetrahedral triangulation of Ω with maximum mesh size h0 = 0.5. In each refinement step, the mesh size is halved. As the initial time step size, we chose ∆t0 = 0.2. In each spatial refinement step, we halve the time step size in the BDF2- and BDF3-scheme and we divide it by four when the BDF1 scheme is used.
+The parameter choices we use are consistent with (3.19a)–(3.19f). For the stabilization and the penalization we take ρu = h−1, ρp = h and τ = h−2. To define the extension area Oδ(Γh) the approximative level set function φh (instead of the distance function) is used in (3.14). We choose the thickness of the narrow band as δn = c ̃δn R∆t‖wN ‖∞,In, with R = 1, 2, 3, for BDF1, BDF2, and BDF3, respectively. The default value is c ̃δn = 2.5 and we check in each step whether δn is
+sufficiently large such that ωΓn ⊂ Oδ(Γn−i
+h ), i = 1, . . . , R, holds, cf. (3.20).
+In case of the BDF1 scheme we use the first order accurate linearization (∇Γh un)un−1
+h , cf. Sec
+tion 3. For the BDF2- and BDF3-scheme we consider the second and third order accurate lineariza
+tion (∇Γh uhn)uhn ≈ (∇Γh uhn) (2un−1
+h − un−2
+h
+) and (∇Γh uhn)uhn ≈ (∇Γh uhn) (3un−1
+h − 3un−2
+h + un−3
+h
+)
+respectively.
+The error quantities we use are defined as follows. The velocity and pressure errors in each time step are denoted by En = uhn − u(tn) and rn := phn − p(tn) for n = 1, . . . , N . We consider the
+following error quantities:
+(
+E L2 L2
+u
+)2 := ∆t ∑N
+n=1 ‖En‖2L2(Γn
+h),
+(
+E L2 U
+u
+)2 := ∆t
+N ∑
+n=1
+|||En|||2Un ,
+(
+E L2 L2
+p
+)2 := ∆t ∑N
+n=1 ‖rn‖2L2(Γn
+h ), EL1H1
+ωΓn
+p := ∆t
+N ∑
+n=1
+‖rn ‖1,ωn
+Γ ,h.
+Recall that the norm ‖ · ‖1,ωn
+Γ,h is closely related (cf. discussion below (4.27)) to the scaled H1(Γhn)
+norm h‖∇ · ‖Γn
+h , consistent with the error term hm+1 in (4.54).
+We start with results for the BDF1 method, presented in the Figures 5.1 and 5.2. The first
+order convergence for the error EL2U
+u in Figure 5.1(a) shows that the geometric error bound hq for
+this term in (4.53) is sharp. The result for the pressure error EL1H1
+ωΓn
+p in Figure 5.1(b) indicates
+that the geometric error term hq in (4.54) might be not sharp. The results for EL2U
+u and EL1H1
+ωΓn
+p
+in Figure 5.2 confirm the second order convergence predicted by Theorem 4.14. Although we did
+not derive a bound for the error EL2L2
+u , this error has the expected (approximately) second order convergence in Figure 5.2(a), due to the term ∆t ∼ h2 in the time discretization error.
+22
+
+
+10−1 10−0.5
+10−2
+10−1
+100
+Mesh size h
+E L2 U
+u
+E L2 L2
+u
+O(h) O(h2)
+(a) Errors in velocity
+10−1 10−0.5
+10−2
+10−1
+100
+Mesh size h
+E
+L1 H1
+ωΓn
+p
+E L2 L2
+p
+O(h2)
+(b) Error in pressure
+Fig. 5.1: m = 1, q = 1, BDF = 1, ∆t ∼ h2
+10−1 10−0.5
+10−3
+10−2
+10−1
+Mesh size h
+E L2 U
+u
+E L2 L2
+u
+O(h2)
+(a) Errors in velocity
+10−1 10−0.5
+10−3
+10−2
+10−1
+100
+Mesh size h
+E
+L1 H1
+ωΓn
+p
+E L2 L2
+p
+O(h2)
+(b) Error in pressure
+Fig. 5.2: m = 1, q = 2, BDF = 1, ∆t ∼ h2
+Results for the BDF2 method are shown in Figures 5.3, and 5.4. We claim that our theoretical analysis can be extended to this case, in which then the time discretization error terms ∆t in (4.53)(4.54) would be replaced by ∆t2. In Figure 5.3(a) we observe again that for EL2U
+u we only have first order convergence due to the h1 geometric error term. The results in Figure 5.4 show close to second order convergence for all error quantities (as in Figure 5.2).
+23
+
+
+10−1.5 10−1 10−0.5
+10−3
+10−2
+10−1
+100
+Mesh size h
+E L2 U
+u
+E L2 L2
+u
+O(h) O(h2)
+(a) Errors in velocity
+10−1.5 10−1 10−0.5
+10−3
+10−2
+10−1
+100
+Mesh size h
+E
+L1 H 1
+ωΓn
+p
+E L2 L2
+p
+O(h) O(h2)
+(b) Error in pressure
+Fig. 5.3: m = 1, q = 1, BDF = 2, ∆t ∼ h
+10−1.5 10−1 10−0.5
+10−4
+10−3
+10−2
+10−1
+100
+Mesh size h
+E L2 U
+u
+E L2 L2
+u
+O(h2)
+(a) Errors in velocity
+10−1.5 10−1 10−0.5
+10−3
+10−2
+10−1
+100
+Mesh size h
+E
+L1 H 1
+ωΓn
+p
+E L2 L2
+p
+O(h2)
+(b) Error in pressure
+Fig. 5.4: m = 1, q = 2, BDF = 2, ∆t ∼ h
+We also consider the higher-order Taylor-Hood pair with m = 2. We combine it with a higher geometric order (q = 3) and the higher order time integration scheme BDF3. All parameters are taken the same as in the experiments above. The results are shown in figure 5.5. We observe optimal third order convergence in the energy norm for the velocity and in the scaled H1(Γhn)-norm for the
+pressure.
+Appendix A. Proof of (4.6), (4.7) and (4.9). Define B = B(t, x) = P(I − dH)Ph for x ∈ Γh(t). Geometry approximation assumptions from section 3.2.1 imply that B is invertible on the range of P (for h small enough, cf. (3.19a)) and the following uniform in time and discretization
+24
+
+
+10−1.5 10−1 10−0.5
+10−5
+10−4
+10−3
+10−2
+10−1
+Mesh size h
+E L2 U
+u
+E L2 L2
+u
+O(h3)
+(a) Errors in velocity
+10−1.5 10−1 10−0.5
+10−5
+10−4
+10−3
+10−2
+10−1
+Mesh size h
+E
+L1 H 1
+ωΓn
+p
+E L2 L2
+p
+O(h3)
+(b) Error in pressure
+Fig. 5.5: m = 2, q = 3, BDF = 3, ∆t ∼ h
+parameters estimates hold (see [16]):
+‖B‖L∞(Γh) ≤ C, ‖PhB−1P‖L∞(Γh) ≤ C,
+‖PhB−1P − PhP‖L∞(Γh) ≤ Chq+1, ‖1 − |det(B)| ‖L∞(Γh) ≤ Chq+1. (A.1)
+These bounds and the identities
+dΓ = |det(B)|dΓh and ∇Γul(p(x)) = PB−T ∇Γh u(x), x ∈ Γh, u ∈ H1(Γh), (A.2)
+and the vector analogues, see [20, section 5.4.1], imply the norm equivalences in (4.6). Same uniform estimates (A.1) together with (3.12) and (3.13) yield (cf. [20, Lemma 5.14]) for any v ∈ H1(Γh)3,
+‖(∇Γvl)e − ∇Γh v‖Γn
+h . hq‖v‖H1(Γn
+h),
+‖Es(Pvl)e − Eh(Phv)‖L2(Γh) . hq(‖v‖H1(Γh) + h−1‖v · nh‖L2(Γh). (A.3)
+Now the uniform Korn-type inequality follows from the uniform in time Korn inequality on Γ(t) from [37, Lemma 3.2], estimates (4.6), (A.3) and FE trace and inverse inequalities by the arguments in [20, Lemma 5.16]. Finally, (4.7) follows from the uniform in time interpolation inequality on Γ(t) from [37, Lemma 3.4] and (4.6).
+Appendix B. Proof of Lemma 4.2. To prove Lemma 4.2 we first note that due to condition (3.20) we have Γhn ⊂ Uδ(Γn−1
+h ) ⊂ Oδ(Γn−1
+h ) ⊂ O(Γn−1), where the last inclusion holds for ∆t, h
+small enough, see condition (3.19a). Hence, for v ∈ L2(Γn−1
+h ) we define a lift vl ∈ L2(Uδ(Γn−1
+h )) as
+in (4.4), with n replaced by n − 1. We use the splitting
+‖vh‖2Γn
+h=
+∫
+Γn
+h
+(|vh|2 − |vlh|2) dsh + ‖vlh‖2Γn
+h . (B.1)
+For the second term on the right-hand side we apply the estimate ‖vlh‖Γn
+h . ‖vh‖Γn−1
+h (see, e.g. [26,
+25
+
+
+Lemma 6]). For the first term we obtain (we abbreviate Uδ = Uδ(Γn−1
+h ) here):
+∫
+Γn
+h
+(|vh|2 − |vlh|2) dsh .
+∫
+Uδ
+∣∣nn−1 · ∇(|vh|2 − |vlh|2)∣∣ dx (|vh|2 = |vlh|2 on Γn−1
+h)
+≤
+∫
+Uδ
+∣∣nn−1
+h · ∇|vh|2∣∣ dx +
+∫
+Uδ
+∣∣(nn−1 − nn−1
+h ) · ∇|vh|2∣∣ dx (as nn−1 · ∇|vlh|2= 0)
+. ‖vh‖Uδ ‖nn−1
+h · ∇vh‖Uδ + ‖nn−1 − nn−1
+h ‖L∞(Uδ)‖∇vh‖Uδ ‖vh‖Uδ
+. ‖vh‖Uδ
+(‖nn−1
+h · ∇vh‖Uδ + hq−1‖vh‖Oδ(Γn−1
+h)
+) (eq. (3.12) and FE inv. ineq.)
+. ‖vh‖Uδ
+(‖nn−1
+h · ∇vh‖Uδ + ‖vh‖Γn−1
+h + ‖nn−1
+h · ∇vh‖Oδ(Γn−1
+h)
+) (eq. (4.10b) and δn−1 + h . 1)
+. (δ 1
+n2−1 ‖vh ‖Γn−1
+h + δn−1‖nn−1
+h · ∇vh‖Oδ(Γn−1
+h)
+) (eq. (4.10a))
+× (‖vh‖Γn−1
+h + ‖nn−1
+h · ∇vh‖Oδ(Γn−1
+h)
+)
+. ‖vh‖2
+Γn−1
+h
++ δn−1‖nn−1
+h · ∇vh‖2
+Oδ (Γn−1
+h ).
+This completes the proof.
+Appendix C. Proof of (4.43). The term that has to be bounded is given by
+A :=
+∣∣∣∣∣
+∫
+Γn
+wnN vlh · Hun ds −
+∫
+Γn
+h
+we,n
+N vh · Hhun dsh
+∣∣∣∣∣ .
+Using H = P∇nP, Pun = un and the product rule ∇(w · n)T = w · ∇n + n · ∇w we get ∫
+Γn
+wnN vlh · Hun ds =
+∫
+Γn
+wnN ∇(Pvlh · n) · un ds −
+∫
+Γn
+wnN n · ∇(Pvlh)un ds
+=
+∫
+Γn
+wnN ∇Γ(vlh · Pn) · un ds −
+∫
+Γn
+wnN n · ∇(Pvlh)un ds = −
+∫
+Γn
+wnN n · ∇(Pvlh)un ds.
+(C.1)
+Using the definition Hh = ∇Γh nh = Ph∇nlhPh, the transformation formula (4.5) applied to nh,
+‖d‖L∞(Γn
+h ) . hq+1, ‖P − Ph‖L∞(Γn
+h) . hq, the bound for the surface measure change in (A.1) and
+the smoothness of u we obtain
+∣∣∣∣∣
+∫
+Γn
+h
+we,n
+N vh · Hhun dsh −
+∫
+Γn
+wnN vlh · P∇nlhPun ds
+∣∣∣∣∣ . hq‖vh‖Γn
+h . (C.2)
+We apply partial integration as in (C.1), which yields ∫
+Γn
+wnN vlh · P∇nlhPun ds =
+∫
+Γn
+wnN ∇Γ(vlh · Pnlh) · un ds −
+∫
+Γn
+wnN nlh · ∇(Pvlh)un ds. (C.3)
+For the first term on the right-hand side we apply partial integration and using ‖Pnlh‖L∞(Γn) =
+‖P(nlh − n)‖L∞(Γn) . hq, cf. (3.13), we get
+∣∣∣∣∣
+∫
+Γn
+wnN ∇Γ(vlh · Pnlh) · un ds
+∣∣∣∣∣ =
+∣∣∣∣∣
+∫
+Γn
+(vlh · Pnlh) divΓ(wnN un) ds
+∣∣∣∣∣ . hq‖vh‖Γn
+h . (C.4)
+With the results (C.1)-(C.4) we get, using again (3.13),
+A≤
+∣∣∣∣∣
+∫
+Γn
+wnN n · ∇(Pvlh)un ds −
+∫
+Γn
+wnN nlh · ∇(Pvlh)un ds
+∣∣∣∣∣ + hq‖vh‖Γn
+h
+=
+∣∣∣∣∣
+∫
+Γn
+wnN (n − nlh) · ∇(Pvlh)un ds
+∣∣∣∣∣ + hq‖vh‖Γn
+h . hq‖vh‖H1(Γn
+h),
+which completes the proof.
+26
+
+
+Acknowledgment. The authors A. Reusken and P. Schwering wish to thank the German Research Foundation (DFG) for financial support within the Research Unit “Vector- and tensor valued surface PDEs” (FOR 3013) with project no. RE 1461/11-2. The author M.Olshanskii was partially supported by US National Science Foundation (NSF) through DMS-2011444.
+REFERENCES
+[1] Netgen/NGSolve. https://ngsolve.org/.
+[2] A. Bonito, A. Demlow, and M. Licht, A divergence-conforming finite element method for the surface Stokes equation, SIAM Journal on Numerical Analysis, 58 (2020), pp. 2764–2798.
+[3] P. Brandner, T. Jankuhn, S. Praetorius, A. Reusken, and A. Voigt, Finite element discretization methods for velocity-pressure and stream function formulations of surface Stokes equations, SIAM Journal on Scientific Computing, 44 (2022), pp. A1807–A1832.
+[4] E. Burman, S. Frei, and A. Massing, Eulerian time-stepping schemes for the non-stationary stokes equations on time-dependent domains, Numerische Mathematik, (2022), pp. 1–56.
+[5] E. Burman, P. Hansbo, M. G. Larson, and A. Massing, Cut finite element methods for partial differential equations on embedded manifolds of arbitrary codimensions, ESAIM: Mathematical Modelling and Numerical Analysis, 52 (2018), pp. 2247–2282.
+[6] P. Cicuta, S. L. Keller, and S. L. Veatch, Diffusion of liquid domains in lipid bilayer membranes, The journal of physical chemistry B, 111 (2007), pp. 3328–3331.
+[7] E. de Kinkelder, L. Sagis, and S. Aland, A numerical method for the simulation of viscoelastic fluid surfaces, Journal of computational physics, 440 (2021), p. 110413.
+[8] R. Dimova, S. Aranda, N. Bezlyepkina, V. Nikolov, K. A. Riske, and R. Lipowsky, A practical guide to giant vesicles. probing the membrane nanoregime via optical microscopy, Journal of Physics: Condensed Matter, 18 (2006), p. S1151.
+[9] G. Dziuk, Finite elements for the Beltrami operator on arbitrary surfaces, in Partial differential equations and calculus of variations, S. Hildebrandt and R. Leis, eds., vol. 1357 of Lecture Notes in Mathematics, Springer, 1988, pp. 142–155.
+[10] T.-P. Fries, Higher-order surface FEM for incompressible Navier–Stokes flows on manifolds, International Journal for Numerical Methods in Fluids, 88 (2018), pp. 55–78.
+[11] T.-P. Fries and S. Omerovi ́c, Higher-order accurate integration of implicit geometries, International Journal for Numerical Methods in Engineering, (2015).
+[12] J. Grande, C. Lehrenfeld, and A. Reusken, Analysis of a high-order trace finite element method for PDEs on level set surfaces, SIAM Journal on Numerical Analysis, 56 (2018), pp. 228–255.
+[13] B. J. Gross, N. Trask, P. Kuberry, and P. J. Atzberger, Meshfree methods on manifolds for hydrodynamic flows on curved surfaces: A generalized moving least-squares (gmls) approach, Journal of Computational Physics, 409 (2020), p. 109340.
+[14] S. Gross, T. Jankuhn, M. A. Olshanskii, and A. Reusken, A trace finite element method for vectorLaplacians on surfaces, SIAM journal on numerical analysis, 56 (2018), pp. 2406–2429.
+[15] M. E. Gurtin and A. I. Murdoch, A continuum theory of elastic material surfaces, Archive for Rational Mechanics and Analysis, 57 (1975), pp. 291–323.
+[16] P. Hansbo, M. G. Larson, and K. Larsson, Analysis of finite element methods for vector Laplacians on surfaces, IMA Journal of Numerical Analysis, 40 (2020), pp. 1652–1701.
+[17] T. Jankuhn, M. A. Olshanskii, and A. Reusken, Incompressible fluid problems on embedded surfaces: Modeling and variational formulations, Interfaces and Free Boundaries, 20 (2018), pp. 353–377.
+[18] T. Jankuhn, M. A. Olshanskii, A. Reusken, and A. Zhiliakov, Error analysis of higher order trace finite element methods for the surface Stokes equation, Journal of Numerical Mathematics, 29 (2021), pp. 245–267. [19] T. Jankuhn and A. Reusken, Higher order trace finite element methods for the surface Stokes equation, Preprint arXiv:1909.08327, (2019).
+[20] , Trace finite element methods for surface vector-Laplace equations, IMA Journal of Numerical Analysis, 41 (2020), pp. 48–83.
+[21] F. C. Keber, E. Loiseau, T. Sanchez, S. J. DeCamp, L. Giomi, M. J. Bowick, M. C. Marchetti, Z. Dogic, and A. R. Bausch, Topology and dynamics of active nematic vesicles, Science, 345 (2014), pp. 1135–1139. [22] H. Koba, C. Liu, and Y. Giga, Energetic variational approaches for incompressible fluid systems on an evolving surface, Quarterly of Applied Mathematics, (2016).
+[23] P. L. Lederer, C. Lehrenfeld, and J. Scho ̈berl, Divergence-free tangential finite element methods for incompressible flows on surfaces, International Journal for Numerical Methods in Engineering, 121 (2020), pp. 2503–2533.
+[24] C. Lehrenfeld, High order unfitted finite element methods on level set domains using isoparametric mappings, Computer Methods in Applied Mechanics and Engineering, 300 (2016), pp. 716–733.
+[25] C. Lehrenfeld, F. Heimann, J. Preuß, and H. von Wahl, ‘ngsxfem‘: Add-on to ngsolve for geometrically unfitted finite element discretizations, Journal of Open Source Software, 6 (2021), p. 3237.
+[26] C. Lehrenfeld, M. A. Olshanskii, and X. Xu, A stabilized trace finite element method for partial differential equations on evolving surfaces, SIAM Journal on Numerical Analysis, 56 (2018), pp. 1643–1672. [27] Maplesoft, Maple. https://de.maplesoft.com/.
+[28] T.-H. Miura, On singular limit equations for incompressible fluids in moving thin domains, Quart. Appl. Math., 76 (2018), pp. 215–251.
+27
+
+
+[29] B. M ̈uller, F. Kummer, and M. Oberlack, Highly accurate surface and volume integration on implicit domains by means of moment-fitting, Int. J. Numer. Methods Eng., 96 (2013), pp. 512–528.
+[30] A. Murdoch and H. Cohen, Symmetry considerations for material surfaces, Archive for Rational Mechanics and Analysis, 72 (1979), pp. 61–98.
+[31] I. Nitschke, S. Reuther, and A. Voigt, Hydrodynamic interactions in polar liquid crystals on evolving surfaces, Physical Review Fluids, 4 (2019), p. 044002.
+[32] M. Olshanskii, A. Reusken, and J. Grande, A finite element method for elliptic equations on surfaces, SIAM J. Numer. Anal., 47 (2009), pp. 3339–3358.
+[33] M. Olshanskii, A. Reusken, and A. Zhiliakov, Inf-sup stability of the trace P2-P1 Taylor–Hood elements for surface PDEs, Mathematics of Computation, 90 (2021), pp. 1527–1555.
+[34] M. A. Olshanskii, A. Quaini, A. Reusken, and V. Yushutin, A finite element method for the surface Stokes problem, SIAM Journal on Scientific Computing, 40 (2018), pp. A2492–A2518.
+[35] M. A. Olshanskii and A. Reusken, Trace finite element methods for PDEs on surfaces, in Geometrically Unfitted Finite Element Methods and Applications, S. P. A. Bordas, E. Burman, M. G. Larson, and M. A. Olshanskii, eds., Cham, 2017, Springer International Publishing, pp. 211–258.
+[36] M. A. Olshanskii, A. Reusken, and X. Xu, An Eulerian space–time finite element method for diffusion problems on evolving surfaces, SIAM Journal on Numerical Analysis, 52 (2014), pp. 1354–1377.
+[37] M. A. Olshanskii, A. Reusken, and A. Zhiliakov, Tangential navier–stokes equations on evolving surfaces: Analysis and simulations, Mathematical Models and Methods in Applied Sciences, 32 (2022), pp. 2817–2852. [38] M. A. Olshanskii and D. Safin, Numerical integration over implicitly defined domains for higher order unfitted finite element methods, Lobachevskii Journal of Mathematics, 37 (2016), pp. 582–596.
+[39] M. A. Olshanskii and V. Yushutin, A penalty finite element method for a fluid system posed on embedded surface, Journal of Mathematical Fluid Mechanics, 21 (2019), p. 14. [40] M. Rank and A. Voigt, Active flows on curved surfaces, Physics of Fluids, 33 (2021), p. 072110.
+[41] A. Reusken, Analysis of trace finite element methods for surface partial differential equations, IMA J. Numer. Anal., 35 (2015), pp. 1568–1590.
+[42] , Stream function formulation of surface Stokes equations, IMA J. Numer. Anal., 40 (2020), pp. 109–139. [43] S. Reuther and A. Voigt, The interplay of curvature and vortices in flow on curved surfaces, Multiscale Modeling & Simulation, 13 (2015), pp. 632–643.
+[44] , Solving the incompressible surface Navier–Stokes equation by surface finite elements, Physics of Fluids, 30 (2018), p. 012107.
+[45] R. Saye, High-order quadrature method for implicitly defined surfaces and volumes in hyperrectangles, SIAM Journal on Scientific Computing, 37 (2015), pp. A993–A1019. [46] P. Suchde, A meshfree Lagrangian method for flow on manifolds, International Journal for Numerical Methods in Fluids, 93 (2021), pp. 1871–1894.
+[47] Y. Sudhakar and W. A. Wall, Quadrature schemes for arbitrary convex/concave volumes and integration of weak form in enriched partition of unity methods, Computer Methods in Applied Mechanics and Engineering, 258 (2013), pp. 39–54.
+[48] M. Sun, X. Xiao, X. Feng, and K. Wang, Modeling and numerical simulation of surfactant systems with incompressible fluid flows on surfaces, Computer Methods in Applied Mechanics and Engineering, 390 (2022), p. 114450.
+[49] H. von Wahl, T. Richter, and C. Lehrenfeld, An unfitted Eulerian finite element method for the timedependent Stokes problem on moving domains, IMA Journal of Numerical Analysis, (2021). [50] A. Yavari, A. Ozakin, and S. Sadik, Nonlinear elasticity in a deforming ambient space, J. Nonlinear Sci., 26 (2016), pp. 1651–1692.
+28

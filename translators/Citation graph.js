@@ -16,10 +16,10 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "b3c02cb12ba0de966dd8b912214b6777ca9b629c3928e0d0511cd231dddc8a4b"
+		"hash": "4ae6d8f9f22dd5cf7192d9103f2b473e74238009d4c76ce94747abb6671cde43"
 	},
 	"priority": 100,
-	"lastUpdated": "2026-05-27"
+	"lastUpdated": "2026-07-20"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -35,7 +35,11 @@ var { doExport } = (() => {
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
   };
   var __export = (target, all) => {
     for (var name2 in all)
@@ -1674,6 +1678,27 @@ ${originalIndentation}`;
       "inRepository": false
     },
     {
+      "translatorID": "8a2f0d30-0b73-4f2c-8b5b-7c1a9e3f2d4e",
+      "label": "Better Hayagriva",
+      "description": "imports/exports items in Hayagriva YAML format",
+      "creator": "Emiliano heyns",
+      "target": "yaml",
+      "minVersion": "4.0.27",
+      "maxVersion": "",
+      "displayOptions": {
+        "keepUpdated": false,
+        "worker": true
+      },
+      "configOptions": {
+        "getCollections": true,
+        "cached": true
+      },
+      "translatorType": 3,
+      "browserSupport": "gcsv",
+      "inRepository": false,
+      "priority": 799
+    },
+    {
       "translatorID": "36a3b0b5-bad0-4a04-b79b-441c7cef77db",
       "label": "BetterBibTeX JSON",
       "description": "exports and imports items in BetterBibTeX debug format. Mostly for BBT-internal use",
@@ -1753,7 +1778,6 @@ ${originalIndentation}`;
     ascii: "",
     asciiBibLaTeX: false,
     asciiBibTeX: true,
-    autoAbbrev: false,
     autoExport: "immediate",
     autoExportDelay: 5,
     autoExportIdleWait: 10,
@@ -1780,14 +1804,14 @@ ${originalIndentation}`;
     citekeyFold: true,
     citekeyFormat: " auth.lower + shorttitle(3,3) + year",
     citekeyFormatEditing: "",
-    citekeySearch: true,
     citekeyUnsafeChars: `\\"#%'(),={}~`,
     csquotes: "",
     DOIandURL: "both",
     exportBibTeXStrings: "off",
     exportBraceProtection: true,
+    exportCaseProtection: "",
     exportSort: "citekey",
-    exportTitleCase: true,
+    exportTitlecase: "",
     extraMergeCitekeys: false,
     extraMergeCSL: false,
     extraMergeTeX: false,
@@ -1809,6 +1833,7 @@ ${originalIndentation}`;
     itemObserverDelay: 5,
     jabrefFormat: 0,
     japanese: false,
+    journalAbbreviation: "abbrev",
     keyScope: "library",
     language: "langid",
     logEvents: false,
@@ -1832,16 +1857,14 @@ ${originalIndentation}`;
     relativeFilePaths: false,
     remigrate: false,
     resetKeyOnChange: false,
-    scrubDatabase: false,
     separatorList: "and",
     separatorNames: "and",
     skipFields: "",
     skipWords: "a,ab,aboard,about,above,across,after,against,al,along,amid,among,an,and,anti,around,as,at,before,behind,below,beneath,beside,besides,between,beyond,but,by,d,da,das,de,del,dell,dello,dei,degli,della,dell,delle,dem,den,der,des,despite,die,do,down,du,during,ein,eine,einem,einen,einer,eines,el,en,et,except,for,from,gli,i,il,in,inside,into,is,l,la,las,le,les,like,lo,los,near,nor,of,off,on,onto,or,over,past,per,plus,round,save,since,so,some,sur,than,the,through,to,toward,towards,un,una,unas,under,underneath,une,unlike,uno,unos,until,up,upon,versus,via,von,while,with,within,without,yet,zu,zum",
-    startupProgress: "popup",
     strings: "",
     stringsOverride: "",
     testing: false,
-    verbatimFields: "url,doi,file,pdf,ids,eprint,/^verb[a-z]$/,groups,/^citeulike-linkout-[0-9]+$/, /^bdsk-url-[0-9]+$/, keywords",
+    verbatimFields: "url,doi,file,pdf,ids,eprint,/^verb[a-z]$/,groups,/^citeulike-linkout-[0-9]+$/,/^bdsk-url-[0-9]+$/, keywords",
     warnBulkModify: 10,
     warnTitleCased: false
   };
@@ -1850,7 +1873,6 @@ ${originalIndentation}`;
     "Better BibLaTeX": [
       "ascii",
       "asciiBibLaTeX",
-      "autoAbbrev",
       "automaticTags",
       "baseAttachmentPath",
       "biblatexExtendedDateFormat",
@@ -1863,8 +1885,10 @@ ${originalIndentation}`;
       "DOIandURL",
       "exportBibTeXStrings",
       "exportBraceProtection",
-      "exportTitleCase",
+      "exportCaseProtection",
+      "exportTitlecase",
       "jabrefFormat",
+      "journalAbbreviation",
       "language",
       "mapMath",
       "mapText",
@@ -1884,7 +1908,6 @@ ${originalIndentation}`;
     "Better BibTeX": [
       "ascii",
       "asciiBibTeX",
-      "autoAbbrev",
       "automaticTags",
       "baseAttachmentPath",
       "biblatexExtractEprint",
@@ -1897,8 +1920,10 @@ ${originalIndentation}`;
       "DOIandURL",
       "exportBibTeXStrings",
       "exportBraceProtection",
-      "exportTitleCase",
+      "exportCaseProtection",
+      "exportTitlecase",
       "jabrefFormat",
+      "journalAbbreviation",
       "language",
       "mapMath",
       "mapText",
@@ -1916,20 +1941,26 @@ ${originalIndentation}`;
       "verbatimFields"
     ],
     "Better CSL JSON": [
-      "autoAbbrev",
       "automaticTags",
       "baseAttachmentPath",
       "cache",
+      "journalAbbreviation",
       "parseParticles",
       "postscript",
       "skipFields"
     ],
     "Better CSL YAML": [
-      "autoAbbrev",
       "automaticTags",
       "baseAttachmentPath",
       "cache",
+      "journalAbbreviation",
       "parseParticles",
+      "postscript",
+      "skipFields"
+    ],
+    "Better Hayagriva": [
+      "automaticTags",
+      "cache",
       "postscript",
       "skipFields"
     ]
@@ -1979,6 +2010,11 @@ ${originalIndentation}`;
       "4": "for JabRef 4",
       "5": "for JabRef 5"
     },
+    "journalAbbreviation": {
+      "abbrev": "always use the Zotero abbreviation field",
+      "auto": "always use the auto-abbreviated value",
+      "abbrev+auto": "use Zotero abbreviation field, fallback to auto-abbreviation"
+    },
     "keyScope": {
       "global": "across all libraries",
       "library": "within each library"
@@ -2014,6 +2050,22 @@ ${originalIndentation}`;
     }
   };
 
+  // content/string-compare.ts
+  var strcmp = ["base", "accent", "case", "variant"].reduce(
+    (acc, sensitivity) => {
+      const collator = new Intl.Collator(void 0, { sensitivity, usage: "sort" });
+      return {
+        ...acc,
+        [sensitivity]: collator.compare.bind(collator)
+      };
+    },
+    {}
+  );
+  for (const sensitivity of ["base", "accent", "case"]) {
+    const original = strcmp[sensitivity];
+    strcmp[sensitivity] = (a, b) => original(a, b) || strcmp.variant(a, b);
+  }
+
   // translators/lib/collect.ts
   var Items = class {
     items = [];
@@ -2031,10 +2083,10 @@ ${originalIndentation}`;
     sort(sort) {
       switch (sort) {
         case "id":
-          this.items.sort((a, b) => (a.dateAdded || "").localeCompare(b.dateAdded || ""));
+          this.items.sort((a, b) => strcmp.variant(a.dateAdded || "", b.dateAdded || ""));
           break;
         case "citekey":
-          this.items.sort((a, b) => this.sortkey(a).localeCompare(this.sortkey(b)));
+          this.items.sort((a, b) => strcmp.variant(this.sortkey(a), this.sortkey(b)));
           break;
       }
     }
@@ -2468,6 +2520,7 @@ ${e.stack}
     BetterTeX;
     BetterCSLJSON;
     BetterCSLYAML;
+    BetterHayagriva;
     BetterCSL;
     BetterBibTeXCitationKeyQuickCopy;
     BetterBibTeXJSON;

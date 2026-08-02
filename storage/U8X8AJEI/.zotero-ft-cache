@@ -1,0 +1,813 @@
+Received: 13 September 2019 Revised: 19 December 2019 Accepted: 11 January 2020
+DOI: 10.1002/nme.6317
+RESEARCH ARTICLE
+Divergence-free tangential finite element methods for
+incompressible flows on surfaces
+Philip L. Lederer1 Christoph Lehrenfeld2 Joachim Schöberl1
+1Institute for Analysis and Scientific Computing, TU Wien, Vienna, Austria
+2Institute for Numerical and Applied Mathematics, University of Göttingen, Göttingen, Germany
+Correspondence
+Christoph Lehrenfeld, Institute for Numerical and Applied Mathematics, Georg-August-Universität Göttingen, 37083 Göttingen, Germany. Email: lehrenfeld@math.uni-goettingen.de
+Funding information
+Austrian Science Fund, F65-P10; Open Access funding provided by Projekt DEAL.
+Summary
+In this work we consider the numerical solution of incompressible flows on
+two-dimensional manifolds. Whereas the compatibility demands of the veloc
+ity and the pressure spaces are known from the flat case one further has
+to deal with the approximation of a velocity field that lies only in the tan
+gential space of the given geometry. Abandoning H1-conformity allows us
+to construct finite elements which are—due to an application of the Piola
+transformation—exactly tangential. To reintroduce continuity (in a weak sense)
+we make use of (hybrid) discontinuous Galerkin techniques. To further improve
+this approach, H(divΓ)-conforming finite elements can be used to obtain exactly
+divergence-free velocity solutions. We present several new finite element dis
+cretizations. On a number of numerical examples we examine and compare their
+qualitative properties and accuracy.
+KEYWORDS
+divergence-conforming finite elements, incompressible Navier-Stokes equations, Piola transformation, surface PDEs, tangential vector field
+1 INTRODUCTION
+Partial differential equations (PDEs) that are posed on curved surfaces play an important role in several applications in engineering, physics, and mathematics. Surface PDEs describing flows on surfaces appear for instance in the modeling of emulsions, foams, and biological membranes, cf Slattery et al1 or Brenner,2 or liquid crystals, cf de Gennes and Prost3 or Napoli and Vergori.4 The numerical treatment of these PDEs gained an increasing amount of attention in the field of numerical simulations and numerical analysis in the last two decades. In this work we consider vector-valued PDEs for viscous incompressible flows on surfaces that are immersed in the three-dimensional space. A main source of difficulty for vector-valued PDEs on surfaces is the fact that the unknown vector field is typically tangential, that is, for a two-dimensional manifold Γ embedded in R3 the unknown field is only two-dimensional. In recent works almost exclusively [H1(Γ)]3-conforming finite elements have been used to approximate the unknown tangential vector field. Tangential vector fields are only weakly imposed through the variational formulation. In this work we follow a different approach: we abandon continuity of the finite elements. This loss of conformity, however, allows us to construct exactly tangential vector fields. This is achieved by mapping finite element functions from the two-dimensional reference element by a straight-forward generalization of the well-known Piola transformation. This guarantees that the
+[The copyright line for this article was changed on 20 October 2020 after original online publication.] [Correction added on 20 October 2020, after first online publication: Projekt Deal funding statement has been added.]
+This is an open access article under the terms of the Creative Commons Attribution License, which permits use, distribution and reproduction in any medium, provided the original work is properly cited.
+© 2020 The Authors. International Journal for Numerical Methods in Engineering published by John Wiley & Sons Ltd.
+Int J Numer Methods Eng. 2020;121:2503–2533. wileyonlinelibrary.com/journal/nme 2503
+
+
+2504 LEDERER et al.
+resulting (possibly higher order) vectorial basis functions are exactly tangential to the surface. This specifically means that no additional enforcement of the tangentiality condition is needed to be enforced through the variational formulation. One could say that we trade one structure property (continuity) for the other (tangential vector fields). To deal with the missing continuity we apply well-established techniques from the flat case: discontinuous Galerkin (DG) methods and variants such as the hybrid DG (HDG) methods. It turns out that we do not have to abandon continuity completely, but can preserve continuity at least for the conormal component, that is, the in-plane normal component across element interfaces, resulting in H(divΓ)-conforming finite elements. These finite elements in conjunction with suitable (hybrid) DG techniques have been proven to be excellent discretizations for incompressible fluid flows in the flat case due to beneficial properties such as exactly divergence-free solutions, pressure robustness, and energy stability. These properties can easily be transferred to the case of surface Stokes and surface Navier-Stokes equations as we will explain in the sequel of this article.
+1.1 State of the art
+Let us briefly give an overview on the state of the art in the literature. Initially surface finite element methods for scalar PDEs have been introduced in the seminal work by Dziuk,5 we also refer to the survey articles by Dziuk and Elliott6 and Bonito et al.7 The use and analysis of H1(Γ)-conforming surface finite elements has been extended to higher order discretizations and adaptive schemes by Demlow et al,8,9 including the analysis of geometry errors.10 In the last decade the extension to non-(H1(Γ)-)conforming surface finite elements has been done in several works, cf for instance Dedner et al11,12 and eventually also HDG formulations have been considered by Cockburn and Demlow.13 In all these works an explicit surface mesh is used. A different approach is based on a mesh of the surrounding 3D space and a level set description of the surface. In the “TraceFEM” the trace on the level set surface of finite element functions of this background mesh are used for the approximation of the solution. The method was introduced by Olshanskii et al.14 Sometimes the method is also known as “CutFEM”, cf, for example, Burman et al.15 We also refer to the overview article on TraceFEM by Olshanskii and Reusken.16 Mixed formulations of the surface Poisson problem can be seen as an intermediate step towards vector-valued PDEs as they involve the vector-valued surface flux that is approximated separately from the primal unknown, resulting in a system of first order surface PDEs. These mixed formulations have been considered for instance by Rognes et al17 and—as part of their mixed formulations of DG and HDG methods—by Antonietti et al12 and Cockburn and Demlow.13 Here, tangential surface finite elements are constructed for the flux. Primal DG formulations in the context of TraceFEM/CutFEM have also been considered by Burman et al.18 In the works by Rognes et al17 and Cockburn et al13 the construction of the spaces is based on the Piola transformation, resulting in (broken) surface Raviart-Thomas spaces as considered already by Nedelec19 and Bendali.20 Let us note that the analysis of mixed Poisson formulations including variational crimes in a general framework has been considered in Holst and Stern.10 In all these works, where the primal unknown is scalar, an isoparametric geometry approximation, that is, using order k for approximating the scalar unknown and order k for the geometry approximation is sufficient to obtain order k + 1 error estimates in the L2-norm. Only for the superconvergence property in the HDG method by Cockburn and Demlow13 an increased geometry order is necessary. While scalar problems on surfaces and their numerical treatment seem to be well understood vector-valued problems have drawn an increased interest recently. Relevant models of viscous fluidic surfaces based on 3D Cartesian differential operators are described in Jankuhn et al21 and Koba et al.22 In the context of FME these PDEs require vector-valued finite element spaces on surfaces that are tangential. Starting with the Vector Laplacian surface finite elements that are [H1(Γ)]3-conforming, that is, three-dimensional, and impose the tangential condition through the variational formulation have been proposed by Hansbo et al.23 In that article, a penalty formulation and a Lagrange multiplier-based formulation are considered to drive the normal component of the discrete approximation to zero. Further, it is already observed that—in contrast to the scalar problem—an isoparametric discretization is not sufficient to preserve optimal order L2-errors. In Jankuhn et al,24,25 similar approaches are considered and analyzed in the context of TraceFEM discretizations. Hansbo et al26 extended their approach to Darcy problems on surfaces using [H1(Γ)]3-conforming (low-order) surface FEM. The surface Stokes problem based on a velocity-pressure formulation has been discretized using TraceFEM based on a stabilized P1-P1 discretization in Olshanskii et al.27 In the very recent article by Olshanskii et al28 the TraceFEM with a P2-P1 discretization has been considered. Also only very recently Bonito et al29 presented a low-order H(divΓ)-conforming discretization for the surface Stokes problem on C4 smooth closed surfaces with a focus on the numerical treatment of killing fields. Their approach to discretize the surface Stokes problem is similar to the discretizations that
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2505
+we treat for the surface Navier-Stokes equations in this article. Similar methods to Hansbo et al23 have been proposed in Nestler et al,30,31 where vector- and tensor-valued surface PDE models are considered. A vorticity formulation has been considered for the surface Stokes problem in Reuther et al and Reusken32-34 where the explicit construction of tangential vector fields is circumvented. Vorticity formulations have also been used to solve the surface Navier-Stokes equations in Azencot et al35 and Nitschke et al.36 Velocity-pressure formulations for the surface Navier-Stokes problem have been recently considered using higher order [H1(Γ)]3-conforming surface FEM by Reuther and Voigt37 (low order) and by Fries38 (higher order) and based on a low-order TraceFEM discretization with penalty by Olshanskii and Yushutin.39 We also mention the numerical approaches based on discrete exterior calculus in Nitschke et al33 and spectral methods in Gross and Atzberger.40 In all the previous works either closed smooth surfaces or at least smooth surfaces with boundaries, for example, in Fries,38 have been considered. The case of only piecewise smooth geometries has not been addressed in the finite element literature so far to the best of our knowledge. As we will base our discretization for the surface Navier-Stokes equations on H(divΓ)-conforming elements, let us also briefly mention previous works on H(divΓ)-conforming methods in the plane. In the context of DG discretizations Cockburn et al41 were the first to realize that energy stability and local mass conservation for DG methods is only achieved for H(divΓ)-conforming finite elements which result in pointwise divergence-free solutions. We extended this idea to HDG methods and considered several extensions and improvements and evaluated the computational efficiency of the resulting methods in the works42 to,48 cf also the discussion in Section 3.5 below.
+1.2 Content and structure
+In this article we introduce non-(H1(Γ)-)conforming finite elements for incompressible surface flows, starting from the Vector Laplacian to the unsteady surface Navier-Stokes equations. We present different DG and HDG discretizations—most of which are new—and compare them to [H1(Γ)]3-conforming methods. The use of H(divΓ)-conforming FME results in pointwise divergence-free and exactly tangential solutions. Our methods are high order accurate but allow for surfaces which are only piecewise smooth. Moreover, arbitrary surface meshes can be dealt with, that is, an exact geometry description does not need to be known. Model problems are presented in Section 2 before several numerical schemes with tangential finite elements are introduced in Section 3. Several numerical examples for the different problems and discretizations are presented and discussed in Section 4 before we conclude the manuscript.
+2 MODEL PROBLEMS ON THE SURFACE
+2.1 Notation and surface differential operators
+Let Γ be a sufficiently smooth connected two-dimensional stationary and oriented surface embedded in R3. At every point x ∈ Γ we denote by n(x) a uniquely oriented unit normal vector, and by P(x) = I − n(x)n(x)T, with the identity matrix I, the corresponding orthogonal projection onto the tangential plane of Γ at x. In this work we assume that there exists a sufficiently smooth extension into the neighborhood (Γ) of Γ which induces a projection p ∶ (Γ) → Γ. Assume a given scalar-valued, sufficiently smooth function φ ∶ Γ → R, and let φp = φ◦p ∶ (Γ) → R denote its extensions to the neighborhood (Γ) of Γ. Then, we define the scalar surface gradient through the gradient of φp in the embedding space and the projection onto the tangential plane. Hence, for any x ∈ Γ we have
+∇Γφ(x) ∶= P(x)∇φp(x),
+where ∇φp is the column vector consisting of all partial derivatives. As a direct consequence we realize that the scalar surface gradient lies in the tangential plane of Γ. Further, let us note that the surface gradient is independent of the concrete choice of the projection p. In the same manner let u = (u1, u2, u3)T ∶ Γ → R3 be a given vector-valued and sufficiently smooth function and denote by up ∶ (Γ) → R3 its extension to the neighborhood. According to the above definition we can define the componentwise surface gradient through ∇upP, where ∇up = (∇up
+1, ∇up
+2, ∇up
+3)T is the standard Jacobian
+matrix of up. Hence, ∇upP is the matrix where each row gives the scalar surface gradient of the components of up. We
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2506 LEDERER et al.
+define another operator called the tangential surface gradient by applying an additional projection from the left
+∇Γu(x) ∶= P(x)∇up(x)P(x) ∀x ∈ Γ.
+Note, that in the literature this operator is usually known as the covariant derivative on Γ. We are now able to state the symmetric surface strain tensor which is—following Gurtin and Murdoch49—defined as
+εΓ(u) ∶= 1
+2 (∇Γu + ∇ΓuT), (1)
+and the surface divergence operator
+divΓu ∶= tr(∇Γu).
+As usual the divergence operator divΓ applied on a matrix valued function σ reads as the rowwise divergence. So far we assumed that φ and u are sufficiently smooth so that the above differential operators exist in a pointwise sense on Γ. We can generalize to the notion of weak derivatives in the usual sense. For instance we define the weak gradient gφ ∈ [L2(Γ)]3 (if it exists) of a given function φ ∈ L2(Γ), as the function that fulfills ∫Γgφ ⋅ v = −∫Γφ divΓ v for all
+v ∈ [C∞
+0 (Γ)]3.
+In the next three subsections we introduce the surface PDE problems considered in this work. To this end let f ∈ [L2(Γ)]3 such that f ⋅ n = 0 on Γ be a given force vector.
+2.2 Vector-valued elliptic problem on Γ:
+We seek for a solution u ∶ Γ → R3 with u ⋅ n = 0 on Γ of the second order PDE given by
+−P divΓ(εΓ(u)) + u = f in Γ, (2a)
+u = 0 on ∂Γ. (2b)
+For the ease of presentation we only consider homogeneous Dirichlet boundary conditions in this part but the introduced methods can all be extended to more general boundary conditions, as demonstrated in the numerical examples. Further note that in the case of a closed surface (∂Γ = ∅) no boundary conditions are prescribed. Let V ∶= {u ∈ [H1(Γ)]3 ∶ u = 0 on ∂Γ} with the norm ||u||2
+1 ∶= ||∇Γu||2
+L2(Γ) + ||u||2
+L2(Γ), and let
+Vτ (Γ) ∶= {u ∈ V ∶ u ⋅ n = 0 on Γ}.
+Following Groß et al,24 the variational formulation of (2) is given by: Find u ∈ Vτ such that
+a(u, v) + m(u, v) = f (v) ∀v ∈ Vτ , (3)
+where
+a(u, v) ∶= ∫Γ
+εΓ(u) ∶ εΓ(v)dx, m(u, v) ∶= ∫Γ
+u ⋅ vdx, f (v) ∶= ∫Γ
+f ⋅ vdx.
+While finite element discretization of such variational problems are well understood on a flat surface, the tangential constraint u ⋅ n = 0 on Γ makes the construction of an appropriate numerical scheme on surfaces much more difficult. In Section 3 we discuss a natural approach how to deal with this challenge.
+Remark 1. Note that the above variational formulation can also be defined on piecewise smooth connected surfaces. Then the strong form of the PDE is given by Equation (2) defined on each (smooth) sub domain and continuity conditions of the
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2507
+trace and the normal fluxes at the common interfaces. In Section 4.1.3 we demonstrate that our methods are applicable for such problems.
+2.3 Stationary Stokes equations on Γ
+We consider a Newtonian fluid on Γ, see Jankuhn et al21 and Koba et al,22 and assume for the ease of representation that ∂Γ ≠ ∅, see Remark 2. Adding the incompressibility constraint and the pressure as Lagrange multiplier we now seek for a solution u ∶ Γ → R3 with u ⋅ n = 0 on Γ and p ∶ Γ → R such that
+−2νP divΓ(εΓ(u)) + ∇Γp = f in Γ, (4a)
+divΓ(u) = 0 in Γ, (4b)
+u = 0 on ∂Γ. (4c)
+Here, (4a) can also be read as −P divΓ σ(u) = f with the stress tensor σ(u, p) = −pP + 2νεΓ(u) where ν is the kinematic viscosity. Following the derivation in Fries38 the weak formulation is given by
+2νa(u, v) + b(v, p) = f (v) ∀v ∈ Vτ ,
+b(u, q) = 0 ∀q ∈ Q,
+with b(u, q) = ∫ΓdivΓ(u)qdx, and the pressure space Q ∶= {q ∈ L2(Γ) ∶ ∫Γq = 0}. Beside the crucial constraint that u is in the tangential space of Γ we now further have to deal with the divergence constraint. In particular this plays a key role in the discretization as one has to find compatible function spaces for the discrete velocity and the pressure spaces.
+Remark 2. As the variational formulation of the standard stationary (flat) Stokes equations is defined without a mass bilinear form m(u, v) it demands further constraints to filter out the possibly nontrivial kernel of the composite bilinear form involving a(⋅, ⋅) and b(⋅, ⋅). On surfaces with a boundary sufficient constraints can be obtained from suitable boundary conditions. However, for the surface Stokes equations on closed surfaces the nontrivial kernel, the so-called killing fields, need to be taken care of to guarantee uniqueness. For a more detailed discussion we refer to Bonito et al29 and Reuther and Voigt.37
+2.4 Unsteady Navier-Stokes equations on Γ
+We extend the Stokes model to the fully unsteady Navier-Stokes case, that is, we seek for a solution u ∶ Γ × (0, T] → R3 with u ⋅ n = 0 on Γ and p ∶ Γ × (0, T] → R such that
+∂tu − 2νP divΓ(εΓ(u)) + (u ⋅ ∇Γ)u + ∇Γp = f on Γ, t ∈ (0, T], (5a)
+divΓ(u) = 0 on Γ, t ∈ (0, T], (5b)
+(u) = g on ∂Γ, t ∈ (0, T], (5c)
+u = u0 on Γ × {0}, (5d)
+with T > 0, a given boundary differential operator , boundary values g, and initial values u0. Beside the difficulties already discussed in the Stokes setting, the challenging part now is to deal with the nonlinear convection and the time derivative.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2508 LEDERER et al.
+3 CONSTRUCTION OF TANGENTIAL FME
+In this section we focus on the derivation of new tangential DG schemes for the problems introduced in Section 2. After introducing some basic notation in Section 3.1, we concentrate on rather standard DG versions first in Sections formulations.
+3.1 Basic ingredients and motivation
+In this section we discuss a natural approach for the construction of tangential vector fields. To this end we summarize the findings of the works.17,50 Let h be a consistent triangulation of the smooth manifold Γ into curved triangles such that for every element T ∈ h there exists a not degenerated polynomial mapping ΦT of order kg from the reference element
+̂T ∶= {(x, y) ∈ R2 ∶ 0 ≤ x + y ≤ 1}.
+to the physical element T, that is, ΦT ∶ ̂T → T. With respect to this triangulation, we write Γh ∶= ∪T∈h T for the corresponding locally smooth discrete manifold. In the following we will use the notation εΓ, P and ∇Γ also for operations w.r.t. to Γh (instead of Γ). Further, we define the set h as the union of all element interfaces. We assume that h is shape regular and quasiuniform, thus there exists a mesh size h with h ≃ diam(T) for all T ∈ h. We denote by FT = Φ′
+T ∈ R3×2 the Jacobian of the finite element mapping and remind the reader that the columns of FT span the tangential space for each point in T. In the following, we will drop the subscript T in the transformation ΦT and the derived quantities such as the Jacobian FT unless the association to the element T shall be highlighted. Next, we write
+F−1 = (FTF)−1FT
+for the Moore-Penrose pseudo inverse of the Jacobian F, and set J ∶= √det(FTF) as the functional determinant. Now let ̂φ be a differentiable function defined on the reference element ̂T and let x = Φ(̂x) ∈ T for all points ̂x ∈ ̂T. Using the classical pull back we define a function φ on T by
+φ(x) = ̂φ(̂x).
+Following the ideas of Rognes et al,17 this pullback allows us to calculate the surface gradient of the function φ by
+∇Γφ(x) = F−T∇ ̂φ(̂x).
+As F−T = F(FTF)−T, the above equation shows that the gradient ∇φ is a linear combination of the two tangent vectors τ1 = Fe1, τ2 = Fe2 and hence lies in the tangent space as expected from differential geometry, see for example Dziuk and Elliott.6 The above construction allows us to define an H1-conforming finite element space of order k on the surface Γh by
+Sk
+h ∶= {w ∈ C0(Γh) ∶ ∀T ∈ h ∃ ̂w ∈ Pk( ̂T) s.t. w|T◦ΦT = ̂w}.
+where Pk( ̂T) is the space of polynomials up to degree k on ̂T. Whereas the above technique allows an easy construction of a scalar approximation space, the problems (2), (4), and (5) demand for vector-valued approximation spaces. In particular we aim for a space that can handle the constraint u ⋅ n = 0 in a proper way. Obviously, the simple product space Sk
+h × Sk
+h × Sk
+h is not convenient and we need a different construction. The solution to this is given by using the Piola transformation instead of the classical pull back. Originally, thus on flat surfaces, this mapping is used for the construction of H(div)-conforming finite element spaces as it preserves the normal components on element interfaces. To this end let ̂u be a vector-valued function on ̂T, then we define on T the function
+u(x) = T( ̂u)(x) ∶= 1
+J F ̂u(̂x). (6)
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2509
+Due to the multiplication with F, we again see that the constructed vector field u lies in the tangential plane of T. This finding is the key argument and motivation for the construction of the numerical schemes in this work. As we will explain below, cf Lemma 1, the factor 1∕J is important for the construction of H(divΓ)-conforming finite element spaces, that is, finite element spaces with continuous in-plane normal components. We want to mention that in Rognes et al17 and Castro et al50 the authors already realized that the Piola mapping can be used on surfaces to construct appropriate finite element spaces for the approximation of the spaces H(divΓ) and H(curlΓ) on Γh. There, the according finite elements on the surface triangulation h are based on the Raviart-Thomas and Brezzi-Douglas-Marini finite element families on the reference element ̂T, cf Girault and Raviart,51 Brezzi, Douglas and Marini,52 and Boffi, Brezzi and Fortin.53
+3.2 A DG discretization for vector-valued elliptic problems
+Based on the findings from the last section we now motivate a new DG method for the approximation of problem (2). However, we want to mention that the discretization can also be adjusted to other elliptic problems like the Vector Laplacian without a mass term. To this end we need several operators motivated by their definitions on a flat surface, see Arnold et al.54 Let T1, T2 ∈ h be two arbitrary elements with common edge E = T1 ∩ T2. Let nh be the oriented unit normal vector on Γh, and let τ be a uniquely oriented tangential vector on E such that T1, T2 are located on the left and on the right side, respectively, with respect to the direction of τ, see Figure 1. Using these vectors we define the in-plane unit (outer) normal vectors
+μ1 ∶= nh|T1 × τ and μ2 ∶= −nh|T2 × τ.
+Let us stress here that nh will in general be discontinuous across element interfaces so that μ1 and μ2 will not be parallel. Let u and σ be vector and matrix-valued functions, respectively. We define the vector-valued average and jump on E by
+{{σμ}} ∶= σ|T1 μ1 − σ|T2 μ2
+2 and [[u]] = [[u]]τ τ + [[u]]μμ
+with the scalar valued normal and tangential jump and the averaged in-plane normal
+[[u]]μ ∶= u|T1 ⋅ μ1 + u|T2 ⋅ μ2, [[u]]τ ∶= (u|T1 − u|T2 ) ⋅ τ, μ = 1
+2 μ1 + 1
+2 μ2. (7)
+In the case of E ⊂ ∂Γ ≠ ∅ we set [[u]]μ = u ⋅ μ and the operators {{⋅}} and [[⋅]] are replaced by the identity. Based on the Piola mapping, see Equation (6), we define a finite element space of order k by
+Wk
+h ∶= {v ∈ [L2(Γh)]3 ∶ ∀T ∈ h ∃ ̂u ∈ [Pk( ̂T)]2 s.t. v|T = T( ̂u)}.
+Here, Pk( ̂T) is the scalar-valued polynomial space of order k on ̂T. By construction, we have that
+uh(x) ⋅ nh(x) = 0 ∀x ∈ Γh, ∀uh ∈ W k
+h , (8)
+F I G U R E 1 Two elements T1, T2 ∈ h with a common edge E = T1 ∩ T2 and the corresponding in-plane normal vectors μ1, μ2, the common tangential vector τ, and the oriented normal vector nh. On the left with a linear geometry approximation, on the right side with a high order approximation.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2510 LEDERER et al.
+thus discrete functions in Wk
+h are exactly in the tangent plane of Γh. Assuming that f , originally defined on Γ, has
+a smooth extension on Γh, we follow Arnold et al54 to define the DG method (based on an symmetric interior penalty formulation): Find uh ∈ Wk
+h such that
+ah(uh, vh) + mh(uh, vh) = ∫Γh
+f ⋅ vhds =∶ fh(vh) ∀vh ∈ W k
+h , (9a)
+where
+ah(uh, vh) ∶= ∑
+T∈h
+∫T
+εΓ(uh) ∶ εΓ(vh)dx + ∑
+E∈h
+∫E
+{{−εΓ(uh)}} ∶ [[vh]]ds + ∫E
+{{−εΓ(vh)}} ∶ [[uh]]ds
++ αk2
+h ∫E
+[[uh]] ∶ [[vh]]ds. (9b)
+with the constant α chosen big enough, see Arnold et al,54 and mh(uh, vh) = ∫Γh Puhvhds. Note that the projection P in
+the definition of the bilinear form mh(⋅, ⋅) is redundant for functions in Wk
+h . However, we will use mh(⋅, ⋅) for nontangential functions as well later on.
+Remark 3. In the case of nonhomogeneous Dirichlet or other types of boundary conditions one uses the standard techniques employed for DG methods on flat surfaces, see Arnold et al.54
+Remark 4. The application of the Piola mapping in the definition of functions in Wk
+h results in exactly tangential fields. Furthermore, it results in a discretization that is—as the continuous problem—invariant under isometries, that is, if uh solves (9b) on Γh, (uh) solves the corresponding problem on Γ′
+h = Φ(Γh) if Φ is an isometry and  the corresponding Piola mapping. We discuss this in more detail below in the numerical examples, cf Sections 4.1.3 and 4.3.1 below.
+3.3 Discretization of the surface Stokes equations
+In this section we focus on the construction of a numerical scheme to solve the Stokes problem on Γ, see Equation (4). Note that we assumed ∂Γ ≠ ∅ and thus also ∂Γh ≠ ∅. As known from the literature, see for example Boffi, Brezzi, Fortin53 and Braess,55 discrete stability demands to find a compatible pair of the discrete velocity and pressure space. We aim to construct a method based on the works41,43,56 for the flat case. In the latter works, the discrete velocity space is chosen to be the H(div)-conforming Brezzi-Douglas-Marini (BDM) space of order ku, and the pressure is approximated by discontinuous polynomials of order ku − 1. These two spaces fulfill the property that the divergence of the velocity space is a subspace of the discrete pressure space. This ensures stability in the sense of Babuška-Brezzi, see for example Reference 44, and leads to major benefits such as exactly divergence-free discrete velocities, see also Section 3.5. Following the ideas of Rognes et al17 and Castro et al,50 we now map this method to the surface using the previously introduced Piola mapping, see Equation (6), to define an H(divΓ)-conforming velocity space on Γh. Then for an arbitrary order k we set
+Vk
+h ∶= {uh ∈ W k
+h ∶ [[uh]]μ = 0 ∀E ∈ h} = W k
+h ∩ H0(divΓ), (10)
+where H0(divΓ) is the subspace of H(divΓ) with zero normal trace at the boundary ∂Γ. Regarding the implementation of V k
+h note, that the Piola mapping not only helps to incorporate property (8), but can also be used to incorporate the
+zero normal jump. This is done by choosing the BDM basis on the reference element ̂T and map it with the Piola transformation to the physical elements T ∈ h. As the BDM basis functions are associated to the scalar normal moments on the edges of the reference element, the mapped functions are then associated to the according (in-plane) normal moments on the edges of the mapped element T. This automatically results in a normal continuous function, that is, [[u]]μ = 0 on all edges. A detailed discussion on this topic is given in Castro et al.50 Next we define the discrete pressure space as
+Qk
+h ∶= {q ∈ L2(Γh) ∶ ∀T ∈ h ∃ ̂q ∈ Pk( ̂T) s.t. q|T = ̂q◦Φ−1
+T } ∩ L2
+0(Γh).
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2511
+For a fixed velocity approximation order ku the H(divΓ)-conforming DG method then read as: Find (uh, ph) ∈ V ku
+h × Qku−1
+h
+such that
+ah(uh, vh) + bh(vh, ph) = fh(vh) ∀vh ∈ V ku
+h,
+bh(uh, qh) = 0 ∀qh ∈ Qku−1
+h , (11)
+with
+bh(uh, qh) = −∫Γh
+divΓ(uh)qhdx.
+Note that the appearing jumps in ah(uh, vh) now only read as the tangential jump since functions in V ku
+h are normal continuous. As a consequence we have the following lemma.
+Lemma 1. Let uh ∈ V ku
+h such that bh(uh, qh) = 0 ∀qh ∈ Qku−1
+h . Then uh is exactly divergence-free, that is, divΓ(uh) = 0 on Γh.
+Proof. For each T ∈ h let ̂uh,T ∈ Pku ( ̂T, R2) be such that uh = T( ̂uh,T). Applying the chain rule shows
+divΓ(uh) = 1
+J div( ̂uh,T) (12)
+where div( ̂uh,T) reads as the divergence on the flat reference element ̂T. As ̂uh,T ∈ Pku ( ̂T, R2) we have div( ̂uh,T) ∈ Pku−1( ̂T). Choosing ̂qh,T = sgn(J)div( ̂uh,T) and qh,T = ̂qh,T◦Φ−1, we define the global function qh as qh = q∗
+h + c with q∗
+h|T = qh,T
+and the global constant c ∈ R such that ∫Γh qh = 0, thus qh ∈ Qku−1
+h . Then we have with bh(uh, c) = −c∫Γh divΓ(uh)dx =
+−c∫∂Γh uh ⋅ μds = 0 that there holds
+0 = −bh(uh, qh) = ∫Γh
+divΓ(uh)q∗
+hdx = ∑
+T∈h
+∫T
+divΓ(uh)qh,Tdx = ∑
+T∈h
+∫ ̂T
+1
+J sgn(J)div( ̂uh,T)2|J|dx = ∑
+T∈h
+∫ ̂T
+div( ̂uh,T)2dx
+which shows that div( ̂uh,T) = 0, thus we conclude by Equation (12). ▪
+From Lemma 1 we conclude that the solution uh of (11) is exactly divergence-free. Note that this statement is completely independent of the geometry approximation. This further leads to pressure robustness (see Sections 3.5 and 4.2) and shows that the function spaces V ku
+h and Qku−1
+h are compatible, thus the stability proof of (11) follows the same steps as in the flat case, see References 42 and 43.
+3.4 Discretization of the surface Navier-Stokes equations
+The discretization of the Navier-Stokes problem (5) follows the ideas of References 42 and 43 which we briefly summarize in the following. We aim to use a semidiscrete method to decouple the discretization in space and time. This is then further combined with an (high order) operator splitting method to efficiently deal with the nonlinear convection term. For the latter one we use a standard upwinding scheme in space which guarantees energy stability. To this end let wh, uh, vh ∈ V ku
+h, then we define the form
+ch(wh)(uh, vh) = ∑
+T∈h
+−∫T
+uh ⊗ wh ∶ ∇vhdx + ∫∂T
+wh ⋅ μ uup
+h ⋅ vhds, (13)
+where the upwinding value is chosen in upstream direction with respect to the convection velocity wh: Let x ∈ ∂T and T′ be the neighboring element, s.t. x ∈ T, T′, then we define
+uup
+h ∶= (uh ⋅ μT) ⋅ μT + (uup,τ
+h ⋅ τ) ⋅ τ, where uup,τ
+h (x) = uup,τ
+h |T(x) if uh ⋅ μT ≥ 0 and uup,τ
+h (x) = uup,τ
+h |T′ (x) otherwise.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2512 LEDERER et al.
+We notice that the upwinding only affects the discontinuous tangential component. This type of formulation is typically derived by applying partial integration in an element-by-element fashion and introducing numerical fluxes, cf for example Hesthaven and Warburton.57 Let us further note that the integration by parts formula for vector fields that are not exactly tangential involves an additional term including the mean curvature, cf Fries38 eq. (3). In combination with the bilinear forms defined in the previous section and again assuming that the initial velocity u0 has a smooth extension onto Γh, we derive the following spatially discrete differential-algebraic equation (DAE) problem:
+find uh(t) ∈ V ku
+h , ph(t) ∈ Qku−1
+h such that
+mh( ∂
+∂t uh, vh) + 2νah(uh, vh) + bh(vh, ph) + ch(uh)(uh, vh) = fh(vh) ∀vh ∈ V ku
+h , t ∈ (0, T], (14a)
+bh(uh, qh) = 0 ∀qh ∈ Qku−1
+h , t ∈ (0, T], (14b)
+mh(uh, vh) = mh(u0, vh) ∀vh ∈ V ku
+h , t = 0, (14c)
+where (14c) resembles the L2-projection of the initial velocity onto the discrete velocity space V ku
+h . Now let uh(t) and
+ph(t) be the finite element coefficient vectors of the functions uh, ph, respectively, and let ti with i = i, ... , N where t0 =
+0, tN = T be an equidistant mesh for [0, T] with time step size Δt. To get the solution at time ti+1 we solve a step of the fully discrete lowest order implicit explicit (IMEX) splitting scheme
+M uh(ti+1)−uh(ti)
+Δt ( ∂
+∂t uh) + 2νAuh(ti+1) + BTph(ti+1) = fh(vh) − C(uh(ti))uh(ti),
+Buh(ti+1) = 0. (15)
+Here the matrices M, A, B are the corresponding matrices of the bilinear forms mh, ah and bh respectively, and C(uh(ti))uh(ti) reads as the evaluation of the convection trilinear form ch with the wind wh = uh(ti). Above system shows that we treat the stiffness A and divergence constraint B implicitly which guarantees exactly divergence-free velocity solutions at each point in time. The convection C, however, is treated explicitly. For more details regarding the efficiency and accuracy of above splitting methods for the Navier-Stokes equations we refer to References 42 and 43 for the flat case. The simplest variant to generalize (15) to higher order order in time are IMEX schemes, cf the works by Ascher et al.58,59 Below in the numerical examples we use a second-order IMEX based on two compatible explicit and implicit Runge-Kutta schemes of second order.
+3.5 On the benefits of H(divΓ)-conformity
+Additionally to the fact that the H(divΓ)-conforming space V ku
+h is tangential there are several advantages over other Stokes discretizations (see also the HDG Stokes discretization introduced in Section 4.2). Below, we focus on two important ones. For other aspects—which transfer directly from the flat case—such as the ability to reduce the set of basis functions, convection stability (beyond energy stability) and good dissipation properties we refer to the literature, for example References 42, 43, and 60.
+3.5.1 Pressure robustness
+As discussed in Section 3.3, Lemma 1 shows that solutions uh of (11) are exactly divergence-free independently of the
+geometry approximation. Further, the combination of the velocity space V ku
+h and the pressure space Qku−1
+h allows to test Eq. (11) with exactly divergence-free velocity test functions. This is a crucial advantage as it enables us to derive velocity error estimates that are independent of the pressure approximation (and the viscosity ν). This property is known in the literature as pressure robustness and was first introduced by Linke.61 In the following we briefly sketch the main idea (hence the occurring problem): let the r.h.s. f of the Stokes problem be decomposed as
+f = ∇Γθ + ξ,
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2513
+with θ ∈ H1(Γ)∕R and ξ ∈ [L2(Γ)]3 such that ξ ⋅ n = 0. Testing the continuous problem (4) with a test function v ∈ V0 ∶= {v ∈ H(divΓ, Γ) ∶ divΓ(v) = 0} we see that 2νa(u, v) = ∫Γξ ⋅ vdx, hence the velocity is not steered by the gradient ∇Γθ. If the same observation can be made in the discrete setting the method is called pressure robust and one can derive velocity error estimates that are independent of the pressure approximation (see Section 4.2 for a numerical observation of this phenomenon). A rigorous analysis of such (Helmholtz) decompositions on smooth manifolds is given in Reusken.34 For the above findings in the continuous setting it was crucial that one tests with exactly divergence-free test functions v ∈ V0. Lemma 1 shows that the same can be done in the discrete setting which leads to pressure robustness of the discretization given by Equation (11). Note, that also standard methods can be made pressure robust, see References 62 to 65. Further, it also plays an important role in the Navier-Stokes case.66-69
+3.5.2 Energy stability
+The standard DG upwind formulation of the convection bilinear form (13) allows to show the following stability result (up to geometry errors). Let ∂Γin ∶= {x ∈ ∂Γ ∶ wh ⋅ μ < 0} then there holds
+1
+2 ∫∂Γin
+|wh ⋅ μ|u2
+hds + ch(wh)(uh, uh) ≥ 0 ∀uh, wh ∈ V ku
+h with divΓ(wh) = 0.
+Note that the crucial assumption here is that the transport velocity wh is exactly (surface) divergence-free. Considering the time discretization (15) of the Navier-Stokes equations, the transport velocity was chosen as the discrete velocity of the old time step, that is, wh = uh(ti). Thus, as divΓ(uh(ti)) = 0 (exactly) we can apply above stability estimate showing energy stability of the Navier-Stokes discretization.
+3.6 HDG formulations
+Although the formulation of Section 3.2 fulfills property (8), the computational overhead introduced by the DG formulation is a major drawback. A well known technique to overcome this circumstance is to use HDG formulations and a static condensation strategy. The idea is to introduce additional unknowns on the skeleton h which circumvents the direct coupling of element (interior) unknowns with neighboring elements. We give two examples how this can be achieved and comment on further efficiency improvements. Below, we will use HDG discretizations for the numerical examples.
+3.6.1 An HDG method for the Vector Laplacian
+Let ΨE be the unique polynomial map from the reference edge ̂E = [0, 1] to an edge E ∈ h, with E = T1 ∩ T2, T1, T2 ∈ h as before. We define the space of (discontinuous) piecewise polynomials on the skeleton as
+Λk
+h ∶= {v ∈ L2(h) ∶ ∀E ∈ h ∃̂v ∈ Pk( ̂E) s.t. v|E = ̂v◦ψ−1
+E }.
+Here, Pk( ̂E) is the scalar-valued polynomial space of order k on ̂E. Then we define the following two vector-valued functions
+λT1 ∶= λaτ + λbμ1 and λT2 ∶= λaτ + λbμ2 for λa, λb ∈ Λk
+h,
+where τ and μ1, μ2 are defined as above. Here λa is introduced to decouple the weak (in the DG sense) tangential continuity whereas λb is introduced for the weak normal continuity. Note, that λT1 might not be equal to λT2 as the in-plane normal vector may be different. The HDG method then reads as: Find uh, λT ∈ Wk
+h × (Λk
+h × Λk
+h) such that
+aHDG
+h ((uh, λT), (vh, θT)) + mh(uh, vh) = fh(vh) ∀(vh, θT) ∈ W k
+h × (Λk
+h × Λk
+h),
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2514 LEDERER et al.
+where
+aHDG
+h ((uh, λT), (vh, θT)) ∶= ∑
+T∈h
+∫T
+εΓ(uh) ∶ εΓ(vh)dx + ∫∂T
+(εΓ(uh) μ) ⋅ (θT − vh)ds
++ ∫∂T
+(εΓ(vh) μ) ⋅ (λT − uh)ds + αk2
+h ∫∂T
+(λT − uh) ⋅ (θT − vh)ds.
+The HDG method has more unknowns compared to the DG version, but the element unknowns uh ∈ Wk
+h depend only
+on the facet function λT. Hence, in a linear system, we can form the Schur complement with respect to those unknowns which is known as static condensation. This can be done in an element-by-element fashion already during the setup of the linear systems. The Schur complement system is typically much smaller, especially for higher order elements (note that the facet unknowns scale with k whereas the element unknowns scale with k2). An example for the impact of static condensation with HDG methods in comparison to DG methods will be given in Section 4.1.2.
+3.6.2 An H(divΓ)-conforming HDG method for the Stokes and the Navier-Stokes equations
+Similarly to the standard DG method of Section 3.2, we can also use a hybridization technique for the H(divΓ)-conforming
+DG methods of Sections 3.3 and 3.4. As normal continuity is already incorporated in the space V ku
+h , we do not need the
+facet variable λb. Hence the facet variable on the skeleton h reduces to the single valued quantity
+λT1 = λT2 = λaτ with λa ∈ Λku
+h,
+as the tangential vector τ is the same on both sides. With the definitions λT(λa, uh) ∶= λaτ + (uh ⋅ μ)μ and θT(θa, uh) ∶= θaτ + (uh ⋅ μ)μ, we can use the same HDG bilinear form aHDG
+h for the treatment of viscosity. For the convection operator
+we have to replace the upwind flux uup
+h , cf (13), to avoid communication between interior element unknowns in V ku
+h. Hence, we make the following choice:
+uHDG,up
+h ∶= (uh ⋅ μ)μ +
+{
+(uh ⋅ τ)τ if wh ⋅ μ > 0,
+λaτ else.
+Further, to make sure that λa takes the value of the upwind neighbor also in the convection dominated regime we add a consistent stabilization (the “downwind glue”) as introduced in Egger and Schöberl70 and define
+cHDG
+h (wh)((uh, λT), (vh, θT)) ∶= ∑
+T∈h
+−∫T
+uh ⊗ wh ∶ ∇vhdx + ∫∂T
+wh ⋅ μ uHDGup
+h ⋅ vhds
++ ∫∂Tout
+wh ⋅ μ (λT − (uh ⋅ τ)τ) ⋅ θTds,
+where ∂Tout denotes the outflow boundary of an element, that is, ∂Tout ∶= ∂T ∩ {wh ⋅ μ > 0}. Let us stress that in the convective limit ν → 0, the HDG solution converges to the DG solution discussed above. The semidiscretization of the new hybrid H(divΓ)-conforming DG method for the Navier-Stokes equations then reads:
+Find (uh, λa, ph) ∈ V ku
+h × Λku
+h × Qku−1
+h such that
+mh( ∂
+∂t uh, vh) + 2νaHDG
+h ((uh, λT), (vh, θT))
++ch(uh)((uh, λT), (vh, θT)) + bh(vh, ph) = fh(vh) ∀vh, θa ∈ V ku
+h × Λku
+h , t ∈ (0, T], (16a)
+bh(uh, qh) = 0 ∀qh ∈ Qku−1
+h , t ∈ (0, T], (16b)
+mh(uh, vh) − mh(u0, vh) = 0 ∀vh ∈ V ku
+h , t = 0, (16c)
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2515
+where we implicitly made use of λT = λT(λa, uh) and θT = θT(θa, vh). Using this spatial discretization we can then again use the implicit-explicit splitting scheme for the discretization of the Navier-Stokes equations on Γh, see Equation (15).
+Efficiency aspects and superconvergence
+One advantage of HDG methods that we did not address so far is the ability to achieve superconvergence in diffusion dominated problems. If the (trace) unknowns on the skeleton are approximated with polynomials of order k, one can (for example) apply a local postprocessing strategy (see Cockburn et al71) to define a local elementwise approximation of order k + 1 which has order k + 2 accuracy in the L2 norm. Alternatively, one can consider the previous HDG formulation and reduce the facet degree by one order while preserving the order of accuracy by introducing a slight modification in the formulation, cf Reference [43, sect. 2.2]. In the context of H(div)-conforming methods, the reduction of the polynomial degree for the normal component requires a bit more care in order to preserve the beneficial properties of H(div)-conforming methods, cf References 45 and 46.
+4 NUMERICAL EXAMPLES
+In this section we consider several numerical examples. We start with a comparison of [H1(Γ)]3-conforming and the previously introduced nonconforming FME for the Vector Laplacian for smooth and piecewise smooth manifolds in Section 4.1. In the subsequent Section 4.2, we consider and compare the nonconforming methods for a surface Stokes problem. In the remainder we fix the method to the H(divΓ)-conforming HDG method and consider several surface versions of a well-known benchmark problem in 2D in Section 4.3 and the Kelvin-Helmholtz instability problem on different rotationally symmetric surfaces in Section 4.4. Finally, in Section 4.5 we consider a self-organisation process on the Stanford bunny geometry. All numerical examples were implemented within the finite element library Netgen/NGSolve, see References 72 and 73 and www.ngsolve.org. The data, that is, time series, mesh refinement series, etc. as well as scripts for reproduction for all numerical examples can be found at DOI:10.5281/zenodo.3406173.
+4.1 Vector Laplacian
+First, we consider two Vector Laplace problems with different discretizations, compare and discuss them. In addition to those discretizations introduced before in Section 3.2, we consider two [H1(Γh)]3-conforming discretizations from the literature that we briefly summarize in Section 4.1.1 below and which we denote as H1-L (weak enforcement of tangential condition through Lagrangian multipliers) and H1-P (weak enforcement of tangential condition through penalties). We introduce labels for the aforementioned methods. The method in (9) will be denoted as DG whereas the hybrid version of it is denoted as HDG. For the H(div, Γh)-conforming discretization, that is, using (9) with Wk
+h replaced by V k
+h , cf (10), we use the label Hdiv-DG and denote the HDG version as Hdiv-HDG. For the numerical computations we only consider the HDG versions. Note however, that the differences between DG and HDG are primarily in a computational aspect, see also the explanations in Section 3.6. Hence, the DG versions are only considered for a comparison of this observation.
+4.1.1 H1-conforming discretizations for the Vector Laplacian
+In the literature mostly [H1(Γh)]3-conforming surface FEM discretizations for vector-valued problems are considered by either applying Lagrangian multipliers for the tangential constraint or using a penalty formulation, see for example References 23 to 26, 37, and 38. As we will use two instances of these methods for comparison to the methods discussed in Section 3, we briefly state these two formulations and discuss the choices involved. The methods are defined as follows: Find (uh, λh) ∈ [Sk
+h]3 × Skl
+h s.t. ∀(vh, μh) ∈ [Sk
+h]3 × Skl
+h:
+(ah + mh)(uh, vh) + ∫Γh
+(vh ⋅ nh)λhds + ∫Γh
+(uh ⋅ nh)μhds = fh(vh). (17a)
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2516 LEDERER et al.
+Find uh ∈ [Sk
+h]3 s.t. ∀vh ∈ [Sk
+h]3:
+(ah + mh)(uh, vh) + ∫Γh
+ρ(uh ⋅ nh)(vh ⋅ nh)ds = fh(vh). (17b)
+The [H1(Γh)]3-conforming method H1-L in (17a) uses Langrange multipliers to enforce the tangential constraint whereas (17b) enforces the tangential constraint through penalization with a penalty parameter ρ (H1-P). For H1-L the choice of the Lagrange multiplier space is kl = k as in Hansbo et al23 or Jankuhn and Reusken25 (in a TraceFEM context). We note that in Fries38 an h−6 scaling of the condition number for Navier-Stokes problems has been observed for kl = k and kl = k − 1 has been used instead. To drive the normal component sufficiently small in the H1-P method, we make the simple choice ρ = 10 ⋅ h−(k+1) and accept the severe ill-conditioning of arising linear systems here. In Hansbo et al23 and Jankuhn and Reusken25 choosing such a large penalty is circumvented by replacing εΓ(uh) (and εΓ(vh)) by εΓ(Puh) (and εΓ(Pvh)) which is a consistent manipulation. Thereby the normal and tangential parts of the discrete solution decouple and a soft penalty with a penalty parameter ρ ∼ h−2 suffices. Both choices taken here, kl = k for H1-L and ρ = 10 ⋅ h−(k+1) for H1-P will eventually result in severe ill-conditioning of arising linear systems. However, for the test cases under consideration with H1-L and H1-P we used sparse direct solvers and obtained results of sufficient meaningfulness to serve as candidates for comparison.
+4.1.2 Vector Laplacian on the sphere
+We consider the Vector Laplace problem with the (extended) exact solution ue = (−z2, y, x)T on the unit sphere Γ = S1(0), that is, we choose the r.h.s. f so that u = ue|Γ solves (2). For the geometry approximation we considered two choices, kg = k and kg = k + 1 and for α in the SIP formulations we take α = 10. On five successively and uniformly refined meshes we evaluate L2- and H1-errors. The initial mesh (mesh level L = 0) consists of 124 triangles, see Figure 2.
+Comparison of methods
+In Figure 3 we display the H1-seminorm, the L2-norm of the tangential and the L2-norm of the normal component of the error ue − uh on Γh. Different configurations are considered. In the first row we set geometry and FE approximation order to one, kg = k = 1. First of all, we observe that the normal component is exactly zero only for the (H)DG methods. This is in agreement with our expectations as the H1-conforming methods only implement the tangential constraint weakly whereas the (H)DG methods fulfill the constraint by construction. Further, we notice that the convergence rates of all methods are suboptimal in all norms except for the H1-norm. For the H1-norm all methods are converging optimally with order one except for H1-P which is not converging at all. This can be explained by the fact that the geometry approximation is only of first order so that the approximation of the normal is only piecewise constant. Elements surrounding the same vertex will have different normals and the penalty diminishes all corresponding normal components at the same time which results in a severe case of locking. In the Lagrange multiplier formulation H1-L the constraint involves an averaging over a vertex patch which circumvents this locking
+F I G U R E 2 Exact and discrete geometry and solution for the Vector Laplacian in Section 4.1.2. Coloring corresponds to velocity magnitude. From left to right: exact geometry and solution, (uncurved) computational mesh on coarsest level L = 0, mesh and discrete solution for Hdiv-HDG with k = 1, kg = 1, and discrete solution for Hdiv-HDG with k = 1, kg = 2
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2517
+F I G U R E 3 Errors for Vector Laplacian on the sphere for four different discretization methods on five successively refined meshes (uniform refinements) for different discretization and geometry orders [Colour figure can be viewed at wileyonlinelibrary.com]
+effect. However, for all methods we observe that the low-order approximation of the geometry results in a loss of accuracy by one order in the L2 norms. This need for a higher order accurate geometry approximation is not surprising and has already been discussed in, for example, Hansbo et al23 and Jankuhn and Reusken.25 In Figure 2 a comparison of the pictures on the right illustrates the difference between kg = 1 and kg = 2 for k = 1. In the rows two to four of Figure 3 we fix kg = k + 1, that is, a superparametric geometry approximation, and choose k ∈ {1, 2, 4}. For all methods we now observe optimal order of convergence, that is, (hk) in the H1-seminorms and (hk+1) in the L2-norms. For k = 4, the results of H1-P are not behaving optimally on the finest meshes. This is probably due to the ill-conditioning stemming from the penalty parameter of magnitude 10h−5. Let us further mention that we tried (for all methods) kg = k and obtained essentially the same results, that is, in this example it seems that the superparametric approximation is not necessary as long as k > 1. Overall, we can conclude that all methods perform similarly well for this example. The (H)DG methods are obviously—by construction—perfect in approximating the tangential constraint, but for the other error measures there is no significant difference.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2518 LEDERER et al.
+Computational aspects
+In this paragraph we want to discuss and compare computational aspects of the different discretizaton methods under consideration for the Vector Laplacian. Starting with the H1-conforming methods, one immediately notices that the advantage of these methods is their simplicity. Lagrangian finite elements are available in most finite element packages and hence, a realization of these methods is comparably simple. Then again, the two-dimensional vector field is approximated with a three-dimensional vector field which can be seen as undesirable in terms of the computational overhead. To overcome this issue we introduced tangential finite elements. These however came at the price of abandoning H1-conformity which requires the implementation of weak continuity (at least in tangential direction) through the discrete variational formulation. This approach results in DG methods which come at the disadvantage of introducing more unknowns and more couplings. To alleviate these costs we also discussed the use of hybrid versions of DG methods. In Table 1 we compare the six different methods introduced before for polynomial orders 1 to 5 on the finest mesh L = 4 of the previous example (Vector Laplacian on the sphere). While the H1-conforming and the HDG methods are exactly those investigated in the previous paragraph, the methods DG and Hdiv-DG are only considered with respect to their computational costs, here. For the HDG methods and the H1-conforming methods we apply static condensation in an element-by-element fashion. As measures for the computational costs we take the number of degrees of freedom (dof), the number of global dof that remain in the Schur complement after static condensation (gdof) and the number of nonzero entries (nze) in the Schur complement. Let us first take a look at the dof measure. Here, the H1-P method has the smallest number of dof in the low-order case k ≤ 3. The additional dof for approximating a three-dimensional vector field are still less than those obtained from approximating a two-dimensional vector field with discontinuous piecewise polynomials. Only for k ≥ 4 the Hdiv-DG method with normal-continuity results in less dof. When normal-continuity is also broken up, that is, when going to DG it requires at least order k ≥ 6 to beat H1-P in terms of unknowns. When further going to HDG methods there is obviously no advantage over DG methods in terms of dof as only additional unknowns are introduced. As we can apply static condensation with HDG methods it is worth taking a look at those dof that remain in the Schur complement. The number of gdof can be reduced for DG for all polynomial degrees whereas the step from Hdiv-DG to Hdiv-HDG pays off in terms of gdof for k ≥ 3. We observe that gdof is the same for HDG and Hdiv-HDG. When considering nze the picture shifts even further towards HDG and Hdiv-HDG. For k = 2 already the methods HDG and Hdiv-HDG outperform the other two DG methods and for k ≥ 3 the method generates even less unknowns than the H1-conforming methods. We conclude that the hybrid formulations with tangential fields are beneficial not only because of their additional structure properties, but also computationally advantageous when going for higher order discretizations.
+Remark 5 (HDG superconvergence). Let us note that we did not consider further tweaks of the HDG methods related to the aspect of superconvergence, cf the paragraph on efficiency aspects and superconvergence in Section 3.6. With a corresponding modification the polynomial degree on the facets can be reduced by one order while keeping the same order of accuracy (for diffusion dominated problems), that is, the costs in terms of gdof and nze for a method with accuracy k (in the H1-norm) are the same of those HDG methods without this modification with order k − 1. In the lowest order case we obtatin gdof(HDG)=gdof(Hdiv-HDG)=96.8K and nze(HDG)=nze(Hdiv-HDG)=967.7K and hence, the HDG schemes are level with H1-P in terms of gdof, but already more efficient in terms of nze.
+T A B L E 1 Comparison of different computational quantities (dof: degrees of freedom, gdof: global degrees of freedom that remain after static condensation (if applicable), nze: nonzero entries in system (Schur complement) matrix) for the different schemes on finest level
+dof gdof nze
+k 1 2 3 4 5 1 2 3 4 5 12 3 4 5
+DG 193.5K 387.1K 645.1K 967.7K 1.4M 193.5K 387.1K 645.1K 967.7K 1.4M 4.6M 18.6M 51.6M 116.1M 227.6M
+HDG 387.1K 677.4K 1M 1.5M 1.9M 193.5K 290.3K 387.1K 483.8K 580.6K 3.9M 8.7M 15.5M 24.2M 34.8M
+Hdiv-DG 96.8K 241.9K 451.6K 725.8K 1.1M 96.8K 241.9K 451.6K 725.8K 1.1M 2.5M 12M 36.9M 88.3M 180.6M
+Hdiv-HDG 193.5K 387.1K 645.1K 967.7K 1.4M 193.5K 290.3K 387.1K 483.8K 580.6K 3.9M 8.7M 15.5M 24.2M 34.8M
+H1-L 64.5K 258.1K 580.6K 1M 1.6M 64.5K 258.1K 451.6K 645.1K 838.7K 1.7M 11.1M 29.7M 48.1M 88.5M
+H1-P 48.4K 193.5K 435.5K 774.2K 1.2M 48.4K 193.5K 338.7K 483.8K 629K 1M 6.7M 16.7M 31.1M 49.8M
+Note: Numbers in bold indicate that the corresponding method yields the best values in the current column.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2519
+4.1.3 Vector Laplacian in the plane and on a house of cards
+In this example we consider two configurations. First, we consider a flat domain case with ̂Γ ∶= (0, 2) × (0, 1) where we pose the Vector-Laplacian problem (2) and replace (2b) with inhomogeneous Dirichlet boundary conditions u = g on ∂Γ. As a second example we fold the geometry in the middle and lift it up to a house of two cards:
+Γ = ΦH( ̂Γ) with ΦH(̂x, ̂y) =
+{ (̂x ⋅ W, ̂y, H ⋅ ̂x) if ̂x ≤ 1, (̂x ⋅ W, ̂y, H ⋅ (2 − ̂x)) if ̂x > 1,
+where H is the height and W is the width of one card with H2 + W2 = 1 so that FH ∶= Φ′
+H ∈ R3×2 is a length-preserving
+map with FT
+HFH = I ∈ R2×2, cf Figure 4 for a sketch. We define with ̂τ1 = e1 = (1, 0) and ̂τ2 = e2 = (0, 1) the tangent unit
+vectors of ̂Γ. Then, τi = FH ̂τi, i = 1, 2 are the tangent unit vectors for Γ a.e., that is, we can interpret FH—and due to J = 1 also the Piola transformation—as the operator that realizes a basis transformation from one tangent space to another. On ̂Γ we pose the Vector Laplacian with r.h.s. ̂f and boundary data ̂g such that the exact solution to (2) on ̂Γ is
+̂u(̂x, ̂y) = (sin(π ̂x) + cos(π ̂y)) ̂τ1 + (cos(π ̂x) + sin(π ̂y)) ̂τ2.
+For the same problem on Γ (with properly transformed data f = FH ̂f ◦Φ−1
+H , g = FH ̂g◦Φ−1
+H ) the (extended) solution is simply
+u(x, y, z) = FH ̂u◦Φ−1
+H = (sin(π ̂x) + cos(π ̂y)) τ1 + (cos(π ̂x) + sin(π ̂y)) τ2 with (̂x, ̂y) = Φ−1
+H (x, y, z) = (x∕W, y). (18)
+Next, we discuss how this characterization of the solution translates to the discrete level. We note that ΦH is piecewise affine, so that the Jacobian is piecewise constant. Let ̂uh be the discrete solution to the Vector Laplace problem on ̂Γ and uh =  ̂uh. Then, we can expand
+̂uh =
+∑2
+i=1
+̂uh,i ̂τi, uh ∶=
+=1
+⏞⏞⏞
+J−1 FH ̂uh◦Φ−1
+H =∑
+i
+=∶uh,i
+⏞⏞⏞⏞⏞ ̂uh,i◦Φ−1
+H
+=τ i
+⏞⏞⏞
+FH ̂τi = ∑
+i
+uh,i τ i .
+and obtain the following relation for the surface gradients:
+∇ ̂Γ ̂uh = ∇ ̂uh =
+∑2
+i,j=1
+∂ ̂uh,i ∂ ̂τj
+̂τi ⊗ ̂τj, ∇Γuh = ∑
+i,j
+∂uh,i
+∂τj
+τi ⊗ τj = ∑
+i,j
+∂ ̂uh,i ∂ ̂τj
+◦Φ−1
+H τi ⊗ τj = FH
+∈R2×2
+⏞⏞⏞
+∇ ̂uh FT
+H ∈ R3×3.
+One may ask, if after applying the Piola transformation also on the test function, uh solves the discrete Vector Laplace problem on Γ for the DG methods. One can easily check that this is true for the DG methods discussed here as there holds for instance
+∇Γuh ∶ ∇Γvh = (FH∇ ̂uhFT
+H) ∶ (FH∇̂vhFT
+H) = ( FT
+H FH
+⏟⏟⏟
+=I∈R2
+∇ ̂uh FT
+H FH
+⏟⏟⏟
+=I∈R2
+) ∶ ∇̂vh = ∇ ̂uh ∶ ∇̂vh.
+Hence, uh solves the discrete Vector Laplace problem on Γ for the DG discretizations if ̂uh solves the discrete problem on ̂Γ. For the H1-conforming methods this does not apply as—for ̂wh being the discrete H1-conforming solution to the Vector Laplacian on ̂Γ—the mapped function wh =  ̂wh will not be in [Sk
+h]3 for H > 0. By construction ̂wh is a continuous (2D)
+F I G U R E 4 Geometries ̂Γ (left) and Γ (right) and coarsest mesh (L = 0) for the examples in Section 4.1.3
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2520 LEDERER et al.
+F I G U R E 5 Error behavior for Vector Laplace problem on the flat (top row) and the house of cards geometry (bottom row) from Section 4.1.3 for four different discretization methods on five successively refined meshes (uniform refinements) for fixed discretization order k = 3 and an exact geometry approximation [Colour figure can be viewed at wileyonlinelibrary.com]
+vector field s.t. after the transformation with ΦH, which has a discontinuous Jacobian, wh is discontinuous and hence not included in [Sk
+h]3.
+To illustrate this effect we consider the aforementioned methods with k = 3 and H ∈ {0, √3∕4}. In Figure 5 we display the error behavior for the two situations on five consecutive meshes, starting from the mesh displayed in Figure 4. Note that the geometry is piecewise planar, so that Γh = Γ. For ̂Γ we observe that all considered methods behave essentially the same. The deviation between the errors is only marginal. All methods yield an exactly tangential field uh ⋅ nh = 0 as the equations for the z-component of the H1-conforming method completely separates from those in x and y-direction. When going to Γ we observe that the H1-conforming methods fail to converge. This is easily explained by the fact that the solution is discontinuous when represented in the embedding space R3. Considering the representation of the solution (18), we notice that the Piola mapping incorporates the tangential field automatically and we observe that the convergence behaviour of the DG methods stay the same when going from ̂Γ to Γ. Actually, the numbers used in the plots are identical (up to round-off errors).
+4.2 Stokes
+Whereas the last section demonstrated the accuracy and advantages of the (H)DG methods introduced in this work for second order elliptic problems on surfaces, we now aim to solve the stationary incompressible Stokes equations, see problem 4. Similarly as in the last section we define a Stokes problem on the flat reference domain ̂Γ = (0, 1) × (0, 1) and map it isometrically onto a smooth manifold given by half of the surface of an open cylinder with radius 1∕π
+Γ = Φ1∕π( ̂Γ) with Φ1∕π(̂x, ̂y) = (̂x, sin((̂y − 1∕2)π)∕π + 1∕π, cos((̂y − 1∕2)π)∕π).
+Again, Φ1/π preserves the length, that is,
+√
+det(FT
+1∕πF1∕π) = 1 with F1/π ∶= ∇Φ1/π. For a fixed viscosity ν, the reference
+solutions are given by
+̂u(̂x, ̂y) = − ∂ξ
+∂ ̂y ⋅ e1 + ∂ξ
+∂ ̂x ⋅ e2 and ̂p(̂x, ̂y) = ̂x5 + ̂y5 − 1∕3
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2521
+F I G U R E 6 Absolute value |u| (left) of the exact velocity and the exact pressure p (right) given by (19)
+with the scalar potential ξ = ̂x2(1 − ̂x)2 ̂y2(1 − ̂y)2, and e1, e2 as before. We set the corresponding right hand side
+to ̂f = −2νε( ̂u) + ∇ ̂p. Defining the tangential vectors on Γ by τi = F1/πei, i = 1, 2, the exact solutions are given by (see Figure 6)
+u(x, y, z) = − ∂ξ
+∂ ̂y ⋅ τ1 + ∂ξ
+∂ ̂x ⋅ τ2 and p(x, y, z) = ̂x5 + ̂y5 − 1∕3, (19)
+with (̂x, ̂y) = Φ−1
+1∕π(x, y, z) = (x, arcsin(πy − 1)∕π + 1∕2), and the right hand side
+f (x, y, z) = f (̂x, ̂y)1 ⋅ τ1 + f (̂x, ̂y)2 ⋅ τ2. (20)
+In the following we compare two different discretizations. The first one is the H(divΓ)-conforming HDG discretization, see Sections 3.6.1 and 3.3. The second one is based on the HDG formulation for the Vector Laplacian of Section 3.6.2. For the divergence constraint we now further introduce the bilinear form
+bHDG
+h ((uh, λT), qh) ∶= − ∑
+T ∫T
+divΓ(uh)qhdx + ∫∂T
+(u − λT) ⋅ μ qhds ∀uh, λT ∈ W ku
+h × (Λku
+h × Λku
+h ), qh ∈ Qku−1
+h.
+For a fixed velocity approximation order ku the HDG Stokes discretization then read as: Find uh, λT ∈ Wku
+h × (Λku
+h×
+Λku
+h ), ph ∈ Qku−1
+h such that
+2νaHDG
+h ((uh, λT), (vh, θT)) + bHDG
+h ((vh, θT), ph) = fh(vh) ∀(vh, θT) ∈ W ku
+h × (Λku
+h × Λku
+h) bHDG
+h ((uh, λT), qh) = 0 ∀qh ∈ Qku−1
+h . (21)
+In Figure 7 the error behavior for the above Stokes problem (with right-hand side (20)) is given for both discussed discretizations with a fixed viscosity ν = 1 and different polynomial orders ku = 2, 3. As before we use the labels HDG and Hdiv-HDG. For α in the SIP stabilization we take 10. Note, that in contrast to the previous section we used the geometry approximation order kg = ku + 2. A numerical investigation showed that we have to apply this enhanced geometry approximation (only needed for this particular example) due to the ill-conditioned inverse of the sine function at 1 and −1 (needed for the calculation of the right-hand side). The first, third, and fourth plot show the H1-seminorms error and the L2-norm error of the velocity and the L2-norm error of the pressure for both methods where we used an initial triangulation with 100 elements and three refinement levels. As we can see, all errors convergence with optimal order and the accuracy of both methods is approximately the same. The second plot shows the L2-norm of the surface divergence. As proven by Lemma 1 the solution of the H(divΓ)-conforming method is exactly divergence-free, whereas the standard HDG method is only weakly divergence-free. However the divergence error of the HDG method stills shows the optimal convergence order. To emphasize the importance of exactly divergence-free velocity solutions we now focus on pressure robustness. Beside the observations discussed in Section 3.5 we want to discuss pressure robustness with respect to the arising error
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2522 LEDERER et al.
+F I G U R E 7 Error behavior for the Stokes problem of section 4.2 for the H(divΓ)-conforming HDG method and the HDG method given by (21) on four successively refined meshes (uniform refinements) for a fixed viscosity ν = 1, two polynomial orders ku = 2, 3, and an geometry approximation order kg = ku + 1 [Colour figure can be viewed at wileyonlinelibrary.com]
+estimates. A standard a priori error estimate of inf-sup stable Stokes discretizations usually reads as
+||u − uh||H1,h ≤ c( inf
+vh∈V ku
+h
+||u − vh||H1,h + 1
+ν inf
+qh ∈Qku −1
+h
+||p − qh||L2 ),
+where || ⋅ ||H1,h is an appropriate (H)DG-version of an H1-norm, and c is a constant independent on the mesh size h and the viscosity ν. Above estimate shows that the velocity error may depend on the best approximation of the pressure including the factor 1∕ν, hence the velocity error can blow up in the case of vanishing viscosity ν ≪ 1. As discussed in the literature, see for example References 45 and 74, methods that provide exactly divergence-free velocities allow to derive an error estimate that reads as
+||u − uh||H1,h ≤ c inf
+vh∈V ku
+h
+||u − vh||H1,h + F(u),
+where F(u) is a function that only depends on the exact solution u (and not ν) and shows optimal convergence properties (for methods yielding exactly divergence-free solutions we have F(u) = 0). Hence, these methods show no bad behavior for small values of the viscosity ν. Note that above estimate assumes an exact geometry representation Γh = Γ, compare the discussion below. In Figure 8 the H1-seminorm error of the solution of the same problem as above for varying viscosities ν = 10−6, ... , 1, two different polynomial orders ku = 2, 3 and different geometry approximation orders kg = iku + 2 for i = 1, 2, 3 is given. We can make several observations. First, the errors of the weakly divergence-free HDG method, see Equation (21), show the expected behavior: Reducing the viscosity ν leads to a blow up of the H1-seminorm error of the velocity independently of the geometry approximation. We can clearly see the scaling 1∕ν for all combination of approximation orders ku and geometry approximations kg. Next, note that the H(divΓ)-conforming method is expected to be pressure robust as the discrete velocity is exactly divergence-free. As we can see, this is indeed true if the geometry approximation is accurate enough. In the case kg = 3ku + 2 the error is constant and independent of the choice of ν. Reducing the approximation order kg shows that the error is again affected by a change of the viscosity, however the error is still much better compared to the standard HDG method. This behavior is also known from the flat case, and the problem comes from an inexact evaluation of the right-hand side integral
+∫Γh
+f ⋅ vhdx.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2523
+F I G U R E 8 The H1-seminorm error of the velocity solutions of the Stokes problem of section 4.2 for the H(divΓ)-conforming HDG method and the HDG method given by (21) for varying viscosities ν = 1, ... , 10−7 on a fixed triangulation with geometry approximation order kg = iku + 2 for i = 1, 2, 3 [Colour figure can be viewed at wileyonlinelibrary.com]
+As all integrals are computed using a quadrature rule the right-hand side integral might not vanish in the case where f = ∇Γθ and vh is divergence-free, that is, divΓ(vh) = 0, compare Section 3.5. Beside choosing a high-order quadrature rule, we now also have to increase the geometry approximation to ensure that a gradient field f = ∇Γθ is also a gradient field on Γh, otherwise again the integral might not vanish even if a high order quadrature rule is used.
+4.3 Generalization of the Schäfer Turek benchmark for surfaces
+We consider the setup of a standard benchmark test case, cf Schäfer et al75 [case 2D-2]. First we recall the setup in the plane and afterwards apply different mappings to obtain geometries in 3D, some of them as in Fries.38
+4.3.1 The flat setup (reference configuration)
+The domain is a rectangular channel without an almost vertically centered circular obstacle, cf Figure 9,
+̂Γ ∶= [0, 2.2] × [0, 0.41] ⧵ B0.05((0.2, 0.2)).
+We denote the velocity and pressure solution as ̂u and ̂p. The boundary is decomposed into ̂γin ∶= {̂x = 0}, the inflow boundary, ̂γout ∶= {̂x = 2.2}, the outflow boundary and ̂γW ∶= ∂Γ ⧵ (̂γin ∪ ̂γout). On ̂γout we prescribe natural boundary conditions which read as (−2νεΓ( ̂u) + ̂pP) ⋅ ̂μ = 0; on ̂γW homogeneous Dirichlet boundary conditions for the velocity and on ̂γin the inflow Dirichlet boundary conditions
+̂u(0, y, t) = ̂uD = ̄u ⋅ 6 ⋅ y(0.41 − y)∕0.412 ⋅ (1, 0, 0).
+Here, ̄u = 1 is the average inflow velocity and the viscosity is fixed to ν = 10−3 which results in a Reynolds number Re = 100. This setup results in a time-periodic flow with vortex shedding behind the obstacle, cf Figure 9. The (time dependent) quantities of interest in this example are the forces that act on the disc ̂γ◦ = S0.05((0.2, 0.2)) and the pressure difference before and behind the obstacle:
+F◦ ∶= ∫̂γ◦
+σ(u, p) ⋅ ̂μd̂s, Δp ∶= pfront − pback, pfront = p(0.15, 0.5), pback = p(0.25, 0.5).
+This benchmark problem is well studied in the literature and reference values are available in Schäfer et al.75 Below, we consider similar setups on geometries Γi = Φi( ̂Γ) for mappings Φi, i = 1, ... , 4 specified below. For b ∈ {in, out, W, ◦} we
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2524 LEDERER et al.
+F I G U R E 9 Flat Schäfer-Turek benchmark problem 2D-2. The first two meshes used in the simulations (left), discrete solution of the Stokes problem (center), and discrete solution of the unsteady Navier-Stokes problem at a fixed time (right)
+define the boundary segments accordingly, that is, γb ∶= Φi(̂γb) and prescribe natural outflow conditions on γout, homogeneuous Dirichlet conditions on γW and prescribe inflow velocities on γin. For the inflow velocities we take (for sake of comparability) the choice of Fries38: u|γin = Φ′
+i ̂u◦Φ−1
+i . Let us stress that this results in a tangential velocity, but may result in an average inflow velocity that may deviate from ̄u = 1. We note that the degrees of freedoms of our H(divΓ)-conforming HDG formulation naturally fit the tangential boundary conditions. The inflow which is in conormal direction μ corresponds to the degrees of freedom of the Vk
+h whereas tangential flow conditions (here: zero) correspond to the boundary
+degrees of freedom of Λku
+h.
+4.3.2 Computational setup
+We solve the surface Navier-Stokes problem for four different mappings, but use—for the most part—the same computational setup that we want to describe here first. As initial conditions for the Navier-Stokes problem, we take the solution of a Stokes problem with the same boundary data. To make sure that the simulation reached the time where the periodicity is established we simulate the problem for 30 time units. For the time stepping we use a second-order implicit-explicit (IMEX) time stepping method and consider up to three different time step sizes: Δt = 21−Lt ⋅ 10−3, Lt ∈ {1, 2, 3}. We con
+sider up to three mesh levels with a characteristic mesh size (w.r.t. the reference configuration) ̂h = 21−Ls ⋅ 0.05, Ls ∈ {1, 2, 3} corresponding to mesh levels Ls = 1, 2, 3. For the nonisometric mapping in Section 4.3.2 we use the same unstructured meshes as in the flat case, resulting in 857 (Ls = 1), 3179 (Ls = 2), and 13 081 (Ls = 3) triangular elements, cf Figure 9 for the first two levels. The meshes are not specifically adapted to improve the approximation of potential boundary layers. For the isometric mappings in Section 4.3.1 we consider only one mesh with 865 elements. In all examples in this section we fix ku = 4 and kg = 5.
+4.3.3 Isometric mappings
+First, we consider two mappings Φi, i = 1, 2 that are isometric, that is, there holds ̂d(̂x, ̂y) = dΓi (Φi(̂x), Φi(̂y)), ̂x, ̂y ∈ ̂Γ where
+̂d is the two-dimensional Euclidean distance and dΓ is the geodesic distance on the surface Γi = Φi( ̂Γ) or equivalently det(FT
+i ⋅ Fi) = 1 with Fi = Φ′
+i. Similar to the setup in Section 4.1.3 we consider as a first case
+Γ1 = Φ1( ̂Γ) with Φ1(̂x, ̂y) =
+{ (̂x ⋅ W, ̂y, H ⋅ ̂x) if ̂x ≤ 1.1, (̂x ⋅ W, ̂y, H ⋅ (2.2 − ̂x)) if ̂x > 1.1,
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2525
+F I G U R E 10 Meshes and vorticity for id (flat), Φ1(kink), and Φ2(rolled) and pressure difference over time
+F I G U R E 11 Geometry and surface Stokes (top row) and Navier-Stokes solution (bottom row) for mapping Φ3
+with H = 1
+2 , W = √3∕4. To consider the kink in the geometry properly we use a slightly different mesh in this setup than
+in all others of this subsection by making sure that the line ̂x = 1.1 corresponds to a mesh line, cf Figure 10. Thereby the mapping Φi can be represented exactly in a finite element space so that the mapped mesh introduces no additional geometrical error. We note that already the mesh for ̂Γ includes (small) approximation errors due to the approximation of the circle. As a second example we consider
+Φ2(̂x, ̂y) = (− 0.41
+π cos(π ̂y
+0.41 ), 0.41
+π (1 − sin(π ̂y
+0.41 ))),
+which corresponds to a bending of the flat geometry around the x-axis. This time, when projecting into a finite element space, we can not represent Φ2 exactly, hence the isometry property will only be fulfilled approximately. In Figure 10 we show the geometries, the vorticity at a fixes time (t = 26) and plots that compare Δp(t) in a small range of time (t ∈ [26, 26.2] on the coarsest mesh level Ls = 1 with time level Lt = 2. We observe that there is hardly any difference between the results. The differences between the results for ̂Γ and Γ1 are only due to round-off errors and not visible even after heavily zooming in. For Γ2 we also only observe differences in the sixth digit.
+4.3.4 Nonisometric mapping
+As another example we consider a nonisometric mapping, that is, a flow that (not only discretely) deviates from the flat case. The example is one of two similar examples in Fries.38 We note that we also tried the other case, but do not present it here due to the similarity in the results. The mapping is
+Φ3(̂x, ̂y) =
+(
+cos
+(
+π ̂x
+2.2
+)
+⋅ f (̂y), sin
+(
+π ̂x
+2.2
+)
+⋅ f (̂y), 2 + 0.5f (̂y) − sin(3f (̂y))
+)
+, with f (̂y) = ̂y + 0.35.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2526 LEDERER et al.
+F I G U R E 12 Evolution of pressure difference for mapping Φ3 for two periods (starting with a pressure maximum) for different spatial can temporal resolutions
+In Figure 11 we display the solution of the surface Stokes and the surface Navier-Stokes problem. Already for the Stokes problem we see a significant deviation from the flat Stokes solution, especially in the pressure. This is partially due to a different inflow profile, but mainly due to a different length, width and shape of the channel. The vortex shedding behind the obstacle shows a qualitatively similar behavior to the flat case. However, the frequency and the forces acting on the obstacle are different. In the simulation, after 10 time units the vortex shedding is close to periodic. In Figure 12 we display the pressure difference for two periods (t∗ = 0 corresponds to a maximum of the pressure within each simulation) for different mesh and time levels. On the finest resolution we obtain a minimum and maximum pressure difference of 2.07982 and 2.69418 which is in very good agreement with the findings in Fries.38 Also the period length, which is approximately 0.456343 second (corresponds to a frequency of 2.191334) is in very good agreement with the reference.
+4.4 The Kelvin-Helmholtz instability problem on surfaces
+In this section we consider the famous Kelvin-Helmholtz instability problem, cf Reference 48 and the references therein, which is typically defined on the unit square (periodic in x-direction), that is, in 2D. We generalize it to 2D surfaces in 3D. To this end we solve the unsteady Navier-Stokes equation. In contrast to the previous examples we do not rely on reference domains and mappings, but start directly from surface meshes that are obtained from the mesh generator.
+4.4.1 The general setup
+In the following examples we consider geometries that are rotational invariant around the z-axis and use a coordinate system (ξ, η) on the surfaces with ξ ∈ [− 1
+2, 1
+2 ) following the rotational direction and η ∈ [− 1
+2, 1
+2 ) perpendic
+ular. Note that ξ and η are not normalized, that is, ||∇Γξ|| ≠ 1, ||∇Γη|| ≠ 1. eξ = ∇Γξ∕||∇Γξ||, and eη = ∇Γη∕||∇Γη|| denote the corresponding unit vectors (in the tangential plane of Γh) and r = r(η) denotes the distance (in the ambient space) to the z-axis. The Kelvin-Helmholtz instability is driven solely by its initial condition. These are taken as
+u0(ξ, η) = Hs(η) ⋅ u∞ ⋅ r
+R ⋅ eξ + cncurlΓψ,
+with Hs(η) ∶= tanh
+( 2η
+δ0
+)
+, ψ(ξ, η) ∶= u∞ exp
+(
+− η2
+δ2
+0
+)
+(aa cos(maπξ) + ab cos(mbπξ)) , (22)
+the constants aa, ma, ab, mb, cn, δ0 ≥ 0, and R the radius at z = 0. This means that for z > δ0 (Hs ≈ 1, curlΓψ ≈ 0) the velocity field corresponds to a rigid body rotation around the z-axis in positive ξ-direction whereas for z < −δ0 the velocity corresponds to a rigid body rotation in the opposite direction. The tanh term realizes a smooth transition of the velocity in the intermediate layer which is determined by δ0. The terms related to curlΓψ are a perturbation with the purpose to trigger an instability in a deterministic way. The setup of the problem leads to a number of vortices forming along the shear layer. These vortices eventually pair up to form fewer but larger vortices. In this setup we consider the following three usually investigated global quantities of interest (gradients and curls are to understood in a broken sense, that is,
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2527
+elementwise):
+Enstrophy: (t) ∶= 1
+2 ||ωh(t)||2
+L2(Γh) with vorticity ωh(t) ∶= curlΓuh(t),
+Kinetic energy: (t) ∶= 1
+2 ||uh(t)||2
+L2(Γh), Palinstrophy: (t) ∶= 1
+2 ||∇Γωh(t)||2
+L2 (Γh ) .
+4.4.2 Computational setup
+For the simulations discussed below we use—unless stated otherwise—the same configuration. We fix the intermediate layer size δ0 = 1∕28 fix ν = δ0∕Re with Re = 1000 and set the perturbation constants to aa = 1, ma = 8, ab = 1, mb = 20,
+cn = 10−3. With the reference time tref ∶= u∞
+δ0
+we introduce the scaled time t = t∕tref. For the computations we consider
+a triangular unstructured mesh with characteristic mesh size h = 0.05, ku = 8, kg = 9, use the second-order IMEX time stepping method as before with Δt = 10−3tref and simulate until T = 200tref. For α in the SIP stabilization we take 10 again. To initialize the velocity we use a Helmholtz projection in order to make sure that the discrete initial velocity is already exactly divergence-free, that is, in (16c) we consider uh, vh in the divergence-free subspace of V ku
+h , that is, {vh ∈ V ku
+h∶
+b(vh, qh) = 0 ∀qh ∈ Qku−1
+h }.
+4.4.3 Piecewise smooth manifolds
+In this subsection we consider four similar cylindrical setups given by:
+Γ0 ∶= {x ∈ R3|||(x, y)|| = R, |z| ≤ 1∕2},
+Γ1 ∶= Γ0 ∪ {x ∈ R3|||(x, y)|| ≤ R, |z| = 1∕2},
+Γ2 ∶= {x ∈ R3|||(x, y)|| = R, |z| ≤ 1∕2 − R} ∪ {x ∈ R3|||(x, y)|| ≤ R, |z| = 1∕2 − R},
+Γ3 ∶= {x ∈ R3|||(x, y)|| = R, |z| ≤ 1∕4} ∪ {x ∈ R3|||(x, y)|| ≤ R, |z| = 1∕4}.
+The first setting, Γ0 is an open cylinder of height 1 with radius R = (2π)−1, that is, perimeter 1 and we can isometrically map the unit square (periodic in x-direction) on Γ0. On the boundary we prescribe free slip boundary condition. As the surface Navier-Stokes equations are invariant under isometric maps we know that the solution to the corresponding 2D Kelvin-Helmholtz problem is identical. We can hence compare our numerical solution on Γ0 to the results in the literature.48 The second configuration, Γ1, is a closed cylinder with bottom and top added, that is, without boundary. Γ2 is similar to Γ1 except for the decreased height of 1 − 2R. Hence, the geodesics from the center of the top of the cylinder to the center of the bottom of the cylinder have length 1. The last case, case 3 considers an even shorter closed cylinder with height 1
+2.
+In Figure 13 the geometries and used meshes are sketched alongside with the decay of energy and enstrophy over time whereas in Figure 14 we plot the palinstrophy alongside a few sketches of the vorticity at selected times.
+Discussion of results
+We observe that the energy dissipation is similar for all cases (up to a constant shift due to different initial kinetic energies). Especially, the kinetic energy is monotonely decreasing. The same holds for the enstrophy for t ≤ 100. For later times the results deviate significantly. The reason for those deviations can be best explained by the palinstrophy evolution in Figure 14. Until t = 100 the simulations of the four cases agree very much, at least qualitatively. Initially four vortices form which eventually merge to two vortices around t ∈ (30, 60). Until that point of the evolution the rigid body rotations in the most upper and most lower part are essentially not influenced by the interactions in the center. This changes at around t = 90 where the rotations of the top and bottom are perturbed for Γ2 and Γ3 and somewhat later (around t = 120) also for Γ1. For Γ1 and Γ2 this results in the merging of the latest two vortices to one vortex which is also reflected by an increase in the palinstrophy. For Γ3 the perturbation of the rotations seems to stay confined and the decreased height seems to suppress the interaction of the vortices so that even at t = 200 the latest two vortices did not merge yet.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2528 LEDERER et al.
+F I G U R E 13 Geometries Γi, i = 0, 1, 2, 3 and corresponding meshes (left). Red lines correspond to ξ = 0, green lines correspond to η = 0. Plots of decay of kinetic energy and enstrophy (right). For comparability offsets C
+i , C
+i , i = 0, 1, 2, 3 are added to compensate for
+differences in initial kinetic energy and initial enstrophy. With C
+0 = 0, C
+1 =−1
+8π , C
+2= 3
+8π , C
+3 =−1
+8π + 1
+4 , and C
+0 = 0, C
+1 = C
+2 = C
+3 = −4π the plotted quantities are equal (up to resolution differences) at time t = 0
+F I G U R E 14 Evolution of h for Γi, i = 0, 1, 2, 3 and the 2D reference solution with vorticity snapshots
+Let us note that we also observe a deviation of the evolution computed for Γ0 and the reference solution, especially after t = 130 which is in agreement with the extreme sensitivity of the problem to (numerical) perturbations observed in Reference 48. The final merge is typically observed sooner the higher the perturbations in the simulation are. In contrast to the 2D reference solution we consider a much coarser, not structured and not symmetric mesh with an additional geometry error due to the curved representation.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2529
+F I G U R E 15 Evolution of h for the Kelvin-Helmholtz problem on the sphere t ∈ {0, 50,140, 200,330, 400,485} [Colour figure can be viewed at wileyonlinelibrary.com]
+4.4.4 Smooth manifold: the sphere
+Now, we consider the Kelvin-Helmholtz problem on a smooth manifold, the unit sphere, Γ4 = S1(0). The upper and lower halfs rotate in different directions with a perturbation similar as before in (22). However, we change the perturbation magnitude to cn = 2π ⋅ 10−3 (due to the increase of the equador length from 1 to 2π) and choose a different initial perturbation mode with ma = 16, aa = 1, mb = 20, and ab = 0.1. We use ku = 5, kg = 6 on a unstructured mesh consisting of 5442 triangles. A few snapshots of the flow and the evolution of the palinstrophy are depicted in Figure 15. We observe that initially eight vortices form from the initial perturbation at around t = 50. Diffusion takes its time until it drives the interaction of two neighboring vortices which pair up to four vortices at around t = 200. These vortices take even longer to eventually pair up to two vortices at around t = 500. The two vortices are positioned on opposite sides rotating in opposite directions. The overall evolution of the palinstrophy and the times where vortices pair up is very similar to those from the cylindrical setup in the previous section. However, due to the larger length scales the interaction between the vortices takes more time.
+4.5 Stanford bunny
+As a final example we want to demonstrate that the aforementioned methods can be applied on essentially arbitrary geometries. As a prototype of a complex geometry we take the famous Stanford bunny which fits approximately in a bounding box of size 80 × 80 × 60 and initially put 60 vortices on the surface. Let us note that in Reuther and Voigt32 this geometry has also been considered (with different initial data) with the aim to investigate defect configurations which is not the aim here. The initial velocity is taken as the surface curl of
+ψ(x) = 20 ⋅
+6∑0
+i=1
+(−1)i exp(− 1
+20 ||x − xi||2)
+where the xi, i = 1, .., 60 are some randomly located but sufficiently separated (||xi − xj||2 ≥ 3.5, i ≠ j) vertices of the mesh. For the viscosity we choose ν = 1
+50 . The flow is again only driven by its initial condition. Pictures of the numerical solution
+on a mesh with 6054 triangles, ku = kg = 4, time step size Δt = 1
+200 and α = 80 are shown in Figure 16.
+We observe that the flow undergoes a process of self-organization as it is well-known from 2D flows. At t = T = 500 the vortices merged successively into two remaining vortices: One around the ears of the Standford bunny, one on the breast. In contrast to the studies in Reuther and Voigt,32 the flow is not yet in a quasistationary state at t = 500, that is, these two vortices will continue moving and possibly merge while the magnitude of the velocity will decay over time.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2530 LEDERER et al.
+F I G U R E 16 Geometry and mesh of the Stanford bunny (upper left picture) and velocity streamlines with pressure coloring for t ∈ {4, 32, 60, 120, 250, 500}
+5 CONCLUSION AND OUTLOOK
+In this work we introduced new numerical methods for the discretization of incompressible flows and vector-valued elliptic problems on two-dimensional manifolds. Abandoning the H1-conformity (originally demanded by the considered problems) we applied the Piola transformation to construct finite elements which are exactly tangential. Based on these findings we presented non-(H1(Γ)-)conforming (hybrid) DG discretizations which performed extremely well in several considered numerical examples. Among other benefits, it was shown that the resulting methods can outperform H1-conforming discretizations in the aspect of computational costs, and that they can deal with piecewise smooth manifolds which is a unique property so far. For incompressible flow problems the (hybrid) DG methods were modified to be H(divΓ)-conforming. The resulting methods provide important properties such as exactly (surface) divergence-free velocity fields, energy stability, and pressure robustness. We studied certain numerical examples showing that the methods are highly accurate and applicable to deal with complex geometries. In particular we also showed a robustness of the new methods with respect to isometric mappings. The extension of the discretizations to nonstationary (evolving) manifolds is left for future research. Further, due to the increasing interest on foldable LC displays and flows on cell membranes, the coupling of the presented discretizations with other PDEs on surfaces is an interesting task for the future.
+ACKNOWLEDGEMENTS
+Philip L. Lederer has been funded by the Austrian Science Fund (FWF) through the research program “Taming complexity in partial differential systems” (F65)—project “Automated discretization in multiphysics” (P10). Furthermore we would like to acknowledge the Stanford University Computer Graphics Laboratory for providing the 3D-model of the Stanford bunny. Open access funding enabled and organized by Projekt DEAL.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2531
+ORCID
+Philip L. Lederer https://orcid.org/0000-0003-1875-7442 Christoph Lehrenfeld https://orcid.org/0000-0003-0170-8468 Joachim Schöberl https://orcid.org/0000-0002-1250-5087
+REFERENCES
+1. Slattery JC, Sagis L, Oh ES. Interfacial Transport Phenomena. Berlin, Heidelberg: Springer Science & Business Media; 2007. 2. Brenner H. Interfacial Transport Processes and Rheology. New York, NY: Elsevier; 2013.
+3. De Gennes PG, Prost J. The Physics of Liquid Crystals. 83. New York, NY: Oxford University Press; 1993. 4. Napoli G, Vergori L. Hydrodynamic theory for nematic shells: The interplay among curvature, flow, and alignment. Phys Rev E. 2016;94(2):020701.
+5. Dziuk G. Finite Elements for the Beltrami Operator on Arbitrary Surfaces. New York, NY: Springer; 1988:142-155.
+6. Dziuk G, Elliott CM. Finite element methods for surface PDEs. Acta Numerica. 2013;22:289-396. https://doi.org/10.1017/ S0962492913000056. 7. Bonito A, Demlow A, Nochetto RH. Finite element methods for the Laplace-Beltrami operator. 2019. arXiv preprint arXiv:1906.02786. 8. Demlow A, Dziuk G. An adaptive finite element method for the Laplace–Beltrami operator on implicitly defined surfaces. SIAM J Numer Anal. 2007;45(1):421-442. 9. Demlow A. Higher-order finite element methods and pointwise error estimates for elliptic problems on surfaces. SIAM J Numer Anal. 2009;47(2):805-827. 10. Holst M, Stern A. Geometric variational crimes: Hilbert complexes, finite element exterior calculus, and problems on hypersurfaces. Found Comput Math. 2012;12(3):263-293. 11. Dedner A, Madhavan P, Stinner B. Analysis of the discontinuous Galerkin method for elliptic problems on surfaces. IMA J Numer Anal. 2013;33(3):952-973. 12. Antonietti P, Dedner A, Madhavan P, Stangalino S, Stinner B, Verani M. High order discontinuous Galerkin methods on surfaces. 2014. arXiv preprint arXiv:1402.3428. 13. Cockburn B, Demlow A. Hybridizable discontinuous Galerkin and mixed finite element methods for elliptic problems on surfaces. Math Comput. 2016;85(302):2609-2638. 14. Olshanskii MA, Reusken A, Grande J. A finite element method for elliptic equations on surfaces. SIAM J Numer Anal. 2009;47(5):3339-3358. 15. Burman E, Hansbo P, Larson MG. A stabilized cut finite element method for partial differential equations on surfaces: the Laplace–Beltrami operator. Comput Methods Appl Mech Eng. 2015;285:188-207. 16. Olshanskii M, Reusken A. Trace finite element methods for PDEs on surfaces. In: Bordas SPA, Burman E, Larson MG, Olshanskii MA, eds. Geometrically Unfitted Finite Element Methods and Applications. Berlin, Heidelberg: Springer International Publishing; 2017:211-258. 17. Rognes ME, Ham DA, Cotter CJ, McRae AT. Automating the solution of PDEs on the sphere and other manifolds in FEniCS 12. Geosci Model Dev. 2013;6(6):2099-2119. 18. Burman E, Hansbo P, Larson MG, Massing A. A cut discontinuous Galerkin method for the Laplace–Beltrami operator. IMA J Numer Anal. 2017;37(1):138-169. 19. Nedelec J. Computation of eddy currents on a surface in R by finite element methods. SIAM J Numer Anal. 1978;15(3):580-594. 20. Bendali A. Numerical analysis of the exterior boundary value problem for the time-harmonic Maxwell equations by a boundary finite element method. II. the discrete problem. Math Comput. 1984;43(167):47-68. 21. Jankuhn T, Olshanskii MA, Reusken A. Incompressible fluid problems on embedded surfaces: modeling and variational formulations. Interfaces Free Bound. 2018;20(3):353-377. https://doi.org/10.4171/IFB/405. 22. Koba H, Liu C, Giga Y. Energetic variational approaches for incompressible fluid systems on an evolving surface. Q Appl Math. 2017;75(2):359-389. https://doi.org/10.1090/qam/1452. 23. Hansbo P, Larson MG, Larsson K. Analysis of finite element methods for vector Laplacians on surfaces. 2016. arXiv preprint arXiv:1610.06747. 24. Gross S, Jankuhn T, Olshanskii MA, Reusken A. A trace finite element method for vector-Laplacians on surfaces. SIAM J Numer Anal. 2018;56(4):2406-2429. https://doi.org/10.1137/17M1146038. 25. Jankuhn T, Reusken A. Trace finite element methods for surface vector-Laplace equations. 2019. arXiv preprint arXiv:1904.12494. 26. Hansbo P, Larson MG. A stabilized finite element method for the Darcy problem on surfaces. IMA J Numer Anal. 2017;37(3):1274-1299. 27. Olshanskii MA, Quaini A, Reusken A, Yushutin V. A finite element method for the surface Stokes problem. SIAM J Sci Comput. 2018;40:A2492-A2518. 28. Olshanskii MA, Reusken A, Zhiliakov A. Inf-sup stability of the trace P2 − P1 Taylor−Hood elements for surface PDEs. 2019. arXiv e-prints: arXiv:1909.02990. 29. Bonito A, Demlow A, Licht M. A divergence-conforming finite element method for the surface Stokes equation. 2019. arXiv preprint arXiv:1908.11460. 30. Nestler M, Nitschke I, Praetorius S, Voigt A. Orientational order on surfaces: the coupling of topology, geometry, and dynamics. J Comput Phys. 2018;28(1):147-191. 31. Nestler M, Nitschke I, Voigt A. A finite element approach for vector-and tensor-valued surface PDEs. J Nonlinear Sci. 2019;389:48-61.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+2532 LEDERER et al.
+32. Reuther S, Voigt A. The interplay of curvature and vortices in flow on curved surfaces. Multiscale Model Sim. 2015;13(2):632-643.
+33. Nitschke I, Reuther S, Voigt A. Discrete Exterior Calculus (EC) for the Surface Navier-Stokes Equation. New York, NY: Springer; 2017:177-197. 34. Reusken A. Stream function formulation of surface Stokes equations. IMA J Numer Anal. 2018;40(1):109-139. 35. Azencot O, Weißmann S, Ovsjanikov M, Wardetzky M, Ben-Chen M. Functional fluids on surfaces. Computer Graphics Forum. 2014;33(5):237-246. https://doi.org/10.1111/cgf.12449. 36. Nitschke I, Voigt A, Wensch J. A finite element approach to incompressible two-phase flow on manifolds. J Fluid Mech. 2012;708:418-438. 37. Reuther S, Voigt A. Solving the incompressible surface Navier-Stokes equation by surface finite elements. Phys Fluids. 2018;30(1):012107. https://doi.org/10.1063/1.5005142. 38. Fries TP. Higher-order surface FEM for incompressible Navier-Stokes flows on manifolds. Int J Numer Methods Fluids. 2018;88(2):55-78. https://doi.org/10.1002/fld.4510. 39. Olshanskii MA, Yushutin VA. Penalty finite element method for a fluid system posed on embedded surface. J Math Fluid Mech. 2018;21:1-18. 40. Gross BJ, Atzberger PJ. Hydrodynamic flows on curved surfaces: spectral numerical methods for radial manifold shapes. J Comput Phys. 2018;371:663-689. 41. Cockburn B, Kanschat G, Schötzau D. A note on discontinuous Galerkin divergence-free solutions of the Navier–Stokes equations. J Sci Comput. 2007;31(1-2):61-73. 42. Lehrenfeld C. Hybrid discontinuous Galerkin methods for solving incompressible flow problems [Diploma thesis]. Rheinisch-Westfalischen Technischen Hochschule Aachen. 2010.
+43. Lehrenfeld C, Schöberl J. High order exactly divergence-free hybrid discontinuous Galerkin methods for unsteady incompressible flows. Comput Methods Appl Mech Eng. 2016;307:339-361. https://doi.org/10.1016/j.cma.2016.04.025. 44. Lederer PL, Schöberl J. Polynomial robust stability analysis for H(div)-conforming finite elements for the Stokes equations. IMA J Numer Anal. 2017; 38(4):1832–1860. https://doi.org/10.1093/imanum/drx051. 45. Lederer PL, Lehrenfeld C, Schöberl J. Hybrid discontinuous Galerkin methods with relaxed H(div)-conformity for incompressible flows. Part I. SIAM J Numer Anal. 2018;56:2070-2094. https://doi.org/10.1137/17M1138078. 46. Lederer PL, Lehrenfeld C, Schöberl J. Hybrid discontinuous Galerkin methods with relaxed H(div)-conformity for incompressible flows. Part II. ESAIM: M2AN. 2019;53:503-522. https://doi.org/10.1051/m2an/2018054. 47. Schroeder PW, Linke A, Lehrenfeld C, Lube G. Towards computable flows and robust estimates for inf-sup stable FEM applied to the time-dependent incompressible Navier-Stokes equations. SeMA J. 2018;75(4):629-653. https://doi.org/10.1007/s40324-018-0157-1. 48. Schroeder PW, John V, Lederer PL, Lehrenfeld C, Lube G, Schöberl J. On reference solutions and the sensitivity of the 2D Kelvin–Helmholtz instability problem. Comput Math Appl. 2019;77(4):1010-1028. 49. Gurtin ME, Ian Murdoch A. A continuum theory of elastic material surfaces. Arch Ration Mech Anal. 1975;57(4):291-323. 50. Castro DA, Devloo PR, Farias AM, Gomes SM, Durán O. Hierarchical high order finite element bases for H(div) spaces based on curved meshes for two-dimensional regions or manifolds. J Comput Appl Math. 2016;301:241-258. https://doi.org/10.1016/j.cam.2016.01.053.
+51. Girault V, Raviart PA. Finite Element Methods for Navier-Stokes Equations: Theory and Algorithms. Vol 5. Berlin, Heidelberg: Springer Science & Business Media; 2012. 52. Brezzi F, Douglas J Jr, Marini LD. Two families of mixed finite elements for second order elliptic problems. Numer Math. 1985;47(2):217-235. 53. Boffi D, Brezzi F, Fortin M. Mixed Finite Element Methods and Applications. Berlin, Heidelberg: Springer Science & Business Media; 2013. 54. Arnold DN, Brezzi F, Cockburn B, Marini LD. Unified analysis of discontinuous Galerkin methods for elliptic problems. SIAM J Numer Anal. 2002;39(5):1749-1779.
+55. Braess D. Finite Elemente Theorie, Schnelle Löser und Anwendungen in der Elastizitätstheorie. New York, NY: Springer; 2013.
+56. Cockburn B, Kanschat G, Schötzau D. A locally conservative LDG method for the incompressible Navier-Stokes equations. Math Comput. 2005;74(251):1067-1095.
+57. Hesthaven JS, Warburton T. Nodal Discontinuous Galerkin Methods: Algorithms, Analysis, and Applications. Berlin, Heidelberg: Springer Science & Business Media; 2007. 58. Ascher UM, Ruuth SJ, Wetton BT. Implicit-explicit methods for time-dependent partial differential equations. SIAM J Numer Anal. 1995;32(3):797-823. 59. Ascher UM, Ruuth SJ, Spiteri RJ. Implicit-explicit Runge-Kutta methods for time-dependent partial differential equations. Appl Numer Math. 1997;25(2):151-167. 60. Fehn N, Kronbichler M, Lehrenfeld C, Lube G, Schroeder PW. High-order DG solvers for underresolved turbulent incompressible flows: a comparison of L2 and H(div) methods. Int J Numer Methods Fluids. 2019;91(11):533-556. https://doi.org/10.1002/fld.4763. 61. Linke A. On the role of the Helmholtz decomposition in mixed methods for incompressible flows and a new variational crime. Comput Methods Appl Mech Eng. 2014;268:782-800.
+62. Brennecke C, Linke A, Merdon C, Schöberl J. Optimal and pressure-independent L2 velocity error estimates for a modified Crouzeix-Raviart Stokes element with BDM reconstructions. J Comput Math. 2015;33(2):191-208. 63. Linke A, Matthies G, Tobiska L. Robust arbitrary order mixed finite element methods for the incompressible Stokes Equations with pressure independent velocity errors. ESAIM: M2AN. 2016;50(1):289-309. 64. Lederer PL, Linke A, Merdon C, Schöberl J. Divergence-free reconstruction operators for pressure-robust stokes discretizations with continuous pressure finite elements. SIAM J Numer Anal. 2017;55(3):1291-1314. https://doi.org/10.1137/16M1089964.
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+
+LEDERER et al. 2533
+65. John V, Linke A, Merdon C, Neilan M, Rebholz LG. On the divergence constraint in mixed finite element methods for incompressible flows. SIAM Rev. 2017;59(3):492-544. https://doi.org/10.1137/15M1047696. 66. Linke A, Merdon C. Pressure-robustness and discrete Helmholtz projectors in mixed finite element methods for the incompressible Navier-Stokes equations. Comput Methods Appl Mech Eng. 2016;311:304-326. https://doi.org/10.1016/j.cma.2016.08.018. 67. Ahmed N, Linke A, Merdon C. Towards pressure-robust mixed methods for the incompressible Navier-Stokes equations. Comput Methods Appl Math. 2018;18(3):353-372. https://doi.org/10.1515/cmam-2017-0047. 68. Schroeder PW, Lehrenfeld C, Linke A, Lube G. Towards computable flows and robust estimates for inf-sup stable FEM applied to the time-dependent incompressible Navier-Stokes equations. SeMA J. 2018;75(4):629-653. https://doi.org/10.1007/s40324-018-0157-1. 69. Gauger NR, Linke A, Schroeder PW. On high-order pressure-robust space discretisations, their advantages for incompressible high Reynolds number generalised Beltrami flows and beyond. SMAI-Journal of Computational Mathematics. 2019;5(1):89-129. 70. Egger H, Schöberl J. A hybrid mixed discontinuous Galerkin finite-element method for convection–diffusion problems. IMA J Numer Anal. 2009;30(4):1206-1234. 71. Cockburn B, Gopalakrishnan J, Lazarov R. Unified hybridization of discontinuous Galerkin, mixed, and continuous Galerkin methods for second order elliptic problems. SIAM J Numer Anal. 2009;47(2):1319-1365. 72. Schöberl J. NETGEN An advancing front 2D/3D-mesh generator based on abstract rules. Comput Vis Sci. 1997;1(1):41-52. 73. Schöberl J. C++11 Implementation of Finite Elements in NGSolve. Tech. Rep. ASC-2014-30, Institute for Analysis and Scientific Computing; Karlsplatz 13, 1040. Vienna, Austria; 2014. 74. Gopalakrishnan J, Lederer PL, Schöberl J. A mass conserving mixed stress formulation for the Stokes equations. IMA J Numer Anal. 2019; drz022. https://doi.org/10.1093/imanum/drz022. 75. Schäfer M, Turek S, Durst F, Krause E, Rannacher R. Benchmark computations of laminar flow around cylinder. In: E.H. Hirschel, ed. Flow Simulation with High-Performance Computers II. Wiesbaden, Germany: Vieweg; 1996:547-566.
+SUPPORTING INFORMATION
+Additional supporting information may be found online in the Supporting Information section at the end of this article.
+How to cite this article: Lederer PL, Lehrenfeld C, Schöberl J. Divergence-free tangential finite element methods for incompressible flows on surfaces. Int J Numer Methods Eng. 2020;121:2503–2533. https://doi.org/10. 1002/nme.6317
+10970207, 2020, 11, Downloaded from https://onlinelibrary.wiley.com/doi/10.1002/nme.6317 by Portail BibCNRS INSB, Wiley Online Library on [12/06/2026]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License

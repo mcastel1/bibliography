@@ -1,0 +1,981 @@
+Finite Element Approximation of the Nonstationary Navier-Stokes Problem. I. Regularity of Solutions and Second-Order Error Estimates for Spatial Discretization
+Author(s): John G. Heywood and Rolf Rannacher
+Source: SIAM Journal on Numerical Analysis, Apr., 1982, Vol. 19, No. 2 (Apr., 1982), pp. 275-311
+Published by: Society for Industrial and Applied Mathematics
+Stable URL: https://www.jstor.org/stable/2156947
+REFERENCES Linked references are available on JSTOR for this article: https://www.jstor.org/stable/2156947?seq=1&cid=pdfreference#references_tab_contents You may need to log in to JSTOR to access the linked references.
+JSTOR is a not-for-profit service that helps scholars, researchers, and students discover, use, and build upon a wide range of content in a trusted digital archive. We use information technology and tools to increase productivity and facilitate new forms of scholarship. For more information about JSTOR, please contact support@jstor.org.
+Your use of the JSTOR archive indicates your acceptance of the Terms & Conditions of Use, available at https://about.jstor.org/terms
+Society for Industrial and Applied Mathematics is collaborating with JSTOR to digitize, preserve and extend access to SIAM Journal on Numerical Analysis
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+SIAM J. NUMER. ANAL. ? 1982 Society for Industrial and Applied Mathematics Vol. 19, No. 2. April 1982 0036-1429/82/1902-0006 $01.00/0
+FINITE ELEMENT APPROXIMATION OF THE
+NONSTATIONARY NAVIER-STOKES PROBLEM. I. REGULARITY OF SOLUTIONS AND SECOND-ORDER ERROR ESTIMATES FOR SPATIAL DISCRETIZATION*
+JOHN G. HEYWOODt AND ROLF RANNACHER4
+Abstract. This is the first part of a work dealing with the rigorous error analysis of finite element solutions of the nonstationary Navier-Stokes equations. Second-order error estimates are proven for spatial discretization, using conforming or nonconforming elements. The results indicate a fluid-like behavior of the approximations, even in the case of large data, so long as the solution remains regular. The analysis is based on sharp a priori estimates for the solution, particularly reflecting its behavior as t -* 0 and as to- Xo. It is shown that the regularity customarily assumed in the error analysis for corresponding parabolic problems cannot be realistically assumed in the case of the Navier-Stokes equations, as it depends on nonlocal compatibility conditions for the data. The results which are presented here are independent of such compatibility conditions, which cannot be verified in practice.
+CONTENTS
+1. Introduction ......... ................... ....... . 275 2. The Navier-Stokes problem (regularity of solutions) . . . . . . . . . . . . . . . . . 279 3. Finite element approximation (statement of main results) . . . . . . . . . . . . . . . 288 4. Technical preliminaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 293 5. Estimates for the velocity error . . . . . . . . . . . . . . . . . . . . . . . . . . . 301 6. Estimates for the pressure error . . . . . . . . . . . . . . . . . . . . . . . . . . . 306 References . . . . . . . 3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . 310
+1. Introduction. In this paper we prove asymptotic error estimates for finite element Galerkin approximations of the nonstationary Navier-Stokes problem
+ut-Au+u Vu+Vp=f,
+(1.1) V u = 0 for (x, t) e f x (0 oo),
+u j=oa, u an = O,
+in a bounded two- or three-dimensional domain Q. In problem (1.1), u represents the velocity of a viscous incompressible fluid, p the pressure, f the prescribed force, and a the prescribed initial velocity. The fluid's density and viscosity have been normalized, as is always possible, changing the scale of space and time. The method of approximation under consideration is based on the standard variational formulation of problem (1.1), with the velocity and pressure as primary variables. We analyze only spatial discretization, the time variable remaining continuous. The discrete velocity Uh( (, t) and pressure Ph(' , t) are determined in finit element spaces denoted by Hh and Lh, respectively. These spaces are assumed to possess (at least) the approximability properties typical for Hh consisting of piecewise linear functions, and Lh of piecewise constant functions. They may be either conforming
+* Received by the editors August 1, 1980. This research was supported by the Natural Sciences and Engineering Research Council of Canada under grant A4150, and by the Deutsche Forschungsgemeinschaft Sonderforschungsbereich 72, Universitat Bonn. t University of British Columbia, Vancouver, British Columbia, Canada V6T 1W5. t Institut fur Angewandte Mathematik der Universitat Erlangen-Niurnberg, West Germany.
+275
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+276 JOHN G. HEYWOOD AND ROLF RANNACHER
+or nonconforming with respect to problem (1.1). For such finite element spaces, error
+estimates of the form
+(1.2) lj(u - Uh)(t)11L2 _ h2C1(t), I(P -Ph)(t)11L2/Nh hC2(t)
+are of optimal order with respect to the mesh size h, as h -* 0. Assuming appropriate regularity of the prescribed data a and f, we obtain the estimates (1.2) with
+(1.3) Cl() K eK - (t Kt e
+on any time interval (0, T) over whic (or even an appropriate La-norm) remains uniformly bounded. We also give more detailed estimates of C1(t) and C2(t). From these it is seen that, if the data a and f are sufficiently "small", then Ci(t) and C2(t) remain uniformly bounded as t -* co. T singular behavior of the pressure estimate, C2(t) -t-12 as t -+ 0, is due to a difficult which appears technical, but which may be inherent to the problem. In the special
+case a = 0, ft , 0) 0, we prove C2(t) remains bounded as t -* 0. The discrete pressure ph is determined only modulo a subspace Nh of Lh. The space Nh always contains the real constants, R, but is larger for some choices of the spaces Hh and Lh. For instance, for some types of elements it contains "checkerboard" functions. That the pressure estimate (1.2) is given modulo Nh merely reflects this nonuniqueness in the determination of Ph. The estimates (1.2), (1.3) are proved under general assumptions which do not ensure the stability of the solution of problem (1.1). In particular, the data may be large. In such general circumstances, exponential growth of the functions Cl(t) an C2(t) is to be expected, since initially, at least in some cases, there is exponential growth in the difference between neighboring solutions. We have endeavored to refine our error estimate for the velocity to a form which resembles as closely as possible a related continuous dependence theorem for solutions of (1.1). In our view, the result can be interpreted as indicating a fluid-like behavior of the discrete approximations as h -- 0, even if the error grows large with time, due to the instability of the solution which is supposed to be approximated. We plan to extend our results, under further hypotheses, in several continuations of this work. In Part II, we shall make an additional assumption, that the solution being approximated is stable, and under this assumption obtain uniform bounds for C,(t) and C2(t) as to- co without requiring the data a and f to be small. This type of result, starting with an assumed stability of the solution, is particularly important and useful in dealing with the Navier-Stokes equations. This is because it is very difficult to prove stability from assumptions on the data, except when the data is so small as to entail universal energy stability, while on the other hand, in special situations, even when the data is not so small, stability may be strongly indicated by experimental observations. Our point of view, that the proof of uniform estimates for the error as t -* o0 should be based on an assumed stability of the solution, is analogous to the accepted view that local (or exponential) error estimates should rest on an assumed regularity of the solution. It is only important that the assumptions of regularity and stability should be realistic, and in agreement with the theory of the equations, and preferably verified in some cases of interest. In Part III of this work we plan to present higher order error estimates of the form
+(1.4) l(u - Uh)(t)11L2 h C,(t), II(P -Ph)(t)11L2/N C hm1 C(t)
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 277
+for finite element spaces Hh and Lh which possess the properties. In fact, if one assumes sufficient regularity of the solution, particularly that
+IIu(t)IIw' and IIp(t)jj14-_1/R remain bounded as t-+ 0, one may prove these higher order error estimates in a manner entirely analogous to our proof of the basic error estimate (1.2). However, these error estimates are not presented here, because the required regularity of the solution cannot be realistically assumed; it holds only in the presence of nonlocal compatibility conditions of various orders, for the data a and f, at time t = 0. This will be shown in ? 2. In particular, it will be shown that if Iiu (t)11H3 remai bounded as t - 0, which is necessary for an error estimate of the form Jj(u - Uh)(t)I!L2 2 h3C, uniform as t -+ 0, then there must necessarily exist a solution poE H1(fl)/R the overdetermined Neumann problem
+Apo=V (f(*,O)-a*Va) infl,
+7VpoIaQ= (Aa +f(, 0)-a a 57a)lan,
+for the initial pressure. This amounts to a compatibility condition to be satisfied by a and f. Because of its nonlocal nature, it is virtually uncheckable for given data. In the absence of such compatibility conditions, estimates for the solution of the form
+(1.6) IIU(t)IIHm C CF (mc)/2, JJP(t)IIH--1IR_ Ct
+remain valid as t -0 . These and other closely related estimates are also given in ? 2 and provide the basis in Part III of this work for higher order error estimates of the form (1.4) with 3' m ' 5 and
+(1.7) ~~c1 (t) _ Kr(m-2)/2 KXt c( K-(m >l)/2 eKt
+Thus higher order error estimates, at least up to order m = 5, come into force with the smoothing of the solution. This type of result was suggested by corresponding results for the heat equation; see [22] and the literature cited there. We have considered the boundary conditions to be homogeneous to simplify the analysis. Nevertheless, through the inclusion of a general forcing term, we think we have developed methods which are easily generalized to the case of nonhomogeneous boundary values; only the obvious changes should be required in the statement of the results. It will be noticed, too, that we assume the domain is polygonal or polyhedra (and, for such domains, necessarily convex). This is only for simplicity. Through a standard technique discussed in Remark 3.5, our results extend to any smoothly bounded two- or three-dimensional domain. The system of ordinary differential equations generated by the spatial finite element discretization of problem (1.1) may be solved by well known methods of time discretization for parabolic systems. A second-order scheme based on the CrankNicolson method has been analyzed by Baker [1], though the lack of regularity of the solution as t -*0 was not taken into account. And recently, Girault and Raviart [9] have analyzed first- and second-order schemes for semidiscretization of problem (1.1) with respect to t, the spatial variables remaining continuous. In this work, too, the regularity which is assumed, in dealing with second-order schemes, is generally unrealistic. In fact, for the usual analysis of second-order time discretization, it is required that lIutt(t)tIL2 remain bounded as t -*O, an assumption which is gener impossible to verify as it depends on the nonlocal compatibility condition (1.5). Nevertheless, it is suspected a "smoothing property" again allows optimal order error
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+278 JOHN G. HEYWOOD AND ROLF RANNACHER
+estimates of the form
+(1.8) lluh (), )-U h |l2 C t c- 0 < t,, = nALt.
+tn
+This will be the subject of further research. There is an extensive literature on the mathematical analysis of finite element schemes approximating the steady state Stokes problem; see the works of Crouxeiz and Raviart [6], Falk [7], Fortin [8], Temam [29], Glowinski et al. [10], Bristeau et al. [2], Girault and Raviart [9], and the literature they cite. The approximation of the steady state Navier-Stokes problem has been analyzed by Jamet and Raviart [17] and by Girault and Raviart [9]. Very little has appeared for the full time-dependent problem (1.1). In the book of Temam [29], an a priori bound is obtained for approximations based on several types of elements. This bound implies the convergence of the approximations, but does not yield an error estimate. In his apparently unpublished work [1], Baker has proved an error estimate (the only one previous to ours we know of), but for a nonstandard formulation of the problem, and a special class of finite elements. We mention that his assumptions about the solution to be approximated
+imply jIVu,(t)11 remains bounded as t -* 0, the validity of which is only possible if t nonlocal compatibility condition (1.5) is satisfied (as we show in ? 2). Several results have also been given for finite difference schemes approximating the nonstationary Navier-Stokes equations. Ladyzhenskaya [21] has proved an a priori bound for such a scheme, but not an error estimate, and Chorin [4] has proved an error estimate for a particular problem in a rectangle with periodic boundary conditions. We mention, finally, that the immediate stimulus for our present work was our notice and study of Rautmann's error analysis [26], [27] for spectral Galerkin approximations of problem (1.1). The contents of this paper are divided into sections as follows. Section 2 begins with some notation and some assumptions about the domain and the data for problem (1.1). Then we examine the behavior of solutions as t -> 0, showing that the pressure and the time derivative of the velocity tend to specific initial
+limits, and that without the compatibility condition (1.5), necessarily IVVu,(t)IL 21 -* 0 and IIu(t)iIH3-xoo as t-*0. Then we prove the a priori estimates for solutions of (1.1) required for our error estimates in later sections. These a priori estimates follow a pattern developed in [13], but now incorporate weight functions to obtain more precise information as t - 0 and as t -e x. In ? 3, we set out our assumptions concerning the finite element spaces Hh and Lh, and the schemes determining the discrete solution Uh, Ph. Then we state our main results, already described above, and conclude with some examples of elements and some remarks on the numerical realization of the approximation schemes. In ? 4, we provide estimates for terms arising from the nonconformity of elements and prove discrete analogues of some Sobolev inequalities. Further, combining ideas of Crouxeiz and Raviart [6] and Falk [7], we give a general result on the approximation of the steady Stokes problem, extending previous results to meet our requirements.
+In particular, this result enables us to define certain approximations Shu of solutions of (1.1), used later in establishing error estimates pointwise in time, the role of Shu being similar to that of a Ritz projection in treating the heat equation. Also, we give some results for a discrete Stokes operator. In ? 5, following a procedure of Baker [1], we first split the velocity error into two parts by introducing a linearized discrete problem with solution Vh. To estimate the difference U - Vh, we use an energy type estimate, a parabolic duality argument,
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 279
+and a device of Wheeler [30] employing the approximations ShU mentioned above. The other error term, Vh - Uh, satisfies a differential inequality, which is integra finally complete the velocity error estimate. In ? 6, the error in the pressure approximation is estimated first in terms of the velocity error and the error for the time derivative of the velocity. Most of the section is then devoted to estimating the latter quantity.
+2. The Navier-Stokes problem. We consider a bounded domain fl c R', with n = 2 or 3, assumed to have a Lipschitz continuous boundary and to satisfy a further condition (Al), stated below. In later sections, Ql is assumed to be a convex polygon or polyhedron; but see Remark 3.5. As usual, L'(fl), or simply L', denotes the space of functions defined and pth-power summable in Ql, and 11 IIL' its norm. We denot
+the inner-product in L2 by (, ) and let 11 jj=11 IIL. C' is the space of function continuously differentiable any number of times in Ql, and CO consists of those members of C' with compact supports in 17. Hm is the completion in the norm
+lIUI = (o m E IlDaul2)au
+expressed in multi-index notation, of those members of C' for which the norm is finite. H' is the completion of CO in H'. These are all spaces of R -valued functions.
+Spaces of R n-valued functions u = (ui, * , Un) are denoted with boldface type, though no distinction is made in the notation of norms and inner products; thus Ho -[Hl ]"
+has norm l|u|ll = (lci<" Eo?Jal-? llDaui112)1/2, etc. We also frequently use
+(Vu, Vv)= E (au1, ajvj), IlVull = (Vu, Vu)1/2
+1?jn
+as inner product and norm for H1. We need some further spaces:
+Ji =1={ HO :V 4) =0}. J E { e : V 0 in 17, n I tan = 0, hold weakly}.
+Hm/R is the quotient space consisting of equivalence classes of elements of Hm differing by constants; it is denoted by L2/R if m = 0. Its norm is lPllHT'IR = inf,eR IIP + CllmL'(0, T; X), for any Banach space X, is the space of measurable X-valued functions X of t s (0, T), such that fT 114 (t)llX dt < ao if 1?p <o, or such ess supo<t<T ll4)(t)1X < ( if p = 00. It can be shown that J, and J are the completions of D = {) C, : V* 4 = 0} in HQ and L2, respectively. Every bounded linear functional F(0) on HO, which vani for 4 E J,, can be expressed in the form F(q5) = (p, V 4)) for some p e L2/R. Also, every bounded linear functional F(4) on L2 which vanishes for X E J can be expressed
+in the form F(0))=(Vp, 4) for some pEH'/R. In fact, {Vp peHI/R} is the orthogonal complement of J in L2. For proofs of these facts, one may consult the first parts of the books of Temam [29] and Ladyzhenskaya [20]. The orthogonal projection of L2 onto J is denoted by P. We will use c as a generic positive constant which, in this section, depends only on 17; it depends on 17 through constants appearing below in the a priori estimate (2.2), the Poincare inequality (2.4), and various Sobolev inequalities. We use K as a generic positive constant which may depend additionally on the data a and f for problem (1.1) and the solution u, through constants Ml, M2, M3 introduced below assumptions (A2) and (A3).
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+280 JOHN G. HEYWOOD AND ROLF RANNACHER
+As mentioned above, we need a further assumption about fl: (Al) The unique solution v e J1, q e L2/R of the steady Stokes problem
+(2.1) -Av+Vq=g, V v=O infl, van= 0,
+for prescribed g e L2, satisfies
+(2.2) ||vI12 + ||q|| H1lR c||g||.
+We remark that the validity of assumption (Al) is known (see [3], [19]) if afQ is of class C2, or if fl is a two-dimensional convex polygon, and is generally believed for convex polyhedra. Setting A = PA, we also note (Al) implies
+(2.3) llVll2 _ CII VII,
+for v E J1 n H2, since Av = Av + Vq must hold for some q E H1/R. Finally, it is easily shown that
+(2.4) lvll_ yoIIVvII, IIVvll '- yoylvll
+2 ~~~~~~-2
+hold for v in J1 or J1 nH2, respectively, where yo is the least eigenvalue of the
+2
+Stokes operator A J1 n H c J - J We usually make the following assumptions about the prescribed data for problem (1.1):
+(A2). The initial velocity a (x) and force f(x, t) satisfy, for some constants M1, M2,
+(i) a eJ1, feL??(C, o; L2) with IIaII_iMi, sup IIf(, t)II?M1;
+o< t<00
+(ii) a E H2, ft E L?(O, oc; L2) with ||all2 _M2, sup llft' ,t)ll '1M2.
+O< t<00
+Assumption (A2) can be weakened with respect to the condition for the force. In particular, using an argument additional to those below, f(, t) can be permitted to have a finite number of jump discontinuities as an L 2-valued function. For the purpose of numerical analysis, we need refinements of certain estimates for problem (1.1), previously given in the context of the existence and regularity theory. The required estimates will be proved below; we will omit most details which are already familiar from the existence and regularity theory, particularly as developed in [13], [14], [15]. As explained in the introduction, the nonlocal compatibility condition implied by the solvability of (1.5) cannot be realistically assumed, and consequently one must cope with a breakdown of the solution's regularity at the boundary afl at t = 0. This is a decisive consideration for the course of our investigation Before proceeding with the proof of needed estimates valid without the compatibility condition (1.5), it will be instructive to examine the cause for the breakdown of
+regularity, in particular showing that generally, without (1.5), IIVut(t)ll - 00 and llu(t)113 00 as t - 0.
+In the following discussion, the data is assumed to satisfy (A2) and the boundary afl is assumed to be smooth. Further, for simplicity, we suppose f is smooth in x [0, xc). Alternatively, it suffices to assume f(, t) e J, implicitly absorbing the remainder of f into the pressure term. First, we will show that the problem
+(2.5) Apo=V*(fo-a Va) inQf, aP =(Aa+fo-a Va)*nIan
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 281
+determines the initial pressure po(x). Here fo = lim,.o f(, t). It is shown in [29] that
+the mapping u -* u * n K6 is reasonably defined and continuous from S(fQ) = {u e 2(Q): V. u E L2(Q)} to H"112(af). Here H"1/2(afj) is the dual of H 12(afd), where H1/2(afl) consists of the boundary traces of functions in Hl(fl), the norm of Hl/2(afl) being induced from Hl(fl). Of course, V * u = 0 weakly, means IQu Vq dx = 0, for every q E CO (fQ). Therefore, since Aa E S(fQ) and a Va E Hl(fl), one has (Aa +fo 
+a 'Va) nla,eH-1/2(afl). Also, V* (fo-a * Va) belongs to L2(fl), and hence to the dual of Hl(fl). Finally, we note that the compatibility condition for problem (2.5) is
+satisfied, that is, IQ V (fo - a Va) dx = Lan (Aa +fo - a Va) n ds. From these
+observations, it follows that problem (2.5) is uniquely solvable for a generalized solution po E H'/R, the generalized form of the problem being
+(2.6) -(Vpo,V<5)=(V * (fo-a -Va), k)-j O(z\a+fo-a * Va) * nds
+an
+for 5 Ec H1(fZ). PROPOSITION 2.1. Let (Al), (A2) hold, with f(*, t) E J (or f sufficiently smooth), and suppose u, p is a solution of (1.1) with u E L'(0, T; J1), p E L2(0, T; H'/R). Then, the pressure p tends to the solution po of problem (2.5), in the sense that
+jIV(p(*, t)-po)jj- >0 as t-+O.
+Proof. Under assumptions (Al), (A2), the existence of a solution with the specified properties is ensured by Theorem 2.1, below, and some further regularity is supplied by Theorem 2.3. In particular, it is shown that u ( *, t) e H2 and lu(, t)-a 112-0 as t- )0. For t >0, it follows from the Navier-Stokes equations (1.1) and the discussion following (2.5) that p(, t) is the generalized solution, in H1/R, of
+Ap=Vi(f-u.Vu) infl,
+P' =(Au+f-u*Vu)*nlan.
+an an
+From what was said in the previous paragraph, it is easily seen that (Au+fu Vu) * nlan-(Aa+fo-a * Va) * nl in H 1/2(afl), and V * (f-u * Vu)-* V* (fo-a * Va) in L2(fQ) as t-*0. This implies the desired result. O From the convergence of u(, t) to a, and of p(, t) to po, just proven, it follows that
+(2.7) ut(*,t)-+-Vpo+Aa+fo-a*Va ast-+O
+in L2(Ql). This suggests that generally ut(*, 0)1,n # 0, a explaining the cause for the breakdown in a solution's regularity. This observation is especially clear and striking if one takes f 0 and a with compact support in fQ; it is easy to construct such an initial velocity a so as to ensure Vpoja,O 0. To make our point precise, we give the following: COROLLARY 2.1. Under the assumptions of Proposition 2.1, there must hold
+(2.8) Vpo|an = (Aa +fo- a * Va)lan
+if any one of the quantities IIVut(Q, t)jj, ||AU(Q, t)+f(., remains bounded as t - 0. Proof. First, suppose lIVut*, t)jj remains bounded as t - 0. Then the convergence (2.7) must hold weakly in H1, so that ut Ian,- (-Vpo+Aa +fo-a . Va) Ian weakly in H1/2(af). Since utIan = 0 for t > 0 we conclude (2.8).
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+282 JOHN G. HEYWOOD AND ROLF RANNACHER
+Next, suppose IIAu (, t) +f(, t)111 remains bounded as t that the projection P: L2 _ J is a bounded operator in H1. Thu
+Ilutili = IIP(Au +f - U VU)111 C cIAU +fII1 + CIIUI12
+remains bounded as t - 0. So we arrive at (2.8) as before.
+Next, suppose It IIUt1I2 dr remains bounded as t -o 0. We differentiate the Nav Stokes equation (1.1) with respect to t, multiply by Aut and integrate over fl, to obtain
+22dtd IIVutII2 + IIAutII2 = (ut Vu + U* Vut -ft, Aut)
+Then, integrating over e ' t_ T, we find
+IIVu,(F)II2 = IIVut(T)|| +2 j {|IIAut| -(U, Vu + u Vu t-f,, Aut)} dr
+again remains bounded as e - 0. Finally, to show that the boundedness of Iuluttl2 dr implies (2.8), we use the preceding argument with Aut replaced by utt. This completes the proof. D It is clear from these considerations that, in proving error estimates for numerical solutions, we must avoid assuming supo<t<T IIVut( , t)II <c, supO<t<T IIu( , t)ll3 <0, any other regularity of solutions dependent on the compatibility condition (1.5). All that follows is independent of (1.5). We remark on another point. For the purpose of existence and regularity theory, it suffices to obtain estimates for the solution and its derivatives which grow exponentially as t - oo, and these are usually what are given. However, we shall wish to prove error estimates for finite element approximations which are uniform in time when the solution being approximated is stable. This, of course, requires estimates of the solution's regularity which are uniform in time. When appropriate, the estimates below
+have this property. For completeness, we state the following well known result on the local existence of "strong" solutions; see [13], [20], [29]. THEOREM 2.1. The assumptions (Al) and (A2i) ensure the existence of some
+T>0, and of u E C([O, T); J1) and p eL2(0, T; H1/R), with derivatives ut L2(0, T; L2), such that all the conditions of problem (1.1) are satisfied, the initial condition being satisfied in at least the generalized sense Iu (, t) - a Il -+ 0 as t -+ 0. There is at most one such solution. In proving this, and in many other contexts, one works with a weak formulation of the Navier-Stokes equations. One may easily see that, for sufficiently regular functions u and p (as in the theorem, for instance) the Navier-Stokes equations hold if and only if
+(X, V*u)=0 forallXeL2, (2.9) (Ut, +)+ (IVu, IV+) + (U * V u, +)-(p, V * )=(f )
+for all / E HW, for almost all t E (0, T). For most purposes it is useful to carry formulation one step further, eliminating the pressure. Clearly, (2.9) implies u (* and
+(2.10) (ut, + (Vu, V+) + (u * Vu, )=(f,),
+for all / E J1 and for almost all t E (0, T). Conversely, f field u, (2.10) implies the existence of a function p satisfying (2.9), as follows from the remarks following the definitions of J1 and J.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 283
+Briefly, the main estimate underlying Theorem 2.1 is obtained as follows. After integrating by parts in (2.10), one can justify setting ? = Au. Then, noting (ut, Au) =
+(us, Au) = -(Vu,, Vu), and using (Al) in combination with Sobolev's inequality to estimate (u * Vu, Au), one finds
+(2.11) d IIVuII2+IIAuII2 < C IV U III6+cIIfII2 if n =3,
+(2.11) dt A =~ ~~~~~ CjjujI2jIVujj4+Cjjfjj2 if n = 2.
+The two-dimensional form of the right side is provided only for later use, in proving Theorem 2.2. Using the three-dimensional form of the right side, which is also valid in two dimensions, one sees jjVu(. t)112?/(t), where f is the solution of the initial value problem fr(0) = IlVa 12, f = cq+ cIIfII2, the constants in the differential equation being chosen the same as in (2.11). Clearly fr remains finite on some interval [0, T). The inequality (2.21), below, is used in proving the continuity of u(-, t) in J1, for t > 0. The following global existence theorem is a slight refinement of results in [20], [29], [13], in that it provides a uniform H1 bound for the solution, in cases of nonhomogeneous forces. THEOREM 2.2. If n = 2 or, in the case n = 3, if the constant M1 in assumption (A2i) is sufficiently small, then the solution of Theorem 2.1 exists for all tO and
+satisfies supt>ottVu(., t)11<0x. Proof. In order for jIVu(., t)112 to attain a given value M at some time t*, or "blow up" at t*, a certain minimum amount of energy must be dissipated during a preceding time interval t* - p < t < t*, the amount depending on the specified length p, p < t*, of the interval. In fact, if f is a solution of a differential equation majorizing (2.11), on [t* - p, t*], and if f(t*) = M, then
+t* t*
+(2.12) J _ ) df r 'd? rVu(.,r)112 dr.
+t*-p t*-p
+On the other hand, starting with an energy identity obtained setting = et u in (2.10), one can easily show (for any fixed p > 0)
+t
+(2.13) sup IIu(*, t)|| < oo and sup | |Vu(*, r)112 dr < oo,
+t>O t>p t-p
+with bounds that a the use of the exponential factor being similar to that in several arguments below. We remark, the simple argument just alluded to, for proving (2.13), fails in the case of inhomogeneous boundary values ul,n, at least if they are large. But even so, the
+estimates (2.13) remain valid if L.i u * n ds = 0 on each connected component aQ,i afl, the argument now being a much subtler one due to Hopf [16]. Now, clearly, if
+t t*
+(2.14) sup II|Vu(, *r)112 dr < | (r) dr,
+t>p t-p t*-p
+we obtain a contradict the idea underlying Theorem 2.2. In either two or three dimensions, the left side of (2.14) can be made small by taking small data, in view of (2.13). In two dimensions, the right side of (2.14) can be made arbitrarily large by taking M large. This is because the two-dimensional form of (2.11) can be majorized by a differential equation of the
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+284 JOHN G. HEYWOOD AND ROLF RANNACHER
+form ql'= (Cl + C2q,)2, with constants dependent on supt>o lul the solution which blows up at t*, there holds It* pr(r) dr = (X; and thus, for the solution satisfying fr(t*) = M, there holds Jtt pf(r) dr -* oo as M -) 00. This completes the proof. D Although it is unknown whether the conclusion of Theorem 2.2 holds generally for large data in three dimensions, it certainly does in special circumstances; and it may sometimes be indicated by experimental observations in cases for which it is still unproven. Therefore, rather than assume the data is small in the case of threedimensions, it is preferable to make the conclusion of Theorem 2.2, or even Theorem 2.1, an assumption: (A3) There exist a constant M3 and time T, 0 < T 0 oo, such that
+sup jjVu(*,t)jj'M3.
+O<t<T
+Though (A3) is the most convenient assumption to work with in the sequel, it can be substantially weakened. R. Scott has pointed out to us that in three dimensions it suffices to assume: (A3') For some q > 3 there exist a constant M' and time T, 0 < T c oo, such that SUPOt<<TllU(*, t)j|Lq C <M3'. To show (A3') implies (A3), one may begin as in establishing (2.11), but estimate the nonlinear term, using (Al) and Sobolev's inequality, by
+l(u * Vu, Au)I C |IUjL?IVU ?L8/(1)jA C 8LU + Lq
+which is valid for any 8 >0, with cs dependent on 8. In place of (2.11), one then ge
+dt 11Vu12 + (2I- )llCull2 _ c u3q(q-3) + cllfll2 '
+for some constant K' dependent on M1, M', q and 8. Hence, multiplying by et , gets
+dl {e'TllVull2} + eat[(2 - 8)y-2 - a]llVull2 c e?tK,
+which, taking 8 < 2 and a (2 - 8)yo2, implies the result:
+11Vu(., t)112 eat llVall2+ e-TK' dr} _ IIVa112 + a 1K.
+The next theorem supplies the principal estimates, needed in later sections, for the regularity of the solution provided by Theorems 2.1 and 2.2. For a >0, we introduce the weight functions
+r(t) = min {t, 1}, r(t) = r(t) e
+Though in what follows the generic constant K will depend on a, this will not be indicated, as we think of a as a fixed number. THEOREM 2.3. Suppose that assumptions (Al), (A2) and (A3) hold, and let T, 0< T ? oobe the same as in (A3). Then the solution of problem (1.1) satisfies
+(2.15) sup {lluI12 + lUtlI + IIPIIH/R}1- K
+O<t<T
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 285
+and the initial condition is satisfied in the sense that IIU for any fixed a >0,
+rt
+(2.16) sup eat eaTIIUtII2 dTr_K, sup r(t)IIutII2_K,
+O<t<T o O<t<T
+-at
+(2.17) sup e J 2()(IIut2+|IUtII +|IptIIHi/R) dr K.
+O< t< T J
+If a = 0 and f(', 0)-0, the estimates (2.16), (2.17) may be improved to:
+(2.16') sup IJutJI1- CK,
+O<t<T t
+(2.17') sup e -a e 2{ 11U2 + uttII2 +IIPtIIH1/R} dr K.
+O< t< T O
+Proof. Without loss of generality, we consider the case fl c R3 and T =o. Multiplying (2.11) by eat and integrating with respect to t, one obtains
+(2.18) e at1 eaTIAu 112 d e -at{lIVa 112+ eT(aM2 +cM6 +cIIfII2) dr}K,
+since e|t feaT dr<a-1. Setting u=Ut in (2.10), and using (A1) combined with Sobolev's inequalities, one finds
+(2.19) t AItIlAUll + IIUIIL6IIVUIIL3 + Ilfil -cilUll + cAiVUII + | ilAUll +K.
+Together, (2.18) and (2.19) imply
+rt
+(2.20) e atj eaTIIutII2 dr?K.
+Differentiating (2.10) with respect to t, setti using Sobolev's inequality, one finds
+(2.21) d IIutIV + IIVu II2 _ ctI Vu 41u1l2 + cIIftII2 _ KIIutII2 + K
+If we multiply this by eat, and integrate with respect to t, the result is
+t
+Iu t(t)112 + e-at eaTIIVUtI2 dr
+(2.22) t
+-aetilut(0)
+in view of (2.19) and (2.20). We mention that a rigorous justification of (2.19), at t = 0, can be arrived at if we construct the solution by Galerkin approximation. Setting 0 = Au in (2.10), and estimating terms as in proving (2.19), one obtains
+(2.23) IIA-u || _ cllutll + K.
+Clearly, now, (2.15) follows from (2.22), (2.23) and (2.3), using also (1.1) to get the pressure estimate. Now, differentiating (2.10) with respect to t, integrating by parts, and setting
+Au = Aut, one finds
+(2.24) Xt IIVutII2 + 11-UtI2_ C cIIAUll2llVUtII2 + ClftII2,
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+286 JOHN G. HEYWOOD AND ROLF RANNACHER
+using various Sobolev inequalities. In view of (2.22), there exists a sequence En, - 0, such that EIlIVu,(E,)II2 -*0. Therefore, multiplying (2.24) by o(t), integrating from E to t, and letting En, - 0, one finds, after a final multiplication by e-t, that
+eato(t)llvut(t)112 + eat J ukr)IIAutlI2 dr
+0
+t
+C c(SUp 1- U 112) eat i(r)IIVUtII2 dr
+(2.25) -~~~ ~~At e -~rIV~I d-(r + c e dkr)IfId
+(2.25) t t
+(2.27) e ~~~~-at
++eesm att dr + c e-.t t2 d
+oo
+'K,
+the last inequality holding in virtue of (2.15) and (2.22). The two inequalities (2.22) and (2.25) give (2.16). Analogously to (2.19), we find
+(2.26) ||uttll _- (1 + C|l'Vu ||)||5 'utll + ||ftl ' K||I 'ut|| + K.
+Thus, (2.25) implies
+dt
+(2.27) e -a o(T(r)llUttil2 dr _K.
+0
+So, finally, (2.17) follows from (2.25) and (2.26), again using (1.1) to get the pressure estimate. To prove the initial velocity is assumed strongly in H2, it is sufficient to show lim supt,o llAIu(*, t)ll|| '||/a|, as we already know u) -, t)a a in H-. To this end, let u+ be the mth spectral Galerkin approximation of u, as used in [13] or [29, p. 313]. Setting u u = V in the analogue of (2. 1w0) for u , we obtain
+Vm112 +1 d ml2\ml2=(Um . VUm_f,/u)
+I n ) d VuM(_0I A=um)-(UM c vum+uM . Vut -ft ea d
+Integrating this with respect to time, and using the a priori estimates (2.15) and (2.16) for um, one finds
+111A u 11) '-|lva m + 2{(u m * V um _ f, h\Um )-(a m * Va m _ f A a m )I+Kt
+uniformly in m. From this, we conclude
+n mla + 2e(u * Vu -f, a u) -f(a Va -f, LA fo + Kt.
+Since u Vu -+ a * Va in L2 and Au A /a weakly in L2 as t -+ O, we obtain the desired result.
+If a = 0 and ft *, O)--O, then llVut(0)ll = 0, so one can multiply (2.24) by eat instead of a(t), obtaining a simpler form of (2.25), which yields (2.16') and (2.17'). This completes the proof of Theorem 2.3. [1 In ? 5, we will need a slight variant of (2.15) for the linear Stokes problem:
+ut - Au + Vp = f,
+(2.28) V * u = 0 for (x, t) E Ql x (O, xo),
+u It=0 = ?, Ulan = O,
+assuming merely that f E L 2(0, T; L 2) for all T > 0.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 287
+COROLLARY 2.1. For any a satisfying 0 < a < 2yo2 and any t > 0, the solution of problem (2.28) satisfies
+tt
+(2.
+Proof. In place of (2.11) we obtain
+d IV 112 + (21- 3)IfuI2 C ii
+for any 3 > 0. And in place of (2.18) we get
+(2.30) eatllVu(t)112 + (2 f3- ay_ ) J eaTIIzvU 112 dT ' J e7fl2 dr.
+The result is now obtained setting f3 = 1l-a-yO and using IlutII?I'|ull+IIfII and (2.28) respectively, to get the estimates for 1lut112 and IIPII|1/R. ? Remark. It may seem peculiar that a is restricted in Corollary 2.1, but not in Theorem 2.3. This is because (2.29) is obtained without assuming either supt>oIIf
+or supt,oIVu 11 < x. In fact, if supt>oIIfII <ox, one may choose f3 = 1 and a = (2.30) to obtain supt>oIIVuII ' -yo supt>oIIfII. Then, similarly to (2.18), one finds
+t
+e J eATIUII dr ? ayo[(1 + 2ayo V -1] sup||I||
+0 t>O
+etc., for any a > 0. The results above suffice for the second-order error estimates of the present
+paper. What follows will be used in proving higher order error estimates in Part III of this investigation. For non-negative integers n, let
+r(t) = min {t, 1}, _n (t) = Tn (t) eat
+THEOREM 2.4. In addition to the assumptions of Theorem 2.3, suppose that D tf eL(O, co; L2) for k = 0, 1, .. , n. Then, for n _ 1,
+(2.31) SUP 2n-2(t){IID n-1 u 112 + ID nuI2 + |ID n1pII2 |1/R} <
+O~~~~~~ t H
+0<t<T
+t
+sup e | 2n-2(7r)IID unII2 dr < o,
+O<t<T O
+(2.32)
+sup r (t)IID t U11<X,
+0<t<T
+t
+(2.33) sup e at 0U2n_1(i)tlID nUII2 + IID n+1UII2 + IID npIIHI/R} dr <00.
+O<t<T O
+These estimates are obtained by repeating the argument of Theorem 2.3. Notice, (2.27) is an analogue of (2.20). The proof of Theorem 2.4 continues the argument starting with an analogue of (2.21), for ut, instead of ut. A proof by induction, but without weight functions, is given in Theorems 3 and 3' of [13]. If afl is of class Cm, the estimates of Cattabriga [3] for the Stokes problem (2.1) give, for m _ 2,
+(2.34) I|U|I| + IIPIIHm1/R- c CIIfII m-2
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+288 JOHN G. HEYWOOD AND ROLF RANNACHER
+Combining (2.34) with the estimates (2.31) and (2.33) of Theorem 2.4, we get, by an induction on m (similar to Theorem 4 of [13]), the following estimates for all orders of derivatives.
+THEOREM 2.5. Suppose afle C', a eJ l nH2 and D'feL (0, 0o;H k) for all 1, k ? 0. Assume further that SUP(O,T)IIVU (t)| < 00 for some T, 0 < T _O . Then, for n 0 O and m_ 2,
+(2.35) sup T2n+-2 (t){IID unII+ IIDnpII1 2- /R}< 00,
+O<t<T
+(2.36) sup e -at J 2n?m-2(T){IDD nU I1 +1 |+ID p
+O< t< T O
+We note that Theorem 2.5 is sharp in that the solution's regularity as t -e 0 cannot be improved without requiring the data to satisfy the nonlocal compatibility condition (2.8).
+3. Finite element approximation. Let nh = {K} be a finite decomposition of mesh size h, 0< h <1, of the polyhedral domain fQ into closed subsets K, triangles or quadrilaterals in two dimensions and tetrahedrons or hexahedrons in three dimensions. The decompositions ['h are assumed to be "face to face" and to satisfy a "uniform size" condition: (Bi). Any two elements of 11h meet only in entire common faces or sides or in vertices. Each element of 1h contains an n-ball of radius Klh and is contained in an n-ball of radius K2h. Here and below, the Ki, i = 0, 1, 2, are assumed to be positive constants independent of h. The finite element spaces to be used for approximating the "velocity space" Ho and the "pressure space" L2 are of the form
+Hh = {Vh E L Vh K E P(K), for every K E nh
+Lh = {qh E L2 qh K E Q(K), for every K Enh
+where P(K) and Q(K) are spaces of polynomials, the maximum degree of which is bounded uniformly with respect to K E FLh and h. We assume:
+(B2). Each Vh E Hh satisfies
+|Vh IK -VhIK'} ds = 0
+on interelement faces F = K n K', K, K' E nh, and
+Vh IK dS = 0
+on boundary faces F = K n af, K E nh. (B3). For each v E H nl H2 and q E H' there exist approximations 4hV E Hh and jhq E Lh such that
+|IVh,(v - 4v)I1 - K3hIIvII2, |Iq - j,hq,qL2/R '- K4h||q|H IR
+These are standard conditions satisfied by all the usual spaces of conforming and nonconforming elements. In the case of nonconforming elements, "Vh," denotes the gradient operator understood in the piecewise sense with respect to the decomposition
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 289
+ilh, rather than in the distributional sense with respect to fl. For example, for q in the algebraic sum H'+Hh of Ho and Hh, Vh4 is the L2-function over Ql coinciding with V4IK on each element K. Using this notation, discrete analogues of the forms a(4, r) = (V+, V+f) and b(b, f, X) = (o - V f, X) are defined on H' +Hh by
+ah(0, f) = (Vhq, Vhf),
+bh(q, f, X)= k * Vhf, X)-k *VhX, f).
+These definitions are compatible in that ah (0, q) = a (4, f) if 0, 0fEr Ho, and bh(,', x) = b(q, tf, X) if q e J1 and f, X E H1. Moreover,
+(3.1) bh(5,f,)=0 forO,qEHi+Hh.
+For a suitable approximation ah e Hh of the initial velocity a e J1, we consider the following discrete analogue of the Navier-Stokes problem (1.1), suggested by the weak formulation (2.9):
+Find Uh (t) E Hh and Ph (t) E Lh, such that Uh (0) = ah, and such that for t > 0
+(3.2) (Xh Vh Uh) = 0 for all Xh e Lh and
+(Uht, fh) + ah (Uh, kh) + bh (Uh, Uh, qh )-(Ph, Vh * Oh) =
+for all Oh E Hh.
+Introducing the space
+Jh = {Vh E Hh: (Xh,Vh Vh) = O, for all Xh E Lh},
+we also pose a discrete analogue of problem (1.1) suggested by the weak formulation (2.10):
+Find Uh (t) E Jh, such that Uh (0) = ah and, for t > 0
+(3.3) (Uht, Oh) + ah (Uh, Oh) + bh (Uh, Uh, Oh) = (f, Oh)
+for all Oh E Jh
+For ah chosen in Jh, problem (3.3) is always uniquely solvable for all time t In fact, setting Oh = Uh in (3.3), and remembering (3.1), we obtain
+2 dt IUhI + |IVhuh 2 IIfl hUh l,
+and so the estimate 11uh(t)11 <lah11+J llfll dr for all t-O. Thus, well-known theore for ordinary differential equations ensure the global existence and uniqueness of the discrete solution Uh(t). Once Uh(t) E Jh is computed, one may seek to complete the solution of problem (3.2), that is:
+Find Ph (t) E Lh such that
+(3.4) (Ph, Vh * 4h) = (Uht, kh)+ah(Uh, kh)+bh(Uh, Uh, kh) (f, kh)
+for all h E Hh.
+The right side of (3.4) defines a functional on Hh which, by the construction of Uh (t), vanishes on the subspace Jh of Hh. It is easily shown that this implies that problem
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+290 JOHN G. HEYWOOD AND ROLF RANNACHER
+(3.4) is always solvable and that the solution Ph (t) E Lh is unique in the quotient space
+Lh/Nh, where
+Nh = {qh E Lh: (qh, Vh * Oh) = 0 for all Oh E Hh}.
+The norm of Lh/Nh is
+llqhllL2/Nh = inf jlqh +XhII
+Xh E Nh
+To ensure that the discrete pressure Ph (t) E Lh/Nh depends continuously on the discrete velocity Uh(t) E Jh uniformly in h, we shall assume:
+(B4'). For every qh E Lh, there exists a nontrivial function Oh E Hh such that
+k(qh, Vh * 0h i?: KoIKVh/h II hlqh llL2/Nh.
+This is the classical inf -sup condition for mixed finite element methods; it usually appears in the literature on Navier-Stokes problems with Nh = R. Consider, for a moment, the approximation of the steady state (linear) Stokes problem (2.1) by its discrete analogue:
+Find Vh e Hh and qh E Lh such that
+(Xh, Vh Vh) = O for all Xh E Lh and
+ah(Vh, h)-(qh, Vh '* h) = (g, h) for all h E Hh.
+Combining arguments of Crouxeiz and Raviart [6] and Falk [7], it may be shown our assumptions (Al) and (Bi), (B2), (B3) and (B4') guarantee the following error estimates:
+(3.6) |V - Vh | + hIVh (v - vh)1I '-ch ||g||
+(3.7) llq-qh11L2/INh ?-chjjgjj.
+A self-contained proof of this is given in ? 4 as a consequence of a more general result; see Lemma 4.2 and Corollary 4.1. From (3.6) we conclude the spaces Jh are proper approximations of the "solenoidal" space J1. We choose to state this as an independent condition (B4), apparently less restrictive than (B4')1, but adequate for dealing with the velocity error: (B4). For every v E J1 n H2, there exists an approximation thV E Jh such that
+VhI(V-(v hv)||-K5hh|vI112.
+To verify assumption (B4'), and so (B4), it is sufficient (and often possible) to construct an operator 'h: H 1 -* Hh satisfying lVhAhvIl _ K5IIVVII and (Xh, Vh * hV) =
+(Xh, V v), for all Xh in a subspace Mh complementary to Nh (i.e., Lh = Nh GMh). Indee (B4') is then shown, as follows. For any given qh E Lh, choose qh E Nh so that q,h qh - qh E Mh, and choose k E H1 so that
+I(qh, V ) |_KECjOIV 11|qhhL2/R.
+It is well known that k can be so chosen (as follows from the results of [3]; see also [6] and [29]), and it is easily checked that h-th satisfies the requirements of (B4'). An operator th satisfying the above conditions with Nh = R has been constructed by
+1 In fact, it has been pointed out to us by a referee that (B4) is a consequence of conditions (B3) a (B4O) alone.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 291
+Crouxeiz and Raviart [6] for several conforming and nonconforming spaces Hh and Lh (see the examples described at the end of this section). Our main results, proved in ?? 4, 5 and 6, are summarized in the following theorem and remarks. THEOREM 3.1. Let Q be a convex polygon or polyhedron, and suppose the conditions (Al), (A2), (A3) and (Bi), (B2), (B3), (B4) are satisfied. Further suppose the discrete initial velocity ah is chosen in Jh to satisfy
+(3.8) Ia - ah || CIh hM4,
+for some constant M4. Then the solution Uh(t) of (3.3) satisfies
+(3.9) ll(u - uh(t)I1 _ h2C1(t), 0 < t < T,
+where C1(t) is a continuous function of t e [0, T). In addition to t, C1(t) depends only on the domain fl, the constants Ki, * *, K5, M4 appearing in assumptions (Bi), (B3), (B4) and (3.8), and the bounds M1, M2, M3 appearing in assumptions (A2) and (A3). The time interval [0, T) is the same as in assumption (A3). If condition (B4') is satisfied,
+in addition to the previous assumptions, then any solution ph (t) of (3.4) satisfies
+(3.10) II(P -Ph)(t)IIL 2INh,-<hC2 (t), O <t <T,
+where C2(t) is a continuous function of t in the open interval (0, T). C2(t) depends on the constant Ko appearing in (B4'), as well as the quantities determining C1(t). Remark 3.1. For the functions C1(t) and C2(t) appearing in (3.9) and (3.10), we have estimates of the form ( ,.~ ~ ~~t 1/2
+(3.11) Cl (t) K{1 +eH(t) + e H(t) e-H() dr}
+(3.12) C2(t) ? KV"1/2(t){K + C1(t) + C6 (t)},
+where
+H(t) = CX (cllulllVuII +Kh _Yh-2)dr
+r(t) =min {t, 1},
+and c and K are constants, c depending only on fl and Kj, , K5, while K depends additionally on M1, M2, M3 and M4. The constant K depends, additionally, on Ko. The constant K, but not K, becomes small as max {M1, M2, M3, M4} becomes small. The constant Yh is as in the discrete Poincare inequality (4.38), below. We note that it is possible to choose ah satisfying (3.8) with M4 = cM2, in view of Corollary 4.3. It is apparent, (3.11) and (3.12) always imply simpler estimates of the form
+(3.13) Ci(t) c?K eKte
+(3.14) C2(t)c Kr -1/2(t) Kt
+Remark 3.2. For data a and f which are sufficiently small, measured in the norms of assumption (A2), and for sufficiently small h, the estimates (3.11) and (3.12) remain uniformly bounded as t - oo. That is, we have
+(3.15) C1(t)?c K, C2(t) Kr"2(t)
+for all t> 0. In fact, Theorem 2.2 ensures that one may take T = xo in (A3). Then,
+Theorem 2.3 implies sup>,ol|Au(t)jj is small. Finally, (4.31) implies yh is close to y Hence, one obtains H(t) _ -lit, for some constant ,u > 0, which implies the resu
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+292 JOHN G. HEYWOOD AND ROLF RANNACHER
+Remark 3.3. In the special case a = 0, f, 0) 0, we obtain an error estimate for the pressure, which remains bounded as t - 0, i.e., the factor r-1/2(t) can from (3.12), (3.14) and (3.15). It is not clear to us whether the singular behavior, 0(t-1/2) as t - 0, of the error constant in (3.10) is generally necessary or not. For further remarks on this question see the proof in ? 6. Remark 3.4. The preceding theorem and remarks remain valid if one poses the
+discrete problems (3.3) and (3.4) in terms of the original nonlinear form
+bh(0, 0, X) = (O 'VhO, x)
+In this case, the existence of discrete solutions Uh (t) E Jh on 0 t < T can be guaranteed for sufficiently small h by a continuation argument, based on the error estimate (3.9). Remark 3.5. We will prove our theorem only in the case of polygonal or polyhedral domains. This simplifies the argument in that the decompositions [Lh, consisting of "straight" elements, exactly cover Ql. Unfortunately, for polygonal and polyhedral domains, assumption (Al) requires convexity (it is known for convex polygons [19], and conjectured for convex polyhedra). However, assumption (Al) is
+valid for any smoothly bounded domain, and to preserve the results of our theorem for such domains, it suffices to approximate the boundary to order 0(h2) by a (not necessarily convex) polygon or polyhedron. The theorem may be extended to smoothly bounded domains using standard techniques for dealing with such boundary approximations. In the case of higher order approximation, one may further adapt the mesh to the boundary by using isoparametric finite elements. For an analysis of this procedure, see Ciarlet [5] and the literature cited there. Finally, we add some remarks concerning the numerical realization of the schemes (3.2), (3.3) and (3.4). Several conforming as well as nonconforming finite element spaces Hh and Lh, up to (polynomial) order m = 3, satisfying the conditions (B 1), (B2), (B3), (B4) and (B4') have been constructed by Crouxeiz and Raviart [6]. These elements are all based on triangular or tetrahedral meshes, but most of them have natural quadrilateral or hexahedral counterparts. Some of these finite elements, to which our results apply, are the following: (a) Triangular 2-dimensional elements: (i) Nonconforming piecewise linear velocities (continuity required only at midpoints of sides) and piecewise constant pressures; (ii) Conforming piecewise "extended" quadratic velocities (quadratics and one "bulb" function per triangle) and discontinuous piecewise linear pressures; (iii) Conforming (or nonconforming) piecewise "extended" cubic velocities (cubics and three "bulb" functions per triangle) and discontinuous piecewise quadratic pressures. (b) Rectangular 2-dimensional elements: (i) Nonconforming piecewise bilinear velocities (continuity required only at midpoints of sides) and piecewise constant pressures; (ii) Conforming piecewise biquadratic velocities and discontinuous piecewise linear pressures. All of these elements except the complicated cubic element (aiii) have natural three-dimensional analogues. The spaces Hh and Lh corresponding to the triangular elements (ai-iii) satisfy our conditions (B1)-(B4) and also (B4') with Nh= R (see Crouxeiz and Raviart [6]). The argument used in [6] can be extended to the quadrilateral elements (bi, ii). In the examples (aii, iii) one can also take continuous pressures, with the effect of increasing the dimension of the corresponding solenoidal spaces Jh. The quadrilateral element (bii) has a popular variant using continuous piecewise
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 293
+bilinear pressures. Numerical experiments reported in [11] indicate that this element also satisfies (B4') with Nh = R, but we do not know a proof. Another variant of (bii), with discontinuous piecewise bilinear pressures, fails to satisfy (B4') with Nh = R, the appropriate space Nh containing "checkerboard" functions, in addition to the constants, as is also the case with the conforming counterpart of (bi); see [11], [28], [23]. Numerical experiments [28] with these elements indicate that (B4') might be satisfied with an appropriately enlarged space Nh. The schemes (3.2) and (3.3) may be written as systems of (nonlinear) ordinary differential equations, provided suitable bases for the spaces Hh, Lh and Jh are available. While the spaces Hh and Lh have the usual "local" bases for spaces of piecewise polynomial functions, the problem of constructing "local" bases for the "solenoidal" spaces Jh has not yet been completely solved. In two dimensions, such bases are easily constructed for the nonconforming linear velocity element (ai) and for the conforming quadratic velocity element (aii). Numerical experiments with these elements, based on the discrete formulation (3.3) of problem (1.1), are reported in [12]. The extension of this analysis to three dimensions seems to be unknown.
+4. Technical preliminaries. This section is mainly devoted to preliminary estimates for terms arising from the nonconformity of elements and to approximability results for the time-independent Stokes problem. Throughout, we assume Ql is a convex polygon or polyhedron, and that conditions (Bi), (B2) are satisfied; use of conditions (Al), (B3), (B4) and (B4') will always be mentioned. We will use c as a generic positive constant depending only on the domain Ql and the constants Ki, Ks in conditions (B1)-(B4). The convexity of Ql ensures the Laplacian A is a mapping from HI n H2 o
+L 2, satisfying IIull2 ` cIIAu II. The condition (Bi) ensures that piecewise poly functions satisfy the usual "inverse relations", in particular
+(4.1) IIVh hV1/ _ chtllekhII.
+Integrating by parts, one finds that a solution u(t) e J1 n H2, p(t)EH1/R of problem (1.1) must necessarily satisfy
+(4.2) (ut, q) + ah (U, 4) + bh (U, U, /) = (f, 0) + (p, Vh * ) + Fh (U, p; /)
+for all X E H1 + Hh, where
+Fh ( U, p; + ) = F lh(U, )2r ht ,U - h P )
+is a sum of boundary integrals
+rhV >= KEf | ~ d *?ds,
+rh(v, 1? f) = KE (V * n)(f f) ds,
+K E-rl haK
+r3h(q,+)= q(i i q(Xn)ds.
+KEllHh AK
+Differentiating (4.2) with respect to time, we find
+(4.3) (utt, +)+ah (ut, )+bh (Ut, u, 0) +bh (U, Ut, 0) = (ft, 0)+ (Pt, 'Vh *) +)Fht (UgP; 0)
+for all 0 E H1 + Hh, where
+Fht(U, p; /) = Flh(Ut, )-2r(U, u, 2)-2Fh(U, uh , h)-Fh(Pt, d)
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+294 JOHN G. HEYWOOD AND ROLF RANNACHER
+LEMMA 4.1. Suppose conditions (B1) and (B2) are satisfied. Then for all v e Hi n H2, q E H1, and X E 1+ Hh, there hold
+(4.4) |Fr (v, 4) | ch l Vhd II IIzVI I,
+(4.5) J r (q, k) I ch IIV h 11 Vq||.
+Proof. The argument is a standard one for dealing with nonforming finite elements. Corresponding to an (n - 1)-dimensional face F common to two elements K-, K+ of [lh, let nr7 be the normal to F, directed from K to K+, and let [ J]IaK--d aK' be the jump along F of a function 4eHo+H H. If FcafQ, we set [+]=r. Then, by assumption (B2),
+(4.6) Fl(v, q5) a J {TnV -Wr}* [0] ds,
+where anv denotes the derivative of v with respect to the direction np, and wr is the mean value of anv on, say, K-. Observing that diam K- < K2h a Poincare-type inequality combined with a coordinate transformation argument yields
+(4.7) .11nV -wJ1j2 ds - ch i V2v 2 dx.
+For F, K+, K- and q as above, we use the abbreviations ? + = 0|K+ then, ,+ and ,u- for the mean values of 0+ and 0-. By assumptio
+.1 ]2 ds = j[(]. {V--,.--k++A+,} ds
+1/2 1/2
+r ~ ~~~~~~~ r -<2(j[dX1ds) (|l 2s1|w-+2s
+so, using a Poincare-type inequality similar to that above,
+(4.8) |[]2 ds -ch J IVh,I dx.
+If F c al, we modify the argument to get (4.8) with K+ U K- replaced by K- alone. Using these estimates in (4.6), we obtain (4.4). The estimate (4.5) is obtained similarly. This completes the proof. [ Next, we study the approximation of the (linear) steady Stokes problem (2.1). For our particular purposes, we need a somewhat more general analysis than given in the literature. For a given function g E L2, let v E Hi n H2, q E H'/R, be the (unique) solution of
+2
+(4.9) (X,Vv)=O foralIXEL, a(v,0)-(q, V f)=(g,4) forallrEHHl0.
+For any given continuous linear functional gh defined on H determined by
+(4.10) ah(Vh, Oh) = (gh, Oh) for all Oh E Jh.
+There is a corresponding pressure qh E Lh/Nh uniquely determined by
+(4.11) (qh, Vh * Oh) = ah (vh, Oh) -(gh, Oh) for all Oh rE Hh.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 295
+LEMMA 4.2. Suppose conditions (Al) and (Bi), (B2), (B3), (B4) are satisfied.
+Let g and gh and the associated functions v, q and Vh, qh be as above, and suppose (g-gh,q )= O for qE H1. Then
+(4.12) Iv - Vh II + h IIVh (V - Vh)II - ch 2|g|I + ch||g gh ||-1;h,
+where
+111- gh 111-1;h = SUp {9 -gVhkI ' e EH0+Hh, 0 0
+If condition (B4') is assumed instead of (B4), then (4.12) remains valid (but with C - KO1) and additionally (with c - KO 2)
+(4.13) liq -qhIL2/Nh -chllgll+clllg- ghIII-1;h.
+Proof. The proof combines ideas of the papers of Crouxeiz and Raviart [6] and Falk [7]. As some of the arguments will be used again in later sections, we give the full proof here, and occasionally refer to it later. Combining (4.9) and (4.10), we obtain
+(4.14) ah(V -Vh, h) (g-gh, qh)+(q, Vh * Oh)+Fh(V, Oh)-Fh(q, Oh),
+for all kh E Jh. For kh E Jh,
+I(q, Vh 0h)I = I(q-/hq, Vh 0fqh)IC llq -IhqI L Nhll Vh-hl,
+and by (4.4), (4.5),
+IFrh(V, hkh) h(q, h)I )- ch(IIzAvI| + |IVqII)IIVhOhI||
+We set kh = thV - Vh E Jh in (4.14), and obtain
+IIVh (V - Vh)II C CIIVh (V -hV)I + cllq-} hq||L2/Nl + C||g- ghIII-1;h+ ch (IIAv || + ||Vq||).
+Using this, the assumptions (B4), (B3) and (Al) lead to
+(4.15) |IVh (V - Vh)II ch ||g|| + c|||g- gh 1I-1;h.
+To estimate Iv - VhII, we use a duality argument. For fixed h, let w E J1, z E L the (unique) solution of the auxiliary Stokes problem
+(4.16) -AW+VZ=V-Vh infl.
+By assumption (Al),
+(4.17) 11w12 + |IVZII CIIv - Vhll.
+Thus, integrating by parts, we have
+(4.18) Iv -Vh12 = ah(v-Vh, W)-1(V Vh),
+where
+11(+ ) = rl(W, 0) )-3(Z, Z h*X)
+Hence, using (4.14) with kh = thW, we obtain
+(4.19) IIv-Vh12 = ah(v-Vh, W -hW)-1(V Vh) + 2(0hW),
+where
+12(0) = (g - gh, ,) + (q, Vh * h) + hh(v, i)- F(q, /).
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+296 JOHN G. HEYWOOD AND ROLF RANNACHER
+The estimates (4.4), (4.5) imply, for / E J1 + Jh, that
+|f1(O)| --ch(IIAwzwI +I|VzII)11VhOI + I(Z -1hZ, Vh 0)1
+and consequently, using (B3) and (4.17),
+(4.20) Ilbl(V Vh)| --chjjVh(V -Vh)|lllV Vhll.
+Observing X2(w) = 0, we obtain in an analogous way, using (B4) and (4.17),
+112(thW) = 1X2(4thW 
+? ClVh(w-'thW)II{IIIg-gh||-l;h + hllAvll + h||Vq||}
+' chllv-Vh |{{||gg-ght||-l;h + hIlgIl}.
+We insert these estimates for the terms X1 and X2 into (4.19) and find, using (B4) and (4.17),
+i|V-Vhhll ? ch{llVh(V-Vh)11 + tt1 -ghtll-1;h + hIIg1i}.
+This combined with (4.15) gives the velocity error estimate (4.12). Next, we assume condition (B4'), instead of (B4). Combining (4.9) with (4.10) and (4.11), we find
+(4.21) (Xh, Vh [V - Vh]) = 0 for all Xh e Lh,
+(4.22) ah (v - Vh, Oh) -(q -qh, Vh * Oh) = (g-gh, Oh) + Fh(V, Oh)-Fh(q,
+for all Oh e Hh. This time, we set Oh = ihV - Vh e Hh, and using again (4.4 that
+|IVh (v - Vh) C{IIVh (v - ihv)11 + lg-gh|1-1;h+h h( II q + IVqI )}
++cl(q-qh, Vh [ihV Vh])j
+By (4.21),
+(q - qh' Vh [IhV - Vh])| CI-qI-qh || L/Nh|Vh (V- hV)ll
++ liq - hq||L 2/N,11|Vh (V Vh)jj
+Consequently, by (B3) and (Al), for 0 < E < 1, we have
+(4.23) l Vh (v - Vh)I < --lq-qh q L2/N+ cE?h||gII + C|||g ghtIt-l;h
+We use assumption (B4') to conclude that
+Koliq-qh 1- 1 L2?/ - (1 + Ko)|Iq |- |h 11L2/Nh + SUp { (q -qhVh | | h e Hh \{0}}
+From (4.22), using (4.4), (4.5) and assumption (Al), we obtain
+V(q-qhg Vh * 4h)| ClIVhOhlll{Vh (V-Vhh)|| + 11g -ghl||-1;h + hI|gIl}.
+Thus, by (B3) and (Al), and noting Ko : 1, we have
+(4.24) lIq - qh ||L2/Nh - CK01o {1IVh (V -Vh)11 + 11g -gh||-1;h + hIIgIl}.
+Inserting this into (4.23) and taking E sufficiently small, we find
+(4.25) lIVh (V - Vh)1I ?< CK {- g { - ghI||-1;h + hIIgII},
+which combined with (4.24) gives the desired pressure error estimate (4.13).
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 297
+Using the Stokes problem (4.9) and its discrete analogue (4.10), (4.11), one can easily construct an operator 4h: J1 n H2 _, Jh, for which (4.25) ensures
+(4.26) |iVh(W - 0hW)ii ? chil|wii for w e J1 n H2.
+Now, the complete velocity estimate (4.12) follows as before, using the same duality argument. This completes the proof. [1 As a first application of Lemma 4.2, one may see, by setting gh = g for all h: COROLLARY 4.1. The conditions (Al) and (Bi), (B2), (B3) together with (B4') imply the error estimates (3.6), (3.7), and consequently the condition (B4). Moreover, we have: COROLLARY 4.2. Suppose conditions (Al) and (B 1), (B2), (B3), (B4) are satisfied.
+Then there exist (linear) operators ih: J1 + Jh -o Jh, and [h J1 + Jh -_ Jl, such that
+(4.27) ik '0hki| + hi|Vh 0h0i |- chiiVhkii
+and
+(4.28) i0k - II + h i|Vhthll ||? chiiVh1k||
+for q EJ1 + Jh.
+Proof. Clearly, the equations ah(- _h0, qlh) = 0 for all qh E Jh and ah(O th f q) = 0 for all ql e J1 define (linear) bounded operators 4,: J1 + Jh - Jh, and/f": J1 + Jh -- J1, respectively. The L 2-error estimates are obtained by a duality argument, essentially the same as that running between (4.16) and (4.20) in the proof of Lemma 4.2. In fact, identifying either f-4 or - with v - Vh in (4.16), we proceed, finding in place of (4.19) either
+ii4k h+ki = ah(c 409 W - hW)-Xl(k 40)
+or
+110 - [hx5I2 = -Xi(
+respectively, directly from the definitions of A nd eh. The desired results now follow using (4.20). [1 From Assumption (B2), one easily concludes that the bilinear form definite on Hh x Hh, and hence generates an invertible operator /h Hh -* Hh, through the condition
+(4.29) ah(Vh, Oh) =-(hVh Oh) for Vh, Oh e Hh.
+22
+Denoting by Ph :L2- Jh the L discrete analogue of the Stokes operator A = PA defined in ? 2. The restriction of Ah to Jh is invertible, with inverse denoted by A/K'. We have COROLLARY 4.3. The map A IPhz J1 H2 - Jh satisfies
+(4.0) z~KP~~v vi +hihh (-'Ph Av - v)ii ?- ch2i~ Ai
+(4.30) 115 1PhAv v|l+hjj'Vh(Ah h -V|<c lv,
+and the map A 1P h : Jh - J1 fl H2 satisfies
+(4.31) A i hVPzh Vh + +hiVh (P z VP -vh)ii ch |iihVh 1.
+One obtains (4.30) and (4.31) by setting in Lemma 4.2, g = gh = Av and g = gh = AhVh, respectively. The estimate (4.30) shows that 11 j lPhg - A7PgII ' ch2|igiI for g e L2, i.e., Ph,, P converges to Ah' P in the operator norm as h -O0. This implies, for the least eigenvalues y2 and y 2 of -_ and -h, respectively, the convergence -yh -) 'YO as h - 0 (see [18, Ch. 4, ? 2.5], for instance). In fact, one may show directly, using
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+298 JOHN G. HEYWOOD AND ROLF RANNACHER
+(4.30) and (4.31), that y2_ - Yh-< ch2; however, the h2 order of convergence will not be needed below. Finally, we note that
+(4.32) ||Vh|| c YhIIVhVhIl for Vh C Jh.
+LEMMA 4.3. Suppose conditions (Al) and (Bi), (B2), (B3), (B4) are satisfied. Then the L2-projection Ph satisfies
+(4.33) 110 -PhO/4l + hllVhPhq ?| ch lV hOl
+forq5eJl+Jh, and
+(4.34) liv -Phv ||+ hllVh (V -Phv)|| + h 2lAhPhv || C ch 2Avl|
+forv EJAnH2H Proof. The estimate (4.33) and the error estimate
+liv -Phvll+ hllVh(v -Phv)ll ch llAvll for v e J1iHn ,
+are standard consequences of assumption (B4), (4.27), and the inverse inequality (4.1). To complete the proof of (4.34), we notice
+llAhPhV 11 = -(VhPhv VhzAhPhv)
+= (Vh(v -PhV), VhAhPhv) + (AV, AhPhV)-L'h(lV, AhPhV).
+Thus, by (4.4) and the above error estimate,
+IlAhPhV 112 C? cllv lI{h llVh AhPhv II + |llhPhV |},
+which with (4.1) implies llAhPhvll c cllAvil, completing the proof. O COROLLARY 4.4. Under the assumptions of Lemma 4.3, the discrete Stokes operator Ah = Ph Ah satisfies
+(4.35) |lAhVh ll- C cz hVh ll for Vh G Jh.
+Proof. For any given Vh G Jh, let v e J1 n H2 be such that Av = PAhvh in
+llAhvhll-llAh(vh -Phv)ll+ lAhPhvll, and hence, using (4.1) and (4.34),
+llAhvh |- ch lVh - V|| + cl 4 v ||
+Since, by Lemma 4.2, ||v - vhll ' ch lzvl, we obtain (4.35). [ To handle the nonlinear term bh ( , , ), we will need discrete analogues of several Sobolev inequalities. LEMMA 4.4. If conditions (Bl) and (B2) are satisfied, then there hold
+(4.36) lkkIIL6 ?C C lIVhI ||,
+(4.37) IIOIIL3 =C11| 111| liVhO 112
+for k E H j + Hh. If, additionally, (B3) is satisfied, then there also hold,
+(4.38) llVhkhllL6 =C?|AhOhII
+(4.39) l||h||L- + IIQVhkh||L3 ?C Cl|lVhOh 112l lAhkh |11/2
+for Oh C Hh. Proof. To prove (4.36), for any given / e H1 + Hh, let v e H 1 ah(0, f) for all f, e H1. Clearly, IIVvll- llVhOll, and by a sta
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 299
+similar to that used in the proof of Corollary 4.2, now employing the Laplace operator A instead of the Stokes operator A,
+(4.40) liv - 011 -' chIlVhkll.
+Denoting by X the piecewise constant approximation of X, define we obtain
+l+ |IIL6 -- ll0 - kIL6 + |IW V|L 6 + |I|-V IIL6 + liV IIL6
+Hence, by Sobolev's inequality and a dimensional argument,
+IId IIL6 6 ClIVhX ||+ ch-1110 - vii + ciiVvii.
+This and (4.40) clearly imply (4.36). The estimate (4.37) is a simple consequence of Holder's inequality and (4.36). To prove (4.38), for any given kh e Hh, let w e H fn H be such that Aw = Ah h in f. Clearly II|wII = ii|hkh i, and by a standard argument using (B3), one obtains the error estimate
+(4.41) ||W - hll + hllVh(w - 0kh)l -? ch 2|llhkh ii
+Letting X denote the piecewise linear approximation of X defined by JKD (a 
+)dx = O for all Ke ELh and 0 '-1a I ' 1, we find
+IlVhkhIIL 6 = IIVh(h W)IIL6 +|V(w - W)L6 +I|IVWIIL6
+' ch '(IIVh(0h-W )II+ llVh(W - )11) +IIW W |- CllhfOhl1,
+using Sobolev and Poincare-type inequalities and a dimensional argument. Consider now (4.39). The estimate of IIVhkhIIL 3 is again a simple consequence o H6lder's inequality and (4.38). To obtain the estimate for llkhllL-, first note that
+(4.42) IIVwII cCIIVhkhI11
+This easily follows from (4.41) and the inverse inequality ll again is a consequence of (4.1). Then notice, by a dimensional argument, that
+hl||L~ ? ll'h -Wl||L_ + || WAL = ch312llh A|| + AllW|L??
+and further, 11w - _ ch2ll/wll. Hence (4.41) and (4.42), together with the inequality
+) ||W||L? ' C||||L6 ||V lll/62 C||VW111/211AW111/29
+lead to
+ikbh iiLc < ch 1/2 ih0h | + C iiVhkh 112 ihkh 111/2
+The desired estimate now follows using, again, the inverse inequality |llhkhll 'ch'llVhkhll 11 LEMMA 4.5. Suppose conditions (Bi) and (B2) are satisfied. Then, for all v E
+H fn H2 and fl, X E Hj + Hh, there holds
+(4.44) IF2(V, fr X)I + F2(fr v, X) I C chllVv 111/211V 111/2"IIVhfII II VhX
+Proof. We continue to use the notation introduced in the proof of Lemma 4.1. Further, let &j+ denote the mean value of (v . np)O+ on K+ and let co- denote the
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+300 JOHN G. HEYWOOD AND ROLF RANNACHER
+mean value of (v np)Qf on K- (with the obvious modification if F c a). Then
+F2(V, ) =J
+F (v nr){[ O '+f-O [+]}ds,
+and, hence, by assumption (B2),
+Fh(v t4, r) = - J{(v * nr)O-&} [/1ds+Z j{(v nr)(/fY-c} [q]ds.
+By a simple calculation using again a Poincare-type argument and (4.8), we obtain
+ihF(v /, x)I _ chliVhil( iv iiL|iiVhXll + iViiL3iixiiL6)
++ ch iiVhXl( liV iIL-IIVh(ii + IIVV IIL3ii31iiL6).
+Now, the discrete Sobolev inequality (4.36), together with the inequality (4.43), implies the desired estimate for F2(v, f, X). The argument for F2(f, v, X) is similar. O LEMMA 4.6. Suppose conditions (Al) and (Bi), (B2), (B3), (B4) are satisfied.
+Then, there hold
+(4.45) ibh(V, f, X)| + ibh(, v, x)i? 4ciiVvii 2iXvii2iVhifI(iiXii+ hiiVhXIi)
+forveJflnH2 and 0fr,xEH +Hh; and
+(4.46) ibh(qh, ,x)i <CIIVhqhii iiZhdhiliiVh|(iiXii + hllVhXll),
+for Oh G Jh and r, X e H+ Hh. Proof. To prove (4.45), we notice, integrating by parts and observing V * v =0, that
+(4.47) bh(v, f, X) = (v * Vhf, 2) -rF(v, h X)
+Hence, using H6lder's inequality, the Sobolev inequality (4.43) and the estimate (4.44), we obtain
+ibh (v,, x')i X ciiVvi|| 2iAv ii||iiVhO|i(iiXii + h jjVhXji).
+The term bh (f, v, X) may be estimated similarly. This together with (2.3), implies (4.45 To prove (4.46), for any Oh G Jh, let v e J1 n H2 be such that Av = Ahkh in Ql. Then by Lemma 4.2,
+(4.48) liV1-hhii| + hiiVh(v (V-h)ii C chiihh ii
+By construction of v, we have iivvii2= -(Ahkh, V -ihV)+ah(Oh, 'hV), and hence, (4.27) and (4.1),
+(4.49) ||VvI ||_c||V h0h 11
+Using the above notation, we find analogously to (4.47):
+bh (Oh 0, X) = 12(Oh * Vh , X) -21([Oh V I 'V hX, q)
++ 21(V ' V h )2r h(V )
+Thus, by (4.44) and the Sobolev inequalities (4.43), (4.36) and (4.39),
+ibh (kh ,, X)i ? C(iVhkh iiiAh4 ii+iiVvii2iiviih2)ii j+(1 ii+ hil VhXi)
++ |iV -kh iiL3iiVhlll iiVhXiil
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 301
+Combining this with the estimates (4.37), (4.48) and (4.49), and finally (4.35), we obtain (4.46), completing the proof. O Using the estimates (4.4), (4.5) and (4.44) for the solution u, p of problem (1.1), we find under assumptions (Al) and (B1), (B2), that
+(4.50) |Fh(u, p; )) | chjIVh4)IIA for 4 e Ho+Hh,
+with A = (1 +IVuII)IIAujI+IIVpII. Analogously,
+(4.51) IPht( p'P; O)) c ch1iVhO)jB for 4 e Ho+Hh,
+where B = (1 +IVu |)||5 u,||+ liVp,il. J Next we define approximations ShU e Jh for the solution u e J1 of problem (1.1), by requiring
+(4.52) ah(ShU, Oh) = ah(U, '/h)-(P, Vh ' Oh)-rh(U, P; Oh) for all Oh EJh,
+LEMMA 4.7. Suppose conditions (Al) and (BI), (B2), (B3), (B4) are satisfied. Then, for all t E [0, T), the solution of problem (1.1) satisfies
+(4.53) Lu U ShU II + h IIVh (U - ShU) II ' ch A,
+(4.54) 11(U - ShU)tlI + hIIVh (U - ShU)tII C ch B,
+where A and B are as in (4.50) and (4.51). Proof. To apply Lemma 4.2, we make the identification v = u and Vh = Shu. Then, referringto (4.9) and (4.10), we set g -f - Uf - u - Vu E L2, and define the corresponding functional gh by
+(gh, ))=ah(U, 4) -(p, Vh ) -Fh(U, p; q)
+=(f,O)-(ut,O)-bh(U,u,O) forOEH'+Hh.,
+Clearly, (g - gh, ) =0 for 4 e Hl. Moreover, by (4.44),
+(g - gh ,)) = 2|Fh(u, u, 4)1 C chIltVh)l |iVUII 1 uIl
+for 4 e H 1 + Hh. Consequently, the estimate (4.12) implies (4.53). To prove (4.54), we make the identifications v = u, and Vh = (Shu), at the same time setting g =f, - u,, - ut Vu - u * Vut E L2, and defining the functional gh by
+(gh, 4)= ah (Ut, 0) (Pt, 'Vh ' 0) rht(U, p; 0)
+= (ft, 4))-(u,,, 4))-bh(Ut, u, 4))-bh(U, UN 4)
+for 4 E H1 + Hh. Again, (g - gh, 4) = 0 for 4 E H's. Since by (4.44),
+1(9 gh, -2| 2|h( t 2) +|h( U, )
+_ Chi7Vh4)IIIIVItl5 Util
+for 4 eH++Hh, the estimate (4.12) now implies (4.54). 0
+5. Estimates for the velocity error. In this section we derive a series of estimates for the velocity error e = u - uh, leading to the desired result (3.9). We continue using the notation of ?? 2-4. In particular, the generic constant c depends only on fQ and the constants Kl, * ' *, K5 of conditions (B1), - * *, (B4). We will need a second generic constant K, which may depend, additionally, on the data for problem (1.1), through
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+302 JOHN G. HEYWOOD AND ROLF RANNACHER
+the constants M1, M2, M3 of assumptions (A2), (A3). The constant K is also permitted to depend on the constant M4 in (3.8) and on a parameter a,
+(5.1) O<a < inf 2Yh,
+O_h<1
+where y0 and Yh are as in (2.4) and (4.32), respectively. We will generally regard a as a fixed number. Finally, the constant K is always to become small as max {M1, M2, M3, M4} becomes small. As in ? 2, we use the weight functions
+r(t) = min {t, 1}, o-(t) = r(t) e
+For convenience, we also use the abbreviations
+A (t) = (1 + M3)Ij -u (t)|I + ||Vp (t)II,
+B(t) = (1 + M3)II ut (t)|| + I|Vpt(t)|I,
+C(t) = (-1(t) j drA2(r) d1/
+D(t) =(e-at o(r)B Jdr)2
+According to the a priori estimates provided in ? 2,
+(5.2) sup {A(t) + C(t) +D(t)} K.
+[0 T)
+We split the error e = U - Uh into two parts, e = 4 + Ti, where 4 = u - Vh represents the error inherent in the finite element approximation of a linearized (Stokes) problem, and 7T = Vh - Uh represents the error caused by the presence of the nonlinearity in problem (1.1). The linearized equation to be satisfied by the auxiliary function Vh is:
+(5.3) (Vht, Oh)+ah(vh, Oh) = (f, Oh)-bh(u, U, Oh) for all Oh E Jh.
+LEMMA 5.1. Let Vh (t) E Jh be the solution of (5.3) corresponding to the initial value Vh (0) = Pha. Then, the error 4 = U - Vh satisfies
+t
+(5.4) Je af1112 dr ' Ko-(t)h4, 0 t < T.
+Proof. We combine (4.2) with (5.3) to obtain
+(5.5) (4t, Oh)+ah(k, Oh) = (P, Vh Oh)+Fh(U, p; h)
+for all kh E Jh. Then, setting kh = Phe, we have
+2 d 11612 +I IVh6 2 = (4tr, u-Phu) + ah(4, U -PhU) + (P, Vh 'Ph4) +Fh(U
+2 dt
+The terms on the right side will be handled separately. Since Ph commutes with time differentiation,
+ld
+(69 U -PhU) - I d U-PhUII1,
+2 dt
+and by (4.34),
+ahu(, U-Phu) C chIIVh6IIIIuAUII.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 303
+The arguments used following (4.14), combined with (4.50) and (4.33), yield
+(p, Vh ' Phe) + Fh (U, p; Phe) c chAIIVhelII
+Collecting all these estimates, we obtain
+(5.6) d f + 212V.2- djlU _ phUI12 +8Vh:112 + -lh 2A2
+dt +21he =dt 11'h ,
+Multiplying (5.6) by eat, we find
+dt [ at|2] + at(2 - at2- )22. [ea1ld u - PhUI12] + c6-1 eth 2A2,
+dt 3e+o(2ah1)II'Vhe:I dt e'uehA
+noting, as a consequence of (4.32) and (4.34), that
+IIU-Vh || < Yh lIVh (U - Vh )|I + ch IIAu II.
+1 2.
+One may now set 8 = 1- faYh, integr la -Phall and lu -PhuII?II:lll, to obtain
+oo
+(5.7
+To estimate the L2-error, we use a parabolic duality argument. For fixed h > 0 and t c (0, T), let w(r) E J1, q(r) e L2/R, be the (unique) solution of the "backward" Stokes problem
+(5.8) WT+Aw-Vq =e" for0r-'?t, w(t)=0.
+By the a priori estimate (2.29), with time reversed,
+I. t
+(5.9) J
+On the other hand, for any r e [0, t], we have
+eaTII4112 = (4:, WT) ah (4, W) + 1(4),
+where
+11(e) = (q, Vh *)+ htW )-h(q, 6).
+Thus, using (5.5) with Oh = PhW, one obtains
+e`I4112 =d (4: w) - (e:,, w -PPhw) - ah (4, W -Phw) -X(4:) 2(Ph
+where
+X2(PhW) = (p, Vh PhW) + Fh (U, p; PhW).
+Observing
+d
+((T, W-_PhW) = W (f -PhW) -(U -PhU, WT)
+d-r
+we arrive at
+(5.10) e I - (4: PhW) + (U PhU, WT) - ah (4 W -PhW)-1()- 2(PhW).
+dr
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+304 JOHN G. HEYWOOD AND ROLF RANNACHER
+By arguments used following (4.14), and using also (4.34), one finds
+II, (0 C chiVheill{lAw 1 + liVq1l},
+112(PhW)l = 112(PhW- w) C ch IAwIA.
+By a simple calculation using these estimates, we obtain, for E e (0, 1],
+eatIIfil2 c- (f Pw) + 2 e {IIAw12 + IIWT112 + 11Vqj2}
+d,T
++CE eaTh 2lVh4I2 +c?l eceh A
+Integrating with respect to time and choosing E sufficiently small, in accordance with (5.9), we are led to
+Joea'||(||2 d7'-c(l-2ayo)- e{Vhe + J dld}.
+This, combined with (5.7) and (5.2), yields (5.4) [1 LEMMA 5.2. The error e = u -Vh defined in Lemma 5.1 satisfies
+(5 .11) jj((t)jj + h IIVhe(0IIl C h2 0 t < T.
+Proof. Using the equations (5.3) and (4.52), satisfied by Vh and Shu, re we find by an elementary calculation:
+([Shu - VhIt, kh) + ah(Shu - Vh, kh) = ([Shu - UIt, kh),
+for all h G Jh. Thus, setting Oh = Shu - Vh, we have
+2 jS ||Shu-VhI2 _([ShU-Ut], ShU-Vh).
+2 dt
+We multiply this by o-(t) and integrate with respect to time to obtain
+1 1 ea T { 11U-Shu12 + 114112} d t + j 1-1(S2 u-u)tII di.
+Consequently, using the estimates (4.53) and (4.54) for u -ShU, and Lemma 5.1, we arrive at
+lIShu -h || _ ch4{C2 + D2}
+Combining this with (5.2) and the inverse relation (4.1), we get
+(5.12) ttShu -0VhII+ hIIVh(ShuV-h1U)1V _ h KU
+Finally, this combined with (4.53), yields (5.11). [1l LEMMA 5.3. The function Vh(t) defined in Lemma 5.1 satisfies
+(51) IIVh (t)||L~ + IIVhVh (t)11L3 ? CIlVu (t)|l12lIAu (t)11112 + Kh'1/2 0
+Proof. By a standard argument similar to that used in the proof of Lemma 4.4, we obtain (remembering t = u - Vh)
+11Vh11LC 11IIV 1 + ch 31121k1 + th 1/2 I+ 11,
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 305
+and analogously,
+IIVhVhIIL3 C |IVUIIL3 + ch"2'IIVh4iI + ch 12'l'ull.
+Thus, (5.11) and Sobolev's inequality (4.43), combined with (Al) and (5.2), imply (5.13). 1I LEMMA 5.4. Let Vh (t) be as defined in Lemma 5.1. Then, for 0? t < T
+7 = Vh - Uh satisfies
+(5.*14) ||, (t)|| + h ||Vhq (t)|| - h2eKt
+or, more precisely,
+(5.15) [r7 (t)IV + h IIVh77(t)2Kh4 eH(t) + e-H(T) dr
+where H(t) = A {cIIVu(r)IIIIlu(r)||+Kh - yI2} dr. Proof. We combine the equations (5.3) and (3.3), satisfied by Vh and Uh, respectively, to obtain
+( 7t, Oh) + ah (qI, Oh) = bh (Uh, Uh, Oh) bh (U, U, Oh) for Oh EJh
+Then, setting Oh = , and observing bh(', r, '1) = 0, we find
+(5.16) 1 d jj77j12 +flVh7 1l2= A,
+where A=-bh(e,Vh,)-bh(U, 77), and as above U=U-Vh, e=u
+obvious way, H6lder's inequality and the discrete Sobolev inequality (4.36), we find
+Ibh (e, Vh, 77)1 I c i|e|11 I|Vhnhi(IIVhIIL- + IIVhVhIIL3).
+Further, by (4.45),
+bh (u A ) | cIIVuII112IIi&u I1112lVh7 l1106(Ii1 + h IIVhfI|).
+Hence, using (5.13) and observing that e = 4 + 77, we have
+A E) (t)IlVhr l110(1 II + l|ell + h IIVh4Il),
+with 0(t)=cIIVu(t)11"2IIAu(t)11112+Kh"2. We insert this into (5.16) and absorb IIVhrIII into the left side, getting
+d 11,112 + IVh'T112 E02(t)(IIqI12 + 11112 + h21IVh I12).
+Finally, using the inequality (4.32) and Lemma 5.2, we find
+(5.17) d 11 712.{ 02(t)-_42}1177112+ Kh4.
+Using Gronwall's inequality and noting
+1171(0)11 = IlPha - ahl < Ia - ahIl |Kh
+one thus obtains
+(5.18) 1177 (t)112 ?,Kh4 eH(t)j 1 + J eH(T) d},
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+306 JOHN G. HEYWOOD AND ROLF RANNACHER
+with rt H(t)- 2 {9(T) -Y-2 } dr ' Kt.
+Hence, (5.18) and the inverse relation (4.1) imply the desired estimates (5.14) and (5.15). This completes the proof. [1 Combining Lemmas 5.2 and 5.4 gives the estimates, for the total error in the velocity approximation, stated in ? 3. We obtain
+(5.19) Ile (t)II + h |lVh e (t)II '-- h2,l (t), O '-- t < T,
+with a function 3 (t) of the form
+2 (t)K{1 + eH(t) + eH(t) dr}.
+The following estimates are provided in preparation for proving an error estimate for the pressure approximation, and for use in Part II of this investigation. LEMMA 5.5. The discrete velocity Uh satisfies, for 0 < t < T,
+(5.20) sup {IllAhUhII +I UhtIl} ?K +c (sup 11VhUh II+ sup |lVhUh II),
+(0,0t (0,t) (0,0t / j.5 ~~~~~1/2
+(5.21) sup(e-| e aTIVhuht12d d K +c (sup lIVhUh II+ SUP IIVhUhII5)
+(0, t) (0,t) (0,t)
+Proof. We reason along the same lines as in establishing (2.15) and the first part of (2.16), for the continuous problem. To obtain a discrete analogue of (2.11), we set
+'h = AhUh in (3.3), getting
+2 d i2VhUh 1 + 112hUh 1 = bh (Uh Uh, LhUh) (f AhUh).
+Then, since
+(5.22) |bh(Uh, Uh, ZhUh)C IVhUh hu h ||/2
+holds by (4.46) combined with (4.1), we conclude that
+(5.23) dt lVhUhl2 + L5hUh = ClIVhuh16 +cIfl
+Now, we proceed, finding discrete analogues of the estimates (2.18) through (2.23). In deriving an analogue of (2.19), we use the estimate
+|bh (Uh, Uh, Uht)| C CliVhUhI |AhUhl |Uht|l,
+obtained again from (4.46) and (4.1). In proving an analogue of (2.21), we find
+lbh (Uht, Uh, Uht)l C ClIVhuhl 1lUhtll IlVhUhtl ,
+using (4.36) and (4.37). Finally, (5.22) is used again in obtaining an analogue of (2.23). This completes the proof. [1
+6. Estimates for the pressure error. In this section we prove the error estimate (3.10), for the discrete pressure. Our assumptions are as in ? 5, except that now (B4') is assumed, and the generic constants c and K may depend on Ko. We also use a generic constant K, of the form c + K, which differs from K in that it need not tend to zero as max {M1, M2, M3, M4} tends to zero.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 307
+LEMMA 6.1. The discrete pressure Ph satisfies, for 0 ? t < T,
+(6.1) II(P Ph)(t)I1L2/Nh I(Kh +cljl et(t)ii[lI;h +(K +cllellL3)I
+where the normllj * l11-1;h is as defined in Lemma 4.2. Proof. We use assumption (B4') to conclude
+IIP -Ph ilL2/Nh - Clp I hPIIL2/Nh + C SUP I IV;h,kh 'h ) , Hh/{h}} 0
+Combining (3.4) and (4.2), we obtain
+(P-Ph, Vh *'h) = (et,Oh)+ah(e,4h)+A for Oh cHh,
+where
+A=bh(u, U, Oh)-bh(uh, Uh, Oh)-rh(U,P; Oh)
+= -bh(e, e, Oh)+bh(u, e, kh)+bh(e, u, Oh)-Fh(U,P; pkh))
+Using the estimate (4.50), for Fh(*, *; *), and, in an obvious way, Holder's inequality and the discrete Sobolev inequality (4.36), one finds
+A < (K + c lie ll 3)ilVhe ii |lVh4h || + Kh IiVhfh II.
+This clearly implies (6.1). u
+Since we have already estimated iiVhell, it remains to bound iiiet(t)iiL_-;h. Unf nately, we have not succeeded in estimating this "discrete" negative Sobolev norm in an optimal way. We use somewhat crudely the estimate (based on (4.36))
+(6.2) |llet(t)III-1 ;h C- c|Iet(t)||,
+which, in general, results in a singular behavior, 0(t1 /2), LEMMA 6.2. The velocity error e = U - Uh satisfies
+(6.3) f eaiietii2 dT _ eat {Kh + K8h(t) sup IIVh eii}
+O (O,t)
+for 0_ t < T, Proof. Using the defining equations for Uh and Shu, (3.3) and (4.52), respectively, we find
+(6.4) ([Shu - Uh ]t, h) + ah (Shu - Uh, h) = ([ShU -U ]t, Oh) + A
+for 'h E Jh, where
+(6.5) A = bh (Uh, Uh, Oh)-bh (U, U, Ph)= bh(e, e, 'Ph)-bh(e, u, Oh)- bh(u, e, 'h).
+We use (4.45) combined with (4.1) to see
+ibh(e, U, 'h)i+ibh(u, e, Oh)i KiiVheiiii'0hii
+Further, using Holder's inequality and the discrete Sobolev inequality (4.36), we obtain
+ibh (e, e, 'h)I < ciieiiL31iVhei|i VhPh ii
+Hence, setting 'h = (Shu - Uh)t in (6.4), and using (4.1), we find
+(6.6) ii(Shu -uh)t11 + d iiVh (Shu-Uh)11 I cii(Shu )t11 + K$ h (t)ilVhe
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+308 JOHN G. HEYWOOD AND ROLF RANNACHER
+Next, we multiply (6.6) by eat and integrate with respect to time, h2 - t, to obtain
+1| eTl(ShU -Uh)t12 d 2r(h)+ J Vh(ShU Uh)ll r (6.7) t t
+Jc| e'||~(U
+h2h
+where 0(r) =
+(6.8) e ||(u
+Furthermore, by the estimates (4.53) and (5.2),
+(6.9) |e aIVh (Shu -Uh )ll dr ' eatKh2 + efa, eIIVhe 12 dr
+h2 0
+and
+(6.10) 0(h2) Kh2+cIIVh e(h2)I2.
+Inserting (6.8), (6.9) and (6.10) into (6.7), we obtain
+t
+e l(ShU - uh)tI dr c e {Kh2+K8h(t) sup IIVheiI2},
+h 2 (0, t)
+and consequently, using again (6.8),
+t
+(6.11) ft ecrflletla 2 drceat{Kh2+ K-2(t) sup IIVh e112}.
+h2 (0, t)
+In virtue of the a priori estimates (2.15) and (5.21), and using (5.13), (5.14) to estimate
+IIVhUh l, one finds
+h2
+(6.12) e e t7jjejj2 dr?Kh2
+Combining (6.11) and (6.12), we finally obtain (6.3). tl Finally, we are able to prove: LEMMA 6.3. The velocity error e = U - Uh satisfies, for 0 < t < T,
+(6.13) IIet(t)II _ lr-12(t){Kh +Kh3h(t) sup IIVheII},
+(O t)
+where r(t) = min (t, 1), and h(t) = 1 + h -lsup(o,t)lleIIL3+SUp(o,t)lIVh eli. In the special case a = 0, f( ,0)0, there holds
+(6.14) IIet(t)II C Kh +Kf35(t) sup IlIVh el, 0 < t < T.
+(o,t)
+Proof. We combine the equations (4.2) and (3.3), satisfied by u and Uh respectively, to obtain
+(6.15) (et, kh)+ah(e, Oh) = bh(Uh, Uh, kh)-bh(U, U, qh)+(P, Vh * 4h)+Fh(U, p; Oh),
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 309
+for Oh e Jh. After differentiating (6.15) with respect to the fact that Ph commutes with time differentiation, to conclude
+(6.16) dt IetI2 + IVhetII2t Iu,- PhUt+ IVh (U-Phu)t11 + 2X + 2A,
+where
+X = (Pt, Vh Phet) + Fht(U, p; Phet),
+and
+A = bh (uht, Uh, Phet) + bh (Uh, Uht, Phet) - bh (ut, u, Phet) - bh (U, ut, Phet)
+- bh (Uht, e, Phet) - bh (et, u, Phet) - bh (e, Uht, Phet) - bh (u, et, Phet).
+Multiplying (6.16) by o(t), integrating with respect to time, and noting (6.3) implies
+ou(t)IIet(t)112-0 as t-*O, we get
+t
+oietII2 + |- Vhetl2 dr
+0
+(6.17)
+(1 _ II|eI2
+Using a previous argument, which occurred following (4.14), as well as (4.51) and the estimate (4.33) in the form
+(6.18) IIVhPhetlI _ C |Vhetll,
+we obtain
+(6.19) : ' chB (t)IIVhetI.
+The several terms of A are estimated using (6.18), Sobolev's inequality, and the discrete Sobolev inequality (4.36):
+Ibh (et, u, Phet)I + Ibh (u, et, Phet)I KIletIl IIVhetIl,
+Ibh(uht, e, Phet)l + Ibh(e, Uht Phet)l C CIIVhUhtII IIVhetII IIVheII.
+Combining these, we have
+(6.20) A ' KIletIl IIVhetIl + ClIVhUhtIl lIVhetIl IlVhell.
+Inserting (6.19) and (6.20) into (6.17), absorbing IlVhetll into the left side, and usin (4.34), one finds
+o-Iet||< K J eIletj dr + o-Iut-PhUJl2
+(6.21) t t
++ c sup IIVheII2
+(O t)
+Thus, by Lemma 6.2, the estimate (4.33) for Ph, and the a priori estimates (5.2) and (5.21), we obtain
+(6.22) oieIetI2 - eat{Kh +KfG3h (t) sup IIVheII}2+ co-h2IVutII2.
+(O,t)
+This, combined with the a priori estimate (2.16), yields the desired estimate (6.13).
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+310 JOHN G. HEYWOOD AND ROLF RANNACHER
+To prove (6.14), we must modify the argument somewhat. Starting with (6.16), we multiply by e"t and integrate with respect to time. Then, by the same reasoning as led to (6.22), we find
+eatIIetII2? e at{Kh + K/35 (t) sup IIVhe1}2 + let(0)112
+(Ot)
+(6.23)
++ ch2 eat{ llVutll2 + e -at eaTB2(r) dr}
+Now, in the special case a = 0, fQ *, 0) =0, the a priori estimates of Theorem 2.3 ensure that
+t
+(6.24) llVut(t)112 +e -atJ earB2(r) dr ?K 0? t < T.
+Furthermore, in this case we may take p(0) = 0 and ah = 0. Thus, from the equations (1.1) and (3.3), evaluated at t = 0, we conclude et(0) = 0. Consequently, inserting (6.24) into (6.23), we obtain the desired estimate (6.14). 0 Combining the estimates (6.1), (6.13) and (6.14), we find the pressure error must always satisfy
+(6.25) lI(P -Ph)(t)11L2/N C r1(t){Kh +Kgh(t) sup llVh ell}
+(O,t)
+for 0 < t < T; in the special case a = 0, f*, 0) 0, it satisfies the improved estimate
+(6.26) lI(P Ph)(t)11L2/Nh-Kh +Kgh(t) sup llVheli
+(Olt)
+for 0 ? t < T. In these estimates, 13h (defined in Lemma 6.3) may be bounded as follows:
+(6.27) /3h (t) ' 1 + ch sup |lVhelI.
+(O,t)
+As a consequence of the error estimate (5.19), we have
+(6.28) 3h (t) _1 + cO (t) for 0 _< t-'S T.
+Hence the velocity error estimate (5.19), combined with the above estimates, implies the pressure error estimate (3.10).
+REFERENCES
+[1] A. G. BAKER, Galerkin approximations for the Navier-Stokes equation. Przprint Cambridge, Mass., 1976. [2] M. 0. BRISTEAU, R. GLOWINSKI, B. MANTEL, J. PERIAUX, P. PERRIER AND 0. PIRONNEAU, A finite element approximation of Navier-Stokes equations for incompressible viscous fluids: Iterativ methods of solution, Proc. IUTAM Symposium on Approximation Methods for Navier-Stokes Problems, Paderborn, W. Germany, 1979, Lecture Notes in Mathematics 771, Springer, New York, 1980. [3] L. CATTABRIGA, Su un probleme al contorno relativo al sistema di equazioni di Stokes, Rend Mat. Univ. Padova, 31 (1961), pp. 308-340. (In Italian). [4] A. CHORIN, Numerical solution of the Navier-Stokes equations, Math. Comp., 23 (1968), pp. 341-3 [5] P. G. CIARLET, The Finite Element Method for Elliptic Problems. North-Holland, Amsterdam, 19 [6] M. CROUXEIZ AND P.-A. RAVIART, Conforming and nonconforming finite element methods fo solving the stationary Stokes equation, RAIRO Anal. Numer., 3 (1973), pp. 33-76. [7] R. S. FALK, An analysis of the finite element method using Lagrange multipliers for the station Stokes equation, Math. Comp., 134 (1976), pp. 241-249.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms
+
+
+NAVIER-STOKES PROBLEM: FINITE ELEMENT APPROXIMATION 311
+[8] M. FORTIN, Resolution des equations des fluides incompressibles par la methode des element finis, Proc. 3rd. International Conference on the Numerical Methods in Fluid Mechanics, SpringerVerlag, Berlin-Heidelberg-New York, 1972. [9] V. GIRAULT AND P.-A. RAVIART, Finite Element Approximation of the Navier-Stokes Equations, Lecture Notes in Mathematics 749, Springer, New York, 1980. [10] R. GLOWINSKI, B. MANTEL, J. PERIAUX AND 0. PIRONNEAU, H1 Least squares meth Navier-Stokes equations, Proc. 1st International Conference on Numerical Methods in Laminar and Turbulent Flow, Pentech Press, London, 1978. [11] P. M. GRESHO, R. L. LEE AND R. L. SANI, On the time-dependent solution of the incompressible Navier-Stokes equations in two and three dimensions, in, Recent Advances in Numerical Methods in Fluids, Pineridge Press, Swansea, U.K., to appear. [12] D. F. GRIFFITHS, Finite elements for incompressible flow. Math. Methods Appl. Sci., 1 (1979), pp. 16-3 1. [13] J. HEYWOOD, The Navier-Stokes equations: On the existence, regularity and decay of solutions, Indiana Univ. Math. J., 29 (1980), pp. 639-681. [14] J. HEYWOOD, Classical solutions of the Navier-Stokes equations, Proc. IUTAM Symposium on Approximation Methods for Navier-Stokes Problems, Paderborn, W. Germany, 1979, Lecture Notes in Mathematics 771, Springer, New York, 1980. [15] J. HEYWOOD, On classical solutions of the nonstationary Navier-Stokes equations in two and three dimensions, Fluid Dynamics Trans., 10 (1980), pp. 177-203. [16] E. HOPF, Ein allgemeiner Endlichkeitssatz der Hydrodynamik, Math. Ann., 117 (1940-41), pp. 764-775. [17] P. JAMET AND P. A. RAVIART, Numerical solution of the stationary Navier-Stokes equation by finite element methods, in Computing Methods in Applied Sciences and Engineering, Part 1, Lecture Notes in Computer Sciences 10, Springer, Berlin-Heidelberg-New York, 1974. [18] T. KATO, Perturbation Theory for Linear Operators, Springer-Verlag, Berlin-Heidelberg-New York, 1966. [19] R. B. KELLOGG AND J. E. OSBORN, A regularity result for the Stokes problem in a convex polygon, J. Funct. Anal., 21 (1976), pp. 397-431. [20] 0. A. LADYZHENSKAYA, The Mathematical Theory of Viscous Incompressible Flow, Gordon and Breach, New York, 1962. [21] 0. A. LADYZHENSKAYA, On convergent finite differences schemes for initial boundary value problems for Navier-Stokes equations, Fluid Dynamics Trans. 5 (1969), pp. 125-134. [22] M. LUSKIN AND R. RANNACHER, On the smoothing property of the Galerkin method for parabolic equations, this Journal, 19 (1981) pp. 93-113. [23] J. T. ODEN, Penalty methods and selective reduced integration for Stokesian Flows, Proc. 3rd. International Conference on Finite Elements in Flow Problems, vol. II, Banff, Canada, 1980. [24] M. D. OLSON, Comparison of various finite element solution methods for the Navier-Stokes equations, in Finite Elements in Water Resources, Pentech Press, London, 1977. [25] R. RANNACHER, On the finite element approximation of the nonstationary Navier-Stokes problem, Proc. IUTAM Symposium, on Approximation Methods for Navier-Stokes Problems, Paderborn, W. Germany, 1979, Lecture Notes in Mathematics 771, Springer, New York, 1980. [26] R. RAUTMANN, On the convergence-rate of nonstationary Navier-Stokes approximations, Proc. IUTAM Symposium on Approximation Methods for Navier-Stokes Problems, Paderborn, W. Germany, 1979, Lecture Notes in Mathematics 771, Springer, New York, 1980. [27] R. RAUTMANN, Eine Fehlerschranke fur Galerkinapproximationen lokaler Navier-Stokes-Ldsungen, in Constructive Methods for Nonlinear Boundary Value Problems and Nonlinear Oscillations, J. Albrecht, L. Collatz, and K. Kirchgassner, eds., ISNM 48, Birkhauser, Basel, 1979, pp. 110-125. [28] R. L. SANI, P. M. GRESHO, R. L. LEE AND D. F. GRIFFITHS, The cause and cure (?) of the spurious pressures generated by certain FEMsolutions of the incompressible Navier-Stokes equations, Internat. J. Numer. Methods Fluids, 1 (1981), pp. 000-000 [29] R. TEMAM, Navier-Stokes Equations, North-Holland, Amsterdam, 1977. [30] M. F. WHEELER, A priori L2 error estimates for Galerkin approximations to parabolic partial different equations, this Journal, 10 (1973), pp. 723-759.
+This content downloaded from
+134.157.23.126 on Fri, 31 Jul 2026 20:37:56 UTC All use subject to https://about.jstor.org/terms

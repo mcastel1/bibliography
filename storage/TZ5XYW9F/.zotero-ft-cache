@@ -1,0 +1,1344 @@
+TANGENTIAL NAVIER-STOKES EQUATIONS ON EVOLVING SURFACES: ANALYSIS AND SIMULATIONS∗
+MAXIM A. OLSHANSKII† , ARNOLD REUSKEN‡ , AND ALEXANDER ZHILIAKOV§
+Abstract. The paper considers a system of equations that models a lateral flow of a Boussinesq–Scriven fluid on a passively evolving surface embedded in R3. For the resulting Navier-Stokes type system, posed on a smooth closed time-dependent surface, we introduce a weak formulation in terms of functional spaces on a space-time manifold defined by the surface evolution. The weak formulation is shown to be well-posed for any finite final time and without smallness conditions on data. We further extend an unfitted finite element method, known as TraceFEM, to compute solutions to the fluid system. Convergence of the method is demonstrated numerically. In another series of experiments we visualize lateral flows induced by smooth deformations of a material surface.
+1. Introduction. There is extensive literature on analysis and numerical simulation of the incompressible Navier-Stokes equations, a fundamental model of fluid mechanics. While the overwhelming majority of papers in this field treats these equations in Euclidean domains, there also is literature on analysis of the incompressible Navier-Stokes equations on surfaces, or more general on Riemannian manifolds. Building on a fundamental observation made by Arnold [2] that relates equations of incompressible fluid to finding geodesics on the group of all volume preserving diffeomorphisms, local existence and uniqueness results for Navier-Stokes equations on compact oriented Riemannian manifolds were proved in the seminal paper [11]. This work has been followed by many other studies, cf. [44, 42] and the overview in [8]. Very recent activity in the field includes the work [33, 40], in which local-in-time-well-posedness in the framework of maximal regularity is established. All these papers restrict to stationary surfaces or manifolds. In recent years there has been a growing interest in fluid equations on evolving surfaces [47, 20, 16, 24, 38], motivated in particular by applications to modeling of biological membranes, e.g. [39, 34, 4, 45]. In [6] one finds an overview and comparison of different modeling approaches for evolving viscous fluid layers that result in the surface NavierStokes equations. We are not aware of any literature presenting well-posedness analysis of this system on evolving surfaces. Furthermore, only very few papers address numerical treatment of such equations. In [36, 37] computational results are presented, based on a surface vorticity-stream function formulation of the Navier-Stokes equations. The surface motion is prescribed and the evolving SFEM of Dziuk-Elliott [9, 10] is applied to the partial differential equations for the scalar vorticity and stream function unknowns. The authors of [26] consider another discretization approach that is based on the techniques developed in [38]. These papers focus on modeling and illustration of certain interesting flow phenomena but not on the performance of the numerical methods. Several recent papers [17, 5, 14, 19] present error analysis of finite element discretization methods for vector valued PDEs on
+∗This work was partially supported by US National Science Foundation (NSF) through grants DMS1953535 and DMS-2011444. †Department of Mathematics, University of Houston, Houston, Texas 77204 (molshan@math.uh.edu) ‡Institut f ̈ur Geometrie und Praktische Mathematik, RWTH-Aachen University, D-52056 Aachen, Germany (reusken@igpm.rwth-aachen.de) §Department of Mathematics, University of Houston, Houston, Texas 77204 (alex@math.uh.edu)
+1
+arXiv:2203.01521v1 [math.AP] 3 Mar 2022
+
+
+stationary surfaces. We are not aware of any paper with a systematic numerical study or an error analysis of a discretization method for vector valued PDEs on evolving surfaces. We conclude that in the field of incompressible Navier-Stokes equations on time-dependent surfaces basic problems related to well-posedness of the systems, development and analysis of numerical methods remain open. This paper addresses two of these problems: wellposedness and numerical method development.
+It is shown in [6] that several different modeling approaches all yield the same tangential surface Navier-Stokes equations (TSNSE). These equations govern the evolution of tangential velocity and surface pressure if the normal velocity of the surface is prescribed. The main topic of the present paper is the analysis of a variational formulation of the TSNSE. In particular, a well-posedness result for this formulation is proved. To the best of our knowledge, this is the first well-posedness result for evolving surface Navier-Stokes equations. The paper also touches on the development of a new discretization method for the TSNSE. This method combines an implicit time stepping scheme with a TraceFEM [27, 30] for discretization in space. We explain this method, validate its optimal second order convergence for a test problem with a known solution and apply it to the simulation of a lateral flow induced by deformations of a sphere. Error analysis of this method is not addressed in this paper and left for future research.
+The remainder of the paper is organized as follows. In section 2 we recall the surface Navier-Stokes equations known from the literature. In particular, the tangential surface Navier-Stokes equations are described. Appropriate function spaces for a variational formulation of the TSNSE are introduced in section 3. Relevant properties of these spaces are derived. The main results of this paper are given in section 4. We introduce and analyze two variational formulations of the TSNE: The first one is for the tangential velocity only, which is solenoidal by construction of the solution space. Then we introduce the pressure and study a mixed variational problem. For both formulations well-posedness results are derived. In section 5 we explain a discretization method. Finally, section 6 collects and discusses results of numerical experiments.
+2. Surface Navier–Stokes equations. We first introduce necessary notations of surface quantities and tangential differential operators. For a closed smooth surface Γ embedded in R3, the outward pointing normal vector is denoted by n, and the normal projector on the tangential space at x ∈ Γ is P = P(x) = I − nnT . Let H = ∇Γn ∈ R3×3 be the Weingarten mapping (second fundamental form) and κ := tr(H) twice the mean curvature. For a scalar function p : Γ → R or a vector field u : Γ → R3 their smooth extensions to a neighborhood O(Γ) of Γ are denoted by pe and ue, respectively. Surface gradients and covariant derivatives on Γ can be defined through derivatives in R3 as ∇Γp = P∇pe, DΓu := ∇ueP, and ∇Γu := P∇ueP. These definitions are independent of a particular smooth extension of p and u off Γ. The surface rate-of-strain tensor [13] is given by Es(u) := 1
+2 (∇Γu + ∇ΓuT ), the
+surface divergence and curlΓ operators for a vector field u : Γ → R3 are divΓu := tr(∇Γu) and curlΓ u := (∇Γ × u) · n. For a tensor field A = [a1, a2, a3] : Γ → R3×3 , divΓA is defined row-wise and DΓA is a third-order tensor such that (DΓA)
+i,j,k = (DΓaj
+)
+i,k .
+We now let Γ(t) be a material surface embedded in R3 as defined in [13, 25], with a density distribution ρ(t, x). By u(t, x), x ∈ Γ(t), we denote a velocity field of the density
+2
+
+
+flow on Γ, i.e. u(t, x) is the velocity of a material point x ∈ Γ(t). The derivative f. of a surface quantity f along the corresponding trajectories of material points is called the material derivative. Assuming the surface evolution is such that the space-time manifold
+S=
+⋃
+t∈[0,T ]
+{t} × Γ(t) ⊂ R4
+is smooth, the material derivative can be defined as
+f. = ∂f e
+∂t + (u · ∇)f e on S, (2.1)
+where f e is a smooth extension of f : S → R into a spatial neighborhood of S. Note that
+f. is a tangential derivative for S, and hence it depends only on the surface values of f on
+S. For a vector field v on S, one defines .v componentwise.
+The conservation of mass and linear momentum for a thin material layer represented by Γ(t) together with the Boussinesq–Scriven constitutive relation for the surface stress tensor and an inextensibility condition leads to the surface Navier-Stokes equations:
+
+ 
+ 
+ρu. = −∇Γπ + 2μ divΓ(Es(u)) + b + πκn
+divΓu = 0
+ρ. = 0
+on Γ(t), (2.2)
+where π is the surface fluid pressure and μ stands for the viscosity coefficient. Equations (2.2) model the evolution of an inextensible viscous fluidic material surface with acting area force b, cf. [20, 16] for derivations of this model and [6] for a literature overview and alternative forms of this system. The pure geometrical evolution of Γ(t) is defined by its normal velocity VΓ = VΓ(t) that is given by the normal component of the material velocity,
+VΓ = u · n on Γ(t). (2.3)
+If b is given or defined through other unknowns, then (2.2)–(2.3) form a closed system of six equations for six unknowns u, π, ρ, and VΓ, subject to suitable initial conditions.
+2.1. Tangential surface Navier-Stokes equations. We now introduce a major simplification by assuming that the geometric evolution of Γ is known. We make this more precise below and derive equations governing the unknown lateral motions of the surface fluid. To this end, consider a smooth velocity field w = w(t, x) in [0, T ] × R3 that passively advects the embedded surface Γ(t) given by
+Γ(t) = {y ∈ R3 | y = x(t, z), z ∈ Γ0}, (2.4)
+where the trajectories x(t, z) are the unique solutions of the Cauchy problem
+{
+x(0, z) = z
+d
+dt x(t, z) = w(t, x(t, z)), (2.5)
+3
+
+
+for all z on an initial smooth connected surface Γ0 = Γ(0) embedded in R3. We now assume that the normal material motion of Γ is completely determined by the ambient flow w and the lateral material motion is free, i.e., for the given w the relation
+u · n = w · n on Γ(t) (2.6)
+holds for the normal component1 uN = u · n, while the tangential component uT of the surface fluid flow is unknown and depends on w only implicitly through the variation of Γ(t) and conservation laws represented by equations (2.2). The resulting system can be seen as an idealized model for the motion of a fluid layer embedded in bulk fluid, where one neglects friction forces between the surface and bulk fluids as well as any effect of the layer on the bulk flow. In such a physical setting, (2.6) means non-penetration of the bulk fluid through the material layer. Material trajectories of points on the surface are defined by the flow field u, rather than w. We are also interested in a derivative determined by the variation of a quantity along the so-called normal trajectories defined below. Definition 2.1. Let Φtn : Γ0 → Γ(t), be the flow map of the pure geometric (normal) evolution of the surface, i.e., for z ∈ Γ0, the normal trajectory xn(t, z) = Φtn(z) solves
+{
+xn(0, z) = z,
+d
+dt xn(t, z) = wN (t, xn(z, t)). (2.7)
+Eq. (2.7) defines a bijection between Γ0 and Γ(t) for every t ∈ [0, T ] with inverse mapping Φn−t. The Lagrangian derivative for the flow map Φtn is denoted by ∂◦:
+∂◦v(t, x) = d
+dt v(t, Φn
+t (z)), x = Φn
+t (z). (2.8)
+We call ∂◦v the normal time derivative of v.
+It is clear from (2.8) that this normal time derivative is an intrinsic surface quantity. Similar to the material derivative in (2.1), it can be expressed in terms of bulk derivatives if one assumes a smooth extension of v from S to its neighborhood:
+∂◦v(t, x) = d
+dt v(t, xn(t, z)) =
+( ∂ve
+∂t + (wN · ∇)ve)
+(t, x) (2.9)
+for (t, x) ∈ S. Comparing the material and normal time derivatives of a flow field v on the surface we find the equality
+P .v = P∂◦v + (∇Γv)uT .
+With the splitting v = vT + vN we get
+P .v = P∂◦vT + P∂◦vN + (∇ΓvT )uT + (∇ΓvN )uT . (2.10)
+1For velocity fields v ∈ R3 defined on Γ(t) we use a splitting into tangential and normal components v = vT + vN = vT + vN n, with vN = v · n.
+4
+
+
+Noting that Pn = 0 and P∂◦n = −∇ΓwN (cf. (2.16) in [16]), we rewrite P∂◦vN as
+P∂◦vN = ∂◦vN Pn + vN P∂◦n = vN P∂◦n = −vN ∇ΓwN .
+We also have the relation (∇ΓvN )uT = vN HuT . Using these results and letting v = u in (2.10) one obtains
+Pu. = P∂◦uT + (∇ΓuT )uT + wN HuT − 1
+2 ∇Γw2
+N , (2.11)
+where we also used uN = wN . To derive an equation for the unknown tangential velocity uT ,
+we apply the projection P to the first equation in (2.2). For Pu. we have the result (2.11). Note that the term 1
+2 ∇Γw2
+N is known and can be treated as a source term. For a stationary surface (wN = 0) the normal time derivative is just the usual time derivative, P∂◦uT = ∂uT
+∂t .
+The term (∇ΓuT )uT is the analog of the quadratic term in Navier-Stokes equations. Using divΓuN = uN κ and uN = wN , the second equation in (2.2) yields divΓuT = −wN κ. We are not interested in variable density case and let ρ = 1. Summarizing, from the surface Navier-Stokes equations (2.2) we get the following reduced system for uT and π which we call the tangential surface Navier-Stokes equations (TSNSE):
+{P∂◦uT + (∇ΓuT )uT + wN HuT − 2μP divΓEs(uT ) + ∇Γπ = f
+divΓuT = g, (2.12)
+with right-hand sides known in terms of geometric quantities, wN and the tangential component of the external area force b:
+g = −wN κ, f = bT + 2μP divΓ(wN H) + 1
+2 ∇Γw2
+N . (2.13)
+In the remainder of this paper we study this TSNSE. Note that these equations have a structure similar to the standard incompressible Navier-Stokes equations in Euclidean domains. Important differences are that TSNSE is formulated on a space-time manifold that does not have an evident tensor product structure and, related to this, a normal time derivative P∂◦ instead of the standard time derivative is used and an additional term wN HuT occurs. After some preliminary results in the next section, we introduce a well-posed weak formulation of the TSNSE in section 4. Remark 2.1. If one does not assume a given normal velocity uN = wN , an equation for uN can be derived from (2.2), cf. [16]. The surface Navier-Stokes equations (2.2) are then rewritten as a coupled system for uT , π and uN , that consists of TSNSE (2.12) and the coupled equation
+u.N = −2μ(tr(H∇ΓuT ) + uN tr(H2)) + uT · HuT − uT · ∇ΓuN + πκ + bN . (2.14)
+A challenging problem, not addressed in this paper, is the well-posedness of the surface Navier-Stokes equations (2.2), i.e., of the coupled system (2.12)–(2.14). For studying this problem, results on well-posedness of only the TSNSE (2.12) may be useful.
+3. Preliminaries. In this section we introduce several function spaces and derive relevant properties of these spaces. We will use these spaces to formulate a well-posed weak
+5
+
+
+formulation of the TSNSE (2.12). At this point, we make our assumptions on Γ0 and its evolution more precise. We introduce the following smoothness assumptions:
+Γ0 ∈ C3 and w ∈ C3([0, T ] × R3, R3), sup
+[0,T ]×R3
+|w| < +∞. (3.1)
+Then the ODE system (2.5) has a unique solution for any z ∈ Γ0 ⊂ R3, which defines a one-to-one mapping Γ0 → Γ(t) for all t ∈ [0, T ] (Theorems II.1.1, V.3.1 and remark to Theorem V.2.1 in [15]). Moreover, this mapping is C3(S0, R4) (Corollary V.4.1 [15]) with
+S0 := [0, T ] × Γ0.
+Therefore, S is a C3 manifold as the image of S0 ∈ C3 under a smooth mapping. We need a globally C2-smooth extension of the spatial normal n(t, x), (t, x) ∈ S that can be constructed as follows. Let φ0 be the signed distance function to Γ0. On a tubular neighborhood Uδ of Γ0, with diameter δ > 0 sufficiently small, we have φ0 ∈ C3(Uδ), cf. [10, Lemma 2.8]. We extend this function to be from C3(R3) and zero outside U2δ. Thus we have φ0 ∈ C3(R3) and φ0 is a signed distance function in a neighborhood of Γ0. Let Φt be the flow map for the velocity field w. The mapping (t, x) → Φt(x) is C3([0, T ]×R3, R3) and ∇xΦt(x) is regular [15]. Define the level set function φ(t, x) := φ0
+(Φ−t(x)) and the neighborhood Sex := ∪t∈[0,T ]{t} × Φt(Uδ) of S. Then we have φ ∈ C3([0, T ] × R3, R) and for (t, x) ∈ Sex it holds |∇φ(t, x)| ≥ c > 0, and φ(t, x) = 0 iff (t, x) ∈ S. Set nˆ(t, x) := ∇φ(t, x)/|∇φ(t, x)| for (t, x) ∈ Sex. Clearly nˆ = n on S and nˆ ∈ C2(Sex, R3), and by a standard procedure we can extend it to ˆn ∈ C2([0, T ] × R3, R3). To simplify the notation, this extension is denoted by n. For such an extended vector field n we have that wN = (w · n)n ∈ C2([0, T ] × R3, R3) holds. Arguing in the same way as above, we conclude that for the normal flow mapping from definition 2.1 we have
+Φn
+(·) ∈ C2(S0, S). (3.2)
+Note that S0 = S0 and S = S, i.e., S0 and S are closed manifolds.
+We need function spaces suitable for a weak formulation of the TSNSE. For this we make use of a general framework of evolving spaces presented in [1]. In section 3.2 we introduce specific evolving Hilbert spaces, based on a Piola pushforward mapping. Based on results from [1] several properties of these spaces are derived. In section 3.4 an evolving space of functions for which suitable weak “material” derivatives exist is introduced. Here we deviate from [1] in the sense that this “material” derivative is not based on the pushforward map but on the normal time derivative defined above.
+3.1. Surface Piola transform. To define evolving Hilbert spaces based on standard Bochner spaces, we need a suitable pushforward map. In the context of this paper it is natural to use a surface Piola transform as pushforward map, since this transform conserves the solenoidal property of a tangential vector field. To define a surface variant of the Piola transform based on the normal flow map Φtn : Γ0 → Γ(t), we need some further notation. Below we always take z ∈ Γ0 and x := Φtn(z) ∈ Γ(t). Since for each t ∈ [0, T ] the map Φtn : Γ0 → Γ(t) is a C2-diffeomorphism, the
+6
+
+
+differential DΦtn(z) : (T Γ0)z → T Γ(t)x, is invertible. Define J = J(t, z) := det DΦtn(z), J −1 = J −1(t, x) = det DΦn−t(x) = J (t, z)−1. Denote by D = D(t, z) and D−1 = D−1(t, x) the matrices of linear mappings given by DΦtn(z)P(z) : R3 → R3 and DΦn−t(x)P(x) = [DΦtn(z)]−1P(x) : R3 → R3, respectively. Note that D−1D = P(z) and DD−1 = P(x) hold. For these mappings the following useful identities hold:
+DΓ (v ◦ Φn
+−t) = (DΓ0 v) D−1 for v ∈ C1(Γ0)3,
+(DΓ v) D = DΓ0 (v ◦ Φn
+t ) for v ∈ C1(Γ(t))3.
+(3.3)
+We need the Piola transform for arbitrary, not necessarily tangential vectors. For this it is convenient to define an invertible operator A(t, z) : R3 → R3 such that A|T Γ0 = J −1DΦtn : T Γ0 → T Γ(t) and A : T Γ0⊥ → T Γ(t)⊥. We use the operator
+A(t, z)v := J −1(t, x)D(t, z)v + nΓ(t)(x)nΓ0 (z) · v , v ∈ R3. (3.4)
+For A−1(t, x) := J (t, z)D−1(t, x) + nΓ0 (z)nΓ(t)(x)T it holds A−1(t, x)A(t, z) = IR3 . The matrices of A and A−1 in the standard basis are also denoted by A and A−1, respectively. Note that det A = 1 holds. We define the surface Piola transform Pt : R3 → R3 by
+(Ptv)(x) := A(t, z) v(z), z ∈ Γ0. (3.5)
+This operator maps tangential vectors on Γ0 to tangential vectors on Γ(t) and for tangential vectors v it satisfies divΓPtv = 0 a.e. on Γ(t) iff divΓv = 0 a.e. on Γ0, cf. [41]. We need some regularity properties of D, A and D−1, A−1, which are collected in the following lemma. For a function g ∈ C1(S0) the maximum norm is ‖g‖C1(S0) :=
+max(t,z)∈S0
+(|g(t, z)| + |∇S0 g(t, z)|) and similarly for vector and matrix valued functions as well as for such functions on S.
+Lemma 3.1. It holds that D, A ∈ C1(S0)3×3, D−1, A−1 ∈ C1(S)3×3 and, in particular,
+‖J ‖C1(S0) + ‖D‖C1(S0) + ‖A‖C1(S0) + ‖J −1‖C1(S) + ‖D−1‖C1(S) + ‖A−1‖C1(S) ≤ C. (3.6)
+Proof. From (3.2) we know that Φ : (t, z) → (t, Φtn(z)) is in C2(S0, S) and hence DΦ ∈ C1(T S0, T S). Moreover, PS0 is C1-smooth, so DΦPS0 is a C1 smooth mapping with matrix representation
+[1 wT
+N
+0D
+]
+∈ C1(S0)4×4. (3.7)
+Hence, D ∈ C1(S0)3×3 and J ∈ C1(S0) hold. Combining this with nΓ0 , nΓ(·) ◦Φn
+(·) ∈ C1(S0), (3.4) and the property that S0 is closed, implies the bound in (3.6) for D, J and A. The mapping Φ : S0 → S is one-to-one. By the inverse mapping theorem the inverse Φ−1 is C2(S, S0) and for its differential we have DΦ−1 ∈ C1(T S, T S0). The matrix of the C1 smooth mapping DΦ−1PS is
+[1 −wT
+N D−1
+0 D−1
+]
+∈ C1(S)4×4.
+This and A−1 = J D−1 + nΓ0 nT
+Γ(·)(Φn
+(·)) imply the desired bound for D−1, J −1 and A−1.
+7
+
+
+3.2. Evolving Hilbert spaces. For constructing suitable evolving Hilbert spaces, we first define tangential velocity spaces on Γ(t). The notation (·, ·)0,t and ‖ · ‖0,t is used for the canonical inner product and norm in L2(Γ(t)). We need the Sobolev spaces of order one
+H1(t) := {v ∈ H1(Γ(t))3 | v · n = 0 on Γ(t)},
+with the inner product (·, ·)1,t := (·, ·)0,t +(DΓ·, DΓ·)0,t, and its closed subspace of divergence free tangential fields,
+V1(t) := { v ∈ H1(t) | divΓv = 0 a.e. on Γ(t) }.
+The space V0(t) is defined as closure of a space of smooth div-free tangential fields in the L2(Γ(t)) norm:
+V0(t) := V(t)‖·‖0,t , V(t) := { v ∈ C1(Γ(t))3 | v · n = 0, divΓv = 0 on Γ(t) }.
+The space of smooth functions V(t) is dense not only in V0(t) but also in V1(t). Indeed, for any tangential velocity field u ∈ L2(Γ(t))3 on the C2 smooth surface Γ(t) we have a Helmholz decomposition u = ∇Γψ + n × (∇Γφ) + h with some ψ, φ ∈ H1(Γ(t)) and a harmonic field h ∈ C1(Γ(t))3 [35]. For u ∈ V1(t) we have ψ = 0 and the result follows from the density of C2-smooth functions in H1(Γ(t)). Therefore, endowed with canonical scalar products, the spaces form a Gelfand triple V1(t) ↪→ V0(t) ↪→ V1(t)′. We also have that the dense embedding V1(t) ↪→ V0(t) is compact. Here and later H′ always denotes a dual of a Hilbert space H, and we adopt the common notation H−1(t) for H1(t)′. For the space L2(t) := {v ∈ L2(Γ(t))3 | v · n = 0 a.e. on Γ(t)} we define a pushforward map φt : L2(0) → L2(t), based on the Piola transform, by
+(φtv)(x) = (Ptv)(x) = A(t, z)v(z), v ∈ L2(0), x = Φn
+t (z), z ∈ Γ0. (3.8)
+The inverse map (pullback) is given by (φ−tv)(z) = A−1(t, x)v(x), v ∈ L2(t). Since A ∈ C1(S0)3×3, the restriction of φt to H1(0) is a pushforward map from H1(0) to H1(t). Because φt is based on the Piola transform and thus conserves the solenoidal property, we also have that φt is a pushforward map from V0(0) to V0(t), and from V1(0) to V1(t). For this pushforward map we have for v ∈ H1(0):
+‖φtv‖1,t = (‖A v ◦ Φn
+−t‖2
+0,t + ‖DΓ(A v ◦ Φn
+−t)‖2
+0,t
+)1
+2
+≤
+(‖A‖C(Γ(t)) + ‖DΓA‖C(Γ(t))
+) ‖v ◦ Φn
+−t‖0,t + ‖A‖C(Γ(t))‖DΓ(v ◦ Φn
+−t)‖0,t
+≤
+(‖A‖C(Γ(t)) + ‖DΓA‖C(Γ(t))
+) ‖J‖
+1 2
+C(Γ0)‖v‖0,0
++ ‖A‖C(Γ(t))‖D−1‖C(Γ(t))‖J ‖
+1 2
+C(Γ0)‖DΓv‖0,0.
+The result (3.6) implies that the norms ‖A‖C(Γ(t)), ‖D−1‖C(Γ(t)), ‖DΓA‖C(Γ(t)), ‖J ‖C(Γ0) are uniformly bounded in t and thus
+sup
+t∈[0,T ]
+‖φtv‖1,t ≤ C‖v‖1,0
+8
+
+
+holds with some C independent of v ∈ H1(0). With similar arguments one easily shows that ‖φ−tv‖1,0 ≤ C‖v‖1,t holds for all v ∈ H1(t), with C independent of v and t. These bounds remain obviously true if H1(0), H1(t) and the corresponding norms are replaced by V0(0), V0(t) and the corresponding norms. Using (3.6) one shows that the maps t → ‖φtv‖1,t and t → ‖φtv‖0,t are continuous. These properties imply that {V0(t), φt}t∈[0,T ], {H1(t), φt}t∈[0,T ], and {V1(t), φt}t∈[0,T ] are “compatible pairs” in the sense of Definition 2.4 in [1]. This compatibility structure induces natural properties of the evolving spaces defined as follows:
+L2
+V1 := { v : [0, T ] →
+⋃
+t∈[0,T ]
+{t} × V1(t), t → (t,  ̄v(t)) | φ−(·) ̄v(·) ∈ L2(0, T ; V1(0)) },
+L2
+V′
+1 := { g : [0, T ] →
+⋃
+t∈[0,T ]
+{t} × V1(t)′, t → (t,  ̄g(t)) | φ∗
+(·) ̄g(·) ∈ L2(0, T ; V1(0)′) },
+L2
+V0 := { v : [0, T ] →
+⋃
+t∈[0,T ]
+{t} × V0(t), t → (t,  ̄v(t)) | φ−(·) ̄v(·) ∈ L2(0, T ; V0(0)) },
+where φt∗ is the dual of φt. We shall also need the spaces L∞
+V0 , L2
+H1 , L2
+H−1 , which are defined analogously, and the spaces of smooth space-time functions
+D = { v ∈ L2
+V1 | φ−(·)  ̄v(·) ∈ C∞([0, T ]; V(0)) },
+D0 = { v ∈ L2
+V1 | φ−(·)v(·) ∈ C∞
+0
+((0, T ); V(0)) }. (3.9)
+Note that functions in D0 have zero traces on ∂S. With a slight abuse of notation we identify  ̄v(t) with v(t) = (t,  ̄v(t)). In [1] it is shown that if V1(0) ↪→ V0(0) ↪→ V1(0)′ is a Gelfand triple, with a compact embedding V1(0) ↪→ V0(0), and both {V0(t), φt}t∈[0,T ] and {V1(t), φt}t∈[0,T ] are compatible pairs, then the L-spaces inherit certain properties of the standard Bochner spaces. In particular, cf. Section 2 in [1], the spaces L2
+V1 and L2
+V0 with
+(u, v)1 =
+∫T
+0
+(u(t), v(t))1,t dt, (u, v)0 =
+∫T
+0
+(u(t), v(t))0,t dt,
+are separable Hilbert spaces, homeomorphic to L2(0, T ; V1(0)) and L2(0, T ; V0(0)) respectively. Furthermore, the embedding L2
+V1 ↪→ L2
+V0 is dense and compact, the dual space (L2
+V1 )′ is isometrically isomorphic to L2
+V′
+1 , and
+L2
+V1 ↪→ L2
+V0 ↪→ L2
+V′
+1
+is a Gelfand triple. The space D0 is dense in L2
+V1 and so D0 is dense also in L2
+V0 . By the same arguments L2
+H1 is also a Hilbert space with inner product (·, ·)1. The subspace of smooth functions
+̂D0 = { v ∈ L2
+H1 | φ−(·)v(·) ∈ C∞
+0
+((0, T ); C1(Γ0, T Γ0)) } (3.10)
+is dense in L2
+H1 and (L2
+H1
+)′ ' L2
+H−1 holds. Note that L2
+V1 is a closed subspace of L2
+H1 and
+that functions in D0 are solenoidal and functions in ̂D0 are not necessarily solenoidal.
+9
+
+
+3.3. Some uniform inequalities. We need to establish several basic inequalities on Γ(t) with constants uniformly bounded in t. We first consider a Korn inequality. Recall that the estimate
+‖v‖1,t ≤ c
+(
+‖v‖0,t + ‖Es(v)‖0,t
+)
+for all v ∈ H1(t) (3.11)
+holds with a constant c = c(t) that depends on smoothness properties of Γ(t), cf. [16]. In the next lemma we show that the constant can be taken such that maxt∈[0,T ] c(t) < ∞ holds. Lemma 3.2. The constant c in (3.11) can be chosen finite and independent of t.
+Proof. Fix any t ∈ [0, T ] and v ∈ H1(t). Define u = DT v ◦ Φtn ∈ H1(0). Below, for the 3-tensor T = DΓDT and v ∈ R3, Tv ∈ R3×3 is the 2nd-mode tensor–vector product. With the help of (3.3) one computes
+∇Γ0 u(z) = P(z)[DΓ0 u(z)] = P(z)[DΓ0 (DT v ◦ Φn
+t (z))]
+= P(z)Tv(x) + P(z)DT DΓv(x)D,
+= P(z)Tv(x) + DT ∇Γv(x)D, x = Φn
+t (z).
+The latter inequality holds since DT P(x) = P(z)DT . From this we find
+Es(u)(z) = 1
+2
+(
+P(z)Tv(x) + (Tv(x))T P(z)
+)
++ DT Es(v)(x)D. (3.12)
+With the help of DΓv = DΓ(D−T u ◦ Φn−t), (3.6), (3.11) applied for t = 0, and (3.12) we estimate
+‖DΓv‖0,t = ‖J 1
+2
+([DΓD−T ]u + D−T (DΓu)D−1) ‖0,0
+≤ C(‖u‖0,0 + ‖DΓu‖0,0) ≤ C (‖u‖0,0 + ‖Es(u)‖0,0)
+=C
+(
+‖J − 1
+2 DT v‖0,t +
+∥ ∥
+∥J − 1
+2
+(1 2
+(PTv + (Tv)T P) + DT Es(v)D
+)∥ ∥
+∥0,t
+)
+≤C
+(
+‖J − 1
+2 DT v‖0,t + ‖J − 1
+2 PTv‖0,t + ‖J − 1
+2 DT Es(v)D‖0,t
+)
+≤ C (‖v‖0,t + ‖Es(v)‖0,t) .
+with some C independent of t ∈ [0, T ] and v.
+The following inf-sup estimate holds [16]:
+‖∇Γπ‖H−1(t) := sup
+06=v∈H 1 (t)
+∫
+Γ(t) π divΓv ds
+‖v‖1,t
+≥ c(t)‖π‖0,t, ∀ π ∈ L2(Γ(t)),
+∫
+Γ(t)
+π = 0,
+(3.13) with c(t) > 0. A uniformity result for this inf-sup constant is derived in the following lemma. Lemma 3.3. The constant c(t) in (3.13) can be taken such that inft∈[0,T ] c(t) > 0 holds. Proof. We use a similar approach as in the proof of the previous lemma, and derive an estimate on Γ(t) by pulling forward the result on Γ0. We use the pullforward φt that is based on the Piola transform and satisfies divΓ(t)(φtw)(x) = J −1 divΓ0 w(z), z ∈ Γ0, x = Φtn(z) ∈ Γ(t). Take v ∈ H1(t) and π ∈ L2(Γ(t)) with ∫
+Γ(t) π = 0. Define c := −|Γ0|−1 ∫
+Γ0 π ◦ Φtn ds
+10
+
+
+and w := φ−tv ∈ H1(0). Note that ‖v‖1,t ≤ C‖w‖1,0 with a constant C uniformly bounded in t ∈ [0, T ] (compatibility property). We have
+(π, divΓ(t)v)0,t = (π, divΓ(t)(φtw))
+0,t = (π ◦ Φn
+t , divΓ0 w)0,0.
+Using this and the result (3.13) for t = 0 we get:
+C sup
+06=v∈H 1 (t)
+∫
+Γ(t) π divΓv ds
+‖v‖1,t
+≥ sup
+06=w∈H 1 (0)
+∫
+Γ0 (π ◦ Φtn)divΓ0 w ds
+‖w‖1,0
+≥ c(0)‖π ◦ Φn
+t + c‖0,0 ≥ c(0)‖J 1
+2 ‖−1
+C(S)‖π + c‖0,t
+= c(0)‖J 1
+2 ‖−1
+C (S )
+(‖π‖0,t + c|Γ(t)| 1
+2
+) ≥ c(0)‖J 1
+2 ‖−1
+C(S)‖π‖0,t,
+which yields a t-independent strictly positive lower bound for c(t) in (3.13).
+We now derive a uniform interpolation estimate.
+Lemma 3.4. The interpolation inequality (Ladyzhenskaya’s inequality)
+‖v‖L4(Γ(t)) ≤ C‖v‖
+1
+2
+0,t‖v‖
+1 2
+1,t, v ∈ H1(t). (3.14)
+holds with a constant C < ∞ independent of t.
+Proof. Consider v ∈ H1(Γ(t)) and let vˆ = v ◦ Φn−t. For a compact Riemann manifold
+Γ0, the estimate (II.38) from [3] yields ‖vˆ‖L4(Γ0) ≤ C‖vˆ‖
+1 2
+0,0‖vˆ‖
+1 2
+1,0. An examination of the proof shows that the estimate remains true if Γ0 is a C2 compact manifold. With the help of this estimate applied component-wise and (3.6) we calculate for v ∈ H1(t)
+‖v‖L4(Γ(t)) = ‖ˆvJ 1
+4 ‖L4(Γ0) ≤ C‖J ‖
+1 4
+C(S0)‖ˆv‖L4(Γ0) ≤ C‖ˆv‖
+1 2
+0,0‖ˆv‖
+1 2 1,0
+≤ C‖J − 1
+2 v‖
+1 2 0,t
+(
+‖J − 1
+2 v‖0,t + ‖J − 1
+2 D−T ∇Γv‖0,t
+)1
+2
+≤ C‖v‖
+1 2
+0,t (‖v‖0,t + ‖∇Γv‖0,t) 1
+2 ≤ C ‖v‖
+1
+2
+0,t‖v‖
+1 2
+1,t,
+with some C independent of t.
+For ξ ∈ H1(t) consider the Helmholtz decomposition (see e.g. [35])
+ξ = ξ1 + ξ2, with ξ1 = ∇Γφ, φ ∈ H1(Γ(t)) and ξ2 ∈ V1(t). (3.15)
+Lemma 3.5. For ξi as in (3.15) we have ξi ∈ H1(t) and ‖ξi‖1,t ≤ C‖ξ‖1,t, i = 1, 2, with a constant C finite and independent of t.
+Proof. Due to the L2 orthogonality of the Helmholtz decomposition we have ‖ξ1‖20,t + ‖ξ2‖20,t = ‖ξ‖20,t. Also note that divΓξ2 = 0, divΓξ = divΓξ1, curlΓξ1 = 0, curlΓξ = curlΓξ2. Furthermore on H1(t) we have the norm equivalence ‖u‖1,t ∼ ‖u‖0,t+‖ divΓu‖0,t+ ‖ curlΓu‖0,t. A t-dependence in the constants in this norm equivalence enters only through the Gaussian curvature of Γ(t), cf. [35, Theorem 3.2]. Due to the smoothness property S ∈ C3 the Gaussian curvature is uniformly bounded on S and thus the constants in this norm equivalence can be taken independent of t. Using these results we get
+‖ξ1‖1,t ≤ C(‖ξ1‖0,t + ‖ divΓξ1‖0,t + ‖ curlΓξ1‖0,t) = C(‖ξ1‖0,t + ‖ divΓξ‖0,t) ≤ C‖ξ‖1,t,
+and by similar arguments ‖ξ2‖1,t ≤ C‖ξ‖1,t with a constant C uniformly bounded in t.
+11
+
+
+3.4. Solution space. In this section we introduce a subspace of L2
+V1 consisting of functions for which a suitable weak normal time derivative exists. This space will be the solution space in the weak formulation of TSNSE. We recall the Leibniz rule
+d dt
+∫
+Γ(t)
+v ds =
+∫
+Γ(t)
+(∂◦v + v divΓwN ) ds =
+∫
+Γ(t)
+(∂◦v + vwN κ) ds,
+Thus for velocity fields v, u ∈ C1(S) we get
+d dt
+∫
+Γ(t)
+v · u ds =
+∫
+Γ(t)
+(∂◦(v · u) + (v · u)wN κ) ds. (3.16)
+This implies the integration by parts identity
+∫T
+0
+∫
+Γ(t)
+(∂◦v · u + v · ∂◦u + (v · u)wN κ) ds dt
+=
+∫
+Γ(T )
+v · u ds −
+∫
+Γ0
+v · u ds, v, u ∈ C1(S)3.
+(3.17)
+Based on this we define for v ∈ L2
+H1 the normal time derivative as the functional ∂◦v:
+〈∂◦v, ξ〉 := −
+∫T
+0
+∫
+Γ(t)
+(v · ∂◦ξ + (v · ξ)wN κ) ds dt, ξ ∈ ̂D0. (3.18)
+Note that functions in ̂D0 are not necessarily solenoidal, cf. (3.10). Restricting now to L2
+V1 ⊂ L2
+H1 , assume v ∈ L2
+V1 is such that
+‖∂◦v‖(L2
+V1 )′ := sup
+ξ∈D0
+〈∂◦v, ξ〉 ‖ξ‖1
+is bounded. Since D0 is dense in L2
+V1 , ∂◦v can then be extended to a bounded linear functional on L2
+V1 . We use (L2
+V1 )′ ∼= L2
+V′
+1 and introduce the space
+W(V1, V ′
+1 ) = { v ∈ L2
+V1 | ∂◦v ∈ L2
+V′
+1 }, with
+(v, u)W :=
+∫T
+0
+(v(t), u(t))1,t + (∂◦v(t), ∂◦u(t))V1(t)′ dt.
+This space is used as solution space in the weak formulation of TSNSE below. In the remainder of this section we derive certain useful properties of this space. For this it will
+be helpful to introduce in addition to the Lagrangian derivatives .v (material derivative) and ∂◦v (normal time derivative) one other Lagrangian derivative, which is based on the pushforward operator φt:
+∂∗v(t) := φt
+(d
+dt φ−tv(t)
+)
+, v ∈ D. (3.19)
+The reason that we introduce the ∂∗ derivative is, that it is the same as the one used in the general framework in [1] and we can use results derived in that paper. Note that the ∂∗ derivative is defined for tangential flow fields and based on the Piola transform implying
+n · ∂∗v = 0 and divΓ∂∗v = 0 for v ∈ D. (3.20)
+12
+
+
+We now derive relations between the derivatives ∂∗ and ∂◦. Lemma 3.6. For v ∈ D the following holds:
+∂◦v = ∂∗v − A(∂◦A−1)v, (3.21)
+P∂◦v = ∂∗v − AP(∂◦A−1)v. (3.22)
+Proof. Using the definitions of the pushforward and pullback mappings we compute
+φt
+(d
+dt φ−tv(t)
+)
+(x) = A(t, z) d
+dt
+[A−1(t, Φn
+t (z))v(t, Φn
+t (z))]
+= A(t, z) (∂◦A−1(t, x)v(t, x) + A−1(t, x)∂◦v(t, x))
+= A(t, z)∂◦A−1(t, x)v(t, x) + ∂◦v(t, x),
+which yields the result (3.21). The result (3.22) follows from (3.21) using P∂∗v = ∂∗v and PA = P(x)A(t, z) = A(t, z)P(z).
+From (3.21) we obtain the identity
+(∂∗v, ξ)0 = (∂◦v, ξ)0 + (Cv, ξ)0 , ∀ v ∈ D, ξ ∈ ̂D0,
+with C := AP(∂◦A−1). Based on this, we define ∂∗v for v ∈ L2
+V1 as the functional
+〈∂∗v, ξ〉 := 〈∂◦v, ξ〉 + (Cv, ξ)0 , ξ ∈ ̂D0. (3.23)
+with 〈∂◦v, ξ〉 defined in (3.18). The density of ̂D0 in L2
+H1 and of D0 ⊂ ̂D0 in L2
+V1 allows us to define ∂∗v as an element of L2
+H−1 and L2
+V′
+1 , respectively. The following result holds:
+∂∗v ∈ L2
+V′
+1 ⇐⇒ ∂∗v ∈ L2
+H−1 , v ∈ L2
+V1 . (3.24)
+Implication “⇐” in (3.24) is trivial since V1 ⊂ H1. To see “⇒”, consider any v ∈ D and ξ ∈ L2
+H1 together with its Helmholtz decomposition ξ = ∇Γφ + ξ2, cf. (3.15). Thanks to Lemma 3.5 we get ∇Γφ ∈ L2
+H1 , ξ2 ∈ L2
+V1 and ‖∇Γφ‖1 + ‖ξ2‖1 ≤ C‖ξ‖1. Since ξ2 ∈ L2
+V1 we have
+|〈∂∗v, ξ2〉| ≤ ‖∂∗v‖L2
+V1′
+‖ξ2‖1 ≤ C‖∂∗v‖L2
+V1′
+‖ξ‖1, (3.25)
+while for the other component we get employing (3.20)
+〈∂∗v, ∇Γφ〉 = (∂∗v, ∇Γφ)0 = −( divΓ∂∗v, φ)0 = 0. (3.26)
+We thus conclude |〈∂∗v, ξ〉| ≤ C‖∂∗v‖L2
+V1′
+‖ξ‖1 for all v ∈ D and ξ ∈ L2
+H1 . The result in
+(3.24) follows from the density of D in L2
+V1 .
+We are now ready to prove the following result.
+Lemma 3.7. The space W(V1, V1′) is a Hilbert space and D is dense in W(V1, V1′). For any v ∈ W(V1, V1′) and t ∈ [0, T ], v(t) is well-defined as an element of V0(t) and it holds
+sup
+t∈[0,T ]
+‖v(t)‖0,t ≤ C‖v‖W .
+13
+
+
+Proof. The idea of the proof is to relate the space W(V1, V1′) to the space W∗(V1, V1′) := { v ∈ L2
+V1 | ∂∗v ∈ L2
+V′
+1 }, with ‖ · ‖W∗ = (‖ · ‖21 + ‖∂∗ · ‖2
+L2
+V1′
+)
+1
+2 , and to show that the latter is
+homeomorphic to a standard Bochner space for S0. Lemma 3.1 ensures C ∈ C(S)3×3 and thus from (3.23) we obtain
+|〈∂∗v, ξ〉| − c ‖v‖0‖ξ‖0 ≤ |〈∂◦v, ξ〉| ≤ |〈∂∗v, ξ〉| + c ‖v‖0‖ξ‖0.
+Therefore, ∂∗v is a linear bounded functional on L2
+V1 iff ∂◦v has this property. We conclude v ∈ W(V1, V1′) iff v ∈ W∗(V1, V1′). Moreover, the above inequalities, definition of the W(V1, V1′)-norm, W∗(V1, V1′)-norm and L2
+V1 ↪→ L2
+V0 yield
+c‖v‖W ≤ ‖v‖W∗ ≤ C‖v‖W ,
+with constants 0 < c and C < +∞ independent of v ∈ W(V1, V1′) and so W(V1, V1′) = W∗(V1, V1′) algebraically and topologically. Thus, it is sufficient to check the claims of the lemma for W∗(V1, V1′). For the latter we apply results from [1], more specifically, Corollary 2.32 (W∗(V1, V1′) is a Hilbert space), Lemma 2.35 (continuous embedding W∗(V1, V1′) ↪→ C([0, T ]; V0(0))) and Lemma 2.38 (density of smooth functions). For these results to hold one has to verify Assumption 2.31 [1], which requires the mapping v → φ−(.)v to be a homeomorphism between W∗(V1, V1′) and W(V1(0), V1(0)′), the standard Bochner space
+W(V1(0), V1(0)′) = { v ∈ L2((0, T ), V1(0)) | ∂tv ∈ L2((0, T ), V1(0)′) }.
+It remains to check this homeomorphism property. We already derived the norm equivalence ‖v‖1 ' ‖φ−(.)v‖L2([0,T ],V1(0)), cf. Section 3.2. To relate the norms ‖∂tφ−(·)v‖L2((0,T ),V1(0)′)
+and ‖∂∗v‖L2
+V1′
+we consider the following equalities for v ∈ L2
+V1 , ξ ∈ D0, ξ ̃ = φ−(·)ξ ∈
+C0∞((0, T ), V(0)) and A−1(t, ·) : T Γ(t) → T Γ0:
+〈∂t(φ−(·)v), ξ ̃〉 =
+(
+φ−(·)v, ∂tξ ̃
+)
+L2 (S0 )
+=
+(A−1v(·, Φn
+t (·)) , ∂t(φ−(·)ξ))
+L2 (S0 )
+=
+(A−T A−1v(·, Φn
+t (·)) , A∂t(φ−(·)ξ))
+L2 (S0 )
+=
+(J −1(AAT )−1v , ∂∗ξ)
+0
+=
+(v , ∂∗(Tξ) − (∂∗T)ξ)
+0 with T := J −1(AAT )−1
+= −〈∂∗v , Tξ〉 − (v, wN κ Tξ + (∂∗T)ξ)
+0.
+(3.27)
+Note that T : T Γ(t) → T Γ(t) for all t ∈ [0, T ] and from Lemma 3.1 it follows that T, T−1 ∈ C1(S ̄)3×3. Hence it holds
+Tξ ∈ L2
+H1 and ‖Tξ‖1 ' ‖ξ‖1 ' ‖ξ ̃‖L2([0,T ],V1(0)).
+From this, equality (3.27) and (3.24) one obtains after simple calculations,
+‖∂t(φ−(.)v)‖L2([0,T ],V1(0)′) ≤ C(‖∂∗v‖L2
+H−1 + ‖v‖0) ≤ C(‖∂∗v‖L2
+V1′
++ ‖v‖0) ≤ C‖v‖W∗ .
+14
+
+
+The reverse estimate ‖∂∗v‖L2
+V1′
+≤ C‖v‖W(V1(0),V1(0)′) follows from the identity
+〈∂∗v , ξ〉 = −〈∂t(φ−(·)v), φ−(·)T−1ξ〉 − (v, wN κ ξ + (∂∗T)T−1ξ)
+0
+by similar arguments (in particular the analogue result to (3.24) holds for the time derivative ∂t on S0). Therefore we proved ‖v‖W ' ‖φ−(.)v‖W(V1(0),V1(0)′) and hence W(V1, V1′) and W(V1(0), V1(0)′) are homeomorphic.
+4. Well-posed weak formulation. In this section we introduce and analyze a weak formulation of TSNSE (2.12). We restrict our arguments to the solenoidal case g = 0. The extension of the analysis to the case g 6= 0 is discussed in section 4.3. In the weak formulation we take a solution space with only solenoidal vector fields, and thus the pressure term vanishes. The existence of a corresponding unique pressure solution is shown in section 4.1.
+We introduce the notation
+a(u, v) := 2μ(Es(u), Es(v))0, c(u, u ̃, v) := ((∇Γu)u ̃, v)0,
+`(u, v) := (wN Hu, v)0, (4.1)
+and consider the following weak formulation of TSNSE (2.12) with g = 0: For given f ∈ L2(S)3, with f = fT , u0 ∈ V0(0), find uT ∈ W(V1, V1′) such that uT (0) = u0 and
+〈∂◦uT , v〉 + a(uT , v) + c(uT , uT , v) + `(uT , v) = (f , v)0 for all v ∈ L2
+V1 . (4.2)
+One easily checks that any smooth solution of (2.12) satisfies (4.2).
+For the analysis of the weak formulation (4.2) we apply an established approach, e.g. [43]. Compared to the analysis of the non-stationary Navier-Stokes equations in Euclidean domains the main differences are that we use evolving spaces as introduced above instead of the standard Bochner ones, we have a normal time derivative ∂◦ in place of the usual
+d
+dt , and an additional curvature-dependent term (wN HuT , v)0. We show the existence of a Galerkin solution, derive a-priori bounds and based on this show existence of a solution uT . We then show uniqueness of the solution with the help of Ladyzhenskaya’s inequality.
+Faedo–Galerkin approximation. The space V1(0) has a countable basis ψ1, ψ2, . . ., which is pushed forward to a countable basis {ψ ̃ i} of V1(t) by letting ψ ̃ i = φtψi. Consider
+um :=
+m
+∑
+i=1
+gi,m(t)ψ ̃ i. (4.3)
+We determine the unknown functions gi,m from (4.3) by considering the system of ODEs
+(∂◦um, ψ ̃ j )0,t + 2μ(Es(um), Es(ψ ̃ j ))0,t + ((∇Γum)um, ψ ̃ j )0,t
++ (wN Hum, ψ ̃ j)0,t = (f , ψ ̃ j)0,t for all 1 ≤ j ≤ m.
+um(0) = u0m,
+(4.4)
+Here u0m is the L2-orthogonal projection of u0 on span{ψ1, . . . , ψm}.
+15
+
+
+A priori bounds. Assume um as in (4.3) satisfies (4.4). Multiplying (4.4) by gj,m(t) and summing over j = 1, . . . m, we get, using ((∇Γum)um, um)0,t = 0,
+(∂◦um, um)0,t + 2μ(Es(um), Es(um))0,t + (wN Hum, um)0,t = (f , um)0,t, (4.5)
+and applying integration by parts (3.17) we have
+d
+dt ‖um‖2
+0,t + 4μ‖Es(um)‖2
+0,t
+= −2(wN Hum, um)0,t + (wN κum, um)0,t + 2(f , um)0,t.
+(4.6)
+From this we obtain for 0 < τ ≤ T ,
+‖um‖2
+0,τ + 4μ
+∫τ
+0
+‖Es(um)‖2
+0,t dt .
+∫τ
+0
+‖um‖2
+0,t dt +
+∫τ
+0
+‖f ‖2
+0,t dt + ‖u0m‖2
+L2(Γ0). (4.7)
+Here and in the remainder we write A . B to denote A ≤ c B with some constant c which may depend on the final time T , the maximum normal velocity ‖wN ‖L∞(S) and on smoothness properties of the space-time manifold, quantified by ‖H‖L∞(S). Note that ‖κ‖L∞(S) = ‖tr(H)‖L∞(S) ≤ 2‖H‖L∞(S). The Gronwall lemma and (4.7) yield the a priori bound,
+max
+0≤t≤T ‖um‖0,t + ‖Es(um)‖0 . ‖f ‖0 + ‖u0‖L2(Γ0). (4.8)
+The uniform Korn inequality and the estimates in (4.7)-(4.8) yield the a priori estimate
+‖um‖1 . ‖f ‖0 + ‖u0‖L2(Γ0). (4.9)
+Existence of solution. Consider the ODEs system (4.4). Due to Lemma 3.6 we have P∂◦(ψ ̃ i) = ∂∗(ψ ̃ i)−Cψ ̃ i = −Cψ ̃ i, with C = AP∂◦A−1. Thus (4.4) results in the following system for gi,m:
+m
+∑
+i=1
+dgi,m(t)
+dt (ψ ̃ i, ψ ̃ j)0,t = −
+m
+∑
+i,k=1
+gi,m(t)gk,m(t)((∇Γψ ̃ k)ψ ̃ i, ψ ̃ j )0,t
+−
+m
+∑
+i=1
+gi,m(t)
+{
+2μ(Es(ψ ̃ i), Es(ψ ̃ j))0,t + ((wN H − C)ψ ̃ i, ψ ̃ j)0,t
+}
++ (f , ψ ̃ j)0,t, (4.10)
+for 1 ≤ j ≤ m. From the fact that the pushforward map φt is one-to-one and linear for every t, and ψi are linear independent we infer that ψ ̃ i are linear independent for every t and thus the matrix M(t) := (ψ ̃ i(t), ψ ̃ j(t))1≤i,j≤m is invertible for t ∈ [0, T ]. Moreover, (3.6) and the
+definition of ψ ̃ implies M ∈ C1[0, T ]m×m. Since any eigenvalue of M, denoted by λ(M), continuously depends on matrix coefficients, the bound λ(M) > 0 for each t ∈ [0, T ] implies λ(M) ≥ c > 0 uniformly on [0, T ]. The uniform lower bound for the eigenvalues and the symmetry of M ensures ‖M−1‖C[0,T ] ≤ C. Multiplying both sides of (4.10) with M−1, one verifies that the Picard-Lindel ̈of theorem applies. Hence a unique solution gi,m(t), 1 ≤ i ≤ m, exists for a maximal interval [0, te], te > 0. If te < T , then limt↑te ‖um(t)‖0,t = ∞, which
+16
+
+
+contradicts the established bound (4.8) with T replaced by te. Hence, a unique solution um(t) exists for t ∈ [0, T ].
+From the a priori bounds (4.8), (4.9) it follows that there is a subsequence of (um′ )m′≥1 of (um)m≥1 that is weak-star convergent in L∞
+H and weakly convergent in L2
+V1 to u∗ ∈ L∞
+H ∩ L2
+V1 . Due to the compactness of L2
+V1 ↪→ L2
+V0 this sequence also strongly converges
+in L2
+V0 . Now note that, with ψ ̃ j, j = 1, 2, . . . , as above, functions ∑N
+j=1 gj(t)ψ ̃ j, N ∈ N, gj ∈ C1([0, T ]), with gj(T ) = 0, are dense in L2
+V1 . We multiply (4.4) with such a function gj, integrate over [0, T ] and apply partial integration (3.17), which yields
+−
+(um′ , ∂◦(ψ ̃ j gj ))
+0 − (κwN um′ , ψ ̃ j gj )0 (4.11)
++ 2μ(Es(um′ ), Es(ψ ̃ jgj))
+0 + (∇Γum′ um′ , ψ ̃ j gj )0 (4.12)
++ (wN Hum′ , ψ ̃ j gj )0 = (u0m, ψj gj (0))L2(Γ0) + (f , ψ ̃ j gj )0 (4.13)
+Due to the strong convergence um′ → u∗ in L2
+V0 we can pass to the limit in the two terms
+in (4.11) and the first term in (4.13). Since (Es(·), Es(v))
+0 is a functional on L2
+V1 for any v ∈ L2
+V1 , we can pass to the limit in the first term in (4.12). Using the strong convergence in L2
+V0 we can also pass to the limit in the second term in (4.12), cf. [43, Lemma 3.2]. By definition of u0m we have u0m → u(0) strongly in L2(Γ0). Thus we get, cf. (4.1),
+− (u∗, ∂◦(ψ ̃ jgj))0 − (κwN u∗, ψ ̃ jgj)0 = −a(u∗, ψ ̃ jgj)
+− c(u∗, u∗, ψ ̃ jgj ) − `(u∗, ψ ̃ j gj ) + (u0, ψj gj (0))L2(Γ0) + (f , ψ ̃ j gj )0. (4.14)
+We restrict to gj with gj(0) = 0 and build linear combinations of (4.14) to arrive at
+− (u∗, ∂◦v)0 − (κwN u∗, v)0 = −a(u∗, v) − c(u∗, u∗, v) − `(u∗, v) + (f , v)0 (4.15)
+for all v = ∑N
+j=1 ψ ̃ jgj. We estimate the nonlinear term with the help of uniform Ladyzhenskaya inequality and (4.8), (4.9):
+c(u∗, u∗, v) = −c(v, u∗, u∗) ≤
+∫T
+0
+‖∇Γv‖0,t‖u∗‖2
+L4(Γ(t))dt
+.
+∫T
+0
+‖v‖1,t‖u∗‖0,t‖u∗‖1,tdt . sup
+t∈[0,T ]
+‖u∗‖0,t‖u∗‖1‖v‖1
+. (‖f ‖0 + ‖u0‖L2(Γ0))2‖v‖1.
+(4.16)
+Using the above estimate and obvious continuity estimates for other terms on the right hand side in (4.15) together with a density argument we conclude that
+‖∂◦u∗‖L2
+V1′
+. F (1 + F ), with F := ‖f ‖0 + ‖u0‖L2(Γ0), (4.17)
+hence u∗ ∈ W(V1, V1′) and furthermore uT = u∗ satisfies (4.2). To check that u∗(0) = u0 holds, we apply standard arguments. Using continuity of t → ‖v(t)‖0,t for v ∈ W(V1, V1′) ([1, Theorem2.40]) and density of smooth functions in W(V1, V1′) it follows that the partial integration rule (3.17) can be generalized to W(V1, V1′). Test (4.2) with v = ψ ̃ jgj(t), with gj(0) = 1, applying partial integration and comparing the result with (4.14) we obtain (u∗, ψj)L2(Γ0) = (u0, ψj)L2(Γ0). Since (ψj)j∈N is dense in V0(0) we conclude that u∗(0) = u0 holds.
+17
+
+
+Uniqueness of solution. We prove uniqueness of the solution using essentially the same arguments as in Euclidean space. For the sake of presentation below, we use 〈〈·, ·〉〉 to denote L2 duality pairing between V1(t) and V1(t)′ and introduce the notation for t-level bilinear forms, cf. (4.1):
+at(v, ψ) := 2μ(Es(v), Es(ψ))0,t, ct(v,  ̃v, ψ) := ((∇Γv) ̃v, ψ)0,t, `t(v, ψ) := (wN Hv, ψ)0,t.
+Note that ct(v,  ̃v, v) = 0 holds. A solution uT ∈ W(V1, V1′) of (4.2) satisfies
+〈〈∂◦uT (t), v(t)〉〉 + at(uT (t), v(t)) + ct(uT (t), uT (t), v(t))
++ `t(uT (t), v(t)) = (f (t), v(t))0,t a.e. in t for v ∈ L2
+V1 . (4.18)
+The Leibniz rule (3.16) extends to v ∈ W(V1, V1′) (cf. [1, Lemma 3.4]) yielding
+d
+dt (v(t), v(t))0,t = 2〈〈∂◦v(t), v(t)〉〉 +
+∫
+Γ(t)
+|v(t)|2wN κ ds.
+Let u1
+T , u2
+T be solutions of (4.2) with u1
+T (0) = u2
+T (0) = u0. Letting ψ := u1
+T − u2
+T and using ct(ψ, u1
+T , ψ) = 0 we compute, with C1 := ‖wN κ‖C(S),
+d
+dt ‖ψ(t)‖2
+0,t + 2at(ψ(t), ψ(t))
+= 2〈〈∂◦ψ(t), ψ(t)〉〉 +
+∫
+Γ(t)
+|ψ(t)|2wN κ ds + 2at(ψ(t), ψ(t))
+≤ 2〈〈∂◦u1
+T (t), ψ(t)〉〉 + 2at(u1
+T (t), ψ(t))
+− 2〈〈∂◦u2
+T (t), ψ(t)〉〉 − 2at(u2
+T (t), ψ(t)) + C1‖ψ(t)‖2
+0,t
+= −2ct(u1
+T (t), u1
+T (t), ψ(t)) − 2`t(u1
+T (t), ψ(t))
++ 2ct(u2
+T (t), u2
+T (t), ψ(t)) − 2`t(u2
+T (t), ψ(t)) + C1‖ψ(t)‖2
+0,t
+= −2ct(u2
+T (t), ψ(t), ψ(t)) − 2`t(ψ(t), ψ(t)) + C1‖ψ(t)‖2
+0,t.
+We have |`t(ψ(t), ψ(t))| ≤ ‖wN H‖C(S)‖ψ(t)‖20,t. For the other terms on the right hand side above we use (3.14) and the Korn inequality (3.11) to estimate
+d
+dt ‖ψ(t)‖2
+0,t + 2at(ψ(t), ψ(t))
+≤ C‖u2
+T ‖1,t‖ψ(t)‖2
+L4(Γ(t)) + C‖ψ(t)‖2
+0,t
+≤ C‖u2
+T ‖1,t‖ψ(t)‖0,t‖ψ‖1,t + C‖ψ(t)‖2
+0,t
+≤ C‖u2
+T ‖1,t‖ψ(t)‖0,t
+(‖ψ(t)‖0,t + at(ψ(t), ψ(t)) 1
+2
+) + C‖ψ(t)‖2
+0,t
+≤ C(‖u2
+T ‖1,t + ‖u2
+T ‖2
+1,t
+)‖ψ(t)‖2
+0,t + 2at(ψ(t), ψ(t)),
+with a suitable constant C independent of t ∈ [0, T ] and of u1
+T , u2
+T . Thus we get
+d
+dt ‖ψ(t)‖2
+0,t ≤ fu(t)‖ψ(t)‖2
+0,t, fu(t) := C(‖u2
+T ‖1,t + ‖u2
+T ‖2
+1,t
+).
+Now, u2
+T ∈ L2
+V1 implies that ∫ T
+0 fu(s) ds is bounded and so the Gronwall inequality together with ‖ψ(0)‖L2(Γ0) = 0 yields ψ(t) = 0 for t ∈ [0, T ] and thus the uniqueness result holds.
+18
+
+
+Summarizing we proved the following main well-posedness result.
+Theorem 4.1. The weak formulation (4.2) of the TSNSE has a unique solution uT ∈ W(V1, V1′). The solution satisfies
+‖uT ‖W ≤ C(1 + F )F, with F := ‖f ‖0 + ‖u0‖L2(Γ0). (4.19)
+4.1. Surface pressure. For v ∈ L2
+V1 , (3.18) defines ∂◦v as a functional on ̂D0. The
+density of ̂D0 in L2
+H1 and the density of D0 ⊂ ̂D0 in L2
+V1 is used to define the bounded linear functionals ∂◦v ∈ L2
+H−1 and ∂◦v ∈ L2
+V′
+1 , respectively. The following equivalence holds:
+∂◦v ∈ L2
+V′
+1 ⇐⇒ ∂◦v ∈ L2
+H−1 , v ∈ L2
+V1 . (4.20)
+Implication “⇐” in (4.20) is trivial since V1 ⊂ H1. The “⇒” implication follows from (3.24) and Lemma 3.6. Below we introduce a weak formulation of TSNSE on the velocity space
+W(H1, H−1) = {v ∈ L2
+H1 : ∂◦v ∈ L2
+H−1 } with (·, ·)W (H1,H−1) = (·, ·)1 + (·, ·)L2
+H−1 ,
+with a pressure unknown π ∈ L2(S). One checks that W(H1, H−1) is a Hilbert space by the same arguments as for W(V1, V1′). Consider the following mixed formulation of TSNSE, which relates to the well-posed weak formulation (4.2): For given f ∈ L2(S)3, with f = fT , u0 ∈ V0(0), find uT ∈ W(H1, H−1) and π ∈ L2(S), with ∫
+Γ(t) π ds = 0 a.e. t ∈ [0, T ], such that uT (0) = u0 and
+〈∂◦uT , v〉 + a(uT , v) + c(uT , uT , v) + `(uT , v) + (π, divΓv)0 = (f , v)0
+(q, divΓuT )0 = 0 (4.21)
+for all v ∈ L2
+H1 , q ∈ L2(S).
+Theorem 4.2. The problem (4.21) has a unique solution (uT , π). The velocity solution uT is also the unique solution of (4.2). Furthermore, with F := ‖f ‖0 + ‖u0‖L2(Γ0) the following estimate holds
+‖uT ‖W + ‖π‖0 ≤ C(1 + F )F. (4.22)
+Proof. Let uT ∈ W(V1, V1′) be the solution of (4.2). Define
+f ̃(v) := 〈∂◦uT , v〉 + a(uT , v) + c(uT , uT , v) + `(uT , v) − (f , v)0, v ∈ L2
+H1.
+Using (4.20) and straightforward estimates we obtain f ̃ ∈ L2
+H−1 .2 We use the standard argument (e.g. Remark I.1.9 in [43]) that for every t ∈ [0, T ] estimate (3.13) implies that ∇Γ ∈ L(L2(Γ(t)), H−1(t)) has a closed range R(∇Γ) in H−1(t) and so
+R(∇Γ) = ker(∇∗
+Γ)⊥, with ker(∇∗
+Γ) = V1(t).
+2To see v → c(uT , uT , v) ∈ L2
+H−1 , one uses the same arguments as in (4.16).
+19
+
+
+Note that f ̃(t) is an element of H−1(t) for a.e. t ∈ [0, T ] and, since uT is the solution of (4.2), 〈〈f ̃(t), v〉〉 = 0 for all v ∈ V1(t). Hence, f ̃(t) ∈ R(∇Γ) which means
+f ̃(t) = ∇Γπ(t) for some π(t) ∈ L2(Γ(t)) for a.e. t ∈ [0, T ].
+We take π(t) such that ∫
+Γ(t) π(t) = 0 holds. To see that t → ‖π(t)‖0,t is measurable, we note
+the following. Let φ = φ(t) ∈ H2(Γ(t)), with ∫
+Γ(t) φ ds = 0 be the solution of the Laplace
+Beltrami equation −∆Γφ = π(t) on Γ(t). We then have ‖π(t)‖20,t = ∫
+Γ(t) ∇Γφ(t)·∇Γπ(t) ds =
+∫
+Γ(t) ∇Γφ(t) · f ̃(t) ds. From f ̃ ∈ L2
+H−1 and ∇Γφ(t) ∈ H1(t) we conclude that t → ‖π(t)‖0,t is measurable. From (4.21) we get, with notation as in (4.1),
+(π, divΓv)0,t =(f (t), v(t))0,t − 〈〈∂◦uT (t), v(t)〉〉 − at(uT (t), v(t))
+− ct(uT (t), uT (t), v(t)) − `t(uT (t), v(t)) a.e. in t for v ∈ L2
+V1 .
+Using the uniform inf-sup estimate, cf. Lemma 3.3, we get
+‖π(t)‖0,t ≤ C(‖f (t)‖0,t + ‖∂◦uT ‖V1(t)′ + ‖uT (t)‖1,t(1 + ‖uT (t)‖0,t)),
+with a constant C independent of t. Hence, π ∈ L2(S) holds. The estimate for velocity in (4.22) is the same as in Theorem 4.19. Note that maxt∈[0,T ] ‖uT (t)‖0,t . F holds, cf. (4.8). Using this and the velocity estimate we obtain the bound for the pressure in (4.22). Uniqueness of uT follows by restricting to v ∈ L2
+V1 in (4.21) and using the fact that (4.2) has a unique solution. Uniqueness of π is easily derived using the inf-sup property.
+4.2. Energy balance. Multiplying (2.12) by uT , integrating over Γ(t) and using (3.16), we obtain, for a smooth solution, the energy balance of the system at any t ∈ (0, T ),
+1 2
+d
+dt ‖uT ‖2
+0,t + 2μ‖Es(uT )‖2
+0,t + (wN (H − 1
+2 κI)uT , uT )0,t = (f , uT )0,t. (4.23)
+Next we comment on the contribution of the third term in (4.23), which appears if the surface is both evolving and non-flat. First we note that H − 1
+2 κI = H − 1
+2 κP on T Γ(t)
+and H − 1
+2 κP = H − 1
+2 tr(H)P. Since tr(P) = 2 we get tr(H − 1
+2 κP) = 0. This implies
+that the symmetric matrix H − 1
+2 κP has real eigenvalues {0, λ, −λ} with the 0 eigenvalue corresponding to vectors normal to Γ(t). Take a fixed point x on the surface Γ(t) with wN (x) 6= 0. Denote by κ1 and κ2 the two principle curvatures of Γ(t). For the eigenvalue of H(x)− 1
+2 κ(x)P(x) we have λ(x) = 1
+2
+(κ1(x)−κ2(x)). Therefore wN (x)(H(x)− 1
+2 κ(x)P(x)) = 0 iff κ1(x) = κ2(x) holds, and it is indefinite otherwise. In the latter case increase or decrease of kinetic energy due to this term depends on the alignment of the flow with the principle directions and the sign of wN .
+4.3. Non-solonoidal solution. The tangential surface Navier–Stokes system (2.12) admits non-solonoidal solutions with divΓuT = g, where g = −wN κ, ∫
+Γ(t) g ds = 0 for t ∈ [0, T ], is defined by the surface geometry and evolution. We outline how the analysis for the solonoidal case presented above can be extended to such a problem. We assume that g : S → R is sufficiently regular. Let φ(t, x) be the unique solution of the Laplace-Beltrami
+20
+
+
+equation ∆Γ(t)φ = g, ∫
+Γ(t) φ ds = 0, and define u ̃T := ∇Γφ. Then (uT , π) solves (2.12) iff ̂uT = uT − u ̃T and π solve the system
+
+  
+  
+P∂◦
+̂uT + (∇Γ̂uT )̂uT + (∇Γu ̃T )̂uT + (∇Γ̂uT )u ̃T
++wN ĤuT − 2μP divΓEs(̂uT ) + ∇Γπ = ̂f
+divΓ̂uT = 0,
+(4.24)
+with
+̂f = f − (P∂◦
+u ̃T + (∇Γu ̃T )u ̃T + wN Hu ̃T − 2μP divΓEs(u ̃T )).
+The two additional terms (∇Γu ̃T )̂uT and (∇Γ̂uT )u ̃T in the momentum equation in (4.24) are linear with respect to the unknown velocity field ̂uT and can be treated very similar to the zero order term wN ĤuT . The necessary regularity of ̂f can be established using the smoothness of g and S. We skip working out further details.
+5. Discretization method. As discussed in the introduction, only very few papers are available in which finite element discretization methods for vector- or tensor valued surface PDEs, such as the surface Navier-Stokes equations, on evolving surfaces are treated. In this section we present a discretization method for the TSNSE (2.12). The method is based on a combination of an implicit time stepping scheme with a TraceFEM for discretization in space. The general idea behind TraceFEM is to use standard time-independent (bulk) finite element spaces to approximate surface quantities. The method is based on tangential calculus in the ambient space R3 ⊃ Γ(t). For scalar PDEs on evolving surfaces, a spacetime variant of TraceFEM is treated in [31]. A finite difference (FD) in time – FEM in space variant for PDEs on time-dependent surfaces is treated in [23] (scalar problems) and in time-dependent volumetric domains in [22] (scalar equations) and [46] (Stokes problem). Compared to the space–time variant the FD–FEM approach is more flexible in terms of implementation and the choice of elements. Below we explain this FD–FEM approach applied to the TSNSE. We start with the numerical treatment of the system’s evolution in time.
+5.1. Time-stepping scheme. Consider uniformly distributed time nodes tn = n∆t, n = 0, . . . , N , with the time step ∆t = T /N . We assume that the time step ∆t is sufficiently small such that
+Γ(tn) ⊂ O(Γ(tn−1)), n = 1, . . . , N, (5.1)
+with O(Γ(t)) a neighborhood of Γ(t) where a smooth extension of surface quantities on Γ(t) is well defined. Assuming a smooth extension ue
+T , we rewrite the normal time derivative ∂◦ used in (2.12) in terms of standard time and space derivatives:
+P∂◦uT + (∇ΓuT )uT = P( ∂ue
+T
+∂t + (∇ue
+T )wN + (∇ue
+T )uT
+) = P( ∂ue
+T
+∂t + (∇ue
+T )(wN + uT )).
+(5.2) On Γ(tn) the time derivative term is approximated by
+P ∂ue
+T
+∂t ≈ uT (tn) − P(tn)uT (tn−1)e
+∆t . 21
+
+
+Note that due to (5.1) uT (tn−1)e is defined on Γ(tn). The normal surface velocity wN is known, so a natural linearization of the nonlinear term in (5.2) is given by
+P∇ue
+T (wN + uT ) ≈ P(tn)∇uT (tn)e(wN (tn) + uT (tn−1)e) on Γ(tn).
+The finite difference approximations above need extensions of quantities defined on Γ(tj) to O(Γ(tj)). It is natural to consider a normal extension, which can be characterized as follows. Let n = ∇φ in O(Γ(tj)), where φ is the signed distance function for Γ(tj), and g a function defined on Γ(tj). The normal extension ge of g is such that ge = g on Γ(tj) and
+n · ∇ge = 0 in O(Γ(tj)). (5.3)
+For practical purposes, φ can be a smooth level set function for Γ rather than a signed distance. In this case, the vector field n = ∇φ/|∇φ| is normal on Γ but defines quasinormal directions in a neighborhood. Extension of the velocity field along quasi-normal directions is equally admissible. We assume that at t = 0 an extension uT (0)e on O(Γ0) solving (5.3) is given. We use the notation uj
+T and pj for an approximation of uT (tj)e and p(tj), respectively. Based on the approximations above and (5.3) consider the following time discretization method for (2.12). Given u0
+T = uT (0)e, for n = 1, . . . N , find un
+T , defined on O(Γ(tn)) and tangential to Γ(tn), i.e. (un
+T · n)|Γ(tn) = 0, and pn defined on Γ(tn) such that:
+
+   
+   
+un
+T − Pun−1
+T
+∆t + P∇un
+T (wn
+N + un−1
+T)
++wn
+N Hun
+T − 2μP divΓEs(un
+T ) + ∇Γpn = f n
+divΓun
+T = gn
+on Γ(tn), (5.4)
+n · ∇un
+T = 0 in O(Γ(tn)), (5.5)
+with wn
+N := wN (tn), wn
+N := wN (tn), f n := f (tn), gn := g(tn). Geometric information in (5.4) is taken for Γ(tn), i.e. P = P(tn), H = H(tn). For space discretization, the stationary linearized surface PDE in (5.4) can be treated using a variational approach known from the literature [16, 18], in which the tangential constraint for the solution un
+T is relaxed using a penalty approach. This technique is now outlined. We set c := wn
+N + un−1
+T , Γn := Γ(tn) and introduce the following bilinear forms on Γn, with arguments u, v, vector functions on Γn that are not necessarily tangential:
+A(u, v) = 1
+∆t
+∫
+Γn
+u · Pv ds +
+∫
+Γn
+v · P(∇u)c ds +
+∫
+Γn
+wn
+N uT Hv ds
++ 2μ
+∫
+Γn
+Es(Pu) : Es(Pv) ds + τ
+∫
+Γn
+uN vN ds, (5.6)
+B(u, p) = −
+∫
+Γn
+p divΓPu ds, (5.7)
+where τ > 0 is a penalty parameter. We introduce two Hilbert spaces
+L2
+0(Γn) := { p ∈ L2(Γn) |
+∫
+Γn
+p ds = 0 }, and
+V∗ := { v ∈ L2(Γn)3 | vT ∈ H1(Γn)3, vN ∈ L2(Γn) },
+22
+
+
+with the norm ‖v‖2
+V∗ = ‖vT ‖2
+H1(Γn) + ‖vN ‖2
+L2(Γn). A variational formulation corresponding
+to (5.4) is as follows: Find u∗ ∈ V∗, p ∈ L20(Γn) such that
+A(u∗, v) + B(v, p) =
+∫
+Γn
+ ̃f · v ds for all v ∈ V∗
+B(u∗, q) = −
+∫
+Γn
+gnq ds for all q ∈ L2
+0(Γn),
+(5.8)
+with  ̃f := f + 1
+∆t Pun−1
+T . This variational formulation is consistent in the sense that if (un
+T , pn) is a strong solution of (5.4) then (u∗, p) = (un
+T , pn) solves (5.8). Using the Korn type inequality (3.11) and an inf-sup property of B(·, ·) it can be shown that for ∆t sufficiently small and τ sufficiently large (but independent of ∆t) the problem (5.8) is well-posed and its unique solution u∗ satisfies u∗ · n = 0, cf. [16] for a precise analysis. Therefore, for such ∆t and τ eq. (5.8) is a well-posed weak formulation of (5.4). For a finite element method introduced later it is important that the space V∗ admits vector functions not necessarily tangential to Γn. The solution u of (5.8) is defined only on Γn and we do not specify an extension as in (5.5), yet. Such an extension will be determined in the finite element method, as explained in the next section. Remark 5.1. In the practical implementation of a finite element method for (5.8) the surface Γ(tn) will be approximated by a piecewise planar surface Γh and the corresponding projection operator Ph has discontinuities across boundaries between different planar segments of this approximate surface. This causes difficulties for the terms in the bilinear forms A(·, ·), B(·, ·) where derivatives of Ph are involved. These can be avoided by eliminating these derivatives as follows. For p ∈ H1(Γn) we have B(u, p) = ∫
+Γn ∇Γp · Pu ds =
+∫
+Γn ∇Γp · u ds, which elimates derivatives of P. For the bilinear form A(·, ·) we can use the relation ∇Γ(Pu) = ∇Γu − uN H and thus Es(Pu) = Es(u) − uN H.
+5.2. Finite element method. We now explain the spatial discretization of (5.8). Consider a fixed polygonal domain Ω ⊂ R3 that strictly contains Γ(t) for all t ∈ (0, T ). Let {Th}h>0 be a family of shape-regular consistent triangulations of the bulk domain Ω, with
+max
+K ∈Th
+diam(K) ≤ h. Corresponding to the bulk triangulation we define a standard finite
+element space of piecewise polynomial continuous functions of a fixed degree k ≥ 1:
+Vk
+h = {vh ∈ C(Ω) : vh ∈ Pk(K), ∀K ∈ Th}. (5.9)
+The bulk velocity and pressure finite element spaces are standard Taylor–Hood spaces:
+Uh := (V 2
+h )3, Qh := V 1
+h.
+For efficiency reasons, we use an extension not in the given (h and ∆t-independent) neighborhood O(Γ(tn)) of Γn = Γ(tn) but in a narrow band around Γn. This ∆t-dependent narrow band consists of all tetrahedra within a δn distance from the surface, with
+δn := cδ sup
+t∈(tn−1 ,tn )
+‖wN ‖L∞(Γ(t)) ∆t (5.10)
+and cδ ≥ 1, an O(1) mesh-independent parameter. More precisely, we define the meshdependent narrow band
+O∆t(Γn) :=
+⋃ {K : K ∈ Th : dist(x, Γn) ≤ δn for some x ∈ K} .
+23
+
+
+We also need a subdomain of O∆t(Γn) only consisting of tetrahedra intersected by Γn,
+ωn
+Γ :=
+⋃ {K ∈ Th : K ∩ Γn 6= ∅} .
+In a time step from tn−1 to tn, the surface may move up to ∆t sup
+t∈(tn−1 ,tn )
+‖wN ‖L∞(Γ(t)) dis
+tance in normal direction, which is thus the maximum distance from Γn to Γn−1. Therefore, cδ in (5.10) can be taken sufficiently large, but independent of h, such that
+ωn
+Γ ⊂ O∆t(Γn−1). (5.11)
+This condition is the discrete analog of (5.1) and it is essential for the well-posedness of the finite element problem at time step n. Next we define finite element spaces for velocity and pressure as restrictions to the narrow band O∆t(Γn) of the time-independent bulk spaces Uh and Qh:
+Un
+h := { v|O∆t(Γn) | v ∈ Uh }, Qn
+h := { q|O∆t(Γn) | q ∈ Qh }. (5.12)
+Denote by Ih(v) ∈ Un
+h the Lagrange interpolation of v ∈ C(O∆t(Γn))3. Our finite element formulation is based on formulation (5.8). Recall that in (5.8) we do not require u∗ to be tangential to Γ(t). The tangential condition is weakly enforced by the penalty term in (5.6) with penalty parameter τ . Such a penalty approach is often used in finite element methods for vector values surface PDEs [14, 18, 29, 32]. In the discretization in addition to this penalty term we include two volume terms with integrals over ωn
+Γ and O∆t(Γn). The discrete problem is as follows: For given un−1
+h ∈ Un−1
+h and cn−1
+h = un−1
+h + Ih(we
+N (tn)n) find un
+h ∈ Un
+h, pn
+h ∈ Qn
+h, satisfying
+∫
+Γn
+( un
+h − un−1
+h
+∆t + (∇un
+h )cn−1
+h + un
+N Hun
+h
+)
+· Pvh ds
++2μ
+∫
+Γn
+Es(Pun
+h) : Es(Pvh) ds + τ
+∫
+Γn
+(n · un
+h)(n · vh) ds (5.13)
++
+∫
+Γn
+∇Γpnvh ds + ρu
+∫
+O∆t (Γn )
+(n · ∇un
+h)(n · ∇vh) dx =
+∫
+Γn
+f nvh ds ∀ vh ∈ Un
+h
+−
+∫
+Γn
+∇Γq un
+h ds + ρp
+∫
+ωn
+Γ
+(n · ∇pn
+h)(n · ∇qh) dx =
+∫
+Γn
+gnqh ds ∀ qh ∈ Qn
+h,
+for n = 1, . . . , N . The term ∫
+O∆t(Γn)(n · ∇un
+h)(n · ∇vh) dx, with a parameter ρu, is included for two reasons. Firstly, this term is often used in TraceFEM to improve the conditioning of the resulting stiffness matrix, cf. e.g. [7]. Secondly, this volume term weakly enforces the extension condition (5.5) with O(Γ(tn)) replaced by O∆t(Γn). In particular, at time tn a well-conditioned algebraic system is solved for all discrete velocity degrees of freedom in the neighborhood O∆t(Γn); we refer to [23] for a stability and convergence analysis of such an extension procedure for a scalar surface equation. The volume term in the pressure equation is added for the purpose of numerical stabilization of pressure [28]. The formulation (5.13) is consistent in the sense that the equations hold if the solution of (5.4), extended along normal directions, is substituted instead of un
+h and pn
+h. Penalty and stabilization parameters are set following the error analysis in [28]:
+τ = h−2, ρu = h−1, ρp = h.
+24
+
+
+In practice, Γn, n = 1, 2, . . . , is replaced by a sufficiently accurate approximation Γn
+h in such a way that integrals over Γn
+h can be computed accurately and efficiently. Other geometric quantities, i.e. n, H and P, are also replaced by sufficiently accurate approximations. The derivatives of projected fields, i.e. Es(Pun
+h) and Es(Pvh), are handled as discussed in Remark 5.1. For the surface Stokes problem discretized by the trace Pk+1–Pk, k ≥ 1, elements, the introduced geometric error is analyzed in [17]. Below we will use the lowest order trace Taylor-Hood pair P2–P1. An approximation Γn
+h that is piece-wise planar with respect to Th leads to an O(h2) geometric error. This geometric error order is suboptimal given the interpolation order of the Taylor–Hood pair P2–P1. This suboptimality can be overcome by the isoparametric TraceFEM [12]. For numerical results in this paper we use the following less efficient but simpler approach. For the geometry approximation (only) we construct a piece-wise planar Γn
+h with respect to a local refinement of each tetrahedron from ωn
+Γ. The number of local refinement levels is chosen sufficiently large to restore the optimal O(h3) convergence. Note that this local refinement only influences the surface approximation and not the finite element spaces used. Finally we note that the use of BDF2 instead of implicit Euler in the implicit time stepping scheme leads to obvious modifications of (5.13). In the experiments in the next section we used this second order in time variant of (5.13).
+6. Numerical examples. For discretization, an initial triangulation Th0 was build by dividing Ω = (− 5
+3, 5
+3 )3 into 23 cubes and further splitting each cube into 6 tetrahedra with
+h0 = 5
+3 . Further, the mesh is refined in a sufficiently large neighborhood of a surface so that tetrahedra cut by Γ(t) belong to the same refinement level for all t ∈ [0, T ]. ` ∈ N denotes the level of refinement and h` = 5
+3 2−`. The trace P2–P1 Taylor–Hood finite element method with BDF2 time stepping, as described in the previous section, is applied.
+6.1. Convergence for a smooth solution. To verify the implementation and to check the convergence order of the discrete solution, we set up an experiment with a known tangential flow along an expanding/contracting sphere. In this example the total area of Γ is not preserved, but it allows to prescribe a flow u analytically and calculate f and g. The surface Γ is given by its distance function
+d(x, t) := ‖x‖ − r(t), r(t) := 1 + 1
+4 sin(2 π t), (6.1)
+We consider t ∈ [0, 1]. The surface normal velocity is then wN = wN n, with wN (t) =
+r′(t) = π cos(2 π t)
+2 , n(x) = x/|x|. We choose μ = 5 × 10−3. The exact solution is given by
+u(x, t) := P(x, t) (1 − 2 t, 0, 0)T , p(x) := x y2 + z, (6.2)
+and right hand sides f and g = divΓuT + wN κ are computed accordingly from (6.1)–(6.2). For numerical integration, exact solutions and right hand sides are extended along normal directions to Γ. The numerical solution was computed on four consecutive meshes with refinement levels ` ∈ {2, . . . , 5} and a time step ∆t = 0.05 on level 2; ∆t is halved in each spatial refinement, and for parameter in (5.10) we set cδ = 1.1. A mesh in O∆t(Γn) together with the embedded
+25
+
+
+t = 0 t = 0.15 t = 0.9
+Fig. 6.1: Illustration of the extension mesh and solution at mesh level ` = 3.
+Mesh level ` 2 3 4 5
+h 4.17 × 10−1 2.08 × 10−1 1.04 × 10−1 5.21 × 10−2
+Averaged # d.o.f. 4.41 × 103 1.73 × 104 6.82 × 104 2.73 × 105
+‖u − uh‖1 Order ‖u − uh‖L2(S) Order ‖p − ph‖L2(S) Order
+9.3 × 10−1 1.3 × 10−1 3.2 × 10−1
+1.9 × 10−1 2.3 9.9 × 10−3 3.72 3.5 × 10−2 3.2
+4.3 × 10−2 2.13 9.2 × 10−4 3.42 7.3 × 10−3 2.27
+1.2 × 10−2 1.92 1.2 × 10−4 2.98 1.8 × 10−3 2.02
+Table 6.1: Convergence results for the example with analytical solution.
+Γ(t) and computed solution are illustrated in Figure 6.1. In Table 6.1 we show the mesh parameter h and the resulting (averaged over all time steps) number of active degrees of freedom (# d.o.f.). We see that a mesh refinement leads to approximately four times more degrees of freedom. Table 6.1 further reports the velocity and pressure errors measured in (approximate) L2
+V1 and L2(S) norms. These norms were computed using a quadrature rule for time integration. Results demonstrate the expected 2nd order convergence in the “natural” norms and a higher order for the velocity error in the L2(S) norm. These orders are optimal for the P2–P1 elements used.
+6.2. Tangential flow on a deforming sphere. In this numerical example we consider a deforming unit sphere and compute the induced tangential flow, i.e., the numerical solution of the TSNSE (2.12). Denote by Γ0 the reference sphere of radius 1 with the center in the origin O. Consider spherical coordinates (r, θ, φ) ∈ (0, ∞) × [0, π] × [0, 2π) and denote by Hnm(θ, φ), the spherical harmonic of degree n and order m. Assume that Hnm are
+26
+
+
+normalized, i.e. ‖Hnm‖L2(Γ0) = 1. For the evolving surface we consider as ansatz
+Γ(t) =
+
+
+
+x = (r, θ, φ) | r = 1 +
+N
+∑
+n=1
+∑
+|m|≤n
+An,m(t)Hm
+n (θ, φ)
+
+
+
+, (6.3)
+with suitably chosen coefficients An(t). The function ξ := ∑N
+n=1
+∑
+|m|≤n An,m(t)Hnm(θ, φ) describes the radial deformation. We assume small oscillations, ‖ξ‖ 1. Under this assumption, an accurate approximation of the normal velocity is given by wN = wN n, with
+wN = dξ
+dt =
+N
+∑
+n=1
+∑
+|m|≤n
+dAn,m
+dt Hm
+n , n(x) = x/|x|. (6.4)
+We want the surface to be inextensible, i.e., d
+dt |Γ(t)| = 0. Appropriate coefficients An,m(t) such that we have inextensibility can be determined as follows. Application of the surface Reynolds transport formula and integration by parts gives for the variation of surface area:
+d
+dt |Γ(t)| = d
+dt
+∫
+Γ(t)
+1 ds =
+∫
+Γ(t)
+divΓwN ds =
+∫
+Γ(t)
+κwN ds. (6.5)
+For the doubled mean curvature we have, cf. [21],
+κ = 2 − 2ξ − ∆Γξ = 2 −
+N
+∑
+n=1
+∑
+|m|≤n
+{2An,mHm
+n − n(n + 1)An,mHm
+n}
+=2+
+N
+∑
+n=1
+∑
+|m|≤n
+An,m(n(n + 1) − 2)Hm
+n.
+Using ∫
+Γ0 Hnm = 0, n ≥ 1, and ∫
+Γ0 HnmHm′
+n′ = δn′
+n δm′
+m , we compute for the area variation:
+d
+dt |Γ(t)| =
+∫
+Γ(t)
+κwN ds =
+N
+∑
+n=1
+∑
+|m|≤n
+(n − 1)(n + 2) dAn,m
+dt An,m. (6.6)
+Based on this formula we set A2,0 = 2 cos(ωt), A3,0 = √10 sin(ωt), and An,m = 0 for other
+coefficients. For this choice of coefficients one easily verifies d
+dt |Γ(t)| = 0. The TSNSE equations (2.12) are then solved with the right hand side given by (2.13) with uN = wN computed from (6.4). The initial velocity is zero. In the first numerical example we let = 0.2, ω = 2π, μ = 1
+2 10−4, and include H20 and
+H30, two zonal spherical harmonics of degree 2 and 3. The relative variation of the surface area Γ(t) in the left plot in Figure 6.2 shows less than 0.1% of surface variation, which is due to approximation errors and finite (rather than infinitesimal) deformations. The latter causes an approximation error in (6.4). The velocity field induced by these axisymmetric deformations of the sphere is visualized in Figure 6.3. We see that the velocity pattern is dominated by a sink-and-source flow driven by the term −κwN on the right-hand side of the divergence condition in (2.12).
+27
+
+
+Fig. 6.2: Relative surface area variation |Γ(0)|−|Γ(t)|
+|Γ(0)| as a function of time for axisymmetric (left plot) and asymmetric (right plot) deformations of the sphere.
+We repeat the experiment, but decrease the viscosity to μ = 1
+2 10−5 and add two more
+spherical harmonics, the sectorial H31 harmonic and the tesseral H42 one, to make the deformation asymmetric. The radial displacement in this experiment is then given by
+ξ = 0.2
+(1
+2 cos(2π t) H0
+2(x) + √110 sin(2π t) H0
+3(x)
+)
+,
++ 0.1 ( 1
+2 cos(4π t) H1
+3(x) + 5
+18 sin(4π t) H2
+4(x)) .
+Again, the coefficients are such that d
+dt |Γ(t)| = 0 according to equation (6.6). The resulting velocity field is visualized in Figure 6.4. The velocity pattern is still dominated by the sinkand-source flow. Note that in both cases there are no outer forces and the flow is completely “geometry driven”.
+REFERENCES
+[1] A. Alphonse, C. M. Elliott, and B. Stinner, An abstract framework for parabolic PDEs on evolving spaces, Port. Math., (2015), pp. 1–46.
+[2] V. Arnold, Sur la g ́eom ́etrie diffe ́rentielle des groupes de lie de dimension infinie et ses applications `a l’hydrodynamique des fluides parfaits, in Annales de l’institut Fourier, vol. 16, 1966, pp. 319–361. [3] T. Aubin, Nonlinear analysis on manifolds. Monge-Ampere equations, Springer, Berlin, 1982. [4] J. W. Barrett, H. Garcke, and R. N ̈urnberg, Numerical computations of the dynamics of fluidic membranes and vesicles, Physical review E, 92 (2015), p. 052704.
+[5] A. Bonito, A. Demlow, and M. Licht, A divergence-conforming finite element method for the surface Stokes equation, SIAM Journal on Numerical Analysis, 58 (2020), pp. 2764–2798.
+[6] P. Brandner, A. Reusken, and P. Schwering, On derivations of evolving surface Navier-Stokes equations, arXiv preprint arXiv:2110.14262, (2021).
+[7] E. Burman, P. Hansbo, M. G. Larson, and A. Massing, Cut finite element methods for partial differential equations on embedded manifolds of arbitrary codimensions, ESAIM: Mathematical Modelling and Numerical Analysis, 52 (2018), pp. 2247–2282.
+[8] C. Chan, M. Czubak, and M. Disconzi, The formulation of the Navier-Stokes equations on Riemannian manifolds, J. Geom. Phys., 121 (2017), pp. 335–346.
+[9] G. Dziuk and C. Elliott, Finite elements on evolving surfaces, IMA J. Numer. Anal., 27 (2007), pp. 262–292.
+[10] G. Dziuk and C. M. Elliott, Finite element methods for surface PDEs, Acta Numerica, 22 (2013), pp. 289–396.
+28
+
+
+t = 0 t = 0.1 t = 0.3
+t = 0.5 t = 0.7 t = 0.9
+t=1
+Fig. 6.3: Visualization of velocity field for axisymmetric deformations of the sphere ; mesh level ` = 4, ∆t = 0.01. Click here to see the full animation.
+[11] D. G. Ebin and J. Marsden, Groups of diffeomorphisms and the motion of an incompressible fluid, Annals of Mathematics, 92 (1970), pp. 102–163.
+[12] J. Grande, C. Lehrenfeld, and A. Reusken, Analysis of a high-order trace finite element method for PDEs on level set surfaces, SIAM Journal on Numerical Analysis, 56 (2018), pp. 228–255.
+[13] M. E. Gurtin and A. I. Murdoch, A continuum theory of elastic material surfaces, Archive for Rational Mechanics and Analysis, 57 (1975), pp. 291–323.
+[14] P. Hansbo, M. G. Larson, and K. Larsson, Analysis of finite element methods for vector Laplacians on surfaces, IMA J. Numer. Anal., (2019). [15] P. Hartman, Ordinary Differential Equations, vol. 590, John Wiley and Sons, 1964.
+29
+
+
+t = 0 t = 0.1 t = 0.3
+t = 0.5 t = 0.7 t = 0.9
+t=1
+Fig. 6.4: Visualization of velocity field for asymmetric deformations of the sphere ; mesh level ` = 4, ∆t = 0.01. Click here to see the full animation.
+[16] T. Jankuhn, M. A. Olshanskii, and A. Reusken, Incompressible fluid problems on embedded surfaces: Modeling and variational formulations, Interfaces and Free Boundaries, 20 (2018), pp. 353377.
+[17] T. Jankuhn, M. A. Olshanskii, A. Reusken, and A. Zhiliakov, Error analysis of higher order trace finite element methods for the surface Stokes equations, Journal of Numerical Mathematics, 29 (2021), pp. 245–267.
+[18] T. Jankuhn and A. Reusken, Higher order trace finite element methods for the surface Stokes equation, Preprint arXiv:1909.08327, (2019).
+[19] , Trace finite element methods for surface vector-Laplace equations, IMA Journal of Numerical Analysis, 41 (2020), pp. 48–83.
+30
+
+
+[20] H. Koba, C. Liu, and Y. Giga, Energetic variational approaches for incompressible fluid systems on an evolving surface, Quarterly of Applied Mathematics, (2016). [21] H. Lamb, Hydrodynamics, University Press, 1924.
+[22] C. Lehrenfeld and M. Olshanskii, An Eulerian finite element method for PDEs in time-dependent domains, ESAIM: M2AN, 53 (2019), pp. 585–614.
+[23] C. Lehrenfeld, M. A. Olshanskii, and X. Xu, A stabilized trace finite element method for partial differential equations on evolving surfaces, SIAM Journal on Numerical Analysis, 56 (2018), pp. 1643–1672.
+[24] T.-H. Miura, On singular limit equations for incompressible fluids in moving thin domains, Quart. Appl. Math., 76 (2018), pp. 215–251.
+[25] A. Murdoch and H. Cohen, Symmetry considerations for material surfaces, Archive for Rational Mechanics and Analysis, 72 (1979), pp. 61–98.
+[26] I. Nitschke, S. Reuther, and A. Voigt, Hydrodynamic interactions in polar liquid crystals on evolving surfaces, Phys. Rev. Fluids, 4 (2019), p. 044002.
+[27] M. Olshanskii, A. Reusken, and J. Grande, A finite element method for elliptic equations on surfaces, SIAM J. Numer. Anal., 47 (2009), pp. 3339–3358.
+[28] M. Olshanskii, A. Reusken, and A. Zhiliakov, Inf-sup stability of the trace P2-P1 Taylor–Hood elements for surface PDEs, Mathematics of Computation, 90 (2021), pp. 1527–1555.
+[29] M. A. Olshanskii, A. Quaini, A. Reusken, and V. Yushutin, A finite element method for the surface Stokes problem, SIAM Journal on Scientific Computing, 40 (2018), pp. A2492–A2518.
+[30] M. A. Olshanskii and A. Reusken, Trace finite element methods for PDEs on surfaces, in Geometrically Unfitted Finite Element Methods and Applications, S. P. A. Bordas, E. Burman, M. G. Larson, and M. A. Olshanskii, eds., Cham, 2017, Springer International Publishing, pp. 211–258. [31] M. A. Olshanskii, A. Reusken, and X. Xu, An Eulerian space–time finite element method for diffusion problems on evolving surfaces, SIAM Journal on Numerical Analysis, 52 (2014), pp. 13541377.
+[32] M. A. Olshanskii and V. Yushutin, A penalty finite element method for a fluid system posed on embedded surface, Journal of Mathematical Fluid Mechanics, 21 (2019), p. 14.
+[33] J. Pru ̈ss, G. Simonett, and M. Wilke, On the Navier-Stokes equations on surfaces, J. Evol. Equ., 21 (2021), pp. 3153–3179.
+[34] P. Rangamani, A. Agrawal, K. K. Mandadapu, G. Oster, and D. J. Steigmann, Interaction between surface shape and intra-surface viscous flow on lipid membranes, Biomechanics and modeling in mechanobiology, (2013), pp. 1–13.
+[35] A. Reusken, Stream function formulation of surface Stokes equations, IMA Journal of Numerical Analysis, 40 (2020), pp. 109–139.
+[36] S. Reuther and A. Voigt, The interplay of curvature and vortices in flow on curved surfaces, Multiscale Modeling & Simulation, 13 (2015), pp. 632–643.
+[37] , Erratum: The interplay of curvature and vortices in flow on curved surfaces, Multiscale Modeling & Simulation, 16 (2018), pp. 1448–1453.
+[38] , Solving the incompressible surface Navier–Stokes equation by surface finite elements, Physics of Fluids, 30 (2018), p. 012107.
+[39] P. Saffman and M. Delbr ̈uck, Brownian motion in biological membranes, Proceedings of the National Academy of Sciences, 72 (1975), pp. 3111–3113.
+[40] G. Simonett and M. Wilke, H∞-calculus for the surface Stokes operator and applications, arXiv preprint arXiv:2111.12586, (2021).
+[41] P. Steinmann, On boundary potential energies in deformational and configurational mechanics, Journal of the Mechanics and Physics of Solids, 56 (2008), pp. 772–800.
+[42] M. E. Taylor, Analysis on Morrey spaces and applications to Navier-Stokes and other evolution equations, Communications in Partial Differential Equations, 17 (1992), pp. 1407–1456.
+[43] R. Temam, Navier–Stokes equations, theory and numerical analysis, North-Holland, Amsterdam, 1977.
+[44] , Infinite-dimensional dynamical systems in mechanics and physics, Springer, New York, 1988. [45] A. Torres-S ́anchez, D. Mill ́an, and M. Arroyo, Modelling fluid deformable surfaces with an emphasis on biological interfaces, Journal of Fluid Mechanics, 872 (2019), pp. 218–271.
+[46] H. von Wahl, T. Richter, and C. Lehrenfeld, An unfitted Eulerian finite element method for the
+31
+
+
+time-dependent Stokes problem on moving domains, IMA Journal of Numerical Analysis, (2021). [47] A. Yavari, A. Ozakin, and S. Sadik, Nonlinear elasticity in a deforming ambient space, J. Nonlinear Sci., 26 (2016), pp. 1651–1692.
+32
