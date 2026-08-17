@@ -1,11 +1,13 @@
 {
 	"translatorID": "9cb70025-a888-4a29-a210-93ec52da40d4",
+	"translatorType": 3,
 	"label": "BibTeX",
 	"creator": "Simon Kornblith, Richard Karnesky and Emiliano heyns",
 	"target": "bib",
 	"minVersion": "2.1.9",
-	"maxVersion": "",
+	"maxVersion": null,
 	"priority": 200,
+	"inRepository": true,
 	"configOptions": {
 		"async": true,
 		"getCollections": true
@@ -16,9 +18,7 @@
 		"exportFileData": false,
 		"useJournalAbbreviation": false
 	},
-	"inRepository": true,
-	"translatorType": 3,
-	"lastUpdated": "2026-04-01 18:00:00"
+	"lastUpdated": "2026-08-03 16:05:00"
 }
 
 /*
@@ -986,6 +986,8 @@ function beginRecord(type, closeChar) {
 				
 				item.extra = extraFieldsToString(item._extraFields);
 				delete item._extraFields;
+				delete item._eprint;
+				delete item._eprinttype;
 				
 				if (!item.publisher && item.backupPublisher){
 					item.publisher=item.backupPublisher;
@@ -3083,7 +3085,9 @@ var reversemappingTable = {
 	"{\\~y}"                          : "\u1EF9", // LATIN SMALL LETTER Y WITH TILDE
 	"{\\~}"                           : "\u223C", // TILDE OPERATOR
 	"~"                               : "\u00A0" // NO-BREAK SPACE
-};/** BEGIN TEST CASES **/
+};
+
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "import",
@@ -3142,9 +3146,15 @@ var testCases = [
 					}
 				],
 				"tags": [
-					"Vulcanian eruptions",
-					"breadcrust",
-					"plinian"
+					{
+						"tag": "Vulcanian eruptions"
+					},
+					{
+						"tag": "breadcrust"
+					},
+					{
+						"tag": "plinian"
+					}
 				],
 				"notes": [],
 				"seeAlso": []
@@ -3718,7 +3728,8 @@ var testCases = [
 						"creatorType": "author"
 					}
 				],
-				"extra": "DOI: 10.12345/123456\nLCCN: L123456\nMR: MR123456\nZbl: ZM123456\nPMID: P123456\nPMCID: PMC123456\narXiv: AX123456",
+				"DOI": "10.12345/123456",
+				"extra": "LCCN: L123456\nMR: MR123456\nZbl: ZM123456\nPMID: P123456\nPMCID: PMC123456\narXiv: AX123456",
 				"itemID": "smith_testing_????",
 				"attachments": [],
 				"tags": [],
@@ -3857,7 +3868,9 @@ var testCases = [
 				"itemID": "madoc40756",
 				"language": "Deutsch",
 				"pages": "426–446",
+				"place": "Stuttgart",
 				"publicationTitle": "Zeitschrift für Soziologie : ZfS",
+				"publisher": "Lucius & Lucius",
 				"url": "https://madoc.bib.uni-mannheim.de/40756/",
 				"volume": "44",
 				"attachments": [],
