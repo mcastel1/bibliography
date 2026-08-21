@@ -1,0 +1,1165 @@
+Steric interactions and out-of-equilibrium processes control the internal organization of bacteria
+Ander Movilla Miangolarra,1, 2 Sophia Hsin-Jung Li,3 Jean-Franc ̧ois Joanny,1, 2, 4, 5 Ned S. Wingreen,3, 6, ∗ and Michele Castellana1, 2, ∗
+1Laboratoire Physico-Chimie Curie, Institut Curie, PSL Research University, CNRS UMR 168, Paris, France 2Sorbonne Universit ́es, UPMC Univ. Paris 06, Paris, France 3Department of Molecular Biology, Princeton University, Princeton, NJ 08544, United States 4ESPCI Paris, PSL Research University, 10 rue Vauquelin, 75005, Paris, France 5Coll`ege de France, 11 Place Marcelin Berthelot, 75231, Paris Cedex05, France 6Lewis-Sigler Institute for Integrative Genomics, Princeton University, Princeton, NJ 08544, United States (Dated: April 20, 2021)
+Despite the absence of a membrane-enclosed nucleus, the bacterial DNA is typically condensed into a compact body—the nucleoid. This compaction influences the localization and dynamics of many cellular processes including transcription, translation, and cell division. Here, we develop a model that takes into account steric interactions among the components of the Escherichia coli transcriptional-translational machinery (TTM) and out-of-equilibrium effects of mRNA transcription, translation, and degradation, in order to explain many observed features of the nucleoid. We show that steric effects, due to the different molecular shapes of the TTM components, are sufficient to drive equilibrium phase separation of the DNA, explaining the formation and size of the nucleoid. In addition, we show that the observed positioning of the nucleoid at midcell is due to the out-of-equilibrium process of messenger RNA (mRNA) synthesis and degradation: mRNAs apply a pressure on both sides of the nucleoid, localizing it to midcell. We demonstrate that, as the cell grows, the production of these mRNAs is responsible for the nucleoid splitting into two lobes, and for their well-known positioning to 1/4 and 3/4 positions on the long cell axis. Finally, our model quantitatively accounts for the observed expansion of the nucleoid when the pool of cytoplasmic mRNAs is depleted. Overall, our study suggests that steric interactions and out-of-equilibrium effects of the TTM are key drivers of the internal spatial organization of bacterial cells.
+Living systems show a high degree of organization at multiple scales, from the molecular scale to the macroscopic scales of organisms and ecosystems. A notable example of spatial organization in cells is that of bacterial DNA: despite the absence of a nuclear membrane, in many bacteria such as E. coli, the chromosome is not randomly spread throughout the intracellular space, but is markedly localized [1, 2], and forms a compact structure—the nucleoid. The localization and degree of confinement of the nucleoid varies with growth rate and among bacterial species [3]. This organization and localization of the chromosome has been shown to play an important role in many biological processes, including transcription via the distribution of RNA polymerases [4], translation via localization of ribosomes [5], and the localization and diffusion of protein aggregates [6]. Despite the importance of chromosome localization, the physical causes and regulatory mechanisms of its confinement are still largely unknown. One of the causes of the compaction of the nucleoid could be the fact that the cytoplasm acts as a poor solvent for the chromosome [7], but many other factors could also affect nucleoid compaction, such as nucleoid-associated proteins that modify the folding conformation of the chromosome [8]. Regard
+∗ To whom correspondence should be addressed. E-mails: wingreen@princeton.edu and michele.castellana@curie.fr
+ing localization, various studies have shown that, while the nucleoid is located at the center of the cell before chromosome replication, during and after replication the daughter chromosomes move out of the center [9], typically localizing at 1/4 and 3/4 positions on the long cell axis [10]. With respect to nucleoid size, one of the determinants could be macromolecular crowding [11].
+Previous theoretical efforts to explain the compaction and localization of the nucleoid have been mostly based on Monte Carlo simulations [12, 13]. It was found that excluded-volume effects between DNA and polysomes—messenger RNAs (mRNAs) bound to multiple ribosomes—may account for segregation of the nucleoid from the rest of the cytoplasm [13]. However, the mechanism for the positioning of the nucleoid, both before and after chromosome replication, remains unclear, and has been hypothesized to require an active process [12].
+In this study, we develop a statistical-physics description of the spatial localization of the molecular components of the E. coli transcriptional-translational machinery (TTM)—composed of DNA, mRNAs, and ribosomes—and identify the physical mechanisms underlying their localization patterns. Unlike previous studies, we leverage semi-analytical methods, e.g., the virial expansion, which allow us to tackle the complexity of the system, and reduce it to a set of computationally tractable reaction-diffusion equations. In previous ap
+arXiv:2104.09105v1 [q-bio.CB] 19 Apr 2021
+
+
+2
+proaches the localization of the nucleoid was imposed as an input of the model [14]. By contrast, here we quantitatively demonstrate that localization patterns on the cellular scale spontaneously emerge from microscopic features on a molecular scale, i.e., steric effects between DNA and polysomes. In particular, we show that the segregation of the nucleoid from mRNAs and ribosomes is caused by equilibrium excluded-volume effects only, as in classical phase separation. Also, our analysis shows that other dynamical features, such as nucleoid positioning at midcell and at 1/4 and 3/4 along the cell axis, are driven by the synthesis and degradation of mRNAs, making it a purely out-of-equilibrium feature. Finally, we compare these results with experimental data obtained from cells growing filamentously [10], either with or without chromosome replication, providing important physical and mechanistic insights.
+RESULTS
+We describe the dynamics of the E. coli TTM by means of a minimal out-of-equilibrium statistical-physics model. We first derive dynamical equations for the currents of DNA segments, mRNAs and ribosomes, incorporating steric effects and using the virial expansion to compute the local free energy. This procedure is illustrated for a toy system of a binary mixture of hard spheres in SI Appendix, Section A, and then for the full TTM in Section B. By observing that E. coli cells have an approximately cylindrical shape and symmetry, we reduce the threedimensional cytoplasm to a single dimension along the long cell axis (see Fig. 1A and B) and describe the TTM in terms of the one-dimensional concentrations of DNA segments, mRNAs, and ribosomes. Namely, we denote by cDNA(x, t) the concentration of DNA plectoneme segments at position x along the long cell axis and time t, by ρn(x, t) that of polysomes composed of an mRNA and n ribosomes, and by cF(x, t) that of freely diffusing ribosomes, see Fig. 1A and B. We then consider the reactiondiffusion equations for these concentrations, where we incorporate the currents and the chemical reactions, i.e., ribosome-mRNA binding and unbinding, mRNA synthesis and degradation:
+∂tcDNA(x, t) = − ∂xJDNA(x, t), [1] ∂tρn(x, t) = − ∂xJn(x, t) − koncF(x, t)ρn(x, t) − koff n ρn(x, t) + koncF(x, t)ρn−1(x, t) + koff(n + 1)ρn+1(x, t) + α cDNA(x, t)δn,0 − βρn(x, t), [2]
+∂tcF(x, t) = − ∂xJF(x, t) − koncF(x, t) ∑
+n
+ρn(x, t)
++ koff
+∑
+n
+nρn(x, t) + β ∑
+n
+nρn(x, t). [3]
+In Eqs. [1]–[3], JDNA, Jn, and JF denote the particle cur
+rents (derived in SI Appendix, Sections A and B), kon and koff the rate constants for ribosome binding and unbinding due to completion of translation, respectively, α the rate at which mRNAs are created locally by transcription, and β the mRNA degradation rate. Regarding the steric interactions, as shown in Fig. 1A and B, we consider ribosomes as spheres of radius R and, because mRNAs and polysomes with n ribosomes are globular polymer coils, we also approximate them as spheres of radius R and Rn, respectively. Because the E. coli DNA has a branched, plectonemic structure with a well-defined persistence length and transverse radius [15], we consider the chromosome as a set of cylindrical segments, where the length of each segment corresponds to the persistence length. For the sake of computational tractability, we treat the DNA segments as disconnected as in Fig. 1B. When deriving the particle currents, the quantity of interest is the free energy of the particles. For independent spherical particles (ribosomes and polysomes), the entropic term in the free energy is included in the virial expansion. However, for the DNA plectoneme the situation is different, due to the connectivity between the DNA “cylinders”. While connectivity should not have a large effect on the virial terms, it is not clear that this is the case for entropy. Nevertheless, we find that this entropic term is small compared to the virial terms of the DNA free energy and therefore we neglect it (see SI Appendix, Section B 2).
+Model parameters
+We fix the model parameters from experiments as follows. First, we consider the parameters on a molecular scale: The radius and length of DNA cylinders are ρ = 10 nm and L = 200 nm [13, 15], respectively, where L/2 is approximately the persistence length of a DNA plectoneme [15, 16]. However, two overlapping DNA plectonemes may be nested into each other, as discussed in [13]. To model this nesting, while we use the radius ρ to describe overlaps between a DNA cylinder and ribosomes or mRNAs in the virial expansion, we use a
+smaller, effective radius ρ′ < ρ for overlaps between two DNA cylinders [13], see SI Appendix, Section B for details. We take the ribosome radius to be R = 10 nm [13], and the radius of a ribosome-free mRNA to be R0 = 20 nm [17]. The radius Rn of an mRNA loaded with n ribosomes is estimated as the sum of the volume of a bare mRNA and n times the volume of a ribosome, i.e., 4/3π(R03 + nR3) yielding Rn = (R03 + nR3)1/3. We estimated the diffusion constant of the different species as follows: DF = 0.4 μm2/s for ribosomes, and
+Dn = 5 × 10−2μm2/s for bare mRNAs and polysomes [2, 18]. Because DNA segments have a linear dimension similar to that of polysomes, we assume that their diffusion coefficients will also be similar and take DDNA =
+
+
+3
+FIG. 1: Steady-state concentration profiles for E. coli growing filamentously. (A) Cartoon of an E. coli cell and its transcriptional-translational machinery, where the horizontal axis is the single dimension we consider. Blue coils represent mRNAs in polysomes, the red coil denotes the DNA plectoneme, and ribosomes are shown in black. Blow-ups: polysome composed of an mRNA and n ribosomes with gyration radius Rn (left) and plectonemic structure of the DNA with persistence length L (right). (B ) Schematic of the components underlying the reaction-diffusion model, where the DNA plectoneme is represented by a set of disjoint cylinders, and polysomes and free ribosomes by spheres. (C ) Concentrations along the long axis of the cell of DNA, cDNA(x) (red), and free ribosomes, cF(x) (black), and polysomes ρn(x) with the mRNA loading number n indicated by the color bar. Each panel corresponds to a different cell half-length `, marked on the top of
+the panel, with total mRNA density ρtot = 2400μm−1. (D) Nucleoid length versus cell length, 2`, for different values of the total mRNA density, ρtot. For each value of ρtot the nucleoid length is shown up to the cell length at which the nucleoid splits into two lobes. The inset depicts on a log-log plot the power-law relationship between the length at which the nucleoid splits and the rate of mRNA synthesis αcDNA, where cDNA is the average DNA concentration along the nucleoid at steady state.
+10−2 μm2/s. The parameters relative to the cellular scale are the total number of ribosomes per cell NF, the cell half-length `, both of which will be varied, and the radius of the cellular cross section, which is held constant. Because a central aim is to compare to the experiments in Ref. [10], we are interested in values for a doubling time of ∼ 2 hr as in that study. We thus interpolated experimental data points for different growth rates, to obtain the parameter values for the desired growth rate (see SI Appendix, Sections D and E) and obtained a total number NF ∼ 7300 ribosomes, a cross-sectional radius Rcell ≈ 0.4 μm, and a cell half-length ` ∼ 0.9 μm for a reference cell. In addition, the total mRNA concentration for the reference cell was fixed at ρtot = ∑
+n ρn = 2400 μm−3 [19]. The total
+number of DNA cylinders for the reference cell was taken to be NDNA ∼ 6700 segments [13]. Finally, we set the reaction rates to kon = 6 ×
+10−4μm/s, koff = 2.5 × 10−2/s [14], the mRNA degra
+dation rate β = 3 × 10−3/s corresponds to an mRNA half life of ∼ 5 min [20], and the mRNA synthesis rate α is estimated from the global steady-state condition of Eq. [2], αNDNA = βNmRNA [14], where NmRNA is the total number of mRNA molecules in the cell, i.e., ρtot times the cell volume. In order to understand the compaction and localization of the bacterial nucleoid, we solved the one-dimensional reaction-diffusion Eqs. [1]–[3]. To compare the predictions of our model with experimental data, in what fol
+lows, we consider two scenarios for how the concentrations of the molecular species scale with cell length.
+Filamentous growth
+In filamentous growth, the total number of DNA segments, mRNAs, and ribosomes is proportional to the cell length. For each cell length, we first determined the equilibrium steady state of the system by minimizing the free energy (SI Appendix, Eq. [B8]), and then numerically integrated the reaction-diffusion Eqs. [1]–[3] forward in time to reach an out-of-equilibrium steady state—see SI Appendix, Section F for details. The minimization of the free energy takes into account the steric interactions between particles and predicts the existence of a phaseseparated nucleoid in the cell. The out-of-equilibrium steady state is obtained by switching on the chemical reactions. The results are shown in Fig. 1C and D for different cell lengths, up to the cell length at which the nucleoid spontaneously splits into two lobes, and for different total mRNA densities. The relation between the nucleoid length and cell length appears to be roughly linear up until the cell length at which the nucleoid begins to split in two, as seen in Fig. 1C and D. In our model, the nucleoid size (provided the nucleoid is single lobed) is mainly set by the balance of osmotic pressures between the nucleoid and the peripheral cytoplasm. These pressures solely stem
+
+
+4
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 0 min
+A
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 20 min
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 40 min
+-1
+-0.5
+0
+0.5
+1
+0 10 20 30 40 50 60
+1/4
+3/4
+B
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+0
+nmax
+n
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+x/l
+0
+nmax
+n
+center of mass
+x/l
+t (min)
+FIG. 2: Out-of-equilibrium mechanisms split the nucleoid into two lobes located at 1/4 and 3/4 of the cell length. (A) Concentration profiles for a filamentous cell, obtained from the equilibrium profile at t = 0 by integrating forward in time the reaction-diffusion Eqs. [1]–[3] in the presence of the out-of-equilibrium processes until t = 20 min and t = 40 min, for a cell with a half-length ` = 4.05 μm shown in the lowest panel of Fig. 1C. (B ) Positions of the center of mass of the left (dashed red curve) and right (red curve) halves of the DNA along the long axis of the cell as fraction of the total cell length, as functions of time.
+from the entropy and steric interactions of the components of the mixture, making the nucleoid size a consequence of equilibrium physics: in fact, in SI Appendix, Fig. 10 we show the steady-state profile of the system in the absence of out-of-equilibrium terms, displaying a linear relation between nucleoid size and cell size analogous to that of the nonequilibrium case. Moreover, as shown in Fig. 1D, the higher the total mRNA density, the smaller the nucleoid, implying that a high mRNA density increases the osmotic pressure on the nucleoid, thus making it shrink. The dependence of the nucleoid size on the cell length can be quite accurately understood from a simplified model as follows. Consider the cell as a cylindrical container, divided in three parts by two movable walls. The chromosome is confined in the central container, while mRNAs and ribosomes are equally divided in the flanking ones. The walls will reach an equilibrium position at the point where the osmotic pressures between the compartments are balanced. In view of the steric interactions in each compartment, the osmotic pressure exerted by the ith compartment, to first order in the virial expansion (see SI Appendix, Section C), can be written as:
+Pi = kBT Ni
+Vi
+(
+1 + NiBi
+2Vi
+)
+, [4]
+where Ni is the number of particles in compartment i, Vi = σLi the volume of the compartment, σ the crosssection of the cell cylinder, Li the compartment length, and Bi the pairwise virial coefficient associated with the interaction among particles. In the central compartment, Bi corresponds to the virial coefficient between DNA segments, while for the flanking compartments we take Bi as an effective virial coefficient, obtained by assuming that all ribosomes are bound to mRNAs, and equally distributed among them. By equating the pressures of the different compartments, we obtain the gray lines in Fig. 1D—see SI Appendix, Section C for details.
+In Eq. [4], the two terms in 1 + NiBi/(2Vi) encode the two different factors that contribute to the osmotic pressure. The first term stems from the entropic pressure of an ideal gas while the second one, NiBi/Vi, comes from the inter-particle interactions. In the parameter range of Fig. 1D, the interaction term is typically between 10% and 20% larger than the entropic one (however, the effect of introducing a third-order virial coefficient is small, it is of the order of a tenth of the entropic term). We find that the inclusion of steric terms in both the nucleoid and mRNA/ribosome compartments makes the nucleoid swell compared to what its size would be with only entropic terms (ideal gas contribution). This is due to the nature of the nucleoid, a long relatively stiff polymer with little entropy per segment compared to all ribosomes and mRNAs collectively.
+While the linear increase of nucleoid length with cell length is the result of equilibrium osmotic pressure balance, the splitting of the nucleoid is entirely due to outof-equilibrium processes. In fact, for cells with ρtot = 2400/μm and a half length of ∼ 4 μm or larger, the equilibrium steady state used as the initial condition for the reaction-diffusion equations yields a nucleoid with a single lobe. By contrast, the nucleoid splits into two identical lobes positioned at 1/4 and 3/4 of the long cell axis when the reaction-diffusion Eqs. [1]–[3] are integrated forward in time, see Fig. 2 and Movie S1. Such a 1/4 and 3/4 positioning of the daughter nucleoids has been ubiquitously observed in experiments [10].
+In what follows, we present a simple argument to explain the dependence of the length at which the nucleoid splits with respect to the underlying parameters, e.g., the mRNA synthesis rate. We take the nucleoid to be a region with homogeneous DNA-segment concentration which extends from x = −Lnucl/2 to x = Lnucl/2, with interfaces that are perfectly sharp. The mRNAs synthesized within the nucleoid will diffuse until they reach the nucleoid boundaries and, because it is energetically favorable, they will then automatically escape the nucleoid and not return. As a result, the steady-state concentration of mRNAs within the nucleoid can be modeled by the following diffusion equation with a uniform source term due to mRNA synthesis and absorbing boundary conditions that represent mRNA escaping from the nu
+
+
+5
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+l = 1.35μm
+A
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+l = 2.25μm
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+l = 2.7μm
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+l = 3.15μm
+0
+1
+2
+3
+4
+5
+6
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+0 2 4 6 8 10 12
+B
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+0
+nmax
+n
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+x/l
+Nucleoid length (μm)
+Cell length 2l (μm)
+Model
+Experiment
+FIG. 3: Steady-state concentration profiles, for single-chromosome filamentous growth. (A) Concentrations of DNA, cDNA(x), free ribosomes cF(x), and polysomes ρn(x), shown as in Fig. 1C. (B ) Nucleoid length and standard deviation as a function of cell length from Ref. [10] (red) and from the model (black).
+cleoid:
+Dn
+∂2ρtot(x)
+∂x2 = αcDNA, ρtot
+(
+± Lnucl
+2
+)
+= 0, [5]
+where ρtot(x) is the total mRNA concentration at position x, Dn the mRNA diffusion constant (as defined in Model parameters), and α the rate of synthesis of mRNA. The solution to the above equation is ρtot(x) =
+(L2nucl/2 − x2)αcDNA/Dn, whose maximum at x = 0
+is L2nuclαcDNA/(2Dn). We hypothesize that when the
+mRNA concentration at the center becomes larger than a
+given threshold, ρt∗ot, spinodal decomposition takes place
+due to steric interactions between mRNAs and DNA, causing the nucleoid to split into two lobes. We thus
+expect ρt∗ot to roughly correspond to the spinodal line of
+the phase diagram, but, given the out-of-equilibrium nature of the system due to, e.g. mRNA synthesis, it could differ from the equilibrium spinodal boundary. Whatever
+value ρt∗ot takes (provided its dependency on α is negligi
+ble), this simple model predicts a scaling for the critical
+length L∗nucl at which the nucleoid starts to divide of the
+form L∗nucl ∝ (αcDNA)−1/2, obtained from equating the
+maximum of the mRNA concentration profile to a fixed
+value ρt∗ot. To test the prediction of this simple model,
+we numerically obtained the length at which the nucleoid divides for different values of α, see the inset in Fig. 1D, and found a good agreement with the proposed scaling.
+Single-chromosome filamentous growth
+So far we have analyzed the scaling of nucleoid size with cell size by assuming that the number of DNA segments is proportional to cell length. In this section we analyze another case of biological interest, namely, the case of a cell with a fixed amount of DNA and varying cell size. This scenario was recently analyzed in a dynamic imaging study of the E. coli chromosome [10],
+where the initiation of DNA replication and cell division were halted, yielding a single chromosome in a filamentously growing cell. We model this case by fixing the number of DNA segments, but allowing the cell size to vary. In addition, the mRNA and ribosome number are no longer be proportional to cell length: based on the data in Ref. [21], we assume that the total concentrations of mRNAs and ribosomes decrease linearly with cell length, approaching zero at 30 μm—see SI Appendix, Section G for details. Results are shown in Fig. 3: our model again predicts a roughly linear scaling of the nucleoid size with respect to cell length, while the DNA segment concentration decreases with cell size. This indicates that the decrease in DNA-segment concentration with cell size is balanced by the decrease of mRNA and ribosome concentrations, so as to keep nucleoid size a linear function of cell size. This can be seen clearly in Fig. 3A where the concentrations of all components of the TTM decrease as the cell size increases. While the model prediction for nucleoid versus cell length agrees reasonably well with experiments [10] for cell lengths smaller than ∼ 10 μm, there is a discrepancy for larger cells, see Discussion.
+Nucleoid centering
+As observed in Ref. [10], a single bacterial nucleoid has a strong tendency to localize at midcell for all cell sizes. Following the recent suggestion that the central positioning of the nucleoid is regulated by an active process [12], we investigated whether the out-of-equilibrium process of mRNA production, diffusion, ribosome binding, and mRNA degradation can account for nucleoid centering. We consider the case of a nucleoid that, due to a fluctuation, is not initially at the center of the cell, and test whether the out-of-equilibrium effects in our model can push the nucleoid back to the cell center. To model this,
+
+
+6
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 0 min
+A
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 5 min
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 20 min
+0
+0.1
+0.2
+0 10 20 30 40 50 60 70 80
+B
+0.01
+0.1
+0 10 20
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+0
+nmax
+n
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+x/l
+0
+nmax
+n
+center of mass
+x/l
+t (min)
+FIG. 4: Out-of-equilibrium processes center the nucleoid at midcell. (A) Concentration profiles obtained by initially shifting the steady-state profiles towards the right cell pole at t = 0, and then integrating forward in time the reaction-diffusion Eqs. [1]–[3] in the presence of out-of-equilibrium processes to t = 5 min and t = 20 min, for a cell with half-length ` = 1.8 μm, shown as in Fig. 1C. (B ) In red, location of the center of mass of the nucleoid along the long cell axis, as a function of time. In gray, the analytical lower bound obtained by neglecting nucleoid drag. Inset: The quantities depicted are the same as in B, with the y-axis is in logarithmic scale.
+we use the steady-state profiles obtained for filamentous growth, and shift the concentration profiles towards the right cell pole. The resulting configuration has a nucleoid displaced from the center, and equal mRNA and ribosome concentrations on both sides of the nucleoid. This concentration profile is used as the initial condition for Eqs. [1]–[3], which we integrate forward in time in the presence of the out-of-equilibrium terms. As shown in Fig. 4 and Movie S2, the nucleoid is centered at midcell after ∼ 30 min. The physical origin of this centering is mRNA synthesis in the nucleoid: The nascent mRNAs diffuse in the nucleoid until they reach one of its boundaries and then escape, with an equal flux to the left and right of the nucleoid. If the nucleoid is not centered, the accumulating mRNAs occupy a greater fraction of the available volume on one side of the nucleoid and thus create a higher osmotic pressure on that side. The resulting pressure difference ultimately drives the nucleoid back to the center of the cell. The rate at which the nucleoid moves toward the cell center depends on both the pressure difference due to mRNA accumulation, and on the effective viscous drag experienced by the nucleoid. We can establish a lower bound for the time it takes the nucleoid to center by as
+suming that the response of the nucleoid to an osmotic pressure difference is fast (low drag), such that the nucleoid is always located at a position where the osmotic pressure difference vanishes. Then, the centering process is only limited by the speed at which mRNAs accumulate on either side of the nucleoid, which sets the pressure differences. The kinetics obtained in this limit are shown in Fig. 4B, and they are given by an exponential re
+laxation with timescale β−1, set by the rate of mRNA degradation (see SI Appendix, Section C). As shown in the Figure, the nucleoid centering obtained from the full model lags behind the lower bound, showing that there is a non-negligible contribution from drag on the nucleoid. Both the lower bound and the result from the full model show an exponential relaxation of the nucleoid position for early times in the centering process.
+Nucleoid expansion due to halt of mRNA synthesis
+It has been shown experimentally that when E. coli transcription is halted, e.g. by treatment with rifampicin, the nucleoid expands [2, 11]. A halt of mRNA synthesis depletes polysomes, and thus results in a lower osmotic pressure on the nucleoid. We tested this scenario with our model by using the out-of-equilibrium steady state shown in Fig. 1C as the initial condition for Eqs. [1]–[3], switching off mRNA synthesis, and integrating forward in time. As shown in Fig. 5, the nucleoid expands and spreads over most of the intracellular space. The nucleoid does not take over the entire cell because there are pockets of free ribosomes at both cell poles, which prevent the DNA from occupying these spaces. The nucleoid reaches its expanded steady state in ∼ 30 min, which is in good agreement with experimental data [11]. However, the bulk of the expansion happens in the first 10 min—a timescale consistent with the half-life of mRNA (5 min), whose degradation drives the expansion process.
+DISCUSSION
+In this study, we investigated the physical origins of the intracellular localization of DNA, messenger RNAs (mRNAs), and ribosomes in bacteria. This is a topic of general interest due to its far-reaching consequences, e.g., the spatial organization of transcription and translation [3, 4, 22], chromosome positioning and segregation [9, 10], and a wide range of cellular processes regulated by the nucleoid that excludes many macromolecules from the volume which it occupies [6, 23]. We developed a model for the spatial organization of the bacterial nucleoid based on steric interactions among DNA, mRNAs, and ribosomes. The model predicts the formation of a phase-separated nucleoid, whose size is in agreement with experimental measurements [10] for cells smaller than 10 μm (Fig. 1). Beyond this cell length,
+
+
+7
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 0 min
+A
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+0.5
+1
+1.5
+t = 4 min
+0
+2
+4
+6
+-1 -0.5 0 0.5 1 0
+5
+10
+15
+t = 20 min
+0.6
+0.8
+1
+0 10 20 30 40 50 60
+B
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+0
+nmax
+n
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+cDNA
+(103 /μm)
+ρn, cF
+(103 /μm)
+x/l
+0
+nmax
+n
+Nucleoid fraction
+t (min)
+FIG. 5: The nucleoid expands in the absence of mRNAs synthesis. (A) Steady-state profile including mRNA synthesis (t = 0) and profiles obtained by integrating forward in time from the steady-state profile at t = 0 in the absence of mRNA synthesis (t = 4 mins and t = 20 mins), for a cell with half length ` = 3.6 μm. The concentration profiles are shown as in Fig. 1C. (B ) Fraction of the cell volume occupied by the nucleoid, as a function of time (computed as the fraction of length along the axis of the cell with a DNA
+segment concentration cDNA > 1000 μm−1). The step-like shape of the graph is due to the spatial discretization in our numerical solutions (see SI Appendix, Section F).
+our model is no longer accurate, for reasons that may include the lack of connectivity among modeled DNA segments, uncertainties in the concentration of crowders, and molecular components not considered in the model, such as nucleoid-associated proteins [8] or topoisomerases that control DNA supercoiling [24]. The model also accounts for nucleoid expansion as a result of a halt in mRNA synthesis, demonstrating that the progressive degradation of crowders could be the physical cause of the expansion. Indeed, the timescales on which such expansion happens matches the one observed experimentally [11], and coincides with the timescales of mRNA turnover. Our results underline the importance of out-ofequilibrium effects in the regulation of nucleoid size and position. The nucleoid is known to localize at midcell [10], and we demonstrate that the synthesis of mRNAs and their expulsion from the nucleoid caused by steric effects is sufficient to give rise to this positioning—see Fig. 4. In fact, a perturbation from the central position of the nucleoid induces an osmotic-pressure difference between the two cell poles, which pushes the nucleoid back to midcell. The timescale for this centering depends on both the time it takes to establish an osmotic-pressure difference, which is set by the mRNA turnover time, and
+the drag experienced by the nucleoid. This drag may be underestimated in our model, because we do not include effects that could slow down nucleoid centering, e.g., the transient attachment of the nucleoid to the membrane by proteins that are simultaneously being transcribed, translated, and inserted in the membrane, also known as transertion [25]. Furthermore, our model shows that outof-equilibrium effects are responsible for the ubiquitous nucleoid splitting and localization at 1/4 and 3/4 positions along the long cell axis. Thus, our analysis shows that the synthesis of mRNAs within the nucleoid, without additional active processes, is a robust mechanism to make the daughter nucleoids localize at 1/4 and 3/4 positions, as observed experimentally [10].
+Our study implies that steric interactions make the bacterial cytoplasm a poor solvent for the chromosome, as recently indicated by experiments [7]. However, steric interactions may not be the only contribution to the poor-solvent quality of the cytoplasm. Other types of intermolecular interactions [26] or the effect of nucleoidassociated proteins [8] could also affect the solvent quality of the cytoplasm and the organization of the nucleoid in the cell. For future studies, both theoretical and experimental, research into these other regulators of the nucleoid size could yield a more complete picture of its organization, and improve the accuracy of the results presented here.
+Finally, we observe that Turing patterns [27] display out-of-equilibrium patterning features that could seem similar to the ones produced by our model, see SI Appendix Fig. 11. These out-of-equilibrium patterns have been used to investigate many biological features on a cellular scale, such as the positioning of protein clusters in E. coli [28]. However, unlike Turing patterns, our model predicts phase separation exclusively due to steric interactions and in the absence of out-of-equilibrium effects, see Fig. 2. While the patterns produced by our model could be related to other out-of-equilibrium phaseseparation models [29] such as models of growing droplets [30], our model provides a conceptually simpler framework to produce these patterns. In fact, unlike a model of physically growing droplets, our analysis involves a conserved order parameter—the total number of DNA segments—and the effect of out-of-equilibrium termsmRNA production and degradation—is limited to nucleoid reshaping and division. Despite its simplicity, our model produces a number of experimentally observed patterning effects, such as nucleoid centering at midcell, and splitting and positioning of sister lobes during cell division. In addition, the patterning of our model is not limited to nucleoid splitting into two sister lobes, because our model predicts that the nucleoid can split into more than two lobes, whose size is given by a characteristic length and whose positions are tightly controlled, see SI Appendix, Fig. 11. Similar patterns for ordered nucleoid positioning have been found in long filamentously growing E. coli cells [31], albeit with a shorter characteristic length.
+
+
+8
+Given its generality, our analysis is not restricted to the nucleoid of prokaryotic cells [32]. Indeed, division of certain phase-separated condensates has been experimentally related to out-of-equilibrium processes, as is the case for the ParABS partition system, which creates phase-separated condensates of DNA and ParB, around par S sites, whose division is controlled by the activity of ParB’s ATPase activity on ParA [33]. The activitydriven nucleoid division described in our model may thus constitute a general strategy employed by cells to control the structure of membraneless compartments.
+ACKNOWLEDGMENTS
+We thank J. Prost, A. Sclocchi, P. Sens, H. Salman, and J. Wagner for valuable conversations and suggestions. This study was supported in part by Agence nationale de la recherche (ANR), grant ANR-17-CE110004, and the National Science Foundation, through the Center for the Physics of Biological Function (PHY1734030).
+[1] Peter J. Lewis. Bacterial subcellular architecture: recent advances and future prospects. Molecular Microbiology, 54(5):1135, 2004. [2] S. Bakshi, A. Siryaporn, M. Goulian, and J. C. Weisshaar. Superresolution imaging of ribosomes and RNA polymerase in live Escherichia coli cells. Mol. Microbiol., 85(1):21, 2012. [3] William T. Gray, Sander K. Govers, Yingjie Xiang, Bradley R. Parry, Manuel Campos, Sangjin Kim, and Christine Jacobs-Wagner. Nucleoid size scaling and intracellular organization of translation across bacteria. Cell, 177(6):1632 – 1648.e20, 2019. [4] Xiaoli Weng, Christopher H. Bohrer, Kelsey Bettridge, Arvin Cesar Lagda, Cedric Cagliero, Ding Jun Jin, and Jie Xiao. Spatial organization of RNA polymerase and its relationship with transcription in Escherichia coli. Proc. Natl. Acad. Sci. U.S.A., 116(40):20115, 2019.
+[5] Arash Sanamrad, Fredrik Persson, Ebba G. Lundius, David Fange, Arvid H. Gynn ̊a, and Johan Elf. Singleparticle tracking reveals that free ribosomal subunits are not excluded from the escherichia coli nucleoid. Proc. Natl. Acad. Sci. U.S.A., 111(31):11413, 2014.
+[6] Anne-Sophie Coquel, Jean-Pascal Jacob, Mael Primet, Alice Demarez, Mariella Dimiccoli, Thomas Julou, Lionel Moisan, Ariel B. Lindner, and Hugues Berry. Localization of protein aggregation in escherichia coli is governed by diffusion and nucleoid macromolecular crowding effect. PLOS Computational Biology, 9(4):1, 04 2013.
+[7] Y. Xiang, I. V. Surovtsev, Y. Chang, S. K. Govers, B. R. Parry, J. Liu, and C. Jacobs-Wagner. Solvent quality and chromosome folding in Escherichia coli. Preprint at BioRXiv, 2020.
+[8] Remus T. Dame, Fatema-Zahra M. Rashid, and David C. Grainger. Chromosome organization in bacteria: mechanistic insights into genome structure and function. Nature Reviews Genetics, 21(4):227, Apr 2020. [9] Mohan C. Joshi, Aude Bourniquel, Jay Fisher, Brian T. Ho, David Magnan, Nancy Kleckner, and David Bates. Escherichia coli sister chromosome separation includes an abrupt global transition with concomitant release of latesplitting intersister snaps. Proc. Natl. Acad. Sci. U.S.A., 108(7):2765, 2011. [10] F. Wu, P. Swain, L. Kuijpers, X. Zheng, K. Felter, M. Guurink, J. Solari, S. Jun, T. S. Shimizu, D. Chaudhuri, B. Mulder, and C. Dekker. Cell boundary confinement sets the size and position of the E. coli chromosome. Curr. Biol., 29(13):2131 – 2144.e4, 2019. [11] Julio E. Cabrera, Cedric Cagliero, Selwyn Quan, Cather
+ine L. Squires, and Ding Jun Jin. Active transcription of rrna operons condenses the nucleoid in escherichia coli: Examining the effect of transcription on nucleoid structure in the absence of transertion. Journal of Bacteriology, 191(13):4180, 2009. [12] Marc Joyeux. Preferential localization of the bacterial nucleoid. Microorganisms, 7(7):204, 2019. [13] J. Mondal, B. P. Bratton, Y. Li, A. Yethiraj, and J. C. Weisshaar. Entropy-based mechanism of ribosomenucleoid segregation in E. coli cells. Biophys. J., 100(11):2605, 2011. [14] M. Castellana, S. Hsin-Jung Li, and N. S. Wingreen. Spatial organization of bacterial transcription and translation. Proc. Natl. Acad. Sci. U.S.A., 113(33):9286, 2016. [15] T. Odijk. Dynamics of the expanding DNA nucleoid released from a bacterial cell. Physica A-Statistical Mechanics and its Applications, 277(1):62, 2000.
+[16] S. Cunha, C. L. Woldringh, and T. Odijk. Polymermediated compaction and internal dynamics of isolated Escherichia coli nucleoids. J. Struct. Biol., 136(1):53, 2001. [17] M. Kaczanowska and M. Ryde ́n-Aulin. Ribosome biogenesis and the translation process in Escherichia coli. Microbiol. Mol. Biol. R., 71(3):477, 2007.
+[18] A. Sanamrad, F. Persson, E. G. Lundius, D. Fange, A. H. Gynna ̊, and J. Elf. Single-particle tracking reveals that free ribosomal subunits are not excluded from the Escherichia coli nucleoid. Proc. Natl. Acad. Sci. U.S.A., 111(31):11413, 2014. [19] Alexander Bartholoma ̈us, Ivan Fedyunin, Peter Feist, Celine Sin, Gong Zhang, Angelo Valleriani, and Zoya Ignatova. Bacteria differently regulate mrna abundance to specifically respond to various stresses. Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences, 374(2063):20150069, 2016. [20] J. A. Bernstein, P.-H. Lin, S. N. Cohen, and S. Lin-Chao. Global analysis of Escherichia coli RNA degradosome function using DNA microarrays. Proc. Natl. Acad. Sci. U.S.A., 101(9):2758, 2004. [21] M. Kohram and H. Salman. unpublished. [22] Ivan V. Surovtsev and Christine Jacobs-Wagner. Subcellular organization: A critical feature of bacterial cell replication. Cell, 172(6):1271, 2018. [23] Richard Janissen, Mathia M.A. Arens, Natalia N. Vtyurina, Zaı ̈da Rivai, Nicholas D. Sunday, Behrouz EslamiMossallam, Alexey A. Gritsenko, Liedewij Laan, Dick de Ridder, Irina Artsimovitch, Nynke H. Dekker, Elio A.
+
+
+9
+Abbondanzieri, and Anne S. Meyer. Global dna compaction in stationary-phase bacteria does not affect transcription. Cell, 174(5):1188 – 1199.e14, 2018. [24] Rogier Stuger, Conrad L. Woldringh, Coen C. van der Weijden, Norbert O. E. Vischer, Barbara M. Bakker, Rob J.M. van Spanning, Jacky L. Snoep, and Hans V. Weterhoff. Dna supercoiling by gyrase is linked to nucleoid compaction. Molecular Biology Reports, 29(1):79, Mar 2002. [25] Anil K. Gorle, Amy L. Bottomley, Elizabeth J. Harry, J. Grant Collins, F. Richard Keene, and Clifford E. Woodward. Dna condensation in live e. coli provides evidence for transertion. Mol. BioSyst., 13:677, 2017. [26] Theo Odijk. Osmotic compaction of supercoiled dna into a bacterial nucleoid. Biophysical Chemistry, 73(1):23, 1998. [27] A. M. Turing. The chemical basis of morphogenesis. Philos. Trans. R. Soc. B, 237(641):37, 1952.
+[28] S. M. Murray and V. Sourjik. Self-organization and positioning of bacterial protein clusters. Nat. Phys., 13(10):1006, 2017. [29] Y. I. Li and M. E. Cates. Non-equilibrium phase separation with reactions: a canonical model and its behaviour. Journal of Statistical Mechanics: Theory and Experiment, 2020(5):053206, may 2020. [30] D. Zwicker, R. Seyboldt, C. A. Weber, A. A. Hyman, and F. J ̈ulicher. Growth and division of active droplets provides a model for protocells. Nat. Phys., 13(4):408, 2017. [31] M. Wehrens, D. Ershov, R. Rozendaal, N. Walker, D. Schultz, R. Kishony, P. A. Levin, and S. J. Tans. Size laws and division ring dynamics in filamentous Escherichia coli cells. Curr. Biol., 28(6):972–979.e5, 2018. [32] Megan C. Cohan and Rohit V. Pappu. Making the case for disordered proteins and biomolecular condensates in bacteria. Trends in Biochemical Sciences, 45(8):668, 2020. [33] Baptiste Guilhas, Jean-Charles Walter, Jerome Rech, Gabriel David, Nils Ole Walliser, John Palmeri, Celine Mathieu-Demaziere, Andrea Parmeggiani, Jean
+Yves Bouet, Antoine Le Gall, and Marcelo Nollmann. Atp-driven separation of liquid phase condensates in bacteria. Molecular Cell, 79(2):293 – 303.e4, 2020. [34] H. K. Onnes. Expression of the equation of state of gases and liquids by means of series. KNAW, Proceedings, 4:125, 1902.
+[35] K. Huang. Statistical Mechanics, 2nd Edition. Wiley, 2 edition, 1987. [36] R. K. Pathria. Statistical Mechanics. ButterworthHeinemann, Oxford, 2 edition, 1996. [37] J. W. Cahn and J. E. Hilliard. Free energy of a nonuniform system. I. Interfacial free energy. J. Chem. Phys., 28(2):258, 1958.
+[38] K. Dill and S. Bromberg. Molecular driving forces: statistical thermodynamics in biology, chemistry, physics, and nanoscience. Garland Science, 2012. [39] E. Herold, R. Hellmann, and J. Wagner. Virial coefficients of anisotropic hard solids of revolution: The detailed influence of the particle geometry. J. Chem. Phys., 147(20):204102, 2017. [40] J. P. Straley. Third virial coefficient for the gas of long rods. Mol. Cryst. Liq. Cryst., 24(1-2):7, 1973. [41] E. Ilker and J.-F. Joanny. Phase separation and nucleation in mixtures of particles with different temperatures. Phys. Rev. Research, 2:023200, May 2020.
+[42] S F Edwards and K F Freed. The entropy of a confined polymer. i. Journal of Physics A: General Physics, 2(2):145, mar 1969.
+[43] P.-G. De Gennes. Scaling concepts in polymer physics. Cornell University press, 1979. [44] L. F. Shampine, S. Thompson, J. A. Kierzenka, and G. D. Byrne. Non-negative solutions of ODEs. Appl. Math. Comput., 170(1):556, 2005. [45] D. Kraft. Algorithm 733: TOMP–Fortran modules for optimal control calculations. ACM Trans. Math. Softw., 20(3):262, September 1994. [46] S. G. Johnson. The nlopt nonlinear-optimization package. [47] Wolfram Research, Inc. Mathematica, version 10.0. Wolfram Research, Inc., Champaign, Illinois, 2014.
+Appendix A: Binary mixture of hard spheres
+In this Appendix we present a toy model to illustrate the concepts of the full E. coli reaction-diffusion model, Eqs. [1]–[3]. The model is composed of NA and NB particles of species A and B, which are hard spheres with radii RA, RB and diffusion coefficients DA, DB, respectively, confined in a volume V. We assume that the system has cylindrical symmetry, and thus V is effectively one dimensional, so as to apply our findings to Eqs. [1]–[3].
+1. Free energy
+We use the virial expansion, first developed by Onnes [34] over a century ago, to compute the free energy of a gas of interacting particles. Here we limit ourselves to state the result for hard-sphere potentials to second and third order and refer the interested reader to classical statistical physics textbooks (for instance, [35, 36]) for a complete explanation of the procedure.
+The hard-sphere potential Vij between the ith and jth particle is zero if the distance between particles is larger
+
+
+10
+than the sum of their radii and infinity otherwise. Then, the free energy of the system is
+F = − kBT log Z
+= kBT ∑
+a=A,B
+Na log NaΛ3a
+V
+− kBT log
+[
+1− ∑
+a=A,B
+Na(Na − 1)
+2V B(a2a) − NANB
+V B(2)
+AB − ∑ a=A,B
+Na(Na − 1)(Na − 2)
+6V2 B(a3a)a [A1]
+−
+∑
+a6=b
+Na(Na − 1)Nb
+2V2 B(3)
+aab
+]
+,
+where kB is the Boltzmann constant, and Λa is the thermal de Broglie wavelength of species a, and the ith virial
+coefficients B(i)
+ab are given by:
+B(2)
+ab = 4π
+3 (Ra + Rb)3, [A2]
+B(3)
+abc = 16π2
+9
+[Rb3Rc3 + 3RaRb2Rc2(Rb + Rc) + R3a(Rb + Rc)3 + 3R2aRbRc(Rb2 + 3RbRc + Rc2)] . [A3]
+Assuming that the volume is large, we can approximate the free energy as
+F ' kBT
+[ ∑
+a
+Na log NaΛ3a
+V +∑
+a=A,B
+Na(Na − 1)
+2V B(a2a) + NANB
+V B(2)
+AB
++
+∑
+a=A,B
+Na(Na − 1)(Na − 2)
+6V2 B(a3a)a + ∑
+a6=b
+Na(Na − 1)Nb
+2V2 B(3)
+aab
+]
+, [A4]
+where we have used the expansion of the logarithm, which is accurate for small concentrations. Now we consider an infinitesimal distance dx, in which there is an infinitesimal number of molecules of each species dNa, with one-dimensional concentration ca(x) = dNa/dx. The volume of each of these infinitesimal slices of the system is dV = σ dx, where σ is the cross section of the system. Then,
+F0 =
+∫`
+−`
+dF0
+'
+∫`
+−`
+kBT dx
+{ ∑
+a=A,B
+ca(x)
+[
+log ca(x) + log Λ3a
+σ
+]
++
+∑
+a=A,B
+[
+B(a2a)
+[ca(x)]2
+2σ + B(a3a)a
+[ca(x)]3 6σ2
+]
++ B(2)
+AB
+cA(x)cB(x)
+σ +∑
+a6=b
+[ca(x)]2cb(x)
+2σ2 B(3)
+aab
+}
+, [A5]
+where we have approximated Na − 1 with Na. The quantity dF0/dx in Eq. [A5] is the free-energy density of the system assuming the concentrations are uniform along the x axis, where this condition is denoted by the subscript ‘0’. If we assume the true, local free energy density of the system f = dF/dx, to be a function of the uniform free-energy density and the derivatives of the concentration, i.e., f = f (f0, ∇ca, ∇2ca...), then we can expand it around f0, considering the concentration and its derivatives as independent variables, as follows [37]:
+f = f0 + ∑
+a
+γa
+d2ca
+dx2 + kBT
+2
+∑
+a,b
+κab
+σ
+dca dx
+dcb
+dx , [A6]
+where κab are the Cahn-Hilliard coefficients, which account for spatial inhomogeneities in the concentrations. The second term in the right-hand side of Eq. [A6] does not contribute to the total free energy of the system: indeed, when spatially integrated, this term vanishes because of the Neumann boundary conditions. Then, the total free energy is
+F=
+∫`
+−`
+dF =
+∫`
+−`
+dF0 + kBT
+2
+∫`
+−`
+∑
+a,b
+κab
+dca dx
+dcb
+dx dx [A7]
+
+
+11
+and the chemical potential for, e.g., species A reads
+μA(x) = δF
+δcA(x)
+= kBT
+
+1 + log cA(x) + cA(x)
+σ B(2)
+AA + cB(x)
+σ B(2)
+AB − ∑ a=A,B
+κAa
+d2ca(x) dx2
+
+
++ kBT
+[ cB(x)cA(x)
+σ2 B(3)
+AAB + cA(x)cA(x)
+2σ2 B(3)
+AAA + cB(x)cB(x)
+2σ2 B(3)
+BBA
+]
+, [A8]
+where κaa has absorbed a factor of 2 arising from the derivative of the second term in Eq. [A7] when a = b. For future convenience, we define νa as the non-ideal contribution to the chemical potential of each species, e.g., species A :
+νA(x) = B(2)
+AA
+σ cA(x) + B(2)
+AB
+σ cB(x) + B(3)
+AAB
+σ2 cB(x)cA(x) + B(3)
+AAA
+2σ2 [cA(x)]2 + B(3)
+BBA
+2σ2 [cB(x)]2 − ∑
+a=A,B
+κAa
+d2ca(x)
+dx2 . [A9]
+2. Currents
+We can now work out the currents by considering Fick’s law of diffusion, namely,
+Ja(x) = − Da(x)
+kBT ca(x)∂xμa, [A10]
+where Da(x) is the diffusion constant and is given by Einstein-Smoluchowski-Sutherland relation [38]
+Da(x) = ζa(x)kBT, [A11]
+and ζa(x) is the spatially dependent mobility of species a. By substituting the expression [A8] for the chemical potential in Eq. [A10], we obtain the current for species A:
+JA(x) = − DA(x)
+{
+∂xcA(x) + cA(x) ∑
+a=A,B
+[
+B(2)
+Aa
+σ ∂xca(x) − κAa∂x3ca(x)
+]
++ B(3)
+AAA
+σ2 [cA(x)]2∂xcA(x)
++ B(3)
+AAB σ2
+([cA(x)]2∂xcB(x) + cA(x)cB(x)∂xcA(x)) + B(3)
+BBA
+σ2 cA(x)cB(x)∂xcB(x)
+}
+. [A12]
+Proceeding along the same lines, we obtain the current for species B. By using these currents, we will work out the diffusion equations of the system in the following section.
+3. Free-energy minimum and equilibrium steady state
+The diffusion equations for the binary mixture of hard spheres discussed in section A read
+{ ∂tcA(x, t) = −∂xJA(x, t),
+∂tcB(x, t) = −∂xJB(x, t). [A13]
+We will consider the steady state of Eq. [A13] combined with no-flux boundary conditions, and with a constraint fixing the total number of particles to a given value, Na, for each species:
+−∂xJa(x, t) = 0, Ja(±`, t) = 0, a = A, B, [A14]
+∫`
+−`
+dx ca(x, t) = Na, a = A, B. [A15]
+We will show that Eqs. Eqs. [A14] and [A15] are equivalent to finding the minimum of the free energy with the constraint [A15], i.e.,
+min
+cA ,cB
+F [A16]
+subject to Eq. [A15], [A17]
+
+
+12
+where F is now considered to be a functional of the concentration profiles ca(x). The Lagrange function of the minimization problem given by Eqs. [A16] and [A17] reads
+L=F −∑
+a
+λa
+[
+∫`
+−`
+dx ca(x) − Na
+]
+, [A18]
+where λa are the Lagrange multipliers. First, the stationarity condition of L with respect to ca(x) is given by
+0 = δL
+δca(x) = δF
+δca(x) − λa
+= μa(x) − λa, [A19]
+where in the third line we used the definition [A8] of the chemical potential. By taking the derivative of Eq. [A19] with respect to x and using Eq. [A10], we obtain JA(x) = 0, which is equivalent to Eq. [A14]. Second, the stationarity condition of L with respect to λa yields Eq. [A15]. As a result, the minimization problem [A16], [A17] is equivalent to conditions [A14] and [A15]. In what follows, we will seek the steady state [A14] with the conditions [A15] on particle numbers, by solving the minimization problem [A16], [A17]. In fact, while a direct solution of Eqs. [A14] and [A15] may yield concentration profiles corresponding to locally stable free-energy minima, the minimization method allows us to select the true, physical minimum of the free energy.
+Appendix B: Currents for the E. coli transcriptional-translational machinery
+We now apply the ideas discussed in section A to the reaction-diffusion model for the nucleoid, Eqs. [1]–[3]. In particular, we will apply the procedure discussed for the binary mixture of hard spheres to obtain an expression for the current along the lines of Eq. [A12]. However, there is an important difference that need to be taken into account: Not all the particles are spheres, because the DNA segments are considered to be cylinders of length L and radius ρ. In addition, as stated in the main text (see Results), a DNA segment does not interact with another DNA segment in the same way in which it would interact with a polysome or ribosome. Therefore, we consider that a DNA segment
+interacts with other DNA segments as a cylinder of radius ρ′ < ρ. We base the value of ρ′ on the hard-sphere model for DNA used for numerical simulations [13], where each plectoneme segment is represented as a sequence of four bond beads and two node beads, and all beads have radius ρ. In the simulations, whenever a DNA segment collides with a particle which is not a DNA segment, none of the beads are allowed to overlap with the particle. On the other hand, whenever two DNA segments collide, node beads cannot overlap with each other, but bond beads can, according to the picture above. Given that the two node beads are located at the vertices which connect segments, each node bead contributes half of its volume to each plectoneme segment. The volume that a DNA segment excludes to other DNA
+segments, which we denote by πρ′2L, is thus the volume of one node bead, i.e., one fifth of the volume πρ2L that the segment excludes to particles other than DNA. As a result, we obtain the relation
+ρ′ = ρ/√5 [B1]
+between ρ and ρ′. See Fig. 6 for a sketch of this interactions.
+1. Virial coefficients for DNA segments
+Given the shapes of the particles discussed in the main text, section Model parameters, the functional form of the contributions of steric effects to the virial expansion B(i)
+ab for ribosomes and mRNA remains the same as in section A,
+but the interaction of other species with DNA, and of DNA with itself, is different. The second virial coefficient for two cylinders is [39]
+B(2)
+DNA DNA = 2πρ′
+[
+Lρ′ + 1
+2 (L + ρ′)(L + πρ′)
+]
+, [B2]
+
+
+13
+FIG. 6: Steric interactions of DNA segments. Hard-core interactions between DNA segments (cylinders, red) and
+ribosomes or polysomes (spheres, black). DNA segments interact with each other through a cylinder of radius ρ′ but interact
+with other polysomes and ribosomes with a radius ρ > ρ′, satisfying the relationship [B1].
+while the coefficient for one cylinder and a sphere with radius Rn is
+B(2)
+DNA n = Lπ(Rn + ρ)2 + 2πRn
+(
+ρ2 + πρRn
+2 +2
+3 R2n
+)
+, [B3]
+where the subscript DNA stands for a DNA cylinder, and n for a sphere of radius Rn. Before we present the expressions for the third virial coefficients for cylinders, let us define
+uij = I(qi ∩ qj), [B4]
+where qi denotes the degrees of freedom which specify the position and orientation of a particle, qi ∩ qj stands for the
+condition that particles i and j overlap, i.e., their hard-core potential is nonzero, and the indicator function I is equal to one if the condition in its argument is satisfied, and zero otherwise. The third virial coefficients for interactions that involve cylinders are given by the following integral expressions:
+B(3)
+Dnm =
+∫
+drnDdrmDuz
+D muz
+D nunm, [B5]
+B(3)
+D D′ n = 1
+8π2
+∫
+drD DdrD ndrD′ nd(cos θ′
+D)d(cos θD′ )d(cos θn)dφDdφD′ dφnuz
+D D′ uz
+D nuD′ n, [B6]
+B(3)
+DD′D′′ = 1
+8π2
+∫
+drDD′ drD′D′′ drDD′′ d(cos θD)d(cos θD′ )d(cos θD′′ )dφDdφD′ dφD′′ uz
+DD′ uz
+DD′′ uD′D′′ , [B7]
+where the subscripts label different cylinders, D stands for DNA, n and m label the spheres, and vectors rij denote the relative position between the centers of mass of particles i and j. In addition, the superscript z means that the axis of cylinder D is parallel to the z axis, so as to leverage spherical symmetry, and θ, φ are the polar and azimuthal angles, respectively. While some simplifications of those integrals are possible, there is no known analytical form for these virial coefficients [40]. Then, the total free energy of the system is:
+F
+kBT =
+∫`
+−`
+dx
+[
+F0
+kBT + B(2)
+DNA,DNA
+2σ [cDNA(x)]2 + B(3)
+DNA,DNA,DNA
+6σ2 [cDNA(x)]3 + ∑
+a=F,n
+B(2)
+DNA,a
+σ cDNA(x)ca(x)+
+∑
+a,b=DNA,F,n a6=b
+B(3)
+DNA,a,b
+2σ2 ca(x)cb(x)cDNA(x)
+]
++1
+2
+∫`
+−`
+dx ∑
+a,b=DNA,F,n
+κab
+dca dx
+dcb
+dx , [B8]
+where the sums run over the chemical species denoted by F, DNA and all polysome species, which we denote by ‘n’ in the sums. Note that F0 has the same structure as Eq. [A5] in section A: its form does not change because it involves only spherical-particle species. The difference between F0 in Eq. [B8] and F0 in Eq. [A5] is in the summation indices, which now span over all polysome species and free ribosomes. As stated in the main text, the free energy of the system would include an entropic term related to the DNA to the free energy of the system, but, since this term is small compared with the steric interactions, we neglect it for simplicity (a more detailed explanation is given in section B 2). The steric interactions have been written explicitly for the DNA segments, and the Cahn-Hilliard terms are analogous to those of section A, except for the numerical values of the coefficients κab, which depend on the particle geometry.
+
+
+14
+In principle the Cahn-Hilliard coefficients κab in Eq. [B8] can be computed by leveraging hard-core interactions as shown in Ref. [41]. However, for our purposes, it is enough to observe that the Cahn-Hilliard terms reflect the cost of concentration gradients related to species a and b. It follows that κab is an intrinsic feature of the particles of species a and b: Because κab has the dimension of the cube of a length, it must be proportional to a product of the linear sizes of the particles of species a and b. In addition, the relation of the Cahn-Hilliard coefficients to differentials of concentrations over infinitesimal length scales indicates that κab is physically related to short rather than long length scales. We thus assume that κab equals the minimum between the volume of species a and that of species b.
+2. DNA free energy
+The free energy of the DNA chain consists of two terms: An energetic and an entropic part. In our model of DNA composed by disconnected cylindrical segments, the energetic part is given by the interactions between DNA segments, encoded by the virial-expansion terms, see Section B 1. In this subsection we argue that the entropic part, can be neglected as it is smaller than the virial terms. The main contribution to the entropic part of the free energy can be captured by considering the free-energy cost of confining an ideal polymer. This entropic cost is given by [42, 43]:
+S ' −kB
+NDNA L2
+D2 , [B9]
+where D is the typical lengthscale on which the polymer is confined. In the case of the nucleoid, D ∼ 1 μm and N
+DNA = 6 × 103.
+By inserting the numerical values of the parameters we obtain an entropic contribution of the order of 103kBT and a contribution from the virial terms of approximately
+kBT N 2
+DNA B (2)
+DNA,DNA
+2Vn
+∼ 104kBT, [B10]
+where Vn ∼ D3 is the typical volume of a nucleoid. Therefore, there is a difference of one order of magnitude between the entropic and the virial term and, for the sake of simplicity, in this work we neglect the entropic contribution to the DNA-segment current.
+3. Auxiliary entropy
+In our analysis, we will first determine the steady state of the system in the absence of reaction and out-of-equilibrium terms, by minimizing the total free energy [B8]. These steady-state profiles will then be used as initial conditions to integrate forward in time the reaction-diffusion Eqs. [1]–[3], which include both reaction and out-of-equilibrium terms. At the free-energy minimum, the DNA concentration is nonzero in the nucleoid, while it vanishes outside the nucleoid. Given that these equilibrium profiles are entered as initial conditions in Eqs. [1]–[3], the vanishing concentration above causes numerical instabilities when these equations are numerically integrated forward in time, and can lead to negative concentrations in the out-of-equilibrium steady state [44]. To overcome this issue, we included a small, additional entropic term in the free energy [B8]:
+Faux = Kaux kBT
+∫`
+−`
+dx e−DauxcDNA(x)/〈cDNA(x)〉 cDNA(x)
+NDNA
+log [2`cDNA(x)] , [B11]
+where 〈cDNA(x)〉 = NDNA/(2`) is the average DNA concentration across the cell, and Kaux and Daux are constants that we set to 0.2 NDNA and 10, respectively. The exponential term in Eq. [B11] is such that, if the coordinate x lies in the nucleoid bulk, then cDNA(x) is of the same order of magnitude as 〈cDNA(x)〉 and thus, by choosing Daux sufficiently large, the contribution to Faux vanishes. On the other hand, the exponential is approximately equal to one outside the nucleoid, where cDNA(x) 〈cDNA(x)〉, and Eq. [B11] reproduces a term that resembles the standard entropy of mixing
+c
+DNA(x)
+NDNA
+log [2`cDNA(x)] [B12]
+of a polymer in the mean-field approximation, which dominates the integral in Faux. In what follows, we will add Faux to the total free energy Eq. [B8], by setting
+F → F + Faux. [B13]
+
+
+15
+10−11
+10−10
+10−9
+10−8
+10−7
+10−6
+10−5
+10−4
+10−3
+10−2
+10−1
+1
+10
+102
+103
+104
+-1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1
+F /kB T
+x/l
+Faux
+F DNA
+FIG. 7: Real and auxiliary free energies. Real and auxiliary free energies for a cell of size 3.6 μm at the out-of-equilibrium steady state. The real free energies only takes into account the self-interaction terms of DNA cylinders, as the mean-field entropic term of the DNA chain is neglected, as explained in section B 2.
+As a result, the minimization of Eq. [B8] tends to also maximize the entropy [B12], thus spreading out a fraction of DNA segments outside the nucleoid bulk. This procedure alters only slightly the free-energy minimum: As shown in Fig. 7, the auxiliary free energy does not vanish outside of the nucleoid, but it is orders of magnitude smaller than the original free energy within the nucleoid. Notwithstanding this, such a small free energy prevents numerical instabilities in the integration of the reaction-diffusion equations.
+4. Currents
+Proceeding along the lines of section A, we obtain the DNA current from Eq. [B13]:
+J
+DNA(x) = −cDNA(x)DDNA(x) [∂xνDNA(x) + ∂xμaux(x)] , [B14]
+where νDNA is the excluded-volume term analogous to that in Eq. [A9]. The term μaux is the derivative of the auxiliary free energy [B11] with respect to the DNA concentration, cDNA(x), and its contribution to the current reads
+∂xμaux(x) = Kauxe−DauxcDNA(x)/〈cDNA(x)〉∂xcDNA(x)
+{
+1 c
+DNA(x)
+(
+1 − Daux
+c
+DNA(x)
+〈cDNA(x)〉
+)
++ Daux log[2`σcDNA(x)]
+− Daux
+〈cDNA(x)〉
+[
+1 + log[2`σcDNA(x)]
+(
+1 − Daux
+cDNA(x) 〈cDNA(x)〉
+)]
+}
+. [B15]
+Combining the results from section A, Eq. [A12], with those derived in this section, Eqs. [B8] and [B14], we obtain the currents in Eqs. [1]–[3]. Making use of Eqs. [A12] and [B14] and of the virial coefficients previously derived, the currents for DNA, ribosomes and polysomes are fully defined. We note that in the derivation of these currents we have incorporated a general space dependence of the diffusion coefficients. In principle, the diffusion coefficient can depend on the medium in which the particle is located, and thus on the concentration of other chemical species at each point in space. For the sake of simplicity, here we consider the diffusion coefficients as constants. We estimated the diffusion constant of ribosomes and polysomes to be
+DF = 0.4 μm2/s and Dn = 5 × 10−2μm2/s, respectively, by leveraging experimental data [2, 18]. For DNA segments it is harder to obtain an estimate based on experimental data. We therefore assume that, because such segments have a linear dimension similar to that of polysomes, their diffusion coefficient is of the same order of magnitude as that
+of polysomes, i.e., DDNA = 10−2 μm2/s. Finally, we can evaluate the effect of adding a third virial coefficient in our model. In Fig. 8, we depict the equilibrium minimum of the free-energy and the out-of-equilibrium steady state, both for second and third order in the virial expansion. There is a marked difference, particularly for the out-of-equilibrium steady state.
+
+
+16
+0
+2 · 103
+4 · 103
+-1 -0.5 0 0.5 1 0
+103
+2 · 103 t = 0s
+A
+0
+2 · 103
+4 · 103
+-1 -0.5 0 0.5 1 0
+103
+2 · 103 Steady state
+0
+2 · 103
+4 · 103
+-1 -0.5 0 0.5 1 0
+103
+2 · 103 t = 0s
+B
+0
+2 · 103
+4 · 103
+-1 -0.5 0 0.5 1 0
+103
+2 · 103 Steady state
+c
+DNA (μm−1)
+ρn, cF
+(μm−1 )
+0
+nmax
+n
+c
+DNA (μm−1)
+ρn, cF
+(μm−1 )
+cDNA (μm−1)
+ρn, cF
+(μm−1 )
+cDNA (μm−1)
+ρn, cF
+(μm−1 )
+FIG. 8: Effect of third-order virial term. (A) Profiles corresponding to the free energy minimization (top) and out-of-equilibrium steady state (bottom), obtained with the second virial coefficients only, for a cell length of 3.6 μm in the single-chromosome growth scenario. As in the main text, concentrations of DNA, cDNA(x), and free ribosomes, cF(x) are shown in red and black respectively and polysome concentrations ρn(x) are also shown, where the mRNA loading number n is specified by the color box. (B ) Same quantities as in A, with the third virial coefficients.
+Appendix C: Estimates based on the compartment model
+In this section we will consider the cell to be divided into three compartments: A central one, the nucleoid, composed exclusively of DNA segments, and two lateral ones which include ribosomes and polysomes. The particles interact through steric interactions, described by the virial coefficients. Therefore, we consider the following free energy for the particles within the compartments:
+Fi = Fideal + kBT
+Ni2Bi 2Vi
+, [C1]
+where i denotes the compartment and Ni the particle number, Bi the virial coefficient that accounts for the steric interactions among the particles within the compartment, Fideal is the free energy of the ideal gas, and Vi the compartment volume. Then, the osmotic pressure exerted by the compartments is
+Pi = − ∂F
+∂V = kBT Ni
+Vi
+(
+1 + NiBi
+2Vi
+)
+, [C2]
+as stated in the main text, see Eq. [4].
+1. Nucleoid size
+In what follows, we consider Eq. [C2] in the nucleoid and in the pole compartments, and estimate the respective values of the virial coefficients in the nucleoid, Bn, and at the cell poles, Bp.
+In the nucleoid, DNA-DNA interactions dominate, yielding a value of Bn ' 6.4 · 10−4μm3. For the poles we provide an effective value of the virial coefficient by assuming that all ribosomes are bound to mRNAs, and are equally distributed among them, that is, the poles are occupied by spheres all equal in size. Given that the ratio of ribosomes to mRNAs changes with the amount of mRNA in the cell, the virial coefficients depend on this last parameter. In the cases analyzed in Fig. 1D, we obtain the following values for the virial coefficients, Eq. [A2], for the corresponding mRNA concentrations:
+Bp(1500 μm−1) = 4.3 · 10−4μm3, Bp(2400 μm−1) = 3.7 · 10−4μm3, Bp(3000 μm−1) = 3.5 · 10−4μm3. [C3]
+By equating the pressures of the compartments, we obtain the equilibrium value for the volumes of each compartment. For filamentous growth, where the number of ribosomes, mRNAs, and DNA segments scales linearly with size
+
+
+17
+(Ni ∝ `), we obtain the solution for the nucleoid size Vn = φV , where φ, the fraction of total volume occupied by the nucleoid, depends on the concentration of mRNAs in the cell:
+φ(1500 μm−1) = 0.7, φ(2400 μm−1) = 0.61, φ(3000 μm−1) = 0.56. [C4]
+As shown in Fig. 1D in the main text, these estimates (gray lines) are in good agreement with the numerical solution of the full reaction-diffusion equations (red points).
+2. Nucleoid centering
+The centering of the nucleoid can also be understood in terms of the simplified compartment model above. We assume that the mRNA synthesized in the nucleoid can diffuse out of the nucleoid to the lateral compartments. If the nucleoid is not centered in the cell and the synthesized mRNA leaves the nucleoid symmetrically to the left and right, then the mRNA density, and thus the osmotic pressure, will increase in the smaller polar compartment, thus pushing the nucleoid towards the center. As a result, the force that we need to consider is the difference in pressure between the poles times the cross-section σ of the cell F = σ(PL − PR), where ‘L’ and ‘R’ denote the left and right pole, respectively. The dynamical equation for the position of the center of mass of the nucleoid, which we denote by xn, is:
+dxn
+dt = D
+kBT σ(PL − PR), [C5]
+where D is a diffusion constant, not necessarily equal to the diffusion constant of DNA segments. Indeed, D is an effective diffusion coefficient that includes collective effects of DNA segments diffusing together and other biological effects like transertion, see main text Discussion. We can provide a lower bound for the time it takes the nucleoid to center by assuming that the drag is small, i.e. the centering of the nucleoid due to a difference in osmotic pressure is only limited by the synthesis of mRNA. In this limit, the nucleoid moves fast enough to prevent a pressure difference between the poles, that is, a quasi-static approximation of Eq. [C5], dtxn = 0, that implies PL = PR. Thus, the centering of the nucleoid is controlled by the rate at which the number of polysomes in the lateral compartments changes. In both compartments, the pressure is set by the concentration of polysomes, whose number is set by the following differential equation:
+dρtoti
+dt = αcDNA
+2 − βρtoti , [C6]
+whose solution is
+ρtoti = α cDNA
+2β + Cie−βt, [C7]
+where Ci is a constant that is set by initial conditions. In the case of the initial condition of Fig. 4, Ci takes the value CL = +0.2 αcDNA/β and CR = −0.2 α cDNA/β for the left and right compartment, respectively, as the initial position of the centre of mass of the nucleoid is located at +0.2/` and the amount of mRNA is directly proportional to the volume of each compartment. Since PL = PR we have ρtot L/VL = ρtot R/VR. Assuming that the nucleoid does not change size during this process, we obtain
+VL = ρtot L
+ρtot L + ρtot R
+(V − Vn), [C8]
+where V is the total volume of the cell, and Vn the volume of the nucleoid. In the previous relation, the only term that is time-dependent is ρtot L since ρtot L + ρtot R is constant in time. Therefore, the position of the nucleoid is set by VL, which depends only on ρtot L. This lower bound on the time for centering is depicted in Fig. 4B.
+Appendix D: Experimental Methods
+E. coli wild type strain NCM3722 was used in the study. To achieve different growth rates, cells were cultured
+at 37◦C in chemostats and in batch. For slow growth rates (0.1 and 0.6 h−1), carbon-limiting chemostats with corresponding dilution rates were used, whereas for faster growth, batch cultures with glucose minimal media (0.9
+h−1) and defined rich media (1.7 h−1) were used. The chemostat (Sixfors, HT) volume was 300 mL with oxygen and pH
+
+
+18
+7.2 × 103
+5 × 104
+1 × 105
+1.5 × 105
+0 log(2)
+2 1 1.5
+A
+0.4
+0.43
+0.5
+0.6
+0.7
+0 log(2)
+2 1 1.5
+B
+0.5
+0.9
+1
+1.5
+2
+0 log(2)
+2 1 1.5
+C
+Ribosome number per cell
+Growth rate (1/hr)
+Cross-sectional radius Rcell (μ m)
+Growth rate (1/hr)
+Half cell length l (μm)
+Growth rate (1/hr)
+FIG. 9: Experimental data and interpolation. (A) Ribosome number per cell as a function of growth rate. (B ) Same as A, for cell cross-sectional radius. (C ) Same as A, for half cell length. Points correspond to experimental data, and solid curves to the exponential fit. The inferred parameters for the desired growth rate are marked on each axis.
+probes to monitor the culture. pH was maintained at 7.2 ± 0.1 and the aeration rate was set at 4.5 l/h. 40 mM MOPS media (M2120, Teknova) was used with glucose (0.4 %, Sigma G8270), ammonia (9.5 mM NH4Cl, Sigma A9434), and phosphate (1.32 mM K2HPO4, Sigma P3786) added separately. For the defined rich media, additional Supplement EZ 5X and 10X ACGU Solution (Teknova) were added. In carbon-limiting chemostats, glucose concentration was reduced to 0.08 %. All the sample collection happened after chemostat cultures reached steady state or when batch culture reached OD600 0.3.
+To measure cell size, 750 μL of culture was fixed with 250 μL 20% paraformaldehyde at room temperature for 15
+minutes, washed with PBS twice, and stored at 4◦C until imaging. 1 μL of cells were then placed on 1% low-melting agar pad (Calbiochem) made with PBS and imaged with inverted Nikon90i epifluorescent microscope equipped with a 100 × 1.4 NA objective (Nikon) and Hamamazu Orca R2 CCD camera. NIS Elements software (Nikon) was used to automate image acquisition for phase contrast images. Segmentation, quantification of fluorescence intensity, and cell-length measurements were further analyzed in MATLAB using customized programs.
+To infer ribosome number per cell, cell number per OD600 and total RNA per OD600 were measured separately. Cell number per OD600 was calculated by serial dilution and plating. To measure total RNA, 1.5 mL of culture was pelleted by centrifugation for 1 min at 13,000 X g. The pellet was frozen on dry ice and the supernatant was taken to measure absorbance at 600 nm for cell loss. The pellet was then washed twice with 0.6M HClO4 and digested with
+0.3M KOH for 1 hour at 37◦C. The solution was then precipitated with 3M HClO4 and the supernatant was collected. The pellet was re-extracted again with 0.5M HClO4. The supernatants were combined and absorbance measured at 260nm using Tecan Infinite 200 Pro (Tecan Trading AG, Switzerland). Total RNA concentration was determined by multiplying the A260 absorbance with 31 (μg RNA/mL) as the extinction coefficient.
+Appendix E: Parameter estimation from experimental data
+The cell length, cross-sectional radius, and the number of ribosomes, were inferred from experimental data of E. coli colonies growing in different chemostatted conditions. The data yields the values of these parameters for different growth rates. The estimate of the number of ribosomes is derived from the total amount of 23S and 16S ribosomal RNA (rRNA), considering that two-thirds of the total mass of a ribosome comes from rRNA. The twelve different nutrient limitations analysed correspond to four groups of similar growth rates, and the cell length and cross-sectional radius, number of ribosomes, and growth rate were averaged across data points belonging to the same growth rate. Finally, the values of the parameters as functions of the growth rate were fitted with an exponential by using the least-squares method. The parameter values for a growth rate of log(2)/2/hr, which corresponds to a doubling time of 2 hr, were obtained via interpolation, by evaluating the exponential fit at the reference growth rate log(2)/2/hr, see the main text Model parameters. The interpolations are shown in Fig. 9, and the values of the corresponding parameters are given in the main text in Model parameters.
+
+
+19
+Appendix F: Numerical methods
+For both the minimization of the free energy [B8] and the time integration of the reaction-diffusion Eqs. [1]–[3], numerical methods are required. We use a finite-difference scheme to first order in ∆x to discretize the spatial degrees of freedom of the system as follows:
+2` = ∆xNd, [F1]
+where Nd is the number of points taken to describe the concentration profile of each of the species in the system, and was taken to be Nd = 32, 64, depending on the desired accuracy. With this discretization, we evaluated the spatial derivatives in Eq. [B8], and obtained a minimum of the free energy by using an algorithm for constrained gradient-based optimization [45]. We used the C implementation of the NLopt library [46]. For the time integration, we wrote down a set of ordinary differential equations, where to each point in the mesh corresponds a function of time, and such functions are coupled to each other through the local chemical reactions, and to neighboring points in space through the discretized spatial derivatives. To solve this system we used an implementation of the backward differentiation formula (BDF) method in Mathematica [47].
+Appendix G: Scaling of the concentration of chemical species for single-chromosome growth
+In the single-chromosome case we assume that the concentration of mRNA and ribosomes scales linearly with the growth rate and, based on the data of Ref. [21], that the growth rate of E.coli decreases linearly with cell length until it reaches zero at ∼ 20 μm. In order to compare the model predictions with the experimental data in Ref. [10], we assume the same linear law, but with a slope such that the growth rate, g, reaches zero at 30 μm, because in the data of Ref. [10] cells appear to grow up to that length. In addition, we assume that the mRNA degradation rate, β, decreases linearly in the same way the growth rate does, motivated by the expectation that for slow growth it would be inefficient to turn over mRNA quickly. With the above considerations, we can write the following relations:
+g(`) = g0 − a `, [G1] NmRNA(`) = 2`NmRNA0 g(`), [G2] β(`) = β0(g0 − a `), [G3]
+where, for a cell that grows up to 30 μm, a = g0/(15 μm) and the constants g0, NmRNA0 , and β0 are set by knowing that the values of their respective functions must match those of the reference cell of the main text, see Model parameters. Those are:
+g(` = 0.9 μm) = log(2)
+2 hr−1, [G4]
+NmRNA(` = 0.9 μm)
+2`σ = 2400 μm−3, [G5]
+β(` = 0.9 μm) = 3 × 10−3/s. [G6]
+Then, the mRNA synthesis rate, α(`), is fixed by the relation α(`)NDNA = β(`)NmRNA(`) see the main text Model parameters, where NmRNA(`) and β(`) are given by Eqs. [G2] and [G3].
+Appendix H: Supplementary figures and movies
+1. Figure 10
+This figure depicts the results obtained for the filamentous growth scaling as in the main text, section Filamentous growth, but in the absence of the out-of-equilibrium chemical reactions, i.e., for a passive system. The format of the Figure is the same as that of Fig. 1.
+2. Figure 11
+This figure depicts out-of-equilibrium steady states in the filamentous-growth case, for cells longer than those shown in the main text. For such long cells (Fig. 11 lower panel) there are more than two lobes, suggesting the emergence
+
+
+20
+0
+2
+4
+6
+-1 -0.5 0 0.5 10
+0.5
+1
+1.5
+l = 1.35μm
+A
+0
+2
+4
+6
+-1 -0.5 0 0.5 10
+0.5
+1
+1.5
+l = 2.25μm
+0
+2
+4
+6
+-1 -0.5 0 0.5 10
+0.5
+1
+1.5
+l = 3.15μm
+0
+2
+4
+6
+-1 -0.5 0 0.5 10
+0.5
+1
+1.5
+l = 4.05μm
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0 2 4 6 8 10 12
+B
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0 2 4 6 8 10 12
+B
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+0
+nmax
+n
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+c
+DNA
+(103/μm)
+ρn, cF
+(103/μm)
+x/l
+0
+n
+Nucleoid length (μm)
+Cell length 2l (μm)
+ρtot = 1500 /μm
+ρtot = 2400 /μm
+ρtot = 3000 /μm
+FIG. 10: Equilibrium concentration profiles for E. coli growing filamentously. (A) and (B ) are the same as Fig. 1C and D in the main text, respectively, but without the out-of-equilibrium terms in the model.
+0
+2 × 103
+4 × 103
+6 × 103
+-2 0 2 0
+5 × 102
+1 × 103
+1.5 × 103
+l = 2.7μm
+0
+2 × 103
+4 × 103
+6 × 103
+-4 -2 0 2 4 0
+5 × 102
+1 × 103
+1.5 × 103
+l = 5.4μm
+0
+2 × 103
+4 × 103
+6 × 103
+-6 -4 -2 0 2 4 6 0
+5 × 102
+1 × 103
+1.5 × 103
+l = 8.1μm
+cDNA (μm−1)
+ρn, cF
+(μm−1 )
+0
+nmax
+n
+cDNA (μm−1)
+ρn, cF
+(μm−1 )
+cDNA (μm−1)
+ρn, cF
+(μm−1 )
+x (μm)
+0
+nmax
+n
+FIG. 11: Steady-state profiles for filamentously growing cells. Steady-state profiles of the concentrations of the components of the E. coli transcriptional-translational machinery (TTM) for filamentously growing cells with mRNA
+concentration ρtot = 2400 μm−1. Colors represent different chemical species of the TTM, as in Fig. 1C. As in Fig. 1D, for cells larger than ∼ 8 μm the nucleoid splits in two lobes. Furthermore, for cells around ∼ 16 μm the nucleoid has three distinct lobes, suggesting that this may be a pattern with a characteristic length that exists also for longer cells.
+of a characteristic length scale. Although larger cells could not be examined because the free-energy minimization is too computationally costly, we expect that more lobes will form in longer cells, with a fixed lobe characteristic size (∼ 5 μm).
+Experimentally, in long filamentously growing cells (with cell division blocked but not DNA replication), nucleoids are observed at tightly controlled positions and distances [31]. However, in Ref. [31] a separate nucleoid appears every ∼ 2.25 μm the cell grows in length. This value is roughly half of the one predicted by this model, possibly due to uncertainties in the parameters and lack of modelled connectivity among DNA segments, see Discussion.
+
+
+21
+3. Movie S1
+This movie shows the dynamics of nucleoid splitting, and has been obtained by integrating forward in time Eqs. [1][3] by using the equilibrium profile as initial condition, see Fig. 2. Concentrations on the y axis are given in units
+of μm−1, and the x axis is normalized by half the cell length `. The total polysome concentration is obtained by
+summing over all polysome species, including bare mRNAs, for each point of space, i.e. ρtot(x, t) = ∑nmax
+n=0 ρn(x, t).
+4. Movie S2
+This movie shows the centering dynamics of the nucleoid, and has been obtained by integrating forward in time Eqs. [1]–[3], see Fig. 4. The initial condition has been obtained by shifting towards one side of the cell the out-of
+equilibrium steady-state profiles. Concentrations on the y axis are in units of μm−1, and the x axis is normalized by half the cell length `.
