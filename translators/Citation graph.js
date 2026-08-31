@@ -16,10 +16,10 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "4ae6d8f9f22dd5cf7192d9103f2b473e74238009d4c76ce94747abb6671cde43"
+		"hash": "e2cbe4e5183c15b9e11d7e3821fcb22ff40daca6bf4056b3c28f8912488ad12c"
 	},
 	"priority": 100,
-	"lastUpdated": "2026-07-20"
+	"lastUpdated": "2026-08-26"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -62,601 +62,6 @@ var { doExport } = (() => {
     mod
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-  // node_modules/safe-stable-stringify/index.js
-  var require_safe_stable_stringify = __commonJS({
-    "node_modules/safe-stable-stringify/index.js"(exports, module) {
-      var { hasOwnProperty } = Object.prototype;
-      var stringify2 = configure2();
-      stringify2.configure = configure2;
-      stringify2.stringify = stringify2;
-      stringify2.default = stringify2;
-      exports.stringify = stringify2;
-      exports.configure = configure2;
-      module.exports = stringify2;
-      var strEscapeSequencesRegExp = /[\u0000-\u001f\u0022\u005c\ud800-\udfff]/;
-      function strEscape(str) {
-        if (str.length < 5e3 && !strEscapeSequencesRegExp.test(str)) {
-          return `"${str}"`;
-        }
-        return JSON.stringify(str);
-      }
-      function sort(array, comparator) {
-        if (array.length > 200 || comparator) {
-          return array.sort(comparator);
-        }
-        for (let i = 1; i < array.length; i++) {
-          const currentValue = array[i];
-          let position = i;
-          while (position !== 0 && array[position - 1] > currentValue) {
-            array[position] = array[position - 1];
-            position--;
-          }
-          array[position] = currentValue;
-        }
-        return array;
-      }
-      var typedArrayPrototypeGetSymbolToStringTag = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(
-          Object.getPrototypeOf(
-            new Int8Array()
-          )
-        ),
-        Symbol.toStringTag
-      ).get;
-      function isTypedArrayWithEntries(value) {
-        return typedArrayPrototypeGetSymbolToStringTag.call(value) !== void 0 && value.length !== 0;
-      }
-      function stringifyTypedArray(array, separator, maximumBreadth) {
-        if (array.length < maximumBreadth) {
-          maximumBreadth = array.length;
-        }
-        const whitespace = separator === "," ? "" : " ";
-        let res = `"0":${whitespace}${array[0]}`;
-        for (let i = 1; i < maximumBreadth; i++) {
-          res += `${separator}"${i}":${whitespace}${array[i]}`;
-        }
-        return res;
-      }
-      function getCircularValueOption(options2) {
-        if (hasOwnProperty.call(options2, "circularValue")) {
-          const circularValue = options2.circularValue;
-          if (typeof circularValue === "string") {
-            return `"${circularValue}"`;
-          }
-          if (circularValue == null) {
-            return circularValue;
-          }
-          if (circularValue === Error || circularValue === TypeError) {
-            return {
-              toString() {
-                throw new TypeError("Converting circular structure to JSON");
-              }
-            };
-          }
-          throw new TypeError('The "circularValue" argument must be of type string or the value null or undefined');
-        }
-        return '"[Circular]"';
-      }
-      function getDeterministicOption(options2) {
-        let value;
-        if (hasOwnProperty.call(options2, "deterministic")) {
-          value = options2.deterministic;
-          if (typeof value !== "boolean" && typeof value !== "function") {
-            throw new TypeError('The "deterministic" argument must be of type boolean or comparator function');
-          }
-        }
-        return value === void 0 ? true : value;
-      }
-      function getBooleanOption(options2, key) {
-        let value;
-        if (hasOwnProperty.call(options2, key)) {
-          value = options2[key];
-          if (typeof value !== "boolean") {
-            throw new TypeError(`The "${key}" argument must be of type boolean`);
-          }
-        }
-        return value === void 0 ? true : value;
-      }
-      function getPositiveIntegerOption(options2, key) {
-        let value;
-        if (hasOwnProperty.call(options2, key)) {
-          value = options2[key];
-          if (typeof value !== "number") {
-            throw new TypeError(`The "${key}" argument must be of type number`);
-          }
-          if (!Number.isInteger(value)) {
-            throw new TypeError(`The "${key}" argument must be an integer`);
-          }
-          if (value < 1) {
-            throw new RangeError(`The "${key}" argument must be >= 1`);
-          }
-        }
-        return value === void 0 ? Infinity : value;
-      }
-      function getItemCount(number) {
-        if (number === 1) {
-          return "1 item";
-        }
-        return `${number} items`;
-      }
-      function getUniqueReplacerSet(replacerArray) {
-        const replacerSet = /* @__PURE__ */ new Set();
-        for (const value of replacerArray) {
-          if (typeof value === "string" || typeof value === "number") {
-            replacerSet.add(String(value));
-          }
-        }
-        return replacerSet;
-      }
-      function getStrictOption(options2) {
-        if (hasOwnProperty.call(options2, "strict")) {
-          const value = options2.strict;
-          if (typeof value !== "boolean") {
-            throw new TypeError('The "strict" argument must be of type boolean');
-          }
-          if (value) {
-            return (value2) => {
-              let message = `Object can not safely be stringified. Received type ${typeof value2}`;
-              if (typeof value2 !== "function") message += ` (${value2.toString()})`;
-              throw new Error(message);
-            };
-          }
-        }
-      }
-      function configure2(options2) {
-        options2 = { ...options2 };
-        const fail = getStrictOption(options2);
-        if (fail) {
-          if (options2.bigint === void 0) {
-            options2.bigint = false;
-          }
-          if (!("circularValue" in options2)) {
-            options2.circularValue = Error;
-          }
-        }
-        const circularValue = getCircularValueOption(options2);
-        const bigint = getBooleanOption(options2, "bigint");
-        const deterministic = getDeterministicOption(options2);
-        const comparator = typeof deterministic === "function" ? deterministic : void 0;
-        const maximumDepth = getPositiveIntegerOption(options2, "maximumDepth");
-        const maximumBreadth = getPositiveIntegerOption(options2, "maximumBreadth");
-        function stringifyFnReplacer(key, parent, stack, replacer2, spacer, indentation) {
-          let value = parent[key];
-          if (typeof value === "object" && value !== null && typeof value.toJSON === "function") {
-            value = value.toJSON(key);
-          }
-          value = replacer2.call(parent, key, value);
-          switch (typeof value) {
-            case "string":
-              return strEscape(value);
-            case "object": {
-              if (value === null) {
-                return "null";
-              }
-              if (stack.indexOf(value) !== -1) {
-                return circularValue;
-              }
-              let res = "";
-              let join = ",";
-              const originalIndentation = indentation;
-              if (Array.isArray(value)) {
-                if (value.length === 0) {
-                  return "[]";
-                }
-                if (maximumDepth < stack.length + 1) {
-                  return '"[Array]"';
-                }
-                stack.push(value);
-                if (spacer !== "") {
-                  indentation += spacer;
-                  res += `
-${indentation}`;
-                  join = `,
-${indentation}`;
-                }
-                const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
-                let i = 0;
-                for (; i < maximumValuesToStringify - 1; i++) {
-                  const tmp2 = stringifyFnReplacer(String(i), value, stack, replacer2, spacer, indentation);
-                  res += tmp2 !== void 0 ? tmp2 : "null";
-                  res += join;
-                }
-                const tmp = stringifyFnReplacer(String(i), value, stack, replacer2, spacer, indentation);
-                res += tmp !== void 0 ? tmp : "null";
-                if (value.length - 1 > maximumBreadth) {
-                  const removedKeys = value.length - maximumBreadth - 1;
-                  res += `${join}"... ${getItemCount(removedKeys)} not stringified"`;
-                }
-                if (spacer !== "") {
-                  res += `
-${originalIndentation}`;
-                }
-                stack.pop();
-                return `[${res}]`;
-              }
-              let keys = Object.keys(value);
-              const keyLength = keys.length;
-              if (keyLength === 0) {
-                return "{}";
-              }
-              if (maximumDepth < stack.length + 1) {
-                return '"[Object]"';
-              }
-              let whitespace = "";
-              let separator = "";
-              if (spacer !== "") {
-                indentation += spacer;
-                join = `,
-${indentation}`;
-                whitespace = " ";
-              }
-              const maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
-              if (deterministic && !isTypedArrayWithEntries(value)) {
-                keys = sort(keys, comparator);
-              }
-              stack.push(value);
-              for (let i = 0; i < maximumPropertiesToStringify; i++) {
-                const key2 = keys[i];
-                const tmp = stringifyFnReplacer(key2, value, stack, replacer2, spacer, indentation);
-                if (tmp !== void 0) {
-                  res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                  separator = join;
-                }
-              }
-              if (keyLength > maximumBreadth) {
-                const removedKeys = keyLength - maximumBreadth;
-                res += `${separator}"...":${whitespace}"${getItemCount(removedKeys)} not stringified"`;
-                separator = join;
-              }
-              if (spacer !== "" && separator.length > 1) {
-                res = `
-${indentation}${res}
-${originalIndentation}`;
-              }
-              stack.pop();
-              return `{${res}}`;
-            }
-            case "number":
-              return isFinite(value) ? String(value) : fail ? fail(value) : "null";
-            case "boolean":
-              return value === true ? "true" : "false";
-            case "undefined":
-              return void 0;
-            case "bigint":
-              if (bigint) {
-                return String(value);
-              }
-            // fallthrough
-            default:
-              return fail ? fail(value) : void 0;
-          }
-        }
-        function stringifyArrayReplacer(key, value, stack, replacer2, spacer, indentation) {
-          if (typeof value === "object" && value !== null && typeof value.toJSON === "function") {
-            value = value.toJSON(key);
-          }
-          switch (typeof value) {
-            case "string":
-              return strEscape(value);
-            case "object": {
-              if (value === null) {
-                return "null";
-              }
-              if (stack.indexOf(value) !== -1) {
-                return circularValue;
-              }
-              const originalIndentation = indentation;
-              let res = "";
-              let join = ",";
-              if (Array.isArray(value)) {
-                if (value.length === 0) {
-                  return "[]";
-                }
-                if (maximumDepth < stack.length + 1) {
-                  return '"[Array]"';
-                }
-                stack.push(value);
-                if (spacer !== "") {
-                  indentation += spacer;
-                  res += `
-${indentation}`;
-                  join = `,
-${indentation}`;
-                }
-                const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
-                let i = 0;
-                for (; i < maximumValuesToStringify - 1; i++) {
-                  const tmp2 = stringifyArrayReplacer(String(i), value[i], stack, replacer2, spacer, indentation);
-                  res += tmp2 !== void 0 ? tmp2 : "null";
-                  res += join;
-                }
-                const tmp = stringifyArrayReplacer(String(i), value[i], stack, replacer2, spacer, indentation);
-                res += tmp !== void 0 ? tmp : "null";
-                if (value.length - 1 > maximumBreadth) {
-                  const removedKeys = value.length - maximumBreadth - 1;
-                  res += `${join}"... ${getItemCount(removedKeys)} not stringified"`;
-                }
-                if (spacer !== "") {
-                  res += `
-${originalIndentation}`;
-                }
-                stack.pop();
-                return `[${res}]`;
-              }
-              stack.push(value);
-              let whitespace = "";
-              if (spacer !== "") {
-                indentation += spacer;
-                join = `,
-${indentation}`;
-                whitespace = " ";
-              }
-              let separator = "";
-              for (const key2 of replacer2) {
-                const tmp = stringifyArrayReplacer(key2, value[key2], stack, replacer2, spacer, indentation);
-                if (tmp !== void 0) {
-                  res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                  separator = join;
-                }
-              }
-              if (spacer !== "" && separator.length > 1) {
-                res = `
-${indentation}${res}
-${originalIndentation}`;
-              }
-              stack.pop();
-              return `{${res}}`;
-            }
-            case "number":
-              return isFinite(value) ? String(value) : fail ? fail(value) : "null";
-            case "boolean":
-              return value === true ? "true" : "false";
-            case "undefined":
-              return void 0;
-            case "bigint":
-              if (bigint) {
-                return String(value);
-              }
-            // fallthrough
-            default:
-              return fail ? fail(value) : void 0;
-          }
-        }
-        function stringifyIndent(key, value, stack, spacer, indentation) {
-          switch (typeof value) {
-            case "string":
-              return strEscape(value);
-            case "object": {
-              if (value === null) {
-                return "null";
-              }
-              if (typeof value.toJSON === "function") {
-                value = value.toJSON(key);
-                if (typeof value !== "object") {
-                  return stringifyIndent(key, value, stack, spacer, indentation);
-                }
-                if (value === null) {
-                  return "null";
-                }
-              }
-              if (stack.indexOf(value) !== -1) {
-                return circularValue;
-              }
-              const originalIndentation = indentation;
-              if (Array.isArray(value)) {
-                if (value.length === 0) {
-                  return "[]";
-                }
-                if (maximumDepth < stack.length + 1) {
-                  return '"[Array]"';
-                }
-                stack.push(value);
-                indentation += spacer;
-                let res2 = `
-${indentation}`;
-                const join2 = `,
-${indentation}`;
-                const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
-                let i = 0;
-                for (; i < maximumValuesToStringify - 1; i++) {
-                  const tmp2 = stringifyIndent(String(i), value[i], stack, spacer, indentation);
-                  res2 += tmp2 !== void 0 ? tmp2 : "null";
-                  res2 += join2;
-                }
-                const tmp = stringifyIndent(String(i), value[i], stack, spacer, indentation);
-                res2 += tmp !== void 0 ? tmp : "null";
-                if (value.length - 1 > maximumBreadth) {
-                  const removedKeys = value.length - maximumBreadth - 1;
-                  res2 += `${join2}"... ${getItemCount(removedKeys)} not stringified"`;
-                }
-                res2 += `
-${originalIndentation}`;
-                stack.pop();
-                return `[${res2}]`;
-              }
-              let keys = Object.keys(value);
-              const keyLength = keys.length;
-              if (keyLength === 0) {
-                return "{}";
-              }
-              if (maximumDepth < stack.length + 1) {
-                return '"[Object]"';
-              }
-              indentation += spacer;
-              const join = `,
-${indentation}`;
-              let res = "";
-              let separator = "";
-              let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
-              if (isTypedArrayWithEntries(value)) {
-                res += stringifyTypedArray(value, join, maximumBreadth);
-                keys = keys.slice(value.length);
-                maximumPropertiesToStringify -= value.length;
-                separator = join;
-              }
-              if (deterministic) {
-                keys = sort(keys, comparator);
-              }
-              stack.push(value);
-              for (let i = 0; i < maximumPropertiesToStringify; i++) {
-                const key2 = keys[i];
-                const tmp = stringifyIndent(key2, value[key2], stack, spacer, indentation);
-                if (tmp !== void 0) {
-                  res += `${separator}${strEscape(key2)}: ${tmp}`;
-                  separator = join;
-                }
-              }
-              if (keyLength > maximumBreadth) {
-                const removedKeys = keyLength - maximumBreadth;
-                res += `${separator}"...": "${getItemCount(removedKeys)} not stringified"`;
-                separator = join;
-              }
-              if (separator !== "") {
-                res = `
-${indentation}${res}
-${originalIndentation}`;
-              }
-              stack.pop();
-              return `{${res}}`;
-            }
-            case "number":
-              return isFinite(value) ? String(value) : fail ? fail(value) : "null";
-            case "boolean":
-              return value === true ? "true" : "false";
-            case "undefined":
-              return void 0;
-            case "bigint":
-              if (bigint) {
-                return String(value);
-              }
-            // fallthrough
-            default:
-              return fail ? fail(value) : void 0;
-          }
-        }
-        function stringifySimple(key, value, stack) {
-          switch (typeof value) {
-            case "string":
-              return strEscape(value);
-            case "object": {
-              if (value === null) {
-                return "null";
-              }
-              if (typeof value.toJSON === "function") {
-                value = value.toJSON(key);
-                if (typeof value !== "object") {
-                  return stringifySimple(key, value, stack);
-                }
-                if (value === null) {
-                  return "null";
-                }
-              }
-              if (stack.indexOf(value) !== -1) {
-                return circularValue;
-              }
-              let res = "";
-              const hasLength = value.length !== void 0;
-              if (hasLength && Array.isArray(value)) {
-                if (value.length === 0) {
-                  return "[]";
-                }
-                if (maximumDepth < stack.length + 1) {
-                  return '"[Array]"';
-                }
-                stack.push(value);
-                const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
-                let i = 0;
-                for (; i < maximumValuesToStringify - 1; i++) {
-                  const tmp2 = stringifySimple(String(i), value[i], stack);
-                  res += tmp2 !== void 0 ? tmp2 : "null";
-                  res += ",";
-                }
-                const tmp = stringifySimple(String(i), value[i], stack);
-                res += tmp !== void 0 ? tmp : "null";
-                if (value.length - 1 > maximumBreadth) {
-                  const removedKeys = value.length - maximumBreadth - 1;
-                  res += `,"... ${getItemCount(removedKeys)} not stringified"`;
-                }
-                stack.pop();
-                return `[${res}]`;
-              }
-              let keys = Object.keys(value);
-              const keyLength = keys.length;
-              if (keyLength === 0) {
-                return "{}";
-              }
-              if (maximumDepth < stack.length + 1) {
-                return '"[Object]"';
-              }
-              let separator = "";
-              let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
-              if (hasLength && isTypedArrayWithEntries(value)) {
-                res += stringifyTypedArray(value, ",", maximumBreadth);
-                keys = keys.slice(value.length);
-                maximumPropertiesToStringify -= value.length;
-                separator = ",";
-              }
-              if (deterministic) {
-                keys = sort(keys, comparator);
-              }
-              stack.push(value);
-              for (let i = 0; i < maximumPropertiesToStringify; i++) {
-                const key2 = keys[i];
-                const tmp = stringifySimple(key2, value[key2], stack);
-                if (tmp !== void 0) {
-                  res += `${separator}${strEscape(key2)}:${tmp}`;
-                  separator = ",";
-                }
-              }
-              if (keyLength > maximumBreadth) {
-                const removedKeys = keyLength - maximumBreadth;
-                res += `${separator}"...":"${getItemCount(removedKeys)} not stringified"`;
-              }
-              stack.pop();
-              return `{${res}}`;
-            }
-            case "number":
-              return isFinite(value) ? String(value) : fail ? fail(value) : "null";
-            case "boolean":
-              return value === true ? "true" : "false";
-            case "undefined":
-              return void 0;
-            case "bigint":
-              if (bigint) {
-                return String(value);
-              }
-            // fallthrough
-            default:
-              return fail ? fail(value) : void 0;
-          }
-        }
-        function stringify3(value, replacer2, space) {
-          if (arguments.length > 1) {
-            let spacer = "";
-            if (typeof space === "number") {
-              spacer = " ".repeat(Math.min(space, 10));
-            } else if (typeof space === "string") {
-              spacer = space.slice(0, 10);
-            }
-            if (replacer2 != null) {
-              if (typeof replacer2 === "function") {
-                return stringifyFnReplacer("", { "": value }, [], replacer2, spacer, "");
-              }
-              if (Array.isArray(replacer2)) {
-                return stringifyArrayReplacer("", value, [], getUniqueReplacerSet(replacer2), spacer, "");
-              }
-            }
-            if (spacer.length !== 0) {
-              return stringifyIndent("", value, [], spacer, "");
-            }
-          }
-          return stringifySimple("", value, []);
-        }
-        return stringify3;
-      }
-    }
-  });
 
   // node_modules/@stdlib/utils-define-property/lib/define_property.js
   var require_define_property = __commonJS({
@@ -1812,6 +1217,7 @@ ${originalIndentation}`;
     exportCaseProtection: "",
     exportSort: "citekey",
     exportTitlecase: "",
+    extraFieldAsNote: false,
     extraMergeCitekeys: false,
     extraMergeCSL: false,
     extraMergeTeX: false,
@@ -2224,31 +1630,26 @@ ${originalIndentation}`;
 
   // content/client.ts
   var worker = typeof location !== "undefined" && !!location.search;
-  var searchParams = worker && new URLSearchParams(location.search);
+  var searchParams = worker ? new URLSearchParams(location.search) : void 0;
   var name = (() => {
-    if (worker) return searchParams.get("name");
+    if (searchParams) return searchParams.get("name");
     const $name = Zotero.clientName || Zotero.BetterBibTeX?.clientName;
     if (!$name) throw new Error("Unable to detect clientName");
     return $name;
   })();
   var version = (() => {
-    if (worker) return searchParams.get("version");
+    if (searchParams) return searchParams.get("version");
     const $version = Zotero.version || Zotero.BetterBibTeX?.clientVersion;
     if (!$version) throw new Error("Unable to detect clientVersion");
     return $version;
   })();
   var slug = name.toLowerCase().replace("-", "");
   var isBeta = version.includes("beta");
-  var locale = worker ? searchParams.get("locale") : Zotero.locale;
-  var platform = worker ? searchParams.get("platform") : Zotero.isWin ? "win" : Zotero.isMac ? "mac" : Zotero.isLinux ? "lin" : "unk";
-  var isWin = worker ? searchParams.get("isWin") === "true" : Zotero.isWin;
-  var isMac = worker ? searchParams.get("isMac") === "true" : Zotero.isMac;
-  var isLinux = worker ? searchParams.get("isLinux") === "true" : Zotero.isLinux;
-
-  // node_modules/safe-stable-stringify/esm/wrapper.js
-  var import__ = __toESM(require_safe_stable_stringify(), 1);
-  var configure = import__.default.configure;
-  var wrapper_default = import__.default;
+  var locale = searchParams ? searchParams.get("locale") : Zotero.locale;
+  var platform = searchParams ? searchParams.get("platform") : Zotero.isWin ? "win" : Zotero.isMac ? "mac" : Zotero.isLinux ? "lin" : "unk";
+  var isWin = searchParams ? searchParams.get("isWin") === "true" : Zotero.isWin;
+  var isMac = searchParams ? searchParams.get("isMac") === "true" : Zotero.isMac;
+  var isLinux = searchParams ? searchParams.get("isLinux") === "true" : Zotero.isLinux;
 
   // content/logger.ts
   function stringifyXPCOM(obj) {
@@ -2264,35 +1665,114 @@ ${obj.stack}]`;
     if (typeof ErrorEvent !== "undefined" && obj instanceof ErrorEvent) return `[errorevent: ${obj.message || "<unspecified errorevent>"}]`;
     return "";
   }
-  function replacer(key, value) {
-    try {
-      if (value === null) return value;
-      if (value instanceof Set) return [...value];
-      if (value instanceof Map) return Object.fromEntries(value);
-      if (value instanceof RegExp) return value.source;
-      if (Array.isArray(value)) return value;
-      switch (typeof value) {
-        case "string":
-        case "number":
-        case "boolean":
-        case "function":
-        case "undefined":
-          return value;
-        case "object":
-          return stringifyXPCOM(value) || stringifyError(value) || value;
-      }
-      if (value.openDialog || value.querySelector) return value.toString();
-    } catch (err) {
-      return `{serialization error: ${err.message}}`;
+  function $serialize(val, seen) {
+    if (val === null) return "null";
+    if (val === void 0) return void 0;
+    switch (typeof val) {
+      case "number":
+        return isFinite(val) ? String(val) : "null";
+      case "boolean":
+        return val ? "true" : "false";
+      case "string":
+        return JSON.stringify(val);
+      case "symbol":
+      case "function":
+        return void 0;
+      case "object":
+        break;
+      // handled below
+      default:
+        return void 0;
     }
-    return "{unknown object}";
+    if (seen.has(val)) {
+      return '"[Circular]"';
+    }
+    seen.add(val);
+    let res;
+    if (typeof val.toJSON === "function") {
+      const serialized = $serialize(val.toJSON(), seen);
+      seen.delete(val);
+      return serialized;
+    }
+    if ("getField" in val) {
+      res = JSON.stringify(Zotero.Utilities.Internal.itemToExportFormat(val, false, true));
+    } else if (val.openDialog || val.querySelector) {
+      res = JSON.stringify(val.toString());
+    } else if (res = stringifyXPCOM(val) || stringifyError(val)) {
+      res = JSON.stringify(res);
+    } else if (Array.isArray(val)) {
+      let out = "[";
+      for (let i = 0; i < val.length; i++) {
+        if (i > 0) out += ",";
+        const item = $serialize(val[i], seen);
+        out += item === void 0 ? "null" : item;
+      }
+      res = out + "]";
+    } else if (val instanceof RegExp) {
+      res = JSON.stringify(val.toString());
+    } else if (val instanceof Set) {
+      let out = "[";
+      let first = true;
+      for (const entry of val) {
+        const item = $serialize(entry, seen);
+        if (item !== void 0) {
+          if (!first) out += ",";
+          out += item;
+          first = false;
+        }
+      }
+      res = out + "]";
+    } else if (val instanceof Map) {
+      let out = "{";
+      let first = true;
+      for (const [key, entryVal] of val) {
+        const item = $serialize(entryVal, seen);
+        if (item !== void 0) {
+          if (!first) out += ",";
+          const formattedKey = typeof key === "string" ? key : String(key);
+          out += JSON.stringify(formattedKey) + ":" + item;
+          first = false;
+        }
+      }
+      res = out + "}";
+    } else {
+      let out = "{";
+      let first = true;
+      const keys = Object.keys(val);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const item = $serialize(val[key], seen);
+        if (item !== void 0) {
+          if (!first) out += ",";
+          out += JSON.stringify(key) + ":" + item;
+          first = false;
+        }
+      }
+      res = out + "}";
+    }
+    seen.delete(val);
+    return res;
+  }
+  function serialize(val, seen) {
+    try {
+      return $serialize(val, seen) || "";
+    } catch (err) {
+      const msg = `
+
+stringify error: ${err.message}
+${err.stack}
+
+`;
+      log.error(msg);
+      return msg;
+    }
   }
   function stringify(obj) {
-    return wrapper_default(obj, replacer);
+    return serialize(obj, /* @__PURE__ */ new WeakSet());
   }
   function to_s(obj) {
     if (typeof obj === "string") return obj;
-    return stringify(obj);
+    return stringify(obj) || "";
   }
   function format(...msg) {
     return msg.map(to_s).join(" ");
@@ -2330,10 +1810,10 @@ ${obj.stack}]`;
     async exists(path) {
       try {
         return await IOUtils.exists(path);
-      } catch (e) {
-        if (e.message.includes("NS_ERROR_FILE_UNRECOGNIZED_PATH")) log.error(`${e.message}
+      } catch (err) {
+        if (err.message.includes("NS_ERROR_FILE_UNRECOGNIZED_PATH")) log.error(`${err.message}
 
-${e.stack}
+${err.stack}
 
 `);
         return false;
@@ -2351,7 +1831,7 @@ ${e.stack}
       try {
         const stat = await IOUtils.stat(path);
         if (stat.type !== "regular") return 0;
-        return stat.lastModified;
+        return stat.lastModified ?? 0;
       } catch {
         return 0;
       }
@@ -2410,7 +1890,7 @@ ${e.stack}
     exportDir;
     override(preference, extension) {
       const override = this.orig[`${preference}Override`];
-      if (!this.exportPath || !override) {
+      if (!this.exportDir || !this.exportPath || !override) {
         return false;
       }
       const candidates = [
@@ -2452,8 +1932,8 @@ ${e.stack}
       this.collected = collected;
       this.mode = mode;
       this[collected.translator.label.replace(/[^a-z]/ig, "")] = true;
-      this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX;
-      this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML;
+      this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX || false;
+      this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML || false;
       this.options = { ...collected.displayOptions };
       this.preferences = { ...collected.preferences };
       this.isJurisM = slug === "jurism";
@@ -2500,8 +1980,8 @@ ${e.stack}
         }).filter((field) => field).join("|") + ")$");
       }
       this.verbatimFields = this.collected.preferences.verbatimFields.toLowerCase().split(",").map((field) => (m = field.trim().match(/^[/](.+)[/]$/)) ? new RegExp(m[1], "i") : this.typefield(field)).filter((s) => s);
-      if (!this.verbatimFields.length) this.verbatimFields = null;
-      this.csquotes = this.collected.preferences.csquotes ? { open: this.collected.preferences.csquotes[0], close: this.collected.preferences.csquotes[1] } : null;
+      if (!this.verbatimFields.length) delete this.verbatimFields;
+      this.csquotes = this.collected.preferences.csquotes ? { open: this.collected.preferences.csquotes[0], close: this.collected.preferences.csquotes[1] } : void 0;
     }
     collected;
     mode;
@@ -2564,8 +2044,8 @@ ${e.stack}
       const translation = new this(collected, "export");
       collected.items.sort(collected.preferences.exportSort);
       translation.export = {
-        dir: collected.displayOptions.exportDir,
-        path: collected.displayOptions.exportPath
+        dir: collected.displayOptions.exportDir || "",
+        path: collected.displayOptions.exportPath || ""
       };
       if (translation.export.dir?.endsWith(translation.paths.sep)) translation.export.dir = translation.export.dir.slice(0, -1);
       translation.unicode = !collected.preferences[`ascii${collected.translator.label.replace(/Better /, "")}`] || false;
@@ -2612,11 +2092,11 @@ ${e.stack}
     saveAttachments() {
       if (!this.output?.attachments.length) return;
       for (const attachment of this.output.attachments) {
-        attachment.saveFile(attachment.defaultPath, true);
+        if (attachment.defaultPath) attachment.saveFile(attachment.defaultPath, true);
       }
     }
     isVerbatimField(field) {
-      return !!this.verbatimFields.find((v) => typeof v === "string" ? v === field : field.match(v));
+      return this.verbatimFields?.find((v) => typeof v === "string" ? v === field : field.match(v));
     }
   };
 
@@ -2665,11 +2145,7 @@ ${e.stack}
         id: `node-${items.length}`,
         label: label.join("\n"),
         relations: ref.relations?.["dc:relation"] || [],
-        // eslint-disable-next-line prefer-spread
-        cites: [].concat.apply(
-          [],
-          (ref.extra || "").split("\n").filter((line) => line.startsWith("cites:")).map((line) => line.replace(/^cites:/, "").trim()).filter((keys) => keys).map((keys) => keys.split(/\s*,\s*/))
-        ),
+        cites: (ref.extra || "").split("\n").filter((line) => line.startsWith("cites:")).map((line) => line.replace(/^cites:/, "").trim()).filter((keys) => keys).flatMap((keys) => keys.split(/\s*,\s*/)),
         citationKey: ref.citationKey,
         uri: ref.uri
       });
