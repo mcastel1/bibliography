@@ -13,13 +13,13 @@
 	"configOptions": {
 		"getCollections": true,
 		"cached": true,
-		"hash": "05a7c00fd87be6e4fc6ad11044520e492b775f81d82fc7cafc78c5ccc7d07de1"
+		"hash": "bf775184b96dfb1e43024c4b997c533c878a658290773a944bba94dcc0f210ae"
 	},
 	"translatorType": 3,
 	"browserSupport": "gcsv",
 	"priority": 800,
 	"inRepository": false,
-	"lastUpdated": "2026-08-26"
+	"lastUpdated": "2026-09-09"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -20347,6 +20347,7 @@ var { detectImport, doExport, doImport } = (() => {
     "Normalize",
     "Preferences",
     "Title",
+    "YAML",
     "Year",
     "biblatexAPA",
     "biblatexChicago",
@@ -20513,7 +20514,8 @@ var { detectImport, doExport, doImport } = (() => {
         "Preferences": true,
         "keepUpdated": false,
         "worker": true,
-        "Normalize": false
+        "Normalize": false,
+        "YAML": false
       },
       "translatorType": 3,
       "browserSupport": "gcsv",
@@ -58541,18 +58543,19 @@ var { detectImport, doExport, doImport } = (() => {
   }
 
   // translators/lib/yaml.ts
+  function isCSL(item) {
+    return item.title || item.id;
+  }
+  function isHayagriva(item) {
+    return item && typeof item === "object" && (typeof item.type === "string" || typeof item.title === "string");
+  }
   function detectFormat(data) {
-    if (!data || typeof data !== "object" || Array.isArray(data)) return "unknown";
-    const mapped = data;
-    if (Array.isArray(mapped.references)) return "csl";
-    const values = Object.values(mapped);
+    if (!data || typeof data !== "object") return "unknown";
+    if (Array.isArray(data) && data.every(isCSL)) return "csl";
+    if (data.references && Array.isArray(data.references) && data.references.every(isCSL)) return "csl";
+    const values = Object.values(data);
     if (!values.length) return "unknown";
-    const hayagriva = values.every((value) => {
-      if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-      const record = value;
-      return typeof record.type === "string" || typeof record.title === "string";
-    });
-    return hayagriva ? "hayagriva" : "unknown";
+    return values.every(isHayagriva) ? "hayagriva" : "unknown";
   }
 
   // translators/Better CSL YAML.ts
@@ -58562,7 +58565,7 @@ var { detectImport, doExport, doImport } = (() => {
   }
   function detectImport() {
     try {
-      const parsed = Zotero.BetterBibTeX.parseYAML(slurp());
+      const parsed = Zotero.BetterBibTeX.yamlLoad(slurp());
       return detectFormat(parsed) === "csl";
     } catch {
       return false;
@@ -58635,7 +58638,7 @@ var { detectImport, doExport, doImport } = (() => {
     return `${padInt(date.year, 4)}${circa(date)}`;
   }
   async function doImport() {
-    const parsed = Zotero.BetterBibTeX.parseYAML(slurp());
+    const parsed = Zotero.BetterBibTeX.yamlLoad(slurp());
     if (detectFormat(parsed) !== "csl") {
       throw new Error("Input is not in CSL-YAML format");
     }

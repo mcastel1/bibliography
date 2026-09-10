@@ -14,10 +14,10 @@
 	"inRepository": false,
 	"configOptions": {
 		"getCollections": true,
-		"hash": "7f56ffbf62689dd0ce04da06399e3b476e81353c0fe37bb32e5d0294cd898e08"
+		"hash": "3e5511a95b23b2f5f6c2a7afa5ef71003bb21a0196b563306e09623f1f0ab6f8"
 	},
 	"priority": 100,
-	"lastUpdated": "2026-08-26"
+	"lastUpdated": "2026-09-09"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -26042,6 +26042,7 @@ ${err.stack}
     "Normalize",
     "Preferences",
     "Title",
+    "YAML",
     "Year",
     "biblatexAPA",
     "biblatexChicago",
@@ -26208,7 +26209,8 @@ ${err.stack}
         "Preferences": true,
         "keepUpdated": false,
         "worker": true,
-        "Normalize": false
+        "Normalize": false,
+        "YAML": false
       },
       "translatorType": 3,
       "browserSupport": "gcsv",
