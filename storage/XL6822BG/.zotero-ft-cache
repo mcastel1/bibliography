@@ -1,0 +1,1285 @@
+arXiv:1006.5628v3 [cond-mat.dis-nn] 5 Nov 2010
+A Renormalization Group computation of the critical exponents of hierarchical spin glasses
+Michele Castellana1, 2 and Giorgio Parisi1
+1Dipartimento di Fisica, Universita` di Roma ‘La Sapienza’ , 00185 Rome, Italy 2LPTMS, CNRS and Universit ́e Paris-Sud, UMR8626, Bˆat. 100, 91405 Orsay, France
+In a recent work (M Castellana and G Parisi, Phys. Rev. E 82, 040105(R) (2010)), the largescale behaviour of the simplest non-mean field spin-glass system has been analysed, and the critical exponent related to the divergence of the correlation length computed at two loops within the ǫ-expansion technique with two independent methods. By performing the explicit calculation of the critical exponents at two loops, one obtains that the two methods yield the same result. This shows that such underlying renormalization group ideas apply also in this disordered model, in such a way that an ǫ-expansion can be consistently set up. The question of the extension to high-orders of this ǫ-expansion is particularly interesting from the physical point of view. Indeed, once high orders of the series in ǫ for the critical exponents are known, one could check the convergence properties of the series, and find out if the ordinary series re-summation techniques yielding very accurate predictions for the Ising model work also for this model. If this is the case, a consistent and predictive non-mean field theory for such disordered system could be established. In that regard, in this work we expose the underlying techniques of such a two-loop computation (M Castellana and G Parisi, Phys. Rev. E 82, 040105(R) (2010)). We show with an explicit example that such a computation could be quiet easily automatized, i. e. performed by a computer program, in order to compute the ǫ-expansion at high orders in ǫ, and so eventually make this theory physically predictive. Moreover, all the underlying renormalization group ideas implemented in such a computation are widely discussed and exposed.
+PACS numbers: 05.10.-a,75.10.Nr,64.60.ae,
+I. INTRODUCTION
+The understanding of glassy systems and their critical properties is a subject of main interest in Statistical Physics. The mean-field theory of spinglasses [1] and structural glasses [2] provides a physically and mathematically rich theory. Nevertheless, real Spin-Glass systems have short-range interactions, and thus cannot be successfully described by mean-field models [1]. This is the reason why the development of a predictive and consistent theory of glassy phenomena going beyond mean field is still one of the most hotly debated, difficult and challenging problems in this domain [4–6], so that a theory describing real glassy systems is still missing. Indeed, the standard field theory techniques [7, 8] yielding the Ising model critical exponents with striking agreement with experimental data do not usually apply to locally-interacting glassy systems. As a matter of fact, a considerable difficulty in the set-up of a loop-expansion for a locally-interacting Spin-Glass is that the mean-field saddle-point has a very complicated structure [3], and could be not uniquely-defined [4]. It follows that the predictions of a loop-expansion performed around one selected saddle-point could actually depend on the choice of the saddle-point itself, resulting into an intrinsic am
+biguity in the physical predictions. Moreover, nonperturbative effects are poorly understood and not under control, and the basic properties of large scale behaviour of these systems are still far from being clarified.
+In ferromagnetic systems, the physical properties of the paramagnetic-ferromagnetic transition emerge in a clear way already in the original approach of Wilson [8], where one can write a simple Renormalization Group (RG) transformation. It was later realized that Wilson’s equations are exact in the in models with ferromagnetic power-law interactions on hierarchical lattices as the Dyson model [9, 10]. Indeed, in such models one can write exact equations for the magnetization probability distribution, containing all the relevant physical informations about the paramagnetic, ferromagnetic and critical fixed point, and the existence of a finite-temperature phase transition. In other words, all the physical RG ideas are encoded in such recursion relations, whose solution can be explicitly built up with the ǫ-expansion technique [11].
+The extension of this approach to random systems is available only in a few cases.
+Firstly, an RG analysis for random models on the Dyson hierarchical lattice has been pursued in the
+
+
+past [12, 13], and a systematic analysis of the physical and unphysical infrared (IR) fixed points has been developed within the ǫ-expansion technique. Unfortunately, in such models spins belonging to the same hierarchical block interact each other with the same [12] random coupling J, in such a way that frustration turns out to be relatively weak and they are not a good representative of realistic strongly frustrated system.
+Secondly, models with local interactions on hierarchical lattices built on diamond plaquettes [23], have been widely studied [24–28] in their spin glass version, and lead also to weakly frustrated systems even in their mean-field limit [29]. Notwithstanding this, such models yield a very useful and interesting playground to show how to implement the RG ideas in disordered hierarchical lattices, and in particular on the construction of a suitable decimation rule for a frustrated system, which is one of the basic topics in the construction of a RG for spin-glasses, and so in the identification of the existence of a spin-glass phase in finite dimension.
+Moreover, there has recently been a new wave of interest for strongly frustrated random models on hierarchical lattices [14–16]: for example, it has been shown [15] that a generalization of the Dyson model to its disordered version (the Hierarchical Random Energy Model (HREM)) has a Random Energy Model-like phase transition, yielding interesting new critical properties that don’t appear in the mean-field case.
+In a recent work [30], we performed a field theory analysis of the critical behavior of a generalization of Dyson’s model to the disordered case, known as the Hierarchical Edwards-Anderson model (HEA) [14], that is physically more realistic than the HREM and presents a strongly-frustrated non-mean field interaction structure, being thus a good candidate to mimic the critical properties of a real spin-glass. Moreover, the symmetry properties of the HEA make an RG analysis simple enough to be performed with two independent methods, to check if the IR-limit of the model is physically well-defined independently on the computation technique that one uses. Another element of novelty of the HEA is that its hierarchical structure makes the RG equations simple enough to make an high-order ǫ-expansion tractable by means of a symbolic manipulation program, resulting in a quantitative theory for the critical exponents beyond mean field for a strongly-frustrated spin-glass system. It is possible that such a perturbative expansion turns out to be non convergent: if this happens, it may
+help us to pin down the non-perturbative effects. Motivated by this purpose, we have shown [30] with a two-loop calculation that such ǫ-expansion can be set up consistently, and that the ordinary RG underlying ideas actually apply also in this case, so that the IR limit of the theory is well-defined independently on the regularization technique.
+In the present work, we show how the underlying RG ideas emerge in the computation, and in particular how such a calculation has been performed, so that the reader can fully understand and reproduce it. Moreover, we show by an explicit example of such computation how this ǫ-expansion could be automatized, i. e. implemented by a computer program, and so pushed to high orders to establish its summability properties.
+The HEA is defined [14, 30] as a system of 2k+1 Ising spins S0, . . . , S2k+1−1, with an energy function
+defined recursively by coupling two systems of 2k Ising spins
+HkJ+1 [S0, . . . , S2k+1−1] = (1)
+H J1
+k [S0, . . . , S2k−1] + HJ2
+k [S2k , . . . , S2k+1−1] +
+−1
+2(k+1)σ
+0,2k+1 −1
+∑
+i<j
+Jij SiSj ,
+where
+H1J [S1, S2] = −J 2−σS1S2,
+and Jij, J are Gaussian random variables with zero mean and unit variance. As we will show in the following, this form of the Hamiltonian corresponds in dividing the system in hierarchical embedded blocks of size 2k and that the interaction of two spins depends on the distances of the blocks to which they belong [14, 15]. Here 0 < σ < 1 is a parameter tuning the decay of the interaction strength with distance. The HEA is therefore a hierarchical counterpart of the onedimensional spin glass with power-law interactions [6] which has received attention recently [32–36]. It is crucial to observe [14] that the sum of the squares of the interaction terms that couple the two subsystems scales with k as 22k(1−σ). Hence, for σ > 1/2 the interaction energy scales sub-extensively in the system volume, yielding a non-mean field behavior of the model, while for σ < 1/2 it grows faster than the volume, and the thermodynamic limit is not defined. The interesting region we will study is thus σ ∈ [1/2, 1]. An equivalent definition of the HEA can be given
+
+
+without using the recursion relation (1). Indeed, one can recover (1) by defining the HEA as a system of 2k Ising spins with Hamiltonian
+Hk[S] = −
+2k −1
+∑
+i,j=0
+Jij SiSj (2)
+where Jij are Gaussian random variables with zero
+mean and variance σi2j . The form of σi2j is given
+by the following expression: if only the last m digits in the binary representation of the points i and j are different, σi2j = 2−2σm. This form of the
+Hamiltonian corresponds in dividing the system in hierarchical embedded blocks of size 2m, such that the interaction between two spins depends on the distance of the blocks to which they belong. It is important to observe that the quantity σi2j is not
+translational invariant, but it is invariant under a huge symmetry group and this will be crucial in the study of the model. The two definitions (1) and (2) are equivalent.
+We reproduce the IR behavior of the HEA and calculate its critical exponent by two different methods. Both methods suppose the existence of a growing correlation scale length ξ, diverging for T → Tc as
+ξ ∝ (T − Tc)−ν ,
+in such a way that for T → Tc the theory is invariant under re-parametrizations of the length scale. The first method is analogous to the coarse-graining Wilson’s method for the Ising model: the scaleinvariant limit is obtained by imposing invariance with respect to the composition operation of Eq. (1), taking two systems of 2k spins and yielding a system of 2k+1 spins. As for the Dyson ferromagnetic model, thanks to the hierarchical structure of the Hamiltonian one can obtain closed formulae for physical quantities with respect to such composition operation, analyse the critical and non-critical fixed-points and extract ν.
+The second method is more conventional: the IR divergences appearing for T → Tc are removed by constructing a renormalized IR-safe theory. The fundamental physical informations one extracts from such renormalized theory are the same as those of the original theory defined by Eq. (1). In particular, the correlation length and its power-law behavior close to the critical point must be the same, and so the critical exponent ν.
+The rest of this paper is divided into three main Sections: in Sec. II we go through the main steps of the computation with Wilson’s method, show that the tensorial operations can be easily implemented diagrammatically, and thus performed by a computer program to extend such ǫ-expansion to high orders. Moreover, we give the two-loop result for ν. In Sec. III the same result is reproduced with the field-theoretical method, and the analogies between the two methods are discussed. In particular, we discuss why Wilson’s method would be definitely better for an automatization of the ǫ-expansion to high orders. Both in Sections II and III, we explicitly do all the steps of the calculation at one loop, giving to the reader all the information needed to reproduce the two-loop result for ν. Finally, in Sec. IV the two-loop result is discussed in the perspective of the set up of a high-order ǫexpansion.
+II. WILSON’S METHOD
+As mentioned before, the hierarchical symmetry structure of the model makes the implementation of a recursion-like RG equation simple enough to be solved within an approximation scheme. As a matter of fact, let us define the probability distribution of the overlap [1, 2]
+Qab, a = 1, · · · , n, (3) Qab = Qba, Qaa = 0 ∀a, b = 1, . . . , n
+as
+Zk[Q] ≡ EJ
+
+
+∑
+{Si }i
+exp
+(
+−β
+n
+∑
+a=1
+HkJ [Sa
+0, · · · , Sa
+2k −1 ]
+)n ∏
+a<b=1
+δ
+
+Qab − 1
+2k
+2k −1
+∑
+i=0
+SiaSib
+
+
+
+ , (4)
+and the rescaled overlap-distributions as
+Zk[Q] ≡ Zk[2−k(1−σ)Q],
+where β ≡ 1/T is the inverse temperature. According to the general prescriptions of the replica
+
+
+approach, all the Physics of the model is encoded in the n → 0 limit of Zk[Q].
+It is easy to show that the recursion relation (1) for the Hamiltonian results into a recursion relation for Zk[Q]
+Zk[Q] = exp
+( β2
+4 Tr [Q2]
+)
+× (5)
+×
+∫
+[dP ] Zk−1
+[Q + P
+C 1/2
+]
+× Zk−1
+[Q − P
+C 1/2
+]
+,
+where Tr denotes the trace over the replica indexes, ∫ [dP ] stands for the functional integral over Pab and
+C ≡ 22(1−σ). (6)
+Eq. (5) physically represents a recursion equation relating the probability distribution Zk−1[Q] to Zk[Q], obtained by Zk−1[Q] by a coarse-graining
+RG step, composing two subsystem of size 2k to form a system of size 2k+1. Eq. (5) is analogous to the recursion equation in Dyson’s model [11], relating the probability distribution gk(m) of the magnetization at the k-th hierarchical level to gk−1(m).
+To illustrate the technique used to solve perturbatively (5) for Zk[Q], we will show our method in
+a simple toy example, where the matrix field Qab is replaced by a one-component field φ, the functional Zk[Q] by a function Ωk(φ), and Eq. (5) by
+Ωk(φ) = exp
+( β2
+4 φ2
+)
+× (7)
+×
+∫
+dχ Ωk−1
+(φ + χ
+C 1/2
+)
+× Ωk−1
+(φ − χ
+C 1/2
+)
+.
+As for Dyson’s model, (7) can be solved by making an ansatz for Ωk(φ). The simplest form one can suppose for Ωk(φ) is the Gaussian one
+Ωk(φ) = exp [−(dkφ2 + ekφ)] . (8)
+This form corresponds to a mean-field solution [11]. By inserting Eq. (8) into Eq. (7), one finds a recursion equation relating dk, ek to dk−1, ek−1
+dk = 2dk−1
+C − β2
+4,
+ek = 2ek−1
+C1/2 .
+Non-gaussian solutions can be explicitly constructed perturbatively. Indeed, by setting
+Zk[Q] = exp
+[
+−
+(
+dkφ2 + ekφ + uk
+3 φ3)]
+, (9)
+and supposing that uk is small, one can plug Eq. (9) into Eq. (7) and get
+Ωk(φ) = exp
+{
+−
+[( 2dk−1
+C − β2
+4
+)
+φ2 + 2ek
+C1/2 φ + 2uk−1
+3C3/2 φ3
+]} ∫
+dχ exp
+[
+−
+( 2dk−1
+C χ2 + 2uk−1
+C3/2 φχ2
+)]
+(10)
+∝ exp
+{
+−
+[( 2dk−1
+C − β2
+4
+)
+φ2 + 2ek
+C1/2 φ + 2uk−1
+3C3/2 φ3
+]} ( 2dk−1
+C + 2uk−1
+C3/2 φ
+)−1/2
+= exp
+{
+−
+[( 2dk−1
+C − β2
+4
+)
+φ2 + 2ek
+C1/2 φ + 2uk−1
+3C3/2 φ3 + 1
+2 log
+( 2dk−1
+C + 2uk−1
+C3/2 φ
+)]}
+∝ exp
+{
+−
+[( 2dk−1
+C − β2
+4
+)
+φ2 + 2ek
+C1/2 φ + 2uk−1
+3C3/2 φ3 + 1
+2 log
+(
+1 + uk−1
+C 1/2 dk−1
+φ
+)]}
+∝ exp
+{
+−
+[(
+2dk−1
+C − β2
+4 −1
+4
+( uk−1
+C 1/2 dk−1
+)2)
+φ2 +
+( 2ek−1
+C1/2 + uk−1
+2C 1/2 dk−1
+)
+φ+
++1
+3
+(
+2uk−1
+C3/2 + 1
+2
+( uk−1
+C 1/2 dk−1
+)3 )
+φ3 + O(u4k−1)
+]}
+,
+where ∝ stands for a φ-independent proportionality constant, that will be omitted in the following. Comparing Eq. (10) with Eq. (9), one finds three recur
+rence equations relating dk, ek, uk to dk−1, ek−1, uk−1
+dk = 2dk−1
+C − β2
+4 −1
+4
+( uk−1
+2C 1/2 dk−1
+)2
++ (11)
++O(u4k−1),
+
+
+ek = 2ek−1
+C1/2 + uk−1
+2C 1/2 dk−1
++ O(u3k−1),
+uk = 2uk−1
+C3/2 + 1
+2
+( uk−1
+2C 1/2 dk−1
+)3
++ O(u5k−1).
+One can easily analyse the fixed points of the RG-flow equations (11), and the resulting critical properties. We will not enter into these details for the toy model, since all these calculations will be illustrated extensively in the original theory.
+Back to the original problem, Eq. (5) can be solved by making an ansatz for Zk[Q], following the same lines as in the toy model case. The simplest form one can suppose for Zk[Q] is the Gaussian one
+Zk[Q] = exp (−rkTr[Q2]) . (12)
+This form corresponds to a mean-field solution [3, 4]. By inserting Eq. (12) into Eq. (5), one finds the evolution equation relating rk−1 to rk
+rk = 2rk−1
+C − β2
+4 . (13)
+Corrections to the mean-field solution can be investigated by adding non-Gaussian terms to Eq. (12), that are proportional to higher powers of Q, and consistent with the symmetry properties of the model. It is easy to see [1] that the only cubic term in Q consistent with such symmetry conditions is Tr[Q3], so that the non-mean field ansatz of Z reads
+Zk[Q] = exp
+[
+−
+(
+rkTr [Q2] + wk
+3 Tr[Q3]
+)]
+. (14)
+This correction can be handled by supposing that the term wk proportional to the non-quadratic term is small for every k, and performing a systematic expansion in powers of it. By inserting Eq. (14) into the recursion relation Eq. (5), one finds
+Zk[Q] = exp
+{
+−
+[( 2rk−1
+C − β2
+4
+)
+Tr [Q2] + 2wk−1
+3C3/2 Tr[Q3]
+]} ∫
+[dP ] exp
+[
+−S (3)
+k−1[P, Q]
+]
+, (15)
+S (3)
+k−1[P, Q] ≡ 2rk−1
+C Tr [P 2] + 2wk−1
+C3/2 Tr[QP 2].
+The Gaussian integral in Eq. (15) can be computed exactly. Indeed, setting A ≡ (a, b) a > b and
+∂ 2 S (3)
+k−1[P, Q] ∂PA∂PB
+≡ (16)
+4rk−1
+C δAB + 2wk−1
+C3/2 MAB[Q],
+Mab,cd[Q] ≡ Nab,cd[Q] + Nab,dc[Q], (17) Nab,cd[Q] ≡ δbcQda + δacQdb, (18)
+one finds
+Zk[Q] = exp
+{
+−
+[( 2rk−1
+C − β2
+4
+)
+Tr [Q2] + 2wk−1
+3C3/2 Tr[Q3]
+]} [
+det
+( 4rk−1
+C δAB + 2wk−1
+C3/2 MAB[Q]
+)]− 1
+2
+.
+(19)
+The determinant in the right-hand side of Eq. (15) can now be expanded in wk−1. Denoting by Tr the trace over the A-type indexes, one has to explicitly
+evaluate the traces Tr[M [Q]2], Tr[M [Q]3]. Here we show how the trace Tr[M [Q]2] can be evaluated, in order to show to the reader how the tensorial opera
+
+
+tions over the replica indexes can be generally carried out.
+By using Eqs. (17), (18), one has
+Tr[M [Q]2] = ∑
+AB
+M [Q]ABM [Q]BA (20)
+=
+∑
+a>b,c>d
+(Nab,cd[Q] + Nab,dc[Q]) ×
+× (Ncd,ab[Q] + Ndc,ab[Q])
+=
+∑
+a6=b,c6=d
+Nab,cd[Q]Ncd,ab[Q]
+=
+∑
+a6=b,c6=d
+(δbcQda + δacQdb) ×
+×(δdaQbc + δcaQbd)
+=
+∑
+a6=b,c6=d
+δcaQb2d
+=
+∑
+abcd
+(1 − δab)(1 − δcd)δcaQb2d
+= (n − 2) ∑
+ab
+Q2ab
+= (n − 2)Tr[Q2].
+The steps in Eq. (20) can be summarized as follows: in the second line we write the tensorial operations over the super indexes A, B, · · · in terms of the replica indexes a, b, · · · , in the third line we use the symmetries of Mab,cd[Q] with respect to a ↔ b and c ↔ d and re-write the sum over a > b, c > d in terms of a sum with a 6= b, c 6= d. In the fifth line we find out which amongst the terms stemming from the product (δbcQda + δacQdb)(δdaQbc + δcaQbd) vanish because of the constraints a 6= b, c 6= d, Qaa = 0, and because of the Kronecker δs in the sum. Once we are left with the non-vanishing terms, in the sixth line we write explicitly the sum over a 6= b, c 6= d in terms of an unconstrained sum over a, b, c, d by adding the constraints (1 − δab)(1 − δcd). In the seventh line we perform explicitly the sum over the replica indexes, and write everything in terms of the invariant I(1)
+2 [Q] = Tr[Q2] (see Table I).
+Here we show how the trace in Eq. (20) can be computed with a purely graphical method, that can be easily implemented in a computer program to perform this computation at high orders in wk. Let us set
+Tr2[f ] ≡ ∑
+a16=b1,··· ,ak6=bk
+fa1b1,··· ,akbk (21)
+=
+∑
+a1b1,··· ,akbk
+(1 − δa1b1 ) · · · (1 − δakbk ) ×
+×fa1b1,··· ,akbk .
+and make the graphical identifications shown in Fig. 1.
+The last line in Eq. (20) can be reproduced by a purely graphical computation, as shown in Fig. 2. There we show that all the tensorial operations have a graphical interpretation, and so that they
+can be performed without using the cumbersome notation of Eq. (20). This graphical notation is suitable for an implementation in a computer program, that could push our calculation to very
+
+
+a b,
+δab ≡
+Qab ≡ a b.
+FIG. 1: Graphical identifications representing symbolically mathematical objects used in tensorial operations. The basic objects of the tensorial operations are the δab function imposing that the replica indexes a and b are equal (top), and the matrix Qab (bottom). Once these elements are represented graphically, all the tensorial operations can be carried out by manipulating graphical objects composed by these elementary objects.
+high orders. For example, as shown in Fig. 2 in a simple example, while computing Tr[M [Q]k] for k ≫ 1, a proliferation of terms occurs, and some of these terms can be shown to be equal to each other, because represented by isomorph graphs, so that the calculations can be extremely simplified. For example, in a computer program implementation of such a computation, one could identify the isomorph graphs by using some powerful graph isomorphism algorithm [31].
+By following these steps shown Eq. (20) (or their graphical implementation), all the other tensorial operations can be carried out. In particular, one finds
+Tr[M [Q]3] = (n − 2)Tr[Q3]. (22)
+By plugging Eqs. (20), (22) into Eq. (19), one finds
+Zk[Q] = exp
+{
+−
+[(
+2rk−1
+C − β2
+4 − n−2
+4
+( wk−1
+2rk−1 C 1/2
+)2)
+Tr[Q2] + (23)
++1
+3
+( 2wk−1
+C3/2 + n − 2
+2
+( wk−1 2C 1/2
+)3)
+Tr[Q3] + O(wk4−1)
+]}
+.
+Comparing Eq. (23) with Eq. (14), one finds a recursion relation for the coefficients rk, wk
+rk = 2rk−1
+C − β2
+4 − n−2
+4
+( wk−1
+2C 1/2 rk−1
+)2
++ O(wk4−1), (24)
+wk = 2wk−1
+C3/2 + n − 2
+2
+( wk−1
+2C 1/2 rk−1
+)3
++ O(wk5−1).
+Eq. (40) shows that for ǫ ≡ σ − 2/3 < 0 wk → 0 for k → ∞, i. e. the corrections to the mean-field Zk[Q] vanish in the IR limit. In this case, the critical fixed point (r∗, w∗) of Eqs. (42), (40) has w∗ = 0. On the contrary, for ǫ > 0 a non-trivial critical fixed-point w∗ 6= 0 arises. According to general RG arguments, such non-trivial fixed point will be proportional to ǫ [7]. In particular, one finds that w∗2 = O(ǫ).
+The critical exponent ν can be computed [8] by considering the 2 × 2 matrix M linearising the transformation given by Eq. (24) around the critical fixedpoint (r∗, w∗)
+( rk − r∗ wk − w∗
+)
+=M·
+( rk−1 − r∗ wk−1 − w∗
+)
+,
+
+
+and is given by
+ν = log 2
+log Λ , (25)
+where Λ is the largest eigenvalue of M.
+Such procedure can be systematically pushed to higher order in wk, and thus in ǫ, by taking into account further corrections to the mean-field solution.
+Indeed, if we go back to Eq. (19) and consider also the O(wk4−1) terms in the right side, we find
+[
+det
+( 4rk−1
+C δAB + 2wk−1
+C3/2 MAB[Q]
+)]− 1
+2
+= (26)
+exp
+{
+−1
+2 Tr
+[
+−1
+2
+( wk−1
+2C 1/2 rk−1
+)2
+M [Q]2 + 1
+3
+( wk−1
+2C 1/2 rk−1
+)3
+M [Q]3+
+−1
+4
+( wk−1
+2C 1/2 rk−1
+)4
+M [Q]4 + O(wk5−1)
+]}
+.
+By computing explicitly the O(wk4−1) term in the
+right side of Eq. (26), one finds
+Tr[M [Q]4] = nI(4)
+1 [Q] + 3I(4)
+2 [Q] + (27)
+−16I (4)
+3 [Q] − 8I(4)
+4 [Q].
+I (4)
+1 [Q] ≡ Tr[Q4],
+I (4)
+2 [Q] ≡ (Tr[Q2])2,
+I (4)
+3 [Q] ≡ ∑
+b6=c
+Q2abQ2ac,
+I (4)
+4 [Q] ≡ ∑
+ab
+Q4ab.
+Plugging Eq. (27) in Eq. (26) and Eq. (26) in Eq. (19), we see that at O(wk4−1), Eq. (5) gen
+erates the fourth-order monomials {I(4)
+l [Q]}l=1,...,4,
+that are not included into the original ansatz (14). It follows that at O(wk4), Zk[Q] must be of the form
+Zk[Q] = exp
+[
+−
+(
+rkTr [Q2] + wk
+3 Tr[Q3] + 1
+4
+4
+∑
+l=1
+λl kI (4)
+l [Q]
+)]
+, (28)
+with λl k = O(wk4 ) ∀l = 1, . . . , 4.
+By inserting Eq. (28) into Eq. (5) and expanding up to O(wk4−1), we obtain six re
+cursion equations relating rk, wk, λ1 k, · · · , λ4 k to
+rk−1, wk−1, λ1 k−1, · · · , λ4 k−1.
+Such systematic expansion can be iterated to any
+order O(wp
+k), obtaining
+Zk[Q] = exp
+
+−
+p
+∑
+j=2
+nj
+∑
+l=1
+c(j)
+l, kI (j)
+l [Q]
+
+, (29)
+where c(2)
+1 k = rk, c(3)
+1 k = wk/3, c(4)
+l k = λl k/4 ∀l =
+1, . . . , 4. In this way, a recursion equation relating
+
+
+Tr[M [Q]2] = Tr2[N [Q]N [Q]]
+= Tr2
+[(
++
+)(
+++
+)]
++ 2× +
+= Tr2
+[]
+= Tr2
+[ ]
+= − −+
+= − 2×
+== n× − 2×
+= (n − 2)Tr[Q2]
+Example of a graphical computation
+FIG. 2: Graphical computation of Tr[M [Q]2] in Eq. (20). In the second line, the two addends of the matrix N [Q]ab,cd in Eq. (18) are represented graphically in terms of the graphical objects defined in Fig. 1. In the third line, the legs of such addends are contracted with each other, and four terms are generated. Two of them are topologically identical, hence we simply put a factor 2 multiplying the second term in the second line. According to the condition Qaa = 0 in Eq. (3), the first and second term in the third line vanish. Indeed, in these terms the lines coming out of the square vertex (Qab) are connected by a circuit, meaning that the matrix element Qab is computed with a = b, and thus vanishes. Moreover, the two top-lines in the third term are actually equivalent
+to just one line, because of the relation δa2b = δab. Hence, we are left with a single term in the fourth line. In the fifth line, we perform graphically the operation Tr2. Such an operation can be easily implemented graphically by looking at the second line of Eq. (21). Let us expand the product of δs in the second line of Eq. (21), and recall from Fig. 1 that δab represents a line with a circular dot connecting a with b. Hence, given graphical object O, with externallegs (indexes) (a1, b1), · · · , (ak, bk), Tr2[O] is nothing but a sum of all the possible 2k contractions (performed with a
+line with a circular dot) of such external legs, where each contracted term is multiplied by (−1)# of contractions of the term.
+In this case k = 2, so we generate 22 terms in the fifth line. In the sixth line, we take into account the fact that the second and third term in the fifth line are topologically isomorph, and that the fourth term in the fifth line vanishes because of the relation Qaa = 0. In the seventh line the unconstrained sum over the replica indexes is finally performed. This can be done graphically in the following way: when we have an external line with a round vertex, summing over the replica index represented by that line means that one has simply to remove the line (this is the graphical implementation of the relation
+∑
+b δabgb = ga). We do this in the first term: we sum over the top-left index, and remove the line on the top. Then
+we sum over the top right index by simply multiplying by n. The sum over the bottom-left and bottom-right indexes
+simply yields Tr[Q2]. We to the same for the second term: we sum over the top-right index and remove the top line, then sum over the top-left index and remove the top-left line. Then, the sum over the bottom-left and bottom-right
+indexes yields Tr[Q2]. Hence, we get the same result as in Eq. (20).
+
+
+{c(j)
+l, k−1}j,l to {c(j)
+l, k}j,l is obtained.
+The number nj of monomials generated at the step j of this procedure proliferates for increasing j. In Table I we show the invariants I(j)
+l [Q] obtained by
+performing this systematic expansion up to the order p = 5. It is interesting to observe that the in
+variants Tr[Q2]2, Tr[Q2]Tr[Q3] that are generated, are of O(n2) if the matrix Qab is replica symmetric. Notwithstanding this, in general they will give a non-vanishing contribution to the recursion relations
+{cj
+l, k−1}j,l → {cj
+l, k}j,l, and so to ν. The recurrence
+equations at this order are the following
+c(2)
+1 k = 2c(2)
+1 k−1
+C − β2
+4 − n−2
+4
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)2
++ (2n − 1) c(4)
+1 k−1
+8C c(2)
+1 k−1
++ (30)
++ c(4)
+2 k−1
+2C c(2)
+1 k−1
+[
+1 + n(n − 1)
+4
+]
++ (n − 2) c(4)
+3 k−1
+8C c(2)
+1 k−1
++ 3c(4)
+4 k−1
+8C c(2)
+1 k−1
++O
+(
+(c(3)
+1 k−1)6)
+,
+c(3)
+1 k = 2c(2)
+1 k−1
+C3/2 + n − 2
+2
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)3
++ 3nc(5)
+1 k−1
+4C 3/2 c(2)
+1 k−1
++ (n + 3) 3c(5)
+2 k−1
+20C 3/2 c(2)
+1 k−1
++ 9c(5)
+3 k−1
+20C 3/2 c(2)
+1 k−1
++ (31)
++ 3c(5)
+4 k−1
+20C 3/2 c(2)
+1 k−1
+[12 + n(n − 1)] − 3c(3)
+1 k−1
+4C 1/2 c(2)
+1 k−1
+[ (n − 1)c(4)
+1 k−1
+2C c(2)
+1 k−1
++ 2c(4)
+2 k−1
+2C c(2)
+1 k−1
++ c(4)
+3 k−1
+2C c(2)
+1 k−1
+]
++
++O
+(
+(c(3)
+1 k−1)6)
+,
+c(4)
+1 k = 2c(4)
+1 k−1
+C2 − n
+2
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)4
++O
+(
+(c(3)
+1 k−1)6)
+, (32)
+c(4)
+2 k = 2c(4)
+2 k−1
+C2 − 3
+2
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)4
++O
+(
+(c(3)
+1 k−1)6)
+, (33)
+c(4)
+3 k = 2c(4)
+3 k−1
+C2 + 8
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)4
++O
+(
+(c(3)
+1 k−1)6)
+, (34)
+c(4)
+4 k = 2c(4)
+4 k−1
+C2 + 4
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)4
++O
+(
+(c(3)
+1 k−1)6)
+, (35)
+c(5)
+1 k = 2c(5)
+1 k−1
+C5/2 + n + 6
+2
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)5
++O
+(
+(c(3)
+1 k−1)7)
+, (36)
+c(5)
+2 k = 2c(5)
+2 k−1
+C5/2 − 40
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)5
++O
+(
+(c(3)
+1 k−1)7)
+, (37)
+c(5)
+3 k = 2c(5)
+3 k−1
+C5/2 + 30
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)5
++O
+(
+(c(3)
+1 k−1)7)
+, (38)
+c(5)
+4 k = 2c(5)
+4 k−1
+C5/2 + 5
+( c(3)
+1 k−1
+2C 1/2 c(2)
+1 k−1
+)5
++O
+(
+(c(3)
+1 k−1)7)
+. (39)
+By looking at Eqs. (32) - (39) and using the definition (6), it is easy to see that the coefficients
+c(4)
+l k , c(5)
+l k scale to zero as k → ∞ if ǫ < 1/12. It
+
+
+j I (j)
+l [Q]
+2 Tr[Q2] 3 Tr[Q3] 4 Tr[Q4] Tr[Q2]2 ∑
+a6=c Q2abQb2c
+∑
+ab Q4ab
+5 Tr[Q5] Tr[Q2]Tr[Q3] ∑
+abcd Q2
+ab Qbc Qbd Qcd
+∑
+abc Q3
+abQacQbc
+TABLE I: Invariants generated to the order p = 5. In each line of the table we show the invariants I(j)
+1 [Q], . . . , I(njj)[Q] from left to right.
+is easy to find out that this is actually true for all the coefficients c(j)
+l k with j > 3. Such a critical
+value ǫ = 1/12 will be reproduced also in the field-theoretical approach in Section III.
+The evolution Eqs. (30) - (39) depend smoothly on the replica number n, so that the analytical continuation n → 0, can be done directly. By linearising the transformation (30) - (39) around the critical fixedpoint {c(j)
+l ∗ }j,l and computing the matrix M, one can
+extract Λ, and so ν for n = 0 to the order ǫ2 by using Eq. (25). We find
+ν = 3 + 36ǫ + [432 − 27(50 + 55 · 21/3 + (40)
++53 · 22/3) log 2]ǫ2 + O (ǫ3) .
+The one-loop result for ν is the same as that of the power-law interaction spin-glass [6] (where ǫ ≡ 3(σ − 2/3)). Notwithstanding this, the coeffi
+cients of the expansion in these two models will be in general different at two or more loops. As a matter of fact, the binary tree-structure of the interaction of the HEA emerges in the non-trivial log 2, 21/3 factors in the coefficient of ǫ2 in (40), that come from the binary structure of the hierarchical tree and can’t be there in the power-law case.
+Before discussing the result in Eq. (40), we point out that Wilson’s method explicitly implements the binary-tree structure of the model when approaching the IR limit. As a matter of fact, the hierarchical structure of the model is explicitly exploited to construct the steps of the RG transformation. Nevertheless, if the IR limit is unique and well-defined, physical observables like ν must not depend on the technique we use to compute them in such a limit. It is thus important to verify that Eq. (40) does not depend on the method we used to reproduce the IR behavior of the theory. This has been done by reproducing Eq. (40) with a quite different fieldtheoretical approach.
+III. FIELD-THEORETICAL METHOD
+Here the IR limit is performed by constructing a functional integral field theory and by removing its IR divergences within the minimal subtraction scheme.
+While in Wilson’s method the IR limit was reached by looking at the scale invariant fixedpoints of the recursion relation (5) for k → ∞, in this case the we will take before the large-k limit, remove the resulting IR singularities through renormalization, and then perform the scale-invariant limit by means of the Callan-Symanzik equation.
+This computation is better performed by slightly changing the definition of the model. Indeed, the following re-definition of the interaction term in Eq.
+(1)
+0,2k+1 −1
+∑
+i<j
+Jij SiSj →
+2k −1
+∑
+i=0
+22k −1
+∑
+j=2k
+Jij SiSj. (41)
+is equivalent to the original definition (1) and makes the field theory computations simpler. The equivalence of (41) with the original definition (1) can be shown [14] by observing that the scaling of the spin coupling in the model defined by Eq. (41) differs from that in Eq. (1) for a constant multiplicative factor, and thus that the two options are equivalent, and must yield the same critical exponents. Notwithstanding this, the critical temperature of the model defined by Eq. (1) and that of the model defined by Eq. (41) will be different, since the spin couplings Jij differ by a multiplicative factor, resulting in a redefinition of β. Physically speaking, the original definition (1) is such that,
+
+
+when two subsystems of 2k spins are coupled to form a system with 2k+1 spins, one introduces couplings Jij between the two subsystems and additional couplings between the spins within each subsystem, while in (41) only couplings between the two subsystems are introduced.
+By iterating the recursion relation for the Hamiltonian, one has an explicit form for HkJ [S] of a system
+of 2k spins in the large-k limit. Then, the average of the replicated partition function is be expressed as an integral over the local overlap field Qi ab ≡ SiaSib
+E
+J [Zn] =
+E
+J
+
+
+∑
+{Sa
+i }i,a
+exp
+(
+−β
+n
+∑
+a=1
+HkJ [Sa
+0, . . . , Sa
+2k −1 ]
+)
+
+=
+∫
+[dQ] e−S[Q].
+By using dimensional analysis, it is easy to pick up the terms in S[Q] that are relevant in the IR-limit. It is easy to check that S[Q] is given by the sum of a quadratic term in Qi ab, plus a cubic term, plus higher-degree terms. The dimensions of the field Qi ab can be computed by imposing the adimensionality of the quadratic term, and so the dimension of the coefficient g of the cubic term and of those of the higher-degree terms. One finds that the dimensions of g in energy is [g] = 3ǫ. Thus, as in Wilson’s method, the cubic term scales to zero in the IR limit for ǫ < 0, while a non-trivial fixed point appears for ǫ > 0. As in Wilson’s method, it is easy to see that for ǫ < 1/12 all the higher-degree terms in S[Q] scale to zero in the IR limit. Thus, the IR-dominant part of the action reads
+S[Q] = 1
+2
+2k −1
+∑
+i,j=0
+∆ij Tr[QiQj
+]+ g
+3!
+2k −1
+∑
+i=0
+Tr[Qi3], (42)
+where and m ∝ T − Tc. The bare propagator ∆ij actually depends on i, j through the difference I(i)− I(j), where the function I(i) is defined as follows: given i ∈ [0, 2k − 1] and its expression in base 2
+i=
+k−1
+∑
+j=0
+aj2j, I(i) ≡
+k−1
+∑
+j=0
+ak−1−j 2j . (43)
+Hence, the quadratic term of Eq. (42) is not invariant under spatial translations. This would make any explicit computation of the loop-integrals, and so of the critical exponents, extremely difficult to perform. This problem can be overcome by a re-labelling of the sites of the lattice [17, 18]
+I(i) → i, i = 0, . . . , 2k − 1.
+After relabelling one obtains that ∆ij depends on i, j just through the difference i − j, thus S[Q] is traslationally invariant, and the ordinary Fourier transform techniques [18, 22] can be employed. In particular, the Fourier representation of the propagator is
+∆ij = 1
+2k
+2k −1
+∑
+p=0
+exp
+[ −2πıp(i − j) 2k
+]
+(|p|2σ−1
+2 + m) .
+(44) where |p|2 is the di-adic norm of p [17], and the mass m has dimension [m] = 2σ − 1.
+An interesting feature of the action (42) is the fact the propagator ∆ in Eq. (44) depends on the momentum p through its diadic norm |p|2. If we look at the original derivation of the recursion RG equation for the Ising model in finite dimension (in particular to the Poliakoff derivation [8]), we find that the basic approximation was to introduce an ultrametric structure in momentum space: the momentum space is divided in shells an the sum of two momenta of a given shell cannot give a momentum of a higher momentum scale cell. This has a nice similarity with the metric properties of the diadic norm, where if p1, p2 are two integers, their diadic norms satisfies [17] |p1 − p2|2 ≤ max (|p1|2, |p2|2).
+The field theory defined by Eq. (42) reproduces the Tr[Q3] interaction term of the well-know effective actions describing the spin-glass transition in short-range [19] and long-range [6, 20] spin-glasses. Notwithstanding this similarity, the novelty of the HEA is that a high-order ǫ-expansion can be quiet easily automatized within Wilson’s method, by means of a symbolic manipulation program solving the simple RG equation (5) to high orders in ǫ. This is not true for such short and long-range [6, 19, 20] models, where the only approach to compute the exponents is the field-theoretical one. Indeed, nobody ever managed to automatize at high orders a computation of the critical exponents within the field-theoretical minimal subtraction scheme, either for the simplest case of the Ising model, because such an automatization to high orders is not an easy task [21].
+The additional order of difficulty in computing ν with the field-theoretical approach for the HEA will be clear in the following, as we sketch out its main steps.
+The field theory defined by Eq. (42) can be now analysed within the loop expansion framework. The renormalized mass and coupling constant are defined
+
+
+as
+m = mr + δm, (45)
+g=m
+3ǫ 2σ−1
+r grZg. (46)
+We define the one-particle-irreducible [7] (1PI) renormalized correlation functions
+Γ(m,l)
+r (a1b1i1 · · · ambmim; j1 · · · jl; gr, m
+1 2σ−1
+r ) ≡ Zl2Γ(m,l)(a1b1i1 · · · ambmim; j1 · · · jl; g, m 1
+2σ−1 ),
+Γ(m,l)(a1b1i1 · · · ambmim; j1 · · · jl; g, m 1
+2σ−1 ) ≡ 2−l 〈Qi1 a1b1 · · · Qim ambm Tr [Qj21
+] · · · Tr [Qj2l
+]〉
+1PI ,
+in terms of the renormalized parameters mr, gr. Since this model has long-range interactions, the field Qab is not renormalized, and [7] ZQ = 1. Hence, all we need to compute ν, are [7] the renormalization constants Zg, Z2 and δm. This can be done by computing the IR-divergent parts of
+Γ(3,0)
+r , Γ(2,1)
+r with the minimal subtraction scheme [7]. In other words, one takes the IR-limit mr → 0, and systematically removes the resulting ǫ-singular parts of the correlations functions, by absorbing them into the renormalization constants Zg, Z2. The Feynmann diagrams contributing to Γ(3,0)
+r , Γ(2,1)
+r
+are shown in Figs. 3, 4, and their singular parts are in the form of 1/ǫ, 1/ǫ2-poles.
+Here we show by a simple example how the ǫdivergent part of such diagrams can be computed. Let’s consider the one-loop expansion of Γ(3,0)
+r . This is obtained by picking up the Tr[Q3]-term in the renormalized 1PI generating functional [7]
+Γr[Q] = 1
+2
+∑
+ij
+∆ijTr[QiQj] + (47)
+mr3ǫgr 3!
+∑
+i
+Tr[Qi3]
+[
+Zg + n − 2
+8 I1gr2
+]
++
++O(gr5).
+The loop-integral
+I1 ≡ 1
+2k
+2k −1
+∑
+p=0
+1
+(mr + δm + |p|2σ−1
+2
+)3 (48)
+is represented by the first diagram in Fig. 4. Eq. (48) has a well-defined limit for k → ∞. Indeed, thanks to the translational invariance of the theory, the argument of the sum in the right side of (48) depends on p just through its diadic norm. It follows that the sum I1 can be transformed into a sum over all the possible values of |p|2. Indeed, using
+the standard result [17] that the number of integers p ∈ [0, 2k − 1] such that |p|2 = 2−j, i. e. the volume
+of the diadic shell, is given by 2−j+k−1, Eq. (48) becomes
+I1 =
+k−1
+∑
+j=0
+2−j−1 1
+[mr + δm + 2−j(2σ−1)]3 (49)
+→
+∞
+∑
+j=0
+2−j−1 1
+[mr + δm + 2−j(2σ−1)]3 ,
+where in the second line of Eq. (49) the k → ∞ limit has been taken, since the series in the first line is convergent. By using the fact that δm = O(gr2),
+we can rewrite (49) as
+I1 =
+∞
+∑
+j=0
+2−j−1 1
+[mr + 2−j(2σ−1)]3 + (50)
++O(gr2).
+It easy to see that I1 is IR-divergent for mr → 0. Indeed, in the limit mr → 0 the sum over j in Eq. (50) is dominated by the terms in the IR region 2−j = |p|2 → 0. The js corresponding to this re
+gion are given by the relation mr ≈ 2−j, and go to infinity as mr → 0, yielding a divergent sum in I1. In the IR region, the sum in the right side of Eq. (50) can be approximated by an integral, since the integrand function is almost constant in the interval [j, j + 1] for large j. Setting q ≡ 2−j, for mr → 0 we have −q log 2 dj = dq, and
+
+
+I1 = 1
+2 log 2
+∫1
+0
+dq
+[mr + q2σ−1]3 + (51)
++O(gr2)
+= m− 6ǫ
+2σ−1
+r
+2 log 2
+∫ m− 1
+2σ−1
+r
+0
+dx
+(1 + x2σ−1)3 + O(gr2)
+→ m− 6ǫ
+2σ−1
+r
+2 log 2
+∫∞
+0
+dx
+(1 + x2σ−1)3 + O(gr2).
+The integral in the right side of the last line in Eq. (51) is convergent for ǫ > 0, and diverges as ǫ → 0. Its ǫ-divergent part can be easily evaluated
+I1 = m− 6ǫ
+2σ−1
+r
+4 log 2 Γ
+(
+3+ 1
+1 − 2σ
+)
+× (52)
+×Γ
+(
+1+ 1
+1 − 2σ
+)
++ O(gr2)
+= m− 6ǫ
+2σ−1
+r
+[1
+12ǫ log 2 + Oǫ(1)
+]
++ O(gr2),
+where Γ is the Euler-Gamma function and Oǫ(1) denotes terms that stay finite as ǫ → 0. As we will show in the following, these finite terms will give a contribution to the renormalization constants at two loops. By plugging Eq. (52) into Eq. (47), one can compute the gr2-coefficient of Zg by imposing that the
+ǫ-singular part of I1 is cancelled by Zg. For n = 0 we have
+Zg = 1 + 1
+48ǫ log 2 gr2 + O(gr4). (53)
+By repeating the same computation for Γr[Q, K], and imposing that the ∑2k−1
+i=0 KiQi2-term is finite,
+i. e. that Γ(2,1)
+r is finite, we obtain
+Z2 = 1 + 1
+24ǫ log 2 gr2 + O(gr4).
+Such procedure has been pushed to two loops by an explicit calculation. Even if the evaluation of the ǫ-divergent part of the two-loop diagrams is more involved, the techniques and underlying ideas are exactly the same as those used to compute the one-loop diagram I1. In Figs. 3, 4 we show the Feynman diagrams contributing to the finiteness conditions of
+Γ(2,1)
+r and of Γ(3,0)
+r respectively. The diagrams in Fig. 3 evaluated at zero external momenta will be denoted by I1, . . . , I6, while those in Fig. 4 by I7, . . . , I10. It is easy to show that the equalities
+I1 = I7, I2 = I6 = I9, I3 = I10,
+I4 = I5 = I8
+hold, and so that all we need to compute the renormalization constants are I1, I2, I3, I4. I1 is given by Eq. (48), while the other loop integrals are
+I2 = 1
+22k
+2k −1
+∑
+p=0
+2k −1
+∑
+q=0
+1
+(mr + δm + |p|2σ−1
+2
+)4 (mr + δm + |q|2σ−1
+2
+) (mr + δm + |p − q|2σ−1
+2
+)
+I3 = 1
+22k
+2k −1
+∑
+p=0
+2k −1
+∑
+q=0
+1
+(mr + δm + |p|2σ−1
+2
+)2 (mr + δm + |q|2σ−1
+2
+)2 (mr + δm + |p − q|2σ−1
+2
+)2
+I4 = 1
+22k
+2k −1
+∑
+p=0
+2k −1
+∑
+q=0
+1
+(mr + δm + |p|2σ−1
+2
+)3 (mr + δm + |q|2σ−1
+2
+)2 (mr + δm + |p − q|2σ−1
+2
+).
+In the limit mr → 0, I2, I3, I4 are given by
+
+
+I2 = m
+−12ǫ 2σ−1
+r
+[( 2
+22/3 − 1 − 1
+21/3 − 1 − 1
+)1
+48ǫ log 2
+]
++ Oǫ(1),
+I3 = m
+−12ǫ
+2σ−1
+r
+(2
+21/3 − 1
+1
+16ǫ log 2
+)
++ Oǫ(1),
+I4 = m
+−12ǫ
+2σ−1
+r
+{1
+2
+[1
+(12ǫ log 2)2 −
+(3
+8(log 2)2 + 1
+48 log 2
+)1
+ǫ
+]
++
+(1
+21/3 − 1 + 1
+22/3 − 1
+)1
+48ǫ log 2
+}
++ Oǫ(1).
+The finiteness of Γ(3,0)
+r is imposed by making finite the ∑2k−1
+i=0 Tr[Qi3]-term in the 1PI generating
+functional Γr[Q]. The finiteness of Γ(2,1)
+r is im
+posed by making finite the ∑2k−1
+i=0 KiQi2-term in the
+1PI the generating functional with Tr[Qi2]-insertions,
+Γr[Q, K]. The two-loop expansion of Γr[Q] and of Γr[Q, K] read
+Γr[Q, 0] = gr
+2k −1
+∑
+i=0
+Tr[Qi3]
+{
+m
+3ǫ 2σ−1
+r Zg
+3! + gr2(n − 2)
+6
+
+
+m
+3ǫ 2σ−1
+r Zg
+2
+
+
+3
+I1 + (54)
++ gr4m
+15ǫ 2σ−1
+r Zg5 3!27
+[6(n − 2)2I8 + 6(n − 2)2I7 + 2(n(n − 1) − 4 − (n − 2)2)I10
+] + O(gr6)
+}
++··· ,
+Γr[Q, K] =
+2k −1
+∑
+i=0
+KiTr[Qi2]
+{
+Z2
+4 + gr2Z2Zg2m
+6ǫ 2σ−1
+r (n − 2)
+16 I7 + gr4m
+12ǫ 2σ−1
+r (n − 2)2
+28 [2 (3I2 + 2I4) + 4I5 +(55)
++I3] + O(gr6)
+}
++··· ,
+where the · · · in Eq. (54) stands for terms that are not cubic in Qi, while the · · · in Eq. (55) for terms that are not quadratic in Qi and linear in Ki. The renormalization constants Zg, Z2 are calculated by imposing that the renormalized correlation functions
+Γ(3,0)
+r , Γ(2,1)
+r are finite, i. e. that the term in curly brackets in Eq. (54) and that in Eq. (55) have no singularities [7] in ǫ. At this purpose, we observe that the finite part of the integral I1 contributes to the renormalization constants at two loops. For example, let us consider the second addend in curly brackets in the right side of Eq. (54). By using Eq. (52) and the one-loop result (53) for Zg, it is easy
+to see that this term produces an ǫ-divergent term, given by
+gr2(n − 2)
+48 m
+3ǫ 2σ−1
+r
+3
+48ǫ log 2 gr2Oǫ(1), (56)
+where Oǫ(1) is the finite part of I1 in Eq. (52). The
+term in Eq. (56) is of O(gr4) and singular in ǫ. Hence,
+it contributes to the O(gr4)-term in Zg.
+After setting n = 0 and imposing the finiteness conditions, we find
+Zg = 1 + gr2
+48ǫ log 2 + gr4
+[1
+1536ǫ2(log 2)2 + 5 + 2 · 22/3
+512ǫ log 2
+]
++ O(gr6), (57)
+Z2 = 1 + gr2
+24ǫ log 2 + gr4
+[1
+576ǫ2(log 2)2 − 5 (1 + 11 · 21/3 + 7 · 22/3)
+2304ǫ log 2
+]
++ O(gr6). (58)
+
+
+It is also easy to verify that δm = O(gr4).
+Once the IR-safe renormalized theory has been constructed, the effective coupling constant g(λ) at the energy scale λ is computed form the CallanSymanzik equation in terms of the β-function by set
+ting μ ≡ m
+1 2σ−1
+r
+β(gr) = μ ∂gr
+∂μ
+∣ ∣ ∣
+∣g,m
+, β(g(λ)) = λ dg(λ)
+dλ . (59)
+β(gr) can be explicitly computed in terms of the renormalization constant Zg by applying μ ∂
+∂μ
+∣ ∣
+∣g,m on
+both sides of Eq. (46)
+0= μ ∂
+∂μ
+∣ ∣ ∣
+∣g,m
+(μ3ǫ gr Zg
+) . (60)
+The right side of Eq. (60) can be then worked out explicitly by using the two-loop result (58) and substi
+tuting systematically β(gr) to μ ∂gr
+∂μ
+∣ ∣
+∣g,m. In this way,
+an explicit equation for β(gr) is obtained. By solving
+perturbatively this equation to O(gr5) one finds
+β(gr) = −3ǫgr + gr3
+8 log 2 + 3 5 + 2 · 22/3
+128 log 2 gr5 + O(gr7).
+(61) Setting gr∗ ≡ g(λ = 0), we see from Eq. (61) that
+the fixed point gr∗ = 0 is stable only for ǫ < 0, while
+for ǫ > 0 a non-Gaussian fixed point gr∗ of order
+ǫ arises, as predicted by dimensional considerations and by Wilson’s method. Now the IR-limit λ → 0 can be safely taken, and the scaling relations yield ν in terms of gr∗ and Z2
+η2[gr] ≡ μ ∂ log Z2
+∂μ
+∣ ∣ ∣
+∣g, m
+,ν= 1
+η2[gr∗] + 2σ − 1 . (62)
+By plugging the two-loop result for gr∗ and Z2 into
+Eq. (62), we reproduce the result (40) derived within Wilson’s method.
+We observe that the analytical effort to derive the coefficients of the ǫ-expansion in this field-theoretical approach is much bigger than that of Wilson’s method. Indeed, in the minimal subtraction scheme, additional calculations are needed to extract the coefficients of the poles in 1/ǫ, 1/ǫ2 of the Feynamnn diagrams in Figs. 3, 4. It follows that for an automatized implementation of the ǫ-expansion to high orders, Wilson’s method turns out to be
+much better-performing that the field theoretical method. Notwithstanding this, the tensorial operations needed to compute Q-dependence of the diagrams in this field theoretical approach turn out to be exactly the same as those needed in Section II, and no additional effort has been required to compute them.
+IV. CONCLUSIONS
+In a previous work [30], we set up two perturbative approaches to compute the IR behavior of a strongly-frustrated non-mean field spin-glass system, the HEA model. The two methods yield the same prediction at two loops for the critical exponent ν related to the divergence of the correlation length.
+In this work the two-loop computation is shown in all its most relevant details, so that the reader can reproduce it. Moreover, we show the underlying renormalization group ideas implemented in the two computation methods. Amongst these, the existence of a characteristic length ξ diverging at the critical point, where the theory is invariant with respect to changes in its energy scale. In addition, we show with an explicit example that such a computation of the critical exponents could be quiet easily automatized, i. e. implemented in a computer program, in order to push this ǫ-expansion to high orders in ǫ, and so eventually make this theory physically predictive. Indeed, we give a graphical interpretation of the cumbersome tensorial operations needed to compute ν and previously used in [30]. Such a graphical method makes the calculations much more straightforward and elegant. We observe that once this high-order series in ǫ will be known, some resummation technique will be needed to make the theory predictive, because the series has probably a non-convergent behavior. If the high-orders series could be made convergent by means of some appropriate re-summation technique, this calculation would yield an analytical control on the critical exponents, resulting in a precise prediction for a non-mean field spin-glass mimicking a real system.
+We are glad to thank N. Sourlas, S. Franz and M. M ́ezard for interesting discussions and suggestions.
+
+
+FIG. 3: One and two-loop Feynman diagrams contributing to Γ(2,1)
+r . The crosses represent Tr [Q2] insertions. From left to right, such diagrams computed at zero external momenta are equal to I1, I2, I3, I4, I5, I6 respectively.
+FIG. 4: One and two-loop Feynman diagrams contributing to Γ(3,0)
+r . From left to right, such diagrams computed at zero external momenta are equal to I7, I8, I9, I10 respectively. The last diagram is non-planar.
+[1] M. Me ́zard, G. Parisi and M. A. Virasoro, Spin glass theory and beyond, World Scientific, (1987). [2] T. Castellani and A. Cavagna, J. Stat. Mech. P05012 (2005).
+[3] G. Parisi, J. Phys. A: Math. Gen. 13 1101 (1980). [4] C. De Dominicis and I. Giardina, Random fields and spin glasses: a field theory approach, Springer, (2006). [5] J. H. Chen and T. C. Lubensky, Phys. Rev. B 16 (1977), 2106. [6] G. Kotliar, P.W. Anderson and D.L. Stein, Phys. Rev. B 27 (1983), 602. [7] J. Zinn-Justin, Int. Ser. Monogr. Phys. 113, 1 (2002). [8] K. G. Wilson and J. B. Kogut, Phys. Rept. 12, 75 (1974). [9] F.J. Dyson, Comm. in Math. Phys. 12 (1969), 91. [10] P. Collet, J. Eckmann, A renormalization group analysis of the hierarchical model in statistical mechanics, Springer-Verlag, (1978). [11] M. Cassandro and G. Jona-Lasinio, Adv. in Physics 27, 6 (1978). [12] A. Theumann, Phys. Rev. B 21 (1980) 2984. [13] A. Theumann, Phys. Rev. B 22 (1980) 5441. [14] S. Franz, T. J ̈org and G.Parisi, J. Stat. Mec., P02002
+(2009). [15] M. Castellana, A. Decelle, S. Franz, M. Me ́zard and G. Parisi, Phys. Rev. Lett. 104, 12 (2010). [16] Y. V. Fyodorov, A. Ossipov, A. Rodriguez, J. Stat. Mech. (2009) L12001 [17] G. Parisi and N. Sourlas, Eur. Phys. Jour. B 14, 3 (2000). [18] Y. Meurice, J.Math.Phys. 36 (1995) 1812-1824. [19] A. B. Harris, T. C. Lubensky and J. H. Chen, Phys. Rev. Lett. 36 (1976) 415. [20] M. Chung Chang and J. Sak, Phys. Rev. B 29 (1984) 2652. [21] R. Guida, P. Ribeca J.Stat.Mech.20096:P02007,2006 [22] M. Taibleson, Fourier Analysis on Local Fields, Princeton University Press (1976). [23] A. N. Berker, S. Ostlund, J. Phys. C: Solid State Phys. 12 (1979), 49614975. [24] S. R. McKay, A. N. Berker, S. Kirkpatrick, Phys. Rev. Lett. 48f (1982), 767. [25] M. Ohzeki, H. Nishimori, A. N. Berker, Phys. Rev. E 77, 061116 (2008). [26] G. Gu ̈lpnar and A. N. Berker, Phys. Rev. E 79, 021110 (2009). [27] A. N. Berker, M. Hinczewski, and R. R. Netz, Phys. Rev. E 80, 041118 (2009).
+
+
+[28] A. N. Berker, Phys. Rev. E 81, 043101 (2010). [29] E. Gardner, J. Physique 45, 1755 (1984). [30] M. Castellana, G. Parisi, Phys. Rev. E 82, 040105(R) (2010)
+[31] B. D. McKay, Practical Graph Isomorphism, Congressus Numerantium, 30 (1981), 45-87
+[32] H. G. Katzgraber and A. P. Young, Phys. Rev. B 67 134410 (2003). [33] H. G. Katzgraber and A. P. Young, Phys. Rev. B 72
+184416 (2005). [34] H. G. Katzgraber, A. K. Hartmann and A. P. Young, 2008 Computer Simulation Studies in Condensed Matter Physics XXI ed D P Landau, S P Lewis and H B Schuttler (Heidelberg: Springer) [35] L. Leuzzi, J. Phys. A: Math. Gen. 32 1417 (1999) [36] L. Leuzzi, G. Parisi, F. Ricci-Tersenghi, and J. J. Ruiz-Lorenzo, Phys. Rev. Lett. 101, 107203 (2008).

@@ -1,0 +1,2957 @@
+Texts in Applied Mathematics 15
+Editors J.E. Marsden L. Sirovich S.S. Antman
+Advisors G. Iooss P. Holmes D. Barkley M. Dellnitz P. Newton
+
+
+Texts in Applied Mathematics
+1. Sirovich: Introduction to Applied Mathematics. 2. Wiggins: Introduction to Applied Nonlinear Dynamical Systems and Chaos. 3. Hale/Ko ̧cak: Dynamics and Bifurcations. 4. Chorin/Marsden: A Mathematical Introduction to Fluid Mechanics, 3rd ed. 5. Hubbard/West: Differential Equations: A Dynamical Systems Approach: Ordinary Differential Equations. 6. Sontag: Mathematical Control Theory: Deterministic Finite Dimensional Systems, 2nd ed. 7. Perko: Differential Equations and Dynamical Systems, 3rd ed. 8. Seaborn: Hypergeometric Functions and Their Applications. 9. Pipkin: A Course on Integral Equations. 10. Hoppensteadt/Peskin: Modeling and Simulation in Medicine and the Life Sciences, 2nd ed. 11. Braun: Differential Equations and Their Applications, 4th ed. 12. Stoer/Bulirsch: Introduction to Numerical Analysis, 3rd ed. 13. Renardy/Rogers: An Introduction to Partial Differential Equations. 14. Banks: Growth and Diffusion Phenomena: Mathematical Frameworks and Applications. 15. Brenner/Scott: The Mathematical Theory of Finite Element Methods, 3rd ed. 16. Van de Velde: Concurrent Scientific Computing. 17. Marsden/Ratiu: Introduction to Mechanics and Symmetry, 2nd ed. 18. Hubbard/West: Differential Equations: A Dynamical Systems Approach: Higher-Dimensional Systems. 19. Kaplan/Glass: Understanding Nonlinear Dynamics. 20. Holmes: Introduction to Perturbation Methods. 21. Curtain/Zwart: An Introduction to Infinite-Dimensional Linear Systems Theory. 22. Thomas: Numerical Partial Differential Equations: Finite Difference Methods. 23. Taylor: Partial Differential Equations: Basic Theory. 24. Merkin: Introduction to the Theory of Stability of Motion. 25. Naber: Topology, Geometry, and Gauge Fields: Foundations. 26. Polderman/Willems: Introduction to Mathematical Systems Theory: A Behavioral Approach. 27. Reddy: Introductory Functional Analysis with Applications to Boundary Value Problems and Finite Elements. 28. Gustafson/Wilcox: Analytical and Computational Methods of Advanced Engineering Mathematics. 29. Tveito/ Winther: Introduction to Partial Differential Equations: A Computational Approach
+(continued after index)
+
+
+Susanne C. Brenner L. Ridgway Scott
+The Mathematical Theory
+of Finite Element Methods
+Third Edition
+ABC
+
+
+Susanne C. Brenner Department of Mathematics and Center for Computation and Technology Louisiana State University Baton Rouge, LA 70803 USA brenner@math.lsu.edu
+Series Editors
+J.E. Marsden Control and Dynamic Systems, 107-81 California Institute of Technology Pasadena, CA 91125 USA
+S.S. Antman Department of Mathematics and
+Institute for Physical Science and Technology University of Maryland College Park, MD 20742-4015 USA ssa@math.umd.edu
+L. Ridgway Scott University of Chicago Chicago, IL 60637 USA ridg@uchicago.edu
+L. Sirovich Division of Applied Mathematics Brown University Providence, RI 02912 USA
+ISBN 978-0-387-75933-3 e-ISBN 978-0-387-75934-0 DOI: 10.1007/978-0-387-75934-0
+Library of Congress Control Number: 2007939977
+Mathematics Subject Classification (2000): 65N30, 65–01, 46N40, 65M60, 74S05
+©c 2008 Springer Science+Business Media, LLC All rights reserved. This work may not be translated or copied in whole or in part without the written permission of the publisher (Springer Science+Business Media, LLC, 233 Spring Street, New York, NY 10013, USA), except for brief excerpts in connection with reviews or scholarly analysis. Use in connection with any form of information storage and retrieval, electronic adaptation, computer software, or by similar or dissimilar methodology now known or hereafter developed is forbidden. The use in this publication of trade names, trademarks, service marks, and similar terms, even if they are not identified as such, is not to be taken as an expression of opinion as to whether or not they are subject to proprietary rights.
+Printed on acid-free paper
+987654321
+springer.com
+
+
+Series Preface
+Mathematics is playing an ever more important role in the physical and biological sciences, provoking a blurring of boundaries between scientific disciplines and a resurgence of interest in the modern as well as the classical techniques of applied mathematics. This renewal of interest, both in research and teaching, has led to the establishment of the series Texts in Applied Mathematics (TAM). The development of new courses is a natural consequence of a high level of excitement on the research frontier as newer techniques, such as numerical and symbolic computer systems, dynamical systems, and chaos, mix with and reinforce the traditional methods of applied mathematics. Thus, the purpose of this textbook series is to meet the current and future needs of these advances and to encourage the teaching of new courses. TAM will publish textbooks suitable for use in advanced undergraduate and beginning graduate courses, and will complement the Applied Mathematical Sciences (AMS) series, which will focus on advanced textbooks and research-level monographs.
+Pasadena, California J.E. Marsden Providence, Rhode Island L. Sirovich College Park, Maryland S.S. Antman
+
+
+Preface to the Third Edition
+This edition contains four new sections on the following topics: the BDDC domain decomposition preconditioner (Section 7.8), a convergent adaptive algorithm (Section 9.5), interior penalty methods (Section 10.5) and Poincare ́-Friedrichs inequalities for piecewise Wp1 functions (Section 10.6). We have made improvements throughout the text, many of which were suggested by colleagues, to whom we are grateful. New exercises have been added and the list of references has also been expanded and updated. Some of the new material originated from our research and we would like to thank the National Science Foundation for support. The first author would also like to thank the Alexander von Humboldt Foundation for supporting her visit to Germany in the Summer of 2007, during which the work on this edition was completed. The second author would also like to thank the Universite ́ Pierre et Marie Curie for supporting his visits to Paris during the past several years, during which work related to this edition was carried out. In the preface to the first edition, we outlined different ways the book could be used in courses, but since some chapter numbers have changed, we rephrase these suggestions here. Chapters 0 through 5 form the essential material for a course (these chapter numbers have not changed). Chapters 6 and 7 provide an introduction to efficient iterative solvers for the linear systems of finite element equations, but they do not contain material required by later chapters. A course emphasizing algorithmic aspects would include them. Similarly, Chapters 8 and 9 are not required in later chapters. A course covering challenging analysis questions would cover these. The former develops and applies max-norm error estimates to nonlinear problems, and the latter introduces the concept of mesh adaptivity. Chapter 10, however, has an essential role in the subsequent chapters. But one could cover only the first and third sections of this chapter and then go on to Chapter 11 or 12 to study typical systems of differential equations found in applications. Chapter 13 is essentially a continuation of Chapter 12. Chapters 10-13 form the core for a course emphasizing basic models in mechanics. Chapter 14 is an independent topic at a somewhat more advanced level that only depends on Chapters 0-5. It develops some functional analysis techniques and their application to finite element methods.
+Baton Rouge, LA Susanne C. Brenner Chicago, IL L. Ridgway Scott
+20/07/2007
+
+
+Preface to the Second Edition
+This edition contains two new chapters. The first one is on the additive Schwarz theory with applications to multilevel and domain decomposition preconditioners, and the second one is an introduction to a posteriori error estimators and adaptivity. We have also included a new section on an example of a one-dimensional adaptive mesh, a new section on the discrete Sobolev inequality and new exercises throughout. The list of references has also been expanded and updated. We take this opportunity to extend thanks to everyone who provided comments and suggestions about this book over the years, and to the National Science Foundation for support. We also wish to thank Achi Dosanjh and the production staff at Springer-Verlag for their patience and care.
+Columbia, SC Susanne C. Brenner Chicago, IL L. Ridgway Scott
+20/02/2002
+
+
+Preface to the First Edition
+This book develops the basic mathematical theory of the finite element method, the most widely used technique for engineering design and analysis. One purpose of this book is to formalize basic tools that are commonly used by researchers in the field but never published. It is intended primarily for mathematics graduate students and mathematically sophisticated engineers and scientists. The book has been the basis for graduate-level courses at The University of Michigan, Penn State University and the University of Houston. The prerequisite is only a course in real variables, and even this has not been necessary for well-prepared engineers and scientists in many cases. The book can be used for a course that provides an introduction to basic functional analysis, approximation theory and numerical analysis, while building upon and applying basic techniques of real variable theory. Chapters 0 through 5 form the essential material for a course. Chapter 0 provides a microcosm of what is to follow, developed in the one-dimensional case. Chapters 1 through 4 provide the basic theory, and Chapter 5 develops basic applications of this theory. From this point, courses can bifurcate in various directions. Chapter 6 provides an introduction to efficient iterative solvers for the linear systems of finite element equations. While essential from a practical point of view (our reason for placing it in a prominent position), this could be skipped, as it is not essential for further chapters. Similarly, Chapter 7, which derives error estimates in the maximum norm and shows how such estimates can be applied to nonlinear problems, can be skipped as desired. Chapter 8, however, has an essential role in the following chapters. But one could cover only the first and third sections of this chapter and then go on to Chapter 9 in order to see an example of the more complex systems of differential equations that are the norm in applications. Chapter 10 depends to some extent on Chapter 9, and Chapter 11 is essentially a continuation of Chapter 10. Chapter 12 presents Banach space interpolation techniques with applications to convergence results for finite element methods. This is an independent topic at a somewhat more advanced level. To be more precise, we describe three possible course paths that can be
+
+
+xii Preface to the First Edition
+chosen. In all cases, the first step is to follow Chapters 0 through 5. Someone interested to present some of the “hard estimates” of the subject could then choose from Chapters 6 through 8, and 12. On the other hand, someone interested more in physical applications could select from Sect. 8.1, Sect. 8.3 and Chapters 9 through 11. Someone interested primarily in algorithmic efficiency and code development issues could follow Chapters 6, 8, 10 and 11. The omissions from the book are so numerous that is hard to begin to list them. We attempt to list the most glaring omissions for which there are excellent books available to provide material. We avoid time-dependent problems almost completely, partly because of the existence of the book of (Thome ́e 1984). Our extensive development of different types of elements and the corresponding approximation theory is complementary to Thome ́e’s approach. Similarly, our development of physical applications is limited primarily to linear systems in continuum mechanics. More substantial physical applications can be found in the book by (Johnson 1987). Very little is said here about adaptivity. This active research area is addressed in various conference proceedings (cf. Babusˇka, Chandra & Flaherty 1983 and Babusˇka, Zienkiewicz, Gago & de A. Oliveira 1986). We emphasize the variety of discretizations (that is, different “elements”) that can be used, and we present them (whenever possible) as families depending on a parameter (usually the degree of approximation). Thus, a spirit of “high-order” approximations is developed, although we do not consider increasing the degree of approximation (as is done in the so-called P-method and spectral element method) as the means of obtaining convergence. Rather, we focus on mesh subdivision as the convergence parameter. The recent book by (Szabo & Babusˇka 1991) may be consulted for alternatives in this direction. Although we provide a brief introduction to mixed methods, the importance of this subject is not appropriately reflected here. However, the recent book by (Brezzi & Fortin 1991) can be consulted for a thorough treatment of the subject. We draw extensively on the book of (Ciarlet 1978), both following many of its ideas and using it as a reference for further development of various subjects. This book has recently been updated in (Ciarlet & Lions 1991), which also contains an excellent survey of mixed methods. Moreover, the Handbook series to which the latter reference belongs can be expected to provide valuable reference material in the future. We take this opportunity to thank the many people who have helped at various stages, and in many different ways, in the preparation of this book. The many students who struggled through early drafts of the book made invaluable contributions. Many readers of the preliminary versions will find their specific suggestions incorporated. This book was processed by the authors using the TEX macro package from Springer-Verlag.
+
+
+Contents
+Series Preface . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . v
+Preface to the Third Edition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . vii
+Preface to the Second Edition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ix
+Preface to the First Edition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xi
+0 Basic Concepts . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+0.1 Weak Formulation of Boundary Value Problems . . . . . . . . . . . . . . . . 1
+0.2 Ritz-Galerkin Approximation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+0.3 Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+0.4 Piecewise Polynomial Spaces – The Finite Element Method . . . . . . 7
+0.5 Relationship to Difference Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+0.6 Computer Implementation of Finite Element Methods . . . . . . . . . 10
+0.7 Local Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+0.8 Adaptive Approximation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+0.9 Weighted Norm Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+0.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+1 Sobolev Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+1.1 Review of Lebesgue Integration Theory . . . . . . . . . . . . . . . . . . . . . . 23
+1.2 Generalized (Weak) Derivatives . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+1.3 Sobolev Norms and Associated Spaces . . . . . . . . . . . . . . . . . . . . . . . 29
+1.4 Inclusion Relations and Sobolev’s Inequality . . . . . . . . . . . . . . . . . . 32
+1.5 Review of Chapter 0 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+1.6 Trace Theorems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+1.7 Negative Norms and Duality . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+1.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42
+
+
+xiv Contents
+2 Variational Formulation of Elliptic Boundary Value Problems . . . . . . 49
+2.1 Inner-Product Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+2.2 Hilbert Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+2.3 Projections onto Subspaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+2.4 Riesz Representation Theorem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+2.5 Formulation of Symmetric Variational Problems . . . . . . . . . . . . . . 56
+2.6 Formulation of Nonsymmetric Variational Problems . . . . . . . . . . . 59
+2.7 The Lax-Milgram Theorem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+2.8 Estimates for General Finite Element Approximation . . . . . . . . . 64
+2.9 Higher-dimensional Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 65
+2.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 66
+3 The Construction of a Finite Element Space . . . . . . . . . . . . . . . . . . . . . 69
+3.1 The Finite Element . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 69
+3.2 Triangular Finite Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 71
+The Lagrange Element . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72
+The Hermite Element . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 75
+The Argyris Element . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+3.3 The Interpolant . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77
+3.4 Equivalence of Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 81
+3.5 Rectangular Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85
+Tensor Product Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85
+The Serendipity Element . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 86
+3.6 Higher–dimensional Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 87
+3.7 Exotic Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 89
+3.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 90
+4 Polynomial Approximation Theory in Sobolev Spaces . . . . . . . . . . . . . 93
+4.1 Averaged Taylor Polynomials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 93
+4.2 Error Representation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 96
+4.3 Bounds for Riesz Potentials . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 100
+4.4 Bounds for the Interpolation Error . . . . . . . . . . . . . . . . . . . . . . . . . 105
+4.5 Inverse Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 111
+4.6 Tensor-product Polynomial Approximation . . . . . . . . . . . . . . . . . . 113
+4.7 Isoparametric Polynomial Approximation . . . . . . . . . . . . . . . . . . . 118
+4.8 Interpolation of Non-smooth Functions . . . . . . . . . . . . . . . . . . . . . . 119
+4.9 A Discrete Sobolev Inequality . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 123
+4.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 125
+
+
+Contents xv
+5 n-Dimensional Variational Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . 129
+5.1 Variational Formulation of Poisson’s Equation . . . . . . . . . . . . . . . 129
+5.2 Variational Formulation of the Pure Neumann Problem . . . . . . 132
+5.3 Coercivity of the Variational Problem . . . . . . . . . . . . . . . . . . . . . . . 134
+5.4 Variational Approximation of Poisson’s Equation . . . . . . . . . . . . 136
+5.5 Elliptic Regularity Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 138
+5.6 General Second-Order Elliptic Operators . . . . . . . . . . . . . . . . . . . . 141
+5.7 Variational Approximation of General Elliptic Problems . . . . . . 144
+5.8 Negative-Norm Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 146
+5.9 The Plate-Bending Biharmonic Problem . . . . . . . . . . . . . . . . . . . . 148
+5.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 151
+6 Finite Element Multigrid Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 155
+6.1 A Model Problem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 155
+6.2 Mesh-Dependent Norms . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 157
+6.3 The Multigrid Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 159
+6.4 Approximation Property . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 161
+6.5 W-cycle Convergence for the kth Level Iteration . . . . . . . . . . . . . 162
+6.6 V-cycle Convergence for the kth Level Iteration . . . . . . . . . . . . . . 165
+6.7 Full Multigrid Convergence Analysis and Work Estimates . . . . 170
+6.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 172
+7 Additive Schwarz Preconditioners . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 175
+7.1 Abstract Additive Schwarz Framework . . . . . . . . . . . . . . . . . . . . . . 175
+7.2 The Hierarchical Basis Preconditioner . . . . . . . . . . . . . . . . . . . . . . . 179
+7.3 The BPX Preconditioner . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 183
+7.4 The Two-level Additive Schwarz Preconditioner . . . . . . . . . . . . . . 185
+7.5 Nonoverlapping Domain Decomposition Methods . . . . . . . . . . . . 191
+7.6 The BPS Preconditioner . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 197
+7.7 The Neumann-Neumann Preconditioner . . . . . . . . . . . . . . . . . . . . . 201
+7.8 The BDDC Preconditioner . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 205
+7.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 210
+8 Max–norm Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 215
+8.1 Main Theorem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 215
+8.2 Reduction to Weighted Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . 218
+8.3 Proof of Lemma 8.2.6 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 220
+8.4 Proofs of Lemmas 8.3.7 and 8.3.11 . . . . . . . . . . . . . . . . . . . . . . . . . . 224
+8.5 Lp Estimates (Regular Coefficients) . . . . . . . . . . . . . . . . . . . . . . . . . 229
+
+
+xvi Contents
+8.6 Lp Estimates (Irregular Coefficients) . . . . . . . . . . . . . . . . . . . . . . . . 231
+8.7 A Nonlinear Example . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 235
+8.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 238
+9 Adaptive Meshes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 241
+9.1 A priori Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 242
+9.2 Error Estimators . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 244
+9.3 Local Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 247
+9.4 Estimators for Linear Forms and Other Norms . . . . . . . . . . . . . . 249
+9.5 A Convergent Adaptive Algorithm . . . . . . . . . . . . . . . . . . . . . . . . . . 253
+9.6 Conditioning of Finite Element Equations . . . . . . . . . . . . . . . . . . . 261
+9.7 Bounds on the Condition Number . . . . . . . . . . . . . . . . . . . . . . . . . . 264
+9.8 Applications to the Conjugate-Gradient Method . . . . . . . . . . . . . 266
+9.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 267
+10 Variational Crimes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 271
+10.1 Departure from the Framework . . . . . . . . . . . . . . . . . . . . . . . . . . . . 272
+10.2 Finite Elements with Interpolated Boundary Conditions . . . . . 274
+10.3 Nonconforming Finite Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . 281
+10.4 Isoparametric Finite Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 286
+10.5 Discontinuous Finite Elements . . . . . . . . . . . . . . . . . . . . . . . . . . . . 289
+10.6 Poincare ́-Friedrichs Inequalitites for Piecewise Wp1 Functions . 296
+10.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 303
+11 Applications to Planar Elasticity . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 311
+11.1 The Boundary Value Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . . 311
+11.2 Weak Formulation and Korn’s Inequality . . . . . . . . . . . . . . . . . . . 313
+11.3 Finite Element Approximation and Locking . . . . . . . . . . . . . . . . 320
+11.4 A Robust Method for the Pure Displacement Problem . . . . . . 323
+11.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 327
+12 Mixed Methods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 331
+12.1 Examples of Mixed Variational Formulations . . . . . . . . . . . . . . . 331
+12.2 Abstract Mixed Formulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 333
+12.3 Discrete Mixed Formulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 336
+12.4 Convergence Results for Velocity Approximation . . . . . . . . . . . . 338
+12.5 The Discrete Inf-Sup Condition . . . . . . . . . . . . . . . . . . . . . . . . . . . 341
+12.6 Verification of the Inf-Sup Condition . . . . . . . . . . . . . . . . . . . . . . . 347
+12.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 353
+
+
+Contents xvii
+13 Iterative Techniques for Mixed Methods . . . . . . . . . . . . . . . . . . . . . . . 355
+13.1 Iterated Penalty Method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 355
+13.2 Stopping Criteria . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 359
+13.3 Augmented Lagrangian Method . . . . . . . . . . . . . . . . . . . . . . . . . . . 361
+13.4 Application to the Navier-Stokes Equations . . . . . . . . . . . . . . . . 363
+13.5 Computational Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 366
+13.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 369
+14 Applications of Operator-Interpolation Theory . . . . . . . . . . . . . . . . . 371
+14.1 The Real Method of Interpolation . . . . . . . . . . . . . . . . . . . . . . . . . 371
+14.2 Real Interpolation of Sobolev Spaces . . . . . . . . . . . . . . . . . . . . . . . 373
+14.3 Finite Element Convergence Estimates . . . . . . . . . . . . . . . . . . . . . 376
+14.4 The Simultaneous Approximation Theorem . . . . . . . . . . . . . . . . 379
+14.5 Precise Characterizations of Regularity . . . . . . . . . . . . . . . . . . . . 379
+14.x Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 380
+References . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 383
+Index . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 393
+
+
+Chapter 0
+Basic Concepts
+The finite element method provides a formalism for generating discrete (finite) algorithms for approximating the solutions of differential equations. It should be thought of as a black box into which one puts the differential equation (boundary value problem) and out of which pops an algorithm for approximating the corresponding solutions. Such a task could conceivably be done automatically by a computer, but it necessitates an amount of mathematical skill that today still requires human involvement. The purpose of this book is to help people become adept at working the magic of this black box. The book does not focus on how to turn the resulting algorithms into computer codes, but this topic is being pursued by several groups. In particular, the FEniCS project (on the web at fenics.org) utilizes the mathematical structure of the finite element method to automate the generation of finite element codes. In this chapter, we present a microcosm of a large fraction of the book, restricted to one-dimensional problems. We leave many loose ends, most of which will be tied up in the theory of Sobolev spaces to be presented in the subsequent chapter. These loose ends should provide motivation and guidance for the study of those spaces.
+0.1 Weak Formulation of Boundary Value Problems
+Consider the two-point boundary value problem
+(0.1.1) − d2u
+dx2 = f in (0, 1)
+u(0) = 0, u′(1) = 0.
+If u is the solution and v is any (sufficiently regular) function such that v(0) = 0, then integration by parts yields
+
+
+2 Chapter 0. Basic Concepts
+(0.1.2)
+(f, v) : =
+∫1
+0
+f (x)v(x)dx =
+∫1
+0
+−u′′(x)v(x)dx
+=
+∫1
+0
+u′(x)v′(x)dx =: a(u, v).
+Let us define (formally, for the moment, since the notion of derivative to be used has not been made precise)
+V = {v ∈ L2(0, 1): a(v, v) < ∞ and v(0) = 0}.
+Then we can say that the solution u to (0.1.1) is characterized by
+(0.1.3) u ∈ V such that a(u, v) = (f, v) ∀v ∈ V,
+which is called the variational or weak formulation of (0.1.1). The relationship (0.1.3) is called “variational” because the function v is allowed to vary arbitrarily. It may seem somewhat unusual at first; later we will see that it has a natural interpretation in the setting of Hilbert spaces. (A Hilbert space is a vector space whose topology is defined using an inner-product.) One example of a Hilbert space is L2(0, 1) with innerproduct (·, ·). Although it is by no means obvious, we will also see that the space V may be viewed as a Hilbert space with inner-product a(·, ·), which was defined in (0.1.2). One critical question we have not yet dealt with is what sort of derivative is to be used in the definition of the bilinear form a(·, ·). Should this be the classical derivative
+u′(x) = hli→m0
+u(x + h) − u(x)
+h?
+Or should the “almost everywhere” definition valid for functions of bounded variation (BV) be used? We leave this point hanging for the moment and hope this sort of question motivates you to study the following chapter on Sobolev spaces. Of course, the central issue is that (0.1.3) still embodies the original problem (0.1.1). The following theorem verifies this under some simplifying assumptions.
+(0.1.4) Theorem. Suppose f ∈ C 0([0, 1]) and u ∈ C 2([0, 1]) satisfy (0.1.3). Then u solves (0.1.1).
+Proof. Let v ∈ V ∩ C 1([0, 1]). Then integration by parts gives
+(0.1.5) (f, v) = a(u, v) =
+∫1
+0
+(−u′′)vdx + u′(1)v(1).
+Thus, (f − (−u′′), v) = 0 for all v ∈ V ∩ C 1([0, 1]) such that v(1) = 0. Let w = f + u′′ ∈ C 0([0, 1]). If w ≡ 0, then w(x) is of one sign in some interval [x0, x1] ⊂ [0, 1], with x0 < x1 (continuity). Choose v(x) = (x−x0)2(x−x1)2
+
+
+0.2 Ritz-Galerkin Approximation 3
+in [x0, x1] and v ≡ 0 outside [x0, x1]. But then (w, v) = 0, which is a contradiction. Thus, −u′′ = f . Now apply (0.1.5) with v(x) = x to find u′(1) = 0. Of course, u ∈ V implies u(0) = 0, so u solves (0.1.1).
+(0.1.6) Remark. The boundary condition u(0) = 0 is called essential as it appears in the variational formulation explicitly, i.e., in the definition of V . This type of boundary condition also frequently goes by the proper name “Dirichlet.” The boundary condition u′(1) = 0 is called natural because it is incorporated implicitly. This type of boundary condition is often referred to by the name “Neumann.” We summarize the different kinds of boundary conditions encountered so far, together with their various names in the following table:
+Table 0.1. Naming conventions for two types of boundary conditions
+Boundary Condition Variational Name Proper Name u(x) = 0 essential Dirichlet u′(x) = 0 natural Neumann
+The assumptions f ∈ C 0([0, 1]) and u ∈ C 2([0, 1]) in the theorem allow (0.1.1) to be interpreted in the usual sense. However, we will see other ways in which to interpret (0.1.1), and indeed the theorem says that the formulation (0.1.3) is a way to interpret it that is valid with much less restrictive assumptions on f . For this reason, (0.1.3) is also called a weak formulation of (0.1.1).
+0.2 Ritz-Galerkin Approximation
+Let S ⊂ V be any (finite dimensional) subspace. Let us consider (0.1.3) with V replaced by S, namely
+(0.2.1) uS ∈ S such that a(uS, v) = (f, v) ∀v ∈ S.
+It is remarkable that a discrete scheme for approximating (0.1.1) can be defined so easily. This is only one powerful aspect of the Ritz-Galerkin method. However, we first must see that (0.2.1) does indeed define an object. In the process we will indicate how (0.2.1) represents a (square, finite) system of equations for uS. These will be done in the following theorem and its proof.
+(0.2.2) Theorem. Given f ∈ L2(0, 1), (0.2.1) has a unique solution.
+Proof. Let us write (0.2.1) in terms of a basis {φi : 1 ≤ i ≤ n} of S. Let
+uS = ∑n
+j=1 Ujφj; let Kij = a(φj, φi), Fi = (f, φi) for i, j = 1, ..., n. Set
+
+
+4 Chapter 0. Basic Concepts
+U = (Uj), K = (Kij) and F = (Fi). Then (0.2.1) is equivalent to solving the (square) matrix equation
+(0.2.3) KU = F.
+For a square system such as (0.2.3) we know that uniqueness is equivalent to existence, as this is a finite dimensional system. Nonuniqueness would
+imply that there is a nonzero V such that KV = 0. Write v = ∑ Vjφj and note that the equivalence of (0.2.1) and (0.2.3) implies that a(v, φj) = 0
+for all j. Multiplying this by Vj and summing over j yields 0 = a(v, v) =
+∫1
+0 (v′)2(x) dx, from which we conclude that v′ ≡ 0. Thus, v is constant,
+and, since v ∈ S ⊂ V implies v(0) = 0, we must have v ≡ 0. Since {φi : 1 ≤ i ≤ n} is a basis of S, this means that V = 0. Thus, the solution to (0.2.3) must be unique (and hence must exist). Therefore, the solution uS to (0.2.1) must also exist and be unique.
+(0.2.4) Remark. Two subtle points are hidden in the “proof” of Theorem (0.2.2). Why is it that “thus v is constant”? And, moreover, why does v ∈ V really imply v(0) = 0 (even though it is in the definition, i.e., why does the definition make sense)? The first question should worry those familiar with the Cantor function whose derivative is zero almost everywhere, but is certainly not constant (it also vanishes at the left of the interval in typical constructions). Thus, something about our definition of V must rule out such functions as members. V is an example of a Sobolev space, and we will see that such problems do not occur in these spaces. It is clear that functions such as the Cantor function should be ruled out (in a systematic way) as candidate solutions for differential equations since it would be a nontrivial solution to the o.d.e. u′ = 0 with initial condition u(0) = 0.
+(0.2.5) Remark. The matrix K is often referred to as the stiffness matrix, a name coming from corresponding matrices in the context of structural problems. It is clearly symmetric, since the energy inner-product a(·, ·) is symmetric. It is also positive definite, since
+∑n
+i,j=1
+kijvivj = a(v, v) where v =
+∑n
+j=1
+vj φj .
+Clearly, a(v, v) ≥ 0 for all (vj) and a(v, v) = 0 was already “shown” to imply v ≡ 0 in the proof of Theorem 0.2.3.
+0.3 Error Estimates
+Let us begin by observing the fundamental orthogonality relation between u and uS. Subtracting (0.2.1) from (0.1.3) implies
+(0.3.1) a(u − uS, w) = 0 ∀w ∈ S.
+
+
+0.3 Error Estimates 5
+Equation (0.3.1) and its subsequent variations are the key to the success of all Ritz-Galerkin/finite-element methods. Now define
+‖v‖E = √a(v, v)
+for all v ∈ V , the energy norm. A critical relationship between the energy norm and inner-product is Schwarz’ inequality:
+(0.3.2) |a(v, w)| ≤ ‖v‖E ‖w‖E ∀v, w ∈ V.
+This inequality is a cornerstone of Hilbert space theory and will be discussed at length in Sect. 2.1. Then, for any v ∈ S,
+‖u − uS‖2
+E = a(u − uS, u − uS)
+= a(u − uS, u − v) + a(u − uS, v − uS)
+= a(u − uS, u − v) (from 0.3.1 with w = v − uS)
+≤ ‖u − uS‖E ‖u − v‖E (from 0.3.2).
+If ‖u − uS‖E = 0, we can divide by it to obtain ‖u − uS‖E ≤ ‖u − v‖E, for any v ∈ S. If ‖u−uS‖E = 0, this inequality is trivial. Taking the infimum over v ∈ S yields
+‖u − uS‖E ≤ inf{‖u − v‖E : v ∈ S}.
+Since uS ∈ S, we have
+inf {‖u − v‖E : v ∈ S} ≤ ‖u − uS‖E .
+Therefore,
+‖u − uS‖E = inf {‖u − v‖E : v ∈ S} .
+Moreover, there is an element (uS) for which the infimum is attained, and we indicate this by replacing “infimum” with “minimum.” Thus, we have proved the following.
+(0.3.3) Theorem. ‖u − uS‖E = min {‖u − v‖E : v ∈ S}.
+This is the basic error estimate for the Ritz-Galerkin method, and it says that the error is optimal in the energy norm. We will use this later to derive more concrete estimates for the error based on constructing approximations to u in S for particular choices of S. Now we consider the error in another norm. Define ‖v‖ = (v, v) 1
+2 = (∫ 1
+0 v(x)2dx) 1
+2 , the L2(0, 1)-norm. We wish to consider the size of the error u − uS in this norm. You might guess that the L2(0, 1)-norm is weaker than the energy norm, as the latter is the L2(0, 1)norm of the derivative (this is the case, on V , although it is not completely obvious and makes use of the essential boundary condition incorporated in V ). Thus, the error in the L2(0, 1)-norm will be at least comparable with the error measured in the energy norm. In fact, we will find it is considerably smaller.
+
+
+6 Chapter 0. Basic Concepts
+To estimate ‖u − uS‖, we use what is known as a “duality” argument. Let w be the solution of
+−w′′ = u − uS on [0, 1] with w(0) = w′(1) = 0.
+Integrating by parts, we find
+‖u − uS‖2 = (u − uS, u − uS)
+= (u − uS, −w′′)
+= a(u − uS, w) (since (u − uS)(0) = w′(1) = 0)
+= a(u − uS, w − v) (from 0.3.1)
+for all v ∈ S. Thus, Schwarz’ inequality (0.3.2) implies that
+‖u − uS‖ ≤ ‖u − uS‖E ‖w − v‖E /‖u − uS‖
+= ‖u − uS‖E ‖w − v‖E /‖w′′‖.
+We may now take the infimum over v ∈ S to get
+‖u − uS‖ ≤ ‖u − uS‖E vin∈fS ‖w − v‖E /‖w′′‖.
+Thus, we see that the L2-norm of the error can be much smaller than the energy norm, provided that w can be approximated well by some function in S. It is reasonable to assume that we can take v ∈ S close to w, which we formalize in the following approximation assumption:
+(0.3.4) vin∈fS ‖w − v‖E ≤ ‖w′′‖.
+Of course, we envisage that this holds with being a small number. Applying (0.3.4) yields
+‖u − uS‖ ≤ ‖u − uS‖E ,
+and applying (0.3.4) again, with w replaced by u, and using Theorem 0.3.3 gives
+‖u − uS‖E ≤ ‖u′′‖.
+Combining these estimates, and recalling (0.1.1), yields
+(0.3.5) Theorem. Assumption (0.3.4) implies that
+‖u − uS‖ ≤ ‖u − uS‖E ≤ 2‖u′′‖ = 2‖f ‖.
+The point of course is that ‖u − uS‖E is of order whereas ‖u − uS‖
+is of order 2. We now consider a family of spaces S for which may be made arbitrarily small.
+
+
+0.4 Piecewise Polynomial Spaces 7
+0.4 Piecewise Polynomial Spaces – The Finite Element
+Method
+Let 0 = x0 < x1 < ... < xn = 1 be a partition of [0, 1], and let S be the linear space of functions v such that
+i) v ∈ C 0([0, 1]) ii) v|[xi−1,xi] is a linear polynomial, i = 1, ..., n, and iii) v(0) = 0. We will see later that S ⊂ V . For each i = 1, .., n define φi by the requirement that φi(xj) = δij = the Kronecker delta, as shown in Fig. 0.1.
+i
+01
+xi
+Fig. 0.1. piecewise linear basis function φi
+(0.4.1) Lemma. {φi : 1 ≤ i ≤ n} is a basis for S.
+(0.4.2) Remark. {φi} is called a nodal basis for S, and {v(xi)} are the nodal values of a function v. (The points {xi} are called the nodes.)
+Proof. The set {φi} is linearly independent since ∑n
+i=1 ciφi(xj) = 0 implies cj = 0. To see that it spans S, consider the following:
+(0.4.3) Definition. Given v ∈ C 0([0, 1]), the interpolant vI ∈ S of v is
+determined by vI : = ∑n
+i=1 v(xi)φi.
+Clearly, the set {φi} spans S if the following is true.
+(0.4.4) Lemma. v ∈ S ⇒ v = vI .
+Proof. v − vI is linear on each [xi−1, xi] and zero at the endpoints, hence must be identically zero.
+We will now prove the following approximation theorem for the interpolant.
+(0.4.5) Theorem. Let h = max1≤i≤n
+(xi − xi−1
+). Then
+‖u − uI ‖E ≤ Ch‖u′′‖
+for all u ∈ V , where C is independent of h and u.
+
+
+8 Chapter 0. Basic Concepts
+Proof. Recalling the definitions of the two norms, it is clearly sufficient to prove the estimate piecewise, i.e., that
+∫ xj
+xj−1
+(u − uI )′ (x)2 dx ≤ c (xj − xj−1)2
+∫ xj
+xj−1
+u′′(x)2 dx
+as the stated result follows by summing over j, with C = √c. Let e = u−uI denote the error; since uI is a linear polynomial on the interval [xj−1, xj], the above is equivalent to
+∫ xj
+xj−1
+e′(x)2 dx ≤ c (xj − xj−1)2
+∫ xj
+xj−1
+e′′(x)2 dx.
+Changing variables by an affine mapping of the interval [xj−1, xj] to the interval [0, 1], we see that this is equivalent to showing
+∫1
+0
+e ̃′(x ̃)2 dx ̃ ≤ c
+∫1
+0
+e ̃′′(x ̃)2 dx ̃,
+where x = xj−1 + x ̃ (xj − xj−1) and
+e ̃(x ̃) = e (xj−1 + x ̃ (xj − xj−1)) .
+Note that we have arrived at an equivalent estimate that does not involve the mesh size at all. The technique of reducing a mesh-length dependent estimate to a mesh-independent one in this way is called a homogeneity argument (or scaling argument) and will be used frequently in Chapter 4 and thereafter. The verification of the latter estimate is a simple calculus exercise. Let w = e ̃ to simplify the notation, and write x for x ̃. Note that w vanishes at both ends of the interval (the interpolation error is zero at all nodes). By Rolle’s Theorem, w′(ξ) = 0 for some ξ satisfying 0 < ξ < 1. Thus,
+w′(y) =
+∫y
+ξ
+w′′(x) dx.
+By Schwarz’ inequality,
+(0.4.6)
+|w′(y)| =
+∣∣∣∣
+∫y
+ξ
+w′′(x) dx
+∣∣∣∣
+=
+∣∣∣∣
+∫y
+ξ
+1 · w′′(x) dx
+∣∣∣∣
+≤
+∣∣∣∣
+∫y
+ξ
+1 dx
+∣∣∣∣
+1/2
+·
+∣∣∣∣
+∫y
+ξ
+w′′(x)2 dx
+∣∣∣∣
+1/2
+= |y − ξ|1/2
+∣∣∣∣
+∫y
+ξ
+w′′(x)2 dx
+∣∣∣∣
+1/2
+≤ |y − ξ|1/2
+(∫ 1
+0
+w′′(x)2 dx
+)1/2
+.
+
+
+0.5 Relationship to Difference Methods 9
+Squaring and integrating with respect to y completes the verification, with
+c = sup
+0<ξ<1
+∫1
+0
+|y − ξ| dy = 1
+2.
+(0.4.7) Corollary. ‖u − uS‖ + Ch ‖u − uS‖E ≤ 2 (Ch)2 ‖u′′‖.
+Proof. Theorem 0.4.5 implies that the approximation assumption (0.3.4) holds with = Ch.
+(0.4.8) Remark. The interpolant defines a linear operator I: C 0([0, 1]) → S where Iv = vI . Lemma 0.4.4 says that I is a projection (i.e., I2 = I). The estimate (0.4.6) for w′ in the proof of (0.4.5) is an example of Sobolev’s inequality, in which the pointwise values of a function can be estimated in terms of integrated quantities involving its derivatives. Estimates of this type will be considered at length in Chapter 1.
+0.5 Relationship to Difference Methods
+The stiffness matrix K as defined in (0.2.3), using the basis {φi} described above, can be interpreted as a difference operator. Let hi = xi − xi−1. Then the matrix entries Kij = a(φi, φj) can be easily calculated to be
+(0.5.1) Kii = h−1
+i + h−1
+i+1, Ki,i+1 = Ki+1,i = −h−1
+i+1 (i = 1, ..., n − 1)
+and Knn = hn−1 with the rest of the entries of K being zero. Similarly, the entries of F can be approximated if f is sufficiently smooth:
+(0.5.2) (f, φi) = 1
+2 (hi + hi+1)(f (xi) + O(h))
+where h = max hi. (This follows easily from Taylor’s Theorem since the integral of φi is (hi + hi+1)/2. Note that the error is not O(h2) unless 1 − (hi/hi+1) = O(h).) Thus, the i − th equation of KU = F (for 1 ≤ i ≤ n − 1) can be written as
+(0.5.3) −2
+hi + hi+1
+[
+Ui+1 − Ui
+hi+1
+− Ui − Ui−1
+hi
+]
+= 2(f, φi)
+hi + hi+1
+= f (xi) + O(h).
+The difference operator on the left side of this equation can also be seen to be an O(h) accurate approximation to the differential operator −d2/dx2 (and not O(h2) accurate in the usual sense unless 1 − hi/hi+1 = O(h).) For a uniform mesh, the equations reduce to the familiar difference equations
+
+
+10 Chapter 0. Basic Concepts
+(0.5.4) − Ui+1 − 2Ui + Ui−1
+h2 = f (xi) + O(h2)
+which are well known to be second-order accurate. However, for a general mesh (e.g., hi = h for i even and hi = h/2 for i odd), we know from Corollary 0.4.7 that the answer is still second-order accurate (in L2(0, 1) at least, but it will also be proved to be so in the maximum norm in Sect. 0.7), even though the difference equations are formally only consistent to first order. This phenomenon has been studied in detail by Spijker (Spijker 1971), and related work has recently been done by (Kreiss, et.al. 1986). See exercises 0.x.11 through 0.x.15 for more details. We will take this opportunity to philosophize about some powerful characteristics of the finite element formalism for generating discrete schemes for approximating the solutions to differential equations. Being based on the variational formulation of boundary value problems, it is quite systematic, handling different boundary conditions with ease; one simply replaces infinite dimensional spaces with finite dimensional subspaces. What results, as in (0.5.3), is the same as a finite difference equation, in keeping with the dictum that different numerical methods are usually more similar than they are distinct. However, we were able to derive very quickly the convergence properties of the finite element method. Finally, the notation for the discrete scheme is quite compact in the finite element formulation. This could be utilized to make coding the algorithm much more efficient if only the appropriate computer language and compiler were available. This latter characteristic of the finite element method is one that has not yet been exploited extensively, but an initial attempt has been made in the system fec (Bagheri, Scott & Zhang 1992). (One could also argue that finite element practitioners have already taken advantage of this by developing their own “languages” through extensive software libraries of their own, but this applies equally well to the finite-difference practitioners.)
+0.6 Computer Implementation of Finite Element
+Methods
+One key to the success of the finite element method, as developed in engineering practice, was the systematic way that computer codes could be implemented. One important step in this process is the assembly of the innerproduct a(u, v) by summing its constituent parts over each sub-interval, or element, which are computed separately. This is facilitated through the use of a numbering scheme called the global-to-local index. This index, i(e, j), relates the local node number, j, on a particular element, e, to its position in the global data structure. In our one-dimensional example with piecewise linear functions, this index is particularly simple: the “elements” are based
+
+
+0.6 Computer Implementation of Finite Element Methods 11
+on the intervals Ie := [xe−1, xe] where e is an integer in the range 1, . . . , n and
+i(e, j) := e + j − 1 for e = 1, . . . , n and j = 0, 1.
+That is, for each element there are two nodal parameters of interest, one corresponding to the left end of the interval (j = 0) and one at the right (j = 1). Their relationship is represented by the mapping i(e, j). We may write the interpolant of a continuous function for the space of all piecewise linear functions (no boundary conditions imposed) via
+(0.6.1) fI := ∑
+e
+∑1
+j=0
+f (xi(e,j))φe
+j
+where {φe
+j : j = 0, 1} denotes the set of basis functions for linear functions on the single interval Ie = [xe−1, xe]:
+φe
+j (x) = φj ((x − xe−1)/(xe − xe−1))
+where
+φ0(x) :=
+{ 1 − x x ∈ [0, 1]
+0 otherwise and φ1(x) :=
+{ x x ∈ [0, 1] 0 otherwise.
+Note that we have related all of the “local” basis functions φe
+j to a fixed set of basis functions on a “reference” element, [0, 1], via an affine mapping of [0, 1] to [xe−1, xe]. (By definition, the local basis functions, φe
+j , are extended by zero outside the interval Ie.) The expression (0.6.1) for the interpolant shows (cf. Lemma 0.4.4) that any piecewise linear function f (no boundary conditions imposed) can be written in the form
+(0.6.2) f := ∑
+e
+∑1
+j=0
+fi(e,j)φe
+j
+where fi = f (xi) for all i. In particular, the cardinality of the image of the index mapping i(e, j) is the dimension of the space of piecewise linear functions. Note that the expression (0.6.2) represents f incorrectly at the nodal points, but this has no effect on the evaluation of multilinear forms involving integrals of f . The bilinear forms defined in (0.1.2) can be easily evaluated (assembled) using this representation as well. For example,
+a(v, w) = ∑
+e
+ae(v, w)
+where the “local” bilinear form is defined (and evaluated) via
+
+
+12 Chapter 0. Basic Concepts
+ae(v, w) :=
+∫
+Ie
+v′w′ dx
+= (xe − xe−1)−1
+∫1
+0
+(Σj vi(e,j)φj
+)′ (Σj wi(e,j)φj
+)′ dx
+= (xe − xe−1)−1
+( vi(e,0)
+vi(e,1)
+)t
+K
+( wi(e,0)
+wi(e,1)
+) .
+Here, the local stiffness matrix, K, is given by
+Ki,j :=
+∫1
+0
+φ′i−1φ′j−1 dx for i, j = 1, 2.
+Note that we have identified the space of piecewise linear functions, v, with the vector space of values, (vi), at the nodes. The subspace, S, of piecewise linear functions that vanish at x = 0, defined in Sect. 0.4, can be identified with the subspace {(vi) : v0 = 0}. Including v0 in the data structure (with a value of zero) makes the assembly of bilinear forms equally easy in the presence of boundary conditions.
+0.7 Local Estimates
+We wish to derive estimates for the error, u − uS, in the pointwise sense. As in the case for the L2-norm, we begin by writing the error that we wish to bound in terms of the energy bilinear form applied to u−uS and some other function. In this case, this other function is the so-called Green’s function for the problem (0.1.1), which in this case is simply
+gx(t) :=
+{t t < x
+x otherwise
+where x is any point in [0, 1]. Integration by parts shows that
+v(x) = a(v, gx) ∀v ∈ V
+since g′x′ is identically zero on either side of x. Therefore,
+(u − uS)(x) = a(u − uS, gx)
+= a(u − uS, gx − v) ∀v ∈ S.
+One conclusion is that, if S is the space of piecewise linear functions defined on a partition {xi : i = 1, . . . , n} as in Sect. 0.4, then
+(u − uS)(xi) = 0 ∀i = 1, . . . , n
+since gxi ∈ S in this case. Thus, we conclude that uS = uI , and a variant of Theorem 0.4.5 yields
+
+
+0.8 Adaptive Approximation 13
+(0.7.1) ‖u − uI ‖max ≤ Ch2‖u′′‖max.
+(Recall that ‖f ‖max = max0≤x≤1 |f (x)|.) Combining the above estimates, we have proved the following.
+(0.7.2) Theorem. Let uS be determined by (0.2.1) using the space of piecewise linear functions defined in Sect. 0.4. Then
+‖u − uS ‖max ≤ Ch2‖u′′‖max.
+Local estimates for higher-dimensional problems are much more difficult to derive, but the use of the Green’s function is similar. However, the local character of the singularity of the one-dimensional Green’s function disappears, and the distributed nature of the higher-dimensional Green’s function requires techniques that are illustrated in the next section.
+0.8 Adaptive Approximation
+In many cases, the solution to a differential equation is rapidly varying only in restricted regions. For such problems, it makes sense to adapt the mesh to match the variation in the solution. The difference in approximation power between a mesh chosen to solve general problems versus one adapted to a particular one can be substantial. We present a particularly simple approximation problem here to illustrate this effect. For more complex results, see (DeVore, Howard & Micchelli 1989). Let us consider the problem of approximating functions of one variable whose derivatives are integrable. This is an even weaker condition than what we used in section 0.3, and we wish to consider approximation in a stronger norm, the maximum norm. We consider approximation by the space S∆ of piecewise constant functions on a partition
+(0.8.1) ∆ = {x0, x1, . . . , xn : 0 = x0 < x1 < · · · < xn = 1} .
+In this case, we will say that size(∆) = n. It is not hard to see that the best result of the form
+(0.8.2) inf
+v∈S∆
+‖u − v‖max ≤ Cn−p
+∫1
+0
+|u′(x)| dx
+to hold for all u (with a fixed mesh) is to have p = 0. Indeed, whatever the mesh, we can let u go from zero at x0 to one at x1 (and stay at one the
+rest of the interval). This particular u has ∫ 1
+0 |u′(x)| dx = 1 and yet
+inf
+v∈S∆
+‖u − v‖max = 1
+2.
+
+
+14 Chapter 0. Basic Concepts
+Of course, writing u as the integral of u′ (cf. (0.4.6)) allows us to prove (0.8.2) with C = 1 and p = 0, simply by taking v ≡ 0. On the other hand, suppose that we fix a particular u and ask that (0.8.2) hold for some partition ∆ as in (0.8.1). That is, what if we are allowed to choose ∆ based on properties of u? To be more precise, we are making the distinction between a statement that ∀u ∃∆ such that (0.8.2) holds versus our earlier statement that, given ∆, (0.8.2) holds ∀u. To see that there is a better estimate possible with an adaptively chosen
+mesh, suppose that we have a u such that ∫ 1
+0 |u′(x)| dx = 1. The function
+(0.8.3) φ(x) =
+∫x
+0
+|u′(t)| dt
+vanishes at x = 0 and is a non-decreasing function. Moreover, φ(1) = 1, so there must be a points xi where φ(xi) = i/n and such that xi < xi+1 for all i. If by chance we have xn < 1 in this process, we set xn = 1. One property of this partition is that
+(0.8.4)
+∫ xi
+xi−1
+|u′(t)| dt = φ(xi) − φ(xi−1) = 1
+n
+for all i = 1, . . . , n. To approximate u on the interval [xi−1, xi] we use the constant ci = u(xi−1). Then for x ∈ [xi−1, xi]
+(0.8.3) |u(x) − ci| =
+∣∣∣∣∣
+∫x
+xi−1
+u′(t) dt
+∣∣∣∣∣ ≤
+∫ xi
+xi−1
+|u′(t)| dt = 1
+n
+proving that (0.8.2) holds for all n with p = 1 and C = 1, at least when
+∫1
+0 |u′(x)| dx = 1. In the general case, simply divide everything in (0.8.2)
+by ∫ 1
+0 |u′(x)| dx.
+Again to get the quantifiers right, let us define the approximation quotient
+(0.8.5) Q(u, ∆) = inf
+v∈S∆
+‖u − v‖max
+/∫ 1
+0
+|u′(x)| dx
+for a given u such that 0 < ∫ 1
+0 |u′(x)| dx < ∞ and a given partition ∆. Then the first result we proved is that
+(0.8.6) ∀∆ ∃u such that Q(u, ∆) ≥ 1
+2
+and yet in the second result we constructed a ∆ to prove that
+(0.8.7) ∀u ∃∆ with size(∆) = n such that Q(u, ∆) ≤ 1
+n.
+
+
+0.9 Weighted Norm Estimates 15
+These results indicate what a dramatic difference in approximation power there can be in using a fixed mesh versus a mesh adapted to a particular function.
+0.9 Weighted Norm Estimates
+Suppose h(x) is a function that measures the local mesh size near the point x. In particular, we will assume that h is a piecewise linear function satisfying
+h(xj ) = hj + hj+1
+where hj = xj − xj−1 (and we set hn+1 = hn and h0 = h1). Note that for all j = 1, . . . , n
+(0.9.1) h(x) ≥ hj ∀x ∈ [xj−1, xj],
+since this holds at each endpoint of the interval and h is linear between them. We begin by deriving a basic estimate analogous to (0.4.5). From its proof and (0.9.1), we have
+‖u − uI ‖2
+E=
+∑n
+i=1
+∫ xi
+xi−1
+(u − uI )′ (x)2 dx
+≤1
+2
+∑n
+i=1
+h2
+i
+∫ xi
+xi−1
+u′′(x)2 dx
+≤1
+2
+∑n
+i=1
+∫ xi
+xi−1
+h(x)2u′′(x)2 dx
+=1
+2 ‖hu′′‖2.
+Therefore,
+(0.9.2) ‖u − uS‖E ≤ √12 ‖hu′′‖.
+We next derive an L2 estimate analogous to the first inequality in Theorem 0.3.5. Choosing w as was done in the proof of that result, we find
+‖u − uS‖2 = a(u − uS, w)
+where w solves the boundary value problem (0.1.1) with u − uS as righthand-side. For simplicity of notation, let e := u − uS. Using the orthogonality relation (0.3.1) and Schwarz’ inequality, we find
+
+
+16 Chapter 0. Basic Concepts
+a(e, w) = a(e, w − wI )
+=
+∫1
+0
+h(u − uS)′(w − wI )′/h dx
+≤
+(∫ 1
+0
+(h(u − uS)′)2 dx
+)1/2 (∫ 1
+0
+((w − wI )′/h)2 dx
+)1/2
+.
+From the results of Sect. 0.4 we have ∫1
+0
+((w − wI )′(x)/h(x))2 dx =
+∑n
+i=1
+∫ xi
+xi−1
+((w − wI )′(x)/h(x))2 dx
+≤
+∑n
+i=1
+h−2
+i
+∫ xi
+xi−1
+(w − wI )′ (x)2 dx
+≤
+∑n
+i=1
+1 2
+∫ xi
+xi−1
+w′′ (x)2 dx.
+Combining the previous inequalities, we have
+(0.9.3) a(e, w) ≤ ‖he′‖
+(∑n
+i=1
+1 2
+∫ xi
+xi−1
+w′′ (x)2 dx
+)1/2
+.
+Recalling that −w′′ = e, we find
+‖e‖2 = a(e, w)
+≤ √12 ‖he′‖
+(∑n
+i=1
+∫ xi
+xi−1
+e (x)2 dx
+)1/2
+= √12 ‖he′‖ ‖e‖.
+Dividing by ‖e‖ and recalling that e = u − uS, we have proved
+(0.9.4) ‖u − uS‖ ≤ √12
+(∫ 1
+0
+(h(u − uS)′)2 dx
+)1/2
+.
+This says that the L2 error can always be estimated in terms of a weighted integral of the squared derivative error, where the weight is given by the mesh function (0.9.1). Now we proceed to estimate the “weighted energy” norm on the right hand side of (0.9.4). Let us write e := u − uS for simplicity. Then first observe that
+∫1
+0
+(h(u − uS)′)2 dx = ‖he′‖2 = a(e, h2e) −
+∫1
+0
+2hh′ee′ dx
+simply by expanding the expression a(e, h2e). We will begin to make the assumption that h′ is small, i.e., that the mesh does not change rapidly (for a uniform mesh, h′ ≡ 0). This will allow us to neglect the term
+
+
+0.9 Weighted Norm Estimates 17
+∫1
+0
+2hh′ee′ dx
+in comparison with the other terms in the preceding equation. To do so, we will make frequent use of the arithmetic-geometric mean inequality, which is nothing more than the simple observation that, for any real numbers a and b,
+ab ≤ 1
+2
+(a2 + b2)
+(just observe that 0 ≤ (a−b)2 = −2ab+a2+b2). A slightly more complicated version of the inequality comes by writing
+ab = ( a)(b/ ) ≤ 1
+2
+(( a)2 + (b/ )2) .
+Writing δ in place of 2, we find
+(0.9.5) ab ≤ δ
+2 a2 + 1
+2δ b2
+for any δ > 0. Let M := ‖h′‖max. Then Schwarz’ inequality and the arithmeticgeometric mean inequality imply
+∣∣∣∣
+∫1
+0
+2hh′ee′ dx
+∣∣∣∣ ≤ 2M
+∫1
+0
+|hee′| dx
+≤ 2M ‖he′‖ ‖e‖
+≤M
+(
+‖he′‖2 + ‖e‖2)
+.
+Therefore,
+‖he′‖2 ≤ a(e, h2e) + M
+(
+‖he′‖2 + ‖e‖2)
+and hence,
+(1 − M )‖he′‖2 ≤ a(e, h2e) + M ‖e‖2.
+We now estimate the term a(e, h2e). Let w := h2e. From (0.9.3) and the arithmetic-geometric mean inequality,
+a(e, h2e) = a(e, w)
+≤ √12 ‖he′‖
+(∑n
+i=1
+∫ xi
+xi−1
+(w′′)2 dx
+)1/2
+≤ 1−M
+2 ‖he′‖2 + 1
+4(1 − M )
+∑n
+i=1
+∫ xi
+xi−1
+(w′′)2 dx
+which, combined with the previous estimate, implies that
+
+
+18 Chapter 0. Basic Concepts
+1−M
+2 ‖he′‖2 ≤ 1
+4(1 − M )
+∑n
+i=1
+∫ xi
+xi−1
+(w′′)2 dx + M ‖e‖2.
+Expanding, we have (on each interval (xi−1, xi) separately)
+w′′ = h2e′′ + 4hh′e′ + 2 (h′)2 e
+since h′′ ≡ 0. Expanding again, and using the arithmetic-geometric mean inequality, we find
+(w′′)2 ≤h4 (e′′)2 + 16M 2 (he′)2 + 4M 4e2
++ 8M h3|e′′||e′| + 4M 2h2|e′′||e| + 16M 3h|e′||e|
+≤7h4 (e′′)2 + 28M 2 (he′)2 + 14M 4e2.
+Integrating, we find
+1−M
+2 ‖he′‖2 ≤ 1
+4(1 − M )
+∑n
+i=1
+∫ xi
+xi−1
+7h4 (e′′)2 dx
++ 7M 2
+1 − M ‖he′‖2 +
+(
+M + 7M 4
+2(1 − M )
+)
+‖e‖2,
+which implies
+(1 − M
+2 − 7M 2
+1−M
+)
+‖he′‖2 ≤ 1
+4(1 − M )
+∑n
+i=1
+∫ xi
+xi−1
+7h4 (e′′)2 dx
++
+(
+M + 7M 4
+2(1 − M )
+)
+‖e‖2.
+Letting c1 =
+( 1−M
+2 − 7M 2
+1−M
+)−1
+and recalling that e′′ = u′′, we have
+‖he′‖2 ≤ 7c1
+4(1 − M )
+∥∥h2u′′∥∥2 + c1
+(
+M + 7M 4
+2(1 − M )
+)
+‖e‖2
+provided that
+M< 1
+1 + √14 .
+Combining with estimate (0.9.4), we find that (
+2 − c1
+(
+M + 7M 4
+2(1 − M )
+))
+‖u − uS‖2 ≤ 7c1
+4(1 − M )
+∥∥h2u′′∥∥2.
+Finally, we assume that M is sufficiently small so that
+2 − c1
+(
+M + 7M 4
+2(1 − M )
+)
+>0
+
+
+0.x Exercises 19
+(observe that c1 → 2 as M → 0), and we conclude that
+(0.9.6) ‖u − uS‖2 ≤ C(M )∥∥h2u′′∥∥2
+where C(M ) → 7/4 as M → 0. We summarize the above results in the following theorem.
+(0.9.7) Theorem. Without any restrictions on the mesh, we have
+‖u − uS‖E ≤ √12 ‖hu′′‖
+and
+‖u − uS‖ ≤ √12 ‖h(u − uS)′‖.
+Provided that the mesh-size variation, M := ‖h′‖max, is sufficiently small, there is a constant, C, depending on M but otherwise independent of the mesh, such that
+‖u − uS‖ ≤ C∥∥h2u′′∥∥.
+The condition that the derivative of h be small is easy to interpret. From its definition,
+h′|(xi−1,xi) = hi+1 − hi−1
+hi
+= ri+1 − 1
+ri
+,
+where ri is the ratio of lengths of adjacent mesh intervals, ri = hi/hi−1.
+Thus, |h′| is small whenever these ratios are sufficiently close to one. However, this does not preclude strong mesh gradings, e.g., a geometrically graded mesh, xi = eδ(i−n) for δ sufficiently small.
+0.x Exercises
+0.x.1 Verify the expressions (0.5.1) for the “stiffness” matrix K for piecewise linear functions. If f is piecewise linear, i.e.,
+f (x) =
+∑n
+i=1
+fiφi(x)
+determine the matrix M (called the “mass” matrix) such that
+KU = MF.
+0.x.2 Give weak formulations of modifications of the two-point boundaryvalue problem (0.1.1) where
+
+
+20 Chapter 0. Basic Concepts
+a) the o. d. e. is −u′′ + u = f instead of −u′′ = f and/or b) the boundary conditions are u(0) = u(1) = 0.
+0.x.3 Explain what is wrong in both the variational setting and the classical setting for the problem
+−u′′ = f with u′(0) = u′(1) = 0.
+That is, explain in both contexts why this problem is not well-posed.
+0.x.4 Show that piecewise quadratics have a nodal basis consisting of values at the nodes xi together with the midpoints 1
+2 (xi + xi+1). Calculate the stiffness matrix for these elements.
+0.x.5 Verify (0.5.2).
+0.x.6 Under the same assumptions as in Theorem 0.4.5, prove that
+‖u − uI ‖ ≤ Ch2‖u′′‖.
+(Hint: use a homogeneity argument as in the proof of Theorem 0.4.5. Using the notation of that proof, show further that
+∫1
+0
+w(x)2 dx ≤ c ̃
+∫1
+0
+w′(x)2 dx,
+by utilizing the fact that w(0) = 0. How small can you make c ̃ if you use both w(0) = 0 and w(1) = 0?)
+0.x.7 Using only Theorems 0.3.5 and 0.4.5, prove that
+vi∈nfS ‖u − v‖ ≤ Ch2‖u′′‖.
+Exercise 0.x.6 also would imply this result independently. Compare the different constants, C, derived with the different approaches.
+0.x.8 Prove that (0.1.1) has a solution u ∈ C2([0, 1]) provided f ∈ C0([0, 1]). (Hint: write
+u(x) =
+∫x
+0
+(∫ 1
+s
+f (t) dt
+)
+ds
+and verify the equations.)
+0.x.9 Let V denote the space, and a(·, ·) the bilinear form, defined in Sect. 0.1. Prove the following coercivity result
+‖v‖2 + ‖v′‖2 ≤ Ca(v, v) ∀v ∈ V.
+Give a value for C. (Hint: see the hint in exercise 0.x.6. For simplicity, restrict the result to v ∈ V ∩ C1(0, 1).)
+
+
+0.x Exercises 21
+0.x.10 Let V denote the space, and a(·, ·) the bilinear form, defined in Sect. 0.1. Prove the following version of Sobolev’s inequality:
+‖v‖2
+max ≤ Ca(v, v) ∀v ∈ V.
+Give a value for C. (Hint: see the hint in exercise 0.x.6. For simplicity, restrict the result to v ∈ V ∩ C1(0, 1).)
+0.x.11 Consider the difference method represented by (0.5.3), namely
+−2
+hi + hi+1
+(
+Ui+1 − Ui
+hi+1
+− Ui − Ui−1
+hi
+)
+= f (xi).
+Prove u ̃S := ∑ Uiφi satisfies the following modification to (0.2.1):
+a(u ̃S, v) = Q(f v) ∀v ∈ S
+where a(·, ·) is the bilinear form defined in Sect. 0.1, S consists of piecewise linears as defined in Sect. 0.4 and Q denotes the quadrature approximation based on the trapezoidal rule
+Q(w) :=
+∑n
+i=0
+hi + hi+1
+2 w(xi).
+Here φi, xi and hi are as defined in Sect. 0.4; we further define h0 = hn+1 = 0 for simplicity of notation.
+0.x.12 Let Q be defined as in exercise 0.x.11. Prove that
+∣∣∣∣Q(w) −
+∫1
+0
+w(x) dx
+∣∣∣∣ ≤ Ch2
+∑n
+i=1
+∫ xi
+xi−1
+|w′′(x)| dx.
+(Hint: observe that the trapezoidal rule is exact for piecewise linears and refer to the hint in exercise 0.x.6.)
+0.x.13 Let uS solve (0.2.1) where S consists of piecewise linears as defined in Sect. 0.4 and let u ̃S be as in exercise 0.x.11. Prove that
+|a(uS − u ̃S, v)| ≤ Ch2 (‖f ′‖ + ‖f ′′‖) (‖v‖ + ‖v′‖) ∀v ∈ S.
+(Hint: apply exercise 0.x.12 and Schwarz’ inequality.)
+0.x.14 Let uS and u ̃S be as in exercise 0.x.13. Prove that
+‖uS − u ̃S‖E ≤ Ch2 (‖f ′‖ + ‖f ′′‖) .
+(Hint: apply exercise 0.x.13, pick v = uS − u ̃S and apply exercise 0.x.9.)
+0.x.15 Let u ̃S be as in exercise 0.x.11 and let u solve (0.1.1). Prove that
+
+
+22 Chapter 0. Basic Concepts
+‖u − u ̃S‖max ≤ Ch2 (‖f ‖max + ‖f ′‖ + ‖f ′′‖) .
+(Hint: apply exercise 0.x.14 and Theorem 0.7.2.)
+0.x.16 Give weak formulation of modifications of the two-point boundaryvalue problem (0.1.1) where the boundary conditions are u(0) = 0 and u′(1) = λ. (Hint: show that a(u, v) = F (v) where F is the linear functional F (v) = λ v(1).)
+
+
+Chapter 1
+Sobolev Spaces
+This chapter is devoted to developing function spaces that are used in the variational formulation of differential equations. We begin with a review of Lebesgue integration theory, upon which our notion of “variational” or “weak” derivative rests. Functions with such “generalized” derivatives make up the spaces commonly referred to as Sobolev spaces. We develop only a small fraction of the known theory for these spaces—just enough to establish a foundation for the finite element method.
+1.1 Review of Lebesgue Integration Theory
+We will now review the basic concepts of Lebesgue integration theory, cf. (Halmos 1991), (Royden 1988) or (Rudin 1987). By “domain” we mean a Lebesgue-measurable (usually either open or closed) subset of IRn with non-empty interior. We restrict our attention for simplicity to real-valued
+functions, f , on a given domain, Ω, that are Lebesgue measurable; by ∫
+Ω
+f (x) dx
+we denote the Lebesgue integral of f (dx denotes Lebesgue measure). For 1 ≤ p < ∞, let
+‖f ‖Lp(Ω) :=
+(∫
+Ω
+|f (x)|p dx
+)1/p
+,
+and for the case p = ∞ set
+‖f ‖L∞(Ω) := ess sup {|f (x)| : x ∈ Ω} .
+In either case, we define the Lebesgue spaces
+(1.1.1) Lp(Ω) := {f : ‖f ‖Lp(Ω) < ∞}.
+To avoid trivial differences between functions, we identify two functions, f and g, that satisfy ‖f − g‖Lp(Ω) = 0. For example, take n = 1, Ω = [−1, 1] and
+
+
+24 Chapter 1. Sobolev Spaces
+(1.1.2) f (x) :=
+{1 x ≥ 0
+0 x < 0 and g(x) :=
+{1 x > 0 0 x ≤ 0.
+Since f and g differ only on a set of measure zero (one point, in this case), we view them as representing the same function. With a small ambiguity of notation, we then think of Lp(Ω) as a set of equivalence classes of functions with respect to this identification. There are some famous (and useful) inequalities that hold for the functionals defined above:
+(1.1.3) Minkowski’s Inequality For 1 ≤ p ≤ ∞ and f, g ∈ Lp(Ω), we have
+‖f + g‖Lp(Ω) ≤ ‖f ‖Lp(Ω) + ‖g‖Lp(Ω) .
+(1.1.4) H ̈older’s Inequality For 1 ≤ p, q ≤ ∞ such that 1 = 1/p + 1/q, if f ∈ Lp(Ω) and g ∈ Lq(Ω), then f g ∈ L1(Ω) and
+‖f g‖L1(Ω) ≤ ‖f ‖Lp(Ω) ‖g‖Lq(Ω) .
+(1.1.5) Schwarz’ Inequality This is simply Ho ̈lder’s inequality in the special case p = q = 2, viz. if f, g ∈ L2(Ω) then f g ∈ L1(Ω) and ∫
+Ω
+|f (x)g(x)| dx ≤ ‖f ‖L2(Ω) ‖g‖L2(Ω) .
+In view of Minkowski’s inequality and the definitions of ‖·‖Lp(Ω), the space Lp(Ω) is closed under linear combinations, i.e., it is a linear (or vector) space. Moreover, the functionals ‖·‖Lp(Ω) have properties that classify them as norms.
+(1.1.6) Definition. Given a linear (vector) space V , a norm, ‖·‖, is a function on V with values in the non-negative reals having the following properties:
+i) ‖v‖ ≥ 0 ∀ v ∈ V
+‖v‖ = 0 ⇐⇒ v = 0
+ii) ‖c · v‖ = |c| · ‖v‖ ∀c ∈ IR, v ∈ V, and
+iii) ‖v + w‖ ≤ ‖v‖ + ‖w‖ ∀ v, w ∈ V (the triangle inequality).
+A norm, ‖ · ‖, can be used to define a notion of distance, or metric, d(v, w) = ‖v − w‖ for points v, w ∈ V . A vector space endowed with the topology induced by this metric is called a normed linear space. Recall that a metric space, V , is called complete if every Cauchy sequence {vj} of elements of V has a limit v ∈ V . For a normed linear space, a Cauchy sequence is one such that ‖vj − vk‖ → 0 as j, k → ∞, and completeness means that ‖v − vj‖ → 0 as j → ∞. The following definition encapsulates some
+
+
+1.1 Review of Lebesgue Integration Theory 25
+key features of linear spaces of infinite dimensions needed for theoretical development.
+(1.1.7) Definition. A normed linear space (V, ‖·‖) is called a Banach space if it is complete with respect to the metric induced by the norm, ‖·‖.
+(1.1.8) Theorem. For 1 ≤ p ≤ ∞, Lp(Ω) is a Banach space.
+This theorem (whose proof may be found in the references at the beginning of this section) is a cornerstone of Lebesgue integration theory. Note that it incorporates both Minkowski’s inequality and a limit theorem for the Lebesgue integral; that is, if fj → f in Lp(Ω) then (cf. exercise 1.x.3)
+(1.1.9)
+∫
+Ω
+|fj(x)|p dx →
+∫
+Ω
+|f (x)|p dx as j → ∞.
+However, H ̈older’s inequality and more subtle limit theorems are not reflected in this characterization of the Lebesgue spaces. A key reason that the Lebesgue integral is preferred over the Riemann integral is the aspect of “completeness” that it enjoys, i.e., that appropriate limits of integrable functions are integrable, a property that the Riemann integral does not have. For example, we can easily evaluate an improper integral to determine that the function log x has a finite integral on any finite interval of the form [0, a]. Correspondingly, if {rn : n = 1, 2, . . .} is dense in the interval [0, 1], then the functions
+(1.1.10) fj(x) :=
+j ∑
+n=1
+2−n log |x − rn|
+all have improper integrals, and one easily sees that
+(1.1.11)
+∣∣∣∣
+∫1
+0
+fj(x) dx
+∣∣∣∣ ≤ 2
+∫1
+0
+|log x| dx.
+Therefore, the “limit” function
+(1.1.12) f (x) :=
+∑ ∞
+n=1
+2−n log |x − rn|
+should have a finite “integral” on [0, 1], again satisfying
+(1.1.13)
+∣∣∣∣
+∫1
+0
+f (x) dx
+∣∣∣∣ ≤ 2
+∫1
+0
+|log x| dx.
+However, f is infinite at some point in any open sub-interval of [0, 1] and so it is not Riemann integrable on any sub-interval of [0, 1]. Thus, it is not possible, even via “improper” Riemann integrals, to determine if f has a finite integral. On the other hand, one can show (see exercise 1.x.6) that it is Lebesgue integrable and that (1.1.13) holds.
+
+
+26 Chapter 1. Sobolev Spaces
+1.2 Generalized (Weak) Derivatives
+There are several definitions of derivative that are useful in different situations. The “calculus” definition, viz.
+u′(x) = hli→m0
+u(x + h) − u(x)
+h,
+is a “local” definition, involving information about the function u only near the point x. The variational formulation developed in Chapter 0 takes a more global view, because pointwise values of derivatives are not needed; only derivatives that can be interpreted as functions in the Lebesgue space L2(Ω) occur. In the previous section, we have seen that pointwise values of functions in Lebesgue spaces are irrelevant (cf. (1.1.2)); a function in one of these spaces is determined only by its global behavior. Thus, it is natural to develop a global notion of derivative more suited to the Lebesgue spaces. We do so using a “duality” technique, defining derivatives for a class of not-so-smooth functions (see Definition 1.2.3) by comparing them with very-very-smooth functions (introduced in Definition 1.2.1). First, let us introduce some short-hand notation for (calculus) partial derivatives, the multi-index notation. A multi-index, α, is an n-tuple of non-negative integers, αi. The length of α is given by
+|α| :=
+∑n
+i=1
+αi.
+For φ ∈ C∞, denote by
+Dαφ, Dα
+x φ,
+(∂
+∂x
+)α
+φ, φ(α), and ∂α
+xφ
+the usual (pointwise) partial derivative
+(∂
+∂x1
+)α1
+···
+(∂
+∂xn
+)αn
+φ.
+Given a vector (x1, . . . , xn), we define xα := x1α1 · x2α2 · · · xnαn . Note that
+if x is replaced formally by the symbol ∂
+∂x :=
+(∂
+∂x1 , . . . , ∂
+∂xn
+)
+, then this
+definition of xα is consistent with the previous definition of ( ∂
+∂x
+)α. Note that the order of this derivative is given by |α|. Next, let us introduce the concept of the support of a function defined on some domain in IRn. For a continuous function, u, this is the closure of the (open) set {x : u(x) = 0}. If this is a compact set (i.e., if it is bounded) and it is a subset of the interior of a set, Ω, then u is said to have “compact support” with respect to Ω. (Outside the support of a function, it is natural to define it to be zero, thus extending it to be defined on all of IRn.) When
+
+
+1.2 Generalized (Weak) Derivatives 27
+Ω is a bounded set, it is equivalent to say that u vanishes in a neighborhood of ∂Ω.
+(1.2.1) Definition. Let Ω be a domain in IRn. Denote by D(Ω) or C0∞(Ω)
+the set of C∞(Ω) functions with compact support in Ω.
+Before proceeding any further, it would be wise to verify that we have not just introduced a vacuous definition, which we do in the following:
+(1.2.2) Example. Define
+φ(x) :=
+{ e1/(|x|2−1) |x| < 1
+0 |x| ≥ 1 .
+We claim that, for any multi-index α, φ(α)(x) = Pα(x)φ(x)/(1 − |x|2)|α| for some polynomial Pα, as we now show. For |x| < 1, we can differentiate and determine, inductively in α, that φ(α)(x) = Pα(x)e−tt|α| for some polynomial Pα, where t = 1/(1 − |x|2). Further, φ(α)(x) = 0 for |x| > 1. Thus, the formula above for φ(α) is verified in the case |x| = 1. Since the
+exponential increases faster than any finite power, φ(α)(x)/ (1 − |x|2)k = Pα(x)t|α|+k/et → 0 as |x| → 1 (i.e., as t → ∞) for any integer k. Applying (inductively) these facts with k = 0 shows that φ(α) is continuous at |x| = 1, and using k = 1 shows it is also differentiable there, and has derivative zero. Thus, the claimed formula holds for all x. Moreover, we also see from the argument that φ(α) is bounded and continuous for all α. Thus, φ ∈ D(Ω) for any open set Ω containing the closed unit ball. By scaling variables appropriately, we see that D(Ω) = ∅ for any Ω with non-empty interior.
+We now use the space D to extend the notion of pointwise derivative to a class of functions larger than C∞. For simplicity, we restrict our notion of derivatives to the following space of functions (see (Schwartz 1957) for a more general definition).
+(1.2.3) Definition. Given a domain Ω, the set of locally integrable functions is denoted by
+L1
+loc(Ω) := {f : f ∈ L1 (K) ∀ compact K ⊂ interior Ω} .
+Functions in L 1
+loc(Ω) can behave arbitrarily badly near the bound
+ary, e.g., the function ee1/dist(x,∂Ω) ∈ L 1
+loc(Ω), although this aspect is somewhat tangential to our use of the space. One notational convenience is that L1
+loc(Ω) contains all of C0(Ω), without growth restrictions. Finally, we come to our new definition of derivative.
+
+
+28 Chapter 1. Sobolev Spaces
+(1.2.4) Definition. We say that a given function f ∈ L 1
+loc(Ω) has a weak
+derivative, Dαwf , provided there exists a function g ∈ L 1
+loc(Ω) such that ∫
+Ω
+g(x)φ(x) dx = (−1)|α|
+∫
+Ω
+f (x)φ(α)(x) dx ∀φ ∈ D(Ω).
+If such a g exists, we define Dαwf = g.
+(1.2.5) Example. Take n = 1, Ω = [−1, 1], and f (x) = 1 − |x|. We claim that Dw1f exists and is given by
+g(x) :=
+{ 1 x<0 −1 x > 0.
+To see this, we break the interval [−1, 1] into the two parts in which f is smooth, and we integrate by parts. Let φ ∈ D(Ω). Then
+∫1
+−1
+f (x)φ′(x) dx =
+∫0
+−1
+f (x)φ′(x) dx +
+∫1
+0
+f (x)φ′(x) dx
+=−
+∫0
+−1
+(+1)φ(x) dx + f φ|0
+−1 −
+∫1
+0
+(−1)φ(x) dx + f φ|1
+0
+=−
+∫1
+−1
+g(x)φ(x) dx + (f φ)(0−) − (f φ)(0+)
+=−
+∫1
+−1
+g(x)φ(x) dx
+because f is continuous at 0. One may check (cf. exercise 1.x.10) that Dwj f does not exist for j > 1.
+One can see that, roughly speaking, the new definition of derivative is the same as the old one wherever the function being differentiated is regular enough. In particular, continuity of f in the example was enough to insure existence of a first-order weak derivative, but not second-order. This phenomenon depends on the dimension n as well, precluding a simple characterization of the relation between the calculus and weak derivatives, as the following example shows.
+(1.2.6) Example. Let ρ be a smooth function defined for 0 < r ≤ 1 satisfying
+∫1
+0
+|ρ′(r)| rn−1 dr < ∞.
+Define f on Ω = {x ∈ IRn : |x| < 1} via f (x) = ρ(|x|). Then Dαwf exists for all |α| = 1 and is given by
+g(x) = ρ′(|x|)xα/|x|.
+
+
+1.3 Sobolev Norms and Associated Spaces 29
+The verification of this is left to the reader in exercise 1.x.12.
+This example shows that the relationship between the calculus and weak derivatives depends on dimension. That is, whether a function such as |x|r has a weak derivative depends not only on r but also on n (cf. exercise 1.x.13). However, the following fact (whose proof is left as an exercise) shows that the latter is a generalization of the former.
+(1.2.7) Proposition. Let α be arbitrary and let ψ ∈ C|α|(Ω). Then the weak derivative Dαwψ exists and is given by Dαψ.
+As a consequence of this proposition, we ignore the differences in definition of D and Dw from now on. That is, differentiation symbols will refer to weak derivatives in general, but we will also use classical properties of derivatives of smooth functions as appropriate.
+1.3 Sobolev Norms and Associated Spaces
+Using the notion of weak derivative, we can generalize the Lebesgue norms and spaces to include derivatives.
+(1.3.1) Definition. Let k be a non-negative integer, and let f ∈ L 1
+loc(Ω).
+Suppose that the weak derivatives Dαwf exist for all |α| ≤ k. Define the Sobolev norm
+‖f ‖Wpk(Ω) :=
+⎛
+⎝∑
+|α|≤k
+‖Dα
+wf ‖p
+Lp (Ω )
+⎞
+⎠
+1/p
+in the case 1 ≤ p < ∞, and in the case p = ∞
+‖f ‖W k∞(Ω) := max
+|α|≤k ‖D α
+w f ‖L∞(Ω) .
+In either case, we define the Sobolev spaces via
+Wk
+p (Ω) :=
+{
+f ∈L1
+loc(Ω) : ‖f ‖Wpk(Ω) < ∞
+} .
+The Sobolev spaces can be related in special cases to other spaces. For example, recall the Lipschitz norm
+‖f ‖Lip(Ω) = ‖f ‖L∞(Ω) + sup
+{ |f (x) − f (y)|
+|x − y| : x, y ∈ Ω; x = y
+} ,
+
+
+30 Chapter 1. Sobolev Spaces
+and the corresponding space of Lipschitz functions
+Lip(Ω) =
+{
+f ∈ L∞(Ω) : ‖f ‖Lip(Ω) < ∞
+} .
+Then for all dimensions n, we have Lip(Ω) = W 1∞(Ω) with equivalent norms, at least under certain conditions on the domain Ω (cf. exercises 1.x.15 and 1.x.14). (Two norms, ‖·‖1 and ‖·‖2, on a linear space V are said to be equivalent provided there is a positive constant C < ∞ such that ‖v‖1/C ≤ ‖v‖2 ≤ C‖v‖1 ∀v ∈ V .) Moreover, for k > 1
+Wk
+∞(Ω) =
+{
+f ∈ Ck−1(Ω) : f (α) ∈ Lip(Ω) ∀ |α| ≤ k − 1
+} .
+In one dimension (n = 1), the space W11(Ω) can be characterized as the set of absolutely continuous functions on an interval Ω (cf. (Hartman & Mikusinski 1961) and exercises 1.x.17 and 1.x.22). It is easy to see that ‖·‖Wpk(Ω) is a norm. Thus, Wpk(Ω) is by definition
+a normed linear space. The following theorem shows that it is complete.
+(1.3.2) Theorem. The Sobolev space Wpk(Ω) is a Banach space.
+Proof. Let {vj} be a Cauchy sequence with respect to the norm ‖·‖Wpk(Ω).
+Since the ‖·‖Wpk(Ω) norm is just a combination of ‖·‖Lp(Ω) norms of weak
+derivatives, it follows that, for all |α| ≤ k, {Dwαvj} is a Cauchy sequence with respect to the norm ‖·‖Lp(Ω). Thus, Theorem 1.1.8 implies the existence of vα ∈ Lp(Ω) such that ‖Dwαvj − vα‖Lp(Ω) → 0 as j → ∞. In
+particular, vj → v(0,...,0) =: v in Lp(Ω). What remains to check is that Dwαv exists and is equal to vα.
+First, note that if wj → w in Lp(Ω), then for all φ ∈ D(Ω)
+(1.3.3)
+∫
+Ω
+wj(x)φ(x) dx →
+∫
+Ω
+w(x)φ(x) dx.
+This follows from (1.1.9) and Ho ̈lder’s inequality:
+‖wj φ − wφ‖Lp(Ω) ≤ ‖wj − w‖Lp(Ω) ‖φ‖L∞(Ω) → 0 as j → ∞.
+To show that Dwαv = vα, we must show that
+∫
+Ω
+vαφ dx = (−1)|α|
+∫
+Ω
+vφ(α) dx ∀φ ∈ D(Ω).
+This follows from the definition of the weak derivative, Dwαvj, and two applications of (1.3.3): ∫
+Ω
+vαφ dx = jli→m∞
+∫
+Ω
+(D α
+w vj) φ dx
+= jli→m∞(−1)|α|
+∫
+Ω
+vj φ(α) dx = (−1)|α|
+∫
+Ω
+vφ(α) dx.
+
+
+1.3 Sobolev Norms and Associated Spaces 31
+There is another potential definition of Sobolev space that could be made. Let Hpk(Ω) denote the closure of Ck(Ω) with respect to the Sobolev norm ‖·‖Wpk(Ω). In the case p = ∞, we have Hk∞ = Ck, and this is not
+the same as W k∞(Ω). Indeed, we have already identified the latter as being related to certain Lipschitz spaces. However, for 1 ≤ p < ∞, it turns out that Hpk(Ω) = Wpk(Ω). The following result was proved in a paper (Meyers & Serrin 1964) that is celebrated both for the importance of the result and the brevity of its title.
+(1.3.4) Theorem. Let Ω be any open set. Then C∞(Ω) ∩ Wpk(Ω) is dense in Wpk(Ω) for p < ∞.
+(1.3.5) Remark. This result should be contrasted with another kind of density result, namely, the density of C∞(Ω) in Sobolev spaces. The latter cannot happen whenever part of the domain lies on both sides of part of its boundary, as occurs with a slit domain that is frequently used to model crack propagation problems (cf. exercise 1.x.26). In order for this stronger density result to hold, some sort of regularity condition must also hold. For example, it is known (cf. Adams 1975) to be valid if Ω satisfies the segment condition, i.e., if for all x ∈ ∂Ω there is an open ball Bx containing x and a non-trivial vector nx such that for all z ∈ Ω ∩ Bx the segment {z + tnx : 0 < t < 1} ⊂ Ω. The vector nx plays the role of an inwarddirected normal to ∂Ω at x. Many of the domains considered here satisfy this condition (cf. exercise 1.x.25).
+(1.3.6) Remark. The validity of the theorem can be seen in the case Ω = IRn as follows. (For a more general case, see exercise 1.x.19.) From Example 1.2.2, we see that there exist non-negative φ ∈ D(Ω), and so by normalizing appropriately, we can assume that there is such a φ ∈ D(Ω) further
+satisfying ∫
+Ω φ(x) dx = 1. For any f ∈ L 1
+loc(Ω) and > 0, define
+f (x) = −n
+∫
+Ω
+f (y)φ ((x − y)/ ) dy,
+that is, we have f = f ∗ φ where φ (y) := −nφ(y/ ) ∀y ∈ Ω and “∗” denotes convolution. From the dominated convergence theorem, it is easy to see that f is C∞ and that f ∈ Lp(Ω) implies f → f in Lp(Ω). Moreover, if f ∈ Wpk(Ω) then the same can be said of the derivatives of f and f , by differentiating under the integral sign and using the definition of weak derivative, thus proving the result. The function f is called a “mollification” of f .
+For technical reasons it is useful to introduce the following notation for the Sobolev semi-norms.
+
+
+32 Chapter 1. Sobolev Spaces
+(1.3.7) Definition. For k a non-negative integer and f ∈ Wpk(Ω), let
+|f |Wpk(Ω) =
+⎛
+⎝∑
+|α|=k
+‖Dα
+wf ‖p
+Lp (Ω )
+⎞
+⎠
+1/p
+in the case 1 ≤ p < ∞, and in the case p = ∞
+|f |W k∞(Ω) = max
+|α|=k ‖D α
+w f ‖L∞(Ω) .
+1.4 Inclusion Relations and Sobolev’s Inequality
+Given the number of indices defining Sobolev spaces, it is natural to hope that there are inclusion relations to provide some sort of ordering among them. Using the Definition 1.3.1 and exercise 1.x.1, it is easy to derive the following propositions.
+(1.4.1) Proposition. Suppose that Ω is any domain, k and m are nonnegative integers satisfying k ≤ m, and p is any real number satisfying 1 ≤ p ≤ ∞. Then Wpm(Ω) ⊂ Wpk(Ω).
+(1.4.2) Proposition. Suppose that Ω is a bounded domain, k is a nonnegative integer, and p and q are real numbers satisfying 1 ≤ p ≤ q ≤ ∞. Then Wqk(Ω) ⊂ Wpk(Ω).
+However, there are more subtle relations among the Sobolev spaces. For example, there are cases when k < m and p > q and Wqm(Ω) ⊂ Wpk(Ω). The existence of Sobolev derivatives imply a stronger integrability condition of a function. To set the stage, let us consider an example to give us guidance as to possible relations among k, m, p, and q for such a result to hold.
+(1.4.3) Example. Let n ≥ 2, let Ω = {x ∈ IRn : |x| < 1/2} and consider
+the function f (x) = log ∣∣ log |x| ∣∣. From Example 1.2.6 (and exercise 1.x.12), we see that f has first-order weak derivatives
+D αf (x) = xα/ (|x|2 log |x|)
+(|α| = 1). From exercise 1.x.5, we see that D αf ∈ Lp(Ω) provided p ≤ n. For example,
+|D αf (x)|n ≤ ρ(|x|) := 1/ (|x|n∣∣ log |x|∣∣n)
+
+
+1.4 Inclusion Relations and Sobolev’s Inequality 33
+satisfies the condition of exercise 1.x.5 because ρ(r)rn−1 = 1/ (r| log r|n) is integrable for all n ≥ 2 on [0, 1/2]. In fact, the change of variables r = e−t gives ∫ 1/2
+0
+dr
+r| log r|n =
+∫∞
+log 2
+dt
+tn < ∞. (n ≥ 2)
+Similarly, it is easy to see that f ∈ Lp(Ω) for p < ∞. Thus, f ∈ Wp1(Ω) for
+p ≤ n. Note, however, that in no case is f ∈ L∞(Ω).
+This example shows that there are functions that are essentially infinite at points (such points could be chosen as in (1.1.12) to be everywhere dense), yet which have p-th power integrable weak derivatives. Moreover, as the dimension n increases, the integrability power p increases as well. On the other hand, the following result, which will be proved in Chapter 4, shows that if a function has p-th power integrable weak derivatives for sufficiently large p (with n fixed), it must be bounded (and, in fact, can be viewed as being continuous). But before we state the result, we must introduce a regularity condition on the domain boundary for the result to be true.
+(1.4.4) Definition. We say Ω has a Lipschitz boundary ∂Ω provided there exists a collection of open sets Oi, a positive parameter , an integer N and a finite number M , such that for all x ∈ ∂Ω the ball of radius centered at x is contained in some Oi, no more than N of the sets Oi intersect nontrivially, and each domain Oi ∩ Ω = Oi ∩ Ωi where Ωi is a domain whose boundary is a graph of a Lipschitz function φi (i.e., Ωi =
+{(x, y) ∈ IRn : x ∈ IRn−1, y < φi(x)}) satisfying ‖φi‖Lip(IRn−1) ≤ M .
+One consequence of this definition is that we can now relate Sobolev spaces on a given domain to those on all of IRn.
+(1.4.5) Theorem. Suppose that Ω has a Lipschitz boundary. Then there is an extension mapping E : Wpk(Ω) → Wpk(IRn) defined for all non-negative integers k and real numbers p in the range 1 ≤ p ≤ ∞ satisfying Ev|Ω = v for all v ∈ Wpk(Ω) and
+‖Ev‖Wpk(IRn) ≤ C ‖v‖Wpk(Ω)
+where C is independent of v.
+For a proof of this result, as well as more details concerning other material in this section, see (Stein 1970). Of course, the complementary result is true for any domain, namely, that the natural restriction allows us to view functions in Wpk(IRn) as well defined in Wpk(Ω). We now return to the question regarding the relationship between Sobolev spaces with different indices.
+
+
+34 Chapter 1. Sobolev Spaces
+(1.4.6) Theorem. (Sobolev’s Inequality) Let Ω be an n-dimensional domain with Lipschitz boundary, let k be a positive integer and let p be a real number in the range 1 ≤ p < ∞ such that
+k ≥ n when p = 1
+k > n/p when p > 1.
+Then there is a constant C such that for all u ∈ Wpk(Ω)
+‖u‖L∞(Ω) ≤ C ‖u‖Wpk(Ω) .
+Moreover, there is a continuous function in the L∞(Ω) equivalence class of u.
+This result says that any function with suitably regular weak derivatives may be viewed as a continuous, bounded function. Note that Example 1.4.3 shows that the result is sharp, namely, that the condition k > n/p cannot be relaxed (unless p = 1), at least when n ≥ 2. When n = 1, Sobolev’s inequality says that integrability of first-order derivatives to any power p ≥ 1 is sufficient to guarantee continuity. The result will be proved as a corollary to our polynomial approximation theory to be developed in Chapter 4. Note that we can apply it to derivatives of functions in Sobolev spaces to derive the following:
+(1.4.7) Corollary. Let Ω be an n-dimensional domain with Lipschitz boundary, and let k and m be positive integers satisfying m < k and let p be a real number in the range 1 ≤ p < ∞ such that
+k − m ≥ n when p = 1
+k − m > n/p when p > 1.
+Then there is a constant C such that for all u ∈ Wpk(Ω)
+‖u‖W∞ m(Ω) ≤ C ‖u‖Wpk(Ω) .
+Moreover, there is a Cm function in the Lp(Ω) equivalence class of u.
+(1.4.8) Remark. If ∂Ω is not Lipschitz continuous, then neither Theorem 1.4.5 nor Theorem 1.4.6 need hold. For example, let
+Ω = {(x, y) ∈ IR2 : 0 < x < 1, |y| < xr}
+where r > 1, and let u(x, y) = x− /p, where 0 < < r. Then
+∑
+|α|=1
+∫
+Ω
+|D αu|p dxdy = c ,p
+∫1
+0
+x− −p+r dx < ∞,
+
+
+1.5 Review of Chapter 0 35
+provided p < 1 + r − . In this case, u ∈ Wp1(Ω) but u is not essentially bounded on Ω if > 0. Choosing so that it is possible to have p > 2, we find that a Lipschitz boundary is necessary for Sobolev’s inequality to hold. Since Sobolev’s inequality does hold on IRn, it is not possible to extend u to an element of W21(IR2). Thus, the extension theorem for Sobolev functions can not hold if ∂Ω is not Lipschitz continuous.
+1.5 Review of Chapter 0
+At this point we can tie up many of the loose ends from the previous chapter. We see that the space V introduced there can now be rigorously defined as
+V = {v ∈ W 1
+2 (Ω) : v(0) = 0}
+where Ω = [0, 1], and that this makes sense because Sobolev’s inequality guarantees that pointwise values are well defined for functions in W21(Ω).
+(In fact, we are allowed to view W21(Ω) as a subspace of Cb(Ω), the Banach space of bounded continuous functions.) The derivation of the variational formulation (0.1.3) for solution of (0.1.1) can now be made rigorous (cf. exercise 1.x.24). We have stated in Sect. 1.3 (see the related exercises) that functions in W11(Ω), and a fortiori
+those in W21(Ω), are absolutely continuous, implying that the Cantor function is not among them. However, we saw in Example 1.2.5 that piecewise linear functions have weak derivatives that are piecewise constant. Thus, we can assert that the spaces S constructed in Sect. 0.4 satisfy S ⊂ W 1∞(Ω), and therefore that S ⊂ V . Since Sobolev’s inequality implies that V ⊂ Cb(Ω), exercise 0.x.8 shows that w in the duality argument leading to Theorem 0.3.5 is well defined (also see exercise 1.x.23). In the error estimates for u − uS we make reference to the L2(Ω) norm, ‖·‖, of second derivatives of functions. We can now make those expressions rigorous by interpreting them in the context of functions in W22(Ω). In particular, we can re-state the approximation assumption (0.3.4) as
+(0.3.4bis) ∃ < ∞ such that vi∈nfS ‖w − v‖E ≤ ‖w′′‖ ∀w ∈ W 2
+2 (Ω),
+and the only condition needed for Theorem 0.4.5 to hold is f ∈ L2(Ω) (cf. exercise 1.x.23). Finally, in the proofs in Chapter 0 we argued that a(v, v) = 0 implied v ≡ 0. While it certainly implies that the weak derivative of v is zero as a function in L2(Ω), to conclude that v must be constant requires a notion of coercivity that will subsequently be developed in detail. For now, consider the following simple case. From exercise 1.x.16, we know that, for all v ∈ V , we can write
+
+
+36 Chapter 1. Sobolev Spaces
+v(x) =
+∫x
+0
+D1
+wv(s) ds
+and use Schwarz’ inequality (cf. the proof of Theorem 0.4.5) to estimate
+|v(x)|2 ≤ x ·
+∫x
+0
+D1
+wv(s)2 ds.
+Integrating with respect to x yields
+‖v‖2
+L2(Ω) ≤ 1
+2 a(v, v).
+In particular, this shows that if v ∈ V satisfies a(v, v) = 0 then v = 0 as an element of L2(Ω). Moreover, recalling the definition of the W21(Ω) norm, we see that
+(1.5.1) ‖v‖2
+W21(Ω) ≤ 3
+2 a(v, v) ∀v ∈ V.
+Thus, we can conclude that vanishing of a(v, v) for v ∈ V implies v is the zero element in V (or W21(Ω)). Inequality (1.5.1) is a coercivity inequality for the bilinear form a(·, ·) on the space V . Note that this inequality is only valid on the subspace V of W21(Ω), not all of W21(Ω), since it fails if we take v to be a non-zero constant function (regardless of what constant would be substituted for 3
+2 ).
+1.6 Trace Theorems
+In the previous section we saw that it was possible to interpret the “boundary condition” v(0) = 0 in the definition of the space V using Sobolev’s inequality. As a guide to the higher-dimensional cases of interest later, this is somewhat misleading, in that Sobolev’s inequality, as presented in Sect. 1.4, will not suffice to interpret boundary conditions for higherdimensional problems. For example, we have already seen in Example 1.4.3 that, when n ≥ 2, the analogue of the space V , namely W21(Ω), contains unbounded functions. Thus, we cannot interpret the boundary conditions in a pointwise sense, and Sobolev’s inequality will have to be augmented in a substantial way to apply when n ≥ 2. On the other hand, the function in Example 1.4.3 can be interpreted as an Lp function on any line in IR2 since
+the function log ∣∣ log | · | ∣∣ is p-th power integrable in one dimension. The correct interpretation of the situation is as follows. The boundary ∂Ω of an n-dimensional domain Ω can be interpreted as an n − 1dimensional object, a manifold. When n = 1 it consists of distinct pointsthe zero-dimensional case of a manifold. Sobolev’s inequality gives conditions under which point values are well defined for functions in a Sobolev space, and thus for boundary values in the one-dimensional case. For higher
+
+
+1.6 Trace Theorems 37
+dimensional problems, we must seek an interpretation of restrictions of Sobolev-class functions to manifolds of dimension n − 1, and in particular it should make good sense (say, in a Lebesgue class) for functions in W21(Ω). We begin with a simple example to explain the ideas. Let Ω denote the unit disk in IR2:
+Ω = {(x, y) : x2 + y2 < 1} = {(r, θ) : 0 ≤ r < 1, 0 ≤ θ < 2π} .
+Let u ∈ C1(Ω), and consider its restriction to ∂Ω as follows:
+u(1, θ)2 =
+∫1
+0
+∂ ∂r
+(r2u(r, θ)2) dr
+=
+∫1
+0
+2 (r2uur + ru2) (r, θ) dr
+=
+∫1
+0
+2
+(
+r2u∇u · (x, y)
+r + ru2
+)
+(r, θ) dr
+≤
+∫1
+0
+2 (r2|u||∇u| + ru2) (r, θ) dr
+≤
+∫1
+0
+2 (|u||∇u| + u2) (r, θ) rdr. (r ≤ 1)
+Integrating with respect to θ and using polar coordinates (cf. exercise 1.x.4), we find ∫
+∂Ω
+u2 dθ ≤ 2
+∫
+Ω
+(|u||∇u| + u2) dxdy,
+where we define the boundary integral (and corresponding norm) in the obvious way:
+(1.6.1)
+∫
+∂Ω
+u2 dθ :=
+∫ 2π
+0
+u(1, θ)2 dθ =: ‖u‖2
+L2 (∂ Ω ) .
+Using Schwarz’ inequality, we have
+‖u‖2
+L2(∂Ω) ≤ 2 ‖u‖L2(Ω)
+(∫
+Ω
+|∇u|2 dxdy
+)1/2
++2
+∫
+Ω
+u2 dxdy.
+The arithmetic-geometric mean inequality (cf. exercise 1.x.32), implies that
+(∫
+Ω
+|∇u|2 dxdy
+)1/2
++
+(∫
+Ω
+u2 dxdy
+)1/2
+≤
+( 2
+∫
+Ω
+(|∇u|2 + u2) dxdy
+)1/2
+.
+Therefore,
+(1.6.2) ‖u‖L2(∂Ω) ≤ 4 √8 ‖u‖1/2
+L2(Ω) ‖u‖1/2
+W21(Ω) .
+This is an inequality analogous to Sobolev’s inequality, Theorem 1.4.6, except that the L∞(Ω) norm on the left-hand side of the inequality has been
+
+
+38 Chapter 1. Sobolev Spaces
+replaced by ‖u‖L2(∂Ω). Although we have only proved the inequality for
+smooth u, we will see that it makes sense for all u ∈ W21(Ω), and correspondingly that for such u the restriction u|∂Ω makes sense as a function in L2(∂Ω). But first, we should say what we mean by the latter space. Using Definition 1.6.1, we can identify it simply with L2([0, 2π]) using the coordinate mapping θ → (cos θ, sin θ). (More general boundaries will be discussed shortly.) We can now use inequality (1.6.2) to prove the following result.
+(1.6.3) Proposition. Let Ω denote the unit disk in IR2. For all u ∈ W21(Ω),
+the restriction u|∂Ω may be interpreted as a function in L2(∂Ω) satisfying (1.6.2).
+Proof. We will use (1.6.2) three times in the proof, which so far has only been derived for smooth functions. However, in view of Remark 1.3.5, such functions are dense in W21(Ω), so we may pick a sequence uj ∈ C1(Ω) such that ‖u − uj‖W21(Ω) ≤ 1/j for all j. By (1.6.2) and the triangle inequality,
+‖uk − uj ‖L2(∂Ω) ≤ 4 √8 ‖uk − uj ‖1/2
+L2(Ω) ‖uk − uj ‖1/2
+W21 (Ω )
+≤
+4 √8 ‖uk − uj ‖W21(Ω) ≤ 4 √8
+(1
+j+1
+k
+)
+for all j and k, so that {uj} is a Cauchy sequence in L2(∂Ω). Since this space is complete, there must be a limit v ∈ L2(∂Ω) such that ‖v − uj‖L2(∂Ω) → 0
+as j → ∞. We define
+u|∂Ω := v.
+The first thing we need to check is that this definition does not depend on the particular sequence that we chose. So suppose that vj is another sequence of C1(Ω) functions that satisfy ‖u − vj‖W21(Ω) → 0 as j → ∞.
+Using the triangle inequality a few times and (1.6.2) again, we see that
+‖v − vj ‖L2(∂Ω)
+≤ ‖v − uj ‖L2(∂Ω) + ‖uj − vj ‖L2(∂Ω)
+≤ ‖v − uj ‖L2(∂Ω) + 4 √8 ‖uj − vj ‖W21(Ω)
+≤ ‖v − uj ‖L2(∂Ω) + 4 √8
+(
+‖uj − u‖W21(Ω) + ‖u − vj ‖W21(Ω)
+)
+→0
+as j → ∞. Thus, u|∂Ω is well defined in L2(∂Ω). All that remains is to check that (1.6.2) holds for u. Again, we use the validity of it for smooth functions:
+‖u‖L2(∂Ω) = ‖v‖L2(∂Ω) = jli→m∞ ‖uj ‖L2(∂Ω)
+≤ jli→m∞
+4 √8 ‖uj ‖1/2
+L2(Ω) ‖uj ‖1/2
+W21(Ω) = 4 √8 ‖u‖1/2
+L2(Ω) ‖u‖1/2
+W21(Ω) .
+
+
+1.6 Trace Theorems 39
+This completes the proof of the proposition. Note that (1.6.2) was used repeatedly to extend its validity on a dense subspace to all of W21(Ω); this is a prototypical example of a density argument.
+(1.6.4) Remark. Note that this proposition does not assert that pointwise values of u on ∂Ω make sense, only that u|∂Ω is square integrable on ∂Ω. This leaves open the possibility (cf. exercise 1.x.28) that u could be infinite at a dense set of points on ∂Ω. For smooth functions, the trace defined here is the same as the ordinary pointwise restriction to the boundary.
+(1.6.5) Remark. The proposition, at first glance, says that functions in W21(Ω) have boundary values in L2(∂Ω), and this is true. However, this
+by itself would not be a sharp result (not every element of L2(∂Ω) is the trace of some element of W21(Ω)). But on closer inspection it says some
+thing which is sharp, namely, that the L2(∂Ω) norm of a function can be bounded by just part of the W21(Ω) norm (the square root of it), together
+with the L2(Ω) norm. This result might seem strange until we see that it is dimensionally correct. That is, suppose that functions are measured in some unit U , and that L denotes the length unit. Then the units of the W21(Ω) norm (ignoring lower order terms) equal U , and those of the L2(Ω) norm equal U · L. Neither of these matches the units of the square root
+of the left-hand side of (1.6.2), U √L, but the square root of their product does. Such a dimensionality argument can not prove an inequality such as (1.6.2), but it can be used to disprove one, or simplify its proof (cf. exercise 1.x.31).
+Now let us describe a generalization of Proposition 1.6.3 to more complex domains. One natural approach is to work in the class of Lipschitz domains. If ∂Ω is given as the graph of a function φ (cf. (1.4.4)), we can
+define the integral on ∂Ω as
+∫
+∂Ω
+f dS :=
+∫
+IRn−1
+f (x, φ(x))√1 + |∇φ(x)|2 dx.
+If φ is Lipschitz, then the weight √1 + |∇φ(x)|2 is an L∞ function (cf. exercise 1.x.14). In this way (cf. Grisvard 1985), we can define the integral on any Lipschitz boundary, and correspondingly associated Lebesgue spaces. Moreover, the following result holds.
+(1.6.6) Theorem. Suppose that Ω has a Lipschitz boundary, and that p is a real number in the range 1 ≤ p ≤ ∞. Then there is a constant, C, such
+that
+‖v‖Lp(∂Ω) ≤ C ‖v‖1−1/p
+Lp(Ω) ‖v‖1/p
+Wp1(Ω) ∀v ∈ W 1
+p (Ω).
+We will use the notation W ̊p1(Ω) to denote the subset of Wp1(Ω), consisting of functions whose trace on ∂Ω is zero, that is
+
+
+40 Chapter 1. Sobolev Spaces
+(1.6.7) W ̊ 1
+p (Ω) = {v ∈ W 1
+p (Ω) : v|∂Ω = 0 in L2(∂Ω)} .
+Similarly, we let W ̊pk(Ω) denote the subset of Wpk(Ω) consisting of functions
+whose derivatives of order k − 1 are in W ̊p1(Ω), i.e.
+(1.6.8) W ̊ k
+p (Ω) =
+{
+v ∈ Wk
+p (Ω) : v(α)|∂Ω = 0 in L2(∂Ω) ∀|α| < k
+} .
+1.7 Negative Norms and Duality
+In this section we introduce ideas that lead to the definition of Sobolev spaces Wpk for negative integers k. This definition is based on the concept
+of duality in Banach spaces. The dual space, B′, to a Banach space, B, is a set of linear functionals on B. (A linear functional on a linear space B is simply a linear function from B into the reals, IR, i.e., a function L : B → IR such that
+L(u + av) = L(u) + aL(v) ∀u, v ∈ B, a ∈ IR.)
+More precisely, we distinguish between the linear space, B∗, of all linear functionals on B (cf. exercise 1.x.33), and the subspace B′ ⊂ B∗ of continuous linear functionals on B. The following observation simplifies the characterization of such functionals.
+(1.7.1) Proposition. A linear functional, L, on a Banach space, B, is continuous if and only if it is bounded, i.e., if there is a finite constant C such that |L(v)| ≤ C‖v‖B ∀v ∈ B.
+Proof. A bounded linear function is actually Lipschitz continuous, i.e.,
+|L(u) − L(v)| = |L(u − v)| ≤ C‖u − v‖B ∀u, v ∈ B.
+Conversely, suppose L is continuous. If it is not bounded, then there must be a sequence {vn} in B such that |L(vn)|/‖vn‖B ≥ n. Renormalizing by setting wn = vn/n‖vn‖B gives |L(wn)| ≥ 1 but ‖wn‖B ≤ 1/n, and thus wn → 0. But, by continuity of L, we should have L(wn) → 0, the desired contradiction.
+For a continuous linear functional, L, on a Banach space, B, the proposition states that the following quantity is always finite:
+(1.7.2) ‖L‖B′ := sup
+0=v∈B
+L(v) ‖v‖B
+.
+Exercise 1.x.34 shows that this forms a norm on B′, called the dual norm, and one can show (cf. Tre`ves 1967) that B′ is complete with respect to it, i.e., that B′ is also a Banach space.
+
+
+1.7 Negative Norms and Duality 41
+(1.7.3) Example. The dual space of a Banach space need not be a mysterious object. One of the key results of Lebesgue integration theory is that the dual spaces of Lp can be easily identified, for 1 ≤ p < ∞. From Ho ̈lder’s inequality, any function f ∈ Lq(Ω) (where 1
+q+1
+p = 1 defines the dual index, q, to p) can be viewed as a continuous linear functional via
+Lp(Ω) v →
+∫
+Ω
+v(x)f (x) dx.
+One version of the Riesz Representation Theorem states that all contin
+uous linear functionals on Lp(Ω) arise in this way, i.e., that (Lp(Ω))′ is isomorphic to Lq(Ω).
+(1.7.4) Example. The dual space of a Banach space can also contain totally new objects. For example, Sobolev’s inequality shows that the Dirac δfunction is a continuous linear functional on Wpk, provided k and p satisfy the appropriate relation given in (1.4.6). Specifically, the Dirac δ-function is the linear functional
+Wk
+p (Ω) v → v(y) =: δy(v),
+where y denotes a given point in the domain Ω. It can be seen that this can not arise via an integration process using any locally integrable function (cf. exercise 1.x.36), i.e., it can not be viewed as a member of any of the spaces introduced so far.
+(1.7.5) Definition. Let p be in the range 1 ≤ p ≤ ∞, and let k be a negative integer. Let q be the dual index to p, i.e., 1
+q+1
+p = 1. Then the Sobolev space
+Wpk(Ω) is defined to be the dual space (Wq−k(Ω))′ with norm given by the dual norm (cf. (1.7.2)).
+(1.7.6) Remark. Note that we have defined the negative-index Sobolev spaces so that, if the same definition were used as well for k = 0, then the two definitions (cf. (1.3.1)) would agree for 1 < p < ∞, in view of Remark 1.7.3. Note also that different dual spaces are used to define negativeindex Sobolev spaces, in particular, it is frequently useful to use the dual of a subspace of Wq−k(Ω), and in view of exercise 1.x.35, this leads to a slightly larger space. In either case, the negative Sobolev spaces are big enough to include interesting new objects, such as the Dirac δ-function. Example 1.7.4 shows that δ ∈ Wpk(Ω) provided k < −n + n/p (or k ≤ −n if p = ∞).
+
+
+42 Chapter 1. Sobolev Spaces
+1.x Exercises
+1.x.1 Suppose that Ω is bounded and that 1 ≤ p ≤ q ≤ ∞. Prove that Lq(Ω) ⊂ Lp(Ω). (Hint: use Ho ̈lder’s inequality.) Give examples to show that the inclusion is strict if p < q and false if Ω is not bounded.
+1.x.2 Show that the set of bounded, continuous functions on a domain Ω forms a Banach space with norm ‖·‖L∞(Ω).
+1.x.3 Suppose that Ω is bounded and that fj → f in Lp(Ω). Using Ho ̈lder’s inequality prove that ∫
+Ω
+fj(x) dx →
+∫
+Ω
+f (x) dx as j → ∞.
+1.x.4 Just in case you have not seen polar coordinates in n dimensions. Define, inductively, mappings xk from subsets Ωk ⊂ IRk into (the unit sphere in) IRk+1 via (x1k, . . . , xk
+k+1)(ω, φ) := ((sin φ)xk−1(ω), cos φ) on
+Ωk := {(ω, φ) : ω ∈ Ωk−1, 0 ≤ φ < π} ,
+with x1(ω) = (cos ω, sin ω) and Ω1 = {ω : 0 ≤ ω < 2π}. Define the polar coordinate mapping X(ω, r) := rxn−1(ω) for r ≥ 0 and ω ∈ Ωn−1. Prove that
+∣∣∣∣det ∂X(ω, r)
+∂(ω, r)
+∣∣∣∣ = rn−1
+n∏−1
+j=2
+(sin ωj )j−1
+for ω = (ω1, . . . , ωn−1) ∈ Ωn−1 and r ≥ 0. (Hint: do the calculation for n = 2 and then show that
+det
+⎛
+⎝
+∂xk+1
+∂(ω, φ) xk+1(ω, φ)
+⎞
+⎠ = (sin φ)k det
+⎛
+⎝
+∂xk ∂ω xk (ω )
+⎞
+⎠
+by induction on k.)
+1.x.5 Let n be a positive integer, and suppose that ρ is a non-negative, smooth function defined for 0 < r ≤ 1 satisfying
+l→i 0m+
+∫1
+ρ(r)rn−1 dr < ∞.
+Define f on Ω = {x ∈ IRn : |x| < 1} via f (x) = ρ(|x|). Show that f ∈ L1(Ω). (Hint: use the Monotone Convergence Theorem, polar coordinates, cf. exercise 1.x.4, and Fubini’s Theorem.)
+1.x.6 Let Ω = [0, 1] and 1 ≤ p < ∞. Show that the function f defined in (1.1.12) is in Lp(Ω), and moreover, that ‖f − fj‖Lp(Ω) → 0 as
+
+
+1.x Exercises 43
+j → ∞. (Hint: first show that log x ∈ Lp(Ω), and then use the fact that Lp(Ω) is a Banach space.)
+1.x.7 Pick your favorite dense sequence {rn}. Graph the function f defined in (1.1.10) for various values of j.
+1.x.8 Prove that ( ∂
+∂x
+)α |x| = xα/|x| for all x = 0 and |α| = 1.
+1.x.9 Prove Proposition 1.2.7. (Hint: use integration by parts and the fact that C0(Ω) ⊂ L 1
+loc(Ω).)
+1.x.10 Prove that weak derivatives of order greater than one of the function, f , in Example 1.2.5 do not exist.
+1.x.11 Show that the condition in Example 1.2.6 implies that
+rli→m0 rn−1|ρ(r)| = 0.
+(Hint: First show that rn−1|ρ(r)| ≤ ∫ 1
+r tn−1|ρ′(t)| dt + C ̃ ≤ C. If the limit is not zero, then there are points rj tending to zero such that
+∣∣∣∣∣rn−1
+j
+∫ rj +γrj
+rj
+ρ′(t) dt
+∣∣∣∣∣ = ∣∣rn−1
+j
+(ρ(rj + γrj) − ρ(rj))∣∣
+≥ ∣∣rn−1
+j
+(C(rj + γrj )1−n − cr1−n
+j
+)∣∣
+=δ > 0
+for appropriate γ > 0. Show this contradicts the condition. Or apply Hardy’s inequality (Stein 1970).)
+1.x.12 Verify the existence of weak derivatives claimed in Example1.2.6. (Hint: use exercises 1.x.11, 1.x.8, 1.x.5, the Divergence Theorem and a limit theorem for the Lebesgue integral.)
+1.x.13 Let f (x) = |x|r for a given real number r. Prove that f has firstorder weak derivatives on the unit ball provided that r > 1 − n.
+1.x.14 Prove that Lip(Ω) ⊂ W 1∞(Ω). (Hint: f ∈ Lip(Ω) is a fortiori Lipschitz continuous in each variable separately, so has partial derivatives a.e. Using Fubini’s Theorem, show by contradiction that these must be essentially bounded on Ω. Show that these derivatives are actually weak derivatives by using the fact that Lipschitz functions are absolutely continuous and that integration by parts is justified for absolutely continuous functions.) What is the constant in the equivalence relation between the Lipschitz norm and the Sobolev W 1∞(Ω) norm corresponding to this inclusion?
+1.x.15 Suppose that Ω is convex. Prove that W 1∞(Ω) ⊂ Lip(Ω). (Hint:
+given f ∈ W 1∞(Ω), φ ∈ D(Ω) and y, z ∈ Ω, write
+
+
+44 Chapter 1. Sobolev Spaces
+f (y) − f (z) = li→m0
+∫
+Ω
+f (x)Dφ (x) dx
+where D denotes the directional derivative in the direction ny,z = (y − z)/|y − z| and
+φ (x) = −n
+∫∞
+0
+φ
+( x − y − tny,z
+) φ
+( x − z − tny,z
+)
+dt.
+Note: the identity above must be proved, cf. the mollification argument in Remark 1.3.6 and exercise 1.x.18. Show that φ ∈ D(Ω) and that ‖φ ‖L1(IRn) = |y − z| by verifying and using the identity
+φ (x) = − −n|y − z|
+∫0
+−1
+φ
+( x − y − τ (y − z) )
+dτ.
+Apply the definition of weak derivative and Ho ̈lder’s inequality.)
+1.x.16 Let n = 1, Ω = [a, b] and f ∈ W11(Ω). Prove that
+∫b
+a
+D1
+wf (x) dx = f (b) − f (a)
+under the assumption that f is continuous at a and b. (Hint: use the “integration by parts” formula that defines the weak derivative and choose an appropriate sequence φj ∈ D(Ω) such that φj → 1 on Ω, cf. exercise 1.x.15.)
+1.x.17 Prove that absolutely continuous functions on an interval [a, b] are in W11([a, b]). (Hint: use the fact that integration by parts makes sense for absolutely continuous functions.)
+1.x.18 Verify the statements of Remark 1.3.6. (Hints: show that D αf = −|α|f ∗ (D αφ) for all α; prove that f → f in Lp(Ω); show also that D αf = (Dαwf ) ∗ φ = (Dαwf ) under appropriate conditions.)
+1.x.19 A domain Ω is said to be star-shaped with respect to a point x if ∀y ∈ Ω the line-segment connecting x and y lies within Ω. (Here, we mean the closed line-segment, so necessarily x ∈ Ω.) Prove that C∞(Ω) is dense in Wpk(Ω) for 1 ≤ p < ∞ under the assumption that Ω is star-shaped. (Hint: see (Dupont and Scott 1979); assume x = 0 and show that the “dilation” uρ(y) = u(ρy) defined for ρ < 1 and y ∈ Ω satisfies uρ → u in Wpk(Ω) as ρ → 1. Mollify uρ as in Remark 1.3.6 to get a smooth function uρ, → u as ρ → 1 and → 0.)
+1.x.20 Prove Sobolev’s inequality in the case of n = 1, i.e., let Ω = [a, b] and show that
+‖u‖L∞(Ω) ≤ C ‖u‖W11(Ω) .
+
+
+1.x Exercises 45
+(Hint: use the fundamental theorem of calculus and Theorem 1.3.4. See the proof of the trace inequality (1.6.2) for technical help.) How does the constant, C, depend on a and b?
+1.x.21 Let Ω = [a, b] (here n = 1). Prove that all functions in W11(Ω) are continuous (have a continuous representative). (Hint: use exercise 1.x.20 and Theorem 1.3.4.)
+1.x.22 Prove that functions in W11([a, b]) are absolutely continuous on [a, b]. (Hint: use exercises 1.x.16 and 1.x.21 and the “continuity” of the Lebesgue integral.)
+1.x.23 Using the hint in exercise 0.x.8, show that, given f ∈ L2(Ω), there is a solution u ∈ W22(Ω) satisfying (0.1.1). Verify that all boundary conditions make sense and are satisfied and explain in what sense the differential equation is to be interpreted.
+1.x.24 Let u be the solution to (0.1.1) given either by exercise (0.x.8) or exercise 1.x.23. Justify rigorously that (0.1.3) holds.
+1.x.25 Show that any Lipschitz domain satisfies the segment condition (1.3.5).
+1.x.26 Let Ω = {(x, y) ∈ IR2 : |x| < 1, |y| < 1, y = 0 for x ≥ 0}. Show that there are functions in Wp1(Ω) that cannot be limits of functions in C0(Ω).
+1.x.27 Does a “cusp” domain, Ω = {(x, y) : 0 < x < 1, 0 < y < xr}, with r > 1, satisfy the segment condition? Does its complement?
+1.x.28 Let Ω be the unit disk in the plane. Show that there exist u ∈ W21(Ω) that are infinite at a dense set of points on ∂Ω. (Hint: see (1.1.12) and (1.4.3).)
+1.x.29 Let Ω be a domain in the plane. Show that there exist u ∈ W21(Ω) that are infinite at a dense set of points in Ω. (Hint: see (1.1.12) and (1.4.3).)
+1.x.30 Suppose Ω is as in Proposition 1.6.3, and let p be a real number in the range 1 ≤ p ≤ ∞. Prove that there is a constant C such that
+‖v‖Lp(∂Ω) ≤ C ‖v‖1−1/p
+Lp(Ω) ‖v‖1/p
+Wp1(Ω) ∀v ∈ W 1
+p (Ω).
+Explain what this means in the case p = ∞.
+1.x.31 Let Ω denote the upper half-plane. Show that no inequality of the form
+‖v‖L2(∂Ω) ≤ C ‖v‖λ
+L2(Ω) ‖v‖μ
+W21 (Ω )
+holds, unless λ ≤ 1/2 and λ + μ = 1. (Hint: suppose it holds and consider the functions u(x) = U v(Lx) for U and L arbitrary to reach
+
+
+46 Chapter 1. Sobolev Spaces
+a contradiction.) Show that, to prove it for λ = μ = 1/2, it suffices to assume ‖v‖L2(Ω) = ‖v‖W21(Ω) = 1, i.e., deduce the general case
+from this special case. (Hint: use the same scalings.) Use the same idea to prove the inequality
+‖v‖L2(∂Ω) ≤ C ‖v‖1/2
+L2(Ω) |v|1/2
+W21(Ω) .
+1.x.32 Let a, b ∈ IR. Prove that ab ≤ 2 a2 + 1
+2 b2 for any > 0.
+(Hint: expand (a + b)2 ≥ 0.) Apply this to show that a + b ≤
+((1 + ) a2 + (1 + 1/ ) b2)1/2 .
+1.x.33 Show that the set of linear functionals on a linear space is itself a linear space, where the operation of addition is given by (L1 + L2)(v) := L1(v) + L2(v) and scalar multiplication is defined by (aL)(v) := aL(v).
+1.x.34 Show that the expression in (1.7.2) defines a norm on the dual space of a Banach space, i.e., verify the conditions of (1.1.6).
+1.x.35 Let B and C be two Banach spaces with B ⊂ C and with the inclusion being continuous. Show that C′ ⊂ B′, with the inclusion being continuous.
+1.x.36 Let Ω be an open set and y ∈ Ω. Show that there is no function f ∈L1
+loc(Ω) such that φ(y) = ∫
+Ω f (x)φ(x) dx ∀φ ∈ D(Ω).
+1.x.37 Let Ω = [0, 1]. Prove that {v ∈ C1([0, 1] : v(0) = 0} is dense in the set {v ∈ W21(Ω) : v(0) = 0}. (Hint: use the density result in Remark 1.3.5 and Sobolev’s inequality.)
+1.x.38 Let Ω = [0, 1]. Prove that {v ∈ C1([0, 1] : v′(1) = 0} is dense in W21(Ω). (Hint: use the density result in Remark 1.3.5 to get a se
+quence vn ∈ C1([0, 1] converging to v in W21(Ω) and modify each vn near 1 to make the derivative zero.)
+1.x.39 Let Ω be an open set. Suppose that f ∈ L 1
+loc(Ω) such that
+∫
+Ω f φ dx = 0 ∀φ ∈ D(Ω). Prove that f = 0 a.e. (Hint: By con
+tradiction. Show otherwise that ∃ > 0 such that A = {x ∈ Ω : ±f (x) > } has positive measure. Approximate A in measure by a
+finite union of balls AN and let A ̃N denote concentric balls of slightly smaller size, also approximating A in measure. Choose φN ∈ D(AN ) with the properties 0 ≤ φN ≤ 1 everywhere and φN ≥ 1
+2 on A ̃N and integrate f φN over Ω to reach a contradiction. Construct φN as
+follows. Write AN = ∪jBj and A ̃N = ∪jB ̃j and choose ψj ∈ D(Bj), such that 0 ≤ ψj ≤ 1 everywhere and ψj = 1 on B ̃j. Define
+φN (x) = ∑
+j
+ψj (x)
+/(
+1+∑
+j
+ψj (x)
+) .
+
+
+1.x Exercises 47
+This can be viewed as an approximate partition of unity argument.)
+1.x.40 Show that the weak derivative is unique. (Hint: use exercise 1.x.39.)
+1.x.41 Suppose, as in exercise 1.x.39, that B ̃j ⊂ Bj are concentric balls, and let ψj ∈ D(Bj) such that 0 ≤ ψj ≤ 1 everywhere and ψj = 1 on B ̃j. Let > 0. Define
+φ (x) = ∑
+j
+ψj (x)
+/(
+1− +∑
+j
+ψj (x)
+) .
+Show that 0 ≤ φ ≤ 1 everywhere and φ ≥ 1 − on ∪jB ̃j. Can you construct φ ∈ D(∪jBj) such that 0 ≤ φ ≤ 1 everywhere and φ = 1 on ∪jB ̃j? What can you say if the finite unions are replaced by infinite ones?
+1.x.42 Let vβ(r, θ) = r β sin βθ on Ωβ = {(r, θ) : r < 1, 0 < θ < π/β} where 1/2 ≤ β < ∞. Determine the optimal values of k, p such that vβ ∈ Wpk(Ωβ) as a function of β. The case β = 1/2 is called a slit domain and β = 2/3 a re-entrant corner. What does the case β = 1 correspond to?
+1.x.43 The type of finite cone C used for ice cream can be represented as the union of the sets tξ + Bαt for 0 < t < h, where ξ is the axis of the cone, α measures the angle, and h is the height. Here Bt is the ball of radius t. A Lipschitz domain Ω satisfies a cone property: there is a finite set of finite cones Ci such that for all x ∈ Ω, there is some i such that x + Ci ⊂ Ω. Prove that smooth functions are dense in Wpk(Ω) for such a domain. (Hint: Use a mollifier to average over the set x + tξ + Bαt in defining a smoothed value at x, that is
+vt(x) :=
+∫
+Bαt
+v(x + y + tξ)ρt(y) dy.
+Prove that vt tends to v in Wpk(Ω).)
+1.x.44 A Cantor function can be defined by a limiting sequence of continuous, piecewise linear functions. Let 0 < < 1 and start with f0(x) = x. Next, let f1(x) be equal to 1
+2 in the interval of width
+around x = 1
+2 , and equal to f0 at the ends of the interval [0, 1]. Given fi, define fi+1 inductively. In each interval where fi is not constant, divide this interval in the way we did for the original one: let fi+1 be constant in a sub-interval of length 2−i in the center, and connect the remaining parts linearly. The constant is chosen to be the middle value. Show that the sequence fi stays bounded in the space Lipα of functions which satisfy a uniform bound of the form
+|f (x) − f (y)| ≤ C|x − y|α
+for some 1 > α > 0. Show that the best α can tend to one as tends to zero.
+
+
+Chapter 2
+Variational Formulation of Elliptic
+Boundary Value Problems
+This chapter is devoted to the functional analysis tools required for developing the variational formulation of differential equations. It begins with an introduction to Hilbert spaces, including only material that is essential to later developments. The goal of the chapter is to provide a framework in which existence and uniqueness of solutions to variational problems may be established.
+2.1 Inner-Product Spaces
+(2.1.1) Definition. A bilinear form, b(·, ·), on a linear space V is a mapping b : V × V −→ IR such that each of the maps v → b(v, w) and w → b(v, w) is a linear form on V. It is symmetric if b(v, w) = b(w, v) for all v, w ∈ V . A (real) inner product, denoted by (·, ·), is a symmetric bilinear form on a linear space V that satisfies
+(a) (v, v) ≥ 0 ∀ v ∈ V and (b) (v, v) = 0 ⇐⇒ v = 0.
+(2.1.2) Definition. A linear space V together with an inner product defined on it is called an inner-product space and is denoted by (V, (·, ·)).
+(2.1.3) Examples. The following are examples of inner-product spaces.
+(i) V = IRn, (x, y) := ∑n
+i=1 xiyi
+(ii) V = L2(Ω), Ω ⊆ IRn, (u, v)L2(Ω) := ∫
+Ω u(x)v(x)dx
+(iii) V = W2k(Ω), Ω ⊆ IRn, (u, v)k := ∑
+|α|≤k(Dαu, Dαv)L2(Ω)
+Notation. The inner-product space (iii) is often denoted by Hk(Ω). Thus, Hk(Ω) = W2k(Ω) .
+
+
+50 Chapter 2. Variational Formulation
+(2.1.4) Theorem. (The Schwarz Inequality) If (V, (·, ·)) is an innerproduct space, then
+(2.1.5) |(u, v)| ≤ (u, u)1/2(v, v)1/2.
+The equality holds if and only if u and v are linearly dependent.
+Proof. For t ∈ IR
+(2.1.6) 0 ≤ (u − tv, u − tv) = (u, u) − 2t(u, v) + t2(v, v).
+If (v, v) = 0, then (u, u) − 2t(u, v) ≥ 0 ∀t ∈ IR, which forces (u, v) = 0, so the inequality holds trivially. Thus, suppose (v, v) = 0. Substituting t = (u, v)/(v, v) into this inequality, we obtain
+(2.1.7) 0 ≤ (u, u) − |(u, v)|2/(v, v)
+which is equivalent to (2.1.5). Note that we did not use part (b) of Definition 2.1.1 to prove (2.1.5). If u and v are linearly dependent, one can easily see that equality holds in (2.1.5). Conversely, we assume that equality holds. If v = 0, then u and v are linearly dependent. If v = 0, take λ = (u, v)/(v, v). It follows that (u − λv, u − λv) = 0, and property (b) of Definition 2.1.1 implies that u − λv = 0, i.e. u and v are linearly dependent.
+(2.1.8) Remark. The Schwarz inequality (2.1.5) was proved without using property (b) of the inner product. An example where this might be useful
+is a(u, v) = ∫
+Ω ∇u · ∇v dx on H1(Ω). Thus, we have proved that
+a(u, v)2 ≤ a(u, u) a(v, v) for all u, v ∈ H1(Ω),
+even though a(·, ·) is not an inner product on H1(Ω).
+(2.1.9) Proposition. ‖v‖ := √(v, v) defines a norm in the inner-product space (V, (·, ·)).
+Proof. One can easily show that ‖αv‖ = |α| ‖v‖, ‖v‖ ≥ 0, and ‖v‖ = 0 ⇐⇒ v = 0. It remains to prove the triangle inequality:
+‖u + v‖2 = (u + v, u + v)
+= (u, u) + 2(u, v) + (v, v)
+= ‖u‖2 + 2(u, v) + ‖v‖2
+≤ ‖u‖2 + 2‖u‖ ‖v‖ + ‖v‖2 (by Schwarz’ inequality 2.1.5)
+= (‖u‖ + ‖v‖)2.
+Therefore, ‖u + v‖ ≤ ‖u‖ + ‖v‖.
+
+
+2.2 Hilbert Spaces 51
+2.2 Hilbert Spaces
+Proposition 2.1.9 says that, given an inner-product space (V, (·, ·)), there is
+an associated norm defined on V, namely ‖v‖ = √(v, v). Thus, an innerproduct space can be made into a normed linear space.
+(2.2.1) Definition. Let (V, (·, ·)) be an inner-product space. If the associated normed linear space (V, ‖·‖) is complete, then (V, (·, ·)) is called a Hilbert space.
+(2.2.2) Examples. The examples (i) - (iii) of (2.1.3) are all Hilbert spaces. In particular, the norm associated with the inner product (·, ·)k on W2k(Ω)
+is the same as the norm ‖·‖W2k(Ω) defined in Chapter 1 where W2k(Ω) was
+shown to be complete.
+(2.2.3) Definition. Let H be a Hilbert space and S ⊂ H be a linear subset that is closed in H. (Recall that S linear means that u, v ∈ S, α ∈ IR =⇒ u + αv ∈ S.) Then S is called a subspace of H.
+(2.2.4) Proposition. If S is a subspace of H, then (S, (·, ·)) is also a Hilbert space.
+Proof. (S, ‖·‖) is complete because S is closed in H under the norm ‖·‖.
+(2.2.5) Examples of subspaces of Hilbert spaces.
+(i) H and {0} are the obvious extreme cases. More interesting ones follow. (ii) Let T : H −→ K be a continuous linear map of H into another linear space. Then ker T is a subspace (see exercise 2.x.1). (iii) Let x ∈ H and define x ⊥ := {v ∈ H : (v, x) = 0}. Then x ⊥ is a subspace of H. To see this, note that x⊥ = ker Lx, where Lx is the linear functional
+(2.2.6) Lx : v → (v, x).
+By the Schwarz inequality (2.1.5),
+|Lx(v)| ≤ ‖x‖ ‖v‖
+implying that Lx is bounded and therefore continuous. This proves that x ⊥ is a subspace of H in view of the previous example. Note. The overall objective of the next section is to prove that all L ∈ H ′ are of the form Lx for x ∈ H, when H is a Hilbert space. (iv) Let M ⊂ H be a subset and define
+M ⊥ := {v ∈ H : (x, v) = 0 ∀x ∈ M }.
+
+
+52 Chapter 2. Variational Formulation
+Note that
+M⊥ = ⋂
+x∈M
+x⊥
+and each x ⊥ is a (closed) subspace of H. Thus, M ⊥ is a subspace of H.
+(2.2.7) Proposition. Let H be a Hilbert space.
+(1) For any subsets M, N ⊂ H, M ⊂ N =⇒ N ⊥ ⊂ M ⊥. (2) For any subset M of H containing zero, M ∩ M ⊥ = {0}. (3) {0}⊥ = H. (4) H⊥ = {0}.
+Proof. For (2): Let x ∈ M ∩ M ⊥. Then x ∈ M =⇒ M ⊥ ⊂ x⊥ and so
+x ∈ M ⊥ =⇒ x ∈ x⊥ ⇐⇒ (x, x) = 0 ⇐⇒ x = 0.
+For (4): Since H⊥ ⊂ H, (2) implies that
+H⊥ = H ∩ H⊥ = {0}.
+Parts (1) and (3) are left to the reader in exercise 2.x.3.
+(2.2.8) Theorem. (Parallelogram Law) Let ‖·‖ be the norm associated with the inner product (·, ·) on H. We have
+(2.2.9) ‖v + w‖2 + ‖v − w‖2 = 2
+(
+‖v‖2 + ‖w‖2 )
+.
+Proof. A straight-forward calculation; see exercise 2.x.4.
+2.3 Projections onto Subspaces
+The following result establishes an essential geometric fact about Hilbert spaces.
+(2.3.1) Proposition. Let M be a subspace of the Hilbert space H . Let v ∈ H \ M and define δ := inf{ ‖v − w‖ : w ∈ M }. (Note that δ > 0 since M is closed in H.) Then there exists w0 ∈ M such that (i) ‖v − w0‖ = δ, i.e., there exists a closest point w0 ∈ M to v, and (ii) v − w0 ∈ M ⊥.
+Proof. (i) Let {wn} be a minimizing sequence:
+
+
+2.3 Projections onto Subspaces 53
+nli→m∞ ‖v − wn‖ = δ.
+We now show that {wn} is a Cauchy sequence. By the parallelogram law, ‖(wn − v) + (wm − v)‖2 + ‖(wn − v) − (wm − v)‖2 = 2(‖wn − v‖2 + ‖wm − v‖2), i.e.,
+0 ≤ ‖wn − wm‖2 = 2(‖wn − v‖2 + ‖wm − v‖2) − 4∥∥ 1
+2 (wn + wm) − v∥∥2.
+Since 1
+2 (wn + wm) ∈ M , we have
+∥∥ 1
+2 (wn + wm) − v∥∥ ≥ δ
+by the definition of δ. Thus,
+0 ≤ ‖wn − wm‖2 ≤ 2(‖wn − v‖2 + ‖wm − v‖2) − 4δ2.
+Letting m, n tend towards infinity, we have
+2(‖wn − v‖2 + ‖wm − v‖2) − 4δ2 → 2δ2 + 2δ2 − 4δ2 = 0.
+Therefore, ‖wn − wm‖2 → 0, proving that {wn} is Cauchy. Thus, there exists w0 ∈ M = M such that wn → w0. Continuity of the norm implies that ‖v − w0‖ = δ. (ii) Let z = v − w0, so that ‖z‖ = δ. We will prove that z ⊥ M . Let w ∈ M and t ∈ IR. Then w0 + tw ∈ M implies that ‖z − tw‖2 = ‖v − (w0 + tw)‖2 has an absolute minimum at t = 0. Therefore,
+0= d
+dt ‖z − tw‖2∣∣t = 0 = −2(z, w).
+This implies that, for all w ∈ M ,
+(v − w0, w) = (z, w) = 0.
+Since w ∈ M was arbitrary, this implies v − w0 ∈ M ⊥.
+Proposition 2.3.1 says that, given a subspace M of H and v ∈ H, we can write v = w0 + w1, where w0 ∈ M and w1(= v − w0) ∈ M ⊥. Let us show that this decomposition of an element v ∈ H is unique. In fact, from
+w0 + w1 = v = z0 + z1, w0, z0 ∈ M, w1, z1 ∈ M ⊥,
+we obtain
+M w0 − z0 = −(w1 − z1) ∈ M ⊥.
+Since M ∩ M ⊥ = {0}, w0 = z0 and w1 = z1. This shows that the decomposition is unique. Therefore, we can define the following operators
+(2.3.2) PM : H −→ M, PM ⊥ : H −→ M ⊥
+where the respective definitions of PM and PM ⊥ are given by
+
+
+54 Chapter 2. Variational Formulation
+(2.3.3) PM v =
+{ v if v ∈ M , w0 if v ∈ H \ M ;
+(2.3.4) PM ⊥ v =
+{ 0 if v ∈ M ,
+v − w0 if v ∈ H \ M .
+The uniqueness of the decomposition implies that PM ⊥ = PM⊥ (see exercise 2.x.5) so we need no longer be careful about where we put the “ ⊥”. Summarizing the above observations, we state the following
+(2.3.5) Proposition. Given a subspace M of H and v ∈ H, there is a unique decomposition
+(2.3.6) v = PM v + PM⊥ v,
+where PM : H −→ M and PM⊥ : H −→ M ⊥. In other words,
+(2.3.7) H = M ⊕ M ⊥.
+(2.3.8) Remark. The operators PM and PM⊥ defined above are linear operators. To see this, note from the above proposition that
+αv1 + βv2 = PM (αv1 + βv2) + PM⊥ (αv1 + βv2),
+where
+v1 = PM v1 + PM⊥ v1 and v2 = PM v2 + PM⊥ v2.
+That is PM (αv1 + βv2) + PM⊥ (αv1 + βv2)
+= αv1 + βv2
+= (αPM v1 + βPM v2) + (αPM⊥ v1 + βPM⊥ v2).
+Uniqueness of decomposition of αv1 + βv2 and the definitions of PM and PM⊥ imply that
+PM (αv1 + βv2) = αPM v1 + βPM v2,
+and
+PM⊥ (αv1 + βv2) = αPM⊥ v1 + βPM⊥ v2,
+i.e., PM and PM⊥ are linear.
+(2.3.9) Definition. An operator P on a linear space V is a projection if P 2 = P , i.e., P z = z for all z in the image of P .
+(2.3.10) Remark. The fact that PM is a projection follows from its definition.
+That PM ⊥ is also follows from the observation that PM ⊥ = PM⊥ .
+
+
+2.4 Riesz Representation Theorem 55
+2.4 Riesz Representation Theorem
+Given u ∈ H, recall that a continuous linear functional Lu can be defined on H by
+(2.4.1) Lu(v) = (u, v).
+The following theorem proves that the converse is also true.
+(2.4.2) Theorem. (Riesz Representation Theorem) Any continuous linear functional L on a Hilbert space H can be represented uniquely as
+(2.4.3) L(v) = (u, v)
+for some u ∈ H. Furthermore, we have
+(2.4.4) ‖L‖H ′ = ‖u‖H .
+Proof. Uniqueness follows from the nondegeneracy of the inner product. For if u1 and u2 were two such solutions, we would have
+0 = L(u1 − u2) − L(u1 − u2)
+= (u1, u1 − u2) − (u2, u1 − u2)
+= (u1 − u2, u1 − u2)
+which implies u1 = u2. Now we prove existence. Define M := {v ∈ H : L(v) = 0}. In view of Example 2.2.5.ii, M is a subspace of H. Therefore, H = M ⊕ M ⊥ by Proposition 2.3.5.
+Case (1): M ⊥ = {0}. Thus, in this case M = H, implying that L ≡ 0. So take u = 0.
+Case (2): M ⊥ = {0}. Pick z ∈ M ⊥, z = 0. Then L(z) = 0. (Otherwise, z ∈ M , which implies
+that z ∈ M ⊥ ∩ M = {0}.) For v ∈ H and β = L(v)/L(z) we have
+L(v − βz) = L(v) − βL(z) = 0,
+i.e.
+v − βz ∈ M.
+Thus, v − βz = PM v and βz = PM⊥ v. In particular, if v ∈ M ⊥, then
+v = βz (that is, v − βz = 0), which proves that M ⊥ is one-dimensional. Now choose
+(2.4.5) u := L(z)
+‖z‖2
+H
+z.
+Note that u ∈ M ⊥. We have
+
+
+56 Chapter 2. Variational Formulation
+(u, v) = (u, (v − βz) + βz)
+= (u, v − βz) + (u, βz)
+= (u, βz) (u ∈ M ⊥, v − βz ∈ M )
+= β L(z)
+‖z‖2
+H
+(z, z) (definition of u)
+= βL(z)
+= L(v). (definition of β)
+Thus, u := (L(z)/‖z‖2) z is the desired element of H.
+It remains to prove that ‖L‖H ′ = ‖u‖H . Let us first observe that
+‖u‖H = |L(z)|
+‖z‖H
+from (2.4.5). Now, according to the definition (1.7.2) of the dual norm,
+‖L‖H ′ = sup
+0=v∈H
+|L(v)| ‖v‖H
+(by 1.7.2)
+= sup
+0=v∈H
+|(u, v)| ‖v‖H
+(by 2.4.3)
+≤ ‖u‖H (Schwarz’ inequality 2.1.5)
+= |L(z)|
+‖z‖H
+(by 2.4.5)
+≤ ‖L‖H ′ (by 1.7.2)
+Therefore, ‖u‖H = ‖L‖H ′ .
+(2.4.6) Remark. According to the Riesz Representation Theorem, there is a natural isometry between H and H ′ (u ∈ H ←→ Lu ∈ H′). For this
+reason, H and H ′ are often identified. For example, we can write W2m(Ω) ∼=
+W −m
+2 (Ω) (although they are completely different Hilbert spaces). We will
+use τ to represent the isometry from H ′ onto H.
+2.5 Formulation of Symmetric Variational Problems
+The purpose of the rest of this chapter is to apply the abstract Hilbert space theory developed in the previous sections to get existence and uniqueness results for variational formulations of boundary value problems.
+(2.5.1) Example. Recall from Examples 2.1.3.iii and 2.2.2 that H1(0, 1) = W21(0, 1) is a Hilbert space under the inner product
+
+
+2.5 Formulation of Symmetric Variational Problems 57
+(u, v)H1 =
+∫1
+0
+uv dx +
+∫1
+0
+u′v′ dx.
+In Chapter 0, we defined V = {v ∈ H1(0, 1) : v(0) = 0}. To see that V is a subspace of H1(0, 1), let δ0 : H1(0, 1) −→ IR by δ0(v) = v(0). From Sobolev’s inequality (1.4.6), δ0 is a bounded linear functional on H1, so it is
+continuous. Hence, V = δ−1
+0 {0} is closed in H1. We also defined a(v, w) =
+∫1
+0 v′w′ dx. Note that a(·, ·) is a symmetric bilinear form on H1(0, 1), but it
+is not an inner product on H1 since a(1, 1) = 0. However, it does satisfy the coercivity property (1.5.1) on V . In view of the following, this shows that the variational problem in Chapter 0 is naturally expressed in a Hilbert-space setting.
+(2.5.2) Definition. A bilinear form a(·, ·) on a normed linear space H is said to be bounded (or continuous) if ∃ C < ∞ such that
+|a(v, w)| ≤ C ‖v‖H ‖w‖H ∀v, w ∈ H
+and coercive on V ⊂ H if ∃ α > 0 such that
+a(v, v) ≥ α ‖v‖2
+H ∀v ∈ V.
+(2.5.3) Proposition. Let H be a Hilbert space, and suppose a(·, ·) is a symmetric bilinear form that is continuous on H and coercive on a subspace V
+of H. Then (V, a(·, ·)) is a Hilbert space.
+Proof. An immediate consequence of the coercivity of a(·, ·) is that if v ∈ V and a(v, v) = 0, then v ≡ 0. Hence, a(·, ·) is an inner product on V .
+Now let ‖v‖E = √a(v, v), and suppose that {vn} is a Cauchy sequence
+in (V, ‖·‖E
+). By coercivity, {vn} is also Cauchy in (H, ‖·‖H
+). Since H is complete, ∃ v ∈ H such that vn → v in the ‖·‖H norm. Since V is closed
+in H, v ∈ V . Now, ‖v − vn‖E ≤ √c1 ‖v − vn‖H since a(·, ·) is bounded.
+Hence, {vn} → v in the ‖·‖E norm, so (V, ‖·‖E
+) is complete.
+In general, a symmetric variational problem is posed as follows. Suppose that the following three conditions are valid:
+(2.5.4)
+⎧⎪⎪⎨
+⎪⎪⎩
+(1) (H, (·, ·)) is a Hilbert space. (2) V is a (closed) subspace of H. (3) a(·, ·) is a bounded, symmetric bilinear form that is coercive on V.
+Then the symmetric variational problem is the following.
+
+
+58 Chapter 2. Variational Formulation
+(2.5.5) Given F ∈ V ′, find u ∈ V such that a(u, v) = F (v) ∀v ∈ V .
+(2.5.6) Theorem. Suppose that conditions (1) − (3) of (2.5.4) hold. Then there exists a unique u ∈ V solving (2.5.5).
+Proof. Proposition 2.5.3 implies that a(·, ·) is an inner product on V and
+that (V, a(·, ·)) is a Hilbert space. Apply the Riesz Representation Theorem.
+The (Ritz-Galerkin) Approximation Problem is the following.
+Given a finite-dimensional subspace Vh ⊂ V and F ∈ V ′, find uh ∈ Vh such that
+(2.5.7) a(uh, v) = F (v) ∀v ∈ Vh.
+(2.5.8) Theorem. Under the conditions (2.5.4), there exists a unique uh that solves (2.5.7).
+Proof. (Vh, a(·, ·)) is a Hilbert space in its own right, and F |Vh ∈ Vh′. Apply the Riesz Representation Theorem.
+Error estimates for u − uh are a consequence of the following relationship.
+(2.5.9) Proposition. (Fundamental Galerkin Orthogonality) Let u and uh be solutions to (2.5.5) and (2.5.7) respectively. Then
+a(u − uh, v) = 0 ∀ v ∈ Vh.
+Proof. Subtract the two equations
+a(u, v) = F (v) ∀v ∈ V
+a(uh, v) = F (v) ∀v ∈ Vh.
+(2.5.10) Corollary. ‖u − uh‖E = minv∈Vh ‖u − v‖E.
+Proof. Same as (0.3.3).
+(2.5.11) Remark. (The Ritz Method) In the symmetric case, uh minimizes the quadratic functional
+Q(v) = a(v, v) − 2F (v)
+over all v ∈ Vh (see exercise 2.x.6).
+Note that (2.5.10) and (2.5.11) are valid only in the symmetric case.
+
+
+2.6 Formulation of Nonsymmetric Variational Problems 59
+2.6 Formulation of Nonsymmetric Variational
+Problems
+A nonsymmetric variational problem is posed as follows. Suppose that the following five conditions are valid:
+(2.6.1)
+⎧⎪⎪⎪⎨
+⎪⎪⎪⎩
+(1) (H, (·, ·)) is a Hilbert space. (2) V is a (closed) subspace of H. (3) a(·, ·) is a bilinear form on V, not necessarily symmetric. (4) a(·, ·) is continuous (bounded) on V. (5) a(·, ·) is coercive on V.
+Then the nonsymmetric variational problem is the following.
+(2.6.2) Given F ∈ V ′, find u ∈ V such that a(u, v) = F (v) ∀v ∈ V.
+The (Galerkin) approximation problem is the following.
+Given a finite-dimensional subspace Vh ⊂ V and F ∈ V ′, find uh ∈ Vh such that
+(2.6.3) a(uh, v) = F (v) ∀v ∈ Vh.
+The following questions arise.
+1. Do there exist unique solutions u, uh? 2. What are the error estimates for u − uh? 3. Are there any interesting examples?
+An Interesting Example. Consider the boundary value problem
+(2.6.4) −u′′ + u′ + u = f on [0, 1] u′(0) = u′(1) = 0.
+One variational formulation for this is: Take
+(2.6.5)
+V = H1(0, 1)
+a(u, v) =
+∫1
+0
+(u′ v′ + u′ v + uv) dx
+F (v) = (f, v)
+and solve the variational equation (2.6.2). Note that a(·, ·) is not symmetric because of the u′ v term. To prove a(·, ·) is continuous, observe that
+|a(u, v)| ≤ |(u, v)H1 | +
+∣∣∣∣
+∫1
+0
+u′vdx
+∣∣∣∣
+≤ ‖u‖H1 ‖v‖H1 + ‖u′‖L2 ‖v‖L2 (Schwarz’ inequality 2.1.5)
+≤ 2 ‖u‖H1 ‖v‖H1 .
+
+
+60 Chapter 2. Variational Formulation
+Therefore, a(·, ·) is continuous (take c1 = 2 in the definition). To prove a(·, ·) is coercive, observe that
+a(v, v) =
+∫1
+0
+(v′ 2 + v′ v + v2)dx
+=1
+2
+∫1
+0
+(v′ + v)2 dx + 1
+2
+∫1
+0
+(v′2 + v2) dx
+≥1
+2 ‖v‖2
+H1 .
+Therefore, a(·, ·) is coercive (take c2 = 1/2 in the definition).
+If the above differential equation is changed to
+(2.6.6) −u′′ + ku′ + u = f,
+then the corresponding a(·, ·) need not be coercive for large k.
+(2.6.7) Remark. If (H, (·, ·)) is a Hilbert space, V is a subspace of H, and
+a(·, ·) is an inner product on V , then (V, a(·, ·)) need not be complete if
+a(·, ·) is not coercive. For example, let H = H1(0, 1), V = H, a(v, w) =
+∫1
+0 v w dx = (v, w)L2(0,1). Then a(·, ·) is an inner product in V , but conver
+gence in the L2 norm does not imply convergence in the H1 norm since H1(0, 1) is dense in L2(0, 1).
+2.7 The Lax-Milgram Theorem
+We would like to prove the existence and uniqueness of the solution of the (nonsymmetric) variational problem: Find u ∈ V such that
+(2.7.1) a(u, v) = F (v) ∀v ∈ V,
+where V is a Hilbert space, F ∈ V ′ and a(·, ·) is a continuous, coercive bilinear form that is not necessarily symmetric. The Lax-Milgram Theorem guarantees both existence and uniqueness of the solution to (2.7.1). First we need to prove the following lemma.
+(2.7.2) Lemma. (Contraction Mapping Principle) Given a Banach space V and a mapping T : V −→ V , satisfying
+(2.7.3) ‖T v1 − T v2‖ ≤ M ‖v1 − v2‖
+for all v1, v2 ∈ V and fixed M , 0 ≤ M < 1, there exists a unique u ∈ V such that
+(2.7.4) u = T u,
+i.e. the contraction mapping T has a unique fixed point u.
+
+
+2.7 The Lax-Milgram Theorem 61
+(2.7.5) Remark. We actually only need that V is a complete metric space in the lemma.
+Proof. First, we show uniqueness. Suppose T v1 = v1 and T v2 = v2. Since T is a contraction mapping,
+‖T v1 − T v2‖ ≤ M ‖v1 − v2‖
+for some 0 ≤ M < 1. But ‖T v1 − T v2‖ = ‖v1 − v2‖. Therefore,
+‖v1 − v2‖ ≤ M ‖v1 − v2‖.
+This implies that ‖v1 − v2‖ = 0 (otherwise, we have 1 ≤ M ). Therefore, v1 = v2, i.e., the fixed point is unique. Next, we show existence. Pick v0 ∈ V and define
+v1 = T v0, v2 = T v1, . . . , vk+1 = T vk, . . . .
+Note that ‖vk+1 − vk‖ = ‖T vk − T vk−1‖ ≤ M ‖vk − vk−1‖. Thus, by induction,
+‖vk − vk−1‖ ≤ M k−1‖v1 − v0‖.
+Therefore, for any N > n,
+(2.7.6)
+‖vN − vn‖ =
+∥∥∥
+N ∑
+k=n+1
+vk − vk−1
+∥∥∥
+≤ ‖v1 − v0‖
+N ∑
+k=n+1
+M k−1
+≤ Mn
+1 − M ‖v1 − v0‖
+= Mn
+1 − M ‖T v0 − v0‖,
+which shows that {vn} is a Cauchy sequence. Since V is complete, {vn} is convergent. Thus, if limn→∞ vn =: v, we have
+v = nli→m∞ vn+1
+= nli→m∞ T vn
+= T ( nli→m∞ vn
+) (because T is continuous)
+= T v;
+in other words, there exists a fixed point.
+
+
+62 Chapter 2. Variational Formulation
+(2.7.7) Theorem. (Lax-Milgram) Given a Hilbert space (V, (·, ·)), a continuous, coercive bilinear form a(·, ·) and a continuous linear functional F ∈ V ′, there exists a unique u ∈ V such that
+(2.7.8) a(u, v) = F (v) ∀v ∈ V.
+Proof. For any u ∈ V , define a functional Au by Au(v) = a(u, v) ∀v ∈ V . Au is linear since
+Au(αv1 + βv2) = a(u, αv1 + βv2)
+= αa(u, v1) + βa(u, v2)
+= αAu(v1) + βAu(v2) ∀v1, v2 ∈ V, α, β ∈ IR.
+Au is also continuous since, for all v ∈ V ,
+|Au(v)| = |a(u, v)| ≤ C‖u‖ ‖v‖,
+where C is the constant from the definition of continuity for a(·, ·). Therefore,
+‖Au‖V ′ = sup
+v=0
+|Au(v)|
+‖v‖ ≤ C‖u‖ < ∞.
+Thus, Au ∈ V ′. Similarly, (see exercise 2.x.8), one can show that the mapping u → Au is a linear map V −→ V ′. Here we also showed that the linear mapping A : V −→ V ′ is continuous with ‖A‖L(V,V ′) ≤ C. Now, by the Riesz Representation Theorem, for any φ ∈ V ′ there exists unique τ φ ∈ V such that φ(v) = (τ φ, v) for any v ∈ V (by Remark 2.4.6). We must find a unique u such that
+Au(v) = F (v) ∀v ∈ V.
+In other words, we want to find a unique u such that
+Au = F (in V ′),
+or
+τ Au = τ F (in V ),
+since τ : V ′ −→ V is a one-to-one mapping. We solve this last equation by using Lemma 2.7.2. We want to find ρ = 0 such that the mapping T : V −→ V is a contraction mapping, where T is defined by
+(2.7.9) T v := v − ρ(τ Av − τ F ) ∀v ∈ V.
+If T is a contraction mapping, then by Lemma 2.7.2, there exists a unique u ∈ V such that
+(2.7.10) T u = u − ρ(τ Au − τ F ) = u,
+that is, ρ(τ Au − τ F ) = 0, or τ Au = τ F.
+
+
+2.7 The Lax-Milgram Theorem 63
+It remains to show that such a ρ = 0 exists. For any v1, v2 ∈ V , let v = v1 − v2. Then
+‖T v1 − T v2‖2 = ∥∥v1 − v2 − ρ(τ Av1 − τ Av2
+)∥∥2
+= ‖v − ρ(τ Av)‖2 (τ, A are linear)
+= ‖v‖2 − 2ρ(τ Av, v) + ρ2‖τ Av‖2
+= ‖v‖2 − 2ρAv(v) + ρ2 Av(τ Av) (definition of τ )
+= ‖v‖2 − 2ρ a(v, v) + ρ2 a(v, τ Av) (definition of A)
+≤ ‖v‖2 − 2ρα‖v‖2 + ρ2C‖v‖ ‖τ Av‖
+(coercivity and continuity of A)
+≤ (1 − 2ρα + ρ2C2)‖v‖2 (A bounded, τ isometric)
+= (1 − 2ρα + ρ2C2)‖v1 − v2‖2
+= M 2‖v1 − v2‖2.
+Here, α is the constant in the definition of coercivity of a(·, ·). Note that ‖τ Av‖ = ‖Av‖ ≤ C‖v‖ was used in the last inequality. We thus need
+1 − 2ρα + ρ2C2 < 1 for some ρ, i.e.,
+ρ(ρC2 − 2α) < 0.
+If we choose ρ ∈ (0, 2α/C2) then M < 1 and the proof is complete.
+(2.7.11) Remark. Note that ‖u‖V ≤ (1/α)‖F ‖V ′ where α is the coercivity constant (see exercise 2.x.9).
+(2.7.12) Corollary. Under conditions (2.6.1), the variational problem (2.6.2) has a unique solution.
+Proof. Conditions (1) and (2) of (2.6.1) imply that (V, (·, ·)) is a Hilbert space. Apply the Lax-Milgram Theorem.
+(2.7.13) Corollary. Under the conditions (2.6.1), the approximation problem (2.6.3) has a unique solution.
+Proof. Since Vh is a (closed) subspace of V , (2.6.1) holds with V replaced by Vh. Apply the previous corollary.
+(2.7.14) Remark. Note that Vh need not be finite-dimensional for (2.6.3) to be well-posed.
+
+
+64 Chapter 2. Variational Formulation
+2.8 Estimates for General Finite Element
+Approximation
+Let u be the solution to the variational problem (2.6.2) and uh be the solution to the approximation problem (2.6.3). We now want to estimate the error ‖u − uh‖V . We do so by the following theorem.
+(2.8.1) Theorem. (Ce ́a) Suppose the conditions (2.6.1) hold and that u solves (2.6.2). For the finite element variational problem (2.6.3) we have
+(2.8.2) ‖u − uh‖V ≤ C
+α min
+v∈Vh
+‖u − v‖V ,
+where C is the continuity constant and α is the coercivity constant of a(·, ·) on V .
+Proof. Since a(u, v) = F (v) for all v ∈ V and a(uh, v) = F (v) for all v ∈ Vh we have (by subtracting)
+(2.8.3) a(u − uh, v) = 0 ∀v ∈ Vh.
+For all v ∈ Vh,
+α ‖u − uh‖2
+V ≤ a(u − uh, u − uh) (by coercivity)
+= a(u − uh, u − v) + a(u − uh, v − uh)
+= a(u − uh, u − v) (since v − uh ∈ Vh)
+≤ C ‖u − uh‖V ‖u − v‖V . (by continuity)
+Hence,
+(2.8.4) ‖u − uh‖V ≤ C
+α ‖u − v‖V ∀v ∈ Vh.
+Therefore,
+‖u − uh‖V ≤ C
+α inf
+v∈Vh
+‖u − v‖V
+=C
+α min
+v∈Vh
+‖u − v‖V . (since Vh is closed)
+(2.8.5) Remarks.
+1. Ce ́a’s Theorem shows that uh is quasi-optimal in the sense that the error ‖u − uh‖V is proportional to the best it can be using the subspace Vh. 2. In the symmetric case, we proved
+‖u − uh‖E = min
+v∈Vh
+‖u − v‖E .
+
+
+2.9 Higher-dimensional Examples 65
+Hence,
+‖u − uh‖V ≤ √1α ‖u − uh‖E
+= √1α min
+v∈Vh
+‖u − v‖E
+≤
+√C
+α min
+v∈Vh
+‖u − v‖V
+≤C
+α min
+v∈Vh
+‖u − v‖V ,
+the result of Ce ́a’s Theorem. This is really the remark about the relationship between the two formulations, namely, that one can be derived from the other.
+2.9 Higher-dimensional Examples
+We now show how the theory developed in the previous sections can be applied in some multi-dimensional problems. Consider a variational form defined by
+a(u, v) =
+∫
+Ω
+A(x)∇u(x) · ∇v(x) + (B(x) · ∇u(x))v(x) + C(x)u(x)v(x) dx
+where A, B and C are bounded, measurable functions on Ω ⊂ IRn. Of course, B is vector valued. Formally, this variational form corresponds to the differential operator
+−∇ · (A(x)∇u(x)) + B(x) · ∇u(x) + C(x)u(x),
+but the variational formulation is well defined even when the differential operator makes no sense in a traditional way. Ho ̈lder’s inequality implies that a(·, ·) is continuous on H1(Ω), with the constant c1 in Definition 2.5.2 depending only on the L∞(Ω) norms of the coefficients. However, it is more complicated to verify coercivity. To begin with, we consider the symmetric case, B ≡ 0. Next, suppose there is a constant, γ > 0, such that
+(2.9.1) A(x) ≥ γ & C(x) ≥ γ for a.a. x ∈ Ω.
+Then a(·, ·) is coercive on all of H1(Ω), with the constant c2 in Definition 2.5.2 equal to γ. Thus, we have the following.
+
+
+66 Chapter 2. Variational Formulation
+(2.9.2) Theorem. If B ≡ 0 and (2.9.1) holds, then there is a unique solution, u, to (2.5.5) with a(·, ·) as above and V = H1(Ω). Moreover, for any Vh ⊂ H1(Ω), there is a unique solution, uh, to (2.5.7) and the estimate (2.5.10) holds for u − uh.
+Note that we have not even assumed continuity of the coefficients A and C; in fact, discontinuous coefficients occur in many important physical models. The condition (2.9.1) of positivity for C is necessary to some degree, since if C ≡ 0 then a(v, v) = 0 for any constant function, v. Now consider the general case, when B is nonzero. We have, by Ho ̈lder’s inequality and the arithmetic-geometric mean inequality (0.9.5),
+∣∣∣∣
+∫
+Ω
+(B(x) · ∇u(x))u(x) dx
+∣∣∣∣ ≤ ‖ |B| ‖L∞(Ω) |u|H1(Ω) ‖u‖L2(Ω)
+≤ ‖ |B| ‖L∞(Ω) ‖u‖2
+H1(Ω) /2.
+If (2.9.1) holds and in addition
+(2.9.3) ‖ |B| ‖L∞(Ω) < 2γ
+then a(·, ·) is coercive on H1(Ω) and the following holds.
+(2.9.4) Theorem. If (2.9.1) and (2.9.3) hold, then there is a unique solution, u, to (2.6.2) with a(·, ·) as above and V = H1(Ω). Moreover, for any Vh ⊂ H1(Ω), there is a unique solution, uh, to (2.6.3) and the estimate (2.8.2) holds for u − uh.
+The conditions given here for coercivity are somewhat restrictive, although they are appropriate in the case of Neumann boundary conditions. More complex variational problems will be considered in Chapter 5. In particular, it will be demonstrated that less stringent conditions are necessary in the presence of Dirichlet boundary conditions in order to guarantee coercivity.
+2.x Exercises
+2.x.1 Prove (2.2.5.ii).
+2.x.2 If M is a subspace, prove that (M ⊥)⊥ = M .
+2.x.3 Prove parts (1) and (3) of Proposition 2.2.7.
+2.x.4 Prove Theorem 2.2.8.
+2.x.5 Let PM ⊥ be the operator defined in (2.3.4). Prove that PM ⊥ = PM⊥ .
+
+
+2.x Exercises 67
+2.x.6 Prove the claim in Remark 2.5.11.
+2.x.7 Prove that a contraction mapping is always continuous (cf. Lemma 2.7.2).
+2.x.8 Prove that the mapping u → Au in the proof of the Lax-Milgram Theorem 2.7.7 is a linear map V −→ V ′.
+2.x.9 Prove that the solution u guaranteed by the Lax-Milgram Theorem satisfies
+‖u‖V ≤ 1
+α ‖F ‖V ′
+(cf. Remark 2.7.11).
+2.x.10 For the differential equation −u′′ + ku′ + u = f , find a value for k such that a(v, v) = 0 but v ≡ 0 for some v ∈ H1(0, 1) (cf. (2.6.6)).
+2.x.11 Let a(·, ·) be the inner product for a Hilbert space V . Prove that the following two statements are equivalent for F ∈ V ′ and an arbitrary (closed) subspace U of V :
+a) u ∈ U satisfies a(u, v) = F (v) ∀v ∈ U b) u minimizes 1
+2 a(v, v) − F (v) over v ∈ U ,
+i.e. show that existence in one implies existence in the other. (Hint: expand the expression a(u + v, u + v) = . . . .)
+2.x.12 Let a(u, v) = ∫ 1
+0 (u′ v′ +u′ v +uv) dx and V = {v ∈ W21(0, 1) : v(0) =
+v(1) = 0}. Prove that a(v, v) = ∫ 1
+0 [(v′)2 + v2] dx for all v ∈ V (Hint:
+write vv′ = 1
+2 (v2)′.)
+2.x.13 Let a(·, ·), V and U be as in exercise 2.x.11. For g ∈ V define Ug = {v + g : v ∈ U } (note U0 = U ). Prove that the following statements are equivalent for arbitrary g ∈ V : a) u ∈ Ug satisfies a(u, v) = 0 ∀ v ∈ U0 b) u minimizes a(v, v) over all v ∈ Ug .
+2.x.14 Show that D(Ω) is dense in L2(Ω). (Hint: use exercise 1.x.39 to show that D(Ω)⊥ = {0}.)
+2.x.15 Let H be a Hilbert space and let v ∈ H be arbitrary. Prove that
+‖v‖H = sup
+0=w∈H
+(v, w)H ‖w‖H
+.
+(Hint: apply Schwarz’ inequality (2.1.5) and also consider w = v.)
+
+
+Chapter 3
+The Construction of a Finite Element Space
+To approximate the solution of the variational problem,
+a(u, v) = F (v) ∀ v ∈ V,
+developed in Chapter 0, we need to construct finite-dimensional subspaces S ⊂ V in a systematic, practical way. Let us examine the space S defined in Sect. 0.4. To understand fully the functions in the space S, we need to answer the following questions:
+1. What does a function look like in a given subinterval? 2. How do we determine the function in a given subinterval? 3. How do the restrictions of a function on two neighboring intervals match at the common boundary?
+In this chapter, we will define piecewise function spaces that are similar to S, but which are defined on more general regions. We will develop concepts that will help us answer these questions.
+3.1 The Finite Element
+We follow Ciarlet’s definition of a finite element (Ciarlet 1978).
+(3.1.1) Definition. Let
+(i) K ⊆ IRn be a bounded closed set with nonempty interior and piecewise smooth boundary (the element domain), (ii) P be a finite-dimensional space of functions on K (the space of shape functions) and
+(iii) N = {N1, N2, . . . , Nk} be a basis for P′ (the set of nodal variables).
+Then (K, P, N ) is called a finite element.
+It is implicitly assumed that the nodal variables, Ni, lie in the dual space of some larger function space, e.g., a Sobolev space.
+
+
+70 Chapter 3. The Construction of a Finite Element Space
+(3.1.2) Definition. Let (K, P, N ) be a finite element. The basis {φ1, φ2, . . ., φk} of P dual to N (i.e., Ni(φj) = δij) is called the nodal basis of P.
+(3.1.3) Example. (the 1-dimensional Lagrange element) Let K = [0, 1], P = the set of linear polynomials and N = {N1, N2}, where N1(v) = v(0) and N2(v) = v(1) ∀v ∈ P. Then (K, P, N ) is a finite element and the noda basis consists of φ1(x) = 1 − x and φ2(x) = x. In general, we can let K = [a, b] and Pk = the set of all polynomials of degree less than or equal to k. Let Nk = {N0, N1, N2, . . . , Nk}, where Ni(v) = v(a + (b − a)i/k) ∀v ∈ Pk and i = 0, 1, . . . , k. Then (K, Pk, Nk) is a finite element. The verification of this uses Lemma 3.1.4.
+Usually, condition (iii) of Definition 3.1.1 is the only one that requires much work, and the following simplifies its verification.
+(3.1.4) Lemma. Let P be a d-dimensional vector space and let {N1, N2, . . . , Nd} be a subset of the dual space P′. Then the following two statements are equivalent.
+(a) {N1, N2, . . . , Nd} is a basis for P′. (b) Given v ∈ P with Niv = 0 for i = 1, 2, . . . , d, then v ≡ 0.
+Proof. Let {φ1, . . . , φd} be some basis for P. {N1, . . . , Nd} is a basis for P′ iff given any L in P′,
+(3.1.5) L = α1N1 + . . . + αdNd
+(because d = dim P = dim P′). The equation (3.1.5) is equivalent to
+yi := L(φi) = α1N1(φi) + . . . + αdNd(φi), i = 1, . . . , d.
+Let B = (Nj(φi)), i, j = 1, . . . , d. Thus, (a) is equivalent to Bα = y is always solvable, which is the same as B being invertible. Given any v ∈ P, we can write v = β1φ1 + . . . + βdφd. Niv = 0 means that β1Ni(φ1) + . . . + βdNi(φd) = 0. Therefore, (b) is equivalent to
+(3.1.6) β1Ni(φ1) + . . . + βdNi(φd) = 0 for i = 1, . . . , d
+=⇒ β1 = . . . = βd = 0.
+Let C= (Ni(φj)), i, j = 1, . . . , d. Then (b) is equivalent to Cx = 0 only has trivial solutions, which is the same as C being invertible. But C = BT . Therefore, (a) is equivalent to (b).
+(3.1.7) Remark. Condition (iii) of Definition 3.1.1 is the same as (a) in Lemma 3.1.4, which can be verified by checking (b) in Lemma 3.1.4. For instance, in Example 3.1.3, v ∈ P1 means v = a + bx; N1(v) = N2(v) = 0 means a = 0 and a + b = 0. Hence, a = b = 0, i.e., v ≡ 0. More generally, if
+
+
+3.2 Triangular Finite Elements 71
+v ∈ Pk and 0 = Ni(v) = v(a + (b − a)i/k) ∀i = 0, 1, . . . , k then v vanishes identically by the fundamental theorem of algebra. Thus, (K, Pk, Nk) is a finite element.
+We will use the following terminology in subsequent sections.
+(3.1.8) Definition. We say that N determines P if ψ ∈ P with N (ψ) = 0 ∀N ∈ N implies that ψ = 0.
+(3.1.9) Remark. We will often refer to the hyperplane {x : L(x) = 0}, where L is a non-degenerate linear function, simply as L.
+(3.1.10) Lemma. Let P be a polynomial of degree d ≥ 1 that vanishes on a hyperplane L. Then we can write P = LQ, where Q is a polynomial of degree (d − 1).
+Proof. Make an affine change of coordinates such that L(xˆ, xn) = xn and the hyperplane L(xˆ, xn) = 0 is the xˆ-axis. Therefore, P (xˆ, 0) ≡ 0. Since degree(P ) = d, we have
+P (xˆ, xn) =
+∑d
+j=0
+∑
+|ˆi|≤d−j
+cˆij xˆˆixj
+n
+where xˆ = (x1, . . . , xn−1) and ˆi = (i1, . . . , in−1). Letting xn = 0, we obtain
+0 ≡ P (xˆ, 0) = ∑
+|ˆi|≤d cˆi0xˆˆi, which implies that cˆi0 = 0 for |ˆi| ≤ d. Therefore,
+P (xˆ, xn) =
+∑d
+j=1
+∑
+|ˆi|≤d−j
+cˆij xˆˆixj
+n
+= xn
+∑d
+j=1
+∑
+|ˆi|≤d−j
+cˆij xˆˆixj−1
+n
+= xn Q
+= L Q,
+where degree Q = d − 1.
+3.2 Triangular Finite Elements
+Let K be any triangle. Let Pk denote the set of all polynomials in two variables of degree ≤ k. The following table gives the dimension of Pk.
+
+
+72 Chapter 3. The Construction of a Finite Element Space
+Table 3.1. Dimension of Pk in two dimensions
+k dim Pk
+13 26 3 10
+... ...
+k1
+2 (k + 1)(k + 2)
+The Lagrange Element
+(3.2.1) Example. (k = 1) Let P = P1. Let N1 = {N1, N2, N3} (dim P1 = 3) where Ni(v) = v(zi) and z1, z2, z3 are the vertices of K. This element is depicted in Fig. 3.1.
+zz
+z
+L
+L
+12
+3
+1
+3
+L2
+Fig. 3.1. linear Lagrange triangle Fig. 3.2. Crouzeix-Raviart nonconforming linear triangle
+Note that “•” indicates the nodal variable evaluation at the point where the dot is located. We verify 3.1.1(iii) using 3.1.4(b), i.e., we prove that N1 determines P1. Let L1, L2 and L3 be non-trivial linear functions that define the lines on which lie the edges of the triangle. Suppose that a polynomial P ∈ P vanishes at z1, z2 and z3. Since P |L1 is a linear function of one variable that vanishes at two points, P = 0 on L1. By Lemma 3.1.10 we can write P = c L1, where c is a constant. But
+0 = P (z1) = c L1(z1) =⇒ c = 0
+(because L1(z1) = 0). Thus, P ≡ 0 and hence N1 determines P1.
+(3.2.2) Remark. The above choice for N is not unique. For example, we could have defined
+Ni(v) = v(midpoint of the ith edge),
+
+
+3.2 Triangular Finite Elements 73
+as shown in Fig. 3.2. By connecting the midpoints, we construct a triangle on which P ∈ P1 vanishes at the vertices. An argument similar to the one in Example 3.2.1 shows that P ≡ 0 and hence, N1 determines P1.
+(3.2.3) Example. (k = 2) Let P = P2. Let N2 = {N1, N2, . . . , N6} (dim P2 = 6) where
+Ni(v) =
+⎧⎨
+⎩
+v(ith vertex), i=1,2,3; v(midpoint of the (i − 3) edge), (or any other point on the i − 3 edge) i=4,5,6.
+This element is depicted in Fig. 3.3.
+zz z
+z
+z
+LL
+L
+12
+3
+4
+6
+z5
+21
+3
+Fig. 3.3. quadratic Lagrange triangle
+zz zz
+z
+z
+z zL
+zz
+L
+1
+3
+12 34
+5
+6
+7
+8
+9 10
+L2
+Fig. 3.4. cubic Lagrange triangle
+We need to check that N2 determines P2. As before, let L1, L2 and L3 be non-trivial linear functions that define the edges of the triangle. Suppose that the polynomial P ∈ P2 vanishes at z1, z2, . . . , z6. Since P |L1 is a quadratic function of one variable that vanishes at three points, P = 0 on L1. By Lemma 3.1.10 we can write P = L1 Q1 where deg Q1 = (deg P )−1 = 2 − 1 = 1. But P also vanishes on L2. Therefore, L1 Q1|L2 = 0. Hence, on L2, either L1 = 0 or Q1 = 0. But L1 can equal zero only at one point of L2 since we have a non-degenerate triangle. Therefore, Q1 = 0 on L2, except possibly at one point. By continuity, we have Q1 ≡ 0 on L2. By Lemma 3.1.10, we can write Q1 = L2 Q2, where deg Q2 = (deg L2)− 1 = 1−1 = 0. Hence, Q2 is a constant (say c), and we can write P = c L1 L2. But P (z6) = 0 and z6 does not lie on either L1 or L2. Therefore,
+0 = P (z6) = c L1(z6) L2(z6) =⇒ c = 0,
+since L1(z6) = 0 and L2(z6) = 0. Thus, P ≡ 0.
+(3.2.4) Example. (k=3) Let P = P3. Let N3 = {Ni : i = 1, 2, . . . , 10 (= dim P3)} where
+Ni(v) = v(zi), i = 1, 2, . . . , 9 (zi distinct points on edges as in Fig. 3.4)
+and
+N10(v) = v(any interior point).
+We must show that N3 determines P3.
+
+
+74 Chapter 3. The Construction of a Finite Element Space
+Let L1, L2 and L3 be non-trivial linear functions that define the edges of the triangle. Suppose that P ∈ P3 vanishes at zi for i = 1, 2, . . . , 10. Applying Lemma 3.1.10 three times along with the fact that P (zi) = 0 for i = 1, 2, . . . , 9, we can write P = c L1 L2 L3. But
+0 = P (z10) = c L1(z10) L2(z10) L3(z10) =⇒ c = 0
+since Li(z10) = 0 for i = 1, 2, 3. Thus, P ≡ 0.
+In general for k ≥ 1, we let P = Pk. For Nk = {Ni : i = 1, 2, . . . ,
+1
+2 (k + 1)(k + 2)}, we choose evaluation points at
+3 vertex nodes,
+(3.2.5) 3(k − 1) distinct edge nodes and 1
+2 (k − 2)(k − 1) interior points.
+(The interior points are chosen, by induction, to determine Pk−3.) Note that these choices suffice since
+3 + 3(k − 1) + 1
+2 (k − 2)(k − 1) = 3k + 1
+2 (k2 − 3k + 2)
+=1
+2 (k2 + 3k + 2)
+=1
+2 (k + 1)(k + 2)
+= dim Pk.
+The evaluation points for k = 4 and k = 5 are depicted in Fig. 3.5.
+k=4 k=5
+Fig. 3.5. quartic and quintic Lagrange triangles
+To show that Nk determines Pk, we suppose that P ∈ Pk vanishes at all the nodes. Let L1, L2 and L3 be non-trivial linear functions that define the edges of the triangle. As before, we conclude from the vanishing of P at the edge and vertex nodes that P = Q L1 L2 L3 where degree(Q) ≤ k − 3; Q must vanish at all the interior points, since none of the Li can be zero there. These points were chosen precisely to determine that Q ≡ 0.
+
+
+3.2 Triangular Finite Elements 75
+The Hermite Element
+(3.2.6) Example. (k = 3 Cubic Hermite) Let P = P3. Let “•” denote evaluation at the point and “©” denote evaluation of the gradient at the center of the circle. Note that the latter corresponds to two distinct nodal variables, but the particular representation of the gradient is not unique. We claim that N = {N1, N2, . . . , N10}, as depicted in Fig. 3.6, determines P3 (dim P3 = 10).
+zz
+z
+z
+LL
+L
+12
+3
+4
+21
+3
+Fig. 3.6. cubic Hermite triangle
+Let L1, L2 and L3 again be non-trivial linear functions that define the edges of the triangle. Suppose that for a polynomial P ∈ P3, Ni(P ) = 0 for i = 1, 2, . . . , 10. Restricting P to L1, we see that z2 and z3 are double roots of P since P (z2) = 0, P ′(z2) = 0 and P (z3) = 0, P ′(z3) = 0, where ′ denotes differentiation along the straight line L1. But the only third order polynomial in one variable with four roots is the zero polynomial, hence P ≡ 0 along L1. Similarly, P ≡ 0 along L2 and L3. We can, therefore, write P = c L1 L2 L3. But
+0 = P (z4) = c L1(z4) L2(z4) L3(z4) =⇒ c = 0,
+because Li(z4) = 0 for i = 1, 2, 3.
+(3.2.7) Remark. Using directional derivatives, there are various distinct ways to define a finite element using P3, two of which are shown in Fig. 3.7. Note that arrows represent directional derivatives along the indicated directions at the points. The “global” element to the left has the advantage of ease of computation of directional derivatives in the x or y directions throughout the larger region divided up into triangles. The “local” element to the right holds the advantage in that the nodal parameters of each triangle are invariant with respect to the triangle.
+In the general Hermite case, we have
+
+
+76 Chapter 3. The Construction of a Finite Element Space
+Fig. 3.7. Two different sets of nodal values for cubic Hermite elements.
+(3.2.9)
+⎧⎪⎪⎪⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎪⎪⎪⎩
+3 vertex nodes
+6 directional derivatives (2 for each gradient,
+evaluated at each of the 3 vertices)
+3(k − 3) edge nodes
+1
+2 (k − 2)(k − 1) interior nodes (as in the Lagrange case).
+Note that these sum to 1
+2 (k + 1)(k + 2) = dim Pk as in the Lagrange case.
+(3.2.8) Example. (k = 4) We have (dim P4 = 15). Then N = {N1, N2, . . . , N15}, as depicted in Fig. 3.8, determines P4.
+z zz
+z
+z
+z
+12
+3
+L2 L1
+5
+9
+z
+L3
+4
+zz
+78
+6
+Fig. 3.8. quartic Hermite triangle
+zz
+z
+mm
+m
+L
+LL
+nn
+n
+12
+3
+21
+3
+21
+3
+1
+3
+2
+Fig. 3.9. quintic Argyris triangle
+The Argyris Element
+(3.2.10) Example. (k = 5) Let P = P5. Consider the 21(= dim P5) degrees of freedom shown in Fig. 3.9. As before, let • denote evaluation at the point and the inner circle denote evaluation of the gradient at the center. The outer circle denotes evaluation of the three second derivatives at the center. The arrows represent the evaluation of the normal derivatives at the three midpoints. We claim that N = {N1, N2, . . . , N21} determines P5. Suppose that for some P ∈ P5, Ni(P ) = 0 for i = 1, 2, . . . , 21. Let Li be as before in the Lagrange and Hermite cases. The restriction of P to L1 is a fifth order polynomial in one variable with triple roots at z2 and z3. Hence,
+
+
+3.3 The Interpolant 77
+P vanishes identically on L1. Similarly, P vanishes on L2 and L3. Therefore, P = Q L1 L2 L3, where deg Q = 2. Observe that (∂L1 ∂L2 P )(z3) = 0, where ∂L1 and ∂L2 are the directional derivatives along L1 and L2 respectively. Therefore,
+0 = (∂L1 ∂L2 P )(z3) = Q(z3) L3(z3) ∂L2 L1 ∂L1 L2,
+since ∂Li Li ≡ 0 & Li(z3) = 0, i = 1, 2. This implies Q(z3) = 0 because L3(z3) = 0, ∂L2 L1 = 0 and ∂L1 L2 = 0. Similarly, Q(z1) = 0 and Q(z2) = 0.
+Also, since L1(m1) = 0, ∂
+∂n1 P (m1) = (Q ∂L1
+∂n1 L2 L3
+)(m1). Therefore,
+0= ∂
+∂n1
+P (m1) =⇒ Q(m1) = 0
+because ∂L1
+∂n1 = 0, L2(m1) = 0 and L3(m1) = 0. Similarly, Q(m2) = 0 and
+Q(m3) = 0. So Q ≡ 0 by Example 3.2.3.
+We leave to the reader the verification of the following generalization of the Argyris element (exercise 3.x.12).
+(3.2.11) Example. Note that dim P7 = 36. The nodal variables depicted in Fig. 3.10 determine P7.
+Fig. 3.10. seventh-degree Argyris triangle
+3.3 The Interpolant
+Now that we have examined a number of finite elements, we wish to piece them together to create subspaces of Sobolev spaces. We begin by defining the (local) interpolant.
+(3.3.1) Definition. Given a finite element (K, P, N ) , let the set {φi : 1 ≤ i ≤ k} ⊆ P be the basis dual to N . If v is a function for which all Ni ∈ N , i = 1, . . . , k, are defined, then we define the local interpolant by
+(3.3.2) IK v :=
+k ∑
+i=1
+Ni(v) φi.
+
+
+78 Chapter 3. The Construction of a Finite Element Space
+(3.3.3) Example. Let K be the triangle depicted in Fig. 3.11, P = P1, N = {N1, N2, N3} as in Example 3.2.1, and f = exy. We want to find IK f .
+(0,1)
+(0,0) (1,0)
+Fig. 3.11. coordinates for linear interpolant
+By definition, IK f = N1(f ) φ1 + N2(f ) φ2 + N3(f ) φ3. We must therefore determine φ1, φ2 and φ3. The line L1 is given by y = 1 − x. We can write φ1 = c L1 = c(1 − x − y). But N1 φ1 = 1 implies that c = φ1(z1) = 1, hence φ1 = 1 − x − y. Similarly, φ2 = L2(x, y)/L2(z2) = x and φ3 = L3(x, y)/L3(z3) = y. Therefore,
+IK f = N1(f ) (1 − x − y) + N2(f ) x + N3(f ) y
+= 1 − x − y + x + y (since f = exy)
+= 1.
+Properties of the interpolant follow.
+(3.3.4) Proposition. IK is linear.
+Proof. See exercise 3.x.2.
+(3.3.5) Proposition. Ni
+(IK (f )) = Ni(f ) ∀1 ≤ i ≤ d.
+Proof. We have
+Ni
+(IK (f )) = Ni
+( k ∑
+j=1
+Nj(f ) φj
+) (definition of IK (f ))
+=
+k ∑
+j=1
+Nj(f ) Ni(φj) (linearity of Ni
+)
+= Ni(f ) ({φj} dual to {Nj}).
+(3.3.6) Remark. Proposition 3.3.5 has the interpretation that IK(f ) is the unique shape function that has the same nodal values as f .
+
+
+3.3 The Interpolant 79
+(3.3.7) Proposition. IK(f ) = f for f ∈ P. In particular, IK is idempotent, i.e., I2
+K = IK .
+Proof. From (3.3.5),
+Ni(f − IK (f )) = 0 ∀i
+which implies the first assertion. The second is a consequence of the first:
+I2
+K f = IK (IK f ) = IK f,
+since IK f ∈ P.
+We now piece together the elements.
+(3.3.8) Definition. A subdivision of a domain Ω is a finite collection of element domains {Ki} such that
+(1) int Ki ∩ int Kj = ∅ if i = j and
+(2) ⋃ Ki = Ω.
+(3.3.9) Definition. Suppose Ω is a domain with a subdivision T . Assume each element domain, K, in the subdivision is equipped with some type of shape functions, P, and nodal variables, N , such that (K, P, N ) forms a finite element. Let m be the order of the highest partial derivatives involved in the nodal variables. For f ∈ Cm(Ω), the global interpolant is defined by
+(3.3.10) IT f |Ki = IKi f
+for all Ki ∈ T .
+Without further assumptions on a subdivision, no continuity properties can be asserted for the global interpolant. We now describe conditions that yield such continuity. Only the two-dimensional case using triangular elements is considered in detail here; analogous definitions and results can be formulated for higher dimensions and other subdivisions.
+(3.3.11) Definition. A triangulation of a polygonal domain Ω is a subdivision consisting of triangles having the property that
+(3) no vertex of any triangle lies in the interior of an edge of another triangle.
+(3.3.12) Example. The figure on the left of Fig. 3.12 shows a triangulation of the given domain. The figure on the right is not a triangulation.
+
+
+80 Chapter 3. The Construction of a Finite Element Space
+Fig. 3.12. Two subdivisions: the one on the left is a triangulation and the one on the right is not.
+(3.3.13) Example. Let Ω be the square depicted in Fig. 3.13. The triangulation T consists of the two triangles T1 and T2, as indicated. The finite element on each triangle is the Lagrange element in Example 3.2.1. The dual basis on T1 is {1 − x − y, x, y} (calculated in Example 3.3.3) and the dual basis on T2 is (cf. exercise 3.x.3) {1 − x, 1 − y, x + y − 1}. Let
+f = sin(π(x + y)/2). Then
+IT f =
+{ x + y on T1 2 − x − y on T2.
+(3.3.14) Remark. For approximating the Dirichlet problem with zero boundary conditions, we use a finite-dimensional space of piecewise polynomial functions satisfying the boundary conditions given by VT = {IT f : f ∈ Cm(Ω), f |∂Ω = 0}
+on each triangulation T . This will be discussed further in Chapter 5.
+(3.3.15) Definition. We say that an interpolant has continuity order r (in short, that it is “ Cr”) if IT f ∈ Cr for all f ∈ Cm(Ω). The space, VT = {IT f : f ∈ Cm}, is said to be a “ Cr” finite element space.
+(3.3.16) Remark. A finite element (or collection of elements) that can be used to form a Cr space as above is often called a “Cr element.” Not all choices of nodes will always lead to Cr continuity, however. Some sort of regularity must be imposed. For the elements studied so far, the essential point is that they be placed in a coordinate-free way that is symmetric with respect to the midpoint of the edge.
+(0,1)
+(0,0) (1,0)
+(1,1)
+T
+T
+1
+2
+Fig. 3.13. simple triangulation consisting of two triangles
+
+
+3.4 Equivalence of Elements 81
+(3.3.17) Proposition. The Lagrange and Hermite elements are both C0 elements, and the Argyris element is C1. More precisely, given a triangulation, T , of Ω, it is possible to choose edge nodes for the corresponding elements (K, P, N ) , K ∈ T , such that the global interpolant satisfies IT f ∈ Cr (r = 0 for Lagrange and Hermite, and r = 1 for Argyris) for f ∈ Cm (m = 0 for Lagrange, m = 1 for Hermite and m = 2 for Argyris). In particular, it is sufficient for each edge x x′ to have nodes ξi(x′ − x) + x, where {ξi : i = 1, . . . , k − 1 − 2m} is fixed and symmetric around ξ = 1/2. Moreover, under these hypotheses, IT f ∈ W r+1
+∞.
+Proof. It is sufficient to show that the stated continuity holds across each edge. Let Ti, i = 1, 2, denote two triangles sharing an edge, e. Since we assumed that the edge nodes were chosen symmetrically and in a coordinatefree way, we know that the edge nodes on e for the elements on both T1 and T2 are at the same location in space. Let w := IT1 f − IT2 f , where we view both polynomials, ITi f to be defined everywhere by extension outside Ti as polynomials. Then w is a polynomial of degree k and its restriction to the edge e has one-dimensional Lagrange, Hermite or Argyris nodes equal to zero. Thus, w|e must vanish. Hence, the interpolant is continuous across each edge. Lipschitz continuity of IT f follows by showing that it has weak derivatives of order r + 1 given by
+(Dα
+(w)IT f )|T = DαIT f ∀ T ∈ T , |α| ≤ r + 1.
+The latter is certainly in L∞. The verification that this is the weak deriva
+tive follows from ∫
+Ω
+(Dαφ) (IT f ) dx = ∑ T ∈T
+∫
+T
+(Dαφ) (IT f ) dx
+=∑
+T ∈T
+(−1)|α|
+∫
+T
+φ (DαIT f ) dx
+=(−1)|α|
+∫
+Ω
+φ∑
+T ∈T
+χT (DαIT f ) dx,
+where χT denotes the characteristic function of T . The second equality holds because all boundary terms cancel due to the continuity properties of the interpolant.
+3.4 Equivalence of Elements
+In the application of the global interpolant, it is essential that we find a uniform bound (independent of T ∈ T ) for the norm of the local interpolation operator IT . Therefore, we want to compare the local interpolation
+
+
+82 Chapter 3. The Construction of a Finite Element Space
+operators on different elements. The following notions of equivalence are useful for this purpose (cf. Ciarlet & Raviart 1972a).
+(3.4.1) Definition. Let (K, P, N ) be a finite element and let F (x) = Ax + b (A nonsingular) be an affine map. The finite element ( ̂K, ̂P, ̂N ) is affine equivalent to (K, P, N ) if
+(i) F (K) = Kˆ (ii) F ∗Pˆ = P and
+(iii) F∗N = Nˆ .
+We write (K, P, N ) F ( ̂K, ̂P, ̂N ) if they are affine equivalent.
+(3.4.2) Remark. Recall that the pull-back F ∗ is defined by F ∗(fˆ) := fˆ ◦ F
+and the push-forward F∗ is defined by (F∗N )(fˆ) := N (F ∗(fˆ)).
+(3.4.3) Proposition. Affine equivalence is an equivalence relation.
+Proof. See exercise 3.x.4.
+(3.4.4) Examples.
+(i) Let K be any triangle, P = P1, N = {evaluation at vertices of K}. All such elements (K, P, N ) are affine equivalent. (ii) Let K be any triangle, P = P2, N = {evaluation at vertices and edge midpoints}. All such elements are affine equivalent. (iii) Let P = P2. In Fig. 3.14, (T1, P, N1) and (T2, P, N2) are not affine equivalent, but the finite elements (T1, P, N1) and (T3, P, N3) are affine equivalent.
+Fig. 3.14. inequivalent quadratic elements: noda placement incompatibility
+(iv) Let P = P3. The elements (T1, P, N1) and (T2, P, N2) depicted in Fig. 3.15 are not affine equivalent since the directional derivatives differ. (v) Let P = P3. Then the elements (T1, P, N1) and (T2, P, N2) depicted in Fig. 3.16 are not affine equivalent since the strength of the directional derivatives (indicated by the length of the arrows) differ.
+(3.4.5) Proposition. There exist nodal placements such that all Lagrange elements of a given degree are affine equivalent.
+
+
+3.4 Equivalence of Elements 83
+Fig. 3.15. inequivalent cubic Hermite elements: direction incompatibility
+Fig. 3.16. inequivalent cubic Hermite elements: derivative strength incompatibility
+Proof. We pick nodes using barycentric coordinates, (b1, b2, b3), for each triangle. The i-th barycentric coordinate of a point (x, y) can be defined simply as the value of the i-th linear Lagrange basis function at that point (bi(x, y) := φi(x, y)). Thus, each barycentric coordinate is naturally associated with a given vertex; it is equal to the proportional distance of the point from the opposite edge. Note that the barycentric coordinates sum to one (since this yields the interpolant of the constant, 1). Thus, the mapping (x, y) → b(x, y) maps the triangle (invertibly) to a subset of
+{b ∈ [0, 1]3 : b1 + b2 + b3 = 1}. For degree k Lagrange elements, pick nodes at the points whose barycentric coordinates are
+(i
+k, j
+k, l
+k
+)
+where 0 ≤ i, j, l ≤ k and i + j + l = k.
+(3.4.6) Definition. The finite elements (K, P, N ) and (K, P, N ̃ ) are interpolation equivalent if
+IN f = IN ̃f ∀f sufficiently smooth,
+where IN (resp. IN ̃) is defined by the right-hand side of (3.3.2) with Ni ∈ N
+(resp. Ni ∈ N ̃ ). We write (K, P, N ) I (K, P, N ̃ ).
+
+
+84 Chapter 3. The Construction of a Finite Element Space
+(3.4.7) Proposition. Suppose (K, P, N ) and (K, P, N ̃ ) are finite elements. Every nodal variable in N is a linear combination of nodal variables in N ̃
+(when viewed as a subset of Cm(K)′) if and only if (K, P, N ) I (K, P, N ̃ ).
+Proof. (only if ) We must show that IN f = IN ̃f ∀f ∈ Cm(K). For Ni ∈
+N , we can write Ni = ∑k
+j=1 cjN ̃j since every nodal variable in N is a linear
+combination of nodal variables in N ̃ . Therefore,
+Ni(IN ̃f ) =
+( k ∑
+j=1
+cj N ̃j
+)
+(IN ̃f )
+=
+k ∑
+j=1
+cj N ̃j(IN ̃f )
+=
+k ∑
+j=1
+cj N ̃j(f )
+= Ni(f ).
+The converse is left to the reader in exercise 3.x.26.
+(3.4.8) Example. The Hermite elements in Fig. 3.7 (and 3.15–16) are interpolation equivalent (exercise 3.x.29).
+(3.4.9) Definition. If (K, P, N ) is a finite element that is affine equivalent to ( ̂K, ̂P, ̂N ) and ( ̂K, ̂P, ̂N ) is interpolation equivalent to (K ̃ , P ̃, N ̃ ), then we say that (K, P, N ) is affine-interpolation equivalent to (K ̃ , P ̃, N ̃ ).
+(3.4.10) Example.
+(i) All affine equivalent elements (e.g., Lagrange elements with appropriate choices for the edge and interior nodes as described in Proposition 3.4.5) are affine-interpolation equivalent. (ii) The Hermite elements with appropriate choices for the edge and interior nodes are affine-interpolation equivalent. (iii) The Argyris elements are not affine-interpolation equivalent (Ciarlet 1978).
+The following is an immediate consequence of the definitions.
+(3.4.11) Proposition. If (K, P, N ) is affine-interpolation equivalent to (K ̃ , P ̃, N ̃ ) then I ◦ F ∗ = F ∗ ◦ I ̃ where F is the affine mapping K → K ̃ .
+
+
+3.5 Rectangular Elements 85
+3.5 Rectangular Elements
+In this section we consider finite elements defined on rectangles. Let Qk =
+{∑
+j cj pj(x) qj(y) : pj, qj polynomials of degree ≤ k}. One can show that
+(3.5.1) dim Qk = (dim P1
+k )2,
+where P1
+k denotes the space of polynomials of degree less than or equal to k in one variable (cf. exercise 3.x.6).
+Tensor Product Elements
+(3.5.2) Example. (k = 1) Let K be any rectangle, P = Q1, and N as depicted in Fig. 3.17.
+Suppose that the polynomial P ∈ Q1 vanishes at z1, z2, z3 and z4. The restriction of P to any side of the rectangle is a first-order polynomial of one variable. Therefore, we can write P = c L1L2 for some constant c. But
+0 = P (z4) = c L1(z4) L2(z4) =⇒ c = 0,
+since L1(z4) = 0 and L2(z4) = 0. Thus, P ≡ 0.
+(3.5.3) Example. (k = 2) Let K be any rectangle, P = Q2, and N as depicted in Fig. 3.18. Suppose that a polynomial P ∈ Q2 vanishes at zi, for i = 1, . . . , 9. Then we can write P = c L1L2L3L4 for some constant c. But
+0 = P (z9) = c L1(z9) L2(z9) L3(z9) L4(z9) =⇒ c = 0,
+since Li(z9) = 0 for i = 1, 2, 3, 4.
+zz
+zz
+L
+L1
+2
+12
+43
+Fig. 3.17. bilinear Lagrange rectangle
+L
+L
+LL
+z
+z
+zzz
+zz
+z z2 3
+45
+1
+6
+789
+1
+2
+34
+Fig. 3.18. biquadratic Lagrange rectangle
+(3.5.4) Example. (arbitrary k) Let K be any rectangle, P = Qk, and N denote point evaluations at {(ti, tj) : i, j = 0, 1, . . . k} where {0 = t0 < t1 < . . . < tk = 1}. (The case k = 3 is depicted in Fig. 3.19.) Then (K, P, N ) is a finite element (cf. exercise 3.x.7).
+
+
+86 Chapter 3. The Construction of a Finite Element Space
+Fig. 3.19. bicubic Lagrange rectangle
+z
+z
+z
+z
+z2 3
+4
+65
+zz
+z
+z
+1
+7
+89
+Fig. 3.20. notation for Lemma 3.5.6
+The Serendipity Element
+(3.5.5) Example. (Quadratic Case) To define the shape functions for this case, we need the following lemma (see Fig. 3.20 for the notation).
+(3.5.6) Lemma. There exist constants c1, . . . , c8 such that
+φ(z9) =
+∑8
+i=1
+ci φ(zi) for φ ∈ P2.
+Proof. Note that evaluation at z1, . . . , z6 forms a nodal basis for P2. Let {φ1, . . . , φ6} be the dual basis of P2, i.e., Niφj = δij for i, j = 1, . . . , 6. If φ ∈ P2, then
+φ = N1(φ) φ1 + N2(φ) φ2 + . . . + N6(φ) φ6.
+Therefore,
+φ(z9) = φ(z1) φ1(z9) + φ(z2) φ2(z9) + . . . + φ(z6) φ6(z9)
+= c1 φ(z1) + c2 φ(z2) + . . . + c8 φ(z8)
+(let c7 = c8 = 0).
+Let K be any rectangle, P = {φ ∈ Q2 : ∑8
+i=1 ci φ(zi) − φ(z9) = 0}, and N as depicted in Fig. 3.21. Then (K, P, N ) is a finite element because if φ ∈ P vanishes at z1, . . . , z8 we can write φ = c L1L2L3L4 for some constant c. But
+0=
+∑8
+i=1
+ci φ(zi) = φ(z9) =⇒ c = 0
+(since Li(z9) = 0, i = 1, . . . , 4). Therefore, φ ≡ 0.
+
+
+3.6 Higher-dimensional Elements 87
+zz
+z
+z
+z zz
+zz
+1 23
+4
+7 65
+89
+L
+L
+L
+L
+1
+2
+3
+4
+Fig. 3.21. quadratic serendipity element
+z
+zz z
+z
+z
+zz
+ww
+ww
+23 4
+5
+6
+7
+98
+12
+43
+z
+z
+z
+z
+1
+10
+11
+12
+Fig. 3.22. cubic serendipity element
+(3.5.7) Example. (Cubic Case) Let K be any rectangle. There exist constants ci
+j such that for φ ∈ P3, φ(wi) = ∑12
+j=1 ci
+j φ(zj) i = 1, 2, 3, 4 (for wi and zj as depicted in Fig. 3.22), then let P = {φ ∈ Q3 :
+φ(wi) − ∑12
+j=1 ci
+j φ(zj) = 0 for i = 1, 2, 3, 4} and N as depicted. Then (K, P, N ) is a finite element (cf. exercise 3.x.8).
+(3.5.8) Remark. The notion of a Cr rectangular element can be defined similarly to Definition 3.3.15. Following the proof of Proposition 3.3.17, we can see that all the rectangular elements defined in this section are C0. An example of a C1 rectangular element is in exercise 3.x.16.
+(3.5.9) Remark. The space, P, of shape functions for serendipity elements is not uniquely defined by the choice of nodal variables. Another way to choose them is described in Sect. 4.6.
+3.6 Higher-dimensional Elements
+Higher-dimensional elements can be constructed inductively just the way we constructed two-dimensional elements using properties of one-dimensional elements as building blocks. As an illustration, we describe tetrahedral elements in three dimensions. The Lagrange elements can be defined as before, inductively in the degree, k, as follows. We pick nodal variables at the vertices (of which there are four), at k−1 points on the interior of each edge (there are six edges) and at (k−2)(k−1)/2 points in the interior of each face (again four of these). The face points, which exist only for k ≥ 3, should be chosen so as to determine polynomials in two variables (in the plane of the face) of degree k − 3. For k ≥ 4, we also pick points in the interior of the tetrahedron so as to determine polynomials in three variables of degree k − 4. The existence of the latter will be demonstrated by induction on k, as in the two-dimensional case. Suppose these nodal values vanish for v ∈ Pk. The restriction of v to each face, Fi, of the tetrahedron is a polynomial in two variables (the coordinates for the plane of Fi), and the nodal variables have been chosen
