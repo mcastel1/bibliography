@@ -13,13 +13,13 @@
 	"configOptions": {
 		"getCollections": true,
 		"cached": true,
-		"hash": "bf775184b96dfb1e43024c4b997c533c878a658290773a944bba94dcc0f210ae"
+		"hash": "ef4f2bce07bc26d568e4e17614c1aabeb24362d6e97fc2c37eac0c279052184e"
 	},
 	"translatorType": 3,
 	"browserSupport": "gcsv",
 	"priority": 800,
 	"inRepository": false,
-	"lastUpdated": "2026-09-09"
+	"lastUpdated": "2026-09-30"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -20340,6 +20340,9 @@ var { detectImport, doExport, doImport } = (() => {
     doImport: () => doImport
   });
 
+  // gen/translators.json
+  var translators_default = [{ "translatorID": "f895aa0d-f28e-47fe-b247-2ea77c6ed583", "translatorType": 2, "label": "Better BibLaTeX", "description": "exports items in BibLaTeX format", "creator": "Simon Kornblith, Richard Karnesky, Anders Johansson and Emiliano Heyns", "target": "bib", "minVersion": "4.0.27", "maxVersion": "", "browserSupport": "gcsv", "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "displayOptions": { "exportNotes": false, "exportFileData": false, "useJournalAbbreviation": false, "biblatexAPA": false, "biblatexChicago": false, "keepUpdated": false, "worker": true }, "priority": 50, "inRepository": false }, { "translatorID": "a515a220-6fef-45ea-9842-8025dfebcc8f", "label": "Better BibTeX Citation Key Quick Copy", "description": "exports citations to be copy-pasted into your LaTeX/Markdown /Org-mode/etc documents", "creator": "Emiliano heyns", "target": "txt", "minVersion": "4.0.27", "maxVersion": "", "translatorType": 2, "browserSupport": "gcsv", "priority": 100, "displayOptions": { "quickCopyMode": "" }, "inRepository": false, "configOptions": { "hash": "" } }, { "translatorID": "ca65189f-8815-4afe-8c8b-8c7c15f0edca", "label": "Better BibTeX", "description": "exports items in BibTeX format", "creator": "Simon Kornblith, Richard Karnesky and Emiliano heyns", "target": "bib", "minVersion": "4.0.27", "maxVersion": "", "configOptions": { "async": true, "getCollections": true, "cached": true, "hash": "" }, "displayOptions": { "exportNotes": false, "exportFileData": false, "useJournalAbbreviation": false, "keepUpdated": false, "worker": true }, "translatorType": 3, "browserSupport": "gcsv", "priority": 199, "inRepository": false }, { "translatorID": "f4b52ab0-f878-4556-85a0-c7aeedd09dfc", "label": "Better CSL JSON", "description": "exports items in pandoc-compatible CSL-JSON format, with added citation keys and parsing of metadata", "creator": "Emiliano heyns", "target": "json", "minVersion": "4.0.27", "maxVersion": "", "displayOptions": { "keepUpdated": false, "worker": true }, "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "translatorType": 2, "browserSupport": "gcsv", "inRepository": false, "priority": 100 }, { "translatorID": "0f238e69-043e-4882-93bf-342de007de19", "label": "Better CSL YAML", "description": "exports items in pandoc-compatible CSL-YAML format, with added citation keys and parsing of metadata", "creator": "Emiliano heyns", "target": "yaml", "minVersion": "4.0.27", "maxVersion": "", "displayOptions": { "keepUpdated": false, "worker": true }, "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "translatorType": 3, "browserSupport": "gcsv", "priority": 800, "inRepository": false }, { "translatorID": "8a2f0d30-0b73-4f2c-8b5b-7c1a9e3f2d4e", "label": "Better Hayagriva", "description": "imports/exports items in Hayagriva YAML format", "creator": "Emiliano heyns", "target": "yaml", "minVersion": "4.0.27", "maxVersion": "", "displayOptions": { "keepUpdated": false, "worker": true }, "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "translatorType": 3, "browserSupport": "gcsv", "inRepository": false, "priority": 799 }, { "translatorID": "36a3b0b5-bad0-4a04-b79b-441c7cef77db", "label": "BetterBibTeX JSON", "description": "exports and imports items in BetterBibTeX debug format. Mostly for BBT-internal use", "creator": "Emiliano Heyns", "target": "json", "minVersion": "4.0.27", "maxVersion": "", "configOptions": { "async": true, "getCollections": true, "cached": true, "hash": "" }, "displayOptions": { "exportNotes": true, "exportFileData": false, "Items": true, "Preferences": true, "keepUpdated": false, "worker": true, "Normalize": false, "YAML": false }, "translatorType": 3, "browserSupport": "gcsv", "priority": 49, "inRepository": false }, { "translatorID": "19afa3fd-1c7f-4eb8-a37e-8d07768493e8", "label": "Citation graph", "description": "exports a citation graph in graphml format. Use gephi or yEd to clean up and visualize", "creator": "Emiliano heyns", "target": "dot", "minVersion": "4.0.27", "maxVersion": "", "translatorType": 2, "browserSupport": "gcsv", "inRepository": false, "displayOptions": { "Title": false, "Authors": false, "Year": false }, "configOptions": { "getCollections": true, "hash": "" }, "priority": 100 }, { "translatorID": "e7859c61-54d4-466a-b236-aadcf1f7e83b", "label": "Collected notes", "description": "exports your notes", "creator": "Emiliano heyns", "target": "html", "displayOptions": { "markdown": false }, "minVersion": "4.0.27", "maxVersion": "", "translatorType": 2, "browserSupport": "gcsv", "inRepository": false, "configOptions": { "getCollections": true, "hash": "" }, "priority": 100 }];
+
   // gen/translators.ts
   var displayOptions = [
     "Authors",
@@ -20363,206 +20366,7 @@ var { detectImport, doExport, doImport } = (() => {
     "exportDir",
     "exportPath"
   ];
-  var headers = [
-    {
-      "translatorID": "f895aa0d-f28e-47fe-b247-2ea77c6ed583",
-      "translatorType": 2,
-      "label": "Better BibLaTeX",
-      "description": "exports items in BibLaTeX format",
-      "creator": "Simon Kornblith, Richard Karnesky, Anders Johansson and Emiliano Heyns",
-      "target": "bib",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "browserSupport": "gcsv",
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "displayOptions": {
-        "exportNotes": false,
-        "exportFileData": false,
-        "useJournalAbbreviation": false,
-        "biblatexAPA": false,
-        "biblatexChicago": false,
-        "keepUpdated": false,
-        "worker": true
-      },
-      "priority": 50,
-      "inRepository": false
-    },
-    {
-      "translatorID": "a515a220-6fef-45ea-9842-8025dfebcc8f",
-      "label": "Better BibTeX Citation Key Quick Copy",
-      "description": "exports citations to be copy-pasted into your LaTeX/Markdown /Org-mode/etc documents",
-      "creator": "Emiliano heyns",
-      "target": "txt",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "priority": 100,
-      "displayOptions": {
-        "quickCopyMode": ""
-      },
-      "inRepository": false
-    },
-    {
-      "translatorID": "ca65189f-8815-4afe-8c8b-8c7c15f0edca",
-      "label": "Better BibTeX",
-      "description": "exports items in BibTeX format",
-      "creator": "Simon Kornblith, Richard Karnesky and Emiliano heyns",
-      "target": "bib",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "configOptions": {
-        "async": true,
-        "getCollections": true,
-        "cached": true
-      },
-      "displayOptions": {
-        "exportNotes": false,
-        "exportFileData": false,
-        "useJournalAbbreviation": false,
-        "keepUpdated": false,
-        "worker": true
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "priority": 199,
-      "inRepository": false
-    },
-    {
-      "translatorID": "f4b52ab0-f878-4556-85a0-c7aeedd09dfc",
-      "label": "Better CSL JSON",
-      "description": "exports items in pandoc-compatible CSL-JSON format, with added citation keys and parsing of metadata",
-      "creator": "Emiliano heyns",
-      "target": "json",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "displayOptions": {
-        "keepUpdated": false,
-        "worker": true
-      },
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "priority": 100
-    },
-    {
-      "translatorID": "0f238e69-043e-4882-93bf-342de007de19",
-      "label": "Better CSL YAML",
-      "description": "exports items in pandoc-compatible CSL-YAML format, with added citation keys and parsing of metadata",
-      "creator": "Emiliano heyns",
-      "target": "yaml",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "displayOptions": {
-        "keepUpdated": false,
-        "worker": true
-      },
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "priority": 800,
-      "inRepository": false
-    },
-    {
-      "translatorID": "8a2f0d30-0b73-4f2c-8b5b-7c1a9e3f2d4e",
-      "label": "Better Hayagriva",
-      "description": "imports/exports items in Hayagriva YAML format",
-      "creator": "Emiliano heyns",
-      "target": "yaml",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "displayOptions": {
-        "keepUpdated": false,
-        "worker": true
-      },
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "priority": 799
-    },
-    {
-      "translatorID": "36a3b0b5-bad0-4a04-b79b-441c7cef77db",
-      "label": "BetterBibTeX JSON",
-      "description": "exports and imports items in BetterBibTeX debug format. Mostly for BBT-internal use",
-      "creator": "Emiliano Heyns",
-      "target": "json",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "configOptions": {
-        "async": true,
-        "getCollections": true,
-        "cached": true
-      },
-      "displayOptions": {
-        "exportNotes": true,
-        "exportFileData": false,
-        "Items": true,
-        "Preferences": true,
-        "keepUpdated": false,
-        "worker": true,
-        "Normalize": false,
-        "YAML": false
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "priority": 49,
-      "inRepository": false
-    },
-    {
-      "translatorID": "19afa3fd-1c7f-4eb8-a37e-8d07768493e8",
-      "label": "Citation graph",
-      "description": "exports a citation graph in graphml format. Use gephi or yEd to clean up and visualize",
-      "creator": "Emiliano heyns",
-      "target": "dot",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "displayOptions": {
-        "Title": false,
-        "Authors": false,
-        "Year": false
-      },
-      "configOptions": {
-        "getCollections": true
-      },
-      "priority": 100
-    },
-    {
-      "translatorID": "e7859c61-54d4-466a-b236-aadcf1f7e83b",
-      "label": "Collected notes",
-      "description": "exports your notes",
-      "creator": "Emiliano heyns",
-      "target": "html",
-      "displayOptions": {
-        "markdown": false
-      },
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "configOptions": {
-        "getCollections": true
-      },
-      "priority": 100
-    }
-  ];
+  var headers = translators_default;
   var byId = {};
   var byLabel = {};
   var bySlug = {};
@@ -20593,6 +20397,7 @@ var { detectImport, doExport, doImport } = (() => {
     bibtexURL: "off",
     cache: true,
     cacheDelete: false,
+    cacheTouch: "fill",
     charmap: "",
     chinese: false,
     chineseSplitName: true,
@@ -20644,6 +20449,8 @@ var { detectImport, doExport, doImport } = (() => {
     postscript: "",
     postscriptOverride: "",
     preferencesOverride: "",
+    profileRuntime: "no",
+    profileStartup: false,
     qualityReport: false,
     quickCopyEta: "",
     quickCopyMode: "latex",
@@ -34851,17 +34658,17 @@ var { detectImport, doExport, doImport } = (() => {
           content: ops
         };
       }
-      function peg$f2(c1, op, comment2) {
+      function peg$f2(c12, op, comment2) {
         return {
           op,
           comment: comment2
         };
       }
-      function peg$f3(c1, ops, c2, body) {
+      function peg$f3(c12, ops, c2, body) {
         return {
           type: "animation",
           comments: [
-            c1,
+            c12,
             ...ops.map((x) => x.comment),
             c2
           ].filter((x) => x),
@@ -34876,9 +34683,9 @@ var { detectImport, doExport, doImport } = (() => {
           type: "foreach"
         };
       }
-      function peg$f5(c1, variables, options2, c2, c3, list, c4, command) {
+      function peg$f5(c12, variables, options2, c2, c3, list, c4, command) {
         const comments = [
-          c1,
+          c12,
           c2,
           c3,
           c4
@@ -34892,8 +34699,8 @@ var { detectImport, doExport, doImport } = (() => {
           comments
         };
       }
-      function peg$f6(c1, options2, c2, body) {
-        const comments = [c1, c2].filter((x) => x);
+      function peg$f6(c12, options2, c2, body) {
+        const comments = [c12, c2].filter((x) => x);
         return {
           type: "svg_operation",
           options: options2 && options2.content,
@@ -34901,15 +34708,15 @@ var { detectImport, doExport, doImport } = (() => {
           comments
         };
       }
-      function peg$f7(c1, c2, coord, c3, c4, x) {
+      function peg$f7(c12, c2, coord, c3, c4, x) {
         return {
           coord: x,
           comment: c4
         };
       }
-      function peg$f8(c1, c2, coord, c3, a, c5) {
+      function peg$f8(c12, c2, coord, c3, a, c5) {
         const comments = [
-          c1,
+          c12,
           c2,
           c3,
           a && a.comment,
@@ -50551,59 +50358,191 @@ var { detectImport, doExport, doImport } = (() => {
   }
 
   // node_modules/entities/dist/decode-codepoint.js
-  var decodeMap = /* @__PURE__ */ new Map([
-    [0, 65533],
-    // C1 Unicode control character reference replacements
-    [128, 8364],
-    [130, 8218],
-    [131, 402],
-    [132, 8222],
-    [133, 8230],
-    [134, 8224],
-    [135, 8225],
-    [136, 710],
-    [137, 8240],
-    [138, 352],
-    [139, 8249],
-    [140, 338],
-    [142, 381],
-    [145, 8216],
-    [146, 8217],
-    [147, 8220],
-    [148, 8221],
-    [149, 8226],
-    [150, 8211],
-    [151, 8212],
-    [152, 732],
-    [153, 8482],
-    [154, 353],
-    [155, 8250],
-    [156, 339],
-    [158, 382],
-    [159, 376]
-  ]);
+  var c1 = [
+    8364,
+    0,
+    8218,
+    402,
+    8222,
+    8230,
+    8224,
+    8225,
+    710,
+    8240,
+    352,
+    8249,
+    338,
+    0,
+    381,
+    0,
+    0,
+    8216,
+    8217,
+    8220,
+    8221,
+    8226,
+    8211,
+    8212,
+    732,
+    8482,
+    353,
+    8250,
+    339,
+    0,
+    382,
+    376
+  ];
+  function isInvalidCodePoint(codePoint) {
+    return codePoint === 0 || codePoint >= 55296 && codePoint <= 57343 || codePoint > 1114111;
+  }
   function replaceCodePoint(codePoint) {
-    if (codePoint >= 55296 && codePoint <= 57343 || codePoint > 1114111) {
+    if (isInvalidCodePoint(codePoint)) {
       return 65533;
     }
-    return decodeMap.get(codePoint) ?? codePoint;
+    if (codePoint >= 128 && codePoint <= 159) {
+      return c1[codePoint - 128] || codePoint;
+    }
+    return codePoint;
+  }
+  function replaceCodePointXML(codePoint) {
+    return isInvalidCodePoint(codePoint) ? 65533 : codePoint;
   }
 
   // node_modules/entities/dist/internal/decode-shared.js
-  function decodeBase64(input) {
-    const binary = atob(input);
-    const evenLength = binary.length & ~1;
-    const out = new Uint16Array(evenLength / 2);
-    for (let index = 0, outIndex = 0; index < evenLength; index += 2) {
-      const lo = binary.charCodeAt(index);
-      const hi = binary.charCodeAt(index + 1);
-      out[outIndex++] = lo | hi << 8;
+  var BASE91_INVERSE = /* @__PURE__ */ (() => {
+    const table6 = new Uint8Array(127);
+    let code = 0;
+    for (let char = 33; char <= 126; char++) {
+      if (char !== 34 && char !== 36 && char !== 92) {
+        table6[char] = code++;
+      }
+    }
+    return table6;
+  })();
+  function decodeTrieDict(input, resultLength, atomCount, dict1AtomCount, ngramCount, dictSize) {
+    const base = 91;
+    const inputLength = input.length;
+    const twoCharBias = dictSize * (base - 1);
+    let pos = 0;
+    const readSlotCode = () => {
+      const c12 = BASE91_INVERSE[input.charCodeAt(pos++)];
+      return c12 < dictSize ? c12 : c12 * base - twoCharBias + BASE91_INVERSE[input.charCodeAt(pos++)];
+    };
+    const dict2AtomCount = atomCount - dict1AtomCount;
+    const slotCount = atomCount + ngramCount;
+    const single = new Int32Array(slotCount);
+    single.fill(-1, dict1AtomCount, dictSize);
+    single.fill(-1, dictSize + dict2AtomCount, slotCount);
+    const start = new Int32Array(slotCount);
+    const length = new Int32Array(slotCount);
+    function decodeDelta(count, off) {
+      let previous = 0;
+      let slot = off;
+      const end = off + count;
+      while (slot < end) {
+        const code = BASE91_INVERSE[input.charCodeAt(pos++)];
+        if (code < 89) {
+          previous += code;
+          single[slot++] = previous;
+        } else if (code === 89) {
+          let runLength = BASE91_INVERSE[input.charCodeAt(pos++)] + 2;
+          while (runLength--)
+            single[slot++] = ++previous;
+        } else {
+          const next = BASE91_INVERSE[input.charCodeAt(pos++)];
+          previous += 89 + // eslint-disable-next-line unicorn/prefer-minimal-ternary -- branches read a different number of side-effecting input bytes
+          (next < 90 ? next * base + BASE91_INVERSE[input.charCodeAt(pos++)] : BASE91_INVERSE[input.charCodeAt(pos++)] * 8281 + BASE91_INVERSE[input.charCodeAt(pos++)] * base + BASE91_INVERSE[input.charCodeAt(pos++)]);
+          single[slot++] = previous;
+        }
+      }
+    }
+    decodeDelta(dict1AtomCount, 0);
+    decodeDelta(dict2AtomCount, dictSize);
+    const references = new Int32Array(ngramCount * 2);
+    let poolSize = 0;
+    let ngramIndex = 0;
+    function readNgramReferences(count, startSlot) {
+      for (let index = 0; index < count; index++) {
+        const slot = startSlot + index;
+        const a = readSlotCode();
+        const b = readSlotCode();
+        references[ngramIndex * 2] = a;
+        references[ngramIndex * 2 + 1] = b;
+        ngramIndex += 1;
+        start[slot] = poolSize;
+        const entryLength = (single[a] < 0 ? length[a] : 1) + (single[b] < 0 ? length[b] : 1);
+        length[slot] = entryLength;
+        poolSize += entryLength;
+      }
+    }
+    readNgramReferences(ngramCount - dictSize + dict1AtomCount, dictSize + dict2AtomCount);
+    readNgramReferences(dictSize - dict1AtomCount, dict1AtomCount);
+    const pool = new Uint16Array(poolSize);
+    let write = 0;
+    for (let index = 0; index < ngramIndex; index++) {
+      for (let half = 0; half < 2; half++) {
+        const source = references[index * 2 + half];
+        const value = single[source];
+        if (value < 0) {
+          let read = start[source];
+          const readEnd = read + length[source];
+          while (read < readEnd)
+            pool[write++] = pool[read++];
+        } else {
+          pool[write++] = value;
+        }
+      }
+    }
+    const out = new Uint16Array(resultLength);
+    let outIndex = 0;
+    while (pos < inputLength) {
+      let slot = BASE91_INVERSE[input.charCodeAt(pos++)];
+      if (slot >= dictSize) {
+        slot = slot * base - twoCharBias + BASE91_INVERSE[input.charCodeAt(pos++)];
+      }
+      const value = single[slot];
+      if (value < 0) {
+        let read = start[slot];
+        const readEnd = read + length[slot];
+        while (read < readEnd)
+          out[outIndex++] = pool[read++];
+      } else {
+        out[outIndex++] = value;
+      }
     }
     return out;
   }
 
   // node_modules/entities/dist/generated/decode-data-html.js
-  var htmlDecodeTree = /* @__PURE__ */ decodeBase64("QR08ALkAAgH6AYsDNQR2BO0EPgXZBQEGLAbdBxMISQrvCmQLfQurDKQNLw4fD4YPpA+6D/IPAAAAAAAAAAAAAAAAKhBMEY8TmxUWF2EYLBkxGuAa3RsJHDscWR8YIC8jSCSIJcMl6ie3Ku8rEC0CLjoupS7kLgAIRU1hYmNmZ2xtbm9wcnN0dVQAWgBeAGUAaQBzAHcAfgCBAIQAhwCSAJoAoACsALMAbABpAGcAO4DGAMZAUAA7gCYAJkBjAHUAdABlADuAwQDBQHIiZXZlAAJhAAFpeW0AcgByAGMAO4DCAMJAEGRyAADgNdgE3XIAYQB2AGUAO4DAAMBA8CFoYZFj4SFjcgBhZAAAoFMqAAFncIsAjgBvAG4ABGFmAADgNdg43fAlbHlGdW5jdGlvbgCgYSBpAG4AZwA7gMUAxUAAAWNzpACoAHIAAOA12Jzc6SFnbgCgVCJpAGwAZABlADuAwwDDQG0AbAA7gMQAxEAABGFjZWZvcnN1xQDYANoA7QDxAPYA+QD8AAABY3LJAM8AayNzbGFzaAAAoBYidgHTANUAAKDnKmUAZAAAoAYjeQARZIABY3J0AOAA5QDrAGEidXNlAACgNSLuI291bGxpcwCgLCFhAJJjcgAA4DXYBd1wAGYAAOA12Dnd5SF2ZdhiYwDyAOoAbSJwZXEAAKBOIgAHSE9hY2RlZmhpbG9yc3UXARoBHwE6AVIBVQFiAWQBZgGCAakB6QHtAfIBYwB5ACdkUABZADuAqQCpQIABY3B5ACUBKAE1AfUhdGUGYWmg0iJ0KGFsRGlmZmVyZW50aWFsRAAAoEUhbCJleXMAAKAtIQACYWVpb0EBRAFKAU0B8iFvbgxhZABpAGwAO4DHAMdAcgBjAAhhbiJpbnQAAKAwIm8AdAAKYQABZG5ZAV0BaSJsbGEAuGB0I2VyRG90ALdg8gA5AWkAp2NyImNsZQAAAkRNUFRwAXQBeQF9AW8AdAAAoJkiaSJudXMAAKCWIuwhdXMAoJUiaSJtZXMAAKCXIm8AAAFjc4cBlAFrKndpc2VDb250b3VySW50ZWdyYWwAAKAyImUjQ3VybHkAAAFEUZwBpAFvJXVibGVRdW90ZQAAoB0gdSJvdGUAAKAZIAACbG5wdbABtgHNAdgBbwBuAGWgNyIAoHQqgAFnaXQAvAHBAcUB8iJ1ZW50AKBhIm4AdAAAoC8i7yV1ckludGVncmFsAKAuIgABZnLRAdMBAKACIe8iZHVjdACgECJuLnRlckNsb2Nrd2lzZUNvbnRvdXJJbnRlZ3JhbAAAoDMi7yFzcwCgLypjAHIAAOA12J7ccABDoNMiYQBwAACgTSKABURKU1phY2VmaW9zAAsCEgIVAhgCGwIsAjQCOQI9AnMCfwNvoEUh9CJyYWhkAKARKWMAeQACZGMAeQAFZGMAeQAPZIABZ3JzACECJQIoAuchZXIAoCEgcgAAoKEhaAB2AACg5CoAAWF5MAIzAvIhb24OYRRkbAB0oAciYQCUY3IAAOA12AfdAAFhZkECawIAAWNtRQJnAvIjaXRpY2FsAAJBREdUUAJUAl8CYwJjInV0ZQC0YG8AdAFZAloC2WJiJGxlQWN1dGUA3WJyImF2ZQBgYGkibGRlANxi7yFuZACgxCJmJWVyZW50aWFsRAAAoEYhcAR9AgAAAAAAAIECjgIAABoDZgAA4DXYO91EoagAhQKJAm8AdAAAoNwgcSJ1YWwAAKBQIuIhbGUAA0NETFJVVpkCqAK1Au8C/wIRA28AbgB0AG8AdQByAEkAbgB0AGUAZwByAGEA7ADEAW8AdAKvAgAAAACwAqhgbiNBcnJvdwAAoNMhAAFlb7kC0AJmAHQAgAFBUlQAwQLGAs0CciJyb3cAAKDQIekkZ2h0QXJyb3cAoNQhZQDlACsCbgBnAAABTFLWAugC5SFmdAABQVLcAuECciJyb3cAAKD4J+kkZ2h0QXJyb3cAoPon6SRnaHRBcnJvdwCg+SdpImdodAAAAUFU9gL7AnIicm93AACg0iFlAGUAAKCoInAAQQIGAwAAAAALA3Iicm93AACg0SFvJHduQXJyb3cAAKDVIWUlcnRpY2FsQmFyAACgJSJuAAADQUJMUlRhJAM2AzoDWgNxA3oDciJyb3cAAKGTIUJVLAMwA2EAcgAAoBMpcCNBcnJvdwAAoPUhciJldmUAEWPlIWZ00gJDAwAASwMAAFIDaSVnaHRWZWN0b3IAAKBQKWUkZVZlY3RvcgAAoF4p5SJjdG9yQqC9IWEAcgAAoFYpaSJnaHQA1AFiAwAAaQNlJGVWZWN0b3IAAKBfKeUiY3RvckKgwSFhAHIAAKBXKWUAZQBBoKQiciJyb3cAAKCnIXIAcgBvAPcAtAIAAWN0gwOHA3IA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YwAAoN8i4SFycnCgtiEAoD0pgKIqImJjZG9zACsVMBU6FT4VQRVyImNhcAAAoEgqAAFhdTQVNxVwAACgRipwAACgSipvAHQAAKCNInIAAKBFKgDgKiIA/gACYWxydksVURVuFXMVcgByAG2gtyEAoDwpeQCAAWV2dwBYFWUVaRVxAHACXxUAAAAAYxVyAGUA4wAXFXUA4wAZFWUAZQAAoM4iZSJkZ2UAAKDPImUAbgA7gKQApEBlI2Fycm93AAABbHJ7FX8V5SFmdACgtiFpImdodAAAoLchZQDkAG0VAAFjaYsVkRVvAG4AaQBuAPQAkwFuAHQAAKAxImwiY3R5AACgLSOACUFIYWJjZGVmaGlqbG9yc3R1d3oAuBW7Fb8V1RXgFegV+RUKFhUWHxZUFlcWZRbFFtsW7xb7FgUXChdyAPIAtAJhAHIAAKBlKQACZ2xyc8YVyhXOFdAV5yFlcgCgICDlIXRoAKA4IfIA9QxoAHagECAAoKMiawHZFd4VYSJyb3cAAKAPKWEA4wBfAgABYXnkFecV8iFvbg9hNGQAoUYhYW/tFfQVAAFnciEC8RVyAACgyiF0InNlcQAAoHcqgAFnbG0A/xUCFgUWO4CwALBAdABhALRjcCJ0eXYAAKCxKQABaXIOFhIW8yFodACgfykA4DXYId1hAHIAAAFschsWHRYAoMMhAKDCIYACYWVnc3YAKBauAjYWOhY+Fm0AAKHEIm9zLhY0Fm4AZABzoMQi9SFpdACgZiZhIm1tYQDdY2kAbgAAoPIiAKH3AGlvQxZRFmQAZQAAgfcAO29KFksW90BuI3RpbWVzAACgxyJuAPgAUBZjAHkAUmRjAG8CXhYAAAAAYhZyAG4AAKAeI28AcAAAoA0jgAJscHR1dwBuFnEWdRaSFp4W7CFhciRgZgAA4DXYVd0AotkCZW1wc30WhBaJFo0WcQBkoFAibwB0AACgUSJpIm51cwAAoDgi7CF1cwCgFCLxInVhcmUAoKEiYgBsAGUAYgBhAHIAdwBlAGQAZwDlANcAbgCAAWFkaAClFqoWtBZyAHIAbwD3APUMbwB3AG4AYQByAHIAbwB3APMA8xVhI3Jwb29uAAABbHK8FsAWZQBmAPQAHBZpAGcAaAD0AB4WYgHJFs8WawBhAHIAbwD3AJILbwLUFgAAAADYFnIAbgAAoB8jbwBwAACgDCOAAWNvdADhFukW7BYAAXJ55RboFgDgNdi53FVkbAAAoPYp8iFvaxFhAAFkcvMW9xZvAHQAAKDxImkA5qC/JVsSAAFhaP8WAhdyAPIANQNhAPIA1wvhIm5nbGUAoKYpAAFjaQ4XEBd5AF9k5yJyYXJyAKD/JwAJRGFjZGVmZ2xtbm9wcXJzdHV4MRc4F0YXWxcyBF4XaRd5F40XrBe0F78X2RcVGCEYLRg1GEAYAAFEbzUXgRZvAPQA+BUAAWNzPBdCF3UAdABlADuA6QDpQPQhZXIAoG4qAAJhaW95TRdQF1YXWhfyIW9uG2FyAGOgViI7gOoA6kDsIW9uAKBVIk1kbwB0ABdhAAFEcmIXZhdvAHQAAKBSIgDgNdgi3XKhmipuF3QXYQB2AGUAO4DoAOhAZKCWKm8AdAAAoJgqgKGZKmlscwCAF4UXhxfuInRlcnMAoOcjAKATIWSglSpvAHQAAKCXKoABYXBzAJMXlheiF2MAcgATYXQAeQBzogUinxcAAAAAoRdlAHQAAKAFInAAMaADIDMBqRerFwCgBCAAoAUgAAFnc7AXsRdLYXAAAKACIAABZ3C4F7sXbwBuABlhZgAA4DXYVt2AAWFscwDFF8sXzxdyAHOg1SJsAACg4yl1AHMAAKBxKmkAAKG1A2x21RfYF28AbgC1Y/VjAAJjc3V24BfoF/0XEBgAAWlv5BdWF3IAYwAAoFYiaQLuFwAAAADwF+0ADQThIW50AAFnbPUX+Rd0AHIAAKCWKuUhc3MAoJUqgAFhZWkAAxgGGAoYbABzAD1gcwB0AACgXyJ2AESgYSJEAACgeCrwImFyc2wAoOUpAAFEYRkYHRhvAHQAAKBTInIAcgAAoHEpgAFjZGkAJxgqGO0XcgAAoC8hbwD0AIwCAAFhaDEYMhi3YzuA8ADwQAABbXI5GD0YbAA7gOsA60BvAACgrCCAAWNpcABGGEgYSxhsACFgcwD0ACwEAAFlb08YVxhjAHQAYQB0AGkAbwDuABoEbgBlAG4AdABpAGEAbADlADME4Ql1GAAAgRgAAIMYiBgAAAAAoRilGAAAqhgAALsYvhjRGAAA1xgnGWwAbABpAG4AZwBkAG8AdABzAGUA8QBlF3kARGRtImFsZQAAoEAmgAFpbHIAjRiRGJ0Y7CFpZwCgA/tpApcYAAAAAJoYZwAAoAD7aQBnAACgBPsA4DXYI93sIWlnAKAB++whaWcA4GYAagCAAWFsdACvGLIYthh0AACgbSZpAGcAAKAC+24AcwAAoLElbwBmAJJh8AHCGAAAxhhmAADgNdhX3QABYWvJGMwYbADsAGsEdqDUIgCg2SphI3J0aW50AACgDSoAAWFv2hgiGQABY3PeGB8ZsQPnGP0YBRkSGRUZAAAdGbID7xjyGPQY9xj5GAAA+xg7gL0AvUAAoFMhO4C8ALxAAKBVIQCgWSEAoFshswEBGQAAAxkAoFQhAKBWIbQCCxkOGQAAAAAQGTuAvgC+QACgVyEAoFwhNQAAoFghtgEZGQAAGxkAoFohAKBdITgAAKBeIWwAAKBEIHcAbgAAoCIjYwByAADgNdi73IAIRWFiY2RlZmdpamxub3JzdHYARhlKGVoZXhlmGWkZkhmWGZkZnRmgGa0ZxhnLGc8Z4BkjGmygZyIAoIwqgAFjbXAAUBlTGVgZ9SF0ZfVhbQBhAOSgswM6FgCghipyImV2ZQAfYQABaXliGWUZcgBjAB1hM2RvAHQAIWGAoWUibHFzAMYEcBl6GfGhZSLOBAAAdhlsAGEAbgD0AN8EgKF+KmNkbACBGYQZjBljAACgqSpvAHQAb6CAKmyggioAoIQqZeDbIgD+cwAAoJQqcgAA4DXYJN3noGsirATtIWVsAKA3IWMAeQBTZIChdyJFYWoApxmpGasZAKCSKgCgpSoAoKQqAAJFYWVztBm2Gb0ZwhkAoGkicABwoIoq8iFveACgiipxoIgq8aCIKrUZaQBtAACg5yJwAGYAAOA12FjdYQB2AOUAYwIAAWNp0xnWGXIAAKAKIW0AAKFzImVs3BneGQCgjioAoJAqAIM+ADtjZGxxco0E6xn0GfgZ/BkBGgABY2nvGfEZAKCnKnIAAKB6Km8AdAAAoNci0CFhcgCglSl1ImVzdAAAoHwqgAJhZGVscwAKGvQZFhrVBCAa8AEPGgAAFBpwAHIAbwD4AFkZcgAAoHgpcQAAAWxxxAQbGmwAZQBzAPMASRlpAO0A5AQAAWVuJxouGnIjdG5lcXEAAOBpIgD+xQAsGgAFQWFiY2Vma29zeUAaQxpmGmoabRqDGocalhrCGtMacgDyAMwCAAJpbG1yShpOGlAaVBpyAHMA8ABxD2YAvWBpAGwA9AASBQABZHJYGlsaYwB5AEpkAKGUIWN3YBpkGmkAcgAAoEgpAKCtIWEAcgAAoA8h6SFyYyVhgAFhbHIAcxp7Gn8a8iF0c3WgZSZpAHQAAKBlJuwhaXAAoCYg4yFvbgCguSJyAADgNdgl3XMAAAFld4wakRphInJvdwAAoCUpYSJyb3cAAKAmKYACYW1vcHIAnxqjGqcauhq+GnIAcgAAoP8h9CFodACgOyJrAAABbHKsGrMaZSRmdGFycm93AACgqSHpJGdodGFycm93AKCqIWYAAOA12Fnd4iFhcgCgFSCAAWNsdADIGswa0BpyAADgNdi93GEAcwDoAGka8iFvaydhAAFicNca2xr1IWxsAKBDIOghZW4AoBAg4Qr2GgAA/RoAAAgbExsaGwAAIRs7GwAAAAA+G2IbmRuVG6sbAACyG80b0htjAHUAdABlADuA7QDtQAChYyBpeQEbBhtyAGMAO4DuAO5AOGQAAWN4CxsNG3kANWRjAGwAO4ChAKFAAAFmcssCFhsA4DXYJt1yAGEAdgBlADuA7ADsQIChSCFpbm8AJxsyGzYbAAFpbisbLxtuAHQAAKAMKnQAAKAtIuYhaW4AoNwpdABhAACgKSHsIWlnM2GAAWFvcABDG1sbXhuAAWNndABJG0sbWRtyACthgAFlbHAAcQVRG1UbaQBuAOUAyAVhAHIA9AByBWgAMWFmAACgtyJlAGQAtWEAoggiY2ZvdGkbbRt1G3kb4SFyZQCgBSFpAG4AdKAeImkAZQAAoN0pZABvAPQAWxsAoisiY2VscIEbhRuPG5QbYQBsAACguiIAAWdyiRuNG2UAcgDzACMQ4wCCG2EicmhrAACgFyryIW9kAKA8KgACY2dwdJ8boRukG6gbeQBRZG8AbgAvYWYAAOA12FrdYQC5Y3UAZQBzAHQAO4C/AL9AAAFjabUbuRtyAADgNdi+3G4AAKIIIkVkc3bCG8QbyBvQAwCg+SJvAHQAAKD1Inag9CIAoPMiaaBiIOwhZGUpYesB1hsAANkbYwB5AFZkbAA7gO8A70AAA2NmbW9zdeYb7hvyG/Ub+hsFHAABaXnqG+0bcgBjADVhOWRyAADgNdgn3eEhdGg3YnAAZgAA4DXYW93jAf8bAAADHHIAAOA12L/c8iFjeVhk6yFjeVRkAARhY2ZnaGpvcxUcGhwiHCYcKhwtHDAcNRzwIXBhdqC6A/BjAAFleR4cIRzkIWls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ZmdobG1vcHJzdHV3CiwNLBEsHSwnLDEsQCxLLFIsYix6LIQsjyzLLOgs7Sz/LAotcgDyAAkDYQByAACgYykAAWNyFSwbLHUAdABlADuA+gD6QPIACQ1yAOMBIywAACUseQBeZHYAZQBtYQABaXkrLDAscgBjADuA+wD7QENkgAFhYmgANyw6LD0scgDyANEO7CFhY3FhYQDyAOAOAAFpckQsSCzzIWh0AKB+KQDgNdgy3XIAYQB2AGUAO4D5APlAYQFWLF8scgAAAWxyWixcLACgvyEAoL4hbABrAACggCUAAWN0Zix2LG8CbCwAAAAAcyxyAG4AZaAcI3IAAKAcI28AcAAAoA8jcgBpAACg+CUAAWFsfiyBLGMAcgBrYTuAqACoQAABZ3CILIssbwBuAHNhZgAA4DXYZt0AA2FkaGxzdZksniynLLgsuyzFLHIAcgBvAPcACQ1vAHcAbgBhAHIAcgBvAPcA2A5hI3Jwb29uAAABbHKvLLMsZQBmAPQAWyxpAGcAaAD0AF0sdQDzAKYOaQAAocUDaGzBLMIs0mNvAG4AxWPwI2Fycm93cwCgyCGAAWNpdADRLOEs5CxvAtcsAAAAAN4scgBuAGWgHSNyAACgHSNvAHAAAKAOI24AZwBvYXIAaQAAoPklYwByAADgNdjK3IABZGlyAPMs9yz6LG8AdAAAoPAi7CFkZWlhaQBmoLUlAKC0JQABYW0DLQYtcgDyAMosbAA7gPwA/EDhIm5nbGUAoKcpgAdBQkRhY2RlZmxub3Byc3oAJy0qLTAtNC2bLZ0toS2/LcMtxy3TLdgt3C3gLfwtcgDyABADYQByAHag6CoAoOkqYQBzAOgA/gIAAW5yOC08LechcnQAoJwpgANla25wcnN0AJkpSC1NLVQtXi1iLYItYQBwAHAA4QAaHG8AdABoAGkAbgDnAKEXgAFoaXIAoSmzJFotbwBwAPQAdCVooJUh7wD4JgABaXVmLWotZwBtAOEAuygAAWJwbi14LXMjZXRuZXEAceCKIgD+AODLKgD+cyNldG5lcQBx4IsiAP4A4MwqAP4AAWhyhi2KLWUAdADhABIraSNhbmdsZQAAAWxyki2WLeUhZnQAoLIiaSJnaHQAAKCzInkAMmThIXNoAKCiIoABZWxyAKcttC24LWKiKCKuLQAAAACyLWEAcgAAoLsicQAAoFoi7CFpcACg7iIAAWJ0vC1eD2EA8gBfD3IAAOA12DPddAByAOkAlS1zAHUAAAFicM0t0C0A4IIi0iAA4IMi0iBwAGYAAOA12GfdcgBvAPAAWQt0AHIA6QCaLQABY3XkLegtcgAA4DXYy9wAAWJw7C30LW4AAAFFZXUt8S0A4IoiAP5uAAABRWV/LfktAOCLIgD+6SJnemFnAKCaKYADY2Vmb3BycwANLhAuJS4pLiMuLi40LukhcmN1YQABZGkULiEuAAFiZxguHC5hAHIAAKBfKmUAcaAnIgCgWSLlIXJwAKAYIXIAAOA12DTdcABmAADgNdho3WWgQCJhAHQA6ABqD2MAcgAA4DXYzNzjCuQRUC4AAFQuAABYLmIuAAAAAGMubS5wLnQuAAAAAIguki4AAJouJxIqEnQAcgDpAB0ScgAA4DXYNd0AAUFhWy5eLnIA8gDnAnIA8gCTB75jAAFBYWYuaS5yAPIA4AJyAPIAjAdhAPAAeh5pAHMAAKD7IoABZHB0APgReS6DLgABZmx9LoAuAOA12GnddQDzAP8RaQBtAOUABBIAAUFhiy6OLnIA8gDuAnIA8gCaBwABY3GVLgoScgAA4DXYzdwAAXB0nS6hLmwAdQDzACUScgDpACASAARhY2VmaW9zdbEuvC7ELsguzC7PLtQu2S5jAAABdXm2LrsudABlADuA/QD9QE9kAAFpecAuwy5yAGMAd2FLZG4AO4ClAKVAcgAA4DXYNt1jAHkAV2RwAGYAAOA12GrdYwByAADgNdjO3AABY23dLt8ueQBOZGwAO4D/AP9AAAVhY2RlZmhpb3N38y73Lv8uAi8MLxAvEy8YLx0vIi9jInV0ZQB6YQABYXn7Lv4u8iFvbn5hN2RvAHQAfGEAAWV0Bi8KL3QAcgDmAB8QYQC2Y3IAAOA12DfdYwB5ADZk5yJyYXJyAKDdIXAAZgAA4DXYa91jAHIAAOA12M/cAAFqbiYvKC8AoA0gagAAoAwg");
+  var htmlDecodeTree = /* @__PURE__ */ decodeTrieDict("!}.&u%}'&}*'~!6*)%&,~!J~!J~%L~y<~!R,~~%Lu~~#GD~~#|)1#%}^%}2%+#.##%##%}&%##%'#%##&%#%#'%#&#%#&#'#%%#&#%##%#)%''%&%#%#'%#%%#%%}%%%#%#&(23#%%#&-%0%('1#(##%#'##+%'*.:1}#%#6-+(%'%%#%%%}#L'2351&('%}&/N'(0(/*-%(%%}#'+&T%7.2}#&%&#%#36/5##%&%%#&#%%#))2%%##%&&'0~!#*+&'%1~!%).'3q?&%'1~!.##%6(~!+%%%(Gw'rT~!E#<nA%#jZ~!H%(~!42##~!*31&~!G%U~#)5~#`3~!J~!Z~%]~%Y~%C~!q~!u~#kz~%#~!6'~!D~!U~!?~#T~!c%~!G#'~%7|~!G~!J~!G&~#pb~(Df}#%}*&}#%##%##%##&#-}&'#'&%#.++}%mI,#,@&(}*%}*'%&##&#%##%}&0}#.},U},%}+%}&%}#%##&}B%(}(%}+%)})%##%#&}&%##%&}<%}>%#%&}*%}(%}9%}/%})%}*%}*%}?&}&%}3%}&*#%})%#%#)}#&#-#+*%E%%'%'#%}#*V##&##I}#&&##%&%#&&Qf%%))w/0+&%#(#.%-''''++++7}>%4'',##1,#%#&%##&#'##&#*#9)%&%}#*}%,#+P(%A&%#'&##wSD',9E00#y#@}(+}&%&>~!#~!X}#*}(&&}(&}(,%}%&#+&}#&}I%#%}%)#(},'%#*}4%%#%}(''}#/##(##),%-##%%)#&}(.}&%#&}%%}*&#%},&&}&%}#%*'#%})%}D&}&%}-&}6&#&}-,%}#%})-(~+`~,=?~I9'9%~!,#%})%})%}@%}?%}(~!?~#<~#pP~#BG~#=1#%K+~#?#~%;)~#A~#mF1~#A'~'X%'~#lR~#N~'N~#r~#m#-~#i'?%#'%~#B%##%,%#~#_%#0%~#]732~,w~2+#:&#%&'0%&>%}#>##F+)#%&&#(+_}4&}-%}(&}@&}O7Fdf0@+/v4}&WU##&/0#&'('B#%}.%}'+#%}#%%&#&%#%##+#&#)#6#'#.},%}c%},%#%##%&#&%#&~#>'*-.%##%##%}#%%}%'~#)D1}#%*&~#_%%'(~#S2%'.}#~#=##*'*-%}&'%'##&&~'E%.#&~#M4}%%##&'%#~#O1##%&#'+~#<B%##%%'%+~#;#@%}#&%#&&%#(~#H1}'%'##&&~#?A}&'~#D#%32}'&&&&~#[}'(#%}'~#;C})&}%%#%~#=&%,3}%'(#%%~#^'#&&)#%'~#Y%-~#d-%'~#^%%&#&&&}#~#b~2t*&'~&(~&@~0%~e~3}%*''0})&}+~!9##-}#%-hD*)1fC#%/&/fB#40~!+#)*4~!+~!K'&:~!/*7~!.#~!H~!L':~%x&~!H#~!*~%1~!I#~!+A~#p'~!F~~#-#~,,(~.Z~!V~%;'B'mq-W~!N~%I%#&&#&}#%},%%}'%}+X#%}#&}(%}'%}<%}#%}%%'}'%}:~![)9@~%>~#UA%-%##&~!C%~!-.9:~!1~!-^2/:a~!y,D*J#-5)/4~%23,~#G~!L1~!0X3`~!2+~!!0-~&E~!W~!o,>Y&]~%cZx_&~#O*9#A#'#+I'%#)~!0B*-5A+-((F&*M#)(-7-5+'-3a5Vi~!Y~!?+[)%3),ERHm~!+:D,VG.+)?fB%%*(%)'(#&80%1'8`K8?`+'Z#&O&'H5#*9)A%%5&3))0%39+.*7#()&&*=4@**L)<'_&*+..;(#*+)./&0#3)%')-8(4ixD(&.}%,('aI:,)%,k2231T)I'#/-W7,/'Q#.'Y24+h')37</31&83##&0#),H(?'&?/1##%#&&#%''-%&&&#(&''&#.-'%#%%(,')*'&#&#'##%(%(#%('#&##%%%%('%#%#%%#%#&%##h>w+v<ayvyvcg.uuhKr}g/v|g>u9i[~>g5uI~=RvdwEg;v/g;uk!!TTSx]@RT!U!#!@VBRUU!'UTe-d0c`e&gSdicedFcrdTaqb.kYcAohdYd@a3e+d}dMdtd.aJ#bqcK`dle/e.e'dwdPdodddjbEb}ogd^ofdpduc6j?l%d{drdqc)d7bacOdQ%T#Y)X.sR[yH>6Vyv3[xwLu>vo'!*.[yBacahoj>6Rew3[xqdZa#!a&#^(X-[yG>6Vyu3[xvg3sEr|g.u/Ri9db0T#^(Xa)!-[y;>6Vylg4wKs{JwNZt3@3r=c4Z([xlg;wKt!cpq's@v7A'*a(a+!-a#[y<3Dt?3Dt'>6Vym3[xmg9rxsNJwLZt4~?r?db1T#`-!(Xa,!0[yS>6Vz%NuQs.g4wKtnJwNZtS@3r>c4Z([y%g;wKtrdga8!a(!#&T*Y-Xa#!a0<or[yc3Dtq>6Vz43[y3JwNZtf@3s!Ju}!%Dti:pm3c_%X#tjB5pkd6q!r]u?voC'*-a.a2!0a&a+[yI3DtI3Ds~3DtH>6Vyw3[xx;:s#~<5pKJwNZtE@3r~d`a)!a2T#a.(!+U.X1[yT3Dt`3Dtv>6Vz&3[y&g9rxwzcxstPu.<rAJwLZtT~?r@dZa%!a.&^*Za(/Reu[ya>6Vz23[y1g3sEr}wkg{NuQRg{ci(U#5@b`~,cg#U(2WnH5wugcRh7dX#T(Y,a'Ta!!a,[yZ<]mj>6Vz,3[y+Pv#5ReZKu+=,%!H}7ABwkaS?Rh:BcW(X#<]mrj:ubv/ARekdg%!(!a.*Ta(Y.X1!#sP>Rl*Dt6[y>>6Vyo3Wf*jOvuumvuRgRJuq*!:9<B@bX~3jVv&v@s@5Re[d/rQt{uAvo&a&a*)a2!,0Wf!3Dt0=Bs'>6Re}3[xy~<5s%JwJZt1~Gs)c;&!#2sJkNuXvzq7rxu,Re8dka4!a8(aEZ+a@Y.X1Xa)[yd=Bs(3DtP>6Vz53[y4cX#X&Re:avRe9~<5s&JwJZtQ~Gs*i^rzvdRg+Jv{%!2sbB@bX}kdga,!Za?&^*T1/!a'Dt+[y6>6Vyf3Wf%g/u;s4hGu6?Rh-JvZ,!c%#&RoX54Rivj7uyvf8RgTKvZB%*!2sGh<vu5Rgq<=C::9bb~#dZ#T&Ta6Y.X*Dt>[y93Wf)coZ(T,6VyifluvRgC@95@B@bX~/hFu34cC#T,k/unq8w8Q5RkUklwQuzunq8w8Q5Rk8d/rJu?v8w9)-&!a0a;a&aIWejg3sEr/h1s<DtDJvyZqY5aws3Jvy!&Wei~Hr1:au5@Bag>23E~5c:Z&bX};kKv?w&unuVu5Rjc;>bs)#~@:Rh.=ay<a]C;b`}Vd6s/t{uAvoaxa()!a,a7%-a#a2Dt,[yF2Wo[>6Vyt3[xuNuPRi&NuPwpi#RoWh?vf8Ri%Jv]!%Ri:KvxD!.'2WeAjZu`q9rxu,Re7woeAg-unLq(qA_/*2Wg_g3u5q^9:4E}/jTrxrzv=Wkkd~0UX#^^Xa-a1a5T&a=U1a'*aEa]!a*aPaA-adok[y54Rn>;:p3~Dp5g9rpsFNvZqjg3uJp4~<5p0Pw;5qlJwNZt*@3p1Pw:5p/Ou!5p2JvG'!6Vye=<qnJvh_[xhg3v,Rh3kOwOw-sDuev/Re^dha[a%!%!a+#Ta7)-5TaCaO!aka!a)sf[yb2>Rl!9ARiq5E}Qg=ucRkBE|oJrJ_@Wk~@Wk{JrJ_@Wk|@WkyJrJ_@Wk}@WkzJvO_[y2g-vMRmiKuYC!)&>Ri;>Ri<@3RkNc](X#@9Rk=g5vuRmhKvDB!+'=]meg3u4Rmgd)#Y'Vz3CARmfd`a+!%T'!+#Ta1Ta6TaM-sTDt9[yA9sYd'%Y#s[[xpj:ueunaXRgEjRq,v-vuqdd2'`#6Rev<32@5>:2<E}5xIo9a*X#Y(;5RePJvD_g>vyRgNj8w)v8<wggs:RgXiZt|vjx,hSq3ah!-(~@:Ro/Ou!5RhWj^v(pyw8unRhUdx-UY#^Ua.a3a70!)%UX1TaDa)'omRiRRhE[y:3Dsz=Br,>6Vyj3[xkg6ruwjcqsrPw;5r*Ku]D'Zt-@3r(~?r.i[vwv]dU1a--U#`a4(g/vsRhPOu!5RhLj:rmu9Wo!~@:wdh@g/vsRiTjXuvvNr}:RhBj^v(pyw8unRn]dz1UYa'a+^Y(!aETZalaRY.Ta?a4[yDJw1!#qLsW>6Vyrfzq-pLflpwRe|Js>%!Dt@3Dt&Jvy_[xs~HrnjMuwpsw'RecKu+D#'!t<~Grl~?rjg5u-x,gwp{ah!-(~@:Rg~Ou!5Rh'jXuvvNr}:Rh#cW#X/c;&!#2sLi[v7u7RgpJv)(!iLrxu,Re6j7v@s@5Se[e7d`aW!Za(a`T.a#!a3!&aDa-!9)Dt_=6s+3[x~~DR|h~DS6avhGun5RkZj3w)v-]mkKunB!&*]kb97R|i<ARk<c:Z(6Vy}Juh'!wziMRoS:F|vkLuauJv5vtvQRh1d='T+Y#VyO~DR|jcF#T'7R|g97R|kJv3'!ay<Rj,Jvh&!:ReXcsa6*a+#a#_aIRf9aLRf?c,Z&Rf5Rf7c.Z&Rf;Rf>cQ#%T'p-Rf8Rf=ct#%'(*!,p,Rf4p+Rf6Rf:Rf<d~'Ua%U*^UYa(!a,-!#a4YaTalaEX0a8a<Weo3Dt/3Dsx=Br93Wen~Dr;~<5p<JwNZt2@3p=Pw:5p;Ou!5r3c7&!#:p>3Ds}KvGB)_6Vyk2sM=<r7x'eovA(!hFu1ARf}cV#X&@r5j6rvwQa^Rf3c=Za'wkghJv__g;unRggA53B9=b^}%j6uduo5Jq;!(hIv%2Re`Ou4ARe_e%a#^^^Xa&!a*a2!&a6YaP!*ad!#a:aE/5Rn?[y@>6Vyp;:pE~DrY~<5pBJwNZt8@3pCh=rt3rWPw:5pAJup_[xoNuPpF9c!#'45pD5ARn)d8#X'X*3@rU72s]h>v<<sSjJpqvewOJq/(!hNw'5ReBk0s2u3w/w'5ReE5@Jq.!a+JQ!&WeU23d(#Y&RjG5]jBk!u7w&u0udARjEe#+^^^Ub#!a2/a`Z(agT1!a-a;|@TaG!aS[yV=Re~fow'RguNuPRe?bz#'>RoUWeL>:Cbb|?JwPZtVg6ruRmzJvD'!6Vz(g/vmRh~Jvy_[y(g9voRgyx*cy(#2>Ri2B9b]~9kIw9u7rluJu3Rg]dI#a%UY'@=p%CAx.gQZ&RhwwygtRm{x5g_Z'+ABqR9Woa=Bp&dV#^*Xa'!&@o{g4v]Rk;Jv{!%Rk[wkkiA5RkiwwfUB=x,fUuqC&*!>RfTg8v0RfV~ARfSd;rJsAuAv9wR'ae+/aO!a@aza/a#[yQ@Wg!2Wemg3sEr0JvB_g>uvReWg2v+Re=KupB_+[y!2AbY~-~Hr2AJwD!(h<~El>h<~El?Kun@+_:9b`}Kg-v/Ri3g;vtwyk_9]k_d=&T#*U.6qh@Ab`|K9:H|CJv[!&3Dtex'fDwC%!Rf[9WlMd[(^X,!a%Z06Vz!@WgBg=v~Rgvg,QRe@awd,#Y+jTv|Q~EfWj]uNr|~FRfXdy#Y&^Ua%!aO.!(a)Ua;=!a@aKap!a-,a!Ta]a[rSa]p?[y82sK=Bq~;:p:~<5p8Pw:5p7d'#Y'Wf(;RnRi[u4w&RgJJvG'!6Vyh=<r#ijuuv/sIKuYD'ZtG@3p9~Gr&d2#`(g<vtRgFj`u5w&rqpxRf2CJuY!+:wfnTOu!5Rg}jNs1ucv&RfwJvA!&3@q|BDcC#T,k/unq8w8Q5RkTklwQuzunq8w8Q5Rk9dga#!a'!a=#a0!:+Tb*b@aO.a4!aba8aFJv^}?!VyR~Dr<g;u%Rn.~<5p[x'e`wNZtR@3p]Pw:5pZhNvjBp.woe_g5u-r4JwF!%DtO3:ooc7&!#:p^3DtpLuGw(!+%)Dtk6Vz#2sd=<r8d'#Y([y#<x3gJt`w@!)%}MRiowzikRij=]ilxAf3,U(#B2Rf#g0v-Rm[ck{`U#]giKv3>)!&6Ri154s,KuGB_%@r68r:dJ|t`#X(9<E|u2@H|rx3gJu?w'!+'1Nu7Reg4=H~+9<wxgY95Rm]xLggZ-`(X}U2:Ri4h<uOawRmsJv__5@bb{jbV~3dka#a'a]!,#a+U=a>b6a3b%!/aKa/)!arwve^VyJ;:pR~DpTg3uJpS~<5pOPw;5qmPw:5pNOu!5pQJvG'!6Vyx=<qoJvA!{~Jup!%@qk7Rn/KvyD!}''[xz;>wkh'?Rh,x8gyt`w5D!&),(SgyccRgztJ@3pPB5p#d'(Y#<]mmifubw&RgoJvE&!82s^JvF&!8Rf,ADb]~;x=h'rNu]vK!,%'*0RnORh)4Rh*AqQg-vaRnNg;wHwkh'ba~4cE#Ta*x3gctyw@'!+%RnFRnD<4Rn@hFvK5RnCxWg[#`&a0Ua()`1Rm75Rg[c]%X#qi8Rg^NvdRj>BwzgZauwji7Rm6A4wgg]d1#&(*,.0a#Rm;Rm<Rm=Rm>Rm?Rm@RmARmBe%#^^^Xaea?aC/b+(,!a+a#!a/!>a&Ta<aKbD!2wphBRnk[yPw}hE|.=Br-3Dtm>6Vy~g6urRf.x,hPrNav!%'RnqRo%Ro#Nu;q[Pw;5r+JwNZtM@3r)d'#Y'Weh;xChL#`&RnmRnoKu}>%(!Rne~Bs-;2wjcussJv+'!aYSO}6@B<5?ba~8LrNvj!.%*ROwungw~ng~:9;Ri^>wtnig;wHRnixDh@|(UZ.x1h@|)!#:2<H|*xHn]#-UX'3Ro)z=iT}6ARns=Bwsn_wpnaRncw]aR(#UXa&Ua*a/=]iPd'#Y&Ro'WnXf{QRm2hNvj]nZd`'T~&1`{|`#9b]{}c:'!#Wl{>@=be}]?cl{{U#:5Abb}Jds#^YaF!a*b4a#a3aPa>&Tb!bH!*a_!Eau?/a&RjY<]gj>6Vz*;:pe~DrZg,QRj1JwNZtX@wihspcJvZ&!VyX9WmOJu|!|N2WmHJvh&!]ht~Bpbcn&T(!#RmQ<s7Nu;padH#X'`+WmJ@>RmKCARhnKup=!)&Wf+:RhqNuPpf9c!#'45pd5AwghpARn(Ls@w!%,)!RmP@Wfe<E|IJva!&WmNg8vsRmLd`*.`#Y'Xa!axRn*]hrA8Rhug5s@rXg8u!RmMd8#X'X*3@rV72smdI*#UY&RmICARho~GsgxVgd)Ta'U-Y&Xa!T#RnEWnA@Wffg1uDRi0hFvK5RnBxGnG&#`%owp)@wsf+bX}Ze-*1!a*^^^Ua|!#a.aq&Ya2!a>.a6!a:aO`aJDtL[y`@Wg#>6Vz12@wzoYRoZNuPRi!NuPRhzg=ucRi,@=b`{Yg=ucRi-ACJvB!&Sh[ebSh]ebi`wUuFRm4Jw2_[y0JvB!.<Ju(!&SoG}6Shd}6<Ju(!&SoH}6She}6Kur@._g5vHRieJvx!{L2G{Kx6gd'T#?Rh82Wi5cZ#X(g1w)Rm5dW-Y(Ta#!a)!#aYa=wnfE=su2>>bU{0j9udv:<svj8uQv-7RgHdE%#^'sq9sp=>Bb_{TJv`!&g/r|snj6v(us5d,#Y(56H}[978H}]Jw5!&g1rushJvB!+j;v{u5?zDhd}6}bj;v{u5?zDhe}6}ce*#`(^^^a[aea!=!a6a*aoXb1a.!aAbL!b>,b'aL!aV@Wf|2Wlg3[y/JwNZt^@3piPw:5pgJunZou3@rsJva&!Vy_g<v~Rm#JvG'!6Vz0=<r{Ju{%!:pj@WfsiXuJu3Rm:JvZ&!WfA~Bph@c4Z&Dtwax5rubx(#:awRk1@d,#Y&RfjRfid1#,Y(@Wfp2Wlrg5s@ryKu[@!,'=]ig9wlk?Rk>g5u-rqJvy'!@9RkQcH(T#=>Ri~@<wkj(Wj(KuZB*!&<7rw@9RkRcH(T#=>Ri}@<wkj)Wj)dg(Ta2Xa9X#`-!a*CARhg@@=I}d9x;c~#X%so=<sj>2@@=aybb}XjWv0Q~EfEj3vLv;<d,#Y(56H}`978H}_dgaPaFa'a/!#a3Y0a_a;a|!1(a7-[yE3[xt;:pJNvZrrg3uJrvJwNZt=@3pIh=rt3rxPw:5pGOu!5rpJvG'!6Vys=<rz@c4Z&Dt(ax5rtJvZ!&~BpH@wsfNg-vaRlNci*U#=<wei<F}a5@Jq.!a*JQ!%@qZ23d(#Y&RjH5]jCk!u7w&u0udARjFd/prq=tyvpaEa(a:.!a1aZ(@@=I}:9wpd%=<sX55w_h}@@=I{t=ay<aU@@=I}T=ay<2@@=I})?C9:9au@9Cb]}DP~=x-fAZ(2Wl1=ay<aU@@=I}>5@d##Y+jTv|vV~EfFj]uNpn~FRfGdgaK!Z2&!a8a-Tb({E!acTbM*!a(DtY[yYd'%Y#sl[y*hHvh>Re5x2c{Z}.j4uCvcawRiMd+#X+_x&d!},<5RkX;2Hzw@x,gavfB-!{CcF&T#Roe;RodwWbBg5urRgaKvHC*_6Vz+<4opieuew&Rmq@d]&Y)X,T#X0Rh}<BqP=4qS9:ReMg/ujReNJw0!/<Jui%!bd{kawwnemRelAxUa?a3#*.&UX(Ya+a/RhvRnQ<o}9Wmtd-#Y&RgSRmw9;Rmxay=Rmyg-vaRmuxEhSrNu,v-voC!%(aR.a(a7+1Ro1>Ro5CE{A9b]{@;5x#eO{:g;urRi+KrNA!%(Ro3>Ro79;Ri_Ku@>{;&!x%gX|{KunA_+g5QRj/g3u5Rj#g>uERj%wio/xRhS&!,!#^1U}wba{8>>@=be}qC@:D5ba{7Ku+A&!}x?ba}t>>@=be}se(aA^^^Uat!b0#{pa+awUazbGa#aLb9bgaWac'a5TbS=Br!d1#`%scp_Jvl!#rT>Re0JvX&!VyN=H{Fcm#U&:pY=ReaJv2&!]h0=]nUJvG'!6Vy|=<r%JrM_=]h2@Wlud'#)U'Wf'b]{i=]h/Jvh!&~BpWg=v]RnMx+ny#'Nu;pVwjnu=]nwxJnx,T#`&Reqwjnt=]nvieu9vrRjLLuYwP(#+!th@wih5pX~Gr'g5v/Rh4KunA'!-CARnP@wwiN:Rm_9x'cvw>!|l=<saKvAA!0&3@q}>w^e1bp#&Re2Re3BDx7gH#T|f5H|eKuZ>!%(:qNAH{]Jv6!+3B2B9=b^{X<5<B92:E{ZLvhwA(a;a%!igQuyRmad+#Y}m@3Rh5d8#X'X*:AqUAHzmaxwbh<aXRnVcF}RT#Nw&cj#U(BWnug/vsRntdka)(a3+.Zb7aYYan1!bVa@Xa}[y^@b[{G=H{+hFu73Rj&Pv#5ReQcK%T#sig1v{Rj'Ku+D#'!t]~Grm~?rkKuMB!01d5#`'Vy.ta3Dtu~Hroc8#'{^45s85AwZbP&!#Rn!wghxWn#KvEA!)&2RlA2RlBx:h|#(T,=]j09Wobz>x]z/@awRoTd+#Y(az]hFhCrm4d,#Y+jTv|Q~EfMj]uNr|~FRfOdCa!Xa9_X#@<plJvf!%b`{(9;Rgwc;.!#2x7cw#T|UDb]|T5Ju={(!=@E{&Jv)&!Ab`{'awJvf!~*>>@=be{#KuY>!+&4Ezyi[ugv&RjIdea+T)#UXa&T-T&a!Rh9auRmW=]kLg5vuRn+g3u4Rn-Ow6ARn,hHus5xNk?#UX(U~)/g8v0RkD~AwkkF?Ri.OuNBwkkA?Ri/d|a2`a*^UYa.!aBTZaTa'Xa;!(!2!-a#b2[yC>6Vyq3[xr2Wi?g1rusVh%s?DtF~<5rbJs;%!DtBfswKtCj[uvuSsEu3RgVx3o:u+wN'*Zt;@3rd~Grh~?rfg8w)Lq)qE&-a%!>bI|`jWv0vV~EfCjTv|vV~Ef@j]uNpn~FRfBcK#T']gWNu7x,k7q4ai(0!hHv8<RhmkMu9vrsBuev/RhlCJvB!,g<v{wchh~@:Rhji[vrv{wchi~@:RhkdS&a5UY#Ta!RgPwwiI5BwciI~@:Rh`x'iJvj'!5]iJPu8Bwch]~@:Rhach)U#h3rp]gLh@t|Ax,hTq3ah!-(~@:Ro0Ou!5RhXj^v(pyw8unRhVd|)`,^UYas!a?/a2Z'a^Ta{Tb7Ta(a#!a,Wf&9sZ3DtAadamov=Bqt3[xig8vsRm~>waiL2b`{QJv*_Ouv2qgj<v]v2BqfdR'X*X#Y-@3qr~Gqv~?p6hHv-]glPup5Lq+q?_%*b_{qF{n9b^{rOu4ARhpKvCD!+&~Bqp:5Dbb}nwoiKl&unuTuBv]v+ueunaXRf0=Jvh!0nKufu8v1w&w7q%w&uHrz:Rgnj5w,uxDJq/(!hNw'5ReCk0s2u3w/w'5ReFd>Za&!*UaA=<wkgsRnSJv^!%Refifw3vyRgOKu_B'!,<]gkiiu:w&Rh<=C@a^<B57@2F{[<B5@aW:=3away9A5aW=<B=C@a^<B57@2F{Ie-#`(^^^bCara.b8aza6!/bZ,!adTbnTbOb+aFaS!aAT9@Wf~2Wli3Dtl2@d,#Y&RfnRfmJwJZtN~GqyJva&!VyMg<v~Rm%iXuJu3Rm9Jv[_=]ih9wlkDRkCd1#`(@Wg>2Wls3cH#T(@<Rj*=>Ri|b~'#23s9h<~El.d'#Y&Dtxi^rzvdRl#d*#U%(o|B2s`hJwSaxRmDKv4B&!1:Rmdd5#`'Vx}to~Hq{x'f1v3(!BA5ba|bJv_&!Wfug1v]ReIdO+U/Y#&G}-8wze=Rh{g1v]ReHg/uQRf/by#)ibQwERl/cH#T(@<Rj+=>Ri{cNu+vlax-!(#a0qa9<Rii2;;bU{H;x<i=&X#Rk`<4wwi=C9H~8xAI(Y#<azRi@45wXI<B9;5bb~7dL(X#Xa(+!aL6Vy{g5QqOau:5au2@ay547EzbxOcU(UX-T#Ta#:Cbb|A?wjh/b_|SOw6ARgtihr}u7Rhy<d1#T)X1@@=I|~=ay<2@@=aybb}Sj3vLv;<d,#Y(56H}A978H}@dGpvs@uAu`vcw9*!aFa+ai%(b!aXa8.a?a[ozWey=sU2@G}Nch&U#Rf_WexKu+D#'!t:~Gr`~?r^j]uNr|~FRg*j^psurwJt|RmcKv)@&!)7Rkv~Br[@wxfO:Rl3co#U'6Rezj_q#vIuavjRltwzeyh@vr5JqD0!>aY?C9:9au@9Cb]}9cl#U*5;5<H||jbuus1ucv&Rfvg1v~d/pppzqFr^a--a~!aMat1(hFv;Wiz@@=Izoj5uuv-7Rix~Cw`fk2WlVcZ#X,k)u3vWs@u2]ktg;wEx'fBq(_2Wg/jTv|vV~EfoJv]!15x'hzqG!(P~EfU~CRl_j6v(us5x4i-#T(2WmZ?C2F|d>Kq<aj1!*jTqIsBv=Wl`~Cw`fi2WlWj`v0u*~>RlR=c>Z,k#u3vWs@u2]kr<c1Z+jTqIsBv=Wla~Cw`fm2WlXdmb3!a{(arZa`bkTa%TbQTa-a9+c'!aM!/[yL=Bqug.w'RifhFvyDRj.g>vgwyk^9]k^Jv3_@WfbAARkhJw2_[x|JvB_wkoIRoKwkoJRoLd'(Y#<]gm=<9<H|yd'%_X#skDtb3awwqkgNulRkgdB#^',9:p'hJwSaxRmEBwVb8@4=H|qLu+w50&!)@3qs~?pU>Awwn;;Rn=c:Z'ARn<=<qwKvC@!/&~BqqJv6!&]eVb^z^xRge'/a%+^`#Sge}6<4Rn3=]n0Pw2>Rn8Jw0!&>Rn:>Rn6cY#a7+!a&=<wkaNw~h3z_c5Z{=wjh#=]nLKv^D!&)Vyz=bW|swYb<WetcG#T(2wxa@qVx@gD#Y&b^|V5JwG&!5bb|pg/w&RgD@x=kHs=uAvn!a%%/'+RmSRh694Ro`g-vaRmRhHv-]mlxCcS#`&ba~.5cD#Ta)P~=d,#Y(56H{>978H{Dd_#{2^Y%_+qbbb{6g3sERhsbU{?dfa.,`a(Xa<!aiX#(55RiG54RiHcI#T'WiU3RiVNvdwtfcRlKNvdd,#Y&RlHRlExQgf.1*^T'X#Sgf}6Wn4=]hfPrk>Rn7Jw0!&>Rn5>Rn9Lunw?&a2!,5<oq@@wqfdRlJj5Q~=d,#Y(~ARfcOuN]fdDKw;ay(}i!547E}j?cI#T(@5bV}iCbV}hdv(^^Tb?a40,b##Tbo!a*bR!a<b|a/!aKai!aU[yK=]o^g:v>ReGJwPZtK<7Rh+h<~El,Pv#5ReR@awwxjCg,ulRjDJv6&!]j!z?aQeeg>w=Sh<eeJw;!&axEzOg,Qosc!#*:wkeJ]eJ>x'h-u(!%Ro.w~h.zPdNZ(X,Ya![x{;9ReY;wkgxRiF:x?ap#Y&RmUg<s2Rkod]+UY0TZ'!a&A9sw<=bczLNvuw{gqzNhJwSaxRmCKuLay!#&s_Rf-55b^{uJvZa!!c%#(55Ri654wmiu5RiuawLu,vp!+}^%b_}Y9;wkgxba}o>A9:=b^}zKuh=a''!3awRk3c*'!#aHRk6c+Z&Rk5Rk4Jv)&!awRjSawd9*`#0?C2@EzMj8u<uJ5RmbjQrquJu3x,k>uq@_+=ayb^|W~ARkEOuN]k@7dhzV^X/X&a-#zRzSb`zXcJzTT#2WkVKvDBzW!%FzY9;5bbzWjQrquJu3Jw3%!b`zU=ayb^zQd:#X(T-a!6Vyywxh}=b]{Jg=u1RiAdGp~qHtzv!w(wA+a+a;<!aJaYai'anasb(=azRmV:Cbb{MLq2vb!%')RjuRjrRjtRjqx3jnqCw3!%')Rk(Rk+Rk&Rk)Lq2vb!%')Rj{RjxRjzRjwLq2vb!%')RjsRjpRjfRjex3jcqCw3!%')Rk'Rk*RjkRjl9<CbbzfOu4ARhxLq2vb!%')RjyRjvRjhRjgx=joq*uKvb!%')+-Rk.Rk%Rj~Rk-Rk#Rj}x=jdq*uKvb!%')+-Rk,Rk!Rj|RjmRjjRjidAq&qKs@uAv8Aa.'*-a@a&0!aM@a5[y73Dsy3Ds|3Dt):wxgI2sHJwJZt.~Gqxwsf0ikrzt}Rl0Jvy_[xj~HqzKv_A|D!&WfP8axRoVcf,U#k(v]v+ueunaXRf1Ju}'!g8u#Ri=jQw!sCunLprq>!,')~<5qeGzq9F{W=c##%s5au:5aU3CBE|;d4#X(D!a&6Vygx(b;#(=]ed?C2F{N<capoq2r[a&!aPa9,'Pw;5s:@@=I|,55w_h|@@=IzcP~=x'fCqB_2Wl2>aU@@=I|1OuNBc1Z+jTqIsBv=Wlc~Cw`fl2WlZ~AcTa%!Z+jTqIsBv=Wlb~Cw`fh2WlYk+uNqJsBv=WlSg,u3dca3#UXaMYa)TaB-=cM|7T#<bI}l5@B932:aV2G{BOuNBJq:|M!5Ezt=<B=C@a^<B57@2F{v>cB{/T#=ay<bI{3Jv6!a.6BKq0ah&+!5E}HP~Ef{978BaU@@=Iza<7d#.Y#978BaU@@=IzH~AJq0!(@@=IzG978BaU@@=IzFe,aU*Y&^^^bvJb,b:bFad!a,c2Ta>aL.bo6!a#CbTa'T#Re{2Wlh2@G{yg6t~Ro_NvdRfticuRQRllJv3&!x&c|zs@Jw3!%RflwpfkRlpKuL;%(!Re<@G|C2GzdhIvuBwgjAg-u0RjAKQB%!(GzZ@G|5NuuRl7d='T+Y#Vy[g<v~Rm!==G|>JvA!)@wma=]m1ifuaw&RmnLs@vT'!|/+[y,g:v>ReTJw1!#qX=x!eC{bLu+wT&)ZtZauq_~Graci&U#F|89:r_Lupvq!.)&2RlG8RfaC=x!eF{_h?rpWlmd&'!#X|&]k::xJey#`'T|+<E|&2@H|%dE#(^,g;u.RiEg6vjRiC9xCkA{O|zY#g=ucRmXKs0@!&*@G|m@awRknJuh!,3d(}gY}eJvj!%Rm):Jw3!%Rm+Rm-Ls0w(&!a(a#@b[|6cZ#X'7RkxWgAOu4ARn'dH'U#Y*Vz-Wm'CARm}d]*#a%^a*T'aK!a<9bV{PC=p*Jw4!&SgxcbB5r]idw(wBRmF7xFkt#&`(Rm/Rm8E|!JuY_9:Rl5=wrgr2:bbxd@xXfB(a*#T+!.X0X1Ta/a'T&RlDRfL>RlyARl9b[z[>RfZ:RlL:RfRwlg/ARl;9;RlxKv,A/!%7s69<74=BA5ba{-8Bde#`a<XaKYa1,a'P~=wxfB2bZ}}?C972@@=I}r8@55B9;5bb}G978B2@@=aybb}3j3vLv;<Jw3&!>Rfk=ayb^}4~Ad1#`*@@=aybb{w2@>==<bbz]dx+UY#^UaF!a9!bB'Ya1.!ajXa#%olRhD[y=3Dt#Ov5BrHKuMB%!(Rf^Wep~HrJwkiQjKr|~FRg)Ku+D#'!t5~GrF~?rDdV)UY,Z/_7RkuG{<~BrBg,rlsO:235B@bX}|d?a1!#`(6Vyn5@d##Y+jTv|vV~EfIj]uNpn~FRfH7Lq2vb1!a9-978BaU@@=Iz9978BbU}#~AJq0!(@@=Iz8978BaU@@=Iz7~AJQ|}!978BbU}!JvkaK!AdUa21-U#`a+(g/vsRn~Ou!5RPj:rmu9WhOjXuvvNr}:RhAj^v(pyw8unRn[kPr}p|u7vwv]RiSBd;pppzq@qHQa?(b.!a.a`@.|xa(hFv;Wiyj5uuv-7Riw~Cw`fg2WlU978BbU|wOuNBJqG!(P~EfD~CRlQcZ#X,k)u3vWs@u2]ksg;wEx'f@q1_2Wg.j]uNpn~FRfqJv]!15x'h{qG!(@@=IzK~CRl^j6v(us5x4i,#T(2WmY?C2F{1>Kq<aj1!*jTqIsBv=Wld~Cw`fj2Wl[j`v0u*~>RlT=c>Z,k#u3vWs@u2]kq<c1Z+jTqIsBv=Wle~Cw`fn2Wl]dn1#c(a(b^a2!b/bAT(bj!aDa7bu,a_a{c0!2T0g:v>ReD2@G{42@G{5~DpM~<5rc=Bx6i>{RT#RnI@zCx]y]z:2Jv[!zr5Awyk]9]k]dD(Y+X#6Vz.g=wKtgwhaCwgmTWj2Lu,w%_+/[y-B;b^xeg3u3Rj-2@bX{*KrJ<!+'@Wg(g?QRlC@Jv`!%b[zIwsfII}8JQ_@w|kW|=Jv(%!AqcOuNBJvEzh!bYzjLs@wP#(0!oy@>RkdJwMZtc3Dtd@BcG#T'9bWxg2@2Fznd*#Y+;2x'c}w<zizixNgwa#Z'U+!/!a'!a+w~g~z6wcn{Rn}wcnzRn|5Rh%=]nJg5vuRmvNvdRlvcprJu}w*az*a#!%.a.'Bot9qT]kj@Wg'ay2Gzv@Jv`!%b[zEwsfHI}1;ck#Ux`<Cbbx_Lu+w!a&0*!wko*wwo,So,}6Juqxf!E}PigQuyRm`d3(`#8>Rn%:A5B;bZ~%KvhCa!a2!x>k7#Uxb@b{#xaRk7Jw0!)>wwhlShl}6>wwhmShm}6CJvB!.x'hhvj{!!5Bwkhhbaz}x'hivjz~!5Bwkhibaz|xEhTrNu,v-vpD!a%&/)a3a.,%Ro2t[CE{)@3re9b]{%wjo09:rgc:Z&Ro6=<riifuaw&RmoKrNA!%(Ro4>Ro89;Ri`dSaL'UYzxZb)7Rka3xRhT&!,!#^1U}vbaz{>>@=be}yC@:D5bazzKu+A&!}{?ba}y>>@=be}wxBh[t`u~vJvr!%a!a()a,a0a4RoC=]o;Ju(!%RoGRhdwjh`=]oAg>w#Ro?g5vuRo=NvdRl|Ku]C.!&;RoEJvB!%RoORoMBx'h[v+_?w~h`}~5?w~hd~!xKh]oiptu-utv.vp!#%&a30a@a'a+(a/aOp(o~p!RoDJu(!%RoHRhewjha=]oBNvdRl}g>w#Ro@g5vuRo>c[#X']o<CauRoRAd-#Y':RkpauRoQKu]C.!&;RoFJvB!%RoNRoPBx'h]v+_?w~ha}t5?w~he}ue!/UbhYacXaW^Tc&a;b:a-c/#b&aja1(!cL+!bKbt!bmcRc9aIc?8[yW3Dtt94Rg`Jv}!&SiRMzBhEebShEMNuPRe>x7gL#TzuwjirRipc<Z&>on;>z=h-MSh.Mwqczx'a7vj&!>Re4@=ResJt__NuPRi*NuPRi)j]uNr|~FRfzKrJ>_+@Wfy@Wf]2WocKrJ<!+'@Wg%g/QRl@@Jv`!&awRl<wsfFIzgLu(w*!.*&ShBMwvhIRhI9;RhNx1hK'!#Sn]Mx1hK~0!#:2<H~7cNu+w7D*'1ZtW>Rn1~?rOc:Z&Rn2=<rQ<7wjh&=BSnLMc]#X(6Vz)w[b=a!U#9wzgMc3#&(RgMRitRis<x,gKt`ax!&+SioM=BSilMc3#&(RgKRinRimKurB,!&SiQMzBhDebShDM6BJQ!(P~Efx978B2@@=I}WLrJw!!,a*&@G}O@9wkibRid@@x'fKwC!&SlDMSfLMjUv~Q~EfKKv3@a+!(hFv-]mpx/hYZ(C5RiWz<o/MwkhY?So/M@x,gbvfB*&!SgEM:SoeeehFu3:Rgbda(,^TZa)X/7Sg[eb:2RgI~BrMC@wgkc:wwkcRerx3h(uUvK!&*,SnOM4Sh*MArRg;wHRh(x=h;rJvPwI!a4',a'0@Wg&=BSh/Mg>w=Rh=g3w*wwgGRgGcW(X#;Sg}M2Gzk@Jv`!&awRl=wsfGIz`dKZ*T'Y-:RhR7RhQg5u-p`j6v(us5d,#Y+~Awkia?RicOuNBwkibba}Ld6p~tyu_vbAa'a+!a/'a3aEa8a!>Sh,ebJv{!&Sh@ebSaReb9;SgwebNuPRi(NvdRl)NuPRi'hHu^<Rm^Jvv_@Wl(g;u1Si/ebKu'B&!*Sh?eb@Wl'z@aPeb95Si.ebcpputyvjB)!,&a+0a%ShAMWeK@G}C@WfJ9;RhMwvhH9w{ia}ix,hJvRA1(!zAn[MRhHx1hJ~*!#hFv(BSn[MBJQ!(@@=I~'978B2@@=I}2db.Ua<'X}+T#a0XaG2G}E;wkg|wuh!Rh!x,hZu,@)!&So0MVy)C5RiXACJvB!&5RiY5RiZg8w)cG}*T#2@bU}=KsA>(!a.3wkhZba~(x,h^u(A!&(SoCMRhb5Bz=h[eb?w~hb~6x,h_u(A!&(SoDMRhc5Bz=h]eb?w~hc~6e)aA1T#T,^^^c-bMb&blcPaP(a/!0!bA=b5c@a(!bfbrc#2afwmhARnjwchORnp2Wlf3DtsNvdRl-2@wpa<]m0bx(#:awRk2@Jw3!%RfhwpfgRlnKQB%!(G{V@G|'NuuRl6d='T+Y#VyUg<v~Rl~==G|<Jv+'!aYShC}6@B<5?ba~8@Jw3'!g2QRljhLrpWlOd+#Y'g.w'rIg>w*wgj@g-u0Rj@Lu+wT&)ZtUauq]~GrGci&U#F|39:rELrNvj!.%*RhCwunfw~nf~:9;Ri]>wtnhg;wHRnhx3hDs@v~!/+'@Wfr@9RkSNu&Rlo=@<5GzoKs0@_+@Wl+@awRkmJuh!-3d(}pY#qWJvj!%Rm(:Jw3!%Rm,Rm*de&!1U-U#`)Re;@G|.@9Ri82@wjfvRlq=@<5GzpLvOvr!).&2RlF8Rf`C=x!eE{.Jw3_g2QRlkhLrpWlPde(!#U{s,UXa*Ta'[y'g:v>ReS;x0PZ&RnlRnn~HrKJw1}f!=x!eB|2w]aP(#Xa&a*Ta.Ua2a7=]iOd'#Y&Ro&WnWg;u.RiDg6vjRiBNvdRlzhNvj]nYJuW_2Wm3x)kFze{9d])!a.!,Y01!#&aC!a3RndC=ox~BrC@2b^{pg,rlse7x'ksuq!%Rm.E{xidw(wBRmGx9o+)X#wwo-So-}69:Rl4@xSf@a#XZ'X)X,Ta(/ARl8b[xc>RfY:RlI:RfQwlg.ARl:9;Rlwdn'#^XafaQa1X1TaHTa)@b[{zcZ#X'7RkwWg@Ou4ARn&x)kG#{,g7u/RkGdH'U#Y*Vz'Wm&CARm|bx#(A]gUbUzJj9Q~=d,#Y(56H}l978H{U7d,0#U*2>ABb_xZ978BbU{e~AJQ{g!978BbU{hxMh?ad{oUYZ.x1h?{l!#:2<H{mx3n[t{vl!,&a%3Ro(z=iS}6ARnr=Bwsn^wvn`Rnbd`*T}B0!#^X'BG{c9b]{a>>@=be}F?JvS!&BG{d7BG}(Bde#`a1X,Ya@!a'P~=wxf@2bZ}I56B2@@=aybb}08@55B9;5bb}<j3vLv;<Jw3&!>Rfg=ayb^}&OuNBKuLA!)a!P~=x#fD{f2@>==<bbzl?C972@@=Ix^d6rSu,v7w*C(0a)a6#B+a%!sQ[y?3Dt%3[xn~<5rLOu!5p@Ku+D#'!t7~GrP~?rNKvlaya7'!h+v-5qMg=t|cd,U#5AAaa5Abb{S@52B5@a[@52B5Gx[iXueu;d<#`a(!/549C;ag>23ExY5@Dah89b^~689Jv)!~2b[~1Lv'w(%*!a#bX|aPrmawRe]keu7uhv-q6rxu,q`xTo]/a5aU!bNaDXbi!b-!ao!b<bwA!#5@B932:aV2G|:d-)Y#hJrL>RhG<7@C5<H|_=Cau:5aj5@B932:bJ|ng>vIbs)#?C2F|9jPv0w.vISh-MKvUaz(.!9ABbb|[5;5<H|Eg>unwfh;9:4E|YjQsBt|vjx'hYq3!(?C2F|J:2<BaY?C2F|GOu!5x,g|p{ah!-(?C2F|c9:4E|OjXuvvNr}:Rh&i[w*t|cd+U#jJvsu)vsSn~Mkfrmu9p}u7vwv]So!McW#Xa!ax5@A5aY:5;5<H|>kJv~vYrquJu3x4ib#T)2@SmZM?C2F|Bj:rmu9@xPhI(a*a#U#`a3-5Abb|L~@:RhK9:4E|0@52B5G|#C::aY?C2F|-:2<BaY?C2F|.5Jvk!a)javYrquJu3x4ia#T)2@SmYM?C2F|HAxPhH(!a#U#`a*-5Abb|4~@:RhJ9:4E|R@52B5G|F:2<BaY?C2F|Sc^#Xa2j=Qq5CJvB!-g<v{z;hhM?C2F|Zi[vrv{z;hiM?C2F|XKsA>!a)-g<v{z;h[eb?C2F|]i[vrv{z;h]eb?C2F|^iZu.vix,hZq3ah!.(?C2F|QOu!5ShXM:2<BaY?C2F|P", 13494, 2713, 49, 25, 61);
+
+  // node_modules/entities/dist/generated/decode-data-xml.js
+  var xmlDecodeTree = /* @__PURE__ */ new Uint16Array([
+    512,
+    26465,
+    29036,
+    7,
+    0,
+    2,
+    4,
+    116,
+    24638,
+    116,
+    24636,
+    8693,
+    29807,
+    24610,
+    621,
+    1,
+    0,
+    0,
+    3,
+    112,
+    24614,
+    111,
+    115,
+    24615
+  ]);
 
   // node_modules/entities/dist/internal/bin-trie-flags.js
   var BinTrieFlags;
@@ -50612,36 +50551,33 @@ var { detectImport, doExport, doImport } = (() => {
     BinTrieFlags2[BinTrieFlags2["FLAG13"] = 8192] = "FLAG13";
     BinTrieFlags2[BinTrieFlags2["BRANCH_LENGTH"] = 8064] = "BRANCH_LENGTH";
     BinTrieFlags2[BinTrieFlags2["JUMP_TABLE"] = 127] = "JUMP_TABLE";
+    BinTrieFlags2[BinTrieFlags2["VALUE_MASK"] = 8191] = "VALUE_MASK";
   })(BinTrieFlags || (BinTrieFlags = {}));
 
   // node_modules/entities/dist/decode.js
   var CharCodes;
   (function(CharCodes2) {
+    CharCodes2[CharCodes2["AMP"] = 38] = "AMP";
     CharCodes2[CharCodes2["NUM"] = 35] = "NUM";
     CharCodes2[CharCodes2["SEMI"] = 59] = "SEMI";
     CharCodes2[CharCodes2["EQUALS"] = 61] = "EQUALS";
     CharCodes2[CharCodes2["ZERO"] = 48] = "ZERO";
     CharCodes2[CharCodes2["NINE"] = 57] = "NINE";
     CharCodes2[CharCodes2["LOWER_A"] = 97] = "LOWER_A";
-    CharCodes2[CharCodes2["LOWER_F"] = 102] = "LOWER_F";
     CharCodes2[CharCodes2["LOWER_X"] = 120] = "LOWER_X";
-    CharCodes2[CharCodes2["LOWER_Z"] = 122] = "LOWER_Z";
-    CharCodes2[CharCodes2["UPPER_A"] = 65] = "UPPER_A";
-    CharCodes2[CharCodes2["UPPER_F"] = 70] = "UPPER_F";
-    CharCodes2[CharCodes2["UPPER_Z"] = 90] = "UPPER_Z";
   })(CharCodes || (CharCodes = {}));
   var TO_LOWER_BIT = 32;
   function isNumber(code) {
-    return code >= CharCodes.ZERO && code <= CharCodes.NINE;
+    return code - CharCodes.ZERO >>> 0 <= 9;
   }
   function isHexadecimalCharacter(code) {
-    return code >= CharCodes.UPPER_A && code <= CharCodes.UPPER_F || code >= CharCodes.LOWER_A && code <= CharCodes.LOWER_F;
+    return (code | TO_LOWER_BIT) - CharCodes.LOWER_A >>> 0 <= 5;
   }
-  function isAsciiAlphaNumeric(code) {
-    return code >= CharCodes.UPPER_A && code <= CharCodes.UPPER_Z || code >= CharCodes.LOWER_A && code <= CharCodes.LOWER_Z || isNumber(code);
+  function isAlpha(code) {
+    return (code | TO_LOWER_BIT) - CharCodes.LOWER_A >>> 0 <= 25;
   }
   function isEntityInAttributeInvalidEnd(code) {
-    return code === CharCodes.EQUALS || isAsciiAlphaNumeric(code);
+    return code === CharCodes.EQUALS || isAlpha(code) || isNumber(code);
   }
   var EntityDecoderState;
   (function(EntityDecoderState2) {
@@ -50661,11 +50597,6 @@ var { detectImport, doExport, doImport } = (() => {
     decodeTree;
     emitCodePoint;
     errors;
-    constructor(decodeTree, emitCodePoint, errors) {
-      this.decodeTree = decodeTree;
-      this.emitCodePoint = emitCodePoint;
-      this.errors = errors;
-    }
     /** The current state of the decoder. */
     state = EntityDecoderState.EntityStart;
     /** Characters that were consumed while parsing an entity. */
@@ -50673,18 +50604,29 @@ var { detectImport, doExport, doImport } = (() => {
     /**
      * The result of the entity.
      *
-     * Either the result index of a numeric entity, or the codepoint of a
-     * numeric entity.
+     * For named entities: the trie index of the best legacy match so far
+     * (0 = none). For numeric entities: the accumulated code point.
      */
     result = 0;
     /** The current index in the decode tree. */
     treeIndex = 0;
-    /** The number of characters that were consumed in excess. */
+    /**
+     * Characters consumed since the last recorded legacy match, plus one.
+     * Invariant at the top of the `stateNamedEntity` loop: `excess` equals
+     * the number of unrecorded consumed characters + 1.
+     */
+    // biome-ignore lint/correctness/noUnusedPrivateClassMembers: False positive (read via destructuring)
     excess = 1;
     /** The mode in which the decoder is operating. */
     decodeMode = DecodingMode.Strict;
     /** The number of characters that have been consumed in the current run. */
+    // biome-ignore lint/correctness/noUnusedPrivateClassMembers: False positive
     runConsumed = 0;
+    constructor(decodeTree, emitCodePoint, errors) {
+      this.decodeTree = decodeTree;
+      this.emitCodePoint = emitCodePoint;
+      this.errors = errors;
+    }
     /**
      * Resets the instance to make it reusable.
      * @param decodeMode Entity decoding mode to use.
@@ -50702,7 +50644,7 @@ var { detectImport, doExport, doImport } = (() => {
      * Write an entity to the decoder. This can be called multiple times with partial entities.
      * If the entity is incomplete, the decoder will return -1.
      *
-     * Mirrors the implementation of `getDecoder`, but with the ability to stop decoding if the
+     * Mirrors the non-streaming `decodeWithTrie`, but with the ability to stop decoding if the
      * entity is incomplete, and resume when the next string is written.
      * @param input The string containing the entity (or a continuation of the entity).
      * @param offset The offset at which the entity begins. Should be 0 if this is not the first call.
@@ -50728,7 +50670,7 @@ var { detectImport, doExport, doImport } = (() => {
         case EntityDecoderState.NumericHex: {
           return this.stateNumericHex(input, offset);
         }
-        case EntityDecoderState.NamedEntity: {
+        default: {
           return this.stateNamedEntity(input, offset);
         }
       }
@@ -50741,6 +50683,7 @@ var { detectImport, doExport, doImport } = (() => {
      * @param offset The current offset.
      * @returns The number of characters that were consumed, or -1 if the entity is incomplete.
      */
+    // eslint-disable-next-line unicorn/consistent-class-member-order
     stateNumericStart(input, offset) {
       if (offset >= input.length) {
         return -1;
@@ -50756,44 +50699,61 @@ var { detectImport, doExport, doImport } = (() => {
     /**
      * Parses a hexadecimal numeric entity.
      *
-     * Equivalent to the `Hexademical character reference state` in the HTML spec.
+     * Equivalent to the `Hexademical character reference state` in the HTML
+     * spec. Digit parsing matches the hex loop in `parseNumericEntity`.
+     * The accumulated value is preserved for numeric validation callbacks.
      * @param input The string containing the entity (or a continuation of the entity).
      * @param offset The current offset.
      * @returns The number of characters that were consumed, or -1 if the entity is incomplete.
      */
     stateNumericHex(input, offset) {
-      while (offset < input.length) {
+      const inputLength = input.length;
+      let { result } = this;
+      let { consumed } = this;
+      while (offset < inputLength) {
         const char = input.charCodeAt(offset);
         if (isNumber(char) || isHexadecimalCharacter(char)) {
           const digit = char <= CharCodes.NINE ? char - CharCodes.ZERO : (char | TO_LOWER_BIT) - CharCodes.LOWER_A + 10;
-          this.result = this.result * 16 + digit;
-          this.consumed++;
-          offset++;
+          result = result * 16 + digit;
+          consumed += 1;
+          offset += 1;
         } else {
+          this.result = result;
+          this.consumed = consumed;
           return this.emitNumericEntity(char, 3);
         }
       }
+      this.result = result;
+      this.consumed = consumed;
       return -1;
     }
     /**
      * Parses a decimal numeric entity.
      *
-     * Equivalent to the `Decimal character reference state` in the HTML spec.
+     * Equivalent to the `Decimal character reference state` in the HTML
+     * spec. Digit parsing matches the decimal loop in `parseNumericEntity`.
+     * The accumulated value is preserved for numeric validation callbacks.
      * @param input The string containing the entity (or a continuation of the entity).
      * @param offset The current offset.
      * @returns The number of characters that were consumed, or -1 if the entity is incomplete.
      */
     stateNumericDecimal(input, offset) {
-      while (offset < input.length) {
-        const char = input.charCodeAt(offset);
-        if (isNumber(char)) {
-          this.result = this.result * 10 + (char - CharCodes.ZERO);
-          this.consumed++;
-          offset++;
-        } else {
-          return this.emitNumericEntity(char, 2);
+      const inputLength = input.length;
+      let { result } = this;
+      let { consumed } = this;
+      while (offset < inputLength) {
+        const digit = input.charCodeAt(offset) - CharCodes.ZERO;
+        if (digit >>> 0 > 9) {
+          this.result = result;
+          this.consumed = consumed;
+          return this.emitNumericEntity(digit + CharCodes.ZERO, 2);
         }
+        result = result * 10 + digit;
+        consumed += 1;
+        offset += 1;
       }
+      this.result = result;
+      this.consumed = consumed;
       return -1;
     }
     /**
@@ -50818,7 +50778,7 @@ var { detectImport, doExport, doImport } = (() => {
       } else if (this.decodeMode === DecodingMode.Strict) {
         return 0;
       }
-      this.emitCodePoint(replaceCodePoint(this.result), this.consumed);
+      this.emitCodePoint((this.decodeTree === xmlDecodeTree ? replaceCodePointXML : replaceCodePoint)(this.result), this.consumed);
       if (this.errors) {
         if (lastCp !== CharCodes.SEMI) {
           this.errors.missingSemicolonAfterCharacterReference();
@@ -50826,6 +50786,23 @@ var { detectImport, doExport, doImport } = (() => {
         this.errors.validateNumericCharacterReference(this.result);
       }
       return this.consumed;
+    }
+    /**
+     * Flush locally-tracked walk state back to the fields, then emit the
+     * recorded legacy match or reject (cold path — at most once per
+     * entity). Called after failed navigation (leaf node, branch miss, or
+     * compact-run mismatch). In attribute mode, reject if no legacy was
+     * recorded at the current node, if we descended past it, or if the
+     * pending input character is an invalid attribute terminator.
+     * @param consumed Locally-tracked consumed count.
+     * @param excess Locally-tracked excess count.
+     * @param char Pending input character (may be the mismatching char).
+     * @param valueLength Value length at the current trie node.
+     */
+    flushAndEmitLegacyOrReject(consumed, excess, char, valueLength) {
+      this.consumed = consumed;
+      this.excess = excess;
+      return this.result === 0 || this.decodeMode === DecodingMode.Attribute && (valueLength === 0 || excess > 1 || isEntityInAttributeInvalidEnd(char)) ? 0 : this.emitNotTerminatedNamedEntity();
     }
     /**
      * Parses a named entity.
@@ -50837,68 +50814,110 @@ var { detectImport, doExport, doImport } = (() => {
      */
     stateNamedEntity(input, offset) {
       const { decodeTree } = this;
-      let current = decodeTree[this.treeIndex];
-      let valueLength = (current & BinTrieFlags.VALUE_LENGTH) >> 14;
-      while (offset < input.length) {
-        if (valueLength === 0 && (current & BinTrieFlags.FLAG13) !== 0) {
-          const runLength = (current & BinTrieFlags.BRANCH_LENGTH) >> 7;
-          if (this.runConsumed === 0) {
-            const firstChar = current & BinTrieFlags.JUMP_TABLE;
-            if (input.charCodeAt(offset) !== firstChar) {
-              return this.result === 0 ? 0 : this.emitNotTerminatedNamedEntity();
+      const inputLength = input.length;
+      const isStrict = this.decodeMode === DecodingMode.Strict;
+      let { treeIndex } = this;
+      let { excess } = this;
+      let { consumed } = this;
+      let current = decodeTree[treeIndex];
+      while (offset < inputLength) {
+        while ((current & (BinTrieFlags.VALUE_LENGTH | BinTrieFlags.FLAG13)) === 0 && (current & BinTrieFlags.JUMP_TABLE) !== 0) {
+          const char2 = input.charCodeAt(offset);
+          const jumpOffset = current & BinTrieFlags.JUMP_TABLE;
+          const branchCount = (current & BinTrieFlags.BRANCH_LENGTH) >> 7;
+          if (branchCount === 0) {
+            if (char2 !== jumpOffset) {
+              return this.flushAndEmitLegacyOrReject(consumed, excess, char2, 0);
             }
-            offset++;
-            this.excess++;
-            this.runConsumed++;
+            treeIndex += 1;
+          } else {
+            const slot = char2 - jumpOffset;
+            if (slot >>> 0 >= branchCount) {
+              return this.flushAndEmitLegacyOrReject(consumed, excess, char2, 0);
+            }
+            const stored = decodeTree[treeIndex + 1 + slot];
+            if (stored === 0) {
+              return this.flushAndEmitLegacyOrReject(consumed, excess, char2, 0);
+            }
+            treeIndex = treeIndex + branchCount + stored & 65535;
           }
-          while (this.runConsumed < runLength) {
-            if (offset >= input.length) {
+          current = decodeTree[treeIndex];
+          offset += 1;
+          excess += 1;
+          if (offset >= inputLength)
+            break;
+        }
+        if (offset >= inputLength)
+          break;
+        if ((current & (BinTrieFlags.VALUE_LENGTH | BinTrieFlags.FLAG13)) === BinTrieFlags.FLAG13) {
+          const runLength = (current & BinTrieFlags.BRANCH_LENGTH) >> 7;
+          let { runConsumed } = this;
+          if (runConsumed === 0) {
+            const char2 = input.charCodeAt(offset);
+            if (char2 !== (current & BinTrieFlags.JUMP_TABLE)) {
+              return this.flushAndEmitLegacyOrReject(consumed, excess, char2, 0);
+            }
+            offset += 1;
+            excess += 1;
+            runConsumed = 1;
+          }
+          while (runConsumed < runLength) {
+            if (offset >= inputLength) {
+              this.treeIndex = treeIndex;
+              this.excess = excess;
+              this.consumed = consumed;
+              this.runConsumed = runConsumed;
               return -1;
             }
-            const charIndexInPacked = this.runConsumed - 1;
-            const packedWord = decodeTree[this.treeIndex + 1 + (charIndexInPacked >> 1)];
-            const expectedChar = charIndexInPacked % 2 === 0 ? packedWord & 255 : packedWord >> 8 & 255;
-            if (input.charCodeAt(offset) !== expectedChar) {
+            const charIndexInPacked = runConsumed - 1;
+            const packedWord = decodeTree[treeIndex + 1 + (charIndexInPacked >> 1)];
+            const expectedChar = packedWord >> ((charIndexInPacked & 1) << 3) & 255;
+            const char2 = input.charCodeAt(offset);
+            if (char2 !== expectedChar) {
               this.runConsumed = 0;
-              return this.result === 0 ? 0 : this.emitNotTerminatedNamedEntity();
+              return this.flushAndEmitLegacyOrReject(consumed, excess, char2, 0);
             }
-            offset++;
-            this.excess++;
-            this.runConsumed++;
+            offset += 1;
+            excess += 1;
+            runConsumed += 1;
           }
           this.runConsumed = 0;
-          this.treeIndex += 1 + (runLength >> 1);
-          current = decodeTree[this.treeIndex];
-          valueLength = (current & BinTrieFlags.VALUE_LENGTH) >> 14;
+          treeIndex += 1 + (runLength >> 1);
+          current = decodeTree[treeIndex];
+          continue;
         }
-        if (offset >= input.length)
-          break;
+        const valueLength = current >>> 14;
         const char = input.charCodeAt(offset);
-        if (char === CharCodes.SEMI && valueLength !== 0 && (current & BinTrieFlags.FLAG13) !== 0) {
-          return this.emitNamedEntityData(this.treeIndex, valueLength, this.consumed + this.excess);
-        }
-        this.treeIndex = determineBranch(decodeTree, current, this.treeIndex + Math.max(1, valueLength), char);
-        if (this.treeIndex < 0) {
-          return this.result === 0 || // If we are parsing an attribute
-          this.decodeMode === DecodingMode.Attribute && // We shouldn't have consumed any characters after the entity,
-          (valueLength === 0 || // And there should be no invalid characters.
-          isEntityInAttributeInvalidEnd(char)) ? 0 : this.emitNotTerminatedNamedEntity();
-        }
-        current = decodeTree[this.treeIndex];
-        valueLength = (current & BinTrieFlags.VALUE_LENGTH) >> 14;
         if (valueLength !== 0) {
-          if (char === CharCodes.SEMI) {
-            return this.emitNamedEntityData(this.treeIndex, valueLength, this.consumed + this.excess);
+          if (!isStrict && (current & BinTrieFlags.FLAG13) === 0) {
+            this.result = treeIndex;
+            consumed += excess - 1;
+            excess = 1;
           }
-          if (this.decodeMode !== DecodingMode.Strict && (current & BinTrieFlags.FLAG13) === 0) {
-            this.result = this.treeIndex;
-            this.consumed += this.excess;
-            this.excess = 0;
+          if (char === CharCodes.SEMI) {
+            return this.emitNamedEntityData(treeIndex, valueLength, consumed + excess);
+          }
+          if (valueLength === 1) {
+            return this.flushAndEmitLegacyOrReject(consumed, excess, char, valueLength);
           }
         }
-        offset++;
-        this.excess++;
+        const next = determineBranch(decodeTree, current, treeIndex + (valueLength || 1), char);
+        if (next < 0) {
+          return this.flushAndEmitLegacyOrReject(consumed, excess, char, valueLength);
+        }
+        treeIndex = next;
+        current = decodeTree[treeIndex];
+        offset += 1;
+        excess += 1;
       }
+      if (!isStrict && current >>> 14 !== 0 && (current & BinTrieFlags.FLAG13) === 0) {
+        this.result = treeIndex;
+        consumed += excess - 1;
+        excess = 1;
+      }
+      this.treeIndex = treeIndex;
+      this.excess = excess;
+      this.consumed = consumed;
       return -1;
     }
     /**
@@ -50907,7 +50926,7 @@ var { detectImport, doExport, doImport } = (() => {
      */
     emitNotTerminatedNamedEntity() {
       const { result, decodeTree } = this;
-      const valueLength = (decodeTree[result] & BinTrieFlags.VALUE_LENGTH) >> 14;
+      const valueLength = decodeTree[result] >>> 14;
       this.emitNamedEntityData(result, valueLength, this.consumed);
       this.errors?.missingSemicolonAfterCharacterReference();
       return this.consumed;
@@ -50915,13 +50934,13 @@ var { detectImport, doExport, doImport } = (() => {
     /**
      * Emit a named entity.
      * @param result The index of the entity in the decode tree.
-     * @param valueLength The number of bytes in the entity.
+     * @param valueLength Encoded value length (header plus any value words).
      * @param consumed The number of characters consumed.
      * @returns The number of characters consumed.
      */
     emitNamedEntityData(result, valueLength, consumed) {
       const { decodeTree } = this;
-      this.emitCodePoint(valueLength === 1 ? decodeTree[result] & ~(BinTrieFlags.VALUE_LENGTH | BinTrieFlags.FLAG13) : decodeTree[result + 1], consumed);
+      this.emitCodePoint(valueLength === 1 ? decodeTree[result] & BinTrieFlags.VALUE_MASK : decodeTree[result + 1], consumed);
       if (valueLength === 3) {
         this.emitCodePoint(decodeTree[result + 2], consumed);
       }
@@ -50949,7 +50968,7 @@ var { detectImport, doExport, doImport } = (() => {
           this.errors?.absenceOfDigitsInNumericCharacterReference(this.consumed);
           return 0;
         }
-        case EntityDecoderState.EntityStart: {
+        default: {
           return 0;
         }
       }
@@ -50958,28 +50977,29 @@ var { detectImport, doExport, doImport } = (() => {
   function determineBranch(decodeTree, current, nodeIndex, char) {
     const branchCount = (current & BinTrieFlags.BRANCH_LENGTH) >> 7;
     const jumpOffset = current & BinTrieFlags.JUMP_TABLE;
-    if (branchCount === 0) {
-      return jumpOffset !== 0 && char === jumpOffset ? nodeIndex : -1;
-    }
     if (jumpOffset) {
-      const value = char - jumpOffset;
-      return value < 0 || value >= branchCount ? -1 : decodeTree[nodeIndex + value] - 1;
-    }
-    const packedKeySlots = branchCount + 1 >> 1;
-    let lo = 0;
-    let hi = branchCount - 1;
-    while (lo <= hi) {
-      const mid = lo + hi >>> 1;
-      const slot = mid >> 1;
-      const packed = decodeTree[nodeIndex + slot];
-      const midKey = packed >> (mid & 1) * 8 & 255;
-      if (midKey < char) {
-        lo = mid + 1;
-      } else if (midKey > char) {
-        hi = mid - 1;
-      } else {
-        return decodeTree[nodeIndex + packedKeySlots + mid];
+      if (branchCount === 0) {
+        return char === jumpOffset ? nodeIndex : -1;
       }
+      const slot = char - jumpOffset;
+      if (slot >>> 0 >= branchCount)
+        return -1;
+      const stored = decodeTree[nodeIndex + slot];
+      return stored === 0 ? -1 : nodeIndex + branchCount + stored - 1 & 65535;
+    }
+    if (branchCount === 0)
+      return -1;
+    const packedKeySlots = branchCount + 1 >> 1;
+    const branchEnd = nodeIndex + packedKeySlots + branchCount;
+    for (let index = 0; index < branchCount; index++) {
+      const packed = decodeTree[nodeIndex + (index >> 1)];
+      const key = packed >> ((index & 1) << 3) & 255;
+      if (key === char) {
+        const pointerIndex = nodeIndex + packedKeySlots + index;
+        return branchEnd + decodeTree[pointerIndex] & 65535;
+      }
+      if (key > char)
+        return -1;
     }
     return -1;
   }
@@ -51595,7 +51615,7 @@ var { detectImport, doExport, doImport } = (() => {
   function isAsciiLetter(cp) {
     return isAsciiLower(cp) || isAsciiUpper(cp);
   }
-  function isAsciiAlphaNumeric2(cp) {
+  function isAsciiAlphaNumeric(cp) {
     return isAsciiLetter(cp) || isAsciiDigit(cp);
   }
   function toAsciiLower(cp) {
@@ -54094,7 +54114,7 @@ var { detectImport, doExport, doImport } = (() => {
       if (length === 0) {
         this.preprocessor.pos = this.entityStartPos;
         this._flushCodePointConsumedAsCharacterReference(CODE_POINTS.AMPERSAND);
-        this.state = !this._isCharacterReferenceInAttribute() && isAsciiAlphaNumeric2(this.preprocessor.peek(1)) ? State2.AMBIGUOUS_AMPERSAND : this.returnState;
+        this.state = !this._isCharacterReferenceInAttribute() && isAsciiAlphaNumeric(this.preprocessor.peek(1)) ? State2.AMBIGUOUS_AMPERSAND : this.returnState;
       } else {
         this.state = this.returnState;
       }
@@ -54102,7 +54122,7 @@ var { detectImport, doExport, doImport } = (() => {
     // Ambiguos ampersand state
     //------------------------------------------------------------------
     _stateAmbiguousAmpersand(cp) {
-      if (isAsciiAlphaNumeric2(cp)) {
+      if (isAsciiAlphaNumeric(cp)) {
         this._flushCodePointConsumedAsCharacterReference(cp);
       } else {
         if (cp === CODE_POINTS.SEMICOLON) {
@@ -58063,36 +58083,33 @@ var { detectImport, doExport, doImport } = (() => {
   }
 
   // node_modules/entities/dist/escape.js
-  var getCodePoint = typeof String.prototype.codePointAt === "function" ? (input, index) => input.codePointAt(index) : (
-    // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-    (c, index) => (c.charCodeAt(index) & 64512) === 55296 ? (c.charCodeAt(index) - 55296) * 1024 + c.charCodeAt(index + 1) - 56320 + 65536 : c.charCodeAt(index)
-  );
-  function getEscaper(regex, map) {
-    return function escape(data) {
-      let match2;
-      let lastIndex = 0;
-      let result = "";
-      while (match2 = regex.exec(data)) {
-        if (lastIndex !== match2.index) {
-          result += data.substring(lastIndex, match2.index);
-        }
-        result += map.get(match2[0].charCodeAt(0));
-        lastIndex = match2.index + 1;
-      }
-      return result + data.substring(lastIndex);
-    };
+  function getEscape(char) {
+    return char === 34 ? "&quot;" : char === 38 ? "&amp;" : char === 39 ? "&apos;" : char === 60 ? "&lt;" : char === 62 ? "&gt;" : "&nbsp;";
   }
-  var escapeAttribute = /* @__PURE__ */ getEscaper(/["&\u00A0]/g, /* @__PURE__ */ new Map([
-    [34, "&quot;"],
-    [38, "&amp;"],
-    [160, "&nbsp;"]
-  ]));
-  var escapeText = /* @__PURE__ */ getEscaper(/[&<>\u00A0]/g, /* @__PURE__ */ new Map([
-    [38, "&amp;"],
-    [60, "&lt;"],
-    [62, "&gt;"],
-    [160, "&nbsp;"]
-  ]));
+  function escapeWithRegex(re, data) {
+    re.lastIndex = 0;
+    if (!re.test(data))
+      return data;
+    let out = "";
+    let last = 0;
+    do {
+      const index = re.lastIndex - 1;
+      if (last !== index)
+        out += data.substring(last, index);
+      const char = data.charCodeAt(index);
+      out += getEscape(char);
+      last = index + 1;
+    } while (re.test(data));
+    return out + data.substring(last);
+  }
+  var attributeEscapeRegex = /["&\u{A0}]/gu;
+  function escapeAttribute(data) {
+    return escapeWithRegex(attributeEscapeRegex, data);
+  }
+  var textEscapeRegex = /[&<>\u{A0}]/gu;
+  function escapeText(data) {
+    return escapeWithRegex(textEscapeRegex, data);
+  }
 
   // node_modules/parse5/dist/serializer/index.js
   var VOID_ELEMENTS = /* @__PURE__ */ new Set([
@@ -58215,7 +58232,7 @@ var { detectImport, doExport, doImport } = (() => {
   }
 
   // gen/babel/langmap.json
-  var langmap_default = { "aa": "afar", "aa-aa": "afar", "ab": "abkhazian", "ab-ab": "abkhazian", "abk": "abkhazian", "abkhazian": "abkhazian", "aca": "acadian", "acadian": "acadian", "acadien": "acadian", "ae": "avestan", "ae-ae": "avestan", "af": "afrikaans", "af-af": "afrikaans", "afa": "afar", "afar": "afar", "afr": "afrikaans", "afrikaans": "afrikaans", "agh": "aghem", "aghem": "aghem", "agq": "aghem", "ak": "akan", "ak-ak": "akan", "aka": "akan", "akan": "akan", "akk": "akkadian", "akkadian": "akkadian", "alb": "albanian", "albanian": "albanian", "alemannic": "swissgerman", "alg": "algerianarabic", "algerian arabic": "algerianarabic", "algerianarabic": "algerianarabic", "als": "alsatian", "alsatian": "alsatian", "alt": "southernaltai", "am": "amharic", "am-am": "amharic", "ame": "american", "american": "american", "american english": "american", "americanenglish": "american", "amh": "amharic", "amharic": "amharic", "anar\xE2\u0161kiel\xE2": "inarisami", "ancient egyptian": "ancientegyptian", "ancient greek": "greek", "ancient hebrew": "ancienthebrew", "ancientegyptian": "ancientegyptian", "ancientgreek": "greek", "ancienthebrew": "ancienthebrew", "ar": "arabic", "ar-ar": "arabic", "ar-dz": "arabic-algeria", "ar-eg": "arabic-egypt", "ar-iq": "arabic-iraq", "ar-jo": "arabic-jordan", "ar-lb": "arabic-lebanon", "ar-ma": "arabic-morocco", "ar-ps": "arabic-palestinianterritories", "ar-sa": "arabic-saudiarabia", "ar-sy": "arabic-syria", "ar-tn": "arabic-tunisia", "ara": "arabic", "arabic": "arabic", "arabic-algeria": "arabic-algeria", "arabic-dz": "arabic-algeria", "arabic-eg": "arabic-egypt", "arabic-egypt": "arabic-egypt", "arabic-iq": "arabic-iraq", "arabic-iraq": "arabic-iraq", "arabic-jo": "arabic-jordan", "arabic-jordan": "arabic-jordan", "arabic-lb": "arabic-lebanon", "arabic-lebanon": "arabic-lebanon", "arabic-ma": "arabic-morocco", "arabic-morocco": "arabic-morocco", "arabic-palestinianterritories": "arabic-palestinianterritories", "arabic-ps": "arabic-palestinianterritories", "arabic-sa": "arabic-saudiarabia", "arabic-saudiarabia": "arabic-saudiarabia", "arabic-sy": "arabic-syria", "arabic-syria": "arabic-syria", "arabic-tn": "arabic-tunisia", "arabic-tunisia": "arabic-tunisia", "aramaic": "aramaic", "aramaic-nabataean": "aramaic-nabataean", "aramaic-nbat": "aramaic-nabataean", "aramaic-palm": "aramaic-palmyrene", "aramaic-palmyrene": "aramaic-palmyrene", "arc": "aramaic", "arc-nbat": "aramaic-nabataean", "arc-palm": "aramaic-palmyrene", "arm": "armenian", "armenian": "armenian", "arq": "algerianarabic", "arz": "egyptianarabic", "as": "assamese", "as-as": "assamese", "asa": "asu", "ass": "assamese", "assamese": "assamese", "ast": "asturian", "asturian": "asturian", "asturianu": "asturian", "asu": "asu", "ats": "atsam", "atsam": "atsam", "australian": "australian", "australian english": "australian", "australianenglish": "australian", "austrian": "austrian", "austrian german": "austrian", "austrian-traditional": "german", "austriangerman": "austrian", "austriangerman-traditional": "german", "ava\xF1e\u2019\u1EBD": "guarani", "ave": "avestan", "avestan": "avestan", "awa": "awadhi", "awadhi": "awadhi", "ay": "aymara", "ay-ay": "aymara", "aym": "aymara", "aymar aru": "aymara", "aymara": "aymara", "az": "azerbaijani", "az-az": "azerbaijani", "az-cyrl": "azerbaijani-cyrillic", "az-latn": "azerbaijani-latin", "azerbaijani": "azerbaijani", "azerbaijani-cyrillic": "azerbaijani-cyrillic", "azerbaijani-cyrl": "azerbaijani-cyrillic", "azerbaijani-latin": "azerbaijani-latin", "azerbaijani-latn": "azerbaijani-latin", "az\u0259rbaycan": "azerbaijani", "ba": "bashkir", "ba-ba": "bashkir", "baf": "bafia", "bafia": "bafia", "bahasa melayu": "malay", "bal": "baluchi", "balinese": "balinese", "baluchi": "baluchi", "bam": "bambara", "bamanakan": "bambara", "bambara": "bambara", "ban": "balinese", "bangla": "bangla", "bar": "bavarian", "bas": "basaa", "basa bali": "balinese", "basa mangkasara\u02BC": "makasar", "basa sunda": "sundanese", "basaa": "basaa", "bashkir": "bashkir", "basque": "basque", "bat": "bataktoba", "batak toba": "bataktoba", "bataktoba": "bataktoba", "bav": "bavarian", "bavarian": "bavarian", "bbc": "bataktoba", "be": "belarusian", "be-be": "belarusian", "be-tarask": "belarusian", "bel": "belarusian", "belarusian": "belarusian", "bem": "bemba", "bemba": "bemba", "ben": "bena", "bena": "bena", "bengali": "bangla", "bet": "betawi", "betawi": "betawi", "bew": "betawi", "bez": "bena", "bg": "bulgarian", "bg-bg": "bulgarian", "bgc": "haryanvi", "bho": "bhojpuri", "bhojpuri": "bhojpuri", "bli": "blin", "blin": "blin", "bm": "bambara", "bm-bm": "bambara", "bn": "bangla", "bn-bn": "bangla", "bo": "tibetan", "bo-bo": "tibetan", "boarisch": "bavarian", "bod": "bodo", "bodo": "bodo", "bosanski": "bosnian", "bosnian": "bosnian", "bosnian-cyrillic": "bosnian-cyrillic", "bosnian-cyrl": "bosnian-cyrillic", "bosnian-latin": "bosnian-latin", "bosnian-latn": "bosnian-latin", "br": "breton", "br-br": "breton", "bra": "brazilian", "brazilian": "brazilian", "brazilian portuguese": "brazilian", "brazilianportuguese": "brazilian", "bre": "breton", "breton": "breton", "brezhoneg": "breton", "bri": "british", "british": "british", "british english": "british", "britishenglish": "british", "brx": "bodo", "bs": "bosnian", "bs-bs": "bosnian", "bs-cyrl": "bosnian-cyrillic", "bs-latn": "bosnian-latin", "bua": "buriat", "bul": "bulgarian", "bulgarian": "bulgarian", "buriat": "buriat", "burmese": "burmese", "byn": "blin", "ca": "catalan", "ca-ca": "catalan", "canadian": "canadian", "canadian english": "canadian", "canadian french": "canadien", "canadianenglish": "canadian", "canadianfrench": "canadien", "canadien": "canadien", "cantonese": "cantonese", "car": "carian", "carian": "carian", "cat": "catalan", "catalan": "catalan", "catal\xE0": "catalan", "cch": "atsam", "ccp": "chakma", "ce": "chechen", "ce-ce": "chechen", "ceb": "cebuano", "cebuano": "cebuano", "central atlas tamazight": "centralatlastamazight", "central kurdish": "centralkurdish", "centralatlastamazight": "centralatlastamazight", "centralkurdish": "centralkurdish", "centralkurdish-latin": "sorani", "cgg": "chiga", "cha": "chakma", "chakma": "chakma", "chechen": "chechen", "cherokee": "cherokee", "chiga": "chiga", "chimakonde": "makonde", "chinese": "chinese", "chinese-hans": "chinese-simplified", "chinese-hans-hk": "chinese-simplified-hongkongsarchina", "chinese-hans-mo": "chinese-simplified-macausarchina", "chinese-hans-sg": "chinese-simplified-singapore", "chinese-hant": "chinese-traditional", "chinese-hant-hk": "chinese-traditional-hongkongsarchina", "chinese-hant-mo": "chinese-traditional-macausarchina", "chinese-simplified": "chinese-simplified", "chinese-simplified-hongkongsarchina": "chinese-simplified-hongkongsarchina", "chinese-simplified-macausarchina": "chinese-simplified-macausarchina", "chinese-simplified-singapore": "chinese-simplified-singapore", "chinese-traditional": "chinese-traditional", "chinese-traditional-hongkongsarchina": "chinese-traditional-hongkongsarchina", "chinese-traditional-macausarchina": "chinese-traditional-macausarchina", "chishona": "shona", "chr": "cherokee", "church slavic": "churchslavic", "churchslavic": "churchslavic", "churchslavic-glagolitic": "churchslavic-glagolitic", "churchslavic-oldcyrillic": "churchslavic-oldcyrillic", "churchslavonic": "churchslavic", "chuvash": "chuvash", "ckb": "centralkurdish", "ckb-arab": "sorani", "ckb-latn": "sorani", "classical latin": "classicallatin", "classical mandaic": "classicalmandaic", "classicallatin": "classicallatin", "classicalmandaic": "classicalmandaic", "co": "corsican", "co-co": "corsican", "col": "colognian", "colognian": "colognian", "cop": "coptic", "coptic": "coptic", "cornish": "cornish", "corsican": "corsican", "corsu": "corsican", "cro": "croatian", "croatian": "croatian", "cs": "czech", "cs-cs": "czech", "cu": "churchslavic", "cu-cu": "churchslavic", "cu-cyrs": "churchslavic-oldcyrillic", "cu-glag": "churchslavic-glagolitic", "cv": "chuvash", "cv-cv": "chuvash", "cy": "welsh", "cy-cy": "welsh", "cymraeg": "welsh", "cze": "czech", "czech": "czech", "da": "danish", "da-da": "danish", "dan": "danish", "danish": "danish", "dansk": "danish", "dav": "taita", "davvis\xE1megiella": "northernsami", "de": "ngerman", "de-1901": "german", "de-1996": "ngerman", "de-at": "austrian", "de-at-1901": "german", "de-at-1996": "naustrian", "de-ch": "nswissgerman", "de-ch-1901": "swissgerman", "de-ch-1996": "nswissgerman", "de-de": "german", "de-de-1901": "german", "deutsch": "german", "dholuo": "luo", "din\xE9 bizaad": "navajo", "div": "divehi", "divehi": "divehi", "dje": "zarma", "dog": "dogri", "dogri": "dogri", "doi": "dogri", "dolnoserb\u0161\u0107ina": "lowersorbian", "dsb": "lowersorbian", "dua": "duala", "duala": "duala", "dut": "dutch", "dutch": "dutch", "du\xE1l\xE1": "duala", "dv": "divehi", "dv-dv": "divehi", "dyo": "jolafonyi", "dz": "dzongkha", "dz-dz": "dzongkha", "dzo": "dzongkha", "dzongkha": "dzongkha", "ebu": "embu", "ecc": "ecclesiasticallatin", "ecclesiastical latin": "ecclesiasticallatin", "ecclesiasticallatin": "ecclesiasticallatin", "ee": "ewe", "ee-ee": "ewe", "eesti": "estonian", "egy": "ancientegyptian", "egyptian arabic": "egyptianarabic", "egyptianarabic": "egyptianarabic", "ekegusii": "gusii", "el": "greek", "el-el": "greek", "el-polyton": "greek", "els\xE4ssisch": "alsatian", "emakhuwa": "makhuwa", "emb": "embu", "embu": "embu", "en": "english", "en-au": "australian", "en-ca": "canadian", "en-en": "english", "en-gb": "british", "en-nz": "newzealand", "en-us": "american", "eng": "english", "english": "english", "english-au": "australian", "english-australia": "australian", "english-ca": "canadian", "english-canada": "canadian", "english-gb": "british", "english-newzealand": "newzealand", "english-nz": "newzealand", "english-unitedkingdom": "british", "english-unitedstates": "american", "english-us": "american", "eo": "esperanto", "eo-eo": "esperanto", "erz": "erzya", "erzya": "erzya", "es": "spanish", "es-es": "spanish", "es-mx": "mexican", "esp": "esperanto", "espa\xF1ol": "spanish", "espa\xF1ol de m\xE9xico": "mexican", "esperanto": "esperanto", "est": "estonian", "estonian": "estonian", "et": "estonian", "et-et": "estonian", "etr": "etruscan", "etruscan": "etruscan", "ett": "etruscan", "eu": "basque", "eu-eu": "basque", "european portuguese": "portuguese", "europeanportuguese": "portuguese", "euskara": "basque", "ewe": "ewe", "ewo": "ewondo", "ewondo": "ewondo", "e\u028Begbe": "ewe", "fa": "persian", "fa-fa": "persian", "fa-latn": "persian-latin", "far": "faroese", "faroese": "faroese", "ff": "fulah", "ff-ff": "fulah", "fi": "finnish", "fi-fi": "finnish", "fil": "filipino", "filipino": "filipino", "fin": "finnish", "finnish": "finnish", "fo": "faroese", "fo-fo": "faroese", "fr": "french", "fr-be": "french", "fr-ca": "canadien", "fr-ch": "french-switzerland", "fr-fr": "french", "fr-lu": "french", "fr-x-acadian": "acadian", "fran\xE7ais": "french", "fran\xE7ais canadien": "canadien", "fran\xE7ais suisse": "french-switzerland", "french": "french", "french-be": "french", "french-belgium": "french", "french-ca": "canadien", "french-canada": "canadien", "french-ch": "french-switzerland", "french-lu": "french", "french-luxembourg": "french", "french-switzerland": "french-switzerland", "fri": "friulian", "friulian": "friulian", "frr": "northernfrisian", "frysk": "westernfrisian", "ful": "fulah", "fulah": "fulah", "fur": "friulian", "furlan": "friulian", "fy": "westernfrisian", "fy-fy": "westernfrisian", "f\xF8royskt": "faroese", "ga": "irish", "ga-ga": "irish", "gaa": "ga", "gaeilge": "irish", "gaelg": "manx", "gaelic": "scottishgaelic", "gal": "galician", "galego": "galician", "galician": "galician", "gan": "ganda", "ganda": "ganda", "gd": "scottishgaelic", "gd-gd": "scottishgaelic", "gee": "geez", "geez": "geez", "geo": "georgian", "georgian": "georgian", "ger": "german", "german": "german", "german-at": "austrian", "german-at-traditional": "german", "german-austria": "austrian", "german-austria-traditional": "german", "german-ch": "nswissgerman", "german-ch-traditional": "swissgerman", "german-de": "german", "german-de-traditional": "german", "german-germany": "german", "german-germany-traditional": "german", "german-switzerland": "nswissgerman", "german-switzerland-traditional": "swissgerman", "german-traditional": "german", "gez": "geez", "gikuyu": "kikuyu", "gl": "galician", "gl-gl": "galician", "gn": "guarani", "gn-gn": "guarani", "got": "gothic", "gothic": "gothic", "grc": "greek", "gre": "greek", "greek": "greek", "gsw": "swissgerman", "gsw-fr": "alsatian", "gu": "gujarati", "gu-gu": "gujarati", "gua": "guarani", "guarani": "guarani", "guj": "gujarati", "gujarati": "gujarati", "gus": "gusii", "gusii": "gusii", "guz": "gusii", "gv": "manx", "gv-gv": "manx", "g\xE0idhlig": "scottishgaelic", "g\xE3": "ga", "g\xE3-g\xE3": "ga", "ha": "hausa", "ha-gh": "hausa-ghana", "ha-ha": "hausa", "ha-ne": "hausa-niger", "har": "haryanvi", "haryanvi": "haryanvi", "hausa": "hausa", "hausa-gh": "hausa-ghana", "hausa-ghana": "hausa-ghana", "hausa-ne": "hausa-niger", "hausa-niger": "hausa-niger", "haw": "hawaiian", "hawaiian": "hawaiian", "hbo": "ancienthebrew", "he": "hebrew", "he-he": "hebrew", "heb": "hebrew", "hebrew": "hebrew", "hi": "hindi", "hi-hi": "hindi", "hibena": "bena", "hin": "hindi", "hindi": "hindi", "hmo": "hmongnjua", "hmong njua": "hmongnjua", "hmongnjua": "hmongnjua", "hnj": "hmongnjua", "hornjoserb\u0161\u0107ina": "uppersorbian", "hr": "croatian", "hr-hr": "croatian", "hrvatski": "croatian", "hsb": "uppersorbian", "hu": "hungarian", "hu-hu": "hungarian", "hun": "hungarian", "hungarian": "hungarian", "hy": "armenian", "hy-hy": "armenian", "ia": "interlingua", "ia-ia": "interlingua", "ice": "icelandic", "icelandic": "icelandic", "ichibemba": "bemba", "id": "indonesian", "id-id": "indonesian", "ig": "igbo", "ig-ig": "igbo", "igb": "igbo", "igbo": "igbo", "ii": "sichuanyi", "ii-ii": "sichuanyi", "ikirundi": "rundi", "ina": "inarisami", "inari sami": "inarisami", "inarisami": "inarisami", "ind": "indonesian", "indonesia": "indonesian", "indonesian": "indonesian", "ing": "ingush", "ingush": "ingush", "inh": "ingush", "interlingua": "interlingua", "interslavic": "interslavic", "inu": "inuktitut", "inuktitut": "inuktitut", "iri": "irish", "irish": "irish", "is": "icelandic", "is-is": "icelandic", "ishisangu": "sangu", "isixhosa": "xhosa", "isizulu": "zulu", "isv": "interslavic", "it": "italian", "it-it": "italian", "ita": "italian", "italian": "italian", "italiano": "italian", "iu": "inuktitut", "iu-iu": "inuktitut", "ja": "japanese", "ja-ja": "japanese", "jap": "japanese", "japanese": "japanese", "jav": "javanese", "javanese": "javanese", "jawa": "javanese", "jgo": "ngomba", "jju": "jju", "jmc": "machame", "jol": "jolafonyi", "jola-fonyi": "jolafonyi", "jolafonyi": "jolafonyi", "joola": "jolafonyi", "jv": "javanese", "jv-jv": "javanese", "ka": "georgian", "ka-ka": "georgian", "kab": "kabyle", "kabuverdianu": "kabuverdianu", "kabyle": "kabyle", "kai": "kaingang", "kaingang": "kaingang", "kaj": "jju", "kaje": "jju", "kak": "kako", "kako": "kako", "kak\u0254": "kako", "kalaallisut": "kalaallisut", "kalenjin": "kalenjin", "kam": "kamba", "kamba": "kamba", "kangri": "kangri", "kanhg\xE1g": "kaingang", "kannada": "kannada", "kas": "kashmiri", "kashmiri": "kashmiri", "katab": "tyap", "kaz": "kazakh", "kazakh": "kazakh", "kcg": "tyap", "kde": "makonde", "kea": "kabuverdianu", "kernewek": "cornish", "kgp": "kaingang", "khb": "lu", "khm": "khmer", "khmer": "khmer", "khoekhoegowab": "nama", "khq": "koyrachiini", "ki": "kikuyu", "ki-ki": "kikuyu", "kihorombo": "rombo", "kik": "kikuyu", "kikamba": "kamba", "kikuyu": "kikuyu", "kimachame": "machame", "kin": "kinyarwanda", "kinyarwanda": "kinyarwanda", "kipare": "asu", "kiruwa": "rwa", "kisampur": "samburu", "kishambaa": "shambala", "kiswahili": "swahili", "kitaita": "taita", "kiteso": "teso", "kk": "kazakh", "kk-kk": "kazakh", "kkj": "kako", "kl": "kalaallisut", "kl-kl": "kalaallisut", "kln": "kalenjin", "km": "khmer", "km-km": "khmer", "kn": "kannada", "kn-kn": "kannada", "ko": "korean", "ko-ko": "korean", "kok": "konkani", "kom": "komi", "komi": "komi", "kon": "konkani", "konkani": "konkani", "kor": "korean", "korean": "korean", "korean-han": "korean", "korean-hani": "korean", "koyra chiini": "koyrachiini", "koyra ciini": "koyrachiini", "koyraboro senni": "koyraborosenni", "koyraborosenni": "koyraborosenni", "koyrachiini": "koyrachiini", "kreol morisien": "morisyen", "ks": "kashmiri", "ks-ks": "kashmiri", "ksb": "shambala", "ksf": "bafia", "ksh": "colognian", "ku": "kurdish", "ku-arab": "kurdish-arabic", "ku-ku": "kurdish", "kurdish": "kurdish", "kurdish-arabic": "kurdish-arabic", "kurd\xEE (kurmanc\xEE)": "kurdish", "kurd\xEEy nawend\xEE": "sorani", "kurmanji": "kurdish", "kv": "komi", "kv-kv": "komi", "kw": "cornish", "kw-kw": "cornish", "kwa": "kwasio", "kwasio": "kwasio", "ky": "kyrgyz", "ky-ky": "kyrgyz", "kyivunjo": "vunjo", "kyr": "kyrgyz", "kyrgyz": "kyrgyz", "k\xF6lsch": "colognian", "k\u0129embu": "embu", "k\u0129m\u0129r\u0169": "meru", "k\u0268laangi": "langi", "la": "latin", "la-la": "latin", "la-x-classic": "classicallatin", "la-x-ecclesia": "ecclesiasticallatin", "la-x-medieval": "medievallatin", "lab": "lineara", "lad": "ladino", "ladino": "ladino", "lag": "langi", "lak": "lakota", "lakota": "lakota", "lak\u021F\xF3l\u02BCiyapi": "lakota", "lan": "langi", "langi": "langi", "lao": "lao", "latin": "latin", "latvian": "latvian", "latvie\u0161u": "latvian", "lb": "luxembourgish", "lb-lb": "luxembourgish", "lea fakatonga": "tongan", "lep": "lepcha", "lepcha": "lepcha", "lg": "ganda", "lg-lg": "ganda", "lietuvi\u0173": "lithuanian", "lif": "limbu", "lif-limb": "limbu-limbu", "lig": "ligurian", "ligure": "ligurian", "ligurian": "ligurian", "lij": "ligurian", "limbu": "limbu", "limbu-limb": "limbu-limbu", "limbu-limbu": "limbu-limbu", "linear a": "lineara", "lineara": "lineara", "lingala": "lingala", "ling\xE1la": "lingala", "lit": "lithuanian", "lithuanian": "lithuanian", "lkt": "lakota", "lmo": "lombard", "ln": "lingala", "ln-ln": "lingala", "lo": "lao", "lo-lo": "lao", "lom": "lombard", "lombard": "lombard", "low german": "lowgerman", "lower sorbian": "lowersorbian", "lowersorbian": "lowersorbian", "lowgerman": "lowgerman", "lrc": "northernluri", "lsorbian": "lowersorbian", "lt": "lithuanian", "lt-lt": "lithuanian", "lu": "lubakatanga", "lu-lu": "lubakatanga", "lub": "lubakatanga", "luba-katanga": "lubakatanga", "lubakatanga": "lubakatanga", "luganda": "ganda", "luluhia": "luyia", "luo": "luo", "lux": "luxembourgish", "luxembourgish": "luxembourgish", "luy": "luyia", "luyia": "luyia", "lv": "latvian", "lv-lv": "latvian", "lyc": "lycian", "lycian": "lycian", "lyd": "lydian", "lydian": "lydian", "l\xEBtzebuergesch": "luxembourgish", "l\xFC": "lu", "l\xFC-l\xFC": "lu", "maa": "masai", "macedonian": "macedonian", "machame": "machame", "magyar": "hungarian", "mai": "maithili", "maithili": "maithili", "mak": "makasar", "mak-bugi": "makasar-buginese", "makasar": "makasar", "makasar-bugi": "makasar-buginese", "makasar-buginese": "makasar-buginese", "makhuwa": "makhuwa", "makhuwa-meetto": "makhuwameetto", "makhuwameetto": "makhuwameetto", "makonde": "makonde", "makua": "makhuwameetto", "malagasy": "malagasy", "malay": "malay", "malay-bn": "malay-brunei", "malay-brunei": "malay-brunei", "malay-sg": "malay-singapore", "malay-singapore": "malay-singapore", "malayalam": "malayalam", "maltese": "maltese", "malti": "maltese", "manipuri": "manipuri", "manx": "manx", "mao": "maori", "maori": "maori", "mar": "marathi", "marathi": "marathi", "mas": "masai", "masai": "masai", "maz": "mazanderani", "mazanderani": "mazanderani", "med": "medievallatin", "medieval latin": "medievallatin", "medievallatin": "medievallatin", "med\u017Euslovjansky": "interslavic", "melayu": "malay", "mer": "meru", "meru": "meru", "met": "meta", "meta": "meta", "meta\u02BC": "meta", "mex": "mexican", "mexican": "mexican", "mexican spanish": "mexican", "mexicanspanish": "mexican", "mfe": "morisyen", "mg": "malagasy", "mg-mg": "malagasy", "mgh": "makhuwameetto", "mgo": "meta", "mi": "maori", "mi-mi": "maori", "mk": "macedonian", "mk-mk": "macedonian", "ml": "malayalam", "ml-ml": "malayalam", "mn": "mongolian", "mn-mn": "mongolian", "mni": "manipuri", "mol": "moldavian", "moldavian": "moldavian", "mon": "mongolian", "mongolian": "mongolian", "monotonic greek": "greek", "monotonicgreek": "greek", "montenegrin": "serbianc", "mor": "morisyen", "morisyen": "morisyen", "mr": "marathi", "mr-mr": "marathi", "ms": "malay", "ms-bn": "malay-brunei", "ms-ms": "malay", "ms-sg": "malay-singapore", "mt": "maltese", "mt-mt": "maltese", "mua": "mundang", "mun": "mundang", "mundang": "mundang", "munda\u014B": "mundang", "mus": "muscogee", "muscogee": "muscogee", "mvskoke": "muscogee", "my": "burmese", "my-my": "burmese", "myv": "erzya", "myz": "classicalmandaic", "mzn": "mazanderani", "m\u0101ori": "maori", "naij\xEDri\xE1 p\xEDjin": "nigerianpidgin", "nam": "nama", "nama": "nama", "naq": "nama", "nau": "naustrian", "naustrian": "naustrian", "nav": "navajo", "navajo": "navajo", "nb": "norwegianbokmal", "nb-nb": "norwegianbokmal", "nd": "northndebele", "nd-nd": "northndebele", "nda\uA78Ca": "ngomba", "nds": "lowgerman", "ne": "nepali", "ne-ne": "nepali", "neddersass\u2019sch": "lowgerman", "nederlands": "dutch", "nep": "nepali", "nepali": "nepali", "new": "newari", "newari": "newari", "newzealand": "newzealand", "nge": "ngerman", "ngerman": "ngerman", "ngi": "ngiemboon", "ngiemboon": "ngiemboon", "ngo": "ngomba", "ngomba": "ngomba", "nhe": "nheengatu", "nheengatu": "nheengatu", "nhe\u1EBDgatu": "nheengatu", "nig": "nigerianpidgin", "nigerian pidgin": "nigerianpidgin", "nigerianpidgin": "nigerianpidgin", "nko": "nko", "nl": "dutch", "nl-nl": "dutch", "nmg": "kwasio", "nn": "nynorsk", "nn-nn": "nynorsk", "nnh": "ngiemboon", "no": "norsk", "no-no": "norsk", "non": "oldnorse", "nordfriisk": "northernfrisian", "norr\u01FFnt m\xE1l": "oldnorse", "norsk": "norsk", "norsk bokm\xE5l": "norwegianbokmal", "norsk nynorsk": "nynorsk", "north ndebele": "northndebele", "northern frisian": "northernfrisian", "northern luri": "northernluri", "northern sami": "northernsami", "northern sotho": "northernsotho", "northernfrisian": "northernfrisian", "northernkurdish": "kurdish", "northernkurdish-arabic": "kurdish-arabic", "northernluri": "northernluri", "northernsami": "northernsami", "northernsotho": "northernsotho", "northndebele": "northndebele", "norwegian": "norsk", "norwegian bokm\xE5l": "norwegianbokmal", "norwegian nynorsk": "nynorsk", "norwegianbokmal": "norwegianbokmal", "norwegiannynorsk": "nynorsk", "nqo": "nko", "nr": "southndebele", "nr-nr": "southndebele", "nso": "northernsotho", "nsw": "nswissgerman", "nswissgerman": "nswissgerman", "nuasue": "yangben", "nue": "nuer", "nuer": "nuer", "nus": "nuer", "nv": "navajo", "nv-nv": "navajo", "ny": "nyanja", "ny-ny": "nyanja", "nyanja": "nyanja", "nyankole": "nyankole", "nyn": "nyankole", "nynorsk": "nynorsk", "n\u2019ko": "nko", "oc": "occitan", "oc-oc": "occitan", "occ": "occitan", "occitan": "occitan", "odi": "odia", "odia": "odia", "old irish": "oldirish", "old norse": "oldnorse", "old persian": "oldpersian", "old uighur": "olduighur", "oldirish": "oldirish", "oldnorse": "oldnorse", "oldpersian": "oldpersian", "olduighur": "olduighur", "olusoga": "soga", "om": "oromo", "om-om": "oromo", "or": "odia", "or-or": "odia", "oriya": "odia", "oro": "oromo", "oromo": "oromo", "oromoo": "oromo", "os": "ossetic", "os-os": "ossetic", "osa": "osage", "osage": "osage", "oss": "ossetic", "ossetic": "ossetic", "oui": "olduighur", "o\u2018zbek": "uzbek", "pa": "punjabi", "pa-arab": "punjabi-arabic", "pa-guru": "punjabi-gurmukhi", "pa-pa": "punjabi", "pap": "papiamento", "papiamento": "papiamento", "papiamentu": "papiamento", "pas": "pashto", "pashto": "pashto", "patas taroko": "taroko", "pcm": "nigerianpidgin", "peo": "oldpersian", "persian": "persian", "persian-latin": "persian-latin", "phn": "phoenician", "pho": "phoenician", "phoenician": "phoenician", "pie": "piedmontese", "piedmontese": "piedmontese", "pl": "polish", "pl-pl": "polish", "pms": "piedmontese", "pol": "polish", "polish": "polish", "polski": "polish", "polytonic greek": "greek", "polytonicgreek": "greek", "por": "portuguese", "portuguese": "portuguese", "portuguese-br": "brazilian", "portuguese-brazil": "brazilian", "portuguese-portugal": "portuguese", "portuguese-pt": "portuguese", "portugu\xEAs": "portuguese", "portugu\xEAs europeu": "portuguese", "prg": "prussian", "pru": "prussian", "prussian": "prussian", "pr\u016Bsiskan": "prussian", "ps": "pashto", "ps-ps": "pashto", "pt": "portuguese", "pt-br": "brazilian", "pt-pt": "portuguese", "pulaar": "fulah", "punjabi": "punjabi", "punjabi-arab": "punjabi-arabic", "punjabi-arabic": "punjabi-arabic", "punjabi-gurmukhi": "punjabi-gurmukhi", "punjabi-guru": "punjabi-gurmukhi", "p\u0101rsi": "persian-latin", "qafar": "afar", "qu": "quechua", "qu-qu": "quechua", "que": "quechua", "quechua": "quechua", "raj": "rajasthani", "rajasthani": "rajasthani", "rikpa": "bafia", "rm": "romansh", "rm-rm": "romansh", "rmo": "sinteromani", "rn": "rundi", "rn-rn": "rundi", "ro": "romanian", "ro-md": "moldavian", "ro-ro": "romanian", "rof": "rombo", "romanian": "romanian", "romanian-md": "moldavian", "romanian-moldova": "moldavian", "romansh": "romansh", "rombo": "rombo", "rom\xE2n\u0103": "romanian", "ru": "russian", "ru-ru": "russian", "rukiga": "chiga", "rumantsch": "romansh", "run": "rundi", "runasimi": "quechua", "rundi": "rundi", "runyankore": "nyankole", "rus": "russian", "russian": "russian", "rw": "kinyarwanda", "rw-rw": "kinyarwanda", "rwa": "rwa", "rwk": "rwa", "sa": "sanskrit", "sa-beng": "sanskrit", "sa-deva": "sanskrit", "sa-gujr": "sanskrit", "sa-knda": "sanskrit", "sa-mlym": "sanskrit", "sa-sa": "sanskrit", "sa-telu": "sanskrit", "sab": "sabaean", "sabaean": "sabaean", "sah": "sakha", "saho": "saho", "sak": "sakha", "sakha": "sakha", "samaritan": "samaritan", "samburu": "samburu", "sami": "northernsami", "samin": "northernsami", "sango": "sango", "sangu": "sangu", "sanskrit": "sanskrit", "santali": "santali", "saq": "samburu", "saraiki": "saraiki", "sardinian": "sardinian", "sardu": "sardinian", "sat": "santali", "sbp": "sangu", "sc": "sardinian", "sc-sc": "sardinian", "schweizer hochdeutsch": "nswissgerman", "schwiizert\xFC\xFCtsch": "swissgerman", "scn": "sicilian", "sco": "scottishgaelic", "scottish gaelic": "scottishgaelic", "scottishgaelic": "scottishgaelic", "sd": "sindhi", "sd-deva": "sindhi-devanagari", "sd-khoj": "sindhi-khojki", "sd-sd": "sindhi", "sd-sind": "sindhi-khudawadi", "se": "northernsami", "se-se": "northernsami", "seh": "sena", "sen": "sena", "sena": "sena", "serbian": "serbian", "serbian-cyrillic": "serbian", "serbian-cyrillic-bosniaherzegovina": "serbian", "serbian-cyrillic-kosovo": "serbian", "serbian-cyrillic-montenegro": "serbian-cyrillic-montenegro", "serbian-cyrl": "serbian", "serbian-cyrl-ba": "serbian", "serbian-cyrl-me": "serbian-cyrillic-montenegro", "serbian-cyrl-xk": "serbian", "serbian-ijekavsk": "serbian", "serbian-latin": "serbian", "serbian-latin-bosniaherzegovina": "serbian", "serbian-latin-ijekavsk": "serbian", "serbian-latin-kosovo": "serbian", "serbian-latin-montenegro": "serbian-latin-montenegro", "serbian-latn": "serbian", "serbian-latn-ba": "serbian", "serbian-latn-ijekavsk": "serbian", "serbian-latn-me": "serbian-latin-montenegro", "serbian-latn-xk": "serbian", "serbian.ijekav": "serbian", "serbianc": "serbianc", "serbianc.ijekav": "serbian", "ses": "koyraborosenni", "sesotho": "southernsotho", "sesotho sa leboa": "northernsotho", "setswana": "tswana", "sg": "sango", "sg-sg": "sango", "sga": "oldirish", "sha": "shambala", "shambala": "shambala", "shi": "tachelhit", "shi-latn": "tachelhit-latin", "shi-tfng": "tachelhit-tifinagh", "sho": "shona", "shona": "shona", "shqip": "albanian", "shw\xF3\u014B\xF2 ngiemb\u0254\u0254n": "ngiemboon", "si": "sinhala", "si-si": "sinhala", "sichuan yi": "sichuanyi", "sichuanyi": "sichuanyi", "sicilian": "sicilian", "sicilianu": "sicilian", "sil": "silesian", "silesian": "silesian", "simplified chinese": "chinese-simplified", "sindhi": "sindhi", "sindhi-deva": "sindhi-devanagari", "sindhi-devanagari": "sindhi-devanagari", "sindhi-khoj": "sindhi-khojki", "sindhi-khojki": "sindhi-khojki", "sindhi-khudawadi": "sindhi-khudawadi", "sindhi-sind": "sindhi-khudawadi", "sinhala": "sinhala", "sinte romani": "sinteromani", "sinteromani": "sinteromani", "sintitikes": "sinteromani", "siswati": "swati", "sk": "slovak", "sk-sk": "slovak", "skr": "saraiki", "sl": "slovenian", "sl-sl": "slovenian", "slovak": "slovak", "slovene": "slovenian", "slovenian": "slovenian", "sloven\u010Dina": "slovak", "sloven\u0161\u010Dina": "slovenian", "smn": "inarisami", "smp": "samaritan", "sn": "shona", "sn-sn": "shona", "so": "somali", "so-so": "somali", "sog": "soga", "soga": "soga", "som": "somali", "somali": "somali", "soomaali": "somali", "sor": "sorani", "sorani": "sorani", "south ndebele": "southndebele", "southern altai": "southernaltai", "southern sotho": "southernsotho", "southernaltai": "southernaltai", "southernsotho": "southernsotho", "southndebele": "southndebele", "spa": "spanish", "spanish": "spanish", "spanish-mexico": "mexican", "spanish-mx": "mexican", "sq": "albanian", "sq-sq": "albanian", "sr": "serbianc", "sr-cyrl": "serbian", "sr-cyrl-ba": "serbian", "sr-cyrl-me": "serbian-cyrillic-montenegro", "sr-cyrl-xk": "serbian", "sr-ijekavsk": "serbian", "sr-latn": "serbian", "sr-latn-ba": "serbian", "sr-latn-ijekavsk": "serbian", "sr-latn-me": "serbian-latin-montenegro", "sr-latn-xk": "serbian", "sr-sr": "serbianc", "srpski": "serbian", "ss": "swati", "ss-ss": "swati", "ssy": "saho", "st": "southernsotho", "st-st": "southernsotho", "sta": "standardmoroccantamazight", "standard moroccan tamazight": "standardmoroccantamazight", "standardmoroccantamazight": "standardmoroccantamazight", "su": "sundanese", "su-su": "sundanese", "sun": "sundanese", "sundanese": "sundanese", "suomi": "finnish", "sv": "swedish", "sv-sv": "swedish", "svenska": "swedish", "sw": "swahili", "sw-sw": "swahili", "swahili": "swahili", "swati": "swati", "swe": "swedish", "swedish": "swedish", "swi": "swissgerman", "swiss french": "french-switzerland", "swiss german": "swissgerman", "swiss high german": "nswissgerman", "swissfrench": "french-switzerland", "swissgerman": "swissgerman", "swisshighgerman": "nswissgerman", "swisshighgerman-traditional": "swissgerman", "syr": "syriac", "syriac": "syriac", "szl": "silesian", "s\xE4ng\xF6": "sango", "ta": "tamil", "ta-ta": "tamil", "tachelhit": "tachelhit", "tachelhit-latin": "tachelhit-latin", "tachelhit-latn": "tachelhit-latin", "tachelhit-tfng": "tachelhit-tifinagh", "tachelhit-tifinagh": "tachelhit-tifinagh", "tai n\xFCa": "tainua", "tainua": "tainua", "taita": "taita", "taj": "tajik", "tajik": "tajik", "tam": "tamil", "tamazi\u0263t n la\u1E6Dla\u1E63": "centralatlastamazight", "tamil": "tamil", "tan": "tangut", "tangut": "tangut", "taqbaylit": "kabyle", "tar": "taroko", "taroko": "taroko", "tas": "tasawaq", "tasawaq": "tasawaq", "tasawaq senni": "tasawaq", "tashel\u1E25iyt": "tachelhit-latin", "tat": "tatar", "tatar": "tatar", "tdd": "tainua", "te": "telugu", "te-te": "telugu", "tel": "telugu", "telugu": "telugu", "teo": "teso", "tes": "teso", "teso": "teso", "tg": "tajik", "tg-tg": "tajik", "th": "thai", "th-th": "thai", "tha": "thai", "thai": "thai", "thok nath": "nuer", "ti": "tigrinya", "ti-ti": "tigrinya", "tib": "tibetan", "tibetan": "tibetan", "tig": "tigre", "tigre": "tigre", "tigrinya": "tigrinya", "ti\u1EBFng vi\u1EC7t": "vietnamese", "tk": "turkmen", "tk-tk": "turkmen", "tn": "tswana", "tn-tn": "tswana", "to": "tongan", "to-to": "tongan", "tok": "tokpisin", "tok pisin": "tokpisin", "tokpisin": "tokpisin", "ton": "tongan", "tongan": "tongan", "tpi": "tokpisin", "tr": "turkish", "tr-tr": "turkish", "traditional chinese": "chinese-traditional", "trv": "taroko", "ts": "tsonga", "ts-ts": "tsonga", "tshiluba": "lubakatanga", "tshiven\u1E13a": "venda", "tso": "tsonga", "tsonga": "tsonga", "tsw": "tswana", "tswana": "tswana", "tt": "tatar", "tt-tt": "tatar", "turkish": "turkish", "turkmen": "turkmen", "tw": "chinese-traditional", "twq": "tasawaq", "txg": "tangut", "tya": "tyap", "tyap": "tyap", "tzm": "centralatlastamazight", "t\xFCrkmen dili": "turkmen", "t\xFCrk\xE7e": "turkish", "ug": "uyghur", "ug-ug": "uyghur", "uga": "ugaritic", "ugaritic": "ugaritic", "uk": "ukrainian", "uk-uk": "ukrainian", "ukenglish": "british", "ukr": "ukrainian", "ukrainian": "ukrainian", "upp": "uppersorbian", "upper sorbian": "uppersorbian", "uppersorbian": "uppersorbian", "ur": "urdu", "ur-ur": "urdu", "urd": "urdu", "urdu": "urdu", "usenglish": "american", "usorbian": "uppersorbian", "uyg": "uyghur", "uyghur": "uyghur", "uz": "uzbek", "uz-arab": "uzbek-arabic", "uz-cyrl": "uzbek-cyrillic", "uz-latn": "uzbek-latin", "uz-uz": "uzbek", "uzbek": "uzbek", "uzbek-arab": "uzbek-arabic", "uzbek-arabic": "uzbek-arabic", "uzbek-cyrillic": "uzbek-cyrillic", "uzbek-cyrl": "uzbek-cyrillic", "uzbek-latin": "uzbek-latin", "uzbek-latn": "uzbek-latin", "vahcuengh": "zhuang", "vai": "vai", "vai-latin": "vai-latin", "vai-latn": "vai-latin", "vai-vai": "vai-vai", "vai-vaii": "vai-vai", "ve": "venda", "ve-ve": "venda", "vec": "venetian", "venda": "venda", "venetian": "venetian", "veneto": "venetian", "vi": "vietnamese", "vi-vi": "vietnamese", "vie": "vietnamese", "vietnam": "vietnamese", "vietnamese": "vietnamese", "vmw": "makhuwa", "vo": "volapuk", "vo-vo": "volapuk", "vol": "volapuk", "volapuk": "volapuk", "volap\xFCk": "volapuk", "vun": "vunjo", "vunjo": "vunjo", "wae": "walser", "wal": "wolaytta", "walser": "walser", "war": "waray", "waray": "waray", "wel": "welsh", "welsh": "welsh", "wes": "westernfrisian", "western frisian": "westernfrisian", "westernfrisian": "westernfrisian", "wo": "wolof", "wo-wo": "wolof", "wolaytta": "wolaytta", "wolof": "wolof", "xcr": "carian", "xh": "xhosa", "xh-xh": "xhosa", "xho": "xhosa", "xhosa": "xhosa", "xitsonga": "tsonga", "xlc": "lycian", "xld": "lydian", "xnr": "kangri", "xog": "soga", "xsa": "sabaean", "yan": "yangben", "yangben": "yangben", "yav": "yangben", "yi": "yiddish", "yi-yi": "yiddish", "yid": "yiddish", "yiddish": "yiddish", "yo": "yoruba", "yo-yo": "yoruba", "yor": "yoruba", "yoruba": "yoruba", "yrl": "nheengatu", "yue": "cantonese", "za": "zhuang", "za-za": "zhuang", "zar": "zarma", "zarma": "zarma", "zarmaciine": "zarma", "zgh": "standardmoroccantamazight", "zh": "chinese", "zh-hans": "chinese-simplified", "zh-hans-hk": "chinese-simplified-hongkongsarchina", "zh-hans-mo": "chinese-simplified-macausarchina", "zh-hans-sg": "chinese-simplified-singapore", "zh-hant": "chinese-traditional", "zh-hant-hk": "chinese-traditional-hongkongsarchina", "zh-hant-mo": "chinese-traditional-macausarchina", "zh-tw": "chinese-traditional", "zh-zh": "chinese", "zhu": "zhuang", "zhuang": "zhuang", "zu": "zulu", "zu-zu": "zulu", "zul": "zulu", "zulu": "zulu", "\xE8d\xE8 yor\xF9b\xE1": "yoruba", "\xEDslenska": "icelandic", "\xF6sterreichisches deutsch": "austrian", "\u010De\u0161tina": "czech", "\u015Bl\u014Dnski": "silesian", "\u0253\xE0s\xE0a": "basaa", "\u02BB\u014Dlelo hawai\u02BBi": "hawaiian", "\u03B1\u03C1\u03C7\u03B1\u03AF\u03B1 \u03B5\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC": "greek", "\u03B5\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC": "greek", "\u03EF\u2C99\u2C89\u2CA7\u2CA3\u2C89\u2C99\u2C9B\u0300\u2CAD\u2C8F\u2C99\u2C93": "coptic", "\u0430\u0437\u04D9\u0440\u0431\u0430\u0458\u04B9\u0430\u043D": "azerbaijani-cyrillic", "\u0430\u0525\u0441\u0448\u04D9\u0430": "abkhazian", "\u0431\u0430\u0448\u04A1\u043E\u0440\u0442 \u0442\u0435\u043B\u0435": "bashkir", "\u0431\u0435\u043B\u0430\u0440\u0443\u0441\u043A\u0430\u044F": "belarusian", "\u0431\u043E\u0441\u0430\u043D\u0441\u043A\u0438": "bosnian-cyrillic", "\u0431\u0443\u0440\u044F\u0430\u0434": "buriat", "\u0431\u044A\u043B\u0433\u0430\u0440\u0441\u043A\u0438": "bulgarian", "\u0433\u04CF\u0430\u043B\u0433\u04CF\u0430\u0439 \u043C\u043E\u0442\u0442": "ingush", "\u0438\u0440\u043E\u043D": "ossetic", "\u043A\u043E\u043C\u0438 \u043A\u044B\u0432": "komi", "\u043A\u044B\u0440\u0433\u044B\u0437\u0447\u0430": "kyrgyz", "\u043C\u0430\u043A\u0435\u0434\u043E\u043D\u0441\u043A\u0438": "macedonian", "\u043C\u043E\u043D\u0433\u043E\u043B": "mongolian", "\u043D\u043E\u0445\u0447\u0438\u0439\u043D": "chechen", "\u0440\u0443\u0441\u0441\u043A\u0438\u0439": "russian", "\u0441\u0430\u0445\u0430 \u0442\u044B\u043B\u0430": "sakha", "\u0441\u043B\u043E\u0432\u0463\u0301\u043D\u044C\u0441\u043A\u044A \u0469\uA641\uA651\u0301\u043A\u044A": "churchslavic-oldcyrillic", "\u0441\u0440\u043F\u0441\u043A\u0438": "serbianc", "\u0442\u0430\u0442\u0430\u0440": "tatar", "\u0442\u043E\u04B7\u0438\u043A\u04E3": "tajik", "\u0443\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430": "ukrainian", "\u0446\u0440\u044C\u043A\u044A\u0432\u044C\u043D\u043E\u0441\u043B\u043E\u0432\u0463\u043D\u044C\u0441\u043A\u044A \u0469\u0437\u044B\u043A\u044A": "churchslavic", "\u0447\u04D1\u0432\u0430\u0448": "chuvash", "\u044D\u0440\u0437\u044F\u043D\u044C \u043A\u0435\u043B\u044C": "erzya", "\u045E\u0437\u0431\u0435\u043A\u0447\u0430": "uzbek-cyrillic", "\u049B\u0430\u0437\u0430\u049B \u0442\u0456\u043B\u0456": "kazakh", "\u0570\u0561\u0575\u0565\u0580\u0565\u0576": "armenian", "\u05D9\u05D9\u05B4\u05D3\u05D9\u05E9": "yiddish", "\u05DC\u05B0\u05E9\u05C1\u05D5\u05B9\u05DF \u05D4\u05B7\u05DE\u05B4\u05BC\u05E7\u05B0\u05E8\u05B8\u05D0": "ancienthebrew", "\u05E2\u05D1\u05E8\u05D9\u05EA": "hebrew", "\u0626\u06C7\u064A\u063A\u06C7\u0631\u0686\u06D5": "uyghur", "\u0627\u0631\u062F\u0648": "urdu", "\u0627\u0644\u0639\u0631\u0628\u064A\u0629": "arabic", "\u0627\u0644\u0644\u0647\u062C\u0629 \u0627\u0644\u062C\u0632\u0627\u0626\u0631\u064A\u0629": "algerianarabic", "\u0627\u0648\u0632\u0628\u06CC\u06A9": "uzbek-arabic", "\u0628\u0644\u06C6\u0686\u06CC": "baluchi", "\u0633\u0631\u0627\u0626\u06CC\u06A9\u06CC": "saraiki", "\u0633\u0646\u068C\u064A": "sindhi", "\u0641\u0627\u0631\u0633\u06CC": "persian", "\u0644\u06CA\u0631\u06CC \u0634\u0648\u0645\u0627\u0644\u06CC": "northernluri", "\u0645\u0627\u0632\u0631\u0648\u0646\u06CC": "mazanderani", "\u0645\u0635\u0631\u0649": "egyptianarabic", "\u067E\u0646\u062C\u0627\u0628\u06CC": "punjabi-arabic", "\u067E\u069A\u062A\u0648": "pashto", "\u06A9\u0648\u0631\u062F\u06CC\u06CC \u0646\u0627\u0648\u06D5\u0646\u062F\u06CC": "centralkurdish", "\u06A9\u0648\u0631\u0645\u0627\u0646\u062C\u06CC": "kurdish-arabic", "\u06A9\u0672\u0634\u064F\u0631": "kashmiri", "\u0720\u072B\u0722\u0710 \u0723\u0718\u072A\u071D\u071D\u0710": "syriac", "\u078B\u07A8\u0788\u07AC\u0780\u07A8\u0784\u07A6\u0790\u07B0": "divehi", "\u07D2\u07DE\u07CF": "nko", "\u080F\u0801\u0813\u0809\u0815": "samaritan", "\u0853\u0840\u0848\u084D\u0840": "classicalmandaic", "\u0905\u0935\u0927\u0940": "awadhi", "\u0915\u093E\u0902\u0917\u0921\u093C\u0940": "kangri", "\u0915\u094B\u0902\u0915\u0923\u0940": "konkani", "\u0921\u094B\u0917\u0930\u0940": "dogri", "\u0928\u0947\u092A\u093E\u0932\u0940": "nepali", "\u0928\u0947\u0935\u093E\u0903 \u092D\u093E\u092F\u094D": "newari", "\u092C\u0930\u2019": "bodo", "\u092D\u094B\u091C\u092A\u0941\u0930\u0940": "bhojpuri", "\u092E\u0930\u093E\u0920\u0940": "marathi", "\u092E\u0948\u0925\u093F\u0932\u0940": "maithili", "\u0930\u093E\u091C\u0938\u094D\u0925\u093E\u0928\u0940": "rajasthani", "\u0932\u093F\u092E\u094D\u092C\u0941 \u092D\u093E\u0937\u093E": "limbu", "\u0938\u0902\u0938\u094D\u0915\u0943\u0924": "sanskrit", "\u0938\u093F\u0928\u094D\u0927\u0940": "sindhi-devanagari", "\u0939\u0930\u093F\u092F\u093E\u0923\u0935\u0940": "haryanvi", "\u0939\u093F\u0928\u094D\u0926\u0940": "hindi", "\u0985\u09B8\u09AE\u09C0\u09AF\u09BC\u09BE": "assamese", "\u09AC\u09BE\u0982\u09B2\u09BE": "bangla", "\u09AE\u09C8\u09A4\u09C8\u09B2\u09CB\u09A8\u09CD": "manipuri", "\u0A2A\u0A70\u0A1C\u0A3E\u0A2C\u0A40": "punjabi", "\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4\u0AC0": "gujarati", "\u0B13\u0B21\u0B3C\u0B3F\u0B06": "odia", "\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD": "tamil", "\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41": "telugu", "\u0C95\u0CA8\u0CCD\u0CA8\u0CA1": "kannada", "\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02": "malayalam", "\u0DC3\u0DD2\u0D82\u0DC4\u0DBD": "sinhala", "\u0E44\u0E17\u0E22": "thai", "\u0EA5\u0EB2\u0EA7": "lao", "\u0F56\u0F7C\u0F51\u0F0B\u0F66\u0F90\u0F51\u0F0B": "tibetan", "\u0F62\u0FAB\u0F7C\u0F44\u0F0B\u0F41": "dzongkha", "\u1019\u103C\u1014\u103A\u1019\u102C": "burmese", "\u10E5\u10D0\u10E0\u10D7\u10E3\u10DA\u10D8": "georgian", "\u1265\u120A\u1295": "blin", "\u1275\u130D\u1228": "tigre", "\u1275\u130D\u122D\u129B": "tigrinya", "\u12A0\u121B\u122D\u129B": "amharic", "\u12C8\u120B\u12ED\u1273\u1271": "wolaytta", "\u130D\u12D5\u12DD\u129B": "geez", "\u1403\u14C4\u1483\u144E\u1450\u1466": "inuktitut", "\u168C\u1691\u1694\u1687\u1693\u1682\u1689": "oldirish", "\u1781\u17D2\u1798\u17C2\u179A": "khmer", "\u1915\u1920\u1930\u190C\u1922\u1931 \u1910\u1920\u1934": "limbu-limbu", "\u1956\u196D\u1970 \u1958\u196B\u1974": "tainua", "\u1985\u19C4\u19BA\u1991\u199F\u19B9\u19C9": "lu", "\u1A05\u1A14 \u1A06\u1A00\u1A14\u1A11": "makasar-buginese", "\u1BC2\u1BD6 \u1BC5\u1BD6\u1BC2\u1BF2 \u1BD6\u1BEC\u1BC5": "bataktoba", "\u1C1B\u1C29\u1C35\u1C1B\u1C27\u1C35\u1C36": "lepcha", "\u1C65\u1C5F\u1C71\u1C5B\u1C5F\u1C72\u1C64": "santali", "\u1F10\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC": "greek", "\u2C44\u2C3E\u2C41\u2C32\u2C51\u2C40\u2C50\u2C44\u2C3D\u2C4F \u2C57\u2C38\u2C4F\u2C3A\u2C3D\u2C4F": "churchslavic-glagolitic", "\u2D5C\u2D30\u2D4E\u2D30\u2D63\u2D49\u2D56\u2D5C": "standardmoroccantamazight", "\u2D5C\u2D30\u2D5B\u2D4D\u2D43\u2D49\u2D5C": "tachelhit", "\u4E2D\u6587": "chinese", "\u4E2D\u6587-\u4E2D\u6587": "chinese", "\u65E5\u672C\u8A9E": "japanese", "\u7B80\u4F53\u4E2D\u6587": "chinese-simplified", "\u7CB5\u8A9E": "cantonese", "\u7CB5\u8A9E-\u7CB5\u8A9E": "cantonese", "\u7E41\u9AD4\u4E2D\u6587": "chinese-traditional", "\uA188\uA320\uA259": "sichuanyi", "\uA559\uA524": "vai", "\uABB3\uAB83\uAB79": "cherokee", "\uD55C\uAD6D\uC5B4": "korean", "\u{1030C}\u{10304}\u{10300}\u{10309}\u{10302}\u{10314}\u{10316} \u{10313}\u{10304}\u{10300}\u{10314}\u{1030D}\u{10304}": "etruscan", "\u{10332}\u{1033F}\u{10344}\u{10339}\u{10343}\u{1033A}": "gothic", "\u{104F7}\u{104D8}\u{104FB}\u{104D8}\u{104FB}\u{104DF}": "osage", "\u{10840}\u{10853}\u{1084C}\u{10849}\u{10840}": "aramaic", "\u{10903}\u{10901}\u{10913}\u{10909}\u{1090C} \u{1090A}\u{1090D}\u{1090F}\u{1090D}\u{10909}\u{1090C}": "phoenician", "\u{10B0E}\u{10B1E}\u{10B00}\u{10B2F}\u{10B19}\u{10B00}\u{10B0E}\u{10B0E}\u{10B00}\u{10B10}\u{10B00}\u{10B09}\u{10B25}\u{10B00}": "avestan", "\u{10F73}\u{10F78}\u{10F79}\u{10F70}\u{10F77}": "olduighur", "\u{1110C}\u{1110B}\u{11134}\u{1111F}\u{11133}\u{11126}": "chakma", "\u{1201D}\u{12157}\u{1207A}\u{12311}": "akkadian", "\u{1308B}\u{133FA}\u{13216} \u{1318E}\u{13153}\u{133CF}\u{13296}": "ancientegyptian", "\u{17F07}\u{177F2}": "tangut", "\u{17F07}\u{177F2}-\u{17F07}\u{177F2}": "tangut", "\u{1E100}\u{1E104}\u{1E130}\u{1E129}\u{1E10D}\u{1E11C}\u{1E130}": "hmongnjua" };
+  var langmap_default = { "aa": "afar", "aa-aa": "afar", "ab": "abkhazian", "ab-ab": "abkhazian", "abk": "abkhazian", "abkhazian": "abkhazian", "aca": "acadian", "acadian": "acadian", "acadien": "acadian", "ae": "avestan", "ae-ae": "avestan", "af": "afrikaans", "af-af": "afrikaans", "afa": "afar", "afar": "afar", "afr": "afrikaans", "afrikaans": "afrikaans", "agh": "aghem", "aghem": "aghem", "agq": "aghem", "ak": "akan", "ak-ak": "akan", "aka": "akan", "akan": "akan", "akk": "akkadian", "akkadian": "akkadian", "alb": "albanian", "albanian": "albanian", "alemannic": "swissgerman", "alg": "algerianarabic", "algerian arabic": "algerianarabic", "algerianarabic": "algerianarabic", "als": "alsatian", "alsatian": "alsatian", "alt": "southernaltai", "am": "amharic", "am-am": "amharic", "ame": "american", "american": "american", "american english": "american", "americanenglish": "american", "amh": "amharic", "amharic": "amharic", "anar\xE2\u0161kiel\xE2": "inarisami", "ancient egyptian": "ancientegyptian", "ancient greek": "greek", "ancient hebrew": "ancienthebrew", "ancientegyptian": "ancientegyptian", "ancientgreek": "greek", "ancienthebrew": "ancienthebrew", "ar": "arabic", "ar-ar": "arabic", "ar-dz": "arabic-algeria", "ar-eg": "arabic-egypt", "ar-iq": "arabic-iraq", "ar-jo": "arabic-jordan", "ar-lb": "arabic-lebanon", "ar-ma": "arabic-morocco", "ar-ps": "arabic-palestinianterritories", "ar-sa": "arabic-saudiarabia", "ar-sy": "arabic-syria", "ar-tn": "arabic-tunisia", "ara": "arabic", "arabic": "arabic", "arabic-algeria": "arabic-algeria", "arabic-dz": "arabic-algeria", "arabic-eg": "arabic-egypt", "arabic-egypt": "arabic-egypt", "arabic-iq": "arabic-iraq", "arabic-iraq": "arabic-iraq", "arabic-jo": "arabic-jordan", "arabic-jordan": "arabic-jordan", "arabic-lb": "arabic-lebanon", "arabic-lebanon": "arabic-lebanon", "arabic-ma": "arabic-morocco", "arabic-morocco": "arabic-morocco", "arabic-palestinianterritories": "arabic-palestinianterritories", "arabic-ps": "arabic-palestinianterritories", "arabic-sa": "arabic-saudiarabia", "arabic-saudiarabia": "arabic-saudiarabia", "arabic-sy": "arabic-syria", "arabic-syria": "arabic-syria", "arabic-tn": "arabic-tunisia", "arabic-tunisia": "arabic-tunisia", "aramaic": "aramaic", "aramaic-nabataean": "aramaic-nabataean", "aramaic-nbat": "aramaic-nabataean", "aramaic-palm": "aramaic-palmyrene", "aramaic-palmyrene": "aramaic-palmyrene", "arc": "aramaic", "arc-nbat": "aramaic-nabataean", "arc-palm": "aramaic-palmyrene", "arm": "armenian", "armenian": "armenian", "arq": "algerianarabic", "arz": "egyptianarabic", "as": "assamese", "as-as": "assamese", "asa": "asu", "ass": "assamese", "assamese": "assamese", "ast": "asturian", "asturian": "asturian", "asturianu": "asturian", "asu": "asu", "ats": "atsam", "atsam": "atsam", "australian": "australian", "australian english": "australian", "australianenglish": "australian", "austrian": "austrian", "austrian german": "austrian", "austrian-traditional": "german", "austriangerman": "austrian", "austriangerman-traditional": "german", "ava\xF1e\u2019\u1EBD": "guarani", "ave": "avestan", "avestan": "avestan", "awa": "awadhi", "awadhi": "awadhi", "ay": "aymara", "ay-ay": "aymara", "aym": "aymara", "aymar aru": "aymara", "aymara": "aymara", "az": "azerbaijani", "az-az": "azerbaijani", "az-cyrl": "azerbaijani-cyrillic", "az-latn": "azerbaijani-latin", "azerbaijani": "azerbaijani", "azerbaijani-cyrillic": "azerbaijani-cyrillic", "azerbaijani-cyrl": "azerbaijani-cyrillic", "azerbaijani-latin": "azerbaijani-latin", "azerbaijani-latn": "azerbaijani-latin", "az\u0259rbaycan": "azerbaijani", "ba": "bashkir", "ba-ba": "bashkir", "baf": "bafia", "bafia": "bafia", "bahasa melayu": "malay", "bal": "baluchi", "balinese": "balinese", "baluchi": "baluchi", "bam": "bambara", "bamanakan": "bambara", "bambara": "bambara", "ban": "balinese", "bangla": "bangla", "bar": "bavarian", "bas": "basaa", "basa bali": "balinese", "basa mangkasara\u02BC": "makasar", "basa sunda": "sundanese", "basaa": "basaa", "bashkir": "bashkir", "basque": "basque", "bat": "bataktoba", "batak toba": "bataktoba", "bataktoba": "bataktoba", "bav": "bavarian", "bavarian": "bavarian", "bbc": "bataktoba", "be": "belarusian", "be-be": "belarusian", "be-tarask": "belarusian", "bel": "belarusian", "belarusian": "belarusian", "bem": "bemba", "bemba": "bemba", "ben": "bena", "bena": "bena", "bengali": "bangla", "bet": "betawi", "betawi": "betawi", "bew": "betawi", "bez": "bena", "bg": "bulgarian", "bg-bg": "bulgarian", "bgc": "haryanvi", "bho": "bhojpuri", "bhojpuri": "bhojpuri", "bli": "blin", "blin": "blin", "bm": "bambara", "bm-bm": "bambara", "bn": "bangla", "bn-bn": "bangla", "bo": "tibetan", "bo-bo": "tibetan", "boarisch": "bavarian", "bod": "bodo", "bodo": "bodo", "bosanski": "bosnian", "bosnian": "bosnian", "bosnian-cyrillic": "bosnian-cyrillic", "bosnian-cyrl": "bosnian-cyrillic", "bosnian-latin": "bosnian-latin", "bosnian-latn": "bosnian-latin", "br": "breton", "br-br": "breton", "bra": "brazilian", "brazilian": "brazilian", "brazilian portuguese": "brazilian", "brazilianportuguese": "brazilian", "bre": "breton", "breton": "breton", "brezhoneg": "breton", "bri": "british", "british": "british", "british english": "british", "britishenglish": "british", "brx": "bodo", "bs": "bosnian", "bs-bs": "bosnian", "bs-cyrl": "bosnian-cyrillic", "bs-latn": "bosnian-latin", "bua": "buriat", "bul": "bulgarian", "bulgarian": "bulgarian", "buriat": "buriat", "burmese": "burmese", "byn": "blin", "ca": "catalan", "ca-ca": "catalan", "canadian": "canadian", "canadian english": "canadian", "canadian french": "canadien", "canadianenglish": "canadian", "canadianfrench": "canadien", "canadien": "canadien", "cantonese": "cantonese", "car": "carian", "carian": "carian", "cat": "catalan", "catalan": "catalan", "catal\xE0": "catalan", "cch": "atsam", "ccp": "chakma", "ce": "chechen", "ce-ce": "chechen", "ceb": "cebuano", "cebuano": "cebuano", "central atlas tamazight": "centralatlastamazight", "central kurdish": "centralkurdish", "centralatlastamazight": "centralatlastamazight", "centralkurdish": "centralkurdish", "centralkurdish-latin": "sorani", "cgg": "chiga", "cha": "chakma", "chakma": "chakma", "chechen": "chechen", "cherokee": "cherokee", "chiga": "chiga", "chimakonde": "makonde", "chinese": "chinese", "chinese-hans": "chinese-simplified", "chinese-hans-hk": "chinese-simplified-hongkongsarchina", "chinese-hans-mo": "chinese-simplified-macausarchina", "chinese-hans-sg": "chinese-simplified-singapore", "chinese-hant": "chinese-traditional", "chinese-hant-hk": "chinese-traditional-hongkongsarchina", "chinese-hant-mo": "chinese-traditional-macausarchina", "chinese-pinyin": "chinese-pinyin", "chinese-simplified": "chinese-simplified", "chinese-simplified-hongkongsarchina": "chinese-simplified-hongkongsarchina", "chinese-simplified-macausarchina": "chinese-simplified-macausarchina", "chinese-simplified-singapore": "chinese-simplified-singapore", "chinese-traditional": "chinese-traditional", "chinese-traditional-hongkongsarchina": "chinese-traditional-hongkongsarchina", "chinese-traditional-macausarchina": "chinese-traditional-macausarchina", "chishona": "shona", "chr": "cherokee", "church slavic": "churchslavic", "churchslavic": "churchslavic", "churchslavic-glagolitic": "churchslavic-glagolitic", "churchslavic-oldcyrillic": "churchslavic-oldcyrillic", "churchslavonic": "churchslavic", "chuvash": "chuvash", "ckb": "centralkurdish", "ckb-arab": "sorani", "ckb-latn": "sorani", "classical latin": "classicallatin", "classical mandaic": "classicalmandaic", "classicallatin": "classicallatin", "classicalmandaic": "classicalmandaic", "co": "corsican", "co-co": "corsican", "col": "colognian", "colognian": "colognian", "cop": "coptic", "coptic": "coptic", "cornish": "cornish", "corsican": "corsican", "corsu": "corsican", "cro": "croatian", "croatian": "croatian", "cs": "czech", "cs-cs": "czech", "cu": "churchslavic", "cu-cu": "churchslavic", "cu-cyrs": "churchslavic-oldcyrillic", "cu-glag": "churchslavic-glagolitic", "cv": "chuvash", "cv-cv": "chuvash", "cy": "welsh", "cy-cy": "welsh", "cymraeg": "welsh", "cze": "czech", "czech": "czech", "da": "danish", "da-da": "danish", "dan": "danish", "danish": "danish", "dansk": "danish", "dav": "taita", "davvis\xE1megiella": "northernsami", "de": "ngerman", "de-1901": "german", "de-1996": "ngerman", "de-at": "austrian", "de-at-1901": "german", "de-at-1996": "naustrian", "de-ch": "nswissgerman", "de-ch-1901": "swissgerman", "de-ch-1996": "nswissgerman", "de-de": "german", "de-de-1901": "german", "deutsch": "german", "dholuo": "luo", "din\xE9 bizaad": "navajo", "div": "divehi", "divehi": "divehi", "dje": "zarma", "dog": "dogri", "dogri": "dogri", "doi": "dogri", "dolnoserb\u0161\u0107ina": "lowersorbian", "dsb": "lowersorbian", "dua": "duala", "duala": "duala", "dut": "dutch", "dutch": "dutch", "du\xE1l\xE1": "duala", "dv": "divehi", "dv-dv": "divehi", "dyo": "jolafonyi", "dz": "dzongkha", "dz-dz": "dzongkha", "dzo": "dzongkha", "dzongkha": "dzongkha", "ebu": "embu", "ecc": "ecclesiasticallatin", "ecclesiastical latin": "ecclesiasticallatin", "ecclesiasticallatin": "ecclesiasticallatin", "ee": "ewe", "ee-ee": "ewe", "eesti": "estonian", "egy": "ancientegyptian", "egyptian arabic": "egyptianarabic", "egyptianarabic": "egyptianarabic", "ekegusii": "gusii", "el": "greek", "el-el": "greek", "el-polyton": "greek", "els\xE4ssisch": "alsatian", "emakhuwa": "makhuwa", "emb": "embu", "embu": "embu", "en": "english", "en-au": "australian", "en-ca": "canadian", "en-en": "english", "en-gb": "british", "en-nz": "newzealand", "en-us": "american", "eng": "english", "english": "english", "english-au": "australian", "english-australia": "australian", "english-ca": "canadian", "english-canada": "canadian", "english-gb": "british", "english-newzealand": "newzealand", "english-nz": "newzealand", "english-unitedkingdom": "british", "english-unitedstates": "american", "english-us": "american", "eo": "esperanto", "eo-eo": "esperanto", "erz": "erzya", "erzya": "erzya", "es": "spanish", "es-es": "spanish", "es-mx": "mexican", "esp": "esperanto", "espa\xF1ol": "spanish", "espa\xF1ol de m\xE9xico": "mexican", "esperanto": "esperanto", "est": "estonian", "estonian": "estonian", "et": "estonian", "et-et": "estonian", "etr": "etruscan", "etruscan": "etruscan", "ett": "etruscan", "eu": "basque", "eu-eu": "basque", "european portuguese": "portuguese", "europeanportuguese": "portuguese", "euskara": "basque", "ewe": "ewe", "ewo": "ewondo", "ewondo": "ewondo", "e\u028Begbe": "ewe", "fa": "persian", "fa-fa": "persian", "fa-latn": "persian-latin", "far": "faroese", "faroese": "faroese", "ff": "fulah", "ff-ff": "fulah", "fi": "finnish", "fi-fi": "finnish", "fil": "filipino", "filipino": "filipino", "fin": "finnish", "finnish": "finnish", "fo": "faroese", "fo-fo": "faroese", "fr": "french", "fr-be": "french", "fr-ca": "canadien", "fr-ch": "french-switzerland", "fr-fr": "french", "fr-lu": "french", "fr-x-acadian": "acadian", "fran\xE7ais": "french", "fran\xE7ais canadien": "canadien", "fran\xE7ais suisse": "french-switzerland", "french": "french", "french-be": "french", "french-belgium": "french", "french-ca": "canadien", "french-canada": "canadien", "french-ch": "french-switzerland", "french-lu": "french", "french-luxembourg": "french", "french-switzerland": "french-switzerland", "fri": "friulian", "friulian": "friulian", "frr": "northernfrisian", "frysk": "westernfrisian", "ful": "fulah", "fulah": "fulah", "fur": "friulian", "furlan": "friulian", "fy": "westernfrisian", "fy-fy": "westernfrisian", "f\xF8royskt": "faroese", "ga": "irish", "ga-ga": "irish", "gaa": "ga", "gaeilge": "irish", "gaelg": "manx", "gaelic": "scottishgaelic", "gal": "galician", "galego": "galician", "galician": "galician", "gan": "ganda", "ganda": "ganda", "gd": "scottishgaelic", "gd-gd": "scottishgaelic", "gee": "geez", "geez": "geez", "geo": "georgian", "georgian": "georgian", "ger": "german", "german": "german", "german-at": "austrian", "german-at-traditional": "german", "german-austria": "austrian", "german-austria-traditional": "german", "german-ch": "nswissgerman", "german-ch-traditional": "swissgerman", "german-de": "german", "german-de-traditional": "german", "german-germany": "german", "german-germany-traditional": "german", "german-switzerland": "nswissgerman", "german-switzerland-traditional": "swissgerman", "german-traditional": "german", "gez": "geez", "gikuyu": "kikuyu", "gl": "galician", "gl-gl": "galician", "gn": "guarani", "gn-gn": "guarani", "got": "gothic", "gothic": "gothic", "grc": "greek", "gre": "greek", "greek": "greek", "gsw": "swissgerman", "gsw-fr": "alsatian", "gu": "gujarati", "gu-gu": "gujarati", "gua": "guarani", "guarani": "guarani", "guj": "gujarati", "gujarati": "gujarati", "gus": "gusii", "gusii": "gusii", "guz": "gusii", "gv": "manx", "gv-gv": "manx", "g\xE0idhlig": "scottishgaelic", "g\xE3": "ga", "g\xE3-g\xE3": "ga", "ha": "hausa", "ha-gh": "hausa-ghana", "ha-ha": "hausa", "ha-ne": "hausa-niger", "har": "haryanvi", "haryanvi": "haryanvi", "hausa": "hausa", "hausa-gh": "hausa-ghana", "hausa-ghana": "hausa-ghana", "hausa-ne": "hausa-niger", "hausa-niger": "hausa-niger", "haw": "hawaiian", "hawaiian": "hawaiian", "hbo": "ancienthebrew", "he": "hebrew", "he-he": "hebrew", "heb": "hebrew", "hebrew": "hebrew", "hi": "hindi", "hi-hi": "hindi", "hibena": "bena", "hin": "hindi", "hindi": "hindi", "hmo": "hmongnjua", "hmong njua": "hmongnjua", "hmongnjua": "hmongnjua", "hnj": "hmongnjua", "hornjoserb\u0161\u0107ina": "uppersorbian", "hr": "croatian", "hr-hr": "croatian", "hrvatski": "croatian", "hsb": "uppersorbian", "hu": "hungarian", "hu-hu": "hungarian", "hun": "hungarian", "hungarian": "hungarian", "hy": "armenian", "hy-hy": "armenian", "h\xE0ny\u01D4 p\u012Bny\u012Bn": "chinese-pinyin", "ia": "interlingua", "ia-ia": "interlingua", "ice": "icelandic", "icelandic": "icelandic", "ichibemba": "bemba", "id": "indonesian", "id-id": "indonesian", "ig": "igbo", "ig-ig": "igbo", "igb": "igbo", "igbo": "igbo", "ii": "sichuanyi", "ii-ii": "sichuanyi", "ikirundi": "rundi", "ina": "inarisami", "inari sami": "inarisami", "inarisami": "inarisami", "ind": "indonesian", "indonesia": "indonesian", "indonesian": "indonesian", "ing": "ingush", "ingush": "ingush", "inh": "ingush", "interlingua": "interlingua", "interslavic": "interslavic", "inu": "inuktitut", "inuktitut": "inuktitut", "iri": "irish", "irish": "irish", "is": "icelandic", "is-is": "icelandic", "ishisangu": "sangu", "isixhosa": "xhosa", "isizulu": "zulu", "isv": "interslavic", "it": "italian", "it-it": "italian", "ita": "italian", "italian": "italian", "italiano": "italian", "iu": "inuktitut", "iu-iu": "inuktitut", "ja": "japanese", "ja-ja": "japanese", "jap": "japanese", "japanese": "japanese", "jav": "javanese", "javanese": "javanese", "jawa": "javanese", "jgo": "ngomba", "jju": "jju", "jmc": "machame", "jol": "jolafonyi", "jola-fonyi": "jolafonyi", "jolafonyi": "jolafonyi", "joola": "jolafonyi", "jv": "javanese", "jv-jv": "javanese", "ka": "georgian", "ka-ka": "georgian", "kab": "kabyle", "kabuverdianu": "kabuverdianu", "kabyle": "kabyle", "kai": "kaingang", "kaingang": "kaingang", "kaj": "jju", "kaje": "jju", "kak": "kako", "kako": "kako", "kak\u0254": "kako", "kalaallisut": "kalaallisut", "kalenjin": "kalenjin", "kam": "kamba", "kamba": "kamba", "kangri": "kangri", "kanhg\xE1g": "kaingang", "kannada": "kannada", "kas": "kashmiri", "kashmiri": "kashmiri", "katab": "tyap", "kaz": "kazakh", "kazakh": "kazakh", "kcg": "tyap", "kde": "makonde", "kea": "kabuverdianu", "kernewek": "cornish", "kgp": "kaingang", "khb": "lu", "khm": "khmer", "khmer": "khmer", "khoekhoegowab": "nama", "khq": "koyrachiini", "ki": "kikuyu", "ki-ki": "kikuyu", "kihorombo": "rombo", "kik": "kikuyu", "kikamba": "kamba", "kikuyu": "kikuyu", "kimachame": "machame", "kin": "kinyarwanda", "kinyarwanda": "kinyarwanda", "kipare": "asu", "kiruwa": "rwa", "kisampur": "samburu", "kishambaa": "shambala", "kiswahili": "swahili", "kitaita": "taita", "kiteso": "teso", "kk": "kazakh", "kk-kk": "kazakh", "kkj": "kako", "kl": "kalaallisut", "kl-kl": "kalaallisut", "kln": "kalenjin", "km": "khmer", "km-km": "khmer", "kn": "kannada", "kn-kn": "kannada", "ko": "korean", "ko-ko": "korean", "kok": "konkani", "kom": "komi", "komi": "komi", "kon": "konkani", "konkani": "konkani", "kor": "korean", "korean": "korean", "korean-han": "korean", "korean-hani": "korean", "koyra chiini": "koyrachiini", "koyra ciini": "koyrachiini", "koyraboro senni": "koyraborosenni", "koyraborosenni": "koyraborosenni", "koyrachiini": "koyrachiini", "kreol morisien": "morisyen", "ks": "kashmiri", "ks-ks": "kashmiri", "ksb": "shambala", "ksf": "bafia", "ksh": "colognian", "ku": "kurdish", "ku-arab": "kurdish-arabic", "ku-ku": "kurdish", "kurdish": "kurdish", "kurdish-arabic": "kurdish-arabic", "kurd\xEE (kurmanc\xEE)": "kurdish", "kurd\xEEy nawend\xEE": "sorani", "kurmanji": "kurdish", "kv": "komi", "kv-kv": "komi", "kw": "cornish", "kw-kw": "cornish", "kwa": "kwasio", "kwasio": "kwasio", "ky": "kyrgyz", "ky-ky": "kyrgyz", "kyivunjo": "vunjo", "kyr": "kyrgyz", "kyrgyz": "kyrgyz", "k\xF6lsch": "colognian", "k\u0129embu": "embu", "k\u0129m\u0129r\u0169": "meru", "k\u0268laangi": "langi", "la": "latin", "la-la": "latin", "la-x-classic": "classicallatin", "la-x-ecclesia": "ecclesiasticallatin", "la-x-medieval": "medievallatin", "lab": "lineara", "lad": "ladino", "ladino": "ladino", "lag": "langi", "lak": "lakota", "lakota": "lakota", "lak\u021F\xF3l\u02BCiyapi": "lakota", "lan": "langi", "langi": "langi", "lao": "lao", "latin": "latin", "latvian": "latvian", "latvie\u0161u": "latvian", "lb": "luxembourgish", "lb-lb": "luxembourgish", "lea fakatonga": "tongan", "lep": "lepcha", "lepcha": "lepcha", "lg": "ganda", "lg-lg": "ganda", "lietuvi\u0173": "lithuanian", "lif": "limbu", "lif-limb": "limbu-limbu", "lig": "ligurian", "ligure": "ligurian", "ligurian": "ligurian", "lij": "ligurian", "limbu": "limbu", "limbu-limb": "limbu-limbu", "limbu-limbu": "limbu-limbu", "linear a": "lineara", "lineara": "lineara", "lingala": "lingala", "ling\xE1la": "lingala", "lit": "lithuanian", "lithuanian": "lithuanian", "lkt": "lakota", "lmo": "lombard", "ln": "lingala", "ln-ln": "lingala", "lo": "lao", "lo-lo": "lao", "lom": "lombard", "lombard": "lombard", "low german": "lowgerman", "lower sorbian": "lowersorbian", "lowersorbian": "lowersorbian", "lowgerman": "lowgerman", "lrc": "northernluri", "lsorbian": "lowersorbian", "lt": "lithuanian", "lt-lt": "lithuanian", "lu": "lubakatanga", "lu-lu": "lubakatanga", "lub": "lubakatanga", "luba-katanga": "lubakatanga", "lubakatanga": "lubakatanga", "luganda": "ganda", "luluhia": "luyia", "luo": "luo", "lux": "luxembourgish", "luxembourgish": "luxembourgish", "luy": "luyia", "luyia": "luyia", "lv": "latvian", "lv-lv": "latvian", "lyc": "lycian", "lycian": "lycian", "lyd": "lydian", "lydian": "lydian", "l\xEBtzebuergesch": "luxembourgish", "l\xFC": "lu", "l\xFC-l\xFC": "lu", "maa": "masai", "macedonian": "macedonian", "machame": "machame", "magyar": "hungarian", "mai": "maithili", "maithili": "maithili", "mak": "makasar", "mak-bugi": "makasar-buginese", "makasar": "makasar", "makasar-bugi": "makasar-buginese", "makasar-buginese": "makasar-buginese", "makhuwa": "makhuwa", "makhuwa-meetto": "makhuwameetto", "makhuwameetto": "makhuwameetto", "makonde": "makonde", "makua": "makhuwameetto", "malagasy": "malagasy", "malay": "malay", "malay-bn": "malay-brunei", "malay-brunei": "malay-brunei", "malay-sg": "malay-singapore", "malay-singapore": "malay-singapore", "malayalam": "malayalam", "maltese": "maltese", "malti": "maltese", "manipuri": "manipuri", "manx": "manx", "mao": "maori", "maori": "maori", "mar": "marathi", "marathi": "marathi", "mas": "masai", "masai": "masai", "maz": "mazanderani", "mazanderani": "mazanderani", "med": "medievallatin", "medieval latin": "medievallatin", "medievallatin": "medievallatin", "med\u017Euslovjansky": "interslavic", "melayu": "malay", "mer": "meru", "meru": "meru", "met": "meta", "meta": "meta", "meta\u02BC": "meta", "mex": "mexican", "mexican": "mexican", "mexican spanish": "mexican", "mexicanspanish": "mexican", "mfe": "morisyen", "mg": "malagasy", "mg-mg": "malagasy", "mgh": "makhuwameetto", "mgo": "meta", "mi": "maori", "mi-mi": "maori", "mk": "macedonian", "mk-mk": "macedonian", "ml": "malayalam", "ml-ml": "malayalam", "mn": "mongolian", "mn-mn": "mongolian", "mni": "manipuri", "mol": "moldavian", "moldavian": "moldavian", "mon": "mongolian", "mongolian": "mongolian", "monotonic greek": "greek", "monotonicgreek": "greek", "montenegrin": "serbianc", "mor": "morisyen", "morisyen": "morisyen", "mr": "marathi", "mr-mr": "marathi", "ms": "malay", "ms-bn": "malay-brunei", "ms-ms": "malay", "ms-sg": "malay-singapore", "mt": "maltese", "mt-mt": "maltese", "mua": "mundang", "mun": "mundang", "mundang": "mundang", "munda\u014B": "mundang", "mus": "muscogee", "muscogee": "muscogee", "mvskoke": "muscogee", "my": "burmese", "my-my": "burmese", "myv": "erzya", "myz": "classicalmandaic", "mzn": "mazanderani", "m\u0101ori": "maori", "naij\xEDri\xE1 p\xEDjin": "nigerianpidgin", "nam": "nama", "nama": "nama", "naq": "nama", "nau": "naustrian", "naustrian": "naustrian", "nav": "navajo", "navajo": "navajo", "nb": "norwegianbokmal", "nb-nb": "norwegianbokmal", "nd": "northndebele", "nd-nd": "northndebele", "nda\uA78Ca": "ngomba", "nds": "lowgerman", "ne": "nepali", "ne-ne": "nepali", "neddersass\u2019sch": "lowgerman", "nederlands": "dutch", "nep": "nepali", "nepali": "nepali", "new": "newari", "newari": "newari", "newzealand": "newzealand", "nge": "ngerman", "ngerman": "ngerman", "ngi": "ngiemboon", "ngiemboon": "ngiemboon", "ngo": "ngomba", "ngomba": "ngomba", "nhe": "nheengatu", "nheengatu": "nheengatu", "nhe\u1EBDgatu": "nheengatu", "nig": "nigerianpidgin", "nigerian pidgin": "nigerianpidgin", "nigerianpidgin": "nigerianpidgin", "nko": "nko", "nl": "dutch", "nl-nl": "dutch", "nmg": "kwasio", "nn": "nynorsk", "nn-nn": "nynorsk", "nnh": "ngiemboon", "no": "norsk", "no-no": "norsk", "non": "oldnorse", "nordfriisk": "northernfrisian", "norr\u01FFnt m\xE1l": "oldnorse", "norsk": "norsk", "norsk bokm\xE5l": "norwegianbokmal", "norsk nynorsk": "nynorsk", "north ndebele": "northndebele", "northern frisian": "northernfrisian", "northern luri": "northernluri", "northern sami": "northernsami", "northern sotho": "northernsotho", "northernfrisian": "northernfrisian", "northernkurdish": "kurdish", "northernkurdish-arabic": "kurdish-arabic", "northernluri": "northernluri", "northernsami": "northernsami", "northernsotho": "northernsotho", "northndebele": "northndebele", "norwegian": "norsk", "norwegian bokm\xE5l": "norwegianbokmal", "norwegian nynorsk": "nynorsk", "norwegianbokmal": "norwegianbokmal", "norwegiannynorsk": "nynorsk", "nqo": "nko", "nr": "southndebele", "nr-nr": "southndebele", "nso": "northernsotho", "nsw": "nswissgerman", "nswissgerman": "nswissgerman", "nuasue": "yangben", "nue": "nuer", "nuer": "nuer", "nus": "nuer", "nv": "navajo", "nv-nv": "navajo", "ny": "nyanja", "ny-ny": "nyanja", "nyanja": "nyanja", "nyankole": "nyankole", "nyn": "nyankole", "nynorsk": "nynorsk", "n\u2019ko": "nko", "oc": "occitan", "oc-oc": "occitan", "occ": "occitan", "occitan": "occitan", "odi": "odia", "odia": "odia", "old irish": "oldirish", "old norse": "oldnorse", "old persian": "oldpersian", "old uighur": "olduighur", "oldirish": "oldirish", "oldnorse": "oldnorse", "oldpersian": "oldpersian", "olduighur": "olduighur", "olusoga": "soga", "om": "oromo", "om-om": "oromo", "or": "odia", "or-or": "odia", "oriya": "odia", "oro": "oromo", "oromo": "oromo", "oromoo": "oromo", "os": "ossetic", "os-os": "ossetic", "osa": "osage", "osage": "osage", "oss": "ossetic", "ossetic": "ossetic", "oui": "olduighur", "o\u2018zbek": "uzbek", "pa": "punjabi", "pa-arab": "punjabi-arabic", "pa-guru": "punjabi-gurmukhi", "pa-pa": "punjabi", "pap": "papiamento", "papiamento": "papiamento", "papiamentu": "papiamento", "pas": "pashto", "pashto": "pashto", "patas taroko": "taroko", "pcm": "nigerianpidgin", "peo": "oldpersian", "persian": "persian", "persian-latin": "persian-latin", "phn": "phoenician", "pho": "phoenician", "phoenician": "phoenician", "pie": "piedmontese", "piedmontese": "piedmontese", "pinyin": "chinese-pinyin", "pl": "polish", "pl-pl": "polish", "pms": "piedmontese", "pol": "polish", "polish": "polish", "polski": "polish", "polytonic greek": "greek", "polytonicgreek": "greek", "por": "portuguese", "portuguese": "portuguese", "portuguese-br": "brazilian", "portuguese-brazil": "brazilian", "portuguese-portugal": "portuguese", "portuguese-pt": "portuguese", "portugu\xEAs": "portuguese", "portugu\xEAs europeu": "portuguese", "prg": "prussian", "pru": "prussian", "prussian": "prussian", "pr\u016Bsiskan": "prussian", "ps": "pashto", "ps-ps": "pashto", "pt": "portuguese", "pt-br": "brazilian", "pt-pt": "portuguese", "pulaar": "fulah", "punjabi": "punjabi", "punjabi-arab": "punjabi-arabic", "punjabi-arabic": "punjabi-arabic", "punjabi-gurmukhi": "punjabi-gurmukhi", "punjabi-guru": "punjabi-gurmukhi", "p\u0101rsi": "persian-latin", "qafar": "afar", "qu": "quechua", "qu-qu": "quechua", "que": "quechua", "quechua": "quechua", "raj": "rajasthani", "rajasthani": "rajasthani", "rikpa": "bafia", "rm": "romansh", "rm-rm": "romansh", "rmo": "sinteromani", "rn": "rundi", "rn-rn": "rundi", "ro": "romanian", "ro-md": "moldavian", "ro-ro": "romanian", "rof": "rombo", "romanian": "romanian", "romanian-md": "moldavian", "romanian-moldova": "moldavian", "romansh": "romansh", "rombo": "rombo", "rom\xE2n\u0103": "romanian", "ru": "russian", "ru-ru": "russian", "rukiga": "chiga", "rumantsch": "romansh", "run": "rundi", "runasimi": "quechua", "rundi": "rundi", "runyankore": "nyankole", "rus": "russian", "russian": "russian", "rw": "kinyarwanda", "rw-rw": "kinyarwanda", "rwa": "rwa", "rwk": "rwa", "sa": "sanskrit", "sa-beng": "sanskrit", "sa-deva": "sanskrit", "sa-gujr": "sanskrit", "sa-knda": "sanskrit", "sa-mlym": "sanskrit", "sa-sa": "sanskrit", "sa-telu": "sanskrit", "sab": "sabaean", "sabaean": "sabaean", "sah": "sakha", "saho": "saho", "sak": "sakha", "sakha": "sakha", "samaritan": "samaritan", "samburu": "samburu", "sami": "northernsami", "samin": "northernsami", "sango": "sango", "sangu": "sangu", "sanskrit": "sanskrit", "santali": "santali", "saq": "samburu", "saraiki": "saraiki", "sardinian": "sardinian", "sardu": "sardinian", "sat": "santali", "sbp": "sangu", "sc": "sardinian", "sc-sc": "sardinian", "schweizer hochdeutsch": "nswissgerman", "schwiizert\xFC\xFCtsch": "swissgerman", "scn": "sicilian", "sco": "scottishgaelic", "scottish gaelic": "scottishgaelic", "scottishgaelic": "scottishgaelic", "sd": "sindhi", "sd-deva": "sindhi-devanagari", "sd-khoj": "sindhi-khojki", "sd-sd": "sindhi", "sd-sind": "sindhi-khudawadi", "se": "northernsami", "se-se": "northernsami", "seh": "sena", "sen": "sena", "sena": "sena", "serbian": "serbian", "serbian-cyrillic": "serbian", "serbian-cyrillic-bosniaherzegovina": "serbian", "serbian-cyrillic-kosovo": "serbian", "serbian-cyrillic-montenegro": "serbian-cyrillic-montenegro", "serbian-cyrl": "serbian", "serbian-cyrl-ba": "serbian", "serbian-cyrl-me": "serbian-cyrillic-montenegro", "serbian-cyrl-xk": "serbian", "serbian-ijekavsk": "serbian", "serbian-latin": "serbian", "serbian-latin-bosniaherzegovina": "serbian", "serbian-latin-ijekavsk": "serbian", "serbian-latin-kosovo": "serbian", "serbian-latin-montenegro": "serbian-latin-montenegro", "serbian-latn": "serbian", "serbian-latn-ba": "serbian", "serbian-latn-ijekavsk": "serbian", "serbian-latn-me": "serbian-latin-montenegro", "serbian-latn-xk": "serbian", "serbian.ijekav": "serbian", "serbianc": "serbianc", "serbianc.ijekav": "serbian", "ses": "koyraborosenni", "sesotho": "southernsotho", "sesotho sa leboa": "northernsotho", "setswana": "tswana", "sg": "sango", "sg-sg": "sango", "sga": "oldirish", "sha": "shambala", "shambala": "shambala", "shi": "tachelhit", "shi-latn": "tachelhit-latin", "shi-tfng": "tachelhit-tifinagh", "sho": "shona", "shona": "shona", "shqip": "albanian", "shw\xF3\u014B\xF2 ngiemb\u0254\u0254n": "ngiemboon", "si": "sinhala", "si-si": "sinhala", "sichuan yi": "sichuanyi", "sichuanyi": "sichuanyi", "sicilian": "sicilian", "sicilianu": "sicilian", "sil": "silesian", "silesian": "silesian", "simplified chinese": "chinese-simplified", "sindhi": "sindhi", "sindhi-deva": "sindhi-devanagari", "sindhi-devanagari": "sindhi-devanagari", "sindhi-khoj": "sindhi-khojki", "sindhi-khojki": "sindhi-khojki", "sindhi-khudawadi": "sindhi-khudawadi", "sindhi-sind": "sindhi-khudawadi", "sinhala": "sinhala", "sinte romani": "sinteromani", "sinteromani": "sinteromani", "sintitikes": "sinteromani", "siswati": "swati", "sk": "slovak", "sk-sk": "slovak", "skr": "saraiki", "sl": "slovenian", "sl-sl": "slovenian", "slovak": "slovak", "slovene": "slovenian", "slovenian": "slovenian", "sloven\u010Dina": "slovak", "sloven\u0161\u010Dina": "slovenian", "smn": "inarisami", "smp": "samaritan", "sn": "shona", "sn-sn": "shona", "so": "somali", "so-so": "somali", "sog": "soga", "soga": "soga", "som": "somali", "somali": "somali", "soomaali": "somali", "sor": "sorani", "sorani": "sorani", "south ndebele": "southndebele", "southern altai": "southernaltai", "southern sotho": "southernsotho", "southernaltai": "southernaltai", "southernsotho": "southernsotho", "southndebele": "southndebele", "spa": "spanish", "spanish": "spanish", "spanish-mexico": "mexican", "spanish-mx": "mexican", "sq": "albanian", "sq-sq": "albanian", "sr": "serbianc", "sr-cyrl": "serbian", "sr-cyrl-ba": "serbian", "sr-cyrl-me": "serbian-cyrillic-montenegro", "sr-cyrl-xk": "serbian", "sr-ijekavsk": "serbian", "sr-latn": "serbian", "sr-latn-ba": "serbian", "sr-latn-ijekavsk": "serbian", "sr-latn-me": "serbian-latin-montenegro", "sr-latn-xk": "serbian", "sr-sr": "serbianc", "srpski": "serbian", "ss": "swati", "ss-ss": "swati", "ssy": "saho", "st": "southernsotho", "st-st": "southernsotho", "sta": "standardmoroccantamazight", "standard moroccan tamazight": "standardmoroccantamazight", "standardmoroccantamazight": "standardmoroccantamazight", "su": "sundanese", "su-su": "sundanese", "sun": "sundanese", "sundanese": "sundanese", "suomi": "finnish", "sv": "swedish", "sv-sv": "swedish", "svenska": "swedish", "sw": "swahili", "sw-sw": "swahili", "swahili": "swahili", "swati": "swati", "swe": "swedish", "swedish": "swedish", "swi": "swissgerman", "swiss french": "french-switzerland", "swiss german": "swissgerman", "swiss high german": "nswissgerman", "swissfrench": "french-switzerland", "swissgerman": "swissgerman", "swisshighgerman": "nswissgerman", "swisshighgerman-traditional": "swissgerman", "syr": "syriac", "syriac": "syriac", "szl": "silesian", "s\xE4ng\xF6": "sango", "ta": "tamil", "ta-ta": "tamil", "tachelhit": "tachelhit", "tachelhit-latin": "tachelhit-latin", "tachelhit-latn": "tachelhit-latin", "tachelhit-tfng": "tachelhit-tifinagh", "tachelhit-tifinagh": "tachelhit-tifinagh", "tai n\xFCa": "tainua", "tainua": "tainua", "taita": "taita", "taj": "tajik", "tajik": "tajik", "tam": "tamil", "tamazi\u0263t n la\u1E6Dla\u1E63": "centralatlastamazight", "tamil": "tamil", "tan": "tangut", "tangut": "tangut", "taqbaylit": "kabyle", "tar": "taroko", "taroko": "taroko", "tas": "tasawaq", "tasawaq": "tasawaq", "tasawaq senni": "tasawaq", "tashel\u1E25iyt": "tachelhit-latin", "tat": "tatar", "tatar": "tatar", "tdd": "tainua", "te": "telugu", "te-te": "telugu", "tel": "telugu", "telugu": "telugu", "teo": "teso", "tes": "teso", "teso": "teso", "tg": "tajik", "tg-tg": "tajik", "th": "thai", "th-th": "thai", "tha": "thai", "thai": "thai", "thok nath": "nuer", "ti": "tigrinya", "ti-ti": "tigrinya", "tib": "tibetan", "tibetan": "tibetan", "tig": "tigre", "tigre": "tigre", "tigrinya": "tigrinya", "ti\u1EBFng vi\u1EC7t": "vietnamese", "tk": "turkmen", "tk-tk": "turkmen", "tn": "tswana", "tn-tn": "tswana", "to": "tongan", "to-to": "tongan", "tok": "tokpisin", "tok pisin": "tokpisin", "tokpisin": "tokpisin", "ton": "tongan", "tongan": "tongan", "tpi": "tokpisin", "tr": "turkish", "tr-tr": "turkish", "traditional chinese": "chinese-traditional", "trv": "taroko", "ts": "tsonga", "ts-ts": "tsonga", "tshiluba": "lubakatanga", "tshiven\u1E13a": "venda", "tso": "tsonga", "tsonga": "tsonga", "tsw": "tswana", "tswana": "tswana", "tt": "tatar", "tt-tt": "tatar", "turkish": "turkish", "turkmen": "turkmen", "tw": "chinese-traditional", "twq": "tasawaq", "txg": "tangut", "tya": "tyap", "tyap": "tyap", "tzm": "centralatlastamazight", "t\xFCrkmen dili": "turkmen", "t\xFCrk\xE7e": "turkish", "ug": "uyghur", "ug-ug": "uyghur", "uga": "ugaritic", "ugaritic": "ugaritic", "uk": "ukrainian", "uk-uk": "ukrainian", "ukenglish": "british", "ukr": "ukrainian", "ukrainian": "ukrainian", "upp": "uppersorbian", "upper sorbian": "uppersorbian", "uppersorbian": "uppersorbian", "ur": "urdu", "ur-ur": "urdu", "urd": "urdu", "urdu": "urdu", "usenglish": "american", "usorbian": "uppersorbian", "uyg": "uyghur", "uyghur": "uyghur", "uz": "uzbek", "uz-arab": "uzbek-arabic", "uz-cyrl": "uzbek-cyrillic", "uz-latn": "uzbek-latin", "uz-uz": "uzbek", "uzbek": "uzbek", "uzbek-arab": "uzbek-arabic", "uzbek-arabic": "uzbek-arabic", "uzbek-cyrillic": "uzbek-cyrillic", "uzbek-cyrl": "uzbek-cyrillic", "uzbek-latin": "uzbek-latin", "uzbek-latn": "uzbek-latin", "vahcuengh": "zhuang", "vai": "vai", "vai-latin": "vai-latin", "vai-latn": "vai-latin", "vai-vai": "vai-vai", "vai-vaii": "vai-vai", "ve": "venda", "ve-ve": "venda", "vec": "venetian", "venda": "venda", "venetian": "venetian", "veneto": "venetian", "vi": "vietnamese", "vi-vi": "vietnamese", "vie": "vietnamese", "vietnam": "vietnamese", "vietnamese": "vietnamese", "vmw": "makhuwa", "vo": "volapuk", "vo-vo": "volapuk", "vol": "volapuk", "volapuk": "volapuk", "volap\xFCk": "volapuk", "vun": "vunjo", "vunjo": "vunjo", "wae": "walser", "wal": "wolaytta", "walser": "walser", "war": "waray", "waray": "waray", "wel": "welsh", "welsh": "welsh", "wes": "westernfrisian", "western frisian": "westernfrisian", "westernfrisian": "westernfrisian", "wo": "wolof", "wo-wo": "wolof", "wolaytta": "wolaytta", "wolof": "wolof", "xcr": "carian", "xh": "xhosa", "xh-xh": "xhosa", "xho": "xhosa", "xhosa": "xhosa", "xitsonga": "tsonga", "xlc": "lycian", "xld": "lydian", "xnr": "kangri", "xog": "soga", "xsa": "sabaean", "yan": "yangben", "yangben": "yangben", "yav": "yangben", "yi": "yiddish", "yi-yi": "yiddish", "yid": "yiddish", "yiddish": "yiddish", "yo": "yoruba", "yo-yo": "yoruba", "yor": "yoruba", "yoruba": "yoruba", "yrl": "nheengatu", "yue": "cantonese", "za": "zhuang", "za-za": "zhuang", "zar": "zarma", "zarma": "zarma", "zarmaciine": "zarma", "zgh": "standardmoroccantamazight", "zh": "chinese", "zh-hans": "chinese-simplified", "zh-hans-hk": "chinese-simplified-hongkongsarchina", "zh-hans-mo": "chinese-simplified-macausarchina", "zh-hans-sg": "chinese-simplified-singapore", "zh-hant": "chinese-traditional", "zh-hant-hk": "chinese-traditional-hongkongsarchina", "zh-hant-mo": "chinese-traditional-macausarchina", "zh-latn-pinyin": "chinese-pinyin", "zh-tw": "chinese-traditional", "zh-zh": "chinese", "zhu": "zhuang", "zhuang": "zhuang", "zu": "zulu", "zu-zu": "zulu", "zul": "zulu", "zulu": "zulu", "\xE8d\xE8 yor\xF9b\xE1": "yoruba", "\xEDslenska": "icelandic", "\xF6sterreichisches deutsch": "austrian", "\u010De\u0161tina": "czech", "\u015Bl\u014Dnski": "silesian", "\u0253\xE0s\xE0a": "basaa", "\u02BB\u014Dlelo hawai\u02BBi": "hawaiian", "\u03B1\u03C1\u03C7\u03B1\u03AF\u03B1 \u03B5\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC": "greek", "\u03B5\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC": "greek", "\u03EF\u2C99\u2C89\u2CA7\u2CA3\u2C89\u2C99\u2C9B\u0300\u2CAD\u2C8F\u2C99\u2C93": "coptic", "\u0430\u0437\u04D9\u0440\u0431\u0430\u0458\u04B9\u0430\u043D": "azerbaijani-cyrillic", "\u0430\u0525\u0441\u0448\u04D9\u0430": "abkhazian", "\u0431\u0430\u0448\u04A1\u043E\u0440\u0442 \u0442\u0435\u043B\u0435": "bashkir", "\u0431\u0435\u043B\u0430\u0440\u0443\u0441\u043A\u0430\u044F": "belarusian", "\u0431\u043E\u0441\u0430\u043D\u0441\u043A\u0438": "bosnian-cyrillic", "\u0431\u0443\u0440\u044F\u0430\u0434": "buriat", "\u0431\u044A\u043B\u0433\u0430\u0440\u0441\u043A\u0438": "bulgarian", "\u0433\u04CF\u0430\u043B\u0433\u04CF\u0430\u0439 \u043C\u043E\u0442\u0442": "ingush", "\u0438\u0440\u043E\u043D": "ossetic", "\u043A\u043E\u043C\u0438 \u043A\u044B\u0432": "komi", "\u043A\u044B\u0440\u0433\u044B\u0437\u0447\u0430": "kyrgyz", "\u043C\u0430\u043A\u0435\u0434\u043E\u043D\u0441\u043A\u0438": "macedonian", "\u043C\u043E\u043D\u0433\u043E\u043B": "mongolian", "\u043D\u043E\u0445\u0447\u0438\u0439\u043D": "chechen", "\u0440\u0443\u0441\u0441\u043A\u0438\u0439": "russian", "\u0441\u0430\u0445\u0430 \u0442\u044B\u043B\u0430": "sakha", "\u0441\u043B\u043E\u0432\u0463\u0301\u043D\u044C\u0441\u043A\u044A \u0469\uA641\uA651\u0301\u043A\u044A": "churchslavic-oldcyrillic", "\u0441\u0440\u043F\u0441\u043A\u0438": "serbianc", "\u0442\u0430\u0442\u0430\u0440": "tatar", "\u0442\u043E\u04B7\u0438\u043A\u04E3": "tajik", "\u0443\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430": "ukrainian", "\u0446\u0440\u044C\u043A\u044A\u0432\u044C\u043D\u043E\u0441\u043B\u043E\u0432\u0463\u043D\u044C\u0441\u043A\u044A \u0469\u0437\u044B\u043A\u044A": "churchslavic", "\u0447\u04D1\u0432\u0430\u0448": "chuvash", "\u044D\u0440\u0437\u044F\u043D\u044C \u043A\u0435\u043B\u044C": "erzya", "\u045E\u0437\u0431\u0435\u043A\u0447\u0430": "uzbek-cyrillic", "\u049B\u0430\u0437\u0430\u049B \u0442\u0456\u043B\u0456": "kazakh", "\u0570\u0561\u0575\u0565\u0580\u0565\u0576": "armenian", "\u05D9\u05D9\u05B4\u05D3\u05D9\u05E9": "yiddish", "\u05DC\u05B0\u05E9\u05C1\u05D5\u05B9\u05DF \u05D4\u05B7\u05DE\u05B4\u05BC\u05E7\u05B0\u05E8\u05B8\u05D0": "ancienthebrew", "\u05E2\u05D1\u05E8\u05D9\u05EA": "hebrew", "\u0626\u06C7\u064A\u063A\u06C7\u0631\u0686\u06D5": "uyghur", "\u0627\u0631\u062F\u0648": "urdu", "\u0627\u0644\u0639\u0631\u0628\u064A\u0629": "arabic", "\u0627\u0644\u0644\u0647\u062C\u0629 \u0627\u0644\u062C\u0632\u0627\u0626\u0631\u064A\u0629": "algerianarabic", "\u0627\u0648\u0632\u0628\u06CC\u06A9": "uzbek-arabic", "\u0628\u0644\u06C6\u0686\u06CC": "baluchi", "\u0633\u0631\u0627\u0626\u06CC\u06A9\u06CC": "saraiki", "\u0633\u0646\u068C\u064A": "sindhi", "\u0641\u0627\u0631\u0633\u06CC": "persian", "\u0644\u06CA\u0631\u06CC \u0634\u0648\u0645\u0627\u0644\u06CC": "northernluri", "\u0645\u0627\u0632\u0631\u0648\u0646\u06CC": "mazanderani", "\u0645\u0635\u0631\u0649": "egyptianarabic", "\u067E\u0646\u062C\u0627\u0628\u06CC": "punjabi-arabic", "\u067E\u069A\u062A\u0648": "pashto", "\u06A9\u0648\u0631\u062F\u06CC\u06CC \u0646\u0627\u0648\u06D5\u0646\u062F\u06CC": "centralkurdish", "\u06A9\u0648\u0631\u0645\u0627\u0646\u062C\u06CC": "kurdish-arabic", "\u06A9\u0672\u0634\u064F\u0631": "kashmiri", "\u0720\u072B\u0722\u0710 \u0723\u0718\u072A\u071D\u071D\u0710": "syriac", "\u078B\u07A8\u0788\u07AC\u0780\u07A8\u0784\u07A6\u0790\u07B0": "divehi", "\u07D2\u07DE\u07CF": "nko", "\u080F\u0801\u0813\u0809\u0815": "samaritan", "\u0853\u0840\u0848\u084D\u0840": "classicalmandaic", "\u0905\u0935\u0927\u0940": "awadhi", "\u0915\u093E\u0902\u0917\u0921\u093C\u0940": "kangri", "\u0915\u094B\u0902\u0915\u0923\u0940": "konkani", "\u0921\u094B\u0917\u0930\u0940": "dogri", "\u0928\u0947\u092A\u093E\u0932\u0940": "nepali", "\u0928\u0947\u0935\u093E\u0903 \u092D\u093E\u092F\u094D": "newari", "\u092C\u0930\u2019": "bodo", "\u092D\u094B\u091C\u092A\u0941\u0930\u0940": "bhojpuri", "\u092E\u0930\u093E\u0920\u0940": "marathi", "\u092E\u0948\u0925\u093F\u0932\u0940": "maithili", "\u0930\u093E\u091C\u0938\u094D\u0925\u093E\u0928\u0940": "rajasthani", "\u0932\u093F\u092E\u094D\u092C\u0941 \u092D\u093E\u0937\u093E": "limbu", "\u0938\u0902\u0938\u094D\u0915\u0943\u0924": "sanskrit", "\u0938\u093F\u0928\u094D\u0927\u0940": "sindhi-devanagari", "\u0939\u0930\u093F\u092F\u093E\u0923\u0935\u0940": "haryanvi", "\u0939\u093F\u0928\u094D\u0926\u0940": "hindi", "\u0985\u09B8\u09AE\u09C0\u09AF\u09BC\u09BE": "assamese", "\u09AC\u09BE\u0982\u09B2\u09BE": "bangla", "\u09AE\u09C8\u09A4\u09C8\u09B2\u09CB\u09A8\u09CD": "manipuri", "\u0A2A\u0A70\u0A1C\u0A3E\u0A2C\u0A40": "punjabi", "\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4\u0AC0": "gujarati", "\u0B13\u0B21\u0B3C\u0B3F\u0B06": "odia", "\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD": "tamil", "\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41": "telugu", "\u0C95\u0CA8\u0CCD\u0CA8\u0CA1": "kannada", "\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02": "malayalam", "\u0DC3\u0DD2\u0D82\u0DC4\u0DBD": "sinhala", "\u0E44\u0E17\u0E22": "thai", "\u0EA5\u0EB2\u0EA7": "lao", "\u0F56\u0F7C\u0F51\u0F0B\u0F66\u0F90\u0F51\u0F0B": "tibetan", "\u0F62\u0FAB\u0F7C\u0F44\u0F0B\u0F41": "dzongkha", "\u1019\u103C\u1014\u103A\u1019\u102C": "burmese", "\u10E5\u10D0\u10E0\u10D7\u10E3\u10DA\u10D8": "georgian", "\u1265\u120A\u1295": "blin", "\u1275\u130D\u1228": "tigre", "\u1275\u130D\u122D\u129B": "tigrinya", "\u12A0\u121B\u122D\u129B": "amharic", "\u12C8\u120B\u12ED\u1273\u1271": "wolaytta", "\u130D\u12D5\u12DD\u129B": "geez", "\u1403\u14C4\u1483\u144E\u1450\u1466": "inuktitut", "\u168C\u1691\u1694\u1687\u1693\u1682\u1689": "oldirish", "\u1781\u17D2\u1798\u17C2\u179A": "khmer", "\u1915\u1920\u1930\u190C\u1922\u1931 \u1910\u1920\u1934": "limbu-limbu", "\u1956\u196D\u1970 \u1958\u196B\u1974": "tainua", "\u1985\u19C4\u19BA\u1991\u199F\u19B9\u19C9": "lu", "\u1A05\u1A14 \u1A06\u1A00\u1A14\u1A11": "makasar-buginese", "\u1BC2\u1BD6 \u1BC5\u1BD6\u1BC2\u1BF2 \u1BD6\u1BEC\u1BC5": "bataktoba", "\u1C1B\u1C29\u1C35\u1C1B\u1C27\u1C35\u1C36": "lepcha", "\u1C65\u1C5F\u1C71\u1C5B\u1C5F\u1C72\u1C64": "santali", "\u1F10\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC": "greek", "\u2C44\u2C3E\u2C41\u2C32\u2C51\u2C40\u2C50\u2C44\u2C3D\u2C4F \u2C57\u2C38\u2C4F\u2C3A\u2C3D\u2C4F": "churchslavic-glagolitic", "\u2D5C\u2D30\u2D4E\u2D30\u2D63\u2D49\u2D56\u2D5C": "standardmoroccantamazight", "\u2D5C\u2D30\u2D5B\u2D4D\u2D43\u2D49\u2D5C": "tachelhit", "\u4E2D\u6587": "chinese", "\u4E2D\u6587-\u4E2D\u6587": "chinese", "\u65E5\u672C\u8A9E": "japanese", "\u7B80\u4F53\u4E2D\u6587": "chinese-simplified", "\u7CB5\u8A9E": "cantonese", "\u7CB5\u8A9E-\u7CB5\u8A9E": "cantonese", "\u7E41\u9AD4\u4E2D\u6587": "chinese-traditional", "\uA188\uA320\uA259": "sichuanyi", "\uA559\uA524": "vai", "\uABB3\uAB83\uAB79": "cherokee", "\uD55C\uAD6D\uC5B4": "korean", "\u{1030C}\u{10304}\u{10300}\u{10309}\u{10302}\u{10314}\u{10316} \u{10313}\u{10304}\u{10300}\u{10314}\u{1030D}\u{10304}": "etruscan", "\u{10332}\u{1033F}\u{10344}\u{10339}\u{10343}\u{1033A}": "gothic", "\u{104F7}\u{104D8}\u{104FB}\u{104D8}\u{104FB}\u{104DF}": "osage", "\u{10840}\u{10853}\u{1084C}\u{10849}\u{10840}": "aramaic", "\u{10903}\u{10901}\u{10913}\u{10909}\u{1090C} \u{1090A}\u{1090D}\u{1090F}\u{1090D}\u{10909}\u{1090C}": "phoenician", "\u{10B0E}\u{10B1E}\u{10B00}\u{10B2F}\u{10B19}\u{10B00}\u{10B0E}\u{10B0E}\u{10B00}\u{10B10}\u{10B00}\u{10B09}\u{10B25}\u{10B00}": "avestan", "\u{10F73}\u{10F78}\u{10F79}\u{10F70}\u{10F77}": "olduighur", "\u{1110C}\u{1110B}\u{11134}\u{1111F}\u{11133}\u{11126}": "chakma", "\u{1201D}\u{12157}\u{1207A}\u{12311}": "akkadian", "\u{1308B}\u{133FA}\u{13216} \u{1318E}\u{13153}\u{133CF}\u{13296}": "ancientegyptian", "\u{17F07}\u{177F2}": "tangut", "\u{17F07}\u{177F2}-\u{17F07}\u{177F2}": "tangut", "\u{1E100}\u{1E104}\u{1E130}\u{1E129}\u{1E10D}\u{1E11C}\u{1E130}": "hmongnjua" };
 
   // content/text.ts
   var LanguagePrefixes = Object.keys(langmap_default).sort().reverse().filter((prefix) => prefix.length > 3);
@@ -58235,11 +58252,11 @@ var { detectImport, doExport, doImport } = (() => {
       const Char = `\\p{Lu}${char}`;
       const whitespace2 = " 	\n\r\xA0";
       const protectedWord = [
-        `[${char}]*[\\p{Lu}][-${Char}]*`
+        `[${char}]*[\\p{Lu}][${Char}]*`
       ].join("|");
       const L = "\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}";
       this.leadingUnprotectedWord = new RegExp(`^([\\p{Lu}][${char}]*)[${whitespace2}${P}]`, "u");
-      this.protectedWords = new RegExp(`^(${protectedWord})(([${whitespace2}])(${protectedWord}))*`, "u");
+      this.protectedWords = new RegExp(`^(${protectedWord})((([-${whitespace2}])(${protectedWord}))|(-\\d+))*`, "u");
       this.unprotectedWord = new RegExp(`^[${Char}]+`, "u");
       this.whitespace = new RegExp(`^[${whitespace2}]+`);
       this.titleCaseKeep = new RegExp(`(?:(?:[>:?]?[${whitespace2}]+)[${L}][${P}]?(?:[${whitespace2}]|$))|(?:(?:<span class="nocase">.*?</span>)|(?:<nc>.*?</nc>))`, "ugi");
@@ -58683,4 +58700,3 @@ number-to-words/numberToWords.min.js:
    * @license MIT
    *)
 */
-//# sourceMappingURL=Better%20CSL%20YAML.js.map

@@ -10,7 +10,7 @@
 		"async": true,
 		"getCollections": true,
 		"cached": true,
-		"hash": "2fb7aa42b6ec04ac38851de2c8f070d432e70dad2e9df4af69ab4d30477a3c46"
+		"hash": "4fddab7f387a5dbd06afad78e0a778c25958a038508e3d0696c3fa4795732fd9"
 	},
 	"displayOptions": {
 		"exportNotes": false,
@@ -23,7 +23,7 @@
 	"browserSupport": "gcsv",
 	"priority": 199,
 	"inRepository": false,
-	"lastUpdated": "2026-09-09"
+	"lastUpdated": "2026-09-30"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -58,6 +58,9 @@ var { detectImport, doExport, doImport } = (() => {
     doImport: () => doImport
   });
 
+  // gen/translators.json
+  var translators_default = [{ "translatorID": "f895aa0d-f28e-47fe-b247-2ea77c6ed583", "translatorType": 2, "label": "Better BibLaTeX", "description": "exports items in BibLaTeX format", "creator": "Simon Kornblith, Richard Karnesky, Anders Johansson and Emiliano Heyns", "target": "bib", "minVersion": "4.0.27", "maxVersion": "", "browserSupport": "gcsv", "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "displayOptions": { "exportNotes": false, "exportFileData": false, "useJournalAbbreviation": false, "biblatexAPA": false, "biblatexChicago": false, "keepUpdated": false, "worker": true }, "priority": 50, "inRepository": false }, { "translatorID": "a515a220-6fef-45ea-9842-8025dfebcc8f", "label": "Better BibTeX Citation Key Quick Copy", "description": "exports citations to be copy-pasted into your LaTeX/Markdown /Org-mode/etc documents", "creator": "Emiliano heyns", "target": "txt", "minVersion": "4.0.27", "maxVersion": "", "translatorType": 2, "browserSupport": "gcsv", "priority": 100, "displayOptions": { "quickCopyMode": "" }, "inRepository": false, "configOptions": { "hash": "" } }, { "translatorID": "ca65189f-8815-4afe-8c8b-8c7c15f0edca", "label": "Better BibTeX", "description": "exports items in BibTeX format", "creator": "Simon Kornblith, Richard Karnesky and Emiliano heyns", "target": "bib", "minVersion": "4.0.27", "maxVersion": "", "configOptions": { "async": true, "getCollections": true, "cached": true, "hash": "" }, "displayOptions": { "exportNotes": false, "exportFileData": false, "useJournalAbbreviation": false, "keepUpdated": false, "worker": true }, "translatorType": 3, "browserSupport": "gcsv", "priority": 199, "inRepository": false }, { "translatorID": "f4b52ab0-f878-4556-85a0-c7aeedd09dfc", "label": "Better CSL JSON", "description": "exports items in pandoc-compatible CSL-JSON format, with added citation keys and parsing of metadata", "creator": "Emiliano heyns", "target": "json", "minVersion": "4.0.27", "maxVersion": "", "displayOptions": { "keepUpdated": false, "worker": true }, "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "translatorType": 2, "browserSupport": "gcsv", "inRepository": false, "priority": 100 }, { "translatorID": "0f238e69-043e-4882-93bf-342de007de19", "label": "Better CSL YAML", "description": "exports items in pandoc-compatible CSL-YAML format, with added citation keys and parsing of metadata", "creator": "Emiliano heyns", "target": "yaml", "minVersion": "4.0.27", "maxVersion": "", "displayOptions": { "keepUpdated": false, "worker": true }, "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "translatorType": 3, "browserSupport": "gcsv", "priority": 800, "inRepository": false }, { "translatorID": "8a2f0d30-0b73-4f2c-8b5b-7c1a9e3f2d4e", "label": "Better Hayagriva", "description": "imports/exports items in Hayagriva YAML format", "creator": "Emiliano heyns", "target": "yaml", "minVersion": "4.0.27", "maxVersion": "", "displayOptions": { "keepUpdated": false, "worker": true }, "configOptions": { "getCollections": true, "cached": true, "hash": "" }, "translatorType": 3, "browserSupport": "gcsv", "inRepository": false, "priority": 799 }, { "translatorID": "36a3b0b5-bad0-4a04-b79b-441c7cef77db", "label": "BetterBibTeX JSON", "description": "exports and imports items in BetterBibTeX debug format. Mostly for BBT-internal use", "creator": "Emiliano Heyns", "target": "json", "minVersion": "4.0.27", "maxVersion": "", "configOptions": { "async": true, "getCollections": true, "cached": true, "hash": "" }, "displayOptions": { "exportNotes": true, "exportFileData": false, "Items": true, "Preferences": true, "keepUpdated": false, "worker": true, "Normalize": false, "YAML": false }, "translatorType": 3, "browserSupport": "gcsv", "priority": 49, "inRepository": false }, { "translatorID": "19afa3fd-1c7f-4eb8-a37e-8d07768493e8", "label": "Citation graph", "description": "exports a citation graph in graphml format. Use gephi or yEd to clean up and visualize", "creator": "Emiliano heyns", "target": "dot", "minVersion": "4.0.27", "maxVersion": "", "translatorType": 2, "browserSupport": "gcsv", "inRepository": false, "displayOptions": { "Title": false, "Authors": false, "Year": false }, "configOptions": { "getCollections": true, "hash": "" }, "priority": 100 }, { "translatorID": "e7859c61-54d4-466a-b236-aadcf1f7e83b", "label": "Collected notes", "description": "exports your notes", "creator": "Emiliano heyns", "target": "html", "displayOptions": { "markdown": false }, "minVersion": "4.0.27", "maxVersion": "", "translatorType": 2, "browserSupport": "gcsv", "inRepository": false, "configOptions": { "getCollections": true, "hash": "" }, "priority": 100 }];
+
   // gen/translators.ts
   var displayOptions = [
     "Authors",
@@ -81,206 +84,7 @@ var { detectImport, doExport, doImport } = (() => {
     "exportDir",
     "exportPath"
   ];
-  var headers = [
-    {
-      "translatorID": "f895aa0d-f28e-47fe-b247-2ea77c6ed583",
-      "translatorType": 2,
-      "label": "Better BibLaTeX",
-      "description": "exports items in BibLaTeX format",
-      "creator": "Simon Kornblith, Richard Karnesky, Anders Johansson and Emiliano Heyns",
-      "target": "bib",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "browserSupport": "gcsv",
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "displayOptions": {
-        "exportNotes": false,
-        "exportFileData": false,
-        "useJournalAbbreviation": false,
-        "biblatexAPA": false,
-        "biblatexChicago": false,
-        "keepUpdated": false,
-        "worker": true
-      },
-      "priority": 50,
-      "inRepository": false
-    },
-    {
-      "translatorID": "a515a220-6fef-45ea-9842-8025dfebcc8f",
-      "label": "Better BibTeX Citation Key Quick Copy",
-      "description": "exports citations to be copy-pasted into your LaTeX/Markdown /Org-mode/etc documents",
-      "creator": "Emiliano heyns",
-      "target": "txt",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "priority": 100,
-      "displayOptions": {
-        "quickCopyMode": ""
-      },
-      "inRepository": false
-    },
-    {
-      "translatorID": "ca65189f-8815-4afe-8c8b-8c7c15f0edca",
-      "label": "Better BibTeX",
-      "description": "exports items in BibTeX format",
-      "creator": "Simon Kornblith, Richard Karnesky and Emiliano heyns",
-      "target": "bib",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "configOptions": {
-        "async": true,
-        "getCollections": true,
-        "cached": true
-      },
-      "displayOptions": {
-        "exportNotes": false,
-        "exportFileData": false,
-        "useJournalAbbreviation": false,
-        "keepUpdated": false,
-        "worker": true
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "priority": 199,
-      "inRepository": false
-    },
-    {
-      "translatorID": "f4b52ab0-f878-4556-85a0-c7aeedd09dfc",
-      "label": "Better CSL JSON",
-      "description": "exports items in pandoc-compatible CSL-JSON format, with added citation keys and parsing of metadata",
-      "creator": "Emiliano heyns",
-      "target": "json",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "displayOptions": {
-        "keepUpdated": false,
-        "worker": true
-      },
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "priority": 100
-    },
-    {
-      "translatorID": "0f238e69-043e-4882-93bf-342de007de19",
-      "label": "Better CSL YAML",
-      "description": "exports items in pandoc-compatible CSL-YAML format, with added citation keys and parsing of metadata",
-      "creator": "Emiliano heyns",
-      "target": "yaml",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "displayOptions": {
-        "keepUpdated": false,
-        "worker": true
-      },
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "priority": 800,
-      "inRepository": false
-    },
-    {
-      "translatorID": "8a2f0d30-0b73-4f2c-8b5b-7c1a9e3f2d4e",
-      "label": "Better Hayagriva",
-      "description": "imports/exports items in Hayagriva YAML format",
-      "creator": "Emiliano heyns",
-      "target": "yaml",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "displayOptions": {
-        "keepUpdated": false,
-        "worker": true
-      },
-      "configOptions": {
-        "getCollections": true,
-        "cached": true
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "priority": 799
-    },
-    {
-      "translatorID": "36a3b0b5-bad0-4a04-b79b-441c7cef77db",
-      "label": "BetterBibTeX JSON",
-      "description": "exports and imports items in BetterBibTeX debug format. Mostly for BBT-internal use",
-      "creator": "Emiliano Heyns",
-      "target": "json",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "configOptions": {
-        "async": true,
-        "getCollections": true,
-        "cached": true
-      },
-      "displayOptions": {
-        "exportNotes": true,
-        "exportFileData": false,
-        "Items": true,
-        "Preferences": true,
-        "keepUpdated": false,
-        "worker": true,
-        "Normalize": false,
-        "YAML": false
-      },
-      "translatorType": 3,
-      "browserSupport": "gcsv",
-      "priority": 49,
-      "inRepository": false
-    },
-    {
-      "translatorID": "19afa3fd-1c7f-4eb8-a37e-8d07768493e8",
-      "label": "Citation graph",
-      "description": "exports a citation graph in graphml format. Use gephi or yEd to clean up and visualize",
-      "creator": "Emiliano heyns",
-      "target": "dot",
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "displayOptions": {
-        "Title": false,
-        "Authors": false,
-        "Year": false
-      },
-      "configOptions": {
-        "getCollections": true
-      },
-      "priority": 100
-    },
-    {
-      "translatorID": "e7859c61-54d4-466a-b236-aadcf1f7e83b",
-      "label": "Collected notes",
-      "description": "exports your notes",
-      "creator": "Emiliano heyns",
-      "target": "html",
-      "displayOptions": {
-        "markdown": false
-      },
-      "minVersion": "4.0.27",
-      "maxVersion": "",
-      "translatorType": 2,
-      "browserSupport": "gcsv",
-      "inRepository": false,
-      "configOptions": {
-        "getCollections": true
-      },
-      "priority": 100
-    }
-  ];
+  var headers = translators_default;
   var byId = {};
   var byLabel = {};
   var bySlug = {};
@@ -311,6 +115,7 @@ var { detectImport, doExport, doImport } = (() => {
     bibtexURL: "off",
     cache: true,
     cacheDelete: false,
+    cacheTouch: "fill",
     charmap: "",
     chinese: false,
     chineseSplitName: true,
@@ -362,6 +167,8 @@ var { detectImport, doExport, doImport } = (() => {
     postscript: "",
     postscriptOverride: "",
     preferencesOverride: "",
+    profileRuntime: "no",
+    profileStartup: false,
     qualityReport: false,
     quickCopyEta: "",
     quickCopyMode: "latex",
@@ -629,4 +436,3 @@ var { detectImport, doExport, doImport } = (() => {
   }
   return __toCommonJS(Better_BibTeX_exports);
 })();
-//# sourceMappingURL=Better%20BibTeX.js.map
