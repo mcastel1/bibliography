@@ -1,0 +1,664 @@
+An efficient solver for the fully coupled solution of large-displacement fluid–structure interaction problems
+Matthias Heil *
+Department of Mathematics, University of Manchester, Oxford Road, Manchester M13 9PL, UK
+Received 11 March 2003; accepted 19 September 2003
+Abstract
+This paper is concerned with the fully coupled (ÔmonolithicÕ) solution of large-displacement fluid–structure interaction problems by NewtonÕs method. We show that block-triangular approximations of the Jacobian matrix, obtained by neglecting selected fluid–structure interaction blocks, provide good preconditioners for the solution of the linear systems with GMRES. We present an efficient approximate implementation of the preconditioners, based on a Schur complement approximation for the Navier–Stokes block and the use of multigrid approximations for the solution of the computationally most expensive operations. The performance of the the preconditioners is examined in representative steady and unsteady simulations which show that the GMRES iteration counts only display a mild dependence on the Reynolds number and the mesh size. The final part of the paper demonstrates the importance of consistent stabilisation for the accurate simulation of fluid–structure interaction problems. Ó 2003 Elsevier B.V. All rights reserved.
+Keywords: Fluid–structure interaction; Fully coupled solution; Finite elements; Preconditioning; Multigrid; Stabilisation
+1. Introduction
+Large-displacement fluid–structure interaction problems arise in many applications in which thin-walled shell structures interact with fluid flows. Examples from engineering include flutter analyses in aeroelasticity [1], the inflation of parachutes [2], the deformation of structures by explosions [3] and the design of sails [4]. Numerous applications exist in physiological fluid mechanics and include the flow of blood in the veins and arteries and the flow of air in the pulmonary airways [5], the dynamics of heart valves [6] and many others. The computational modelling of large-displacement fluid–structure interaction problems typically requires the solution of the Navier–Stokes equations in a moving domain, coupled to the equations of largedisplacement shell theory. The coupling between the two domains often leads to highly nonlinear behaviour and the development of robust and efficient solution techniques for such problems presents one of the great
+* Tel.: +44-161-275-5808; fax: +44-161-275-5819. E-mail address: m.heil@maths.man.ac.uk (M. Heil). URL: http://www.maths.man.ac.uk/~mheil/.
+0045-7825/$ - see front matter Ó 2003 Elsevier B.V. All rights reserved. doi:10.1016/j.cma.2003.09.006
+Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+www.elsevier.com/locate/cma
+
+
+challenges in computational mechanics; see, e.g., the recent special volume of this journal [7]. Most computational methods can be classified as partitioned or fully coupled (ÔmonolithicÕ) schemes. Partitioned methods utilise separate solvers for the fluid and solid domains and attempt to obtain a coupled solution via a fixed-point iteration. Starting with an initial guess for the wall shape, the fluid equations are solved and the traction that the fluid exerts on the wall is evaluated. This new traction is then used to update the wall shape and the iteration is continued until convergence. This approach is relatively easy to implement and is convenient in situations in which specialised solvers for the fluid and solid problems are readily available; indeed, if compatibility with existing commercial Ôblack boxÕ fluid and solid solvers is required, this method presents the only feasible approach. However, partitioned methods also have serious drawbacks. Fixedpoint iterations tend to converge slowly (though Aitken extrapolation can lead to a certain improvement; see, e.g. [8] and, more recently [9]) and, in the presence of strong fluid–solid coupling, the iteration can diverge even if a good initial guess for the solution is available. When applied to time-dependent problems, partitioned solvers lead to staggered time-integration schemes [1,10]. The implementation of such methods as Ôweakly coupledÕ schemes is straightforward but it is often difficult to ensure their overall stability and temporal accuracy. ÔStrong couplingÕ, which requires costly sub-iterations at every time-step, can improve the temporal accuracy, but, of course, only if the sub-iterations converge. In a fully coupled (ÔmonolithicÕ) approach, the fluid and solid equations are discretised and solved simultaneously. For highly transient fluid–structure interaction problems which involve compressible fluids (e.g. the modelling of explosions [3]), the use of fully coupled but explicit time-stepping schemes can be efficient. However, if the problem is steady and/or the fluid is incompressible then the solution of a large system of coupled nonlinear algebraic equations is required. Since good initial guesses for the solutions tend to be readily available (either from the solution at a previous time-step or from the solution at a previous value of the control parameter during steady-state parameter studies), the solution of the nonlinear system by NewtonÕs method is attractive since it provides a robust and rapidly converging scheme. Over the past years we have successfully used this approach in a wide variety of large-displacement fluid–structure interaction problems [11–15]. The main computational cost of this method arises from the repeated assembly of the Jacobian matrix and the solutions of the associated linear systems for the Newton corrections. In this paper, we develop an efficient preconditioning technique that allows the rapid iterative solution of the linear systems that arise in the Newton method. The preconditioners are based on block-triangular approximations of the Jacobian matrix and are obtained by neglecting selected fluid–structure interaction blocks. The structure of the paper is as follows. Section 2 introduces the model problem that we used to assess the efficiency of the numerical schemes. In Section 3 we present the coupled finite-element discretisation of the governing equations and discuss the stabilisation of the fluid equations on coarse meshes. After presenting some representative simulations in Section 4, we show in Section 5 that the direct use of the block-triangular approximate Jacobians in the Newton method causes a severe deterioration of its convergence rate. We then demonstrate that the approximate Jacobians provide good preconditioners for the solution of the linear systems with GMRES. Next, we reduce the cost of the preconditioning operation by approximating the Navier–Stokes block with a pressure Schur-complement preconditioner and present an efficient implementation based on multigrid approximations for the computationally most expensive operations. Finally, we discuss the adaptive choice of the convergence tolerance for the GMRES iteration and demonstrate the importance of consistent stabilisation in the numerical simulation of fluid–structure interaction problems.
+2. The model problem
+We will assess the efficiency of the numerical schemes in the model problem sketched in Fig. 1. Viscous fluid is driven through a two-dimensional channel in which part of one wall is replaced by a pre-stressed
+2 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+elastic membrane. The membrane is loaded by the external pressure pext and by the fluid traction. This system has been studied by many authors (see e.g. [5], for a recent review) and has features that are representative of many other large-displacement fluid–structure interaction problems. Specifically, the system has highly nonlinear flow characteristics and a propensity to develop large-displacement self-excited oscillations (see Section 4). We model the flow by the unsteady Navier–Stokes equations
+Re oui
+ot þ uj
+oui
+oxj
+1⁄4 op
+oxi
+þ o2ui
+ox2
+j
+and ouj
+oxj
+1⁄4 0; ð1a; bÞ
+where we have scaled all lengths on the channel width a, the velocities on the average inflow velocity U and the pressure on the viscous scale, lU =a. Throughout this paper, the summation convention is used and, unless stated otherwise, all subscripts range from 1 to 2. The Reynolds number is Re 1⁄4 qaU =l. We impose steady, fully developed inflow at the upstream end of the channel, u 1⁄4 ð6x2ð1 x2Þ; 0Þ at x1 1⁄4 Lup=a and assume parallel, axially traction-free outflow at the downstream end x2 1⁄4 ðL þ LdownÞ=a. This is equivalent to setting pexit 1⁄4 0. No-slip conditions apply on all channel walls. We model the elastic section of the wall as a pre-stressed, thin-walled elastic beam whose midplane we parametrise by the nondimensional Lagrangian coordinate f 2 1⁄20; L=a . In its undeformed configuration, the wall is located at rw 1⁄4 ðf; 1ÞT and the displacement field vðf; tÞ displaces its material particles to their new position Rw 1⁄4 rw þ v. In the undeformed position, the elastic wall is subject to an initial stress r0 1⁄4 T0=h0 (where h0 is the wall thickness and T0 the initial longitudinal tension) which we assume to be much larger than the additional stress generated by the wallÕs deformation. This allows us to assume incrementally linear elastic behaviour which implies that r 1⁄4 r0 þ c, where r 1⁄4 r =E is the dimensionless second Piola–Kirchhoff stress and r0 1⁄4 r0=E the dimensionless pre-stress. E is the incremental YoungÕs
+modulus and c is the geometrically nonlinear extensional strain, c 1⁄4 v1
+;f þ 1
+2 ðv1
+;fÞ2 þ ðv2
+;fÞ2 , where a comma
+denotes a derivative. The wall deformation is governed by the principle of virtual displacements [16],
+Z L=a
+0
+ðr0
+"
+þ cÞdc þ 1
+12
+h0 a
+2
+j dj a
+h0
+f dRwD
+#
+df 1⁄4 0; ð2Þ
+where f 1⁄4 f =E is the nondimensional traction acting on the wall, D 1⁄4
+ffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffiffi
+1 þ v1
+;f
+2
+þ v2
+;f
+2
+r
+and
+j 1⁄4 v2
+;ff 1 þ v1
+;f v1
+;ff v2
+;f
+.
+D ð3Þ
+is the wall curvature. The first two terms in (2) represent the variation in the wallÕs strain energy due to its extension and bending, respectively. The last term represents the virtual work done by the load f acting on
+a
+x
+LL
+x
+p
+ext
+pexit
+1
+up down
+2
+entry
+p
+L
+Fig. 1. Sketch of the model problem considered in this study. Viscous fluid is driven through a channel in which part of one wall is replaced by a pre-stressed elastic membrane.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 3
+
+
+the deformed wall. We assume that the elastic membrane is pinned at both ends and impose v 1⁄4 0 at f 1⁄4 0; L=a.
+Fluid and solid interact via the no-slip condition
+u 1⁄4 oRw
+ot on the wall; ð4Þ
+and via the (combined) traction on the wall
+fi 1⁄4 pextNi þ Q pdij
+oui
+oxj
+ouj
+oxi
+Nj; ð5Þ
+where N 1⁄4 v2
+;f; 1 þ v1
+;f
+T
+=D is the outer normal on the wall. The nondimensional parameter
+Q 1⁄4 lU
+aE ð6Þ
+represents the ratio of the viscous stresses to the elastic modulus of the wall and provides a measure of the strength of fluid–structure interaction; if Q 1⁄4 0, the wall shape only depends on the transmural pressure difference.
+3. Discretisation
+3.1. Solid equations
+Carrying out the variations with respect to the displacements vi and their derivatives transforms equation (2) into a variational equation of the form
+Z L=a
+0
+/ð0Þ
+i dvi þ /ð1Þ
+i dvi
+;f þ /ð2Þ
+i dvi
+;ff df 1⁄4 0: ð7Þ
+We discretise this equation by displacement-based finite elements. The /-terms contain up to second derivatives of the displacements, therefore we need shape functions with continuous first derivatives across the element boundaries. Isoparametric Hermite elements with nodal displacements and slopes as independent degrees of freedom [17] were chosen such that the displacements vi were interpolated as
+vi 1⁄4 X
+j
+V ijwðSÞ
+j ; ð8Þ
+where the wðSÞ
+j are piecewise cubic Hermite polynomials; see [18] for further details of the implementation. This transforms (7) into
+Z L=a
+0
+/ð0Þ
+i wðSÞ
+j þ /ð1Þ
+i wðSÞ
+j;f þ /ð2Þ
+i wðSÞ
+j;ff df dV ij 1⁄4 0: ð9Þ
+The variations of those V ij that are not determined by the boundary conditions are arbitrary and the expressions multiplied by the corresponding dV ij have to vanish. This provides a system of nonlinear algebraic equations for the unknown V ij. These equations still contain the load terms f, which depend on the fluid pressure and the velocity gradients at the wall (see (5)). The strong nonlinearity of the solid equations can result in complicated load–displacement paths. In particular, multiple equilibrium configurations can co-exist at a given external pressure, pext. Consequently, continuation techniques, such as KellerÕs arclength method [19] are often required to compute strongly deformed equilibrium configurations. In the present problem, we implemented a simple displacement-control technique by adding the equation
+4 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+fctrl 1⁄4 v2ðfctrlÞ Vctrl 1⁄4 0 ð10Þ
+to Eq. (9). Upon choosing a control point (characterised by the value of its Lagrangian coordinate fctrl) on the elastic membrane, this equation prescribes the vertical wall displacement at that point and allows us to treat the external pressure pext as an unknown in steady simulations.
+3.2. Fluid equations
+3.2.1. Galerkin discretisation
+We discretise the Arbitrary Lagrangian–Eulerian (ALE) form of the Navier–Stokes equations (1a,b) on a body-fitted moving mesh and perform the mesh update in response to changes in the wall position by a modified version of Kistler and ScrivenÕs ÔMethod of SpinesÕ [20]. Briefly, we associate each nodal point j in the fluid mesh with a fixed material point on the wall which we identify by its Lagrangian coordinate fðrefÞ
+j. As the wall deforms, each fluid node remains located at a fixed, pre-determined fraction xj 2 1⁄20; 1 along the
+straight line from the spine origin R0ðfÞ 1⁄4 ðf; 0ÞT to RwðfÞ such that the position vector to fluid node j is given by
+Rj 1⁄4 R0 fðrefÞ
+j þ xj Rw fðrefÞ
+j R0 fðrefÞ
+j : ð11Þ
+Fig. 2 illustrates the resulting meshes. Using standard isoparametric Taylor–Hood elements [21], the velocities, the global coordinates and the pressure are represented by
+ui 1⁄4 X
+j
+U ijwðFÞ
+j ; xi 1⁄4 X
+j
+X ijwðFÞ
+j and p 1⁄4 X
+j
+P jwðPÞ
+j ; ð12Þ
+where the wðFÞ
+j and wðPÞ
+j are bi-quadratic and bi-linear shape functions in the local element coordinates,
+respectively. X ij are the nodal coordinates, specified by (11). We characterise the fluid meshes by hFEM, the length of the element edges in the undeformed configuration. The residuals of the momentum equations (1a) are weighted by the velocity shape functions wðFÞ
+l . We perform the usual integration by parts and obtain
+f ðFÞ
+il 1⁄4
+ZZ
+Xf
+Re oui
+ot
+"
+þ uj uðMÞ
+j
+oui
+oxj
+wðFÞ
+l p owðFÞ
+l
+oxi
+þ oui
+oxj
+owðFÞ
+l
+oxj
+#
+dv 1⁄4 0; ð13Þ
+Fig. 2. Illustration of the coarsest (hFEM 1⁄4 1=4) and finest (hFEM 1⁄4 1=16) fluid meshes used in the computations.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 5
+
+
+where R R
+Xf P dv is the integral over the fluid domain Xf and
+uðMÞ
+j 1⁄4X
+j
+oX ij
+ot wðFÞ
+j ð14Þ
+is the mesh velocity. All time-derivatives were evaluated by a second-order backward Euler scheme (BDF2) with constant time-step Dt. The fully implicit treatment of the momentum equations leads to a consistent mass representation. Similarly, the continuity equation (1b) is weighted by the bilinear pressure shape functions wðPÞ
+l which yields
+f ðPÞ
+l1⁄4
+ZZ
+Xf
+ouj
+oxj
+wðPÞ
+l dv 1⁄4 0: ð15Þ
+3.2.2. Stabilisation by Petrov–Galerkin weighting If the mesh Reynolds number ReM satisfies
+ReM 1⁄4 1
+2 Reh u uðMÞ < 1 ð16Þ
+in all elements (where h is a characteristic length of the element), the Galerkin discretisation is known to yield smooth solutions for the velocity and pressure fields (see, e.g. [22]). For the cases considered in this study, it is possible to use sufficiently fine meshes to avoid the occurrence of the spurious ÔwigglesÕ that develop in the solution if the mesh Reynolds number becomes too large. However, the use of multigrid methods for preconditioning purposes (introduced in Section 5.2.2) requires the solution of the fluid equations on coarse meshes on which the criterion (16) is severely violated. The development of ÔwigglesÕ can be suppressed with a Petrov–Galerkin formulation in which the weighting functions wðFÞ
+l for the momentum equations are replaced by
+wðF;stabÞ
+l 1⁄4 wðFÞ
+l þ sstab uk uðMÞ
+k
+owðFÞ
+l
+oxk
+: ð17Þ
+sstab is a stabilisation parameter, which should be (just) large enough to suppress the ÔwigglesÕ. Following the ideas in [23–25] we set
+sstab 1⁄4 h 2 u uðMÞ 1 þ 1
+ReM þ h
+Dtju uðMÞj
+n o1
+if ReM > 1;
+0 otherwise:
+(
+ð18Þ
+At large ReM, this choice is consistent with the ÔoptimalÕ stabilisation for steady advection diffusion problems (see, e.g. [26,27]) and it leads to small values of sstab in problems which are dominated by the unsteady terms since sstab Dt as Dt ! 0.
+Consistent use of the weighting functions wðF;stabÞ
+i adds the terms
+f ðF;stabÞ
+il 1⁄4
+ZZ
+Xf
+sstab Re oui
+|{ozt}
+I
+0
+BBB@
+2
+6664 þ uj uðMÞ
+j
+oui
+oxj
+|fflfflfflfflfflfflfflfflfflfflffl{zfflfflfflfflfflfflfflfflfflfflffl}
+II
+1
+CCCA þ op
+oxi
+|{z}
+III
+o2ui ox2
+j
+|{z}
+IV
+3
+7775 uk uðMÞ
+k
+owðFÞ
+l
+oxk
+dv ð19Þ
+to the weak form (13) of the momentum equations. The second-order term IV is typically evaluated element-by-element. For the purposes of stabilisation (i.e. the suppression of ÔwigglesÕ) it is sufficient to include only the advective term II into f ðF;stabÞ
+il . This is equivalent to the classical SUPG stabilisation of Hughes and Brooks [28]. However, if the terms I, III and IV are neglected in (19), the weak form of the equations becomes inconsistent in the sense that an exact solution of (1a,b) no longer satisfies the weak equations. The choice (18) for sstab ensures that the stabilisation terms disappear as h and Dt ! 0. However, as long as
+6 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+sstab > 0 anywhere in the domain, the inconsistency introduces additional errors into the solution. We will demonstrate in Section 5.3 that, in fluid–structure interaction problems, these errors can be highly significant.
+3.3. The coupled solution
+We solve the coupled system of nonlinear algebraic equations (9), (10), (13) and (15) by NewtonÕs method. This requires the repeated assembly and solution of linear systems Jx 1⁄4 r, with the following block structure
+S Csu Csp
+Cus F G Cps D 0
+2
+4
+3
+5
+xs xu xp
+0
+@
+1
+A1⁄4
+rs ru rp
+0
+@
+1
+A: ð20Þ
+Here rs, ru and rp represent the current residuals of the solid, momentum and continuity equations, respectively and xs, xu and xp are the associated Newton corrections. The diagonal block S in the Jacobian matrix has two contributions
+S 1⁄4 SðsolidÞ þ SðFSIÞ; ð21Þ
+where SðsolidÞ is the classical tangent stiffness matrix of the wall equations. The additional contribution, SðFSIÞ, arises from the fluid–structure interaction: A change in a solid degree-of-freedom affects the velocity gradients in (5) because the nodal positions in the fluid mesh are determined by the wall displacement field. The diagonal block
+F 1⁄4 Re 1
+Dt M þ N þ A ð22Þ
+represents the fluid momentum matrix. Its three components M, N and A arise from the discretisation of the time-derivative, the ALE advection operator and the viscous term in the Navier–Stokes equations, respectively. The off-diagonal blocks G and D are the discrete gradient and divergence operators and without stabilisation we have G 1⁄4 DT. The term 1=Dt in the above equation indicates the dependence on the time-step as Dt ! 0. The mass matrix M has two contributions
+M 1⁄4 cM þ MðstabÞ; ð23Þ
+where cM represents the standard mass matrix corresponding to (13) and MðstabÞ arises from the differentiation of the stabilisation term I in (19). Thus, consistent stabilisation makes M asymmetric. However, MðstabÞ Dt as Dt ! 0, so for small Dt, the mass matrix is dominated by the symmetric positive definite
+contribution cM. The fluid and solid variables are coupled through the interaction blocks C . Their physical origin is as follows: Csp and Csu represent the respective effects of the fluid pressure and the viscous fluid stresses on the wall equations and arise through the load terms (5). The interaction blocks
+Cus 1⁄4 CðsÞ
+us þ 1
+Dt CðtÞ
+us and Cps ð24Þ
+represent the effect of the wall displacement field on the discretised momentum and continuity equations, respectively. In steady problems, this interaction occurs via the algebraic mesh-update (11): A change in the wall displacement field changes the fluid mesh and thus the Jacobian of the isoparametric mapping in the fluid elements. The term 1
+Dt CðtÞ
+us arises from the fact that the time-derivative of the wall displacement field affects the momentum equations by setting the fluid velocities along the wall via (4) and by setting the mesh velocities uðMÞ via (14). For small time-steps, the Jacobian matrix therefore has large off-diagonal entries.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 7
+
+
+3.4. Implementation
+The repeated assembly of the Jacobian matrix involves a significant amount of computational work and needs to be optimised carefully. We assembled the blocks F, D and G by the standard finite element assembly procedure, using the analytical expressions for the integrand and three point Gauss rules for the numerical integration. The remaining entries in the Jacobian matrix were generated by finite differencing equations (9), (10), (13) and (15). The number of elements used for the discretisation of the wall equations (9) was matched to the number of elements in the fluid domain such that their respective nodal points coincided. This resulted in a finer-than-necessary discretisation of the wall equations but ensured that every solid degree of freedom only affected the position of a small number of fluid nodes. The (modest) increase in the total number of degrees of freedom was more than compensated for by a dramatic increase in the efficiency of the sparse mesh-update-algorithm which is used frequently during the finite difference operations. The stabilisation parameter sstab was computed element-wise by evaluating (18) at the element centroids and its value was kept constant during the Newton iteration. h was determined by the procedure proposed in Ref. [27] to ensure that it represents the element length in the direction of the ÔwindÕ u uðMÞ.
+4. Typical results
+Figs. 3–5 present results from representative steady and unsteady simulations which will be used as test cases for the numerical schemes presented below. All simulations were performed with the parameters Lup=a 1⁄4 1, L=a 1⁄4 5, Ldown=a 1⁄4 10, Q 1⁄4 10 2, r0 1⁄4 103, pexit 1⁄4 0, h0=a 1⁄4 10 2 and fctrl 1⁄4 3:5.
+4.1. Steady flows: multiple solutions
+Fig. 3 illustrates the changes in the flow-field and the wall deformation when the external pressure is varied while the flow rate and the fluid pressure at the downstream end of the rigid segment are held constant. The viscous pressure drop in the downstream rigid segment causes the fluid pressure underneath
+the membrane to exceed the fluid pressure pexit 1⁄4 0 at the outflow. At Re 1⁄4 500, an external pressure of
+pext 1⁄4 pðflushÞ
+ext 1⁄4 1:524 is required to maintain the membrane in an approximately flush state (see Fig. 3a). An increase in external pressure increases the compressive load on the wall and causes it to collapse more strongly near its downstream end. At finite Reynolds number, the Bernoulli effect leads to a local reduction in fluid pressure which augments the wall compression in the region of strongest collapse. The reduction in channel width also increases the overall viscous flow resistance and requires an increase in upstream
+Fig. 3. Streamlines and pressure contours for steady flow at Re 1⁄4 500. pext 1⁄4 pext=E 1⁄4 1:524 (a) and pext 1⁄4 3:247 (b). The fluid pressure is scaled on the viscous scale, p 1⁄4 p a=ðlU Þ.
+8 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+pressure to maintain the same flow rate. The resulting increase in fluid pressure in the upstream half of the elastic segment causes it to bulge out (see Fig. 3b). The flow separates downstream of the point of strongest collapse and a long region of reversed flow develops. Fig. 4 illustrates the pressure/deformation characteristics of the system at three different Reynolds number by plotting Vctrl 1⁄4 v2ðf 1⁄4 3:5Þ, the vertical wall displacement at 70% of the membraneÕs length, as a
+pext
+Vctrl
+1.5 2 2.5 3 3.5
+-0.4
+-0.3
+-0.2
+-0.1
+0
+Re=500 Re=250 Re=0
+A
+B
+Fig. 4. Pressure–displacement characteristics for steady flow at various Reynolds numbers. The wall deformation is characterised by the vertical wall displacement Vctrl 1⁄4 v2ðf 1⁄4 3:5Þ at 70% of the membraneÕs length. At large Reynolds number, limit points develop in the pressure–displacement curve.
+time
+Vctrl
+0 20 40 60 80 100 120 140 160 180 200
+-0.6
+-0.5
+-0.4
+-0.3
+-0.2
+-0.1
+0
+0.1
+0.2
+0.3
+0.4
+Fig. 5. Time history of the vertical wall displacement VctrlðtÞ 1⁄4 v2ðf 1⁄4 3:5; tÞ for a self-excited oscillation at Re 1⁄4 500. pext 1⁄4 pext=E 1⁄4 2:5.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 9
+
+
+function of the external pressure. At zero Reynolds number, an increase in external pressure leads to an approximately proportional increase Vctrl. At finite Reynolds number, the additional local pressure drop generated by the Bernoulli effect increases the collapse at a given value of pext. At Re 1⁄4 500, this destabilising effect is so strong that limit points develop in the VctrlðpextÞ curve. Hence, small changes in pext can lead to large changes in the (steady) wall shapes. For instance, a small increase in the external pressure beyond
+pðflushÞ
+ext forces the system to jump (dynamically) from its ÔflushÕ state into a strongly collapsed equilibrium configuration in which Vctrl 1⁄4 0:313 (marked as point A in Fig. 4). Upon reducing the external pressure, the system evolves quasi-steadily along the curve from A to the limit point B where it has to undergo a further discontinuous transition to a strongly inflated state with Vctrl > 0 (not shown in the diagram).
+4.2. Unsteady flows––self-excited oscillations
+As mentioned in the introduction, fluid-conveying elastic vessels are highly susceptible to the development of large-amplitude self-excited oscillations. An example of such oscillations is shown in Figs. 5 and 6. The simulation was started from the steady equilibrium configuration for Vctrl 1⁄4 0:35, pext 1⁄4 1:666. For t P 0, the external pressure was set to pext 1⁄4 2:5 and the flow rate was held constant at the upstream end of the channel. The time trace of the control displacement VctrlðtÞ 1⁄4 v2ðf 1⁄4 3:5; tÞ shown in Fig. 5 illustrates that the system performs sustained large-amplitude oscillations with a fundamental period of T 25, with superimposed higher harmonics which create an oscillation of great complexity.
+Fig. 6. Instantaneous streamlines and pressure contours in an unsteady flow undergoing a large-amplitude self-excited oscillation. t 1⁄4 2:0 (a), 8.0, 12.0, 14.0 (b–d). Re 1⁄4 500, pext 1⁄4 pext=E 1⁄4 2:5. The fluid pressure is scaled on the viscous scale, p 1⁄4 p a=ðlU Þ.
+10 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+Fig. 6 illustrates the interaction between the wall displacement and the fluid flow during the oscillation. In Fig. 6(a) and (b), the wall collapses inwards and the size of the separation bubble at the downstream end of the elastic segment increases. During the second half of the oscillation, when the downstream half of the membrane moves outwards again, Fig. 6(c) and (d), the separation bubble detaches from the elastic wall, and a large-amplitude wave pattern (a Ôvorticity waveÕ [29]) develops and travels downstream.
+5. Solution strategies
+For two-dimensional problems of moderate size, the direct solution of the linear system (20) is perfectly feasible, both in terms of memory requirements and CPU times. In the simulations presented above, the linear solves were performed with a frontal method (MA42 from the HSL2000 library [30]) and the Newton iteration typically converged in 5–7 steps, reducing the maximum residual from Oð1Þ to below 10 8. For larger problems, particularly in 3D, the memory requirements of direct solvers tend to become prohibitive–mainly because of the fill-in that occurs during the computation of the LU factors. In fluid–structure interaction problems, a large amount of the fill-in is created by the coupling between the fluid and solid variables. We will now explore alternative approaches which avoid the direct solution of the full system (20).
+5.1. Direct solution with block-triangular approximate Jacobians
+The additional fill-in associated with the fluid–structure interaction can be avoided by replacing the exact Jacobian matrices by suitable approximations. We consider the three block-triangular approximations
+Jsup 1⁄4
+S Csu Csp
+0F G 0D 0
+2
+4
+3
+5 Jsub 1⁄4
+S 00 Cus F G Cps D 0
+2
+4
+3
+5 Jdiag 1⁄4
+S0 0 0FG 0D 0
+2
+4
+3
+5; ð25Þ
+the use of which reduces the solution of the linear system (20) to the independent solution of two smaller linear systems and an intermediate matrix–vector product. For instance, if we replace J by Jsub, the Newton correction x can be computed via the sequence
+solve Sxs 1⁄4 rs for xs; ð26Þ
+compute rrbu
+rrbp 1⁄4 ru
+rp
+þ Cus
+Cps
+xs; ð27Þ
+solve F G
+D0
+xu xp
+1⁄4 rrbu
+rrbp for ðxu; xpÞT: ð28Þ
+A similar sequence of steps is required if the sub-diagonal blocks are neglected. If all fluid–structure interaction blocks are discarded, the intermediate matrix–vector product (27) can be omitted. If we also approximate S in (26) by the tangent stiffness matrix SðsolidÞ, the two linear solves in (26) and (28) involve the same matrices that would arise from the discretisation of the uncoupled fluid and solid problems. The solution of the two linear systems can therefore utilise well-established solution techniques for these sub-problems. We will exploit this in Section 5.2.2. Fig. 7 compares the convergence history of the exact and inexact Newton methods for the steady problem illustrated in Fig. 3. In all cases the number of Newton iterations required to reduce the maximum residual below 10 8 tends to increase with the degree of the channel collapse. Fig. 7 shows the convergence histories of the fastest and slowest converging Newton iteration over the whole range of the simulation (Vctrl increasing from 0 to )0.4125). If the exact Jacobian is used, the Newton method displays the expected rapid
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 11
+
+
+convergence and the iteration count only increases very slightly (from 5 to 7) with the degree of collapse. Neglecting the super- or sub-diagonal interaction blocks leads to a noticeable deterioration in the convergence rate. Furthermore, the iteration count increases more rapidly with the degree of collapse (from 16 for Vctrl 1⁄4 0:1125 to 37 for Vctrl 1⁄4 0:4125). Neglecting all interaction blocks leads to a staggered scheme, in which the update of the fluid and solid variables is performed independently. This leads to a small saving in computational cost during each iteration because the matrix–vector product (27) can be avoided. However, the convergence rate of the Newton iteration deteriorates dramatically and also becomes extremely sensitive to the degree of collapse. Neglecting the block SðFSIÞ did not affect the convergence rates in any of the four schemes. Overall, this behaviour is consistent with the observations in [31] where only the case of neglecting the sub-diagonal block (in our notation) was considered. When the approximate Jacobian matrices (25) were used in the unsteady simulation shown in Section 4.2, the Newton method failed to converge. Only the blocks Csu and SðFSIÞ could be neglected without causing immediate divergence. However, in that case, no useful simplification of the block structure is achieved.
+5.2. Iterative solution by preconditioned Krylov subspace solvers
+The numerical experiments presented in the previous section show that the use of approximate Jacobian matrices in the Newton iteration can lead to a severe deterioration of its convergence rate. An alternative approach is to use the approximate Jacobians as preconditioners in the iterative solution with a Krylov subspace solver, such as GMRES. The iterative solution of the (right-) preconditioned version of the linear system (20), JP 1Px 1⁄4 r, involves matrix–vector products with the exact Jacobian matrix J and solutions of linear systems with the preconditioning matrix P. If P is a good approximation to J, we can expect rapid convergence of the ÔinnerÕ GMRES iteration to the exact solution of the original system (20), while maintaining the quadratic convergence rate of the ÔouterÕ Newton iteration. Furthermore, the convergence tolerance of the ÔinnerÕ iteration can be coupled to the size of the residual in the Newton iteration to avoid Ôover-solvingÕ (see [32]). We will explore this in Section 5.2.3.
+Number of Newton iterations
+Maximum residual
+0 10 20 30 40 50 60 70
+10-12
+10-10
+10-8
+10-6
+10-4
+10-2
+100
+Approximate Jacobian Idiag
+Exact Jacobian I Approximate Jacobian Isub Approximate Jacobian Isup
+Fig. 7. Convergence histories of the Newton iteration with the exact and approximate Jacobian matrices for a steady computation at Re 1⁄4 500. Thin lines: the solution for Vctrl 1⁄4 0:0938 is used as an initial guess for Vctrl 1⁄4 0:1125. Thick lines: the solution for Vctrl 1⁄4 0:3938 is used as an initial guess for Vctrl 1⁄4 0:4125.
+12 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+5.2.1. Preconditioning with the block-triangular approximate Jacobians
+To illustrate the efficiency of the approximate Jacobians as preconditioners for the iterative solution of the linear system (20), Fig. 8 shows representative convergence histories of the GMRES iterations in a steady simulation at Re 1⁄4 500. The data was obtained from a computation in which the solution for Vctrl 1⁄4 0:21 was used as the initial guess for Vctrl 1⁄4 0:28. In this particular case, the Newton iteration converges in five steps and the lines in Fig. 8 show the convergence histories of the GMRES iterations for the first and last Newton steps. During the first Newton steps, the GMRES convergence histories have an initial stagnant period (which lasts for approximately 50% of the total number of iterations) during which the scaled residual r 1⁄4 jJx þ rj=jrj only decays very little. This is followed by a period of rapid convergence during the second half of the iteration. For subsequent Newton steps, the initial stagnant period disappears. Overall, the preconditioner Jsup produces slightly faster convergence rates than Jsub, especially during the final Newton steps. The block diagonal preconditioner Jdiag requires approximately twice as many GMRES iterations as the two block-triangular versions. Table 1 provides a more comprehensive overview of the iteration counts for the three preconditioners and presents the average number of GMRES iterations, NGMRES, for steady computations at different Reynolds numbers. The average was taken over all Newton steps in a computation in which Vctrl was increased from 0 to )0.35 in five steps. In all cases, the GMRES iteration was continued until r < TOLGMRES 1⁄4 10 6. Table 1 shows that an increase in Reynolds number leads to a slight increase in NGMRES and confirms Jsup as the most efficient preconditioner. The data shown was obtained with hFEM 1⁄4 1=8 but computations at different spatial resolutions displayed no evidence of any mesh-dependence of the convergence rates. Table 2 presents the average iterations counts for the three preconditioners in the unsteady simulation at Re 1⁄4 500, shown in Section 4.2. Here NGMRES represents the average over all Newton iterations at 20 different time-steps during the systemÕs evolution. The data was obtained by restarting the simulation from the four representative configurations shown in Fig. 6 and continuing the time-integration for five time-steps. Selected computations were performed over several periods of the oscillation to confirm that the averages shown in Table 2 are representative.
+Number of GMRES iterations
+Scaled residual
+2 4 6 8 10 12 14 16 18 20
+10-7
+10-6
+10-5
+10-4
+10-3
+10-2
+10-1
+100
+℘ = Idiag
+℘ = Isup
+℘ = Isub
+Fig. 8. Convergence histories of the preconditioned GMRES iteration for a steady computation at Re 1⁄4 500. The solution for Vctrl 1⁄4 0:21 is used as the initial guess for Vctrl 1⁄4 0:28. Thick lines: first Newton step; thin lines: last (1⁄4fifth) Newton step.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 13
+
+
+Table 2 shows that, as in the steady case, the performance of Jsup and Jsub is very similar while the the block-diagonal preconditioner Jdiag requires approximately twice as many iterations. The iteration count increases slightly with a reduction in the time-step, NGMRES Dt 0:3 so that reducing the time-step by a factor of 10 approximately doubles the number of iterations. This is documented in more detail in Fig. 9 which compares representative convergence histories of the GMRES iterations (right-preconditioned with P 1⁄4 Jsup) for different values of Dt. A reduction in Dt only leads to a slight reduction in the asymptotic convergence rate of the GMRES iteration but significantly extends the length of the initial stagnant period.
+Table 2 Average GMRES iteration counts for the unsteady simulation shown in Section 4.2
+Dt 1⁄4 2 10 1 Dt 1⁄4 2 10 2 Dt 1⁄4 2 10 3
+P 1⁄4 Jsup 11.5 23.4 45.2 P 1⁄4 Jsub 12.4 24.2 41.2 P 1⁄4 Jdiag 22.7 46.2 87.2
+The approximate Jacobians Jsup, Jsub and Jdiag are used as right preconditioners for the iterative solution of the linear system (20). Re 1⁄4 500, TOLGMRES 1⁄4 10 6.
+Table 1 Average GMRES iteration counts for the steady simulations shown in Section 4.1
+Re 1⁄4 0 Re 1⁄4 250 Re 1⁄4 500
+P 1⁄4 Jsup 3.2 5.4 6.2 P 1⁄4 Jsub 3.8 6.2 7.0 P 1⁄4 Jdiag 6.4 11.0 12.4
+The approximate Jacobians Jsup, Jsub and Jdiag are used as right preconditioners for the iterative solution of the linear system (20) (TOLGMRES 1⁄4 10 6).
+Number of GMRES iterations
+Scaled residual
+10 20 30 40
+10-7
+10-6
+10-5
+10-4
+10-3
+10-2
+10-1
+100
+∆t=2 x10-1
+∆t=2 x10-2
+∆t=2 x10-3
+Fig. 9. Convergence histories of the GMRES iteration for different time-steps Dt. Jsup is used as the right preconditioner and the results are for the unsteady simulation of Section 4.2 at t 1⁄4 14. Re 1⁄4 500. Thick lines: first Newton step; thin lines: last (1⁄4fifth) Newton step.
+14 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+Furthermore, at small Dt the initial stagnant period is longer for the final rather than the initial Newton steps. The increase in NGMRES with a decrease in Dt presents a significant difference to the behaviour typically observed in the iterative solution of pure fluid or solid problems. In uncoupled problems, a reduction in the time-step tends to increase the diagonal dominance of the Jacobian matrix and this typically accelerates the convergence of iterative solvers. In the present problem, the entries in the sub-diagonal block Cus grow like 1=Dt as Dt ! 0 and, in fact, tend to become the dominant entries in the matrix. Interestingly, the fact that the block Cus is retained in Jsub does not significantly increase the efficiency of this preconditioner at small Dt.
+5.2.2. A pressure Schur complement preconditioner
+The results shown in the previous section demonstrate that the approximate Jacobians present efficient preconditioners for the iterative solution of the linear system (20). However, in their exact form, the application of the preconditioners is very expensive and the computational cost is dominated by the solution of the Navier–Stokes system (28). For the purposes of preconditioning, its solution does not have to be computed exactly but can be replaced by a computationally cheaper approximation. For this purpose, we replace the Navier–Stokes block in (25) by a global pressure Schur complement preconditioner [33]. This results in preconditioners of the form
+Psup 1⁄4
+S Csu Csp
+0F G 00 X
+2
+4
+3
+5 Psub 1⁄4
+S0 0 Cus F G Cps 0 X
+2
+4
+3
+5 Pdiag 1⁄4
+S0 0 0F G 00 X
+2
+4
+3
+5; ð29Þ
+where X is (an approximation of) the pressure Schur complement DF 1G. In the following we will use ElmanÕs BFBt approximation [34]
+X 1⁄4 ðDGÞðDFGÞ 1ðDGÞ; ð30Þ
+though other approximations could be used in its place. The action of the preconditioners defined by (29) and (30) can then be obtained in a number of sub-steps. For instance, the solution of the system Psubx 1⁄4 r can be computed via
+solve Sxs 1⁄4 rs for xs; ð31Þ
+compute rrbu
+rrbp 1⁄4 ru
+rp
+þ Cus
+Cps
+xs; ð32Þ
+solve ðDGÞy 1⁄4 rrbp for y; ð33Þ
+compute z 1⁄4 ðDFGÞy; ð34Þ
+solve ðDGÞxp 1⁄4 z for xp; ð35Þ
+compute bu 1⁄4 rrbu Gxp; ð36Þ
+solve Fxu 1⁄4 bu for xu: ð37Þ
+Similar sequences arise for Psup and Pdiag. The procedure can be viewed as an extension of the block preconditioning strategy for ÔpureÕ fluids problems proposed in Ref. [35]. In this form, the application of the preconditioner involves the solution of four linear systems and (up to) three matrix–vector products.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 15
+
+
+The matrix S in (31) arises from the discretisation of a spatially one-dimensional problem and is therefore much smaller than the matrices in (33), (35) and (37). The linear system (31) can therefore be solved efficiently by a sparse direct solver; we used Demmel et al.Õs SuperLU solver [36]. The computationally most expensive part of the preconditioning operation is the solution of the three linear systems (33), (35) and (37). We will now replace the exact solves for these systems by suitable approximations to improve the overall efficiency of the algorithm. In the absence of stabilisation, the matrix DG is symmetric and positive definite and plays a role similar to a pressure Poisson operator (see [34]). This suggests that the systems (33) and (35) can be solved efficiently by multigrid, [37], and that suitable approximations can be obtained by performing a fixed number of multigrid cycles. We performed three V-cycles, using point Gauss–Seidel (with two pre- and two postsmoothing steps on each level) as the smoother. The interpolation was based on the bilinear pressure interpolation, full weighting was used for the injection and the linear system on the coarsest mesh was solved with SuperLU. At finite Reynolds number, the matrix F in (37) is nonsymmetric and has a complex spectrum. Consequently, at large Reynolds number, multigrid with simple point Gauss–Seidel smoothing does not act as an efficient solver. However, replacing the exact solution of (37) by a fixed number of multigrid V-cycles can still provide an efficient preconditioner, provided a sufficient amount of stabilisation is added on each multigrid level. The adaptive choice of the stabilisation parameter sstab via (18) ensures that sstab can be relatively large on the coarser multigrid levels (on which the solutions only provide corrections for the finer levels) but remains small enough not to affect the solution at the finest level, provided consistent stabilisation is used (see Section 5.3). The implementation of the multigrid solver was based on interpolation consistent with the bi-quadratic variation of the velocity degrees of freedom and full weighting was used for the injection. SuperLU was used as the direct solver on the coarsest level. ÔWith-the-windÕ numbering of the equations is known to be beneficial for the efficiency of Gauss–Seidel smoothing but would be difficult and costly to implement for the highly complex and time-varying flow fields encountered in the present problem (see, e.g., Fig. 6). In each smoothing step, we performed four consecutive point Gauss–Seidel sweeps over all variables, sweeping along the four principal directions of the structured mesh [38]. In this form, the computational work associated with a single application of the preconditioner scales linearly with the number of unknowns in the problem. Hence, the ÔoptimalityÕ of the solver is directly related to the number of GMRES iterations required to reduce the scaled residual r below the convergence tolerance. Table 3 shows the average values for NGMRES for steady computations at various Reynolds numbers and spatial resolutions. We only present data for Psup since it tended to be the most efficient preconditioner throughout. The two numbers shown for each combination of Reynolds number and mesh size correspond to the cases where the linear systems (33), (35) and (37) were solved exactly (by SuperLU) and approximately (by the fixed-cost multigrid approximations). The use of the multigrid approximations typically increased the number of GMRES iterations by about 30% (interestingly, in one case it actually reduced NGMRES) but this was more than compensated for by a significant decrease in the overall CPU times. For
+Table 3 Average GMRES iteration counts for the steady simulations shown in Section 4.1
+Re 1⁄4 0 Re 1⁄4 250 Re 1⁄4 500
+hFEM 1⁄4 1=4 14.4 (15.8) 41.2 (57.0) 46.8 (71.2) hFEM 1⁄4 1=8 25.0 (25.8) 71.8 (86.8) 81.2 (104.0) hFEM 1⁄4 1=12 35.6 (31.2) 91.0 (116.6) 111.4 (141.4) hFEM 1⁄4 1=16 44.8 (46.4) 104.6 (130.2) 130.8 (173.0)
+Psup is used as the right preconditioners for the iterative solution of the linear system (20), TOLGMRES 1⁄4 10 6. The numbers in brackets are for the case when the fixed-cost multigrid approximations for the systems (33), (35) and (37) are used.
+16 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+instance, for the case Re 1⁄4 500 and hFEM 1⁄4 1=16, the 30% increase in NGMRES still allowed a reduction in the total CPU time by a factor of 2.6. The relative increase in NGMRES with an increase in Reynolds number from Re 1⁄4 250 to 500 is comparable to that observed for the ÔexactÕ preconditioner Jsup in Table 1, whereas at smaller Reynolds numbers, an increase Re has a more detrimental effect. The iteration count scales approximately like NGMRES h 0:7
+FEM
+which is comparable to the mesh dependence reported in Ref. [34], where the performance of the BFBt preconditioner was examined in an Oseen problem. Fig. 10 shows that the (significant) differences in the convergence histories at different stages of the Newton iteration are similar to those observed for Jsup in Fig. 8. However, the deterioration in the asymptotic convergence rate with a reduction in hFEM makes the presence of the initial stagnant period relatively less important for simulations on fine meshes. Table 4 presents the corresponding data for the unsteady simulations of Section 4.2 at Re 1⁄4 500. The iteration counts are very similar to those presented in Table 2 for Jsup, and display very little mesh-dependence. In fact, the iteration counts for Dt 1⁄4 2 10 2 are practically independent of hFEM. Even
+Number of GMRES iterations
+Scaled residual
+100 200
+10-6
+10-5
+10-4
+10-3
+10-2
+10-1
+100
+hFEM = 1/4
+hFEM = 1/8
+hFEM = 1/16
+hFEM = 1/12
+Fig. 10. Convergence histories of the preconditioned GMRES iteration for a steady computation at Re 1⁄4 500. Psup with fixed-cost multigrid approximations for (33), (35) and (37) is used as the right preconditioner. The solution for Vctrl 1⁄4 0:21 is used as the initial guess for Vctrl 1⁄4 0:28. Thick lines: first Newton step; thin lines: last (1⁄4fifth) Newton step.
+Table 4 Average GMRES iteration counts for the unsteady simulation of Section 4.2
+Dt 1⁄4 2 10 1 Dt 1⁄4 2 10 2 Dt 1⁄4 2 10 3
+hFEM 1⁄4 1=4 17.0 (17.6) 23.0 (24.2) 25.0 (28.0) hFEM 1⁄4 1=8 17.9 (23.1) 24.2 (29.4) 46.0 (50.5) hFEM 1⁄4 1=12 22.6 (28.3) 24.2 (30.4) 53.9 (64.6) hFEM 1⁄4 1=16 28.2 (44.9) 23.9 (35.6) 55.8 (76.4)
+Psup is used as the right preconditioners for the iterative solution of the linear system (20), TOLGMRES 1⁄4 10 6. The numbers in brackets are for the case when the fixed-cost multigrid approximations for the systems (33), (35) and (37) are used.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 17
+
+
+the detailed convergence histories shown in Fig. 11 are very similar to those presented for Jsup in Fig. 9, indicating that the approximate implementation of the preconditioner has little effect on its efficiency.
+5.2.3. The choice of the convergence tolerance for the GMRES iteration
+In order to allow a meaningful comparison between the various preconditioners, we used a fixed convergence tolerance of TOLGMRES 1⁄4 10 6 for all studies in the previous sections. Dembo et al. [39] showed that the adaptive choice
+TOLGMRES 1⁄4 OðjrjÞ ð38Þ
+is sufficient to maintain the (asymptotically) quadratic convergence rate of the Newton iteration. (38) shows that the linear system (20) needs to be solved more accurately as the Newton iteration approaches convergence. This also implies that a natural lower limit for TOLGMRES is given by the convergence tolerance of the Newton method itself. In practice, the adaptive choice of TOLGMRES can be rather delicate and problem-dependent since the analysis underlying the derivation of (38) only applies close to the converged solution. If the initial guess for the Newton iteration has a large residual then the large value of TOLGMRES suggested by (38) can cause the Newton method to diverge. Furthermore, any saving in computational work resulting from the reduction in NGMRES must be compared to the potential additional work created by a possible small increase in the total number of Newton steps. This is particularly important if, as in the present case, good (but costly to construct) preconditioners already lead to small numbers of GMRES iterations. In such cases, even the cost of constructing a single additional Jacobian matrix and the associated preconditioning operators can outweigh the savings due to the reduction in NGMRES. Finally, the potential benefits resulting from the adaptive adjustment of TOLGMRES depend strongly on the convergence characteristics of the GMRES iteration. If the GMRES iteration has a long initial stagnant period then an increase in TOLGMRES can only lead to a small reduction in NGMRES. We performed extensive numerical experiments to determine an ÔoptimalÕ strategy for the choice of TOLGMRES and found that, for steady problems, the choice
+Number of GMRES iterations
+Scaled residual
+10 20 30 40 50 60
+10-6
+10-5
+10-4
+10-3
+10-2
+10-1
+100
+∆t=2 x 10-1
+∆t=2 x 10-3
+∆t=2 x 10-2
+Fig. 11. Convergence histories of the GMRES iteration for different time-steps Dt. Psup with fixed-cost multigrid approximations for (33), (35) and (37) is used as the right preconditioner and the results are for the unsteady simulation of Section 4.2 at t 1⁄4 14. hFEM 1⁄4 1=12, Re 1⁄4 500. Thick lines: first Newton step; thin lines: last (1⁄4fifth) Newton step.
+18 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+TOLGMRES 1⁄4
+10 4 if jrj > 10 4 jrj if 10 6 6 jrj 6 10 4 10 6 if jrj < 10 6
+8<
+: ð39Þ
+resulted in modest savings in CPU times (typically about 20–30% compared to a fixed tolerance of TOLGMRES 1⁄4 10 6) while ensuring robustness in the sense that it only rarely resulted in costly additional Newton steps. The benefits of the adaptive adjustment of TOLGMRES are limited by the fact that, in steady problems, the GMRES iteration displays the initial stagnant period during the first few Newton steps. In unsteady problems, the initial stagnant period is more pronounced during the final Newton steps but it tends to persist for longer, particularly at small time-steps. Furthermore, the number of GMRES iterations tends to be much smaller than in steady problems, and the adaptive adjustment of TOLGMRES in unsteady problems only led to small savings in CPU time.
+5.3. The importance of consistent stabilisation
+The use of multigrid approximations for the solution of the linear systems (33), (35) and (37) presents a key step in the efficient implementation of the preconditioning strategy. The stabilisation of the fluid momentum equations, introduced in Section 3.2.2, is necessary to allow the solution of the linear system (37) on the coarse meshes. The adaptive choice (18) for the stabilisation parameter sstab ensures that only the minimum amount of stabilisation is applied on each multigrid level and that the stabilisation (whether applied consistently or inconsistently) becomes insignificant as the element size hFEM and/or the time-step Dt tend to zero. However, (18) shows that sstab hFEM as hFEM ! 0 whereas, in the absence of stabilisation, the finite element expansions (12) ensure the quadratic convergence of the solution under mesh refinement. Thus, as long as ReM > 1 anywhere in the domain, any errors that are introduced by inconsistent stabilisation reduce the rate of convergence under mesh refinement. We will now demonstrate that in fluidstructure interaction problems, the use of inconsistent stabilisation can introduce significant errors. Fig. 12(a) and (c) present results of representative steady and unsteady simulations at different spatial resolutions. (On the coarsest mesh, the flow is severely under-resolved and the Newton method diverges at t 1⁄4 8.) The computations were performed with a direct solver and no stabilisation was applied. The figures demonstrate that the finest mesh (hFEM 1⁄4 1=16) is adequate to resolve the results to within plotting accuracy. Fig. 12(b) and (d) present the corresponding results (computed only on the finest mesh) with various forms of stabilisation. Inconsistent stabilisation can be seen to introduce significant errors even though, in the absence of stabilisation, the solution is fully converged on this mesh. The explanation for the strong effect of inconsistent stabilisation in the present problem is that classical SUPG stabilisation (implemented by including only term II into (19)) introduces artificial dissipation into the problem. This implies that, for a given velocity field, a larger pressure drop is required to drive the flow. In fluid–structure interaction problems, this can introduce large errors into the coupled solution since the wall deformation depends strongly on the fluid pressure. To assess the significance of this effect in the present problem, Fig. 13 shows the results of a steady computation in which the wall displacement field was prescribed (a sinusoidal indentation with a maximum inwards displacement of 0.5; the resulting degree of collapse is comparable to that in the most strongly collapsed configuration in Fig. 12). The lines show the two velocity components u1 and u2 and the pressure p, plotted along the line x2 1⁄4 0:4 (marked as the thick dashed line in the inset). The figure shows that the different versions of stabilisation have little effect on the velocity fields. However, the additional dissipation introduced by inconsistent stabilisation leads to a noticeable increase in the pressure drop along the ÔmembraneÕ. With SUPG stabilisation, the fluid pressure at the upstream end of the ÔmembraneÕ is Dp 1⁄4 14:6 higher than with consistent stabilisation (or without any stabilisation at all). If the wall was elastic, this increase in fluid pressure would reduce the degree of collapse.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 19
+
+
+Conversely, to maintain the same degree of collapse, the external pressure would have to be increased by an amount comparable to Dp. The fluid pressures (nondimensionalised on the viscous scale) and the external pressure (nondimensionalised on the elastic scale) are related by the parameter Q, via Dpext 1⁄4 Q Dp (see (5)). In the computations presented in Fig. 12, Q 1⁄4 10 2, so the increase in external pressure required to approximately compensate for the rise in fluid pressure is Dpext 1⁄4 0:146 which is comparable to (in fact, nearly twice as large as) the error in pext observed in Fig. 12(b) where Dpext 1⁄4 0:08 for Vctrl 1⁄4 0:35. This confirms that the effect of artificial dissipation introduced by inconsistent stabilisation is large enough to explain the differences observed in Fig. 12(b). In time-dependent simulations in which the external pressure is kept constant, the increase in dissipation constantly extracts energy from the system. Over sufficiently long timescales, this can lead to a significant change in the systemÕs behaviour. For instance, in the simulation shown in Fig. 12(d), the excessive dissipation causes the rapid decay of the oscillation. Given that in the present problem, stabilisation is only required for the multigrid preconditioning operations, it seems desirable to set sstab 1⁄4 0 on the finest mesh and use stabilisation (consistent or inconsistent) only for the auxiliary computations on the coarser meshes––following Gresho and LeeÕs maxim not to ‘‘suppress the wiggles’’ [40]. This approach can be implemented in two ways: (i) Set sstab 1⁄4 0 for all
+pext
+Vctrl
+1.3 1.4 1.5 1.6 1.7
+-0.3
+-0.2
+-0.1
+0
+hFEM = 1/4 hFEM = 1/8 hFEM = 1/12 hFEM = 1/16
+pext
+Vctrl
+1.4 1.5 1.6 1.7 1.8
+-0.3
+-0.2
+-0.1
+0
+no stabilisation fully consistent stabilisation stabilisation only with term II
+time
+Vctrl
+0 10 20 30 4 0
+-0.6
+-0.5
+-0.4
+-0.3
+-0.2
+-0.1
+0
+0.1
+0.2
+0.3
+hFEM =1/4 hFEM =1/8 hFEM =1/12 hFEM =1/16
+time
+Vctrl
+0 10 20 30 40
+-0.6
+-0.5
+-0.4
+-0.3
+-0.2
+-0.1
+0
+0.1
+0.2
+0.3
+no stabilisation fully consistent stabilisation stabilisation with terms II, III and IV stabilisation only with term II
+(a) (b)
+(c) (d)
+Fig. 12. Demonstration of the errors introduced by inconsistent stabilisation in steady ((a) and (b)) and unsteady ((c) and (d)) simulations at Re 1⁄4 500. (a) and (c) document the mesh convergence of the solutions in the absence of stabilisation; (b) and (d) demonstrate the effect of inconsistent stabilisation on the finest mesh. The parameter values are the same as in Section 4.
+20 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+computations on the finest mesh and use (18) to determine the stabilisation parameter for the coarser multigrid levels. (ii) Use (18) to determine the stabilisation parameter on all multigrid levels but set sstab 1⁄4 0 when computing the nonlinear residuals in the Newton method. Both methods ensure that the Newton method can only converge to the solution for sstab 1⁄4 0. However, numerical experiments showed that in case (i) the multigrid-preconditioned GMRES iteration fails to converge, indicating that the fine-grid problem with sstab 1⁄4 0 is poorly approximated by the coarse grid problems with sstab 61⁄4 0. With strategy (ii), the GMRES iterations converged but the Newton iteration stagnated, indicating again that the stabilisation terms still play an important role on the finest meshes. Finally, we mention that the above results are independent of the pressure nondimensionalisation––we observed exactly the same behaviour when the pressure was scaled on the inertial scale. We conclude that the preconditioning strategy proposed in this paper requires the use of consistent stabilisation on all multigrid levels.
+6. Summary
+We have developed an efficient preconditioning technique that allows the rapid iterative solution of the linear systems that arise in the fully coupled solution of steady and unsteady large-displacement fluid–structure interaction problems with NewtonÕs method. The preconditioners were derived from block-triangular approximations of the Jacobian matrix. While the direct use of these matrices in the Newton method leads to an unacceptable deterioration of its convergence rate, they provide efficient preconditioners for the iterative solution of the linear system by GMRES. The block-triangular structure of the approximate Jacobians makes it possible to perform the preconditioning operation in a sequence of sub-steps. To improve the overall efficiency of the method, we developed approximate versions of the preconditioners, by replacing the Navier–Stokes blocks by a global pressure Schur complement preconditioner, using ElmanÕs BFBt approximation [34] for the pressure Schur complement. Finally, we replaced the most computationally expensive operations by multigrid approximations.
+x1
+u1 and u2
+p
+012345
+0
+0.5
+1
+1.5
+2
+-400
+-200
+0
+200
+400
+600
+no stabilisation stabilisation only with term II fully consistent stabilisation
+x1
+x2
+012345
+0
+1
+p
+u2
+u1
+Fig. 13. The effect of inconsistent stabilisation on the velocities and pressures along the line x2 1⁄4 0:4 (indicated by the dashed line in the inset) in a steady simulation at Re 1⁄4 500. The wall shape is prescribed and the computation is performed on the finest mesh, hFEM 1⁄4 1=16.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 21
+
+
+In this form, the work involved in a single application of the preconditioner scales linearly with number of degrees of freedom in the problem. For steady problems, the mesh dependence of the iteration counts was found to be comparable to that observed in applications of the BFBt preconditioner in ÔpureÕ fluids problems and the iteration counts only displayed a weak dependence on the Reynolds number. In time-dependent problems, the convergence rates were generally much faster and displayed very little mesh dependence, though the iterations counts increased slightly with a reduction in the timestep.
+Acknowledgements
+Financial support from the EPSRC is gratefully acknowledged. The author wishes to thank David Silvester, Milan Mihajlovic and Andrew Hazel for many helpful and enjoyable discussions. The HSL library routine MA42 (a frontal solver for sparse, unsymmetric systems [30]) and the the GMRES solver from the CERFACS repository [41] were used in this work.
+References
+[1] C. Farhat, M. Lesoinne, Two efficient staggered algorithms for the serial and parallel solution of three-dimensional nonlinear transient aeroelastic problems, Comput. Methods Appl. Mech. Engrg. 182 (2000) 499–515. [2] K. Stein, R. Benney, T. Tezduyar, J. Potvin, Fluid–structure interactions of a cross parachute: numerical simulation, Comput. Methods Appl. Mech. Engrg. 191 (2001) 673–687. [3] F. Casadei, J.P. Halleux, A. Sala, F. Chille, Transient fluid–structure interaction algorithms for large industrial applications, Comput. Methods Appl. Mech. Engrg. 190 (2001) 3081–3110. [4] T. Charvet, F. Hauville, S. Huberson, Numerical simulation of the flow over sails in real sailing conditions, J. Wind Engrg. Indust. Aerodynam. 63 (1996) 111–129. [5] M. Heil, O.E. Jensen, Flows in deformable tubes and channels––theoretical models and biological applications, in: T.J. Pedley, P.W. Carpenter (Eds.), Flow in Collapsible Tubes and Past Other Highly Compliant Boundaries, Kluwer, Dordrecht, Netherlands, 2003, pp. 15–50. [6] J.D. Hart, G.W.M. Peters, P.J.G. Schreurs, F.P.T. Baaijens, A three-dimensional computational analysis of fluid–structure interaction in the aortic valve, J. Biomech. 36 (2003) 103–112. [7] R. Ohayon, C. Felippa, Special issue: Advances in computational methods for fluid–structure interaction and coupled problems, Comput. Methods Appl. Mech. Engrg. 190 (24–25) (2001). [8] M. Heil, Stokes flow in an elastic tube––a large-displacement fluid–structure interaction problem, Int. J. Numer. Methods Fluids 28 (1998) 243–265. [9] D.P. Mok, W.A. Wall, Partitioned analysis schemes for the transient interaction of incompressible flows and nonlinear flexible structures, in: W.A. Wall, K.-U. Bletzinger, K. Schweizerhof (Eds.), Trends in Computational Structural Mechanics, CIMNE, Barcelona, Spain, 2001. [10] C.A. Felippa, K.C. Park, C. Farhat, Partitioned analysis of coupled mechanical systems, Comput. Methods Appl. Mech. Engrg. 190 (2001) 3247–3270. [11] M. Heil, Finite Reynolds number effects in the propagation of an air finger into a liquid-filled flexible-walled channel, J. Fluid Mech. 424 (2000) 21–44. [12] M. Heil, J.P. White, Airway closure: surface-tension-driven non-axisymmetric instabilities of liquid-lined elastic rings, J. Fluid Mech. 462 (2002) 79–109. [13] A.L. Hazel, M. Heil, Three-dimensional airway reopening: the steady propagation of a semi-infinite bubble into a buckled elastic tube, J. Fluid Mech. 478 (2003) 47–70. [14] O.E. Jensen, M. Heil, High-frequency self-excited oscillations in a collapsible-channel flow, J. Fluid Mech. 481 (2003) 235–268. [15] A.L. Hazel, M. Heil, Steady finite Reynolds number flow in three-dimensional collapsible tubes, J. Fluid Mech. 486 (2003) 79–103. [16] G.A. Wempner, Mechanics of Solids with Applications to Thin Bodies, Sijthoff & Noordhoff, Alphen aan den Rijn, 1981. [17] F.K. Bogner, R.L. Fox, L.A. Schmit, A cylindrical shell discrete element, AIAA J. 5 (1967) 645–750. [18] M. Heil, T.J. Pedley, Large axisymmetric deformations of cylindrical shells conveying viscous flow, J. Fluids Struct. 9 (1995) 237256.
+22 M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23
+
+
+[19] H.E. Keller, Numerical solution of bifurcation and non-linear eigenvalue problems, in: P. Rabinowitz (Ed.), Applications of Bifurcation Theory, Academic Press, New York, 1977, pp. 359–383. [20] S.F. Kistler, L.E. Scriven, Coating flows, in: J. Pearson, S. Richardson (Eds.), Computational Analysis of Polymer Processing, Applied Science Publishers, London, 1983. [21] C. Taylor, P. Hood, A numerical solution of the Navier–Stokes equations using the finite element technique, Comput. Fluids 1 (1973) 73–100. [22] T.J.R. Hughes (Ed.), Finite Element Methods for Convection Dominated Flows, vol. 34 of AMD, ASME, New York, 1979. [23] T.E. Tezduyar, D.K. Ganjoo, Petrov–Galerkin formulations with weighting functions dependent on spatial and temporal discretizations: applications to transient convection–diffusion problems, Comput. Methods Appl. Mech. Engrg. 59 (1986) 49–71. [24] T.E. Tezduyar, Stabilized finite element formulations for incompressible flow computations, Adv. Appl. Mech. 28 (1992) 1–44. [25] T.E. Tezduyar, Y. Osawa, Finite element stabilisation parameters computed from element matrices and vectors, Comput. Methods Appl. Mech. Engrg. 190 (2000) 411–430. [26] B. Fischer, A. Ramage, D.J. Silvester, A.J. Wathen, On parameter choice and iterative convergence for stabilised discretisations of advection–diffusion problems, Comput. Methods Appl. Mech. Engrg. 179 (1999) 185–202. [27] A. Ramage, A multigrid preconditioner for stabilised discretisations of advection–diffusion problems, J. Comput. Appl. Math. 101 (1999) 187–203. [28] T.J.R. Hughes, A. Brooks, A multi-dimensional upwind scheme with no crosswind diffusion, in: T.J.R. Hughes (Ed.), Finite Element Methods for Convection Dominated Flows, vol. 34 of AMD, ASME, New York, 1979, pp. 19–35. [29] T.J. Pedley, K.D. Stephanoff, Flow along a channel with a time-dependent indentation in one wall: the generation of vorticity waves, J. Fluid Mech. 160 (1985) 337–367. [30] HSL 2000, A collection of Fortran codes for large scale scientific computation. Available from <http://www.numerical.rl.ac.uk>. [31] O. Ghattas, X. Li, A variational finite-element method for stationary nonlinear fluid–solid interaction, J. Comput. Phys. 121 (1995) 347–356. [32] C.T. Kelley, Iterative Methods for Linear and Nonlinear Equations, SIAM, Philadelphia, 1995. [33] S. Turek, Efficient Solvers for Incompressible Flow Problems––An Algorithmic and Computational Approach, Springer, Berlin, Heidelberg, New York, 1999. [34] H.C. Elman, Preconditioning the steady-state Navier–Stokes equations with low viscosity, SIAM J. Sci. Comput. 29 (1999) 12991316. [35] H.C. Elman, D.J. Silvester, A.J. Wathen, Finite Elements and Fast Iterative Solvers, Oxford University Press, Oxford, to appear in 2004. [36] J.W. Demmel, S.C. Eisenstat, J.R. Gilbert, X.S. Li, J.W.H.R. Liu, A supernodal approach to sparse partial pivoting, SIAM J. Matrix Anal. Appl. 20 (1999) 720–755. [37] W.L. Briggs, V.E. Henson, S.F. McCormick, A Multigrid Tutorial, second ed., SIAM, Philadelphia, 2000. [38] D.J. Silvester, personal communication, 2002. [39] R.S. Dembo, S.C. Eisenstat, T. Steilhaug, Inexact Newton methods, SIAM J. Numer. Anal. 19 (1982) 400–408. [40] P.M. Gresho, R.L. Lee, DonÕt suppress the wiggles––theyÕre telling you something, Comput. Fluids 9 (1981) 223–253. [41] V. Frayss, L. Giraud, S.G.J. Langou, A set of GMRES routines for real and complex arithmetics on high performance computers, CERFACS Technical Report TR/PA/03/3, Public domain software available on <www.cerfacs/algor/Softs>, 2002.
+M. Heil / Comput. Methods Appl. Mech. Engrg. 193 (2004) 1–23 23

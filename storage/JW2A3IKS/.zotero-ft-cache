@@ -1,0 +1,832 @@
+Added-mass effect in the design of partitioned algorithms for fluid–structure problems
+P. Causin a, J.F. Gerbeau a, F. Nobile b,*
+a INRIA Rocquencourt, Domaine de Voluceau, Rocquencourt B.P. 105, 78153 Le Chesnay Cedex, France b MOX, Dipartimento di Matematica, Politecnico di Milano, via Bonardi 9, 20133 Milano, Italy
+Received 23 January 2004; received in revised form 1 November 2004; accepted 2 December 2004
+Abstract
+The aim of this work is to provide a mathematical contribution to explain the numerical instabilities encountered under certain combinations of physical parameters in the simulation of fluid–structure interaction (FSI) when using loosely coupled time advancing schemes. It is also shown how the same combinations of parameters lead, in the case of strongly coupled schemes, to problems that demand a greater computational effort to be solved, requiring for example a high number of subiterations. The application that we have in mind is FSI simulation for blood flow in large human arteries, but the discussion applies as well to several FSI problems in which an incompressible fluid interacts with a thin elastic structure. To carry out the mathematical analysis, we consider a simplified model representing the interaction between a potential fluid and a linear elastic thin tube. Despite its simplicity, this model reproduces propagation phenomena and takes into account the added-mass effect of the fluid on the structure, which is known to be source of numerical difficulties. This allows to draw conclusions that apply to more realistic problems, as well. Ó 2005 Elsevier B.V. All rights reserved.
+Keywords: Fluid–structure interaction; Partitioned algorithms; Numerical stability; Blood flow simulation
+1. Introduction
+In this work we focus our attention on the numerical simulation of an incompressible fluid interacting with a thin elastic structure. The target application is the simulation of blood flow in large arteries, although the analysis presented here applies to a much wider class of fluid–structure interaction (FSI) problems.
+0045-7825/$ - see front matter Ó 2005 Elsevier B.V. All rights reserved. doi:10.1016/j.cma.2004.12.005
+* Corresponding author. E-mail address: fabio.nobile@mate.polimi.it (F. Nobile).
+Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+www.elsevier.com/locate/cma
+
+
+Among the most used numerical techniques in this context are the so-called ‘‘partitioned’’ time marching algorithms, which are based on subsequent solutions of the fluid and structure subproblems and allow one to reuse existing computational codes (see e.g. [22,21,18,5,4,11,13]). Although loosely coupled (explicit) algorithms are successfully used in aeroelasticity (see [5] and the references therein), it is common experience in other applications [20,10,17] that they feature instabilities under certain choices of the physical parameters, typically when the densities of the fluid and the structure are comparable or when the domain has a slender shape, irrespectively of the choice of the time step. Conversely, strongly coupled (implicit) algorithms feature convergence problems under the same conditions. These issues are still not well understood and, in particular, very few mathematical explanations and mathematically formulated stability or convergence conditions are available, so far, also because of the high complexity and non-linearity of FSI problems. The goal of this work is to provide a tool for the study of the stability and/or the convergence analysis of partitioned coupled algorithms, which is based on a ‘‘toy FSI model’’ that represents the interaction between a potential fluid and a linear elastic thin tube. We do not claim that this model is relevant to properly describe complex situations, like fluid–structure interaction in arteries since, for example, it does not include non-linearities and dissipation phenomena. Nevertheless, it retains important physical features common to more complex models: in particular, it reproduces propagation phenomena and takes into account the added-mass effect of the fluid on the structure, which is known to induce numerical difficulties [10]. This model problem is simple enough to perform mathematical and numerical studies but, at the same time, complex enough to mimic more realistic situations, at least in the case of incompressible fluids. As it will be shown in Sections 5 and 6, starting from this simple FSI model, we are able to derive stability and convergence conditions that are in excellent agreement with the numerical observations collected in much more complex situations. Moreover, this toy FSI model, and the type of analysis proposed in this paper, may be helpful also in devising new and, possibly, more efficient coupled algorithms. The work is organized as follows. In Section 2 we give some details on empirical observations and results concerning the stability of partitioned algorithms. In Section 3 we present the simplified fluid–structure model on which we are going to carry out our analysis. In Section 4 we introduce the functional setting and we present the FSI problem as a structure equation modified by the introduction of an added-mass operator that represents the effect of the fluid on the structure itself. In Sections 5 and 6 we consider different explicit and implicit schemes to advance in time the interface FSI problem and we propose mathematical criteria to individuate the range of values of the physical parameters leading to numerical instabilities. In Section 7 we briefly address the space discretization of the FSI problem and we present numerical results that validate the mathematical analysis of the preceding section. In Section 8 we use scaling arguments to reproduce and extend to a wider spectrum of situations, even if in a more qualitative way, the results of Sections 5 and 6. Conclusions are eventually drawn in Section 9.
+2. Motivations
+In order to motivate the main results of this article, we recall some empirical observations made on a basic FSI test case proposed in previous studies (see [6,7,17]). The goal of this test case is to simulate, in a very idealized framework, the mechanical interaction between blood and arterial wall. The geometry at rest is a cylinder. The fluid (see [12] for a comprehensive discussion on blood rheology) is described by the incompressible Navier–Stokes equations in Arbitrary Lagrangian Eulerian formulation. The structure is described either by a 1D generalized string model (for 2D simulations) or by a non-linear shell model in large displacements regime (for 3D simulations). An overpressure is applied at the inlet of the fluid for a short duration of time. Although the fluid is incompressible, there is a finite velocity propagation of the overpressure due the fluid–structure coupling. Fig. 1 shows the propagation phenomenon in 2D. The 3D
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4507
+
+
+case gives analogous results (see [7]). All the details regarding this test case can be found in the above cited references. We first tried explicit (or ‘‘loosely’’) coupled methods, i.e., roughly speaking, algorithms which do not ensure exact balance of energy, but which only require one fluid and one structure resolution per time step. It was observed that these algorithms exhibit numerical instabilities:
+(R1) for a given geometry, as soon as the density of the structure is lower than a certain threshold; (R2) for a given structure density, as soon as the length of the domain is greater than a certain threshold.
+We then tried ‘‘strongly’’ coupled methods, i.e., we ensure at each time step an exact balance of energy by sub-iterating several times between the fluid and the structure. When the subiterations consist of a relaxed fixed-point method, it was observed that an increasing amount of relaxation is needed when:
+(R3) the density of the structure decreases; (R4) the length of the domain increases.
+All the details concerning these observations (values of parameters, algorithms, experiments, etc.) can be found in [17, Chapter 4]. The fact that the numerical stability depends on the structure density has a clear physical interpretation. This is not the same for the dependence on the geometry, which is quite amazing: since the main physical phenomenon is a wave propagation with a finite velocity, it is surprising that the length of the domain modifies the stability of the algorithm (independently of the space and time steps). It is quite difficult to explain these observations on the original fully non-linear equations. That is why we propose in the next section a simplified model, which is simple enough to be analyzed in detail. This model is based on a linear, incompressible, inviscid model to describe the fluid dynamics. Obviously, such a model is not suited to properly describe the dynamics of blood in large arteries. Nevertheless, for a given coupling algorithm (implicit, explicit, relaxed, etc.), from the numerical stability viewpoint the simplified model displays a behavior analogous to the complete model. This fact is a clear indication that the main source of the instabilities mentioned earlier is indeed to be sought in the incompressibility of the fluid.
+Fig. 1. Propagation of a pressure wave in a portion of artery (2D), t = 6, 10 and 14 ms.
+4508 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+Moreover, the simplified model is also a good candidate for testing new approaches. As an example, we consider in Section 6.2 a possible alternative to the Dirichlet/Neumann iterations classically used in fluidstructure simulations.
+3. A simplified fluid–structure problem
+We consider a rectangular domain XF R2 whose boundary is split into C1
+F , C2
+F , C3
+F and R (see Fig. 2). The part R corresponds to the fluid–structure interface. In this simplified model, the domain XS occupied by the structure is such that XS 1⁄4 R. We set CF 1⁄4 C1
+F [ C2
+F . We denote by n the unit outward normal vector on oXF.
+3.1. The structural problem
+In the domain XS we use a structural model derived from the theory of linear elasticity for a cylindrical tube with small thickness, under the assumption of membrane deformations. The reference configuration is a cylindrical surface of base circle radius R that is supposed to move only radially, the longitudinal and angular displacements being neglected. Intersecting the cylindrical tube with the plane h 1⁄4 h we obtain the following generalized string model: find the displacement g = g(t, x) such that
+.shs
+o2g
+ot2 þ ag b o2g
+ox2 1⁄4 f in ð0; T Þ XS;
+g 1⁄4 0 on ð0; T Þ oXS;
+8<
+: ð1Þ
+where hs is the thickness of the structure and .s its mass per unit volume, a = Ehs/R2(1 m2), E being the YoungÕs modulus and m the Poisson coefficient, b = jTGhs, G being the shear stress modulus, jT the Timoshenko shear correction factor, and f the external forcing term coming from the fluid (whose expression will be made precise in the following). Eq. (1) must be supplied with initial conditions
+gð0; xÞ 1⁄4 g0ðxÞ; og
+ot ð0; xÞ 1⁄4 g_ 0ðxÞ in XS; ð2Þ
+and boundary conditions g(t, 0) = g(t, L) = 0, "t 2 (0, T).
+3.2. The fluid problem
+For the fluid, we use a linear incompressible inviscid model. Moreover, the deformation g of the structure is assumed to be very small, so that the fluid domain XF can be considered fixed. Thus, the fluid problem reads:
+Fig. 2. Schematic representation of the computational domain (the dashed line represents the symmetry axis).
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4509
+
+
+Find the fluid velocity u = u(t, x, y) and pressure p = p(t, x, y) such that
+.f
+ou
+ot þ rp 1⁄4 0 in ð0; T Þ XF ;
+div u 1⁄4 0 in ð0; T Þ XF ;
+p 1⁄4 pðtÞ on C1
+F [ C2
+F;
+u n 1⁄4 0 on C3
+F; u n 1⁄4 w on R;
+8>>>>>>><
+>>>>>>>:
+ð3Þ
+where .f is the fluid mass per unit volume and where p and w are given functions (we refer to Fig. 2 for the notations). System (3) may be conveniently reformulated as follows:
+Mp 1⁄4 0 in XF ;
+p 1⁄4 pðtÞ on C1
+F [ C2
+F;
+op
+on 1⁄4 0 on C3
+F;
+op
+on 1⁄4 .f
+ow
+ot on R:
+8>>>>>><
+>>>>>>:
+ð4Þ
+3.3. Fluid–structure interaction
+The fluid and structure systems are coupled by the following conditions
+u n 1⁄4 w 1⁄4 og
+ot on R;
+f 1⁄4 p on R:
+8<
+: ð5Þ
+The first equation is the kinematic compatibility condition, where we have used the geometrical assumption that XF does not change with time. The second condition in (5) transfers the pressure load from the fluid to the structure as a volume force, this being in the simplified model the only contribution coming from the fluid. Using (5)1, condition (4)4 may be conveniently written as
+op
+on 1⁄4 .f
+o2g
+ot2 on R: ð6Þ
+4. Mathematical preliminaries
+4.1. Functional setting
+We introduce the functional spaces
+V 1⁄4 H1
+0 ðXS Þ;
+Q 1⁄4 fq 2 H 1ðXF Þ; qjC1
+F [C2
+F 1⁄4 0g:
+We denote by (Æ , Æ) the L2(XF) or L2(XS) inner products and we define the bilinearforms:
+aF ðp; qÞ 1⁄4
+Z
+XF
+rp rq dx dy8p; q 2 H 1ðXF Þ;
+aSðg; nÞ 1⁄4
+Z
+XS
+agn dx þ
+Z
+XS
+b og
+ox
+on
+ox dx8g; n 2 H 1ðXSÞ.
+4510 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+In all this section, the Hilbert space V will be endowed with the scalar product defined by aS(Æ , Æ). We make the following regularity assumptions on the boundary data for the fluid
+p 2 Cð0; 1; H 1=2ðCF ÞÞ ð7Þ
+and on the initial data for the structure
+g0 2 V ; g_ 0 2 V : ð8Þ
+In the following, we will make use of the notation qR to indicate the restriction of the function q : XF ! R to the interface R. A variational formulation of the fluid–structure problem introduced in the previous section is: find ðp; gÞ 2 Cð0; 1; H 1ðXF ÞÞ Cð0; 1; V Þ such that (2) is satisfied, pðtÞjC1
+F [C2
+F 1⁄4 pðtÞ; 8t 2 ð0; 1Þ and for all
+(q, n) 2 Q · V:
+aF ðp; qÞ 1⁄4 .f
+Z
+R
+o2g
+ot2 q;
+.shs
+o2g
+ot2 ; n þ aSðg; nÞ 1⁄4 ðpjR; nÞ:
+8>>><
+>>>:
+ð9Þ
+In order to write problem (9) in a more compact form, some additional notation is needed. We introduce the following operators: for g, n 2 V, we define
+hLg; ni 1⁄4 aSðg; nÞ ð10Þ
+and for ‘ 2 L2(XS), we denote by T‘ the element of V such that
+hLðT ‘Þ; ni 1⁄4 ð‘; nÞ: ð11Þ
+Using the above definitions, the structure problem reads: find g such that
+.shs
+o2g
+ot2 þ Lg 1⁄4 pR: ð12Þ
+Next, for any w 2 H 1/2(R), we denote by Rw the element of Q solution of the following problem
+DRw 1⁄4 0 in XF ;
+Rw 1⁄4 0 on C1
+F [ C2
+F; oRw
+on 1⁄4 0 on C3
+F;
+oRw
+on 1⁄4 w on R:
+8>>>>>><
+>>>>>>:
+ð13Þ
+We define the operator MA : H 1=2ðRÞ ! H 1=2ðRÞ by
+MAw 1⁄4 RwjR: ð14Þ
+Note that, for w, v 2 L2(R),
+hMAw; vi 1⁄4 aF ðRw; RvÞ:
+We gather in the following proposition some standard results [3,8]:
+Proposition 1
+(1) The operator T : L2(XS) ! V is compact self-adjoint and positive on V. (2) The operator MA : H 1=2ðRÞ ! H 1=2ðRÞ is continuous. (3) The operator MA is compact, self-adjoint and positive on L2(R).
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4511
+
+
+Let us now introduce an arbitrary continuous extension operator EF : H 1=2ðCF Þ ! H 1ðXF Þ. By definition, for q 2 H 1=2ðCF Þ; EF qjCF 1⁄4 q and kEF qkH1ðXF Þ 6 CkqkH1=2ðCF Þ.
+We define p 2 Cð0; 1; H 1ðXF ÞÞ as the solution to
+Dp 1⁄4 MEF p in XF ;
+p 1⁄4 0 on C1
+F [ C2
+F;
+op
+on 1⁄4 oEF p
+on on C3
+F;
+op
+on 1⁄4 oEF p
+on on R:
+8>>>>>>>><
+>>>>>>>>:
+ð15Þ
+Using Eqs. (13) and (15), the solution to (4) is given by
+p 1⁄4 p þ EF p .f R o2g
+ot2 : ð16Þ
+Then, defining
+pext 1⁄4 p jR þ EF pjR; ð17Þ
+and using (14), we have
+pR 1⁄4 pext .f MA
+o2g
+ot2 : ð18Þ
+Let I denote the identity operator. Plugging (18) into (12), we see that (9) can be written in the following form: find g such that
+ð.shsI þ .f MAÞ o2g
+ot2 þ Lg 1⁄4 pext; ð19Þ
+the pressure in the fluid being given by (16). The following result holds.
+Proposition 2. Under assumptions (7) and (8) on the data, there exists a unique solution g 2 Cð1⁄20; 1Þ; V Þ to
+Eq. (19) satisfying the initial conditions (2). Moreover, og
+ot 2 Cð1⁄20; 1Þ; L2ðRÞÞ.
+Proof. This proposition is just a variant of a result proved in [8]. The main ingredient is to notice that the operator:
+A 1⁄4 T ð.shsI þ .f MAÞ
+is compact, self-adjoint and positive on V (endowed with the scalar product aS(Æ , Æ), which straightforwardly comes from Proposition 1 (recall (11)). Consequently, there exists a complete orthogonal sequence in V made by the eigenfunctions of A. The existence of the solution to (19) can then be obtained in a standard way, by using this basis in the Faedo–Galerkin method for example. h
+Remark 1. Eq. (19) looks like the structure equation (12) except for the extra operator .f MA in front of the second order time derivative. This operator represents the interaction of the fluid on the structure and acts as an extra mass (hence the name of ‘‘added-mass’’ effect). In particular, the presence of the fluid changes the natural vibration frequencies of the structure. We refer the interested reader to [9,14,15].
+4512 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+4.2. Spectrum of the added-mass operator
+In order to carry out the subsequent mathematical analysis, it is convenient to dispose of an estimate of the maximum eigenvalue of MA, that we will denote by lmax. Note that the inverse of lmax is the smallest eigenvalue of the standard Steklov-Poincar ́e operator [19]. Note also that lmax is a purely geometric quantity. When dealing with a generic geometry, a closed expression for lmax cannot be found. The procedure that can be followed then is the analysis proposed in [2] (see also [1]), adapted to a single subdomain problem. The indication provided by such an estimate is that the overall effect of an increase of the domain diameter is an increase of the largest eigenvalue of MA. Nevertheless, it may be difficult to sharply separate the effects of the increase of diameter from the effects of the increase of the aspect ratio. In the case of the simple geometry of Fig. 2, lmax can be computed analytically. To do this, we consider the following problem: Find u = u(x, y) such that
+Mu 1⁄4 0 in XF ; u 1⁄4 0 on C1
+F [ C2
+F; ou
+oy 1⁄4 0 on C3
+F;
+ou
+oy 1⁄4 g on R;
+8>>>>>><
+>>>>>>:
+ð20Þ
+where g = g(x) is a prescribed function such that g(0) = g(L) = 0. Expressing g as the superposition
+g1⁄4P
+kP1gk sinðkp
+L xÞ, allows us to obtain the solution to (20)
+uðx; yÞ 1⁄4 X
+kP1
+gk
+L
+kp sin kpx
+L
+ch kpy
+L sh kpR
+L
+:
+Recalling definition (14), we can write
+MAg 1⁄4 ujy1⁄4R 1⁄4 X
+kP1
+gk
+L
+kpth kpR
+L
+sin kpx
+L:
+Finding the eigenvalue ln, n = 1, 2, . . . , of MA associated to the eigenvector g 1⁄4 gn sinðnp
+L xÞ amounts to solving the eigenvalue problem
+MAg 1⁄4 lng;
+which yields
+ln 1⁄4 L
+npth npR
+L
+:
+The largest eigenvalue lmax, corresponding to n = 1, is thus
+lmax 1⁄4 L
+pth pR
+L
+: ð21Þ
+Fig. 3 (left) shows the value of lmax for different values of L and R.
+Remark 2. If we consider the more realistic axisymmetric model for the fluid flow, instead of a bidimensional one, the solution of problem (20) in a cylinder of radius R and length L is
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4513
+
+
+uðx; yÞ 1⁄4 X
+kP1
+gk
+L
+kp sin kpx
+L
+I0
+kpy L
+I0
+0
+kpR L
+;
+where I0 is the modified Bessel function I0ðyÞ 1⁄4 P1
+k1⁄40
+1
+ðk!Þ2 ðy
+2 Þ2k. Hence, the maximum eigenvalue is given by
+lmax 1⁄4
+LI 0
+pR L
+pI 0
+0
+pR L
+: ð22Þ
+Fig. 3 (right) shows the value of lmax for different values of L and R in the axisymmetric case. Observe that in the asymptotic regime when R/L ! 0, the maximum eigenvalue become
+lmax
+2L2 p2R
+which is twice as big as the maximum eigenvalue in the bidimensional case.
+5. Stability of explicit time-marching schemes
+We present in this section a stability analysis of an explicit time-marching scheme for the temporal discretization of the FSI problem presented in Section 3. The space discretization will be addressed in the next section. Moreover, for the sake of simplicity and under the scaling considerations presented in Section 8 for the problem at hand, we assume that the coefficient b in (1) is zero. The differential structural operator defined in (10) therefore reduces to Lg 1⁄4 ag. The results obtained in the next sections generalize easily to the case b 5 0. By explicit time marching schemes we mean time discretization algorithms of the coupled FSI problem (1)–(3) and (5) that allow to solve only once (or just a few times) the fluid and the structure equations within each time step. They can be typically obtained by combining an explicit algorithm for one of the subsystems (either fluid or structure) with an implicit one for the other subsystem. Our goal is to show that those kind of algorithms might be unconditionally unstable in certain cases, depending on the relative mass density of the structure and the fluid and on some geometric properties of the domain.
+0 5 10 15 20 25
+0
+50
+100
+150
+200
+250 R=.25
+R=.5
+R=1
+R=2
+L
+μ max
+0 5 10 15 20 25
+0
+50
+100
+150
+200
+250
+300
+350
+400
+450
+500
+L
+μ max
+R=.25
+R=.5
+R=1
+R=2
+Fig. 3. Largest eigenvalue of MA as a function of the domain length L and height R. On the left, bidimensional case (formula (21)); on the right, axisymmetric case (formula (22)).
+4514 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+As a prototype of an explicit algorithm, we consider the one obtained by employing a Leap-Frog scheme for the structure and an Implicit Euler scheme for the fluid (LF-IE scheme). Denoting by dt the time step, the time-discrete system that we consider is the following:
+.f
+un un 1
+dt þ rpn 1⁄4 0 in XF ;
+div un 1⁄4 0 in XF ; pn 1⁄4 pðtnÞ on C1
+F [ C2
+F; un n 1⁄4 0 on C3
+F;
+8>>>><
+>>>>:
+ð23Þ
+and
+un n 1⁄4 gn gn 1
+dt on R; ð24Þ
+.shs
+gnþ1 2gn þ gn 1
+dt2 þ agn 1⁄4 pn in XS: ð25Þ
+Observe that, given the wall displacement gn at time tn, the fluid equation (23) with boundary condition (24) allows to compute the fluid velocity un and pressure pn. With the latter, we can now solve the structure equation (25) and get the new wall displacement gn+1 at time tn+1. Hence, this coupling algorithm is explicit. We now analyze its stability. We proceed as in Section 4.1 and we reduce the coupled problem to a single structure equation with added-mass. We have: Dpn 1⁄4 0 in X; opn
+on 1⁄4 .f
+ðun un 1Þ n
+dt 1⁄4 .f
+gn 2gn 1 þ gn 2
+dt2 on R;
+opn
+on 1⁄4 0 on C3
+F;
+pn 1⁄4 pðtnÞ on CF :
+8>>>>>><
+>>>>>>:
+Hence, with the notation introduced in (17), we have
+pnjR 1⁄4 pn
+ext .f MA
+gn 2gn 1 þ gn 2
+dt2 ;
+and
+.shs
+gnþ1 2gn þ gn 1
+dt2 þ .f MA
+gn 2gn 1 þ gn 2
+dt2 þ agn 1⁄4 pn
+ext on XS: ð26Þ
+The following result holds.
+Proposition 3. Let lmax be the largest eigenvalue of the operator MA. Then, the scheme (26), and hence the coupled explicit algorithm (23)–(25), is unconditionally unstable if
+.shs
+.f lmax
+< 1: ð27Þ
+Proof. From the compactness of the operator MA (see Proposition 1), we know that there exists an orthonormal Hilbert basis of L2(R), made of eigenvectors {zi} of MA. We thus expand the solution g and the right-hand
+side pext on this basis: gn 1⁄4 P
+ign
+i zi and pn
+ext 1⁄4 P
+iðpn
+extÞizi. Each Fourier coefficient gi of the solution satisfies
+.shs
+gnþ1
+i 2gn
+i þ gn 1
+i
+dt2 þ .f li
+gn
+i 2gn 1
+i þ gn 2
+i
+dt2 þ agn
+i 1⁄4 ðpn
+extÞi;
+li being the eigenvalue associated to zi.
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4515
+
+
+By direct calculation, the characteristic polynomial vðsÞ 2 P3 of the previous difference equation satisfies:
+vð 1Þ 1⁄4 1 and vð 1Þ 1⁄4 a þ 4
+dt2 ð.f li .shsÞ: ð28Þ
+It follows that, if .fli > .shs for some i, then v( 1) > 0 and there exists a root s* of v(s) such that s* < 1. In particular, we can conclude that, if .flmax > .shs, the difference equation (26) is unstable irrespectively of the time step. h
+Remark 3. Observe that the ‘‘ instability’’ condition (27) confirms empirical observations (R1) and (R2) of Section 2. Indeed, this condition is more and more restrictive as .shs/.f decreases and as lmax increases, the connection of the latter with the geometry being shown in (21). Namely, the more XF becomes a slender geometry (that is when, for a fixed radius R, L increases or when, for a fixed length L, R decreases), the larger lmax becomes (see also Fig. 3).
+Remark 4. In view of (28), it appears that even when .shs/.flmax > 1 (that is when, for example, the structure is much denser than the fluid), instabilities may occur if the positive parameter a is large enough (e.g., when the structure is characterized by a large YoungÕs modulus). Nevertheless, in such a case, the scheme can be stabilized by suitably decreasing the time step. This situation will be addressed more in detail in Section 8.
+6. Implicit time-marching schemes
+Proposition 3 suggests that explicit coupling algorithms might not work for fluid–structure interaction problems in certain conditions. An obvious remedy consists in switching to implicit couplings. As a prototype of implicit coupling algorithms we choose here the one obtained by combining the Implicit Euler scheme for the fluid with the first order backward difference scheme for the structure (IE-BDF scheme). The time-discrete problem reads:
+.f
+unþ1 un
+dt þ rpnþ1 1⁄4 0 in XF ;
+div unþ1 1⁄4 0 in XF ;
+pnþ1 1⁄4 pðtnþ1Þ on C1
+F [ C2
+F; unþ1 n 1⁄4 0 on C3
+F;
+8>>>>><
+>>>>>:
+ð29Þ
+unþ1 n 1⁄4 gnþ1 gn
+dt on R; ð30Þ
+.shs
+gnþ1 2gn þ gn 1
+dt2 þ agnþ1 1⁄4 pnþ1 on XS: ð31Þ
+This problem corresponds to the following discrete added-mass problem for the structure
+ð.shs þ .f MAÞ gnþ1 2gn þ gn 1
+dt2 þ agnþ1 1⁄4 pnþ1
+ext in XS: ð32Þ
+It is straightforward to show that problem (32), and hence the coupled problem (29)–(31), is stable for any choice of the time step dt. In this simple example, at each time step, the coupled problem (29)–(31) turns into a linear system in the unknowns (un+1,pn+1,gn+1) (after spatial discretization) and can be assembled and solved quite easily. Yet, in
+4516 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+more realistic (and complex) situations, the problem might be non-linear (non-linearities in the fluid and/or structure equations and possibly large displacements of the structure). Then, in order to solve (29)–(31) at each time step, it is often convenient to consider iterative methods; this approach allows one to decouple the fluid from the structure step and, ultimately, to use already available computer codes. In the next two subsections we will analyze two possible iterative methods that we will call Dirichlet/Neumann and Neumann/Dirichlet, borrowing the terminology from corresponding Domain Decomposition algorithms [19]. By Dirichlet/Neumann (D–N) method we mean that at each iteration we solve the fluid equations with respect to primitive variables (u,p) subject to Dirichlet boundary conditions at the interface (imposed displacements or velocities) and the structure equations subject to Neumann boundary conditions (imposed loads). The Neumann/Dirichlet (N–D) method is carried out with a procedure dual to the one above described.
+6.1. Dirichlet/Neumann subiterations
+At each time step, we use the following algorithm to solve (29)–(31) Given an initial guess gnþ1
+0 , we solve for each k = 1, 2, . . .
+1. Fluid step: find (uk, pk) s.t.
+.f
+uk un
+dt þ rpk 1⁄4 0 in XF ;
+div uk 1⁄4 0 in XF ; pk 1⁄4 pðtnþ1Þ on C1
+F [ C2
+F; uk n 1⁄4 0 on C3
+F;
+uk n 1⁄4 gk 1 gn
+dt on R:
+8>>>>>>><
+>>>>>>>:
+2. Structure step: find ~gk s.t.
+.shs
+~gk 2gn þ gn 1
+dt2 þ a~gk 1⁄4 pk in XS:
+3. Relaxation step:
+gk 1⁄4 x~gk þ ð1 xÞgk 1:
+4. Convergence test: • if kgk gk 1k < tol then set gn+1 = gk, un+1 = uk and pn+1 = pk • else set k = k + 1 and go to step 1.
+We can eliminate the unknowns uk and pk, using the same technique employed before. We obtain in this case:
+pR;k 1⁄4 .f MA
+gk 1 2gn þ gn 1
+dt2 þ pnþ1
+ext :
+Keeping in mind that ~gk 1⁄4 gk
+x
+1x
+x gk 1, the previous algorithm corresponds to the following iterative method to solve the added-mass problem (32):
+.shs dt2
+gk
+x 2gn þ gn 1 þ a gk
+x1⁄41 x
+x
+.shs
+dt2 þ a gk 1
+.f MA
+gk 1 2gn þ gn 1
+dt2 þ pnþ1
+ext ; k 1⁄4 1; 2; . . .
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4517
+
+
+or, equivalently, the fixed-point iteration
+1 x
+.shs
+dt2 þ a gk 1⁄4 1 x
+x
+.shs
+dt2 þ a .f MA
+dt2 gk 1 þ gðgn; gnþ1; pnþ1
+ext Þ: ð33Þ
+Concerning the convergence of the fixed point iteration (33), we state the following.
+Proposition 4. The D–N iterative method converges to the solution to (29)–(31) if and only if
+0 < x < 2ð.shs þ adt2Þ
+.shs þ .f lmax þ adt2 : ð34Þ
+Proof. The solution gn+1 to (29)–(31) is the fixed point of the iterative method (33) and a necessary and sufficient condition for the convergence of the latter is
+ð1 xÞð.shs þ adt2Þ x.f li
+.shs þ adt2 < 1:
+A straightforward calculation leads to (34). h
+Remark 5. This result confirms the empirical observations (R3) and (R4) of Section 2 (see also Remark 3).
+Remark 6. In the limit dt ! 0, condition (34) reads
+0<x< 2
+1 þ .f lmax=ð.shsÞ :
+Observe that, in this case, whenever the explicit algorithm diverges (.flmax > .shs), the D–N iterative method needs a relaxation parameter strictly smaller than 1 to converge.
+6.2. Neumann/Dirichlet subiterations
+The aim of this section is to investigate a possible alternative to the standard Dirichlet/Neumann iterations. We consider the following scheme: Given an initial guess gnþ1
+0 , we solve for each k = 1, 2, . . .
+1. Structure step: compute the load /k s.t.
+/k 1⁄4 .shs
+gk 1 2gn þ gn 1
+dt2 þ agk 1 pnþ1
+ext in XS :
+2. Fluid step: find (uk, pk) s.t.
+.f
+uk un
+dt þ rpk 1⁄4 0 in XF ;
+div uk 1⁄4 0 in XF ;
+pk 1⁄4 pðtnþ1Þ on C1
+F [ C2
+F;
+uk n 1⁄4 0 on C3
+F;
+pk 1⁄4 /k on R:
+8>>>>>>>><
+>>>>>>>>:
+4518 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+3. Update structure: find ~gk s.t.
+~gk 1⁄4 dtuk n þ gn in XS:
+4. Relaxation step:
+gk 1⁄4 x~gk þ ð1 xÞgk 1:
+5. Convergence test: • if kgk gk 1k < tol then set gn+1 = gk, un+1 = uk and pn+1 = pk • else set k = k + 1 and go to step 1.
+After elimination of uk we have:
+M1
+A /k 1⁄4 opk
+on 1⁄4 .f
+ðuk unÞ n
+dt 1⁄4 .f
+~gk 2gn þ gn 1
+dt2 in XS;
+and
+.f MA dt2
+gk
+x 2gn þ gn 1 1⁄4 .f MA
+dt2
+ð1 xÞ
+x gk 1 .shs
+gk 1 2gn þ gn 1
+dt2 agk 1 þ pnþ1
+ext ; k 1⁄4 1; 2; . . .
+or, equivalently, as the fixed-point method
+.f MA
+xdt2 gk 1⁄4 ð1 xÞ
+x
+.f MA dt2
+.shs
+dt2 a gk 1 þ gðgn; gnþ1; pnþ1
+ext Þ: ð35Þ
+Concerning the convergence of the fixed-point iteration (35), the following result holds.
+Proposition 5. The N–D iterative method converges to the solution to (29)–(31) if and only if, for all i = 1, 2, . . . ,
+0 < x < 2.f
+.f þ ð.shs þ adt2Þ=li
+ð36Þ
+Proof. The solution gn+1 to (29)–(31) is the fixed point of the iterative method (35) and a necessary and sufficient condition for the convergence of the latter is
+ð1 xÞ.f li xð.shs þ adt2Þ
+.f li
+< 1:
+A straightforward calculation leads to (36). h
+Remark 7. Notice that, at the continuous level, the infimum of the eigenvalues of MA is zero. At the discrete level, lh
+min 1⁄4 OðhÞ, where h denotes the space discretization parameter (see [19,2]). Thus, the above result shows that the relaxation parameter x for Neumann/Dirichlet iterations tends to zero with the space discretization parameter h. Therefore, such an algorithm seems not to be of practical use.
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4519
+
+
+7. Numerical results
+In the following we present a series of numerical tests carried out on a code implementing the toy FSI problem and using the different time-marching schemes discussed in the previous sections. The aim of these tests is to provide a numerical validation of the above theoretical results. Before presenting the results, we need to introduce some further notation.
+7.1. Space discretization
+Here we consider the space discretization of the fluid problem (4) written in terms of the pressure only. The space discretization of problem (3) in velocity and pressure would lead to analogous results. Let Th be a regular triangulation of XF made of quadrilaterals (denoted by K) and Jh be a partition of Xs made of intervals (denoted by J), conforming to the nodes of Th lying on R. For ease of presentation, we can suppose Th to be a regular Cartesian mesh such that its trace on R is made of equally spaced intervals. Moreover, we introduce the discrete spaces
+Qh 1⁄4 fqh 2 Q; qhjK 2 Q1ðKÞ; 8K 2 Thg;
+V h 1⁄4 fnh 2 V ; nhjJ 2 P1ðJ Þ; 8J 2 Jhg: ð37Þ
+Let us denote by NS = dim(Vh) the number of structure nodes internal to Xs and by NF = dim(Qh) the number of fluid nodes internal to XF or lying on R. Denoting by A the fluid stiffness matrix, we have that the discrete fluid problem reads
+AP 1⁄4 F ; ð38Þ
+where P is the vector of the nodal values of ph. We can reorder the fluid nodes such that the internal ones come first, i.e., I = {1, 2, . . .,NF NS} and R = {NF NS + 1, NF}. We indicate by PI the vector of the first NF NS pressure values (pressure values at the interior of the fluid domain) and with PR the remaining NS boundary pressure values (pressure values on the fluid–structure interface). The above decomposition in internal and interface nodes reads
+AII AIR
+ARI ARR
+PI
+PR
+1⁄4 FI
+FR
+; ð39Þ
+where FI accounts for the external pressure at the entrance of the fluid domain and FR is the discrete counterpart of the boundary term .f
+R
+R
+o2 g
+ot2 q ds. Eliminating now the internal unknowns in favor of the interface ones and solving the resulting equation, yields the expression
+P R 1⁄4 M AðF R ARI A 1
+II F I Þ; ð40Þ
+where M A 1⁄4 ðARR ARI A 1
+II AIRÞ 1 is the discrete counterpart of the added-mass operator. Denoting by MS and KS the structure mass and stiffness matrices, respectively, the discrete structure problem reads
+.shsM S €D þ ðbKS þ aM SÞD 1⁄4 M SP R; ð41Þ
+where D is the vector of the nodal values of gh. Using (40) and observing that F R 1⁄4 .f MS €D, we eventually end up with the following discrete interface problem of dimension NS
+ð.shsM S þ .f M SM AM SÞD€ þ ðbKS þ aM SÞD 1⁄4 M SM AðARI A 1
+II F I Þ: ð42Þ
+We now apply to (42) the time discretization schemes discussed in the previous sections. The numerical tests are performed using geometrical and physical parameters pertinent to the case of blood flow in large arteries (see Table 5).
+4520 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+7.2. LF-EI time advancing scheme
+Referring to the domain of Fig. 2, we set R = 1 cm and L = 6 cm and we take hs = 0.1 cm, .f = 1 g/cm3,
+E = 0.75 · 106 dynes/cm2, m = 0.5. We first consider the behaviour of the numerical scheme by taking b = 0, that is by neglecting the diffusive terms, as done in the mathematical analysis. The fluid is initially at rest and an over-pressure of 2 · 104 dynes/cm2 (’15 mmHg) is imposed at the inlet for a duration of 0.005 s. A discretization step hx = 0.15 cm in the x direction is considered. Evaluating the numerical value of lmax, the
+limiting value of the structure density given by (27) turns out to be (hs.s)lim ’ 3.98 g/cm2. We observe the behavior of scheme (26) in the time interval [0, Tmax = 3 s] for different values of the structure surface density hs.s, ranging from below to above the theoretical limiting value. The experimental results are collected in Table 1. In the greatest part of the situations, the instability occurs fairly before reaching Tmax, and the smaller the structural density is (below the critical value) the sooner this phenomenon manifests. We also observe a slight dependence on the time step, and namely instability is reached earlier adopting a coarser time step. This effect is expected from the result of Proposition 3. The same behavior displayed in Table 1 is observed when hx is varied (for example halved or doubled). Varying in turn L, while keeping R fixed, leads to analogous results, confirming that explicit numerical simulations of slender fluid–structure systems suffer from a more stringent lower limit for the structure surface density than bulky fluid–structure systems. Namely, in the case L = 2 cm we find (hs.s)lim ’ 0.7 g/cm2, while
+for L = 10 cm we find (hs.s)lim ’ 10.46 g/cm2.
+Remark 8. The numerical tests are pretty adherent to Proposition 3. In particular, they confirm the influence of geometry and density ratio on the stability of explicit schemes. Moreover, it must be observed that the value .s,lim corresponding to L = 6 is considerably greater than the physiological arterial wall density (see also Table 5).
+Remark 9. The results of Table 1 are very close to those in [17, Table 4.1, p. 145], which correspond to the full non-linear problem mentioned in Section 2, with the same choice of parameters. This is a strong confirmation that the reduced model investigated in this paper captures the main source of instability appearing in the non-linear FSI problem of interest in hemodynamics.
+In order to show that the above results are substantially not influenced by the presence of the second order operator, we carry out some numerical tests with different values of the parameter jTG expressed
+in [dynes/cm2] (the physiological value in blood flows corresponds to the central column). The results are shown in Table 2 and are obtained using dt = 10 4 and L = 6, the other parameters being chosen as above.
+Table 1 Behavior of the LF-EI numerical scheme for different values of the structure density in the neighborhood of the value (hs.s)lim = 3.98 g/cm2
+hs.s (g/cm2) dt = 10 3 s dt = 10 4 s dt = 10 5 s
+4.5 Stable Stable Stable 4.2 4.0 Unstable 3.98 3.97 Unstable Unstable 3.96 3.95 3.85
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4521
+
+
+7.3. Dirichlet–Neumann subiterations
+We present the results of the numerical tests conducted using the iterative scheme presented in Section 6.1. Considering again the geometry and the discretization parameters of Section 7.2, we set hs.s = 3.0
+g/cm2, this value being well already in the domain of instability for the LF-EI scheme. From (34), we compute the upper limit value for the acceleration parameter xlim = [0.922, 0.861, 0.8603] for the fixed point
+method, using dt = [10 3, 10 4, 10 5] s, respectively. We set to 2000 the maximum number of iterations allowed to satisfy the convergence test kgk gk 1k < 1e 6. The experimental results are collected in Table 3. The results are pretty in agreement with (34). An analogous behavior is observed for different values of the discretization parameter hx and for different values of .s.
+7.4. Neumann/Dirichlet subiterations
+Finally, we present the results of the numerical tests conducted using the procedure (35). Again, we consider the same domain and the same physical parameters as before. Setting hs.s = 3.0 g/cm2 and using space steps hx = [L/20, L/40, L/60] from (36) we find that xlim = [0.0459, 0.0221, 0.0135], respectively. In Table 4 we
+show the results obtained with a time step dt = 10 4 s and kgk gk 1k < 1e 6 (max number of iterations is 2000). In particular, we find confirmation of the fact that in this case x = x(h), this implying that in the limit h ! 0, x must also tend to zero! We also observe that, in order to observe the onset of instability as
+Table 2 Behavior of the LF-EI numerical scheme for different values of the structure density in presence of a second order operator
+hs.s (g/cm2) jtG = 2.5 · 104 jtG = 2.5 · 105 jtG = 2.5 · 106
+4.5 Stable Stable Stable 4.2 4.0 3.98 3.97 Unstable Unstable Unstable 3.96 3.95 3.85
+Table 3 Behavior of the iterative scheme (33) for different values of the acceleration parameter x in the neighborhood of the limit xlim = [0.922,0.861,0.8603]
+x dt = 10 3 s dt = 10 4 s dt = 10 5 s
+0.75 Stable Stable Stable 0.8 0.85 0.86 Unstable Unstable 0.87 0.88 0.89 0.91 0.922 Unstable 0.93 0.91
+4522 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+prescribed by the theoretical results, in some cases it should be necessary to integrate for a time interval longer than Tmax = 3 s. For coherence with the previous results, we limit our analysis to this latter value.
+8. Characterization of the numerical properties of partitioned schemes through dimensional analysis
+The analysis carried out in the preceding sections shows the dependence of the numerical stability of the solution of the added-mass problem on the values of the physical parameters. To highlight this fact, another possible way to proceed is proposed in [16,10], where scaling arguments are used to provide indications about the influence of the physical parameters. This analysis applies to the linear case. In the present section we will pursue a similar approach: this will allow us to put the results of the present discussion in the frame of [16,10], hence considering also the presence of the diffusive term in the structure equation. Differently from [16,10], in the present analysis inertial terms in the structure wonÕt be neglected. At the same time, we observe that the results of this section are more qualitative than the ones obtained in the preceding sections; in particular, they show the influence of the physical parameters, but they donÕt provide a precise information on the influence of geometric parameters, contrary to the analysis of Section 4. We introduce the characteristic length and velocity scales Lm,Um and we define the following non-dimensional quantities
+ð~x; y~; z~ÞT 1⁄4 ðx; y; zÞT
+Lm
+; ~u 1⁄4 u
+Um
+; ~g 1⁄4 g
+Lm
+and
+dt 1⁄4 U m
+Lm
+dt; p~ 1⁄4 p
+.F U 2
+m
+:
+Table 4 Behavior of the Neumann–Dirichlet scheme as the spatial discretization parameter tends to zero
+x hx = L/20 hx = L/40 hx = L/60
+0.058 Unstable Unstable Unstable 0.057 0.056 0.055 0.05 Stable 0.0459 0.03 0.025 0.02445 0.023 Stable 0.0221 0.0215 0.02 0.014 0.0139 0.0137 0.0135 Stable 0.0130 0.0125
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4523
+
+
+In the case of blood flow in large arteries in a human body, pertinent characteristic parameters are reported in Table 5. From the time discretized form of Eq. (18)
+pR 1⁄4 .f MA
+g
+dt2 þ g; ð43Þ
+where g groups the forcing term pext and the terms coming form the previous time steps, we have that the adimensional added-mass operator reads
+f MA 1⁄4 MA
+Lm
+and MA
+g
+dt2 1⁄4 U 2
+m
+dt2 f MA~g: ð44Þ
+The time discretized structure equation reads
+SSg 1⁄4 .shs
+dt2 I þ L g 1⁄4 pR; ð45Þ
+where we have introduced the symmetric and positive operator SS, for which we propose the following scaling
+SeS~g 1⁄4 dt2Lm
+.shsU 2
+m
+SSg 1⁄4 ~g dt2kT G
+.sU 2
+m
+o2~g
+oz~2 þ dt2EL2
+m
+R2ð1 m2Þ.sU 2
+m
+~g: ð46Þ
+The operator SeS is now independent from the structure density, depending only on the geometrical parameters of the domain.
+Remark 10. We observe that, with the present model, the ratio k1 1⁄4 dt2kT G
+.sU 2
+m
+1⁄4 dt2kT G
+.s L2
+m
+measures the relative
+influence of the elastic shear terms and of the inertial terms, while the ratio k2 1⁄4 dt2EL2
+m
+R2ð1 m2Þ.sU 2
+m
+1⁄4 dt2E
+R2ð1 m2Þ.s
+measures the relative influence of the elastic stiffness terms and of the inertial terms. For a given time step dt, say dt = 10 4 s, and considering the data of Table 5, we have that both k1 and k2 are bounded quantities inferior to the unity.
+If we now gather (44)–(46), we obtain the adimensional form of the FSI problem
+Se~g 1⁄4 SeS þ .f Lm
+.shs
+f MA ~g 1⁄4 fF: ð47Þ
+where fF accounts for known terms.
+Table 5 Physical parameter values for blood flow in large arteries in human body
+Parameter Value
+Reference length: Lm 6 cm Reference radius: R 0.5 cm Mean velocity: Um 10 cm/s Blood density: .f 1 g/cm3 Wall density: .s 1.1 g/cm3 Wall thickness: hs 0.1 cm Shear modulus: kTG 2.5 · 105 dynes/cm2 Young modulus: E 0.75 · 106 dynes/cm2 Poisson coefficient: m 0.5
+4524 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+Problem (47) is approximated in finite dimension by
+Seh~gh 1⁄4 Seh
+S þ .f Lm
+.shs
+f Mh
+A ~gh 1⁄4 f Fh; ð48Þ
+where the operator Seh is symmetric and positive definite. The iterative fixed point method (33), introduced in Section 6.1, reads in this context (for simplicity, we omit the h superscript): Given ~gk; k P 0, compute
+d~g 1⁄4 Se 1
+S f F .f Lm
+.s hs
+Se 1
+S f MA~gk;
+~gkþ1 1⁄4 ð1 xÞ~gk þ xd~g;
+(
+ð49Þ
+that is
+~gkþ1 1⁄4 xSe 1
+S fF þ 1⁄2Id xP ~gk; ð50Þ
+where we have set
+P 1⁄4 Se 1
+S Se 1⁄4 Id þ .f Lm
+.shs
+Se 1
+S f MA :
+The choice x = 1 means adopting a non-relaxed fixed-point algorithm to solve the coupled problem.
+As, in general, the matrix P is not symmetric, it is convenient to perform the substitution gb 1⁄4 Se1=2
+S ~g; this procedure leads to the form
+bgkþ1 1⁄4 xSe 1=2
+S fF þ I d x Id þ .f Lm
+.shs
+Se 1=2
+S f MA Se 1=2
+S gbk; ð51Þ
+that corresponds to applying the gradient algorithm with fixed acceleration parameter to the symmetric positive definite operator
+Pb 1⁄4 Id þ .f Lm
+.shs
+Se 1=2
+S f MA Se 1=2
+S:
+Denoting by ðAÞmax the extremal eigenvalues of the operator A, a necessary and sufficient condition (see [19], p. 38) for the convergence of the fixed point method with constant acceleration parameter x is the following
+Proposition 6. The fixed point algorithm (49) converges linearly toward the solution of the linearized implicit coupled problem at time tn+1 if and only if
+0 < x < 2.shs=.f Lm
+qshs
+qf Lm
+Id þ Se 1=2
+S f MA Se 1=2
+S
+!
+max
+: ð52Þ
+Remark 11. The term Se 1=2
+S f MA Se 1=2
+S is independent of the physical parameters. Thus, any variation of these only acts on the numerator and on the first term of the denominator. Due to the adimensionalization
+procedure we can consider ðSe 1=2
+S f MA Se 1=2
+S Þmax as being O(1). Then, a fixed point algorithm applied to the solution of the coupled system requires to use a smaller value of the relaxation parameter as the density of the fluid approaches the density of the structure, this limitation being independent of the time step. This qualitative result is in agreement with the analysis carried out in Section 6.1.
+The above procedure allows as well to see what happens if we were instead in the case of dominant stiffness terms in the structure, that is if k2 1. To do this, we should change the scaling and in particular we
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4525
+
+
+need to introduce a characteristic stiffness Em = E. We perform accordingly the scaling of the structure operator, yielding
+SSg 1⁄4 EmL2
+m
+R2ð1 m2Þ
+SeS eg ð53Þ
+and thus
+Se~g 1⁄4 SeS þ .f U 2
+mR2ð1 m2Þ
+dt2EmL2
+m
+f MA
+!
+~g 1⁄4 f F: ð54Þ
+The operator SeS, now, is independent of the structure stiffness, depending only on the geometrical parameters of the domain. Proceeding analogously as before, we may write the following relaxed fixed point method: Given ~gk, k P 0, compute
+d~g 1⁄4 Se 1
+S fF .f U 2
+mR2ð1 m2Þ
+dt2EmL2
+m
+Se 1
+S f MA~gk;
+~gkþ1 1⁄4 ð1 xÞ~gk þ xd~g;
+8><
+>: ð55Þ
+that is
+~gkþ1 1⁄4 xSe 1
+S fF þ 1⁄2Id xP ~gk; ð56Þ
+where we have set
+P 1⁄4 Se 1
+S Se 1⁄4 Id þ .f U 2
+mR2ð1 m2Þ
+dt2EmL2
+m
+Se 1
+S f MA
+"#
+:
+Operating again the change of variables bg 1⁄4 Se1=2
+S ~g, such that the corresponding operator gb is symmetric and positive definite, we have that the following proposition holds.
+Proposition 7. The fixed point algorithm (55) converges linearly toward the solution of the linearized implicit coupled problem at time tn+1 if and only if
+0<x<
+2 dt2EmLm
+qf U 2
+mR2ð1 m2Þ
+dt2EmLm
+qf U 2
+mR2ð1 m2Þ Id þ Se 1=2
+S Me A Se 1=2
+S
+!
+max
+: ð57Þ
+Remark 12. This result is analogous to what found in [16,10]. Using the same considerations as in Remark 11, we find that in this case a fixed point algorithm requires a smaller relaxation parameter for a soft structure or for a small time step (Emdt2 small) or again as the fluid density increases.
+9. Conclusions
+In this work we have presented a mathematical contribution to explain the numerical instabilities encountered using time-partitioned schemes in presence of certain combinations of physical and geometrical parameters in the simulation of a class of fluid–structure interaction problems. Our target application is
+4526 P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527
+
+
+the simulation of blood flow in large human arteries, but the discussion applies as well to FSI problems encountered in other applications in which an incompressible fluid interacts with a thin elastic structure. These kind of numerical instabilities seem to arise specifically in the context of incompressible fluid models. Thus, this aspect plays a crucial role in devising stable and efficient coupling schemes for these class of problems and it deserves future investigation.
+Acknowledgement
+This work has been partially supported by the Research Training Network ‘‘Mathematical Modelling of the Cardiovascular System’’ (HaeMOdel), contract HPRN-CT-2002-00270 of the European Community.
+References
+[1] P.E. Bjorstad, O.B. Widlund, Iterative methods for the solution of elliptic problems on regions partitioned in subdomains, SIAM J. Numer. Anal. 31 (23) (1986) 1097–1120. [2] S. Brenner, The condition number of the Schur complement in domain decomposition, Numer. Math. 83 (2) (1999) 187–203. [3] H. Brezis, Analyse fonctionnelle, Th ́eorie et applications, Masson, 1983. [4] C. Farhat, M. Lesoinne, P. Le Tallec, Load and motion transfer algorithms for fluid/structure interaction problems with nonmatching discrete interfaces: Momentum and energy conservation optimal discretization and application to aeroelasticity, Comput. Methods Appl. Mech. Engrg. 157 (1998) 95–114. [5] C. Farhat, K. van der Zee, Ph. Geuzaine. Provably second-order time-accurate loosely-coupled solution algorithms for transient nonlinear aeroelasticity, Comput. Methods Appl. Mech. Engrg., in press. [6] L. Formaggia, J.-F. Gerbeau, F. Nobile, A. Quarteroni, On the coupling of 3D and 1D Navier–Stokes equations for flow problems in compliant vessels, Comput. Methods Appl. Mech. Engrg. 191 (6-7) (2001) 561–582. [7] J.F. Gerbeau, M. Vidrascu, A Quasi-Newton algorithm based on a reduced model for fluid–structure interactions problems in blood flows, Math. Model. Numer. Anal. 37 (4) (2003) 631–648. [8] M.H. Holmes, A spectral problem in hydroelasticity, J. Differ. Equat. 32 (3) (1979) 388–397. [9] P. Le Tallec, Introduction a` la dynamique des structures, Ellipses (2000). [10] P. Le Tallec, J. Mouro, Fluid structure interaction with large structural displacements, Comput. Methods Appl. Mech. Engrg. 190 (2001) 3039–3067. [11] H.G. Matthies, J. Steindorf, Partitioned but strongly coupled iteration schemes for nonlinear fluid–structure interaction, Comput. Struct. 80 (27–30) (2002) 1991–1999. [12] W. Nichols, M.F. OÕRourke, McDonaldÕs Blood Flow in Arteries. Theoretical, Experimental, and Clinical Principles, Fourth ed., Oxford University Press, 1997. [13] D.P. Mok, W.A. Wall, E. Ramm, Accelerated iterative substructuring schemes for instationary fluid–structure interaction, in: K.J. Bathe (Ed.), Computational Fluid and Solid Mechanics, Elsevier, 2001, pp. 1325–1328. [14] H. Morand, R. Ohayon, Interactions fluides-structures, vol. 23 of Recherches en Math ́ematiques Appliqu ́ees, Masson, Paris, 1992. [15] H. Morand, R. Ohayon, Fluid–Structure Interaction: Applied Numerical Methods, John Wiley and Sons, 1995. [16] J. Mouro, Interactions fluide structure en grands de ́placements, R ́esolution num ́erique et application aux composants hydrauliques automobiles, Ph.D. thesis, Ecole Polytechnique, France, 1996. [17] F. Nobile, Numerical approximation of fluid–structure interaction problems with application to haemodynamics, Ph.D. thesis, EPFL, Switzerland, 2001. [18] S. Piperno, C. Farhat, B. Larrouturou, Partitioned procedures for the transient solution of coupled aeroelastic problems. Part I: Model problem, theory and two-dimensional application, Comput. Methods Appl. Mech. Engrg. 124 (1995) 79–112. [19] A. Quarteroni, A. Valli, Domain decomposition methods for partial differential equations, Numerical Mathematics and Scientific Computation, The Clarendon Press, Oxford University Press, 1999, Oxford Science Publications. [20] S. Rugonyi, K.J. Bathe, On finite element analysis of fluid flows coupled with structural interaction, CMES—Comput. Model Engrg. Sci. 2 (2) (2001) 195–212. [21] K. Stein, R. Benney, V. Kalro, T.E. Tezduyar, J. Leonard, M. Accorsi, Parachute fluid–structure interactions: 3-D computation, Comput. Methods Appl. Mech. Engrg. 190 (3-4) (2000) 373–386. [22] H. Zhang, X. Zhang, S. Ji, Y. Guo, G. Ledezma, N. Elabbasi, H. deCougny, Recent development of fluid–structure interaction capabilities in the adina system, Comput. Struct. 81 (8-11) (2003) 1071–1085.
+P. Causin et al. / Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527 4527

@@ -1,0 +1,904 @@
+Artificial added mass instabilities in sequential staggered coupling of nonlinear structures and incompressible viscous flows
+Christiane Fo ̈ rster a,*, Wolfgang A. Wall b, Ekkehard Ramm a
+a Institute of Structural Mechanics, Universita ̈ t Stuttgart, Pfaffenwaldring 7, 70569 Stuttgart, Germany b Chair of Computational Mechanics, Technische Universit  ̈at M  ̈unchen, Boltzmannstraße 15, 85747 Garching (b. Mu ̈ nchen), Germany
+Received 12 June 2006; received in revised form 1 September 2006; accepted 7 September 2006
+Abstract
+Within this paper the so-called artificial added mass effect is investigated which is responsible for devastating instabilities within sequentially staggered Fluid–structure Interaction (FSI) simulations where incompressible fluids are considered. A discrete representation of the added mass operator MA is given and ‘instability conditions’ are evaluated for different temporal discretisation schemes. It is proven that for every sequentially staggered scheme and given spatial discretisation of a problem, a mass ratio between fluid and structural mass density can be found at which the coupled system becomes unstable. The analysis is quite general and does not depend upon the particular spatial discretisation schemes used. However here special attention is given to stabilised finite elements employed on the fluid partition. Numerical investigations further highlight the results. Ó 2006 Elsevier B.V. All rights reserved.
+Keywords: Artificial added mass; Fluid–structure interaction; Partitioned procedure; Stability
+1. Introduction
+Partitioned approaches are rather popular for the simulation of surface coupled problems as they allow to use specifically designed codes on the different fields and offer significant benefits in terms of efficiency. Smaller and better conditioned subsystems are solved instead of one overall problem. We distinguish loose and strong coupling partitioned schemes. Loose coupling requires only one solution of either field per time step in a sequentially staggered manner and is thus particularly appealing in terms of efficiency. However sequentially staggered schemes exhibit an inherent instability when used on fluid–structure interaction problems where incompressible flows are considered. The instability can be overcome by iteratively staggered partitioned schemes also called strongly coupled which utilise
+subiterations over the single fields to converge to the solution of the monolithic system. The present work aims at further clarifying the destabilising property of the so-called added mass effect [1–3] on sequentially staggered fluid–structure calculations. It has been observed that so-called loose coupling of fluid and structural part in the context of incompressible flow and slender structures frequently yields unstable computations. Surprisingly the instability depends upon the densities of fluid and structure and also on the geometry of the domain [1–4]. Clearly sequential coupling introduces an explicit flavour into the computation even if both partitions themselves are solved implicitly. Thus restrictions on the time step have to be expected. Observations however show that decreasing of the time step results in an increased instability. The instability is inherent in the scheme itself and has been named ‘artificial added mass effect’ since major parts of the fluid act as an extra mass on the structural degrees of freedom at the coupling interface. In sequentially staggered schemes the fluid forces depend upon predicted structural interface displacements rather than the correct ones and
+0045-7825/$ - see front matter Ó 2006 Elsevier B.V. All rights reserved. doi:10.1016/j.cma.2006.09.002
+* Corresponding author. Tel.: +49 711 68566572; fax: +49 711 68566130. E-mail address: foerster@ibb.uni-stuttgart.de (C. Fo ̈ rster).
+www.elsevier.com/locate/cma
+Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+thus contain a portion of incorrect coupling forces. It is this ‘artificial’ contribution to the coupling which yields the instability. An upper limit on the time step size for staggered analysis of acoustic FSI depending on the ratio of structural and fluid mass has been obtained in [5]. For the incompressible limit case which comes along with an infinite speed of sound the result obtained there predicts instability irrespective of the time step size. While the artificial added mass effect causes an instability of sequentially staggered schemes it also harms the convergence of iterative methods [4]. Thus in [6] it is proposed to increase the structural mass artificially on the left-handside of structural equations while leaving the residual on the right-hand-side unchanged ensuring that the converged solution is correct. A more sophisticated way to circumvent the instability has recently been proposed by Ferna ́ndez et al. [25] who suggest to restrict the implicit coupling to the pressure in the context of a projection scheme. The added mass effect already mentioned in [3,7] has been investigated by means of a reduced model problem in [4] where it is shown that the onset of the instability can be predicted well within the simplified problem. Here we wish to investigate the effect of these results on different time discretisation schemes and want to understand the influence of small time steps on the onset of the instability of sequentially staggered schemes. Further we study the particular influence of a spatial discretisation of the fluid domain by stabilised finite elements on the artificial added mass effect. A detailed analysis shows why more accurate schemes tend to be even more unstable. We employ generalised-a time integration on the structural part and consider backward Euler, the trapezoidal rule and second order backward differencing (BDF2) on the fluid domain. Further different predictors and ways to obtain the Dirichlet boundary condition on the fluid partition along the coupling interface are used. In [8,9] modifications at the load- and motion transfer in the context of coupled aeroelastic problems are suggested to improve the accuracy and stability of the overall scheme which show beneficial in particular for compressible flow. However when incompressible flow is considered these modifications might postpone the onset of the instability while being unable to actually prevent it. Within this paper we show that every sequentially staggered scheme for incompressible flow will get unstable provided that the mass density ratio of fluid and structure is large enough. The paper is organised as follows. In Section 2 we introduce the coupled problem and the sequentially staggered algorithm under consideration. Further the details of the temporal discretisation employed within the two fields are given. We derive discrete representations of the added mass operator in the regime of very small time steps for inf–sup stable and stabilised finite element discretisations of the fluid domain in Section 3. The stability properties of the overall scheme are investigated in Section 4. To this end
+the influence of the actual time discretisation scheme is considered. Here we distinguish between temporal discretisation schemes with limited recursion and fully recursive characteristics. While the former yield a constant instability limit in terms of a maximal eigenvalue of the respective added mass operator the latter results in a stability constant which gets more and more restrictive with every time step. Thus we show why schemes with instationary characteristics will definitely fail after a few time steps irrespective of the eigenvalues of the added mass operator. We further show that every sequential staggered coupling scheme has a limiting mass density ratio at which the scheme becomes unstable. A detailed numerical investigation reported in Section 5 confirms the theoretical findings.
+2. Statement of the problem
+2.1. Governing equations
+We consider problems consisting of a fluid (occupying XF) and a structural part (in XS) which interact at the common boundary C. This interface C is represented by a curved line or surface in two- or three-dimensional problems, respectively. The possibly large motion of the structure is governed by
+qS D2d
+Dt2 $ ðF SðdÞÞ 1⁄4 qSbS in XS ð0; T Þ; ð1Þ
+where d represents the structural displacement and bS body forces applied on the structure. The second order tensor S denotes the second Piola–Kirchhoff stress tensor and depends upon the particular material of the structure while F represents the deformation gradient tensor. Within the numerical investigations reported here linear St.-VenantKirchhoff material has been employed. The structural density is given by qS. Either Neumann or Dirichlet boundary conditions apply at the not wetted part of the structural boundary oXSnC. The considered Newtonian fluid is governed by the incompressible Navier–Stokes equations
+qFdu
+dt v
+þ qFðu uGÞ $u 2l$ eðuÞ þ $p
+1⁄4 qFbF in XF ð0; T Þ; ð2Þ
+$ u 1⁄4 0 in XF ð0; T Þ: ð3Þ
+Here u denotes the fluid velocity field and p the physical pressure. The fluid density and viscosity are given by qF and l, respectively. The vector bF represents fluid body forces and eðuÞ 1⁄4 1
+2 ð$u þ ð$uÞTÞ denotes the strain rate tensor. While the balance of linear momentum within the structure (1) is written in Lagrangian formulation an arbitrary Lagrangian Eulerian (ALE) formulation is applied for the fluid. Hence within the fluid equation of motion the inertia term consists of two parts: the first contains the fluid acceleration measured in the ALE moving reference system
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1279
+
+
+v, while the second is a convective term where the convective velocity is the difference of the fluid velocity u and the velocity of the reference system uG. Suitable (Dirichlet or Neumann) boundary conditions apply at the boundary of the fluid domain which is not coupled to the structure oXFnC.
+At the FSI interface C kinematic and dynamic continuity is required. As in viscous flows the fluid particles stick to the structure at the common interface, a local Lagrangian formulation at C can be assumed. Thus denoting the material time derivative by an over-set dot the kinematic coupling conditions read
+dCðtÞ 1⁄4 rF
+CðtÞ; _dCðtÞ 1⁄4 uCðtÞ 1⁄4 x_ F
+CðtÞ; €dCðtÞ 1⁄4 _uCðtÞ: ð4Þ
+Here rF
+CðtÞ represents the displacement of the fluid interface. The dynamic coupling condition demands the compatibility of the traction at C
+hSðtÞ þ hFðtÞ 1⁄4 0; ð5Þ
+where h = r Æ n denotes the traction vector on either field which is obtained from the Cauchy stress tensor.
+2.2. Sequentially staggered algorithm
+Partitioned algorithms are an appropriate way to deal with surface coupled problems such as fluid–structure interaction. Specifically designed solution schemes can be employed on the single fields and existing codes can conveniently be coupled. A particularly appealing way to solve the above coupled problem is a sequentially staggered formulation. While the fluid and structural domains are solved implicitly the coupling information (4) and (5) is exchanged once per time step which introduces explicit features. The class of algorithms considered here is outlined in the following. After independent temporal discretisation of both fields by means of finite differences and with the same time step size Dt the time step from time level n to n + 1 proceeds as follows:
+(a) Calculate an explicit predictor of the structural interface displacement at the new time level dnþ1
+C;P .
+(b) Compute fluid velocity unþ1
+C ðdnþ1
+C;P Þ at C to serve as Dirichlet boundary condition. (c) Update the mesh displacement rnþ1ðdnþ1
+C;P Þ.
+(d) Solve fluid equations on the deforming domain to obtain un+1 and pnþ1. (e) Obtain fluid boundary traction along C hF ;nþ1
+C.
+(f) Solve the structural field for the new displacements dn+1 under consideration of the fluid load hF ;nþ1
+C. (g) Proceed to next time step.
+To further specify the above algorithm the single discretisation schemes have to be stated.
+The time discretisation of the structural problem is performed by means of a nonlinear version of the general
+ised-a time integration scheme of Chung and Hulbert [10] which is based on the Newmark scheme
+dnþ1 1⁄4 dn þ Dt _dn þ Dt2 1
+2 b €dn þ b€dnþ1 ; ð6Þ
+_dnþ1 1⁄4 d_ n þ Dtðð1 cÞ€dn þ c€dnþ1Þ: ð7Þ
+The generalised-a scheme satisfies the equilibrium of linear momentum at an intermediate time level ta between tn and tn+1
+qS€da $ ðF SðdaÞÞ 1⁄4 0;
+where zero body forces are assumed for brevity. Displacements, velocities and accelerations of the structure are interpolated between the discrete time levels by
+€da 1⁄4 ð1 amÞ€dnþ1 þ am€dn; ð8Þ
+_da 1⁄4 ð1 af Þ _dnþ1 þ af _dn; ð9Þ
+da 1⁄4 ð1 af Þdnþ1 þ af dn: ð10Þ
+The integration constants are chosen such that the overall scheme has the desired spectral radius q1 while also minimal damping on low frequency modes is ensured. Evaluating am, af, b and c from
+am 1⁄4 2q1 1
+q1 þ 1 ; af 1⁄4 q1
+q1 þ 1 ;
+am 6 af 6 1
+2; b 1⁄4 1
+4 ð1 am þ af Þ2; c 1⁄4 1
+2 am þ af
+yields a second order accurate system.
+Temporal discretisation of the fluid equations is performed by means of different schemes. The simplest implicit scheme is backward Euler (BE) which is just first order accurate.
+unþ1 un
+Dt 1⁄4 _unþ1: ð11Þ
+Further the trapezoidal rule (TR)
+unþ1 un
+Dt 1⁄4 1
+2 _unþ1 þ 1
+2 _un ð12Þ
+and second order backward differencing (BDF2)
+unþ1 un
+Dt 1⁄4 1
+3
+un un 1
+Dt þ 2
+3 u_ nþ1 ð13Þ
+are considered. The structural predictor is another important ingredient which influences the onset of the instabilities observed. Following Mok [1,2] three different predictors of differing order of accuracy shall be considered here which go back to [11]. A simple predictor which is zeroth order accurate in time is given by
+dnþ1
+C;P 1⁄4 dn
+C: ð14Þ
+As a first order predictor
+dnþ1
+C;P 1⁄4 dn
+C þ Dt _dn
+C ð15Þ
+1280 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+is used while
+dnþ1
+C;P 1⁄4 dn
+C þ Dt 3
+2
+_dn
+C
+1 2
+_dn 1
+C ð16Þ
+is a second order accurately predicted interface displacement. The boundary condition applied to the fluid at the boundary C is also required to fully specify the temporally discretised scheme. A first order interpolation yields
+unþ1
+C 1⁄4 dnþ1
+C;P dn
+C;P
+Dt : ð17Þ
+Eq. (17) is a backward Euler discretisation of the fluid velocity at the coupling interface C. Accurate conservation of the size of the fluid domain XF requires to employ a second order discretisation of the fluid boundary velocity uC 1⁄4 d_ in time yielding
+unþ1
+C 1⁄4 2 dnþ1
+C;P dn
+C;P
+Dt un
+C: ð18Þ
+Eq. (18) uses the trapezoidal rule and ensures that the discrete velocity function integrates in time to the discrete locations of the interface. Despite this desirable property (18) exhibits the tendency of the trapezoidal rule to oscillations and can thus not generally be recommended.
+2.3. Observed instability
+Sequentially staggered schemes coupling structures and incompressible fluids exhibit an inherent instability which increases with decreasing time step. This problem has been described by Mok [1–3] and its mathematical background has recently been provided by Causin et al. [4]. The following observations have been made:
+• With decreasing Dt the instability occurs earlier. • The mass ratio between fluid and structure has a significant influence on the stability of the staggered system. The bigger the mass ratio qF/qS the worse the instability gets. • Numerical observations indicate that increased fluid viscosity increases the instability while increased structural stiffness causes a light decreasing effect. • The actual onset of unconditional instability depends upon the particular combination of temporal discretisation items.
+Especially the first point indicates that the instability is not due to a too large time step size. It is rather caused by too large eigenvalues of the amplification operator of the explicit step.
+3. Derivation of the added mass operator
+3.1. Spatial discretisation with LBB stable fluid elements
+The fluid Eqs. (2) and (3) are discretised in space by means of finite elements. The spatial domain XF is divided
+into non-overlapping patches, the elements. The spatial discretisation maintains its topology while following the deformation of the domain. Within the present investigation of the instability due to the sequentially staggered coupling scheme the motion of the domain is a secondary matter and not taken into account subsequently. To define the Galerkin form we select C0 Lagrangian finite element spaces Vh
+0 H1
+0ðXFÞ and Vh H1(XF), where
+Vh satisfies the time dependent Dirichlet boundary conditions of the problem while all functions in Vh
+0 are zero on
+the Dirichlet boundary CF
+D of the fluid domain. The pres
+sure is taken from the space Ph L2(XF) of square integrable functions. The discrete variational statement is as follows: seek u 2 Vh, p 2 Ph such that
+Bgalðfu; pg; fv; qgÞ 1⁄4 ðbF; vÞ þ ðhF; vÞCF
+N
+for ðv; qÞ 2 ðVh
+0; P hÞ; ð19Þ
+where the discrete operator Bgal({u, p}, {v, q}) is given by
+Bgalðfu; pg; fv; qgÞ 1⁄4 ð _u; vÞ þ ððu uGÞ $u; vÞ
+þ ð2meðuÞ; eðvÞÞ ðp; $ vÞ
+ðq; $ uÞ: ð20Þ
+Here (Æ, Æ) denotes the L2 inner product on the fluid domain XF and m = l/qF the kinematic viscosity. The kinematic pressure is represented by p 1⁄4 p=qF. The spatially discretised equations are conveniently expressed in matrix notation
+MFu_ þ NFðuÞ þ Gp 1⁄4 fC;
+GTu 1⁄4 0; ð21Þ
+where MF and NF(u) denote the mass matrix and the internal force vector of the fluid, respectively, while G is the discrete gradient operator on the pressure field. The vectors u and p contain the nodal velocity and pressure values, respectively. In view of the analysis of the coupled scheme external forces are neglected and thus the right-hand side in (21) consists of fluid–structure coupling forces along C only. The discrete system (21) is stable if the finite element spaces Vh and Ph and thus the elements are chosen such that the discrete version of the well-known LBB or infsup condition is satisfied. This condition reads (see for example [12]): Given any q 2 Ph,
+sup
+061⁄4v2Vh
+0
+ðq; $ vÞ jvj1
+P ckqk0;
+where the constant c is independent of the mesh size h and the particular choice of q 2 Ph. Employing the matrix G, the discrete LBB condition can be written
+sup
+061⁄4v2Vh
+0
+vTGq jvj1
+P ckqk0: ð22Þ
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1281
+
+
+Eq. (22) shows that in the case of an LBB stable discretisation the matrix G is of full rank. This is a necessary condition for a finite added mass operator to exist if no stabilisation is employed as it can be observed from a discrete representation of the added mass operator (29). Discretisation of the structural equations yields
+MSd€ þ NSðdÞ 1⁄4 fC; ð23Þ
+where MS and NS(d) denote the mass matrix and the internal force vector of the structure, respectively, and d is the vector of nodal displacements. The right-hand side again consists of contributions at the interface nodes only which is the discrete representation of the traction in Eq. (5).
+3.2. Spatially discrete representation of the added mass operator
+In order to work out the instability of the staggered coupled system the spatially discretised representations of the field Eqs. (1)–(3) are employed. Further some simplifications are made to ease the analysis.
+• The discretisation of fluid and structure is conforming along the interface C. • Both field equations can be regarded as linear. • The influence of mesh motion and thus the temporal change of all significant matrices is negligible. • The structural density qS remains constant. • No external forces except the traction along C are considered. • No physical structural damping is assumed.
+The first assumption simply eases the presentation while the other assumptions are reasonable as the considered instability typically occurs at very early time steps, i.e. when no significant nonlinearity has been built up. The assumption of linearity is required for an analysis of the maximal eigenvalue of an amplification operator at which we aim. Nevertheless the insight obtained also transfers to the nonlinear problem which is linearised in every time step. To further simplify the analysis the fluid stiffness is omitted in (21) at this point. This is reasonable as the instabilities we consider increase with decreasing time step. After time discretisation the discrete equations will be dominated by the mass and pressure terms when very small time steps are employed. Thus, this simplification allows to clearly highlight the reason of the instability. The simplified fluid system of equations is now split up into degrees of freedom belonging to the interior of the fluid domain and others at the interface. The assumption that the coefficient matrices do not change in time allows to use the ALE time derivative of the divergence Eq. (3)
+oðGTuÞ
+ot v
+1⁄4 G_Tu 1⁄4 GT _u 1⁄4 0 ð24Þ
+and thus
+MF
+II MF
+IC GI MF
+CI MF
+CC GC GT
+I GT
+C0
+2
+64
+3
+75
+_uI
+_uC
+p
+2
+64
+3
+75 1⁄4
+0
+fC
+0
+2
+64
+3
+75: ð25Þ
+In (25) the indices C and I refer to the coupling interface degrees of freedom and the remaining (internal) degrees of freedom, respectively. Using the prescribed interface acceleration obtained from the structural prediction, the system (25) yields the solution vectors
+p 1⁄4 GT
+I MF
+II
+1GI
+1
+GT
+I MF
+II
+1MF
+IC þ GT
+C u_ C; ð26Þ
+_uI 1⁄4 MF
+II
+1MF
+IC _uC þ MF
+II
+1GI GT
+I MF
+II
+1GI
+1
+GT
+I MF
+II
+1MF
+IC GT
+C
+no
+_uC: ð27Þ
+The steps of the calculation of _uI and p can be found in Appendix. Employing the second line of the system (25) the interfacial coupling force fC can now be expressed in terms of the interface acceleration
+fC 1⁄4 ðMF
+CI MF
+II
+1GI GCÞ GT
+I MF
+II
+1GI
+1
+GT
+I MF
+II
+1MF
+IC GT
+C MF
+CI MF
+II
+1MF
+IC þ MF
+CC _uC
+ð28Þ
+The discrete operator in curly brackets has the dimension of a mass. It can be normalised by a characteristic fluid mass mF (which is for example a nodal mass of a lumped mass matrix) to recover a discrete representation of the added mass operator
+MA :1⁄4 1
+mF MF
+CI MF
+II
+1GI GC GT
+I ðMF
+IIÞ 1GI
+1
+GT
+I MF
+II
+1MF
+IC GT
+C
+1
+mF MF
+CI MF
+II
+1MF
+IC þ 1
+mF MF
+CC
+ð29Þ
+In [4] Causin and coauthors reformulate the continuous fluid problem and perform their analysis on a simplified version of the Pressure Poisson equation which reduces to Dp = 0 with appropriate boundary conditions. They eventually give a discrete added mass operator in terms of the discretised Pressure Poisson equation. In contrast we use an expression in terms of matrices which are usually computed within fluid codes solving the incompressible Navier–Stokes equations for the primary unknowns u and p. Employing the added mass operator (29) yields the fluid forces at the coupling boundary
+fC 1⁄4 mFMAu_ C:
+1282 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+The added mass operator MA contains the condensed fluid equations and maps a dimensionless interface acceleration onto an also dimensionless force vector at the interface C. Thus the operator is purely geometrical. It can be observed from (29) that the discrete added mass operator is symmetric and positive. A further interesting simplification is to use a lumped fluid mass matrix where the off-diagonal blocks of the mass matrix vanish and the main blocks are replaced by MII = 2mFIII and MCC = mFICC yielding the simple expression
+MAl 1⁄4 IF
+CC þ 2GCðGT
+I GIÞ 1GT
+C ð30Þ
+for the lumped added mass operator. In (30) a regular mesh is assumed. Thus the nodal mass of an interior node is twice as big as the mass of a coupled node which has half the support of the first.
+Remark 3.1. Expression (30) indicates that the eigenvalues of the added mass operator are greater than one.
+3.3. Spatial discretisation with stabilised finite elements
+It is a well-known matter of fact that the Galerkin form (19) is ill posed due to the inf–sup condition in the case of finite elements with equal polynomial order in Vh and Ph defined on the same triangulation. To stabilise artificial pressure modes as well as oscillations due to convection, residual based stabilisation of the unusual type and related to bubble functions as described in [13,14] is applied. Residual based stabilisation methods go back to works by Hughes and coauthors in the 1980s [15,16]. Stabilisation bases on the residual expressions of the Navier–Stokes equations (2) and (3)
+RM ðu; pÞ 1⁄4 u_ þ ðu uGÞ $u 2m$ eðuÞ þ $p bF; ð31Þ
+RCðuÞ 1⁄4 $ u: ð32Þ
+Following the unusual stabilisation scheme introduced by Franca, Brezzi and coworkers [17,13,18] the adjoint of the corresponding linear problem is used to stabilise the momentum equation.
+Lstab
+M ðu; fv; qgÞ 1⁄4 ðu uGÞ $v 2m$ eðvÞ þ $q ð33Þ
+Lstab
+C ðvÞ 1⁄4 $ v ð34Þ
+The stabilised variational problem is given by: find u 2 Vh, p 2 Ph such that
+Bgalðfu; pg; fv; qgÞ
+X
+k
+sMkðRM ðu; pÞ; Lstab
+M ðu; fv; qgÞÞk
+þX
+k
+sCkðRCðuÞ; Lstab
+C ðvÞÞk
+1⁄4 ðbF; vÞ þ ðhnþ1; vÞCN for ðv; qÞ 2 ðVh
+0; P hÞ; ð35Þ
+where k counts all elements of the triangulation. The inner products in the stabilisation terms indicated by the subscript k have to be evaluated on the element interiors only. The stabilisation with the residual of the continuity equation has been introduced by Franca and Hughes [19] and offers benefit especially for high Reynolds numbers [20–22]. Franca and Oliveira also showed that the continuity stabilisation term can, similar to the momentum one, be recovered as static condensation of a bubble function [23]. The stabilisation parameters used are the ones developed from virtual bubble functions for the linear Stokes problem [24] or the reaction–advection–diffusion equation [14], to stabilise the mixed problem or the advective term, respectively.
+sMk 1⁄4 h2
+k
+h2
+k
+d n1 þ 4m
+mk
+n2
+: ð36Þ
+The parameters n1 and n2 depend on the effects dominating the flow in a particular element; n1 = max(Pek, 1) and n2 = max(Rek, 1), where Rek is a measure of an elemental Reynolds number and represents the ratio of advective to viscous forces on element level. Pek denotes the ratio of the viscous, second order term to the zeroth order term introduced by the time discretisation.
+Pek 1⁄4 4dm
+mk h2
+k
+; Rek 1⁄4 mkjujhk
+2m : ð37Þ
+The Euclidean norm of the velocity juj is used here as a measure of the convective term, where the parameter mk carries the influence of the particular discretisation. It is defined by an inverse estimate [14]. Based on the arguments presented by Wall in [22], mk 1⁄4 1
+3 and mk 1⁄4 1
+12 is used for linear and quadratic elements, respectively. The parameter d depends on the time discretisation scheme to be used on the fluid equations. For the schemes we consider here, d is given by dBE = Dt, dTR 1⁄4 1
+2 Dt and dBDF 2 1⁄4 2
+3 Dt. Employing the above definitions the continuity stabilisation parameter is given by
+sCk 1⁄4 dhkjuj
+2 n2: ð38Þ
+A matrix representation of (35) replacing (21) reads
+MFðuÞu_ þ NFðuÞ þ GðuÞp 1⁄4 fC;
+GT
+M u_ þ GT
+K ðuÞu Cp 1⁄4 0; ð39Þ
+where the overline indicates that all matrices and force vectors include stabilisation contributions. Thus, all matrices depend upon the stabilisation parameters sMk and such on the fluid viscosity, the flow regime and the time step. Additionally the stabilisation adds different terms on the two G-matrices and introduces an acceleration dependent term into the second line altogether destroying the formal symmetry of the system. The single terms are defined by the forms
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1283
+
+
+vTMFðuÞu_ 1⁄4 ðu_ ; vÞ þ X
+k
+sMkð _u; ðu uGÞ $vÞk
+þX
+k
+sMkð _u; 2m$ eðvÞÞk;
+qTGT
+M u_ 1⁄4 X
+k
+sMkð _u; $qÞk;
+vTNFðuÞ 1⁄4 ððu uGÞ $u; vÞ þ ð2meðuÞ; eðvÞÞ
+þX
+k
+sCkð$ u; $ vÞ þ X
+k
+sMkððu uGÞ $u; ðu uGÞ $vÞk
+þX
+k
+sMkððu uGÞ $u; 2m$ eðvÞÞk
+X
+k
+sMkð2m$ eðuÞ; ðu uGÞ $vÞk
+X
+k
+sMkð2m$ eðuÞ; 2m$ eðvÞÞk;
+qTGT
+K ðuÞu 1⁄4 ð$ u; qÞ X
+k
+sMkððu uGÞ $u; $qÞk
+þX
+k
+sMkð2m$ eðuÞ; $qÞk;
+vTGðuÞp 1⁄4 ðp; $ vÞ þ X
+k
+sMkð$p; ðu uGÞ $vÞk
+þX
+k
+sMkð$p; 2m$ eðvÞÞk;
+qTCp 1⁄4 X
+k
+sMkð$p; $qÞk:
+3.4. Added mass operator for stabilised finite elements
+In order to perform an analysis simplifications similar to the unstabilised case have to be made. From (36) it can be observed that in the case of very small time steps where the parameter n1 = 1
+Dlti!m0 sMk 1⁄4 d
+is obtained. Thus a comparison of the matrices GT
+M and
+GT
+K ðuÞ in the regime of small time steps shows that the leading terms are of the same order of magnitude in Dt. While for very small time steps the stiffness terms in the first matrix equation in (39) are of minor importance compared to the mass terms this is not the case in the second matrix equations. In order to still reduce the system (39) to one relating pressures and accelerations, we replace the continuity equation
+$ u 1⁄4 0 by d$ _u 1⁄4 0;
+which can be done provided that a divergence free initial velocity field is used. This allows us to write the entire matrix equation of (39) in terms of the nodal accelerations u_ and the nodal pressure values p and to obtain the simplified system
+MF _u þ Gp 1⁄4 fC
+GT _u Cp 1⁄4 0
+ð40Þ
+in the case of very small time steps where the bar has been dropped on the matrices of the first line indicating that the stabilisation terms here are of higher order in Dt and thus of minor influence. In (40) the matrix GT represents the sum
+qTGTu_ 1⁄4 qðGT
+M þ GTÞ _u
+1⁄4X
+k
+sMkðu_ ; $qÞk dð$ _u; qÞ: ð41Þ
+Analogous to (25) the system
+MF
+II MF
+IC GI MF
+CI MF
+CC GC
+GT
+I GT
+CC
+2
+64
+3
+75
+u_ I
+_uC
+p
+2
+64
+3
+75 1⁄4
+0
+fC
+0
+2
+64
+3
+75 ð42Þ
+is obtained which yields the fluid acceleration and pressure depending on a prescribed interface acceleration u_ C
+p 1⁄4 GT
+I MF
+II
+1GI þ C
+1
+GT
+C GT
+I MF
+II
+1MF
+IC u_ C;
+ð43Þ
+_uI 1⁄4 MF
+II
+1MF
+IC þ MF
+II
+1GI GT
+I MF
+II
+1GI þ C
+1
+GT
+C GT
+I MF
+II
+1MF
+IC u_ C; ð44Þ
+where the explicit steps to obtain p and _uI are given in Appendix. Inserting (43) and (44) into the second line of the split system (42) yields the fluid force at the coupling interface C
+fC 1⁄4 mFMAstabu_ C ð45Þ
+with the added mass operator in the stabilised case given by
+MAstab :1⁄4 1
+mF MF
+CI MF
+II
+1GI GC GT
+I MF
+II
+1GI þ C
+1
+GT
+I MF
+II
+1 MF
+IC GT
+C
+1
+mF MF
+CI ðMF
+IIÞ 1MF
+IC þ 1
+mF MF
+CC:
+ð46Þ
+With a lumped mass matrix the operator reduces to
+MAl;stab 1⁄4 IF
+CC þ 2GC GT
+I GI þ mFC
+1
+GT
+C: ð47Þ
+While seemingly very similar to the added mass operator obtained in the unstabilised case (30) the operator (47) exhibits some significant differences. A first difference is the presence of the stabilisation matrix C which is required as the matrix G is not of full rank. Thus the positive matrix C ensures that GT
+I GI þ mFC can be inverted. If C is chosen too small this expression exhibits very small eigenvalues which might increase the maximal eigenvalue of the added mass operator. Thus the properly chosen amount of stabilisation is crucial. Note that in the regime of very small time steps the overlined matrices GT
+I and C in (46) and (47) depend linearly on d while the remaining matrices are independent of the time step size. Thus the direct effect of the time step cancels within the stabilised added mass operator (46) and also (47).
+1284 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+A second important difference to the unstabilised case is the now obtained unsymmetry of the added mass operator caused by G 61⁄4 G. A closer look at (41) reveals
+qGT _u 1⁄4 X
+k
+sMkð _u; $qÞk dð$ _u; qÞ
+1⁄4X
+k
+fsMkðu_ n; qÞoXk þ ðd sMkÞð$ _u; qÞkg
+1⁄4 q ~GTu_ þ ðd sMkÞqGTu_ : ð48Þ
+Thus the stabilised version of the continuity equation yields a matrix GT which contains a contribution of the original operator matrix GT which vanishes for very small time steps where sMk d. It further contains a boundary
+integral term ~GT emerging from integration by parts. From (48) it can be observed that the continuity equation within the domain is cancelled at the small time step limit while the remaining boundary term demands global mass conservation by balancing the amount of inflow and outflow with the changes of the domain due to a displacement of the interface C. The stability of the stabilised problem (35) implies that the expression ~GT
+I GI þ mFC in (47) can be inverted. However due to the unsymmetry of this matrix which increases with decreasing time step size the minimal eigenvalue might be rather small compared to the unstabilised case. This yields a possibly large maximal eigenvalue of the overall added mass operator. An increased eigenvalue of the added mass operator however results in an earlier onset of an instability as it will be shown in (59). Numerical investigations confirm the above interpretation. As the matrix GT
+M is required for the consistency of the stabilisation method in the transient case and does not contribute to the stabilising effects of the stabilisation terms it can be omitted without sacrificing stability of the fluid equations. In particular it has been observed that removing the matrix GT
+M and thus introducing a consistency error restores the stability for small time step sizes at least for some time discretisation schemes.
+4. Stability of the sequentially coupled problem
+4.1. The influence of the discretisation in time
+Introducing the coupling force (28) or (45) into the discrete linearised structural Eq. (23) yields
+MS
+II MS
+IC
+MS
+CI MS
+CC
+" # d€I
+d€C
+"#
+þ KS
+II KS
+IC
+KS
+CI KS
+CC
+" # dI
+dC
+"#
+1⁄40
+mFMAu_ C
+"#
+;
+ð49Þ
+where within the staggered scheme the fluid interface acceleration u_ C is obtained from a structural prediction of the new interface displacement. The matrix KS denotes the structural tangent stiffness obtained from a linearisation of the internal structural forces NS(d).
+Eq. (49) reveals why MA is named ‘added mass operator’. Identifying the fluid interface acceleration u_ C with
+the structural interface acceleration €dC shows that the product mFMA works as an additional mass on the interface degrees of freedom.
+4.1.1. Schemes with limited recursion
+The stability or instability of the scheme (49) solved in an sequentially staggered manner depends upon the particular time discretisation employed. The most stable version of the structural generalised-a time discretisation scheme is obtained when maximal numerical dissipation is involved, i.e. when the spectral radius of the scheme is set to q1 = 0.0. This yields the parameter
+am 1⁄4 1; af 1⁄4 0; b 1⁄4 1; c 1⁄4 3
+2:
+By means of (6)–(8) an expression for the structural acceleration in terms of displacements can be obtained
+€da 1⁄4 1
+Dt2 ð2dnþ1 5dn þ 4dn 1 dn 2Þ: ð50Þ
+The fluid acceleration u_ C is also expressed in terms of structural displacements. Using backward Euler time integration (12), the zeroth order interface predictor (14) and the first order interpolation of the boundary condition at the interface yields
+_unþ1
+C 1⁄41
+Dt2 ðdn
+C 2dn 1
+C þ dn 2
+C Þ: ð51Þ
+Inserting (50) into the discrete linearised structural system of equations gives
+MS 1
+Dt2 ð2dnþ1 5dn þ 4dn 1 dn 2Þ þ KSdnþ1 1⁄4 fnþ1;
+ð52Þ
+where f n+1 represents all types of forces on the structure at the new time level n + 1. For very small time steps (52) is dominated by the structural mass term while the stiffness looses influence. Omitting the stiffness and lumping the mass term in a temporally discretised version of (49) allows to reduce the system to the interfacial degrees of freedom
+mSð2dnþ1
+C 5dn
+C þ 4dn 1
+C dn 2
+C Þ þ mFMAðdn
+C 2dn 1
+C þ dn 2
+CÞ 1⁄4 0: ð53Þ
+As the added mass operator MA is a real positive matrix all vectors in (53) can be expanded in terms of the eigenvectors vi of MA, i.e. dn
+C1⁄4P
+idn
+i vi. The scalar coefficients di have to satisfy
+2d nþ1
+i 5dn
+i þ 4dn 1
+i dn 2
+i þ li
+mF
+mS ðdn
+i 2dn 1
+i þ dn 2
+i Þ 1⁄4 0;
+ð54Þ
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1285
+
+
+where li represents the ith eigenvalue of MA. Inserting the
+amplification factor ki with dnþ1
+i 1⁄4 kidn
+i into (54) yields the characteristic polynomial of (54) associated with li
+2k3
+i 5k2
+i þ 4ki 1 þ li
+mF
+mS ðk2
+i 2ki þ 1Þ 1⁄4 pðkiÞ 1⁄4 0
+ð55Þ
+All solutions ki of (55) have to satisfy jkij 6 1 if the scheme (53) is stable. Observing that ki;1,2 = 1 is a double root of the polynomial (55) we find the third root by solving the remaining linear equation
+2ki;3 1 þ li
+mF
+mS 1⁄4 0;
+which yields ki;3 6 1/2. The system is unstable if ki;3 < 1 which gives the instability condition
+mF
+mS miax li > 3: ð56Þ
+While the third order polynomial (55) allows to be solved exactly this is no longer possible when more complicated time discretisation schemes are employed. Observing that the potential instability is found for ki < 1 rather than ki > 1 we follow the approach in [4] noting that
+p( 1) = 1 and p( 1) = 12 + 4(mF/mS)li. A change in sign between p( 1) and p( 1) indicates a solution p(k*) = 0 with k* < 1 which again yields the instability condition (56). As all the ingredients of the above scheme are very good-natured in the sense that high numerical damping on both the structural and fluid part is involved, (56) is a very permissive result. Repeating the analysis by using BDF2 (13) rather than BE to discretise the fluid part in time yields
+u_ nþ1
+C 1⁄41
+2Dt2 ð3dn
+C 7dn 1
+C þ 5dn 2
+C dn 3
+C Þ: ð57Þ
+In this case the characteristic polynomial is given by
+4k4
+i 10k3
+i þ 8k2
+i 2ki þ li
+mF
+mS ð3k3
+i 7k2
+i þ 5ki 1Þ
+1⁄4 pðkiÞ 1⁄4 0
+and yields the instability condition
+mF
+mS miax li > 3
+2 : ð58Þ
+Changing from first order accurate BE to BDF2 on the fluid part of the problem results in an instability condition which is twice as restrictive. Table 1 summarises the instability constants Cinst of the instability condition
+mF
+mS miax li > Cinst ð59Þ
+obtained with generalised-a time integration (with q1 = 0) of the structural domain, first order interpolation at the interface C (17) and the different structural predictors (14)–(16). It shows that increased accuracy results in a significantly earlier onset of the instability. Another remarkable result is that switching from BE to BDF2 on the fluid domain results in an instability condition twice as restrictive. Numerical results however indicate that the effect of fluid and structural stiffness might relax the ratio to less than two.
+Remark 4.1. Clearly some of the combinations summarised here are not useful for practical computations as the overall order of temporal accuracy is governed by the lowest order ingredient. For the purpose of the present analysis however the effect of the single items is of interest. It can easily be observed that a combination of a number of higher order elements such as BDF2 time discretisation on the fluid domain, a second order structural predictor at the interface and a second order accurate interface boundary condition on the fluid domain yields an even earlier instability.
+4.1.2. Schemes with fully recursive characteristics
+Coupling schemes which employ the TR (12) for fluid time integration or use the geometrically correct version for the Dirichlet boundary condition on the fluid–structure interface (18) are a little more difficult to treat than the previous ones. Such algorithms do not exhibit an expression for the predicted fluid interface acceleration in terms of a limited number of previous interface displacements comparable to (51) but rather require all previous interface positions to be considered, i.e. cycle down to the initial conditions. To sample the following scheme is considered:
+• structure: – generalised-a with q1 = 0 • fluid: – time discretisation: TR (12) – predictor: zeroth order (14) – Dirichlet boundary condition: first order (17).
+Here we wish to investigate the particular influence of the trapezoidal rule employed on the fluid domain. The results obtained for a fully second order scheme with TR and a second order accurate predictor and boundary condition are even more restrictive.
+Table 1 Instability constant Cinst in condition (59) obtained for sequentially staggered fluid–structure interaction schemes depending upon the structural predictors (14)–(16) and the fluid time discretisation scheme
+Predictor BE BDF2
+0th order 3 3/2 1st order 3/5 3/10 2nd order 1/3 1/6
+1286 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+While the structural acceleration is given by the expression (50), the fluid acceleration is obtained from
+u_ nþ1
+C 1⁄41
+Dt2 ð2dn
+C 4dn
+C þ 2dn 1
+C Þ _un
+C;
+which cannot be expressed in interface displacements only. The amplification of the scheme thus depends upon the actual time step. Assuming that the initial condition includes zero acceleration of the interface, i.e. _u0
+C 1⁄4 0 the first step (n = 0) yields
+2d1
+C 5d0
+C þ MA
+mF
+mS 2d0
+C1⁄40
+and the characteristic polynomial
+2k 5 þ 2li
+mF
+mS 1⁄4 pðkÞ 1⁄4 0:
+With p(k = 1) = 1 and p(k = 1) = 7 + 2li(mF/
+mS) one obtains the instability condition for the first step; the first step will be unstable if
+miax li
+mF
+mS > 7
+2 : ð60Þ
+With n = 1 we get
+2d2
+C 5d1
+C þ 4d0
+C þ MA
+mF
+mS ð2d1
+C 6d0
+CÞ 1⁄4 0
+and
+2k2 5k þ 4 þ li
+mF
+mS ð2k 6Þ 1⁄4 pðkÞ 1⁄4 0:
+As p(k = 1) = 1 and pðk 1⁄4 1Þ 1⁄4 11 8liðmF=mSÞ this yields the instability condition
+miax li
+mF
+mS > 11
+8 : ð61Þ
+Analogous the next (n = 2) step gives
+2d3
+C 5d2
+C þ 4d1
+C d0
+C þ MA
+mF
+mS ð2d2
+C 6d1
+C þ 8d0
+CÞ 1⁄4 0;
+which by means of the characteristic polynomial
+2k3 5k2 þ 4k 1 þ li
+mF
+mS ð2k2 6k þ 8Þ 1⁄4 pðkÞ 1⁄4 0:
+yields the instability limit of the third step:
+miax li
+mF
+mS > 3
+4 : ð62Þ
+The instability conditions of all further steps n is obtained by simple calculation. It is given by
+miax li
+mF
+mS > 12
+8n for n > 1; ð63Þ
+which shows that the scheme with fixed geometry and mass ratio becomes unstable after a limited number of steps irrespective of the mass ratio or the added mass operator themselves. Similar results can be obtained when the coupling condition (18) is employed. Additionally, the combi
+nation of higher order ingredients (time discretisation scheme, predictor, coupling condition) and a sub-cycling scheme destabilises even faster. Thus a fluid time discretisation scheme which employs the trapezoidal rule (or also the one-step-h scheme with h 5 1) or the geometrically correct coupling condition (18) cannot be employed in a sequentially staggered scheme if stable long-time simulations are to be guaranteed.
+Remark 4.2. As from the lumped mass matrix expressions (30) and (47) the eigenvalues of the added mass operator can be estimated to about one, stable computations with mass densities of fluid and structure which are almost equal are precluded for most of the schemes.
+4.2. General instability
+Irrespective of the particular time discretisation schemes the sequential staggered coupling scheme itself carries an inherent instability as stated by the following theorem.
+For every sequentially staggered scheme constructed as described in Section 2.2, a mass ratio mF/mS exists at which the overall algorithm becomes unstable.
+For every sequentially staggered scheme the structural predictor for the displacement of the interface C at time level n + 1 contains previous structural information up to time level n only. Thus the general appearance of the scheme is
+nþ X1
+i1⁄40
+aidi
+C þ MA
+mF
+mS
+Xn
+j1⁄40
+bjdj
+C 1⁄4 0; ð64Þ
+where ai, bj 2 R are the coefficients defining the particular time discretisation scheme. Eq. (64) yields the characteristic polynomial
+pSðkÞ þ li
+mF
+mS pFðkÞ 1⁄4 pðkÞ 1⁄4 0; ð65Þ
+where the polynomial defined by the time discretisation of
+the structure is denoted by pSðkÞ 1⁄4 Pnþ1
+i1⁄40 aiki while the poly
+nomial pFðkÞ 1⁄4 Pn
+j1⁄40bjkj contains the temporal discretisation of the fluid partition, the type of the structural predictor and Dirichlet coupling velocity. The polynomial pS(k) is one degree higher in k due to the sequential structure of the problem. Thus we have
+pSðk 1⁄4 1Þ
+pFðk 1⁄4 1Þ < 0;
+i.e. both polynomials are of different sign in the infinite negative. As the polynomials are continuous this implies that a point k* < 1 can be found which satisfies
+pSðk Þ
+pFðk Þ < 0:
+Thus there exists a positive coefficient a such that
+pSðk Þ þ apFðk Þ 1⁄4 0:
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1287
+
+
+Hence for a 1⁄4 maxiliðmF=mSÞ the characteristic polynomial (65) exhibits a solution with jk*j > 1 and the underlying scheme is thus unstable.
+4.3. Discussion of further influences
+For a simplified coupled model problem an added mass operator can be defined the eigenvalues of which precisely predict the onset of instabilities as shown in [4]. Real fluidstructure interaction problems however introduce a significant number of additional influences. There are physical effects which bring more complexity:
+• First of all fluid viscosity and structural stiffness cannot be ignored within such applications. Using implicit time discretisation on both fields results in an stabilising effect of structural stiffness on the added mass instability. Viscous fluid forces however increase the influence of the instability. Clearly both effects depend upon the time step Dt as a reduced time step size decreases the influence of the stiffness terms compared to the mass matrices. Following the results obtained without the influence of the stiffnesses (59) a rough way to get an idea of the stiffness influence is
+mF þ aDtkF
+mS þ bDt2kS miax li > Cinst; ð66Þ
+where a and b denote constants emerging from the time discretisation while kF and kS are characteristic stiffness values representing the positive portion of the stiffnesses. The inequality (66) confirms numerical observations which indicate a stabilising influence of the structural stiffness and a slight destabilising effect of an increased fluid viscosity. If the time step size is decreased the stabilising effect of the structural stiffness decreases faster than the destabilising effect of the fluid viscosity. Thus confirming the destabilising effect of small time step sizes. Numerical studies however indicate that at least in the context of stabilised finite element methods the stiffness influence is minor compared to the change in the maximal eigenvalue of the added mass operator caused by a changing time step size. • Related to the influence of stiffnesses is a possible effect of external forces in the nonlinear regime. Structural prestresses for instance contribute to the structural stiffness and will thus influence the instability limit. • Further there are nonlinearities due to the convective fluid term and also material or geometrical nonlinearities of the structural behaviour. Typically simulations start from a reference configuration and zero velocities and thus the nonlinearities not dominating within the first few steps build up and preclude the existence of a linear added mass operator the eigenvalues of which could predict the stability or instability of a calculation for the entire simulation time.
+• Additional nonlinearities also emerge from the geometrical changes due to the displacement of the interface C. Changing geometry means changing integration domain and thus a change of all coefficient matrices encountered. • When compressible structures are employed a change of the effective structural density qS has to be expected which may also influence potential instabilities.
+On top of these physical influences the numerical approximation may introduce further difficulties. Especially in the context of equal-order interpolation elements with residual based stabilisation terms this is the case. Altogether it is little surprising that it was impossible to detect an added mass operator the eigenvalues of which could precisely predict the onset of the instability within a stabilised fluid–structure interaction problem. Nevertheless the analysis remains valid with changing added mass operator and also changing masses and stiffnesses for every linearised step of the simulation. Thus the effect is observed while its analysis and precise prediction gets almost impossible.
+5. Numerical investigation
+The classical driven cavity problem equipped with a thin flexible bottom is used to numerically investigate the added mass instability within a full fluid–structure interaction environment. The example which is taken from [1–3] is depicted in Fig. 1. The fluid domain is discretised by 32 · 32 stabilised bilinear elements. We wish to examine the influence of different parameters and discretisation schemes on the onset of the instability within the time interval t 2 [0 s; 100 s]. To diagnose stability or instability the history of the vertical component of the FSI coupling force at node A is observed. Oscillations in the coupling force indicate instability. We will call a scheme temporally stable if no such oscillation is observed within the stated time interval of interest. The default algorithm is the most stable scheme to be found. We used generalised-a time integration of the structure with zero spectral radius and BE on the fluid domain. Further the simple predictor (14) and Dirichlet boundary condition (17) are employed. At a time step of Dt = 0.1 s the problem can stably be integrated in time up to at least 1000 time steps.
+The influence of the structural density qS is compared for BE and BDF2 time discretisation on the fluid domain. From the prediction summarised in Table 1 we expect that roughly half the structural density required to stably integrate with BDF2 suffices if BE is used on the fluid domain. Starting from the default parameter setting and decreasing the structural density qS the simulation becomes unstable towards the end of the investigated time interval at qS = 321 kg/m3. The begin of this instability is depicted in the diagram in Fig. 2.
+1288 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+A similar procedure is repeated with BDF2 time discretisation on the fluid domain. In this case the problem is
+unstable at qS = 500 kg/m3 and the structural density is increased until the simulation remains stable within the
+Fig. 1. Geometry and material data of driven cavity example with flexible bottom.
+Fig. 2. Evolution of the vertical coupling force at point A for the default configuration of parameters and a problem with lower structural mass density both evaluated with BE time discretisation of the fluid.
+Fig. 3. Evolution of the vertical coupling force at point A obtained with the default parameter setting and problems with different structural mass densities obtained with BDF2 time discretisation on the fluid field.
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1289
+
+
+time interval of interest. Results are shown in the diagram in Fig. 3. Increasing the structural mass density from qS = 500 kg/m3 to qS = 550 kg/m3 delays the onset of the instability and also slightly damps the instability itself. At qS = 590 kg/m3 no instability is observed within the time interval of interest. This indicates that within stabilised real FSI applications the instability ratio between BE and BDF2 may be less strict than predicted for the simplified problem as summarised in Table 1.
+The influence of the structural stiffness is the next parameter we wish to investigate. Departing again from the default configuration with BE, Dt = 0.1 s and qS = 500 kg/m3 we reduce the structural stiffness aiming at a scheme which becomes unstable within the time interval of interest. However, this is not to be reached, indicating that the default parameter configuration is actually stable even without the help of the structural stiffness.
+The influence of the structural predictor is also worth to be investigated. Employing the first order accurate predictor (15) rather than (14) yields an immediately unstable scheme at qS = 500 kg/m3 even if BE is used to integrate the fluid equations in time. Using the second order accurate predictor (16) the behaviour gets even worse as shown in the diagram 4. From Table 1 an estimate of the structural density necessary to stabilise the simulation can be obtained by using the ratio of the stability constants calculated with different predictors. The zeroth order predictor is stable down to qS = 322 kg/m3, thus the first order predictor should be stable for structural densities larger than qS = 1610 kg/m3. This prediction fits very well as the first stable simulation with the first order predictor is obtained at qS = 1635 kg/m3. Similar observations can be made when the second order accurate predictor is used which
+yields an instability condition nine times as rigorous as the zeroth order one. Thus the smallest structural density which should allow for a stable computation is qS = 2898 kg/m3. Actually at qS = 2300 kg/m3 no oscillations are observed within the time interval of interest while oscillations occur within the next few time steps.
+The influence of the time step size is investigated by starting again from BE time integration on the fluid domain and Dt = 0.1 s with qS = 500 kg/m3. Stable computations up to t = 100 s can be obtained for all Dt P 0.005 s where rapidly growing instabilities are observed for smaller time steps. The temporal evolution of the vertical component of the coupling force at point A is depicted in diagram 5. Due to the previous test regarding the structural stiffness we suspect that the sudden onset of the instability is not caused by the decreasing influence of the structural stiffness but rather by an increase of the maximal eigenvalue of MAstab caused by a dominating influence of the stabilisation operator GT
+M.
+The effect of stabilisation at small time steps is investigated by removing the stabilisation operator GT
+M . This causes a consistency error within the stabilisation which scales with the influence of the transient term. Removing this term apparently restores temporal stability for schemes which have been stable for larger time steps thus stressing that the instability at very small time steps is caused by the influence of the stabilisation terms. A simulation with a time step size of Dt = 0.0001 s which gets unstable immediately for the correctly stabilised formulation can be performed when BE (11), the zeroth order predictor (14) and the first order boundary condition (17) are employed. Some results are depicted in the diagram in Fig. 6 where the solid line represents a computation with default para
+Fig. 4. Evolution of the vertical coupling force at point A evaluated with default parameter setting and different predictors: within the first few time steps violent instabilities are observed if higher order predictors are employed.
+1290 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+meter setting but a time step of Dt = 0.003 s and without the influence of the stabilisation matrix GT
+M . The simulation has been stopped after 10,000 stable steps without any sign of an instability. Note that the same computation including GT
+M gets unstable before the absolute time t = 0.4 s is reached as it can be observed in diagram 5. A significantly different behaviour is observed if the fluid is integrated by the trapezoidal rule (TR). In this case a scheme with instationary characteristics is obtained which gets unstable irrespective of the maximal eigenvalue of the added mass operator. Thus removing the stabilisation matrix GT
+M
+slightly delays the onset of the instability but cannot prevent its onset.
+6. Summary and conclusions
+The destabilising added mass effect in the context of fluid–structure interaction computations is not an artifact of a particular discretisation scheme. It rather is an inherent property of sequentially staggered scheme itself and cannot be decreased by increasing the accuracy. Nevertheless there are time discretisation schemes for the fluid equations which allow for a stable calculation at high ratios between structural and fluid density. Such schemes which exhibit characteristics with a limited recursion of the respective time discretisation schemes yield an instability condition of the form
+Fig. 5. Evolution of the vertical coupling force at point A evaluated with different time step sizes and zoom on the regions where instabilities occur; temporally stable integrations are obtained for all Dt P 0.005 s.
+Fig. 6. Evolution of the vertical coupling force at point A for consistently stabilised fluid and removed stabilisation matrix GT
+M.
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1291
+
+
+mF
+mS miax li > C
+indicating instability when satisfied. It turns out that the constant C is the smaller the higher the temporal accuracy of the scheme. Thus stability and high accuracy cannot be achieved at the same time when sequentially staggered schemes are employed. Schemes with fully recursive characteristics yield an instability condition of the form
+mF
+mS miax li > C
+n
+and will thus definitely become unstable for every density ratio if the simulation time is long enough. While ‘long enough’ is usually reached rather soon. Among the schemes considered here the trapezoidal rule (and more generally the implicit one-step-h method for all h < 1) yield such necessarily unstable schemes. But also the use of the correct second order boundary condition along the interface C (18) results in a scheme with fully recursive characteristics which is thus unstable after a small number of steps. In particular we observe that the maximal eigenvalue maxi li is larger than one while the instability constant C (or also C/n) turns out smaller than one for most schemes of practical interest. Thus stable staggered simulations of problems with comparable mass densities are not possible. In particular blood flow-artery interaction or membranewater interaction immediately yield unstable staggered schemes. Problems with very low fluid density compared to the structure however can be conditionally stable. Thus the instability of sequentially staggered schemes is typically not observed when aerodynamics are considered. A derivation of a discrete representation of the added mass operator reveals that while in an unstabilised case this operator is purely geometrical in the stabilised case it depends upon the fluid density and more importantly also on the time step size. Numerical investigations confirm that the maximal eigenvalue of the added mass operator of a discretisation with stabilised fluid elements increases at deceasing time step thus explaining the particularly destabilising effect observed in the context of stabilised incompressible flow and very small time steps. For schemes with stationary characteristics stability at small time steps might be restored by ignoring the stabilisation matrix GT
+M
+which decreases the maximal eigenvalue of the added mass operator and introduces a consistency error. Nevertheless most practical schemes exhibit instationary characteristics and thus get unstable irrespective of the eigenvalues of MA after a limited number of steps. In the context of stabilised fluid formulations and to a lower extent also for inf–sup stable elements due to the influence of the stiffnesses the artificial added mass effect imposes a lower bound on the time step for schemes which allow for conditionally stable computations. An upper bound on the time step results from the CFL condition introduced by the explicit character of the sequential cou
+pling. Thus for practical applications the range of allowed time step sizes might be rather small or even empty due to an overlap of both restrictions. There is further a limit density ratio for every scheme irrespective of the actual representation of the added mass operator which provides an ultimate instability condition. Thus no sequentially staggered scheme can be constructed which would be unconditionally stable with respect to the density ratio. The actual parameters at which the instability will occur are hard to predict precisely especially when stabilised fluid elements are employed and significant nonlinearities have to be considered. However the relationship between different time discretisation schemes with respect to their influence on the instability provides some information which applies also to real FSI calculations. Numerical investigations further indicate that for FSI calculations coupling slender structures with incompressible flow the density ratio at which stable simulations can be performed is very restrictive. Thus the conclusion drawn by Mok [1–3] is justified; iteratively staggered schemes are to be preferred within most such FSI calculations.
+Acknowledgements
+The present study is supported by a grant of the German science foundation ‘‘Deutsche Forschungsgemeinschaft’’ (DFG) under project B4 of the collaborative research centre SFB 404 ‘Multifield Problems in Continuum Mechanics’. This support is gratefully acknowledged.
+Appendix. Solution of the unstabilised flow equations
+The solution of the discrete flow equation (25) is worked out by reformulating the first and third equations in (25) to obtain
+_uI 1⁄4 MF
+II
+1 MF
+ICu_ C þ GIp ; ð67Þ
+GT
+I u_ I 1⁄4 GT
+C _uC: ð68Þ
+Inserting (67) into (68) yields
+GT
+I MF
+II
+1 MF
+ICu_ C þ GIp 1⁄4 GT
+Cu_ C
+and thus the pressure caused by accelerations of the fluidstructure interface C is given by
+p 1⁄4 GT
+I MF
+II
+1GI
+1
+GT
+C GT
+I MF
+II
+1MF
+IC u_ C:
+Using this pressure in Eq. (67) allows to obtain the acceleration field inside the fluid domain
+_uI 1⁄4 MF
+II
+1 MF
+IC þ GI GT
+I MF
+II
+1GI
+1
+GT
+C GT
+I MF
+II
+1MF
+IC u_ C:
+1292 C. F  ̈orster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293
+
+
+Solution of the stabilised flow equations
+From the first and third equation of (42) one obtains
+u_ I 1⁄4 MF
+II
+1 MF
+IC _uC þ GIp ; ð69Þ
+GT
+I u_ I Cp 1⁄4 GT
+C _uC: ð70Þ
+Inserting (69) into (70) yields
+GT
+I MF
+II
+1GIp þ Cp 1⁄4 GT
+C _uC GT
+I MF
+II
+1MF
+ICu_ C:
+Thus the pressure is given by
+p 1⁄4 GT
+I MF
+II
+1GI þ C
+1
+GT
+C GT
+I MF
+II
+1MF
+IC u_ C
+thus the acceleration is obtained to
+_uI 1⁄4 MF
+II
+1MF
+IC _uC
+þ MF
+II
+1GI GT
+I MF
+II
+1GI þ C
+1
+GT
+C GT
+I MF
+II
+1MF
+IC _uC:
+References
+[1] D. Mok, Partitionierte Lo ̈ sungsans ̈atze in der Strukturdynamik und der Fluid–Struktur-Interaktion, Ph.D. thesis, Institut f  ̈ur Baustatik, Universit ̈at Stuttgart, 2001. [2] D. Mok, W. Wall, Partitioned analysis schemes for the transient interaction of incompressible flows and nonlinear flexible structures, in: W.A. Wall, K.-U. Bletzinger, K. Schweizerhof (Eds.), Proceedings of Trends in Computational Structural Mechanics, 2001, pp. 689–698. [3] W. Wall, D. Mok, E. Ramm, Partitioned analysis approach of the transient coupled response of viscous fluids and flexible structures, in: W. Wunderlich (Ed.), Solids, Structures and Coupled Problems in Engineering, Proceedings of the European Conference on Computational Mechanics ECCM ’99, Munich, 1999. [4] P. Causin, J.-F. Gerbeau, F. Nobile, Added-mass effect in the design of partitioned algorithms for fluid–structure problems, Comput. Methods Appl. Mech. Engrg. 194 (2005) 4506–4527. [5] K. Park, C. Felippa, J. DeRuntz, Stabilization of staggered solution procedures for fluid–structure interaction analysis, AMD 26 (1977) 95–124. [6] T. Tezduyar, S. Sathe, R. Keedy, K. Stein, Space–time finite element techniques for computation of fluid–structure interactions, Comput. Methods Appl. Mech. Engrg. 195 (2006) 2002–2027. [7] P. Le Tallec, J. Mouro, Fluid structure interaction with large structural displacements, Comput. Methods Appl. Mech. Engrg. 190 (2001) 3039–3067. [8] S. Piperno, C. Farhat, Design of efficient partitioned procedures for the transient solution of aeroelastic problems, Revue Europ ́eenne des  ́El ́ements Finis, ‘‘Fluid–structure Interaction’’, vol. 9, 2000, pp. 655680.
+[9] S. Piperno, C. Farhat, Partitioned procedures for the transient solution of coupled aeroelastic problems – Part II: energy transfer analysis and three-dimensional applications, Comput. Methods Appl. Mech. Engrg. 190 (2001) 3147–3170. [10] J. Chung, G. Hulbert, A time integration algorithm for structural dynamics with improved numerical dissipation; the generalized-a method, J. Appl. Math. 60 (1993) 371–375. [11] S. Piperno, Explicit/implicit fluid/structure staggered procedures with a structural predictor and fluid subcycling for 2d inviscid aeroelastic simulations, Int. J. Numer. Methods Fluids 25 (1997) 1207–1226. [12] M. Gunzburger, Finite Element Methods for Viscous Incompressible Flows: A Guide to Theory, Practice and Algorithms, Academic Press, Inc., 1989. [13] L. Franca, C. Farhat, Bubble functions prompt unusual stabilized finite element methods, Comput. Methods Appl. Mech. Engrg. 123 (1995) 299–308. [14] L. Franca, F. Valentin, On an improved unusual stabilized finite element method for the advective–reactive–diffusive equation, Comput. Methods Appl. Mech. Engrg. 190 (2000) 1785–1800. [15] T. Hughes, L. Franca, A new finite element formulation for computational fluid dynamics: VII. the Stokes problem with various well-posed boundary conditions: Symmetric formulations that converge for all velocity/pressure spaces, Comput. Methods Appl. Mech. Engrg. 65 (1987) 85–96. [16] T. Hughes, L. Franca, M. Balestra, A new finite element formulation for computational fluid dynamics: V. circumventing the BabuskaBrezzi condition: a stable Petrov–Galerkin formulation of the Stokes problem accommodating equal-order interpolation, Comput. Methods Appl. Mech. Engrg. 59 (1986) 85–99. [17] C. Baiocchi, F. Brezzi, Virtual bubbles and Galerkin-least-squares type of methods (Ga.L.S.), Comput. Methods Appl. Mech. Engrg. 105 (1993) 125–141. [18] L. Franca, C. Farhat, M. Lesoinne, A. Russo, Unusual stabilized finite element methods and residual free bubbles, Int. J. Numer. Methods Fluids 27 (1998) 159–168. [19] L. Franca, T. Hughes, Two classes of mixed finite element methods, Comput. Methods Appl. Mech. Engrg. 69 (1988) 89–129. [20] S. Mittal, T. Tezduyar, A finite element study of incompressible flows past oscillating cylinders and airfoils, Int. J. Numer. Methods Fluids 15 (1992) 1073–1118. [21] M. Behr, L. Franca, T. Tezduyar, Stabilised finite element methods for the velocity–pressure–stress formulation of incompressible flows, Comput. Methods Appl. Mech. Engrg. 104 (1993) 31–48. [22] W. Wall, Fluid–Struktur-Interaktion mit stabilisierten Finiten Elementen, Ph.D. thesis, Institut f  ̈ur Baustatik, Universit ̈at Stuttgart, 1999. [23] L. Franca, S. Oliveira, Pressure bubbles stabilization features in the Stokes problem, Comput. Methods Appl. Mech. Engrg. 192 (2003) 1929–1937. [24] G. Barrenechea, F. Valentin, An unusual stabilized finite element method for a generalized Stokes problem, Numer. Math. 92 (2002) 652–677. [25] M.A. Fern ́andez, J.-F. Gerbeau, C. Grandmont, A projection semiimplicit scheme for the coupling of an elastic structure with an incompressible fluid, Int. J. Numer. Methods Engrg., in press, doi:10. 1002/nme.1792.
+C. Fo ̈ rster et al. / Comput. Methods Appl. Mech. Engrg. 196 (2007) 1278–1293 1293

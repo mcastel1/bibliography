@@ -1,0 +1,699 @@
+Contents lists available at ScienceDirect
+Computer Physics Communications
+journal homepage: www.elsevier.com/locate/cpc
+Computer Programs in Physics
+IRENE: a fluId layeR finitE-elemeNt softwarE
+Dennis Wörthmüller a,b, Gaetano Ferraro a,b,c, Pierre Sens a,b, Michele Castellana a,b,∗
+a Institut Curie, PSL Research University, Paris, France b CNRS UMR168, 11 rue Pierre et Marie Curie, Paris, 75005, France c Polytechnic University of Turin, Corso Castelfidardo 39, Turin, 10129, Italy
+article info
+The review of this paper was arranged by Prof. Abbas Khayyer
+Keywords:
+Finite element Fluid layer Multiscale Open source software Turbulence
+abstract
+We present a finite element (FE) software library, i
+r
+en
+e
+, which allows for numerically solving the dynamics of a viscous fluid layer embedded in three-dimensional space. i
+r
+en
+e
+describes two-dimensional, dynamical open surfaces, and it is restricted to manifolds described with the Monge gauge. i
+r
+en
+e
+supports a wide range of boundary conditions and shapes of inter-surface obstacles, and is built upon the user-friendly and versatile finite element computational software (FEniCS). Also, the library can describe a wide range of physical regimes—both low-Reynolds-number and inertia-dominated ones—capturing the complex coupling between in-plane flows, out-of-plane deformations, surface tension, and elastic response. We validate i
+r
+en
+e
+against known analytical and numerical results, and demonstrate its capabilities through physical examples. Overall, i
+r
+en
+e
+provides a versatile and efficient tool for understanding fluid-layer dynamics on multiple physical scales, from flows of lipidic membranes on a microscopic level, to fluid flows on a macroscopic scale, to atmospheric air flows on a planetary level.
+PROGRAM SUMMARY
+• Program title: fluId layeR finitE-elemeNt softwarE ( i
+r
+en
+e
+)
+• CPC Library link to program files: https://doi.org/10.17632/xnnfhhfkhv.1
+• Developer’s repository link: https://github.com/Michele-s-team/irene/tree/master • Licensing provisions: MIT license (MIT) • Supplementary material: Included in the submission • Nature of problem: i
+r
+en
+e
+is designed to solve the coupled partial differential equations (PDEs) governing thin fluid layers. The library can handle – two-dimensional manifolds embedded in three dimensions, – diverse boundary conditions, – inter-manifold obstacles, e.g., membrane proteins, – multiple physical regimes, from low-Reynolds-number biological flows to inertia-dominated. • Solution method: PDEs are solved with the FE method, by using the FEniCS library. i
+r
+en
+e
+’s implementation for the fluid-layer dynamics combines the incremental pressure correction scheme and Crank Nicolson time discretization. • Limitations: i
+r
+en
+e
+is restricted to two-dimensional manifolds which can be described, with the Monge parametrization, as the graph of a function of two variables z = f (x, y), i.e., surfaces without overhangs. This parametrization does not allow for describing, for example, budding vesicles in the strong-deformation regime, which may present overhangs.
+1. Introduction
+Thin fluid layers are central to a wide range of physical systems, from biological membranes [8] and cell cortices [9] to soap films [10]
+∗ Corresponding author. E-mail address: michele.castellana@curie.fr (M. Castellana).
+and industrial coatings. These two-dimensional interfaces often exhibit complex dynamics, involving in-plane viscous flow, out-of-plane deformations, and interactions with surrounding media. Modeling such systems presents substantial challenges due to their geometric nonlinear
+https://doi.org/10.1016/j.cpc.2026.110366
+Received 19 December 2025; Received in revised form 11 August 2026; Accepted 17 August 2026
+Computer Physics Communications 330 (2027) 110366
+Available online 9 September 2026 0010-4655/© 2026 Elsevier B.V. All rights are reserved, including those for text and data mining, AI training, and similar technologies.
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Glossary
+H mean curvature [4]
+K Gaussian curvature [4]
+c center of the circular obstacle in a mesh
+x coordinates on M
+κ bending rigidity [6]
+μ auxiliary variable which equals the mean curvature H, see Eq. (3). It is a scalar on M
+∇ covariant derivative [1]
+ΔLB Laplace-Beltrami operator [5]
+̂N unit vector in the three-dimensional Euclidean space, normal to M, see Fig. 1
+ω gradient of z, it is a one-form on M
+σ surface tension [6], it is a scalar on M
+b second fundamental form [1]
+g metric tensor [1]
+n unit vector in the tangent bundle of M and normal to a curve in M, see Fig. 1
+r radius of circular obstacle in a mesh
+v tangential velocity, it is a vector field the tangent bundle of M
+w normal velocity, it is a scalar on M
+z fluid shape profile, it is a scalar on M
+FEniCS finite element computational software [7], on which i
+r
+en
+e
+is built.
+L length of a rectangle which defines Ω
+η two-dimensional viscosity [2]
+M differential manifold [1]
+Ω subset of R2 over which the coordinates of M are defined [3]
+∂Ω boundary of Ω, see Fig. 1 and Eq. (16)
+∂Ω boundary of Ω located at the bottom edge of the rectangle
+∂Ω circular boundary of Ω
+∂Ω inner circular boundary of Ω
+∂Ω same as ∂Ω , for the outer circular boundary
+∂Ω boundary of Ω located at the left edge of the rectangle
+∂Ω same as ∂Ω , for the right edge of the rectangle
+∂Ω rectangular boundary of Ω, see Eq. (15)
+∂Ω boundary of Ω located at the top edge of the rectangle
+ρ density [2]
+h height of a rectangle which defines Ω
+ity, the coupling between flows and shape and, in some regimes, the presence of turbulence or flow instabilities. In biological contexts, deformable, curved fluid interfaces such as the cell cortex or lipid bilayers play a key role in morphogenetic processes, cell motility, and signal
+ing. Membrane-bound proteins can locally alter mechanical or transport properties and interact with curvature to generate feedback mechanisms [8,11].
+On macroscopic scales, fluid sheets can exhibit instabilities, folding, or turbulent behavior driven by external forcing or intrinsic flow dynamics [12–14]. On mesoscopic, planetary scales, layers of clouds at low altitude in the atmosphere may exhibit patterns whose spatial extensions are so large that the curvature of the layer surfaceinduced by the Earth’s curvature—is significant [15]. A unified numerical framework that captures both in-plane and out-of-plane deformations across regimes and scales is essential for understanding such phenomena. Several numerical approaches have been proposed to numerically solve surface hydrodynamics: These include boundary-integral methods [16], immersed-boundary methods [17,18], spectral methods [19], Monte Carlo methods [20], surface-finite-element [21] and finiteelement methods [22,23], for which a large variety of computationaloptimization methods have been developed, including classical [24] and quantum [25,26] algorithms. While each of these techniques is well suited to specific geometries and physical regimes, their applicability is often restricted. Many methods are formulated for closed or simply connected surfaces and focus on low-Reynolds-number flows [21,27]. Others are limited to lower-dimensional manifolds [22]. Other studies [28] based on non-H1 conforming FE spaces, allow for pointwise divergencefree and exactly tangential solutions, and for describing fixed surfaces with a general structure, i.e., which are not necessarily the graph of a function of two variables [4]. These studies have been recently extended to passively moving manifolds [29,30]. In addition, approaches that explicitly couple surface deformation with fluid flow typically rely on creeping-flow assumptions [23]. Moreover, from a software perspective, existing FE implementations are often not distributed as fully documented open-source tools, and they rarely support the inclusion of a large variety of mesh geometries and obstacles.
+We present a fluId layeR finitE-elemeNt softwarE, i
+r
+en
+e
+,a software library for the numerical solution of the steady state and the dynamics of two-dimensional viscous fluid layers. i
+r
+en
+e
+handles two-dimensional, dynamical surfaces that can be described with the Monge parametrization [4,31,32], i.e., which can be represented as graphs of a function. i
+r
+en
+e
+allows for describing actively moving surfaces, through the coupled dynamics of in-shape flows and shapes, including both low-Reynolds-number and inertia-dominated flows. In addition, the library allows for a large variety of boundary conditions (BCs) on the surface boundaries, including Dirichlet BCs on the surface shape, tangent vectors, and mean curvature, as well as Dirichlet BCs for the flow field, and elastic or viscous stresses. i
+r
+en
+e
+allows for including into the surface one or more obstacles with a large variety of shapes, whose presence is crucial for a number of experimental applicationssee for example trans-membrane proteins [33] on the cellular scale, or protrusions on the Earth surface which alter the flows of low-altitude clouds in the atmosphere [15]. Finally, i
+r
+en
+e
+’s code is publicly available on GitHub, and it is based on a user-friendly, open-source FEniCS library [7], supported and developed by a strong and dynamic community [34].
+We validate i
+r
+en
+e
+against known analytical and numerical results and demonstrate its capabilities through representative examples. These include the steady-state flow of a lipidic membrane with a transmembrane protein (TMP) [33] in a ring geometry, and the dynamics of Poiseuille flow of air [2] on a curved channel. In addition, we study the dynamics of the Navier-Stokes (NS) equations on a deformable surface, for which we develop a novel combination of the incremental pressure correction scheme (IPCS) [35], and of the Crank Nicolson (CN) timediscretization approach [26,36]. i
+r
+en
+e
+’s modular design makes it a promising tool for future extensions, such as the inclusion of active stresses and interactions with surrounding fluids on multiple physical scales [37,38].
+Computer Physics Communications 330 (2027) 110366
+2
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Table 1
+Partial differential equations for the different problems solved with i
+r
+en
+e
+.
+Problem Equations
+Steady state No flow 2κ[ΔLBμ − 2μ(μ2 − K)] + 2σμ = 0, (1)
+ωi ≡ ∇iz, (2)
+μ ≡ H(ω), (3)
+Flow ∇ivi − 2μw =0, (4)
+ρ(vj ∇j vi − 2vj wbi
+j − w∇iw) =∇iσ + η[−ΔLBvi − 2(bij − 2 μ gij )∇j w + 2 Kvi], (5)
+ρvi(vj bji + ∇iw) =2κ[ΔLBμ − 2μ(μ2 − K)] + 2σμ
++2η[(∇ivj )bij − 2w(2μ2 − K)], (6)
+w ( ̂N3 − ̂Niωi) =0, (7)
+Eqs. (2) and (3),
+Dynamics Fixed manifold ∇ivi = 0 (8),
+ρ
+(∂tvi + vj ∇j vi) = ∇iσ − η ΔLBvi (9),
+Moving manifold ∇ivi − 2Hw = 0, (10)
+ρ(∂tvi + vj ∇j vi − 2vj wbi
+j − w∇iw) =
+∇iσ + η[−ΔLBvi − 2(bij − 2 H gij )∇j w + 2 Kvi], (11)
+ρ
+[∂tw + vi(vj bji + ∇iw)] =
+2κ[ΔLBH − 2H(H2 − K)] + 2σH + 2η[(∇ivj )bij − 2w(2H2 − K)], (12)
+∂tz = w ( ̂N3 − ̂Ni∂iz). (13)
+The manuscript is organized as follows. In Section 2 we present the PDEs which describe the dynamics of the fluid layer. In Section 3 we present i
+r
+en
+e
+’s solution of these PDEs in a few representative examples for the steady state for cell membranes, Section 3.1, and for the dynamics of macroscopic air flow, Section 3.2. Finally, Section 4 is devoted to the discussion and interpretation of the results, and future directions.
+2. Mathematical framework
+Let us consider a two-dimensional fluid layer embedded in threedimensional space, see Fig. 1. The elements of the fluid flow tangentially to the layer and the layer itself can deform, exhibiting a velocity normal to the layer surface: we will denote the tangential and normal velocities above by v and w respectively. Geometrically speaking, the surface of the layer constitutes a differential manifold, which we will denote by M. The velocity vi is a vector field in the tangent bundle of M, while w is a scalar field on M [1]. The surface tension of the layer is denoted by σ. Choosing—for example—the Monge parametrization [4] to parametrize M, the layer height is given by a function z(x), where x are the coordinates on a domain Ω ∈ R2, see Fig. 1.
+In what follows, we will assume that the elastic response of the layer is described by the Helfrich free energy [39]. However, the modular structure of i
+r
+en
+e
+allows for implementing other elastic models, see Section 4.
+The equations which describe the dynamics of the velocities, tension and shape of the layer are listed in Table 1, and they are Eqs. (10)–(13) [5,40,41]. Eqs. (10)–(13) are a set of PDEs [3], defined on a set Ω with boundary ∂Ω, for the two components vi of the tangent velocity v, the normal velocity w, the surface tension σ, and the fluid shape profile z, where each unknown depends on both the coordinates x on Ω and time t. In Eqs. (10)–(13), ∇ is the covariant derivative, g the metric tensor, b the second fundamental form, H and K the mean and Gaussian curvatures, respectively, [42], and σ the surface tension. In Eq. (11) and Eq. (12), ΔLB is the Laplace-Beltrami operator applied to a vector and scalar field,
+given by Eq. (S11) and Eq. (S10), respectively [5]. The vector ̂N is the unit normal vector to Ω, which lives in the Euclidean, three-dimensional space in which Ω is embedded, while n is the normal to a boundary of M, and it belongs to the tangent bundle of M [42], see Fig. 1. Also, ρ
+and η are the two-dimensional density and viscosity, respectively, and κ the bending rigidity [41]. It is important to point out that, despite the fact that in i
+r
+en
+e
+’s examples we will make use of the Monge coordinate system [4], Eqs. (10)–(13) are covariant with respect to a general diffeomorphism xi → x′i [1]—which ensures that the physical behavior of the system is independent of the coordinate choice.
+In what follows, we will consider two geometries for Ω: A geometry given by a rectangle with a circular hole, shown in Fig. 1, and a ring geometry. For the ring geometry, we will consider radially symmetric boundary-value problems (BVPs): Such problems allow for a numerically exact solution, which we will leverage to test i
+r
+en
+e
+’s solutions and show the consistency of the variational formulations.
+For a rectangular geometry, we will denote by ∂Ω , ∂Ω , ∂Ω , ∂Ω , ∂Ω , ∂Ω the left, right, top, bottom, rectangle and circle boundaries, respectively. For these boundaries, we have
+∂Ω ≡∂Ω ∪ ∂Ω , (14)
+∂Ω =∂Ω ∪ ∂Ω ∪ ∂Ω , (15)
+∂Ω =∂Ω ∪ ∂Ω . (16)
+For the ring geometry, we will denote the boundaries of the inner and outer circles, respectively, by ∂Ω and ∂Ω , and the whole boundary by
+∂Ω =∂Ω ∪ ∂Ω . (17)
+An illustration of the notation above for the manifold boundaries is given in Fig. 2.
+3. Results
+In what follows, we will show how i
+r
+en
+e
+can solve and predict the physical behavior of the fluid layer defined by Eqs. (10)–(13), illustrating the results for the two geometries above. Starting from the simplest problems and gradually increasing their complexity, we will first consider the steady state of Eqs. (10)–(13), and then discuss the dynamics.
+Computer Physics Communications 330 (2027) 110366
+3
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 1. Differential manifold of the fluid layer. A) Manifold M (gray surface). The domain Ω ∈ R2 over which the coordinates x1, x2 of M are defined is a rectangle with a circular hole (red curves). The manifold surface, described in the Monge gauge, is given by a height function z, which depends on x1, x2. B) Vector field ̂N of the normal to M in three-dimensional Euclidean space. C) Normal to the circle boundary, n, which lies in the tangent bundle of M. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Fig. 2. Notation for the manifold boundaries. A) Geometry given by a rectangle with a circular hole: We show the domain Ω (grayed area), and is boundaries ∂Ω , ∂Ω , ∂Ω , ∂Ω , ∂Ω , ∂Ω . B) Same as A, for a ring-shaped domain and its boundaries ∂Ω and ∂Ω .
+3.1. Steady state
+At steady state, we set all time derivatives in Eqs. (10)–(13) to zero, and obtain Eqs. (4)–(7) in Table 1, where ω and μ and are given by Eqs. (2) and (3), respectively. In Eq. (5) and in Eq. (6) ΔLB is given by Eq. (S11) and Eq. (S10), respectively. While in Eqs. (4)–(7) the time derivatives vanish, the convective terms which enter in the material derivative of the velocities [2] are present: Together with the terms involving the manifold shape, such terms contribute to the nonlinearity of the PDEs.
+We will now consider the steady state in the absence of flows first, and then discuss the steady state in the presence of flows.
+3.1.1. Steady state with no flows
+In the absence of flows, Eqs. (10)–(13), with vanishing time derivatives and vi = w = 0, reduce to a single PDE which determines the layer shape [6,43,44], i.e., Eq. (1), in which H is given by Eq. (3).
+Eqs. (4), (5) and (7) are identically satisfied, and in Eq. (1) ΔLB is given by Eq. (S10). Here, we choose the coordinates of the Monge parametrization, see Section S1.7, and suppose that the surface-tension profile σ is given: as a result, the only unknown of Eq. (1) is the membrane profile z. This reflects a physical situation where, for example, the
+intrinsic features of the layer material are such that the surface tension is barely affected by the layer shape. From the mathematical standpoint, Eq. (1) is a fourth-order PDE in z, since H contains up to second-order derivatives of z; see Eqs. (S2) to (S6),
+Eq. (1) requires special care when handled with finite-element methods (FEMs). A direct, conforming discretization of a fourth-order PDE such as (1) requires H2-conforming FE spaces. In fact, integrating by parts twice yields a weak formulation containing second derivatives of z, which are square-integrable only if fields are defined in Hp-conforming spaces with p ≥ 2. However, i
+r
+en
+e
+is based on the FEniCS library [7], which provides H1-conforming FE spaces only: fields and their first derivatives are square-integrable, but first derivatives can be discontinuous [7]. Consequently, the second derivatives of z appearing in the H2 weak formulation of Eq. (1) are not square-integrable in these spaces, and a direct conforming discretization is not available. In order to overcome this issue, we recast the fourth-order problem as a system of coupled lower-order equations by introducing two auxiliary fields ω and μ, defined in terms of the partial derivatives of z, see Eqs. (2) and (3) in Table 1. We re-express Eq. (1) in terms of ω and μ, so that the resulting equations (1) to (3) involve at most second derivatives of the unknowns z, ω and μ and, after one integration by parts, their weak form involves at most first derivatives of such unknowns. Given that FEniCS spaces are H1 conforming, the weak formulation of these equations is now well posed. Finally, the introduction of the additional field ω allows
+Computer Physics Communications 330 (2027) 110366
+4
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 3. Steady state in the absence of flows for a lipidic membrane with a trans-membrane protein inclusion on a ring geometry, with fixed-height boundary conditions, Eqs. (S44) to (S47). The solution has been obtained with parameters (18) and z = −0.5 μm, z = 0 μm, ψ = −0.1, ψ = 0, σ = 1 Pa μm , and outercircle radius R = 1 μm, where both circles are centered at the origin. A) Membrane profile z (surface) and trans-membrane protein (red cone), where the color code represents the membrane height. The black curves along the surface serve as guides for the eye. B) Mesh and protein. For the sake of clarity, the shown mesh is coarser than the one used to produce the solution. C) Membrane height z as a function of the radial coordinate r, from i
+r
+en
+e
+(black) and the numerically exact solution (red). D) Same as C, for the membrane-profile derivative ωr. E) Same as C, for the mean curvature H. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+for an efficient factorization and a flexible form of the variational problem (VP), allowing the enforcement of Neumann BCs on z as Dirichlet BCs on ω [3].
+We thus obtain the system of PDEs (1) to (3), see Table 1, for the unknowns z, ω and μ, where ΔLB in Eq. (1) is given by Eq. (S10). In these PDEs, the highest-order derivative which appears is the secondorder one, see Eq. (1). As a result, in the variational formulation, of the problem, second-order derivatives will be integrated by parts, resulting in a well-posed problem where the highest-order derivatives are the first-order ones—see below. The variational formulation is discussed in Section S4.1.
+Architecture. An illustration of i
+r
+en
+e
+’s architecture is given in Fig. 4, where we list the package main folders and modular structure. The generate_mesh path contains the modules that generate meshes with a variety of geometries in one, two and three dimensions. The mesh folder contains modules relative to mesh handling, and it includes check_tags, which contains modules which verify that the mesh boundaries are correctly tagged, and read, which contains modules to read the mesh. In differential_geometry, the boundary folder contains modules relative to the boundary of differential manifolds, e.g., the boundary normal and the pull-back of the metric at the boundary. The manifold folder contains modules relative to the bulk of differential manifolds, e.g., the metric, fundamental forms and covariant derivatives.
+An example of how this modular structure is leveraged in the solution of the VPs is shown in Code snippets 1 and 2. First, Code snippet 1 shows how the variational functional (S42) in Case 1a of Section 3.1.1 is implemented in i
+r
+en
+e
+. To define the functional, multiple modules, such as manifold_geometry, referred to as geo in the snippet, are called. Second, Code snippet 2, shows how the mean curvature H is defined in manifold_geometry by calling methods in a hierarchical way.
+Installation. The user can find detailed instructions on how to install i
+r
+en
+e
+on Linux, Apple and Windows operating systems in installation_instructions, which contain also a step-by-step guide on how to run a minimal working example.
+User workflow. In Fig. 5, we illustrate i
+r
+en
+e
+’s user workflow by showing the steps to generate the solution in Fig. 8, which consists of the following steps:
+• Mesh generation: – Mesh parameters are set in file mesh_parameters.csv. – The mesh is generated (top blue arrow in Fig. 5) by running generate_square_mesh.py and providing the path to mesh_parameters.csv as a command-line argument. Command-line instructions for this step are provided in the README file. In general, the user may select multiple mesh geometries, see the subpaths in the generate_mesh path, each of which contains the mesh-generation py file, and the mesh-parameter csv file.
+Computer Physics Communications 330 (2027) 110366
+5
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 4. i
+r
+en
+e
+’s architecture. Folders (blue icons) and Python files (white icons) in i
+r
+en
+e
+’s root path on GitHub are shown. For the sake of clarity, only the main architectural components are displayed. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Code snippet 1. i
+r
+en
+e
+’s code for the variational problem of Case 1a in Section 3.1.1. We show the implementation of the variational functional (S42). The full code is located in the steady_state_no_flow module as variational_problem_bc_ring, see Fig. 4.
+Code snippet 2. Code for a minimal, illustrative example demonstrating i
+r
+en
+e
+’s modular structure. The mean curvature H, Eq. (S6), is defined in terms of the contravariant metric tensor g_c and of the second fundamental form b, Eq. (S5). The tensor g_c is defined in terms of the covariant metric tensor g, which is defined in terms of the tangent vectors e, see Eqs. (S2) and (S4). Also, b is defined in terms of the normal normal and in terms of e. Finally, normal is defined in terms of e, see Eq. (S3). These definitions are implemented in the manifold_geometry folder, see Fig. 4.
+Code snippet 3. Sample of i
+r
+en
+e
+output to csv file for a scalar field f (x, y). The field value is stored in the f column, and the values of x and y in the :0 and :1 column, respectively. Each line corresponds to a field value. For vector or tensor fields, the f column is replaced by f:0, f:01, ...columns. For tensor fields, columns are stored in row-major order.
+• Problem solution: The solution is produced (bottom blue arrow in Fig. 5) by running solve.py and providing – the type of VP that will be solved. For example, if solve.py is called with the flag square_a or square_b, the solution of Fig. 8 or Fig. 9 will be produced, respectively. – the path to the mesh generated above, – the path where the solution will be stored. Command-line instructions for this step are also provided in the README file.
+Computer Physics Communications 330 (2027) 110366
+6
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 5. i
+r
+en
+e
+’s user workflow. The diagram shows the steps to generate the solution in Fig. 8.
+• Solution output: The solution is stored in the solution path in both xdmf and csv format. Files in xdmf format—z.xdmf, omega.xdmf and mu.xdmf—can be visualized, for example, with Paraview [45]. Files in csv format—z.csv, omega.csv and mu.csv—have the structure shown in Code snippet 3, and they can be visualized with a large variety of visualization tools. The file z.csv is plotted in Fig. 8.
+Fields are defined on continuous Galerkin (CG) [7] function spaces of different polynomials degrees, depending on the field and VP. For each VP, the degree of each function space is specified in the function_space.py module in the problem folder.
+We will show i
+r
+en
+e
+’s solution for the steady state with no flows with an example from biological physics—the deformation of a lipidic cell membrane. Such deformation can describe, for example, membrane-shape fluctuations [11,46], the formation of membrane tubules [47] engineered with micropipettes [48] or optical tweezers [49], or membrane-shape deformations due to TMPs [50–53]. Here, we will focus on the latter example, by considering a TMP inserted into the fluid layer—the membrane. The model parameters for this problem with a circular protein inclusion of radius r are [33,54–56]:
+κ = 10 kBT , T = 300 K, ρ = 10−12 Pa s2∕μm, η = 10−2 Pa μm s, r = 10 nm.
+(18)
+In what follows, we will present i
+r
+en
+e
+’s numerical results for this example in biological physics, by following the structure of the variational problems discussed above.
+1. Fixed-height boundary conditions.
+(a) Ring geometry. In Fig. 3 we present the solution from i
+r
+en
+e
+for a ring geometry with BCs which fix the membrane height at both the inner circle, where the TMP is located, and at
+the outer circle, see Section S4.1 and Case 1a in there for details. In addition, we show the numerically exact solution, obtained by reducing the PDEs to an ordinary differential equation (ODE) by leveraging spherical symmetry, see Section S5.1.
+Convergence to the exact solution— In Fig. 6 we show the convergence rate of i
+r
+en
+e
+’s solution to the exact one. In panel
+A, we depict the L2 norm ‖
+‖
+z − zex‖
+‖2 of the difference between the manifold profile obtained from i
+r
+en
+e
+and the numerically exact one discussed in Section S5.1. The error is plotted as a function of the number of mesh divisions per spatial dimension [7],
+h ≡ N−1∕2, (19)
+where N is the number of cells in the mesh. In panels B and C, we make the same analysis as in A, for the fields ω and μ, respec
+tively, and ε given by ‖
+‖ ‖ ‖
+√
+(ωi − ωex i)(ωi − ωi
+ex )‖
+‖ ‖
+‖2
+and ‖
+‖
+μ − μex‖
+‖2,
+respectively. Overall, Fig. 6 shows that i
+r
+en
+e
+’s solution converges with a power law to the exact one, thus indicating that the VP is consistent. In order to understand the convergence rate, we recall that we reformulated this problem in terms of a mixed VP, where each field satisfies an equation whose order is smaller than or equal to two, see Eqs. (S38), (S42) and (S43). The conventional value of the convergence exponent for such second-order problems is the degree of the function space plus one [7]. Given that we used second-degree elements, see function_spaces.py, the conventional convergence exponent is ν = 3. The convergence exponents ν in Fig. 6 are lower than the conventional one: This is expected for FE problems on curved domains, such as the circular boundary, where element and boundary shapes are not conforming [57,58].
+Computer Physics Communications 330 (2027) 110366
+7
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 6. Convergence of i
+r
+en
+e
+’s solution to the exact one, for Fig. 3. A) Error norm of the difference between i
+r
+en
+e
+’s and the numerically exact solution for the manifold profile z (black crosses) as a function of the inverse of mesh divisions per spatial dimension [7]. The error norm has been fitted with ε ∼ hν (red line), with optimal fit parameter ν = 1.910(17)—see Case 1a in Section S4.1 for details. B) Same as A, for the manifold gradient ωi, with ν = 2.040(29). C) Same as A, for the mean curvature μ, with ν = 1.63(14). (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Fig. 7. i
+r
+en
+e
+’s computing time for Fig. 3. Time T needed to solve the variational problem as a function of the total number N of degrees of freedom (DOFs) (black crosses). We fit the data with a function of the form T ∼ Ns, and obtain s = 1.60(13). Here, T is computed as the total run time of solve.py, and it thus includes assembly and input-output operations. Solver parameters and backend are given in Code snippet 4, which is included in solve.py.
+Computing time—In Fig. 7 we show the computing time needed to solve the variational problem of Fig. 3 as a function of the total number of degrees of freedom (DOFs), on a ∼ 2.2 GHz Apple M3 core.
+(b) Rectangle-with-circle geometry. In Fig. 8 we show the solution for a rectangular geometry, for which no exact solution exists. The inner circle is located at the rectangle center, c = (L∕2, h∕2). The solution is detailed in Section S4.1 and Case 1b in there. 2. Fixed-slope boundary conditions.
+In Fig. 9, we show the solution on a rectangular geometry with a different set of BCs, which fix the layer slope rather than its height at the protein, see Section S4.1 and Case 2 in there. These BCs result from the physical assumption that the lipid bilayer is anchored to the protein perpendicularly to the protein (cone) surface.
+3.1.2. Steady state with flows
+The steady state in presence of flows is described by Eqs. (4)–(7), whose unknowns are v, w, σ and z. Proceeding along the same lines as Section 3.1.1, we combine Eqs. (4)–(7) and Eqs. (2) and (3) and obtain Eqs. (2)–(7) in Table 1, where ΔLB in Eqs. (5) and (6) is defined by Eq.
+Code snippet 4. Solver parameters and backend used in solve.py in the steady_state_no_flow module, to produce Fig. 3.
+(S11) and Eq. (S10), respectively. The variational formulation for the steady state with flows is detailed in Section S4.2.
+We will now discuss i
+r
+en
+e
+’s results for the steady state with flows, for a lipidic cell membrane, following the structure of the VPs presented above.
+Computer Physics Communications 330 (2027) 110366
+8
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 8. Steady state in the absence of flows for a lipidic membrane with a trans-membrane protein inclusion on a rectangular geometry with fixed-height boundary conditions, Eqs. (S52) to (S55). Rectangle dimensions are L = h = 1 μm, and the protein is located at the rectangle center, c = (L∕2, h∕2) . The solution has been obtained with parameters (18), z = 0 μm , z = −0.5 μm , ψ = −0.5, ψ = 0, σ = 1 Pa μm . A) Membrane profile z (surface) and trans-membrane protein (red cone), where the color code represents the membrane height. The black curves along the surface serve as guides for the eye. B) Mesh and protein. For the sake of clarity, the shown mesh is coarser than the one used to produce the solution. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Fig. 9. Steady state in the absence of flows for a lipidic membrane with a trans-membrane protein inclusion on a rectangular geometry. Rectangle and obstacle dimensions and location are the same as in Fig. 8. The solution is obtained with fixed-slope boundary conditions, Eqs. (S52), (S57) and (S58), and parameters (18), z = 0 , φi = 0.5 ∂i|x − x | , ψ = 0 and σ = 1 Pa μm. Notation and mesh are the same as in Fig. 8.
+1. Fixed-height BCs.
+(a) Ring geometry. In Fig. S2, we show the solution from i
+r
+en
+e
+for a ring geometry with BCs which fix the membrane height at the inner circle, i.e., the TMP, see Section S4.2 and Case 1a in there. Also, we compare i
+r
+en
+e
+’s solution to the numerically exact solution, obtained by reducing the PDEs to an ODE by leveraging spherical symmetry, detailed in Section S5.2.
+Convergence to the exact solution— Proceeding along the lines of Fig. 6, in Fig. 10 we show the convergence rate of i
+r
+en
+e
+’s solution to the exact one. In panel A, we depict the L2 norm
+ε=‖
+‖ ‖ ‖
+√
+(vi − vi
+ex)(vi − vex i)‖
+‖ ‖
+‖2
+(20)
+of the difference between the tangential velocity obtained from i
+r
+en
+e
+and the numerically exact one discussed in Section S5.2, as a function of the number of mesh divisions per spatial dimension (19)—see Case 1a in Section S4.2 for details. In panels B, C, D and E, we make the same analysis as in
+A, for the fields σ, z, ω, μ, respectively, and ε given by ‖
+‖
+σ − σex‖
+‖2,
+‖ ‖
+z − zex‖
+‖2, ‖
+‖ ‖ ‖
+√
+(ωi − ωex i)(ωi − ωi
+ex )‖
+‖ ‖
+‖2
+and ‖
+‖
+μ − μex‖
+‖2, respec
+tively. As in Section 3.1.1, the convergence of i
+r
+en
+e
+’s solution to the exact one indicates that the VP is consistent. The relation between the convergence exponents of Fig. 10 and their conventional value can be understood proceeding along the lines of Case 1a in Section 3.1.1.
+(b) Rectangle-with-circle geometry.
+Figure S4 shows the solution on a rectangular geometry, where no analytical solution exists. Membrane is injected on one side of the rectangle, and Fig. S4 displays the solution with fixed-height BCs, respectively—see Case 1b in Section S4.2 for details.
+2. Fixed-slope BCs. (a) Ring geometry.
+Figure S3 shows the solution for a ring geometry with BCs which fix the membrane slope at the TMP, which here behaves as a sink; see Case 2a in Section S4.2 for details.
+Convergence to the exact solution— Proceeding along the lines of Fig. 6, in Fig. 11 we show the convergence rate of i
+r
+en
+e
+’s solution to the exact one, which again indicates the consistency of our variational formulation. In panel A, we depict the L2 norm (20) of the difference between the tangential velocity obtained from i
+r
+en
+e
+and the numerically exact one discussed in Section S5.2, as a function of the number of mesh divisions per spatial dimension (19)—see Case 2a in Section S4.2 for details. In panels B, C, D and E, we make the same analysis as in A, for the fields σ, z, ω, μ, respectively, where ε is given by the expression in Case 1a above. The relation between the convergence exponents of Fig. 11 and their conventional value can be understood proceeding along the lines of Case 1a in Section 3.1.1.
+Computer Physics Communications 330 (2027) 110366
+9
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 10. Convergence of i
+r
+en
+e
+’s solution to the exact one, for Fig. S2. A) Error norm of the difference between i
+r
+en
+e
+’s and the numerically exact solution for the velocity vi (black crosses) as a function of the inverse of mesh divisions per spatial dimension [7]. The error norm has been fitted with ε ∼ hν (red line), with optimal fit parameter ν = 1.810(19)—see Case 1a in Section S4.2 for details. B) Same as A, for the surface tension σ, with ν = 1.011(76). C) Same as A, for the manifold profile z, with ν = 2.20(24). D) Same as A, for the manifold gradient ωi, with ν = 1.58(15). E) Same as A, for mean curvature μ, with ν = 1.40(22). (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Computing time—In Fig. S1 we show the computing time needed to solve the variational problem of Fig. S3–see Case 2a in Section S4.2 for details.
+(b) Rectangle-with-circle geometry.
+Fig. 12 shows the solution on a rectangular geometry, where no analytical solution exists. Membrane is injected on one side of the rectangle, and Fig. 12 displays the solution with fixed-slope BCs—see Case 2b in Section S4.2 for details.
+3.2. Dynamics
+In what follows, we will discuss the dynamics of the fluid layer defined by Eqs. (10)–(13), illustrating the results for the two geometries above. We will first consider the dynamics on a fixed manifold, and then discuss the dynamics on a moving manifold.
+3.2.1. Dynamics with fixed manifold
+Given that the manifold profile z is fixed, here w = 0. We assume that the problem and its BCs are invariant under translations along x1: This
+Fig. 11. Convergence of i
+r
+en
+e
+’s solution to the exact one, for Fig. S3. A) Error norm of the difference between i
+r
+en
+e
+’s and the numerically exact solution for the velocity vi (black crosses) as a function of the inverse of mesh divisions per spatial dimension [7]. The error norm has been fitted with ε ∼ hν (red line), with optimal fit parameter ν = 2.024(17)—see Case 2a in Section S4.2 for details. B) Same as A, for the surface tension σ, with ν = 1.024(35). C) Same as A, for the manifold profile z, with ν = 2.173(21). D) Same as A, for the manifold gradient ωi, with ν = 2.0991(87). E) Same as A, for mean curvature μ, with ν = 1.961(34). (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+choice has been made in order to test i
+r
+en
+e
+on a problem which is translationally invariant, and thus admits an analytical solution, see Section S5.3 for details. The governing equations are Eqs. (10) and (11) with a null normal velocity, i.e., Eqs. (8) and (9) in Table 1, where ΔLB is given by Eq. (S10), and the translational invariance with respect to the x1 axis implies K = 0. The unknowns are the tangent velocity v and the surface tension σ. The variational formulation is detailed in Section S4.3. The solution for a rectangular geometry is shown in Fig. 13, and that for a rectangular geometry with a circular obstacle is illustrated in Fig. 14 and Movie 1.
+Movie 1: Animation of Fig. 14, downloadable here. We will now discuss i
+r
+en
+e
+’s solution for a macroscopic example of air flow in a channel, following the structure of the VPs discussed above.
+1. Rectangular geometry. Fig. 13 shows the dynamics from i
+r
+en
+e
+for a laminar air flow in a curved channel with macroscopic dimensions; panel B shows that i
+r
+en
+e
+’s solution at steady state agrees with the exact solution for Poiseuille flow on a curved manifold, see Section S5.3 for details. As in Section 3.1.1 and 3.1.2, this agreement indicates the consistency of the variational for
+Computer Physics Communications 330 (2027) 110366
+10
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 12. Steady state in the presence of flows for a lipidic membrane with a trans-membrane protein on a rectangular geometry, with fixed-slope boundary conditions (S89), (S90), (S92), (S94) and (S106) to (S111). The solution has been obtained with parameters (18), v = 1 μm∕sec , σ = 1 Pa μm, φi = 0.1 ∂i|x − x |, ψ = 0 . Rectangle and obstacle geometry are the same as in Fig. 8. A) Membrane profile z. B) Surface tension σ. C) Tangential velocity v, displayed on top of the surface of A.
+mulation. Fig. 13B also shows that i
+r
+en
+e
+’s solution strongly differs from the Poiseuille-flow solution on a flat manifold, indicating that the manifold curvature is important in this example.
+2. Rectangle-with-circle geometry. Fig. 14 shows the dynamics of inertia-dominated air flow in a fixed, curved channel with an obstacle, both with macroscopic dimensions. The Figure reproduces the spatiotemporal pattern of Von Kármán vortex street [60–63] on a curved manifold. The parameters imply a Reynolds number of
+R ∼ 104, (21)
+which corresponds to an inertia-dominated dynamics [2]. We will now discuss the Strouhal number of Fig. 14. First, in the flat-manifold case, i
+r
+en
+e
+reproduces the benchmark value Stflat ∼ 0.16 which corresponds to the Reynolds number (21), as shown in both experimental [64] and numerical [59] studies. Second, for a curved manifold, the data of Fig. 14 implies a Strouhal number [65]
+St ∼ 0.13. (22)
+The ∼ 20 % shift of (22) with respect to the flat case is due to the effect of manifold curvature on the vortex-shedding dynamics. Energy conservation— In Fig. 15 we show the energy conservation for the dynamics of Fig. 14. Namely, Fig. 15 shows the left-hand side (LHS) and right-hand side (RHS) of the energy-conservation equality (S29), which states that the material derivative of the system energy equals the energy flux. We observe that the discrepancy between the LHS and RHS in the very first steps of the iteration is a known effect, due to the fact that the initial velocity profile, which is identically zero, does not satisfy the BCs [66]. Overall, the fact that the energy-balance equation (S29) is satisfied indicates that the variational formulation is consistent with the original, strong form of the PDEs. Also, such energy balance confirms that no energy is spuriously injected or removed by the
+discretization—a feature which is characteristic of a stable variational formulation. In fact, the net energy variation visible in Fig. 15 corresponds to physical flux through the open boundaries and dissipation, rather than numerical growth or decay.
+3.2.2. Dynamics with moving manifold
+We will now consider the case where the manifold M is not steady, but it evolves in time, deformed by surface tension, tangential and normal fluxes, to which it is coupled. The governing equations are Eqs. (10)–(13), combined with Eqs. (2) and (3), and the unknowns v, w, σ, z, ω and μ, each of which depends on both space and time. The variational formulation is detailed in Section S4.4.
+In Fig. 17 and Movie 2, we show i
+r
+en
+e
+’s results for the dynamics of an inertia-dominated, macroscopic air flow confined in a flexible rubber layer, with parameters
+κ = 10−6 N m, ρ = 1.293 × 10−2 Kg∕m2, η = 1.85 × 10−7 Kg∕s. (23)
+Here, ρ and η are the air density and viscosity, respectively [67], and we estimated the bending rigidity κ of the layer by using the relation κ = Eδ3∕[12(1 − ν2
+P)] which determines κ in terms of the Young modulus E, the thickness δ, and the Poisson ratio νP of the layer, respectively [68]. Typical values for rubber-like materials are E ∼ 103 Pa [69], νP ∼ 0.5 [68]. For a layer with thickness δ ∼ 10−3 m, this yields the value of κ in Eq. (23). Finally, the parameters of Fig. 17 imply a Reynolds number of R ∼ 70, which corresponds to an inertia-dominated dynamics [2].
+Time-step refinement— Fig. 19 shows the convergence of the solution of Fig. 17 with respect to the time step Δt. Such convergence of the solution under time-step refinement indicates that our numerical scheme is stable—an unstable scheme would not converge as Δt → 0.
+Computer Physics Communications 330 (2027) 110366
+11
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 13. Dynamics of laminar air flow on a macroscopic, curved channel, with boundary conditions (S114) to (S117). The solution has been obtained with, v1 = 6 × 10−2 y(y − h)∕h2 m∕s, v2 = 0 , and the dynamics has been solved for a total time T ∼ 34 min, with Ns = 2048 time steps. Dimensions of the rectangular channel are L = 20 m, h = 0.41 m [59]. Model parameters are given by (23). The inflow velocity profile v is given by the Poiseuille-flow solution on a flat manifold [2]. The rectangle height, h, has been taken from the FEAT2D DFG 2D-3 benchmark for a flow around a cylinder [59]. We chose the rectangle length L to be large enough, in such a way that the outflow velocity profile, at x = L, is not affected by the inflow profile, and coincides with the free-flow profile at steady state. A) Manifold profile, z. B) Component along the x axis of the velocity v at the right boundary of the rectangular channel, x = L, as a function of y. Solution from i
+r
+en
+e
+(black dots), exact solution (red curve) and Poiseuille-flow solution on a flat manifold (green curve). C) Surface tension (left) and velocity (right) profiles at an early time. The direction of the velocity field is represented by the arrows, and the modulus by the arrow color. D) Same as C, at a later time, at which the solution reached steady state. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Penalty sensitivity— Fig. 20 shows the square norm
+Δ≡
+√ √ √ √
+⟨(
+nn−1∕2
+i vi)2⟩n−1∕2
+∂Ω
+(24)
+of the term corresponding to the BC (S178), enforced through the penalty term (S199). As shown in Fig. 20, Δ lies below the solver absolute tolerance of 10−10 (Code snippet 5) for α = 104 m2—the value used in Fig. 17—and for all larger values of α, so that the BC is satisfied to within solver accuracy throughout this range. As expected for penalty formulations [7], increasing α improves constraint enforcement but also worsens the conditioning of the discrete system. In our numerical calcu
+lations, values larger than α = 104 m2 produced no noticeable improvement in accuracy of the solution.
+Mass conservation—We verify that the solution of Fig. 17 satisfies conservation of mass by checking that the identity
+⟨nivi
+⟩
+∂Ω = ⟨2Hw⟩Ω (25)
+holds. Eq. (25) directly follows from the continuity equation (4), by integrating both sides and using integration by parts for the LHS, cf. Eq. (S18). Fig. 21 shows that Eq. (25), is satisfied throughout the dynamics—the discrepancy between the LHS and RHS in the very first steps of the iteration can be explained along the lines of Fig. 15 [66]. On
+Computer Physics Communications 330 (2027) 110366
+12
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 14. Dynamics of inertia-dominated air flow on a macroscopic, curved channel with an obstacle (red cylinder), with boundary conditions (S114) to (S117) and (S146). The solution has been obtained with the same vi as in Fig. 13, and the dynamics has been solved for a total time T ∼ 17 min, with Ns = 2048 time steps. Model parameters are given by (23), L = 2.2 m, h = 0.41 m, and the obstacle radius is r = 0.05 m. The dimensions of the rectangle and of the obstacle have been taken from the FEAT2D DFG 2D-3 benchmark for a flow around a cylinder [59]. Panels A, B and C follow the same notation, respectively, as panels A, C and D of Fig. 13. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+top of showing that mass is conserved, Fig. 21 indicates that the variational formulation that leads to the solution of Fig. 17 is stable, i.e., the numerical formulation yields no mass leak nor accumulation, and consistent with the original, strong form of the equations, cf. Eqs. (4) and (25).
+Energy conservation— Proceeding along the lines of Fig. 15, in Fig. 16 we show the energy conservation for the dynamics of Fig. 17. As we discussed in Section 3.2.1, such energy balance is characteristic of a stable, consistent variational formulation.
+Computing time—In Fig. 18 we show the computing time needed to solve the VP of Fig. 17—see Section S4.4 for details.
+Movie 2: Animation of Fig. 17, downloadable here.
+4. Discussion
+In this work, we introduced a fluId layeR finitE-elemeNt softwarE (i
+r
+en
+e
+), a novel computational tool to solve for and predict the physical behavior of fluid layers.
+The partial differential equations which describe the steady state and dynamics of the fluid are solved in i
+r
+en
+e
+by means of the FE method, by using the FEniCS library [7].
+Computer Physics Communications 330 (2027) 110366
+13
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 15. Energy conservation for the dynamics of Fig. 14. The material temporal derivative of the system energy (black crosses) and the energy flux (red dots) are shown as functions of time. (For interpretation of the references to colour in this figure legend, the reader is referred to the web version of this article.)
+Fig. 16. Energy conservation for the dynamics of Fig. 17.
+i
+r
+en
+e
+is restricted to two-dimensional surfaces that can be represented as the graph of a function [31].
+Because of its modular design, i
+r
+en
+e
+can be used to describe a wide range of fluid-layer models, which incorporate different physical models for the intrinsic free energy of the layer. Here, we focused on the Helfrich free energy [39,70], which models the cost of bending the layer in terms of its mean curvature [1,4].
+As a first demonstration of the library’s capabilities, we considered a microscopic, low-Reynolds-number physical regime, by predicting the steady-state shape and flows of a lipidic membrane fluid [70,71] with a protein inclusion [50–53], see Figs. 8, 9 and 12, as well as Figs. S2 to S4. The FE solution has been first tested against a few benchmark cases, where the two-dimensional problem can be reduced to one dimension by leveraging radial symmetry. In these cases, the PDEs are reduced to an ordinary differential equation, which is solved in a numerically exact way, see Figs. S2 to S3. Building on these examples, in Figs. S4, 8, 9 and 12 we present i
+r
+en
+e
+’s solution for a geometry given by a rectangle with a circular hole, where no numerically exact solution exists.
+In order to illustrate i
+r
+en
+e
+’s predictions for the system dynamics, we focused on a macroscopic example—air flow in a channel with a circular obstacle [59]. First, we considered the dynamics on a fixed manifold. In the absence of an obstacle, this problem reduces to Poiseuille flow [2] on a curved surface, for which we worked out an analytical solution at steady state, which displays laminar flow. i
+r
+en
+e
+’s results for the velocity field at the channel outflow converge, as the dynamics reaches steady state, to such analytical solution, see Fig. 13. In the presence of an obstacle in the channel, i
+r
+en
+e
+reproduces an inertia-dominated dynamics—the von Kármán vortex street—see Fig. 14 and Movie 1. Interestingly, such von Kármán vortex street on a fixed, curved manifold present some physical applications on larger, planetary scales. In fact, the flow of a cloud layer at low-enough altitudes
+over obstacles, such as islands or isolated mountains, may give rise to von Kármán vortex streets, visible in satellite images [72,73]. Given their extension, which may reach over 400 Km [15], these vortex streets may be influenced by the curvature of the Earth, and thus of the cloud layer. As a result, the dynamics of this mesoscale phenomenon may be investigated with i
+r
+en
+e
+along the lines of the analysis of the inertia-dominated flow on a fixed, curved manifold, which may provide general guidance in the understanding of its dynamics and meteorological implications. Second, we studied an inertia-dominated air flow on a manifold which is allowed to deform. This corresponds to a flow of air, confined in a two-dimensional, flexible layer composed of rubber-like material, see Fig. 17. For this problem, we combined the IPCS [35] for NS equations, with the CN time-discretization approach [26,36], and demonstrated that this leads to a numerically stable dynamics. Such dynamics shows that the velocity field tangential to the manifold, and the manifold shape, exhibit an inertia-dominated behavior, in which deformations propagate downstream in the shape of intricate wave patterns, see Fig. 17A.
+i
+r
+en
+e
+can be further developed in multiple directions. First, we plan to include into i
+r
+en
+e
+a three-dimensional, bulk fluid which lies either above or below the layer, or both. This development would allow to describe a plethora of phenomena, on multiple physical scales. On the microscopic scale, some of these are the interaction between giant vesicles [74] and their inner aqueous solution, or between cell membranes and the intracellular cell actin network [9,37]. On a macroscopic scale, such extension would allow us, for instance, to model how wind blowing over a fluid layer generates waves, which in turn feed back into turbulent motions of the fluid both above and below the layera mechanism which is at the root of the early stages in the formation of sea waves [38]. Such development presents two major challenges: The first is the presence of a moving boundary—the interface between the bulk fluid and the fluid layer. The second is the combination of
+Computer Physics Communications 330 (2027) 110366
+14
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 17. Dynamics of macroscopic, inertia-dominated air flow confined in a moving, laminar channel made of rubber-like material. Here we use the fixed-height boundary conditions (S52), (S53), (S92), (S107), (S108), (S114) and (S149) to (S152), with z = z = 0 m, v1 = 10−2 m∕s, v2 = 0 m∕s, ψ = 0 on ∂Ω , and ψ = 0.1 on ∂Ω . Model parameters are given by Eq. (23). Channel and obstacle geometry is given by L = 2.2 m, h = 0.41 m, r = 5 × 10−2 m and c = (0.2 m, 0.2 m) , and they have been taken from the FEAT2D DFG 2D-3 benchmark for a flow around a cylinder [59]. The solution at an early time t = 0.1 s, and at a later time t = 10 s is displayed on top and bottom, respectively. Panels A)-C) show the manifold shape, surface tension and tangential velocity, following the same notation as Fig. 12. D) Normal velocity w.
+an Eulerian description for the bulk fluid, and a Lagrangian description for the fluid layer, the arbitrary Lagrangian-Eulerian (ALE) formulation, [75,76]. An elegant way to overcome both issues is the arbitrary Lagrangian-Eulerian kinematic description [77,78], in which the mesh describing the bulk fluid is modeled as a fictitious, elastic medium [79]. In this approach, the bulk fluid, the fluid layer and the mesh, are evolved in time simultaneously, according to dynamical equations defined on a
+simple geometry, in which the interface is flat [80]. Second, we plan to extend the current Monge-gauge parametrization for two-dimensional surfaces, in order to overcome the present restriction to surfaces with no overhangs: To achieve this, a natural parametrization would be the isothermal gauge [81]. This extension would allow for studying a large variety of additional phenomena, such as vesicle formation and large surface deformations.
+Computer Physics Communications 330 (2027) 110366
+15
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 18. i
+r
+en
+e
+’s computing time for Fig. 17. The Figure notation and data is along the lines of Fig. 7, with s = 1.518(19). Solver parameters and backend are the default FEniCS parameters [7], and they are given in Code snippet 5.
+Fig. 19. Time-step refinement check for Fig. 17. Error norm of the difference between the solution of Fig. 17 at t = T , computed with time step Δt and Δt∕2, as a function of Δt. Crosses denote the data points, and lines the fit with the function ε ∼ Δtν . Panels A)-C) show the error norm for the fields z, σ, v and w, with ν = 0.829(21), 1.42(29), 0.836(25) and 0.9701(28), respectively.
+Given i
+r
+en
+e
+’s restriction to surfaces described with the Monge parametrization, an alternative, geometrically intrinsic route is offered by surface FEs, in which tangent vector fields are discretized directly on a triangulated surface using H(divΓ)- or H(curlΓ)-conforming elements [28]. This intrinsic framework is the natural one for general surface discretizations. Existing extensions of FEniCS to PDEs posed on embedded manifolds [82] provide the computational infrastructure needed for such developments, which we plan to pursue in future studies.
+Finally, i
+r
+en
+e
+can be extended to describe non-Newtonian fluid membranes, whose viscosity η depends on the local stress, such as viscoelastic fluids, and their inertia-dominated behavior [83]. Also, i
+r
+en
+e
+’s capability to handle arbitrarily shaped, open surfaces and a large variety of BCs would allow it to describe flux through a porous medium. In fact, the pores can be modeled by including multiple obstacles such as, for instance, the one in Fig. S4. On top of this, the poreinduced membrane deformation and elastic response can again be described with the ALE formulation [78].
+Computer Physics Communications 330 (2027) 110366
+16
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Fig. 20. Sensitivity study for the penalty parameter in Fig. 17. For t = T , the residual (24) of the boundary condition imposed with the penalty term (S199) is plotted as a function of the penalty parameter α.
+Fig. 21. Mass conservation for the dynamics of Fig. 17. Both sides of the mass-conservation Eq. (25) are shown as functions of time.
+Code snippet 5. Solver parameters and backend used in solve.py in the dynamics module, to produce Fig. 17. Given these parameters, the solver converges with a maximal number of three iterations per time step throughout the dynamics, see Code snippet S1.
+CRediT authorship contribution statement
+Dennis Wörthmüller: Writing – review & editing, Software, Methodology; Gaetano Ferraro: Software; Pierre Sens: Writing – review & editing; Michele Castellana: Writing – review & editing, Writing – original draft, Validation, Software, Methodology, Investigation, Conceptualization.
+Funding
+P. Sens and D. Wörthmüller received funding from a European Research Council (ERC) grant ERC-SyG 101071793, awarded to P. Sens.
+Declaration of competing interest
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+Acknowledgments
+We would like to thank S. Al-Izzi, P. Bassereau, L. Berlyand, F. Brochard, J.-F. Joanny, D. Lacoste, J. Prost and M. Rabaud for helpful discussions, and the FEniCS online community for its precious support.
+This work was granted access to the high-performance computing resources of MesoPSL financed by the Region Île de France, and to the Abacus cluster at Institut Curie.
+Data availability
+No data was used for the research described in the article.
+Supplementary material
+Supplementary material associated with this article can be found in the online version at 10.1016/j.cpc.2026.110366
+References
+[1] S. Marchiafava, Appunti di Geometria Differenziale, volume I, II, III, Edizioni Nuova Cultura, 2005. [2] L.D. Landau, E.M. Lifschitz, Fluid Mechanics, Pergamon, 1987. [3] L.C. Evans, Partial Differential Equations, Graduate Studies in Mathematics, American Mathematical Society, 2010. [4] M. Deserno, Notes on Differential Geometry, 2004, https://www.cmu.edu/ biolphys/deserno/pdf/diff_geom.pdf. [5] M. Arroyo, A. DeSimone, Relaxation dynamics of fluid membranes, Phys. Rev. E Stat. Phys. Plasmas Fluids Relat. Interdiscip. Top. 79 (3) (2009) 031915. https:// doi.org/10.1103/PhysRevE.79.031915 [6] I. Derényi, F. Jülicher, J. Prost, Formation and interaction of membrane tubes, Phys. Rev. Lett. 88 (23) (2002) 238101. https://doi.org/10.1103/PhysRevLett.88. 238101 [7] A. Logg, K.-A. Mardal, G. Wells (Eds.), Automated Solution of Differential Equations by the Finite Element Method: The FEniCS Book, volume 84 of Lecture Notes in Computational Science and Engineering, Springer Berlin Heidelberg, Berlin, Heidelberg, 2012. https://doi.org/10.1007/978-3-642-23099-8 [8] P. Bassereau, R. Jin, T. Baumgart, M. Deserno, R. Dimova, V.A. Frolov, P.V. Bashkirov, H. Grubmüller, R. Jahn, H.J. Risselada, L. Johannes, M.M. Kozlov, R.
+Computer Physics Communications 330 (2027) 110366
+17
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+Lipowsky, T.J. Pucadyil, W.F. Zeno, J.C. Stachowiak, D. Stamou, A. Breuer, L. Lauritsen, C. Simon, C. Sykes, G.A. Voth, T.R. Weikl, The 2018 biomembrane curvature and remodeling roadmap, J. Phys. Appl. Phys. 51 (34) (2018) 343001. https://doi.org/10.1088/1361- 6463/aacb98 [9] G. Salbreux, G. Charras, E. Paluch, Actin cortex mechanics and cellular morphogenesis, Trends Cell Biol. 22 (10) (2012) 536–545. https://doi.org/10.1016/j.tcb.2012. 07.001 [10] R.J. Pugh, Soap bubbles and thin films, in: Bubble and Foam Chemistry, Cambridge University Press, Cambridge, 2016, pp. 84–111. [11] S. Ramaswamy, J. Toner, J. Prost, Nonequilibrium fluctuations, traveling waves, and instabilities in active membranes, Phys. Rev. Lett. 84 (15) (2000) 3494. [12] AL. Yarin, BM. Tchavdarov, Onset of folding in plane liquid films, J. Fluid Mech. 307 (1996) 85–99. [13] S. Senchenko, T. Bohr, Shape and stability of a viscous thread, Phys. Rev. EStatistical Nonlinear Soft Matter Phys. 71 (5) (2005) 056301. [14] J. Stafford, N. Uzo, E. Piccoli, C. Petit, O.K. Matar, Thin film flow over a spinning disk: experiments and direct numerical simulations, Phys. Rev. Fluids 10 (2) (2025) 024805. [15] D. Etling, Mesoscale vortex shedding from large islands: a comparison with laboratory experiments of rotating stratified flows, Meteorol. Atmos. Phys. 43 (1–4) (1990) 145–151. https://doi.org/10.1007/BF01028117 [16] C. Pozrikidis, Boundary Integral and Singularity Methods for Linearized Viscous Flow, Cambridge university press, 1992. [17] C.S. Peskin, The immersed boundary method, Acta Numer. 11 (2002) 479–517. [18] R. Verzicco, Immersed boundary methods: historical perspective and future outlook, Annu. Rev. Fluid Mech. 55 (1) (2023) 129–155. https://doi.org/10.1146/ annurev- fluid- 120720- 022129 [19] J. Shen, T. Tang, L.-L. Wang, Spectral Methods: Algorithms, Analysis and Applications, volume 41 of Springer Series in Computational Mathematics, Springer Berlin Heidelberg, Berlin, Heidelberg, 2011. https://doi.org/10.1007/978-3-540-71041-7 [20] W. Yu, M. Mascagni, Monte Carlo Methods for Partial Differential Equations With Applications to Electronic Design Automation, Springer Nature Singapore, Singapore, 2023. https://doi.org/10.1007/978-981-19-3250-2 [21] V. Krause, E. Kunze, A. Voigt, A surface finite element method for the Navier-Stokes equations on evolving surfaces, Pamm 23 (3) (2023) e202300014. [22] R.A. Sauer, A curvilinear surface ALE formulation for self-evolving Navier-Stokes manifolds – general theory and analytical solutions, J. Fluid Mech. 1016 (2025) A34. https://doi.org/10.1017/jfm.2025.10327 [23] C. Zhu, D. Saintillan, A. Chern, Stokes flow of an evolving fluid film with arbitrary shape and topology, J. Fluid Mech. 1003 (2025) R1. https://doi.org/10.1017/jfm. 2024.1208 [24] T.J.R. Hughes, The Finite Element Method: Linear Static and Dynamic Finite Element Analysis, Dover Publications, Mineola, NY, 2000. [25] C.J. Trahan, M. Loveland, N. Davis, E. Ellison, A variational quantum linear solver application to discrete finite-element methods, Entropy 25 (4) (2023) 580. https: //doi.org/10.3390/e25040580 [26] S.N. Sandhofer, M.S. Okyay, B.M. Wong, SQUIRREL: An open-source software suite for quantum dynamics calculations on complex geometries with time-dependent electric/magnetic fields, Comput. Phys. Commun. 317 (2025) 109861. https://doi. org/10.1016/j.cpc.2025.109861 [27] A. Torres-Sánchez, D. Millán, M. Arroyo, Modelling fluid deformable surfaces with an emphasis on biological interfaces, J. Fluid Mech. 872 (2019) 218–271. https: //doi.org/10.1017/jfm.2019.341 [28] P.L. Lederer, C. Lehrenfeld, J. Schöberl., Divergence-free tangential finite element methods for incompressible flows on surfaces, Int. J. Numer. Methods Eng. 121 (11) (2020) 2503–2533. https://doi.org/10.1002/nme.6317 [29] M.A. Olshanskii, A. Reusken, P. Schwering, An Eulerian finite element method for tangential Navier-Stokes equations on evolving surfaces, 2023, https://doi.org/10.48550/arXiv.2302.00779 [30] M.A. Olshanskii, A. Reusken, A. Zhiliakov, Tangential Navier-Stokes equations on evolving surfaces: analysis and simulations, 2022, https://doi.org/10.48550/arXiv.2203.01521 [31] C.-C. Hsiung, A First Course in Differential Geometry, John Wiley & Sons, New York, USA, 1981. [32] A. Torres-Sánchez, D. Santos-Oliván, M. Arroyo, Approximation of tensor fields on surfaces of arbitrary topology based on local Monge parametrizations, J. Comput. Phys. 405 (2020) 109168. https://doi.org/10.1016/j.jcp.2019.109168 [33] F. Quemeneur, J.K. Sigurdsson, M. Renner, P.J. Atzberger, P. Bassereau, D. Lacoste, Shape matters in protein mobility within membranes, Proc. Natl. Acad. Sci. 111 (14) (2014) 5083–5087. https://doi.org/10.1073/pnas.1321054111 [34] Fenics Discourse, https://fenicsproject.discourse.group/. [35] K. Goda, A multistep technique with implicit difference schemes for calculating twoor three-dimensional cavity flows, J. Comput. Phys. 30 (1) (1979) 76–95. https: //doi.org/10.1016/0021- 9991(79)90088- 3 [36] J. Crank, P. Nicolson, A practical method for numerical evaluation of solutions of partial differential equations of the heat-conduction type, Math. Proc. Camb. Philos. Soc. 43 (1) (1947) 50–67. https://doi.org/10.1017/S0305004100023197 [37] C. Simon, R. Kusters, V. Caorsi, A. Allard, M. Abou-Ghali, J. Manzi, A. Di Cicco, D. Lévy, M. Lenz, J.-F. Joanny, C. Campillo, J. Plastino, P. Sens, C. Sykes, Actin dynamics drive cell-like membrane deformation, Nat. Phys. 15 (6) (2019) 602–609. https://doi.org/10.1038/s41567- 019- 0464- 1 [38] P. Janssen, The Interaction of Ocean Waves and Wind, Cambridge University Press, Cambridge, 2004. [39] W. Helfrich, Elastic properties of lipid bilayers: theory and possible experiments, Z. Für Naturforschung C 28 (11–12) (1973) 693–703. https://doi.org/10.1515/ znc- 1973- 11- 1209
+[40] G. Salbreux, F. Jülicher, Mechanics of active surfaces, Phys. Rev. E 96 (3) (2017) 032404. arXiv:1701.09095 [physics] https://doi.org/10.1103/PhysRevE. 96.032404 [41] S.C. Al-Izzi, P. Sens, M.S. Turner, Shear-driven instabilities of membrane tubes and dynamin-induced scission, Phys. Rev. Lett. 125 (1) (2020) 018101. https://doi.org/ 10.1103/PhysRevLett.125.018101 [42] M. Do Carmo, F. Flaherty, Riemannian Geometry, Birkhaüser, Boston, 1992. [43] F. Jülicher, U. Seifert, Shape equations for axisymmetric vesicles: a clarification, Phys. Rev. E Stat. Phys. Plasmas Fluids Relat. Interdiscip. Top. 49 (5) (1994) 4728–4731. https://doi.org/10.1103/PhysRevE.49.4728 [44] O.-Y. Zhong-can, W. Helfrich, Bending energy of vesicle membranes: general expressions for the first, second, and third variation of the shape energy and applications to spheres and cylinders, Phys. Rev. A 39 (10) (1989) 5280–5288. https: //doi.org/10.1103/PhysRevA.39.5280 [45] Inc. Kitware, ParaView: Open-source Scientific Visualization, 2024, (https://www.paraview.org/). [46] S. Ramaswamy, J. Toner, J. Prost, Nonequilibrium noise and instabilities in membranes with active pumps, Pramana 53 (1) (1999) 237–242. https://doi.org/10. 1007/s12043- 999- 0152- 2 [47] S.L. Dabora, M.F. Sheetz, The microtubule-dependent formation of a tubulovesicular network with characteristics of the ER from cultured cell extracts, Cell 54 (1) (1988) 27–35. https://doi.org/10.1016/0092-8674(88)90176-6 [48] E. Evans, H. Bowman, A. Leung, D. Needham, D. Tirrell, Biomembrane templates for nanoscale conduits and networks, Science 273 (5277) (1996) 933–935. https: //doi.org/10.1126/science.273.5277.933 [49] D. Raucher, M.P. Sheetz, Characteristics of a membrane reservoir buffering membrane tension, Biophys. J. 77 (4) (1999) 1992–2002. https://doi.org/10.1016/ S0006- 3495(99)77040- 2 [50] J.-B. Manneville, P. Bassereau, D. Lévy, J. Prost, Activity of transmembrane proteins induces magnification of shape fluctuations of lipid membranes, Phys. Rev. Lett. 82 (21) (1999) 4356–4359. https://doi.org/10.1103/PhysRevLett.82.4356 [51] S. Aimon, A. Callan-Jones, A. Berthaud, M. Pinot, G.E. Toombes, P. Bassereau, Membrane shape modulates transmembrane protein distribution, Dev. Cell 28 (2) (2014) 212–218. https://doi.org/10.1016/j.devcel.2013.12.012 [52] J. Prost, R. Bruinsma, Shape fluctuations of active membranes, Europhys. Lett. EPL 33 (4) (1996) 321–326. https://doi.org/10.1209/epl/i1996-00340-1 [53] J. Prost, J.-B. Manneville, R. Bruinsma, Fluctuation-magnification of nonequilibrium membranes near a wall, Eur. Phys. J. B 1 (4) (1998) 465–480. https: //doi.org/10.1007/s100510050209 [54] T.T. Hormel, S.Q. Kurihara, M.K. Brennan, M.C. Wozniak, R. Parthasarathy, Measuring lipid membrane viscosity using rotational and translational probe diffusion, Phys. Rev. Lett. 112 (18) (2014) 188101. https://doi.org/10.1103/PhysRevLett. 112.188101 [55] F. Brochard-Wyart, N. Borghi, D. Cuvelier, P. Nassoy, Hydrodynamic narrowing of tubes extruded from cells, Proc. Natl. Acad. Sci. U. S. A. 103 (20) (2006) 7660–7663. https://doi.org/10.1073/pnas.0602012103 [56] S. Morlot, V. Galli, M. Klein, N. Chiaruttini, J. Manzi, F. Humbert, L. Dinis, M. Lenz, G. Cappello, A. Roux, Membrane shape at the edge of the dynamin helix sets location and duration of the fission reaction, Cell 151 (3) (2012) 619–629. https://doi.org/ 10.1016/j.cell.2012.09.017 [57] L. Bystricky, Isoparametric elements, https://people.sc.fsu.edu/~lb13f/projects/ finite_elements/isoparametric.php. [58] G. Strang, G.J. Fix, An Analysis of the Finite Element Method, Wellesley-Cambridge Press, Wellesley, Mass, 2 edition, 2008. [59] H. Blum, J. Harig., S. Müller, S. Schreiber, S. Turek, FEAT2D, finite element analysis tools user manual, 1995. [60] F. Homann, Einfluß großer Zähigkeit bei Strömung um Zylinder, Forsch. Auf Dem Geb. Ingenieurwesens, 7 (1) (1936) 1–10. [61] T. v. Kármán, Über den Mechanismus des Widerstandes, den ein bewegter Körper in einer Flüssigkeit erfährt, Nachrichten Von Ges. Wiss. Zu Gött. Math.-Phys. Kl. (1911) 509–517. [62] L.S.G. Kovaznáy, Hot-wire investigation of the wake behind cylinders at low Reynolds numbers, Proc. R. Soc. Lond. Ser. Math. Phys. Sci. 198 (1053) (1949) 174–190. https://doi.org/10.1098/rspa.1949.0093 [63] S. Taneda, Studies on Wake Vortices (II): Experimental Investigation of the Wake behind Cylinders and Plates at Low Reynolds Numbers, Rep. Res. Inst. Appl. Mech. 4 (14) (1955) 29–40. https://doi.org/10.5109/7159853 [64] J.H. Lienhard, Synopsis of Lift, Drag, and Vortex Frequency Data for Rigid Circular Cylinders, Pullman : Technical Extension Service, Washington State University, 1966. [65] C.H.K. Williamson, Vortex Dynamics in the Wake of a Cylinder. In R. Moreau, S.I. Green (Eds.), Fluid Vortices, volume 30, Springer Netherlands, Dordrecht, 1995, pp. 155–234. [66] J.G. Heywood, R. Rannacher, Finite Element Approximation of the Nonstationary Navier-Stokes Problem. I. Regularity of Solutions and Second-Order Error Estimates for Spatial Discretization, SIAM J. Numer. Anal. 19 (2) (1982) 275–311. https:// doi.org/10.1137/0719018 [67] U.S. Standard Atmosphere, U.S. Government Printing Office, Washington, D.C., 1976. [68] L.D. Landau, E.M. Lifshitz, Theory of Elasticity, Elsevier, 1986. [69] D. Koblar, J. Škofic, M. Boltežar, Evaluation of the Young’s modulus of rubber-like materials bonded to rigid surfaces with respect to Poisson’s ratio, Stroj. Vestn. – J. Mech. Eng. 60 (7–8) (2014) 506–511. https://doi.org/10.5545/sv-jme.2013.1510 [70] M. Deserno, Fluid lipid membranes: from differential geometry to curvature stresses, Chem. Phys. Lipids 185 (2015) 11–45. https://doi.org/10.1016/j.chemphyslip. 2014.05.001
+Computer Physics Communications 330 (2027) 110366
+18
+
+
+D. Wörthmüller, G. Ferraro, P. Sens et al.
+[71] J. Happel, H. Brenner, Low Reynolds Number Hydrodynamics: With Special Applications to Particulate Media, volume 1 of Mechanics of Fluids and Transport Processes, Springer Netherlands, Dordrecht, 1983. https://doi.org/10.1007/ 978- 94- 009- 8352- 6 [72] D. Caridi, Industrial CFD Simulations of Aerodynamic Noise, Ph.D. thesis, Università degli studi di Napoli Federico II, 2008. [73] Y. Bengana, Numerical Simulations for Frequency Prediction Via Mean Flows, Ph.D. thesis, PSL Research University, 2018. [74] F.M. Menger, J.S. Keiper, Chemistry and physics of giant vesicles as biomembrane models, Curr. Opin. Chem. Biol. 2 (6) (1998) 726–732. https://doi.org/10.1016/ S1367- 5931(98)80110- 5 [75] L.E. Malvern, Introduction to the Mechanics of a Continuous Medium, Prentice Hall, Englewood Cliffs, NJ, 1969. [76] P. Howell, G. Kozyreff, J. Ockendon, Applied Solid Mechanics, Cambridge University Press, 2008. [77] J. Donea, A. Huerta, A. Rodrıguez-Ferran, Chapter 14 arbitrary Lagrangian–Eulerian methods, in: The Encyclopedia of Computational Mechanics, volume 1, 2004, pp. 413–437.
+[78] A. Sahu, Arbitrary Lagrangian–Eulerian finite element method for lipid membranes, J. Fluid Mech. 1020 (2025) A46. https://doi.org/10.1017/jfm.2025.10553 [79] D. Kamensky, Lecture notes for MAE 207: Finite element analysis for coupled problems, 2022. [80] A. Shamanskiy, B. Simeon, Mesh moving techniques in fluid-structure interaction: robustness, accumulated distortion and computational efficiency, Comput. Mech. 67 (2) (2021) 583–600. https://doi.org/10.1007/s00466-020-01950-x [81] M.P. do Carmo, Differential geometry of curves and surfaces, Prentice-Hall, Englewood Cliffs, N.J, 1976. [82] M.E. Rognes, D.A. Ham, C.J. Cotter, A.T.T. McRae, Automating the solution of PDEs on the sphere and other manifolds in FEniCS 1.2, Geosci. Model Dev. 6 (6) (2013) 2099–2119. https://doi.org/10.5194/gmd-6-2099-2013 [83] C. Yuan, H.-N. Zhang, Y.-K. Li, X.-B. Li, J. Wu, F.-C. Li, Nonlinear effects of viscoelastic fluid flows and applications in microfluidics: a review, Proc. Inst. Mech. Eng. Part C J. Mech. Eng. Sci. 234 (22) (2020) 4390–4414. https://doi.org/10.1177/ 0954406220922863
+Computer Physics Communications 330 (2027) 110366
+19

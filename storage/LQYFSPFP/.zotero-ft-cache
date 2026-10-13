@@ -1,0 +1,536 @@
+Partitioned analysis of coupled mechanical systems
+Carlos A. Felippa *, K.C. Park, Charbel Farhat
+Department of Aerospace Engineering Sciences and Center for Aerospace Structures, University of Colorado at Boulder, Campus Box 429, Boulder, CO 80309-0429, USA
+Received 1 April 1999
+Abstract
+This is a tutorial article that reviews the use of partitioned analysis procedures for the analysis of coupled dynamical systems. Attention is focused on the computational simulation of systems in which a structure is a major component. Important applications in that class are provided by thermomechanics,  ̄uid±structure interaction and control±structure interaction. In the partitioned solution approach, systems are spatially decomposed into partitions. This decomposition is driven by physical or computational considerations. The solution is separately advanced in time over each partition. Interaction e ects are accounted for by transmission and synchronization of coupled state variables. Recent developments in the use of this approach for multilevel decomposition aimed at massively parallel computation are discussed. Ó 2001 Elsevier Science B.V. All rights reserved.
+Keywords: Coupled systems; Multiphysics; Partitioned analysis; Staggered solution; Parallel computation; Fluid±structure interaction
+1. Introduction
+The American Heritage Dictionary lists eight meanings for system. By itself the term is used here in the sense of ``a functionally related group of components forming or regarded as a collective entity''. This de®nition uses ``component'' as a generic term that embodies ``element'' or ``part'', which connote simplicity, as well as ``subsystem'', which connotes complexity. We restrict attention to mechanical systems, and in particularly those of importance in Aerospace, Civil and Mechanical Engineering. The downplaying of systems of interest in Physics, Chemistry and Electrical Engineering does not imply restriction in methodology extension. It is simply that less experience is available as regards the use of the methods described here.
+1.1. System decomposition
+Systems are analyzed by decomposition or breakdown. Complex systems are amenable to many kinds of decomposition chosen according to speci®c analysis or design objectives. This article focuses on decompositions called partitions that are suitable for computer simulation. Such simulations aim at describing or predicting the state of the system under speci®ed conditions viewed as external to the system. A set of states ordered according to some parameter such as time or load level is called a response. System designers are not usually interested in detailed response computations per se, but on project goals such as cost, performance, lifetime, fabricability, inspection requirements and satisfaction of mission
+www.elsevier.com/locate/cma
+Comput. Methods Appl. Mech. Engrg. 190 92001) 3247±3270
+* Corresponding author. Tel.: 303-492-6547/6838; fax: 303-492-4990. E-mail address: carlos@titan.colorado.edu http://caswww.colorado.edu 9C.A. Felippa).
+0045-7825/01/$ - see front matter Ó 2001 Elsevier Science B.V. All rights reserved. PII: S 0 0 4 5 - 7 8 2 5 9 0 0 ) 0 0 3 9 1 - 1
+
+
+objectives. The recovery of those overall quantities from simulations is presently an open problem in computer system modeling and one that is not addressed here. The term partitioning identi®es the process of spatial separation of a discrete model into interacting components generically called partitions. The decomposition may be driven by physical, functional, or computational considerations. For example, the structure of a complete airplane can be decomposed into substructures such as wings and fuselage according to function. Substructures can be further decomposed into submeshes or subdomains to accommodate parallel computing requirements. Subdomains are composed of individual elements. Going the other way, if that  ̄exible airplane is part of a  ̄ight simulation, a top-level partition driven by physics is into  ̄uid and structure 9and perhaps control and propulsion) models. This kind of multilevel partition hierarchy: coupled system, structure, substructure, subdomain and element, is typical of present practice in modeling and computational technology. The present paper focuses on the top decomposition level, which is driven primarily by physics or function. Computational partitions are brie ̄y covered in Section 6.
+1.2. Coupled system terminology
+Because coupled systems can be studied by many people from many angles, terminology is far from standard. The following summary is one that has evolved for the computational simulation, and does re ̄ect personal choices. Most of the de®nitions follow usage introduced in a 1983 review article [1]. Casual readers may want to skim the following material and return only for de®nitions. A coupled system is one in which physically or computationally heterogeneous mechanical components interact dynamically. The interaction is multiway in the sense that the response has to be obtained by solving simultaneously the coupled equations which model the system. ``Heterogeneity'' is used in the sense that component simulation bene®ts from custom treatment.
+As noted above the decomposition of a complex coupled system for simulation is hierarchical with two to four levels being common. At the ®rst level one encounters two types of subsystems, embodied in the generic term ®eld: Physical subsystems. Subsystems are called physical ®elds when their mathematical model is described by ®eld equations. Examples are mechanical and non-mechanical objects treated by continuum theories: solids,  ̄uids, heat, electromagnetics. Occasionally those components may be intrinsically discrete, as in actuation control systems or rigid-body mechanisms. In such a case the term ``physical ®eld'' is used for expediency, with the understanding that no spatial discretization process is involved. Arti®cial subsystems. Sometimes arti®cial subsystems are incorporated for computational conveniency. Two examples: dynamic  ̄uid meshes to effect volume mapping of Lagrangian to Eulerian descriptions in interaction of structures with  ̄uid  ̄ow, and ®ctitious interface ®elds, often called ``frames'', which facilitate information transfer between two subsystems. A coupled system is characterized as two-®eld, three-®eld, etc., according to the number of di erent ®elds that appear in the ®rst-level decomposition. For computational treatment of a dynamical coupled system, ®elds are discretized in space and time. A ®eld partition is a ®eld-by-®eld decomposition of the space discretization. A splitting is a decomposition of the time discretization of a ®eld within its time step interval. See Fig. 1. In the case of static or quasi-static analyses, actual time is replaced by pseudo-time or some kind of control parameter. Partitioning may be algebraic or differential. In algebraic partitioning the complete coupled system is spatially discretized ®rst, and then decomposed. In differential partitioning the decomposition is done ®rst and each ®eld then discretized separately. Di erential partitioning often leads to non-matched meshes, as typical of  ̄uid±structure interaction 9Fig. 2), and handles those naturally. Algebraic partitioning was originally developed for matched meshes and substructuring 9Fig. 3), but recent work has aimed at simplifying the treatment of non-matched meshes through frames [2,3]. A property is said to be inter®eld or intra®eld if it pertains collectively to all partitions, or to individual partitions, respectively. A common use of this quali®er concerns parallel computation. Inter®eld parallelism refers to the implementation of a parallel computation scheme in which all partitions can be concurrently
+3248 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+Fig. 2. Di erential partitioning was originally developed for  ̄uid±structure interaction problems, in which non-matched meshes occur naturally.
+Structure
+Fluid
+TIMEt
+TIMESTEP
+h
+Start time tn
+Splitting in time (fluid field only)
+Partitioning in space
+3DSPACE
+xi
+End time tn+1
+Fig. 1. Decomposition of an aeroelastic FSI coupled system: partitioning in space and splitting in time. 3D space is shown as `` ̄at'' for visualization convenience. Spatial discretization 9omitted for clarity) may predate or follow partitioning. Splitting 9here for  ̄uid only) is repeated over each timestep and obeys time discretization constraints.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3249
+
+
+processed for time-stepping. Intra®eld parallelism refers to the implementation of parallelism for an individual partition using a second-level decomposition; for example into substructures or subdomains.
+1.3. Examples
+Experiences reported here come from systems where a structure is one of the ®elds. Accordingly, all of the following examples list structures as one of the ®eld components. The number of interacting ®elds is given in parenthesis. · Fluid±structure interaction 92); · thermal±structure interaction 92); · control±structure interaction 92); · control± ̄uid±structure interaction 93); ·  ̄uid±structure±combustion±thermal interaction 94). When a  ̄uid is one of the interacting ®elds a wider range of computational modeling possibilities opens up as compared to, say, structural or thermal ®elds. For the latter ®nite element discretization methods can be viewed as universal in scope. On the other hand, the range of  ̄uid phenomena is controlled by several major physical e ects such as viscosity, compressibility, mass transport, gravity and capillarity. Incorporation or neglect of these e ects gives rise to widely di erent ®eld equations as well as discretization techniques. For example, the interaction of an acoustic  ̄uid with a structure in aeroacoustics or underwater shock is computationally unlike that of high-speed gas dynamics with an aircraft or rocket, or of  ̄ow through porous media. Even more variability can be expected if chemistry and combustion e ects are considered. Control systems also exhibit modeling variabilities that tend not to be so pronounced, however, as in the case of  ̄uids. The partitioned treatment of some of these examples is discussed further in subsequent sections.
+1.4. Splitting and fractional step methods
+Splitting methods for the equations of mathematical physics predate partitioned analysis by two decades. In the American literature they can be originally traced to the development by 1955 of alternating direction methods by Peaceman, Douglas and Rachford 9see e.g. [4,5]). A similar development was independently undertaken in the early 1960s by the Russian school led by Bagrinovskii, Godunov and Yanenko, and eventually uni®ed in the method of fractional steps [6]. The main computational applications of these methods have been the equations of gas dynamics in steady or transient forms, discretized by ®nite difference methods. They are particularly suitable for problems with layers or strati®cation, for example atmospheric dynamics or astrophysics, in which di erent directions are treated by di erent methods. The basic idea is elegantly outlined in the monograph by Richtmyer and Morton [7]. Suppose the governing equations in divergence form are oW =ot AW , where the operator A is split into
+Fig. 3. Algebraic partitioning was originally developed to handle matching meshes, as typical of structure±structure interaction.
+3250 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+A A1 A2 Aq. Chose a time difference scheme and then replace A successively in it by qA1; qA2; . . ., each for a fraction h=q of the temporal stepsize h. Then a multidimensional problem can be replaced by a succession of simpler 9e.g., one-dimensional) problems. Splitting may be additive, as in the foregoing example, or multiplicative. Since the present article focus on partitioned analysis, the discussion of these variations falls beyond its scope. Comparison of such methods with partitioned analysis makes clear that little overlap occurs. Splitting is appropriate for the treatment of a ®eld partition such as a  ̄uid, if the physical structure of such partition display strong directionality dependencies. Consequently splitting methods are seen to pertain to a lower level of a top-down hierarchical decomposition.
+1.5. Computational multiphysics
+Recently the term multiphysics has gained prominence within computational physics and mechanics. This subject can be viewed as being more general than coupled mechanical systems in two senses: · It embraces problems of importance in the physical sciences, which may go beyond engineering technology. For example, electromagnetic and chemistry phenomena. · Wider ranges of interacting length and time scales are addressed. This may leads to multiple models of the same ®eld, which coexist in space and time. Instances of this class of problems occur in computational micromechanics, progressive fracture and damage, and  ̄uid turbulence. Given this wider scope, one must be cautious in claiming that a certain partitioned approach, proven useful for a class of coupled systems, is a panacea for multiphysics. Merits and disadvantages must be assessed on a case-by-case basis. The volume coupling inherent in multiple scale problems may in fact hinder the use of partitioned analysis.
+2. Coupled system simulation
+2.1. Scenarios
+Because of their variety and combinatorial nature, the simulation of coupled problems rarely occurs as a predictable long-term goal. Some more likely scenarios are as follows. Research project. Two or more persons in a research group develop expertise in modeling and simulation of two or more isolated problems. They are then called upon to pool that disciplinary expertise into a coupled problem. Product development. The design and veri®cation of a product requires the concurrent consideration of interaction effects in service or emergency conditions. The team does not have access, however, to software that accommodates those requirements. Software house. A company develops commercial application software targeted to single ®elds as isolated entities: a CFD gas-dynamics code, a structure FEM program and a thermal conduction analyzer. As the customer base expands, requests are received for allowing interaction effects targeted to speci®c applications. For example the CFD user may want to account for moving rigid boundaries, then interaction with a  ̄exible structure, and ®nally to include a control system. The following subsection discusses three approaches to these scenarios.
+2.2. Approaches
+To ®x the ideas we assume that the simulation calls for dynamic analysis that involves following the time evolution of the system. 9Static or quasi-static analyses can be included by introducing a pseudo-time history parameter.) Furthermore the modeling and simulation of isolated components is supposed to be well understood. The three approaches to the simulation of the coupled system are:
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3251
+
+
+Field elimination. One or more ®elds are eliminated by techniques such as integral transforms or model reduction, and the remaining ®eld9s) treated by a simultaneous time-stepping scheme. Monolithic or simultaneous treatment. The whole problem is treated as a monolithic entity, and all components advanced simultaneously in time. Partitioned treatment. The ®eld models are computationally treated as isolated entities that are separately stepped in time. Interaction effects are viewed as forcing effects that are communicated between the individual components using prediction, substitution and synchronization techniques. Field elimination is restricted to special linear problems that permit e cient decoupling. It often leads to higher order di erential systems in time, or to temporal convolutions, which can be the source of numerical di culties. Both the monolithic and partitioned treatment are general in nature. No technical argument can be made for the overall superiority of either. Their relative merits are not only problem dependent, but are interwined with human factors as discussed below.
+2.3. Parting can be sweet or sorrow
+The keywords that favor the partitioned approach are: customization, independent modeling, software reuse, and modularity. Customization. This means that each ®eld can be treated by discretization techniques and solution algorithms that are known to perform well for the isolated system. The hope is that a partitioned algorithm can maintain that ef®ciency for the coupled problem if 9and that is a big if) the interaction effects can be also ef®ciently treated. As discussed in Section 5, in the original problem that motivated the partitioned approach that happy circumstance was realized. Independent modeling. The partitioned approach facilitates the use of non-matching models. For example in a  ̄uid±structure interaction problem the structural and  ̄uid meshes need not coincide at their interface. This translates into project breakdown advantages in analysis of complex systems such as aircraft. Separate models can be prepared by different design teams, including subcontractors that may be geographically distributed. Software reuse. Along with customized discretization and solution algorithms, customized software 9private, public or commercial) may be available. Furthermore, there is often a gamut of customized peripheral tools such as mesh generators and visualization programs. The partitioned approach facilitates taking advantage of existing code. This is particularly suitable to academic environments, in which software development tends to be cyclical and loosely connected from one project to another. Modularity. New methods and models may be introduced in a modular fashion according to project needs. For example, it may be necessary to include local nonlinear effects in an individual ®eld while keeping everything else the same. Implementation, testing and validation of incremental changes can be conducted in a modular fashion. These advantages are not cost free. The partitioned approach requires careful formulation and implementation to avoid serious degradation in stability and accuracy. Parallel implementations are particularly delicate. Gains in computational e ciency over a monolithic approach are not guaranteed, particularly if interactions occur throughout a volume as is the case for thermal and electromagnetic ®elds. Finally, the software modularity and modeling  ̄exibility advantages, while desirable in academic and research circles, may lead to anarchy in software houses. In summary, circumstances that favor the partitioned approach for tackling a new coupled problem are: a research environment with few delivery constraints, access to existing software, localized interaction effects 9e.g. surface versus volume), and widespread spatial/temporal component characteristics. The opposite circumstances: commercial environment, rigid deliverable timetable, massive software development resources, global interaction e ects, and comparable length/time scales, favor a monolithic approach. The remainder of this article focuses on the partitioned approach. It presents the essentials for a simple problem, and then outlines the application of the methodology to more complex situations using case studies.
+3252 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+3. The basic idea
+Consider the two-way interaction of two scalar ®elds, X and Y, sketched in Fig. 4. Each ®eld has only one state variable identi®ed as x t and y t , respectively, which are assumed to be governed by the ®rstorder differential equations
+3_x 4x y f t ; y_ 6y 2x g t 1
+in which f t and g t are the applied forces. Treat this by Backward Euler integration in each component:
+xn 1 xn hx_ n 1; yn 1 yn hy_n 1; 2
+where xn x tn , yn y tn , etc. At each time step n 0; 1; 2; . . . one gets
+3 4h h 2h 1 6h
+xn 1
+yn 1
+hfn 1 3xn hgn 1 yn
+3
+in which fx0; y0g are provided by the initial conditions. In the monolithic or simultaneous solution approach, 93) is solved at each timestep, and that is the end of the story.
+3.1. Staggering
+A simple partitioned solution procedure is obtained by treating 93) with the following staggered partition with prediction on y:
+3 4h 0 2h 1 6h
+xn 1
+yn 1
+hfn 1 3xn ynP 1 hgn 1 yn
+:4
+Here ynP 1 is a predicted value or simply the predictor. Two common choices are ynP 1 yn and
+ynP 1 yn hy_n. The basic solution steps are displayed in Fig. 5. The main achievement is that systems X and
+g(t)
+f(t) x(t)
+y(t)
+Y
+X
+Fig. 4. The red and the black.
+1. (P) Predict:
+2. (Ax) Advance x:
+3. (S) Substitute:
+4. (Ay) Advance y:
+BASIC STEPS
+xn+1 = 1
+3 + 4h ( h fn +1+ 3 xn + ynP+ 1)
+xn+1 = xn+1
+(for example)
+(trivial here)
+ynP+1 = yn + h yn
+yn+1 = 1
+1 + 6h ( h gn+1 + yn + 2 xn+1 )
+.
+Fig. 5. Basic steps of a red/black staggered solution.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3253
+
+
+Y can be now solved in tandem. A state±time diagram of these steps, with time along the horizontal axis, is shown in Fig. 6. Suppose that ®elds X and Y are handled by two communicating programs called the Single Field Analyzers, or SFAs. If the intra®eld advancing arrows are suppressed, we obtain a zigzagged picture of inter®eld data transfers between the X program and the Y program, as depicted in Fig. 79a). This graphical interpretation motivated the name staggered solution procedure [8].
+3.2. Concerns
+In linear problems the ®rst concern with partitioning should be degradation of time-stepping stability caused by prediction. In the foregoing example this is not signi®cant. The spectral analysis presented in Appendix A, which embodies 94) as instance, shows that staggering does not harm stability, or even accuracy, if the predictor is chosen appropriately. In fact, staggered procedures are extremely effective for coupled ®rst-order parabolic systems. But for more general problems, particularly those modeled by oscillatory second-order ODEs, the reduction of stability can become serious or even catastrophic. Prediction could be done on the y ®eld, again leading to a zigzagged diagram with substitution on x. T he stability of both choices can be made identical by appropriately adjusting predictors. Once satisfactory stability is achieved, the next concern is accuracy. This is usually degraded with respect to that attainable by the monolithic scheme. In principle this can be recovered by iterating the state between the ®elds. Iteration is done by cycling substitutions at the same time station. However, inter®eld iteration generally costs more than cutting the timestep to attain the same accuracy level. If, as often happens, the monolithic solution is more expensive than the staggered solution for the same timestep, we note the emergence of a tradeoff.
+Step 2: Ax
+Step 4: Ay
+Step 3: S
+Step1:P
+Time
+xn xn+1
+yn+ 1
+yn
+Fig. 6. Interfield intrafield time-stepping diagram of the staggered solution steps listed in Fig. 3.
+Y program:
+X program:
+Y program:
+X program:
+Time
+Timestep h
+II
+SP
+PP
+PP
+SP S
+(a)
+(b)
+Fig. 7. Inter®eld time-stepping diagrams: 9a) sequential staggered solution of example problem, 9b) naive modi®cation for parallel processing.
+3254 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+In strongly nonlinear problems, such as  ̄uid  ̄ow, stability and accuracy tend to be interwined 9since numerical stability is harder to de®ne) and they are usually considered together in method design. The expectation is for a method that operates well at a reasonable timestep. Examination of Fig. 79a) shows than this simple staggered scheme is unsuitable for inter®eld parallelization because programs must execute in a strictly serial fashion: ®rst X, then Y, then X, etc. This was of little concern when the method was formulated in the mid 1970s, because all computers ± with the exception of an exotic machine known as the ILLIAC IV ± were then sequential. The variant sketched in Fig. 79b) permits both programs to advance their internal state concurrently, which ®ts a parallel computer better. More practical parallel schemes, which do not require prediction on both ®elds, have been developed in recent years and are discussed in Section 6.
+3.3. Devices of partitioned analysis
+As the simple example makes clear, partitioned analysis requires the examination of alternative algorithm and implementation possibilities as well as the study of tradeo s. Fig. 8 displays, using inter®eld timestepping diagrams, the main ``tools of the trade''. Some devices such as prediction, substitution and iteration have been discussed along with the foregoing example. Others will emerge in the application problems discussed in Sections 5 and 6.
+4. Background
+The partitioned treatment of coupled systems involving structures emerged independently in the mid 1970s at three locations: Northwestern University by T. Belytschko and R. Mullen, Cal Tech by T.J.R. Hughes and W.K. Liu, and Lockheed Palo Alto Research Laboratories 9LPARL) by J.A. DeRuntz, C.A. Felippa, T.L. Geers and K.C. Park. These three groups targeted di erent applications and pursued di erent problem-decomposition techniques. For example, Belytschko and Mullen [9±11] studied node-bynode partitions and subcycling whereas Hughes, Liu and coworkers developed element-by-element implicit±explicit partitions [12±14]. The latter work evolved at Stanford into element-by-element iterative solvers [15]. The work of these two groups focused on structure±structure and  ̄uid±structure interaction treated by all-FEM discretizations. The remainder of this section 9and article) focuses on the authors' work. Research in Coupled Problems at LPARL originated in the simulation of the elastoacoustic underwater shock problem for the Navy. In this work a ®nite element computational model of the submerged structure was coupled to Geers' Doubly
+PS C
+A
+A
+ScA
+A A+
+MC
+h
+Prediction
+Lockstep
+advancing Midpoint
+correction
+Full step
+correction
+Subcycling Augmentation
+Substitution Interfield
+Iteration
+I
+Time
+Fig. 8. Devices of partitioned analysis time-stepping.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3255
+
+
+Asymptotic Approximation 9DAA) boundary-element model of the exterior acoustic  ̄uid [16±19]. In 1975 a staggered solution procedure, used in Section 5 as case study, was developed for this coupling. This was presented in a 1977 article [8] and later extended to more general applications [20,21]. The staggered solution scheme was eventually subsumed in the more general class of partitioned methods [22,23]. These were surveyed in several articles during the 1980s [1,24,25]. In 1985±86 Geers, Park and Felippa moved from LPARL to the University of Colorado at Boulder. Park and Felippa began formation of the Center for Aerospace Structures or CAS 9originally named the Center for Space Structures and Control). Research work in coupled problems continued at CAS but along individual interests. Park began work in computational control±structure interaction [26,27], whereas Felippa began studies in superconducting electrothermomagnetics [28]. Charbel Farhat, who joined CAS in 1987, began research in computational thermoelasticity [29] and aeroelasticity [30]. The latter e ort prospered as it eventually acquired a parallel-computing  ̄avor and was combined with advances in the FETI parallel structural solver [31,32]. Research in Coupled Problems at CAS was given a boost in 1992 when the National Science Foundation announced grantees for the ®rst round of Grand Challenge Applications 9GCA) Awards. This competition was part of the US High Performance Computing and Communications 9HPCC) Initiative established in 1991. An application problem is labeled a GCA if the computational demands for realistic simulations go far beyond the capacity of present sequential or parallel supercomputers. The GCA coupled problems addressed by the award were: aeroelasticity of a complete aircraft, distributed control±structure interaction, and electrothermomechanics with phase changes. A renewal project to address multiphysics problems was awarded in 1997. This grant addresses application problems involving  ̄uid±thermal±structural interaction in high temperature components, turbulence models, piezoelectric and control-surface control of aeroelastic systems, and optimization of coupled systems. These focus applications are interweaved with research in computer sciences, applied mathematics and computational mechanics.
+5. Acoustic  ̄uid±structure interaction
+5.1. The source problem
+The original coupled problem that motivated the development of partitioned analysis procedures for coupled systems is depicted in Fig. 99a). A linear or nonlinear three-dimensional structure, externally fabricated as a sti ened shell, is submerged in an in®nite compressible  ̄uid 9water). A pressure shock wave propagates through the  ̄uid and impinges on the structure. Because of the fast nature of the transient response, which spans only milliseconds, the  ̄uid can be modeled as an acoustic medium. As shown in Fig. 99b) the structure is discretized by ®nite element methods. For the  ̄uid, a boundaryelement method 9BEM) discretization is convenient as only a surface mesh has to be created. These modeling decisions were dictated by the fact that the structure response 9especially as regards survivability) is of primary concern whereas what happens in the  ̄uid is of little interest. The  ̄uid was modeled by the ®rst-order Doubly Asymptotic Approximation DAA1) of Geers [16,17] which allowed the replacement of the exterior  ̄uid by its wet surface. This ``DAA1 membrane'' is asymptotically exact in the limits of high and low frequencies, hence its name. Fig. 99c) reinforces the message that FEM and BEM meshes on the ``wet surface'' do not generally coincide: one  ̄uid element generally overlaps several structural elements. This happens because stress computation requirements generally demand a ®ner structural discretization, whereas the main function of the  ̄uid elements is to transmit appropriate pressure forces. The semi-discrete governing equations for a linear structure interacting with an DAA1 exterior- ̄uid model ± after some computational rearrangements for the latter ± are
+Msu Dsu_ Ku fs TA pI p ; Af q_ qcAf M 1
+f Af q qcAf TT _u vI : 5
+For the structure model: u u t is the structural displacement vector, Ms, Ds and Ks the structural mass, damping and sti ness matrices, respectively, and fs collect forces directly applied to the structure. For the
+3256 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+ ̄uid model: Mf is the full, symmetric  ̄uid mass matrix, Af AT
+f the diagonal matrix of  ̄uid-element areas,
+vI the vector of incident normal- ̄uid-particle velocities p and pI are the scattered and incident components, respectively, of the nodal pressure vector, and vector q _p is de®ned for convenience. All  ̄uid matrices and vectors are referred to the control points of the wet-surface BEM mesh. The two meshes are related by T, which is the transformation matrix that relates node forces at wet-surface structural nodes to  ̄uid-controlpoint node forces. This matrix is completed with zero rows for internal structural freedoms.
+5.2. Two-®eld FSI: staggered solution
+Initial studies using the coupled system 95) dealt with its validation against experiments conducted by the Navy in 1973 on a submerged ring-sti ened cylindrical shell; later known as ``the ONR shell'' in the underwater shock community. 9Test results have been recently freed of publication restrictions.) The simple axisymmetric models used for this testbed permitted experimentation with both ®eld elimination and monolithic solution techniques. Experimental validation 9Fig. 10) showed that the DAA1 and interaction model adequately captured the peak-velocity physics. The next step was challenging: to incorporate this analysis capability into a 3D production code. The development of a new large-scale structural program was ruled out because Navy contractors were already committed to existing FEM codes such as NASTRAN and GENSAM. 9Over the next two decades, ADINA, STAGS and DYNA3D were added to the list.) Implementing a monolithic solution with a commercial code such as NASTRAN, however, rans into serious logistic problems. First, access to the source code is di cult if not impossible. Second, even if the vendor can be persuaded to create a custom version to be used in classi®ed work, upgrading that version to keep up with changes in the mainstream product can become a contractual nightmare. The staggered solution approach circumvented that logistic di culty. A three-dimensional BEM  ̄uid analysis program called USA 9for Underwater Shock Analysis) was written and data coupled to several existing structural analysis codes over the years, as sketched in Fig. 119a). For example, the marriage of USA and NASTRAN is called USA-NASTRAN. This plug-in modularity has important advantages. It simpli®es upgrade and maintenance of the more complex part, which in this problem is the structural analyzer. Furthermore the latter can be ``plug replaced'' to either ®t existing structural models or the problem at hand. For instance, if the structure experiences strong nonlinear material behavior, the well tested material library, contact algorithms, and highly e cient explicit time integration capabilities of DYNA3D may be exploited.
+structural
+nodes
+DAA1 BE model
+(shown offset from
+wet surface for clarity)
+shock
+wave
+FE model (internal
+structure omitted)
+"DAA-1 membrane'' Linear or
+nonlinear structure
+Acoustic fluid
+Submerged structure
+Typical cross section
+BE control
+points
+Submerged Structure Hit by Shock Wave
+model
+Fig. 9. Submerged structure hit by shock wave: 9a) physics of the coupled system, 9b) acoustic  ̄uid modeled as ``DAA1 membrane'', 9c) typical cross-section of coupled FEM-BEM discretization on the wet surface with the interior structure omitted. In 9b) and 9c) the BEM  ̄uid model is shown o set from the structure for clarity.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3257
+
+
+Explicit
+Implicit, A-stable
+Implicit, A-stable
+Acoustic Fluid (BEM)
+Cavitating Fluid (FEM)
+USA
+DYNA3D GENTRAN NASTRAN STAGS
+Structure (FEM)
+Structure (FEM)
+Acoustic Fluid (BEM)
+DYNA3D STAGS
+USA
+CFA
+Implicit, A-stable Implicit, A-stable
+(a) (b)
+Fig. 11. Implementation of partitioned analysis treatment of underwater shock analysis: 9a) as two-®eld problem coupling acoustic  ̄uid and submerged structure models, 9b) as three-®eld problem coupling acoustic  ̄uid, cavitating  ̄uid and submerged structure models.
+Fig. 10. Validation of the structure-DAA1  ̄uid model by underwater shock experiments. 9Extracted from the original report.) Despite the crudeness of the axisymmetric FSI model shown on top right, most of the important peak velocities, e.g., at shell caps upon end-on attack 9lower right), were surprisingly close. This FSI model was eventually adopted to assess vulnerability of actual structures to underwater shock.
+3258 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+An additional advantage is computational e ciency per time step. Let us assume that implicit time integration is used on both systems. The structural system is large but sparse whereas the  ̄uid system is dense 9because Mf is full) but small. A monolithic marriage produces a large system where sparseness is severely hindered by the  ̄uid coupling. In the staggered approach the cost per step is roughly the same as that of processing the FE and BE models as separate entities. For realistic 3D structures the cost is dominated by that of solving the structural problem. The overhead introduced by the  ̄ow of information is insigni®cant because it consists exclusively of computational vectors of dimension equal to the number of BEM control points on the wet surface. If this sounds too good to be true, it is. The high computational e ciency per time step is counteracted by the fact that satisfactory numerical stability is hard to achieve. In fact the practical feasibility of the staggered approach hinged entirely on the stability analysis. In the original publication [8] it is shown that maintaining A-stability for this problem requires a reformulation of the governing equations. This is done by a procedure called augmentation [1,8,21], which involves transferring selected properties of the structure to the  ̄uid model. The result is that the semidiscrete DAA1 model is modi®ed as sketched in Fig. 12. This strategy was considered preferable to augmentation of the structural model, because the structural analysis program, for the reasons noted above, was deemed to be untouchable.
+5.3. Three-®eld FSI: cavitation
+A BEM treatment of the acoustic  ̄uid works well as long as the  ̄uid is linear. But if the shock wave is strong and the ambient hydrostatic pressure small, bulk cavitation may occur. If the structure is su ciently  ̄exible, hull cavitation may occur. In either case the  ̄uid must be modeled as a bilinear acoustic  ̄uid, and a BEM treatment for the volume affected by cavitation is not possible. It is then convenient to partition the coupled system into 3-®elds, as sketched in Fig. 119b). The near-®eld, where cavitation takes place, is modeled by acoustic  ̄uid-volume elements. This region is truncated by a DAA1 boundary. This is an example of a partition driven by local physics. Accordingly, cavitation analysis was implemented as the three-®eld coupled system diagrammed in Fig. 119b). A second  ̄uid program, called CFA 9for Cavitating Fluid Analyzer) was written and data coupled to the other two. Thus USA-CFA-STAGS, for example, denotes the linkage of USA and CFA with the nonlinear structural analysis program STAGS. The structure, near-®eld  ̄uid volume and DAA boundary were processed by implicit, explicit and implicit time-stepping, respectively. It is important to
+DAA1 Fluid Model
+u
+Augmented DAA1 Model
+u
+p = q.
+p = q.
+f ff f f
+f.
+A q + ρc(A M A + A M A ) q =
+ρc A v ρc A M A p + residual term
+.. -g
+I ff
+fI
+._
+_ -g
+-1
+.
+..
+Structural FEM Model M u + K u = f TA (p + p )
+_f I
+s
+ss
+..
+Structural FEM Model M u + K u = f TA (p + p )
+_f I
+s
+ss
+..
+f ff f
+fI
+.
+._
+A q + ρc A M A q = ρc A (T u v )
+-1 T
+TT T
+-g -1
+s
+M = C (T M T) C, C = T T
+(structural damping ignored)
+(identical to above)
+(a)
+(b)
+Fig. 12. Reformulation of two-®eld semidiscrete FSI equations: 9a) original 9after some DAA1 rearrangements), 9b) upon augmentation of  ̄uid model by structural terms. Augmentation permitted A-stability to be retained in staggered solution.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3259
+
+
+note that the state of the explicit partition must be evaluated and advanced at half time stations tn 1=2, whereas implicit partitions are processed at full time stations tn and tn 1. With this and other precautions the stable timestep, which is controlled by the CFL condition in the cavitating  ̄uid mesh, was not degraded [21].
+6. Beyond shocks
+Since the source problem described above, partitioned methods have been applied by us and other research groups to the simulation of coupled problems in structure±structure interaction, thermomechanics, control±structure interaction, and various kinds of  ̄uid±structure interaction involving  ̄uid  ̄ow for aeroelasticity as well as in porous media. Because of space limitations the following outline is necessarily sketchy. It is restricted to applications treated by the authors, or deemed to hold future interest.
+6.1. Aeroelasticity
+The application of partitioned methods to exterior aeroelasticity was pioneered by Farhat and coworkers since 1990 [30,33±39]. The long ambitious long term goal of this project is to  ̄y and maneuver a  ̄exible airplane on a massively parallel computer. The essential physics involves the interaction of an external gas  ̄ow described by the Navier±Stokes equations, with a  ̄exible aircraft, as illustrated in Fig. 139a). The aircraft structure is modeled by standard shell and beam ®nite elements and is advanced in time by an A-stable integrator such as the midpoint rule. The  ̄uid is modeled by  ̄uid volume elements that form an unstructured mesh of tetrahedra and is advanced in time by Runge±Kutta methods. Additional algorithmic and modeling details are provided in recent publications [36±39].
+Fig. 13. The exterior aeroelastic problem as a three-®eld, two partition system.
+3260 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+Three complicating factors appear in this application: parallel computation, the ALE 9Adaptive Lagrangian±Eulerian) treatment, and different response scales. The in ̄uence of parallelism is discussed in Section 6.5. The second complication arises because the structure motions are described in a Lagrangian system, in which the structural mesh follows its motion, whereas  ̄uid  ̄ow is described in a Eulerian system, in which the gas passes through the  ̄uid mesh. Hence the  ̄uid mesh, or at least a near-®eld portion of it, must displace in lockstep with the structural motions. There are many proposed ALE solutions that work well in two dimensions, but which often lose robustness in three dimensions because of mesh cell collapse. The approach selected in this project exploits an idea originally proposed by Batina [40]. A ®ctitious network of linear springs, which may be augmented by dampers and torsional springs, is laid down along the edges of the  ̄uid volume elements, as sketched in Fig.139b). This network may be viewed as a coupled computational ®eld embedded within the  ̄uid partition. The springs are ®xed at the outer edges of the region where ALE e ects are deemed important. They are driven by the motion of the aircraft surface, and operate as transducers that feed this motion, appropriately decaying with distance, to the  ̄uid mesh nodes. The motion of the dynamic mesh must satisfy geometric conservation laws [37]. The resulting three-®eld interaction is diagramed in Fig. 13. Although the diagram is topologically similar to the three-®eld cavitating FSI of Fig. 119b), the nature of  ̄ow computations makes this a more challenging problem. In commercial aircraft aeroelasticity, structural motions are typically dominated by low frequency vibration modes. On the other hand, the  ̄uid response must be captured in a smaller time scale because of non-stationary e ects involving shocks, vortices, and turbulence. Thus the use of a smaller timestep for the  ̄uid is natural. This device is called subcycling. The ratio of structural to  ̄uid timesteps may range from 10:1 through as high as 1000:1, depending on problem characteristics and the use of explicit or implicit  ̄uid solver.
+6.2. Control±structure interaction
+Partitioned solution methods have been also applied to the problem of interaction of an active control system with a ``dry'' structure; that is, a structure not coupled with a  ̄uid [26,27,41,42]. The interaction diagram for this two-®eld problem is shown in Fig. 149a). One novelty is the modeling of the control partition as a second-order system, which permits stabilization techniques previously studied for structure± structure interaction [22,23] to be used as starting point. The interaction of a control system with a ``wet'' structure 9a structure that interacts with a  ̄uid  ̄ow) is a more formidable problem which is the presently the subject of active research. Fig. 149b) shows the diagram of this three-®eld coupled system. Envisioned applications include piezoelectric  ̄utter and
+Actuator dynamics
+Sensor dynamics
+STRUCTURE PARTITION
+CONTROL PARTITION
+Control law Observer
+Structure Actuator
+dynamics
+Sensor dynamics
+STRUCTURE PARTITION
+CONTROL PARTITION
+Control law Observer
+FLUID PARTITION
+Structure Near-field fluid
+Dynamic fluid mesh
+Far-field fluid
+(a) (b)
+Fig. 14. Active control of dry and wet structures as: 9a) two-®eld, 9b) three-®eld coupled systems.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3261
+
+
+vibration suppression in aircraft wings, as diagramed in Fig. 15, and stall  ̄utter reduction in helicopter blades [43,44].
+6.3. Design and optimization as coupled system
+Computer-driven optimization may be embedded in a partitioned framework by recasting it as a control problem [45,46]. The block-diagram of this interpretation is sketched in Fig. 169a), and a practical realization shown in Fig. 169b). A design driver program outputs control variables that modify the system model. This model, subject to environmental interactions 9for example, with a surrounding  ̄uid) produces a response from which state variables are synthesized and fed to the design evaluator, which supplies design merit and sensitivities to the optimizer to close the loop.
+electrode layers
+passive substructure laminas (top & bottom)
+piezoelectric material lamina
+PZT fibers
+electrodes (IDE shown)
+epoxy matrix
+Fig. 15. Piezoelectric control of wing shape for vibration and  ̄utter suppression.
+State
+Control Response
+System
+Environment
+Control Design state
+Response
+Environment
+Response equations
+Design optimizer
+State synthesis
+Design evaluator
+System model
+Model updater
+Merit & sensitivities
+Design optimizer
+Design evaluator
+DESIGN PARTITION
+STRUCTURE PARTITION FLUID PARTITION
+Structure Near-field fluid
+Dynamic fluid mesh
+Far-field fluid
+State synthesis
+Model updater
+(b)
+(a)
+(c)
+Fig. 16. Computer driven design and optimization of a wet structure as component of a coupled system: 9a) abstract interpretation as optimal control problem, 9b) practical computer implementation, 9c) partitioned analysis diagram.
+3262 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+The block diagram of Fig. 169b) formally looks like the control partition of Fig. 149b). It may be ± at least in principle ± made into a ``design partition'' of a coupled system. This interpretation suggests a parallel implementation and points the way to future research into simulation-based adaptive design. For example, can we optimize an airplane 9or golf ball) as it  ̄ies?
+6.4. Gas turbine simulation: a four-®eld coupled system
+The simulation of a high-temperature gas turbine 9for aircraft, powerplants or micromotor applications) involves the interaction of four partitions shown in Fig. 17: structure 9moving and ®xed), enclosed  ̄uid  ̄ow, power 9combustion, turbulence and transport) and heat conduction. This is an ambitious application that presently lies beyond our modeling and computer power. It points the way, however, to the kind of systems that may be treated in the next century as peta ̄op parallel computers become available.
+6.5. Parallelization
+The gradual evolution and acceptance of massively parallel computers over the past decade has brought new opportunities as well as challenges to partitioned analysis methods. The opportunities are obvious. Massive parallelization relies on divide and conquer: breaking down the simulation into concurrent tasks. Since partitioned analysis relies on spatial decomposition, it provides an appropriate top-level start. One may envision, for example, that in a FSI problem a parallel computer is able to advance the  ̄uid and structure states simultaneously. This picture, however, is a gross oversimpli®cation. First, there is no guarantee that the computational load will be balanced. For example in the DAA1-structure models discussed in Section 5 the structure dominates the computational e ort, whereas the opposite is true in aeroelasticity. Second, existing parallel computers have more than two processors: typically 16±512 in commercial systems. Thousands of processors are available in the custom, ®ne-grained parallel machines installed or under procurement at several Department of Energy laboratories. To take advantage of such ®ne granularities, it is necessary to introduce additional decomposition levels. These are generically called subdomains. The decomposition is done by programs called domain decomposers or mesh decomposers. Unlike coupled ®eld partitions, subdomain decomposition is computationally driven. Subdomains, or sets of subdomains, are then mapped to processors. A two-level decomposition and CPU-mapping procedure is illustrated in Fig. 18. One result of the partitioned approach is that CPUs are ``colored'' or tagged according to the program they execute. The ®gure assumes that for an exterior aeroelastic problem the structure,  ̄uid and dynamic mesh are decomposed into 16, 64 and 25 subdomains, respectively 9the restriction to perfect squares is only for visualization convenience). If each subdomain maps to one processor, the simulation will use
+STRUCTURE PARTITION
+THERMOSOLID PARTITION POWER PARTITION
+FLUID PARTITION
+Thermal state in structure
+Dynamic fluid mesh
+Fixed
+Structure Moving
+Structure
+Enclosed fluid
+Combustion + turbulent mixing & transport
+Fig. 17. Simulation of a high-temperature gas turbine engine as four-®eld coupled system.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3263
+
+
+16 64 25 105 processors. Of these, 16 execute the structure code, 64 the  ̄uid code and 25 the ALE code. Each of those processors runs its program copy on di erent data structures prede®ned by the domain decomposition. Information transfer between programs is of two types. Intrapartition transfers 9such as structure to structure or  ̄uid to  ̄uid) are handled by standard message passing techniques based on protocols such as MPI. Interpartition transfers 9such as structure to  ̄uid or vice-versa) are also handled by messages but may require a mesh interpolation procedure because mesh nodes do not necessarily match at physical interfaces. The time-stepping, sketched in Fig. 19, is carried out using staggered schemes suitably improved and re®ned for subcycling and computational load balancing.
+6.6. Adapting to changes
+Since emerging in the mid 1980s, commercial parallel architectures have advanced rapidly, particularly in storage and communications. The  ̄exibility of partitioned methods has facilitated adaptation. Three examples are noted here. On shared memory machines such as SGI's it has been found convenient to allow mapping of several subdomains per CPU, sizing subdomains so each ®ts in a L2 cache. This generalizes the ``one subdomain, one CPU'' rule of earlier days. Protocols for processor-to-processor communication are evolving from message passing libraries such as MPI to faster socket connections. Selected programs such as mesh decomposers and visualizers have been recoded in more modern languages, while keeping legacy code in some ®eld analyzers. Parallel algorithms are also evolving to accommodate architectural advances and experience. Noteworthy developments in the aeroelasticity problem concern uncollocated staggered algorithms, in which time stations for  ̄uid and structure may be shifted to exploit the accuracy of midpoint methods while maintaining parallelism through backward corrections. Two improved schemes of this nature for serial and parallel processing are diagrammed in Fig. 20. Technical details are given by Lesoinne and Farhat [39].
+STRUCTURE PARTITION FLUID PARTITION
+Dyn fluid mesh (spring network)
+Fluid mesh (FVM)
+Structure mesh (FEM)
+...... ...... ......
+F1 N1 N2 N25
+F2 F64
+S1 S2 S16
+Fluid
+Dynamic fluid mesh
+Structure
+Fixed fluid mesh in fluid partition Moving fluid mesh in fluid partition Dynamic mesh in fluid partition Structure partition Mesh interface transfers
+Processor assignment:
+Fig. 18. The top ®gure shows two decomposition levels in parallel analysis of a coupled system: partitions and subdomains; illustrated for the exterior aeroelastic problem. Bottom ®gure depicts a one-to-one mapping of subdomains to processors of massively parallel computer. A three-®eld partition is shown for illustrative purposes only: in present implementations the dynamic mesh is part of the  ̄uid solver.
+3264 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+6.7. Related work
+Several research groups have addressed coupled problems using both monolithic and partitioned schemes. A large portion of the European work during the 1980s is covered in several edited proceedings [47±49]. Staggered procedures have been applied by Schre ̄er and coworkers to soil consolidation problems with varying degree of success [50±52]. Experience with partitioned schemes at Swansea are surveyed in the second volume of the Zienkiewicz±Taylor monograph [53]. The thesis of Armero [54] is noteworthy for the careful mathematical treatment of dissipative coupled problems using the theory of dynamical systems.
+7. Research areas
+Some areas that deserve further study in conjunction with the partitioned analysis of coupled systems are listed below.
+Fluid timestep
+Structure timestep
+Time
+Fluid
+Dyn Mesh
+Structure
+pp
+xx
+u uu u
+u
+Fig. 19. Parallel time-stepping of the mapping of Fig. 18. This is an idealized diagram prepared in 1993. Adaptation to new architectures and algorithm development have produced variations outlined in the text.
+Fluid
+Structure
+.
+1
+3
+2
+4
+unu. n
+Un
+Wn-1/2
+pn+1/2 pn+3/2
+Un+1
+u n+1
+u n+1
+Wn+1/2
+∆_t 2
+∆_t 2
+..
+x =u + u x =u + u
+n-1/2 n+1/2 n n
+n-1 n-1 _1
+2 1_
+2
+_
+_
+_
+_
+Fluid
+Structure
+1
+2
+2
+un un+1
+Un U
+Wn+1/2
+n+1/2
+Wn
+pn+1/2
+pn
+Un+1
+n+1
+Wn+1
+x = (u +u ) x = u x = (u +u )
+n n-1 n+1/2 n n
+n n+1
+4
+4
+3
+3
+Fig. 20. Improved serial and parallel staggered procedure for the exterior aeroelasticity problem. U and W are the structure and  ̄uid state variables, respectively. From Ref. [39].
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3265
+
+
+Stability. This is an important concern. The ideal goal is: a partitioned treatment should not degrade the numerical stability of the individual subsystems. More speci®cally:
+1. If each partition is treated by unconditionally stable time-stepping methods, the integration of the overall coupled system should retain unconditional stability. 2. If one or more partitions are treated explicitly and the maximum stable timestep is hmax, the integration of the overall system should be stable up to that stepsize. These goals may be di cult or impossible to achieve without a reformulation 9by augmentation) of the original ®eld equations, as in the case study of Section 5. Stability analysis by standard Fourier techniques using a scalar test equation is not generally possible because modes of individual subsystems are not modes of the coupled problem. For diagonalizable linear models it is possible to use test systems containing as many modes as partitions, as outlined in Appendix A. Accuracy. In linear problems response tracing accuracy is generally checked only after a stable algorithm is developed. Accuracy degradation is of concern in many applications. A common scenario is: secondorder accurate algorithms are used in each subsystem, but the accuracy of the partitioned integration is only ®rst-order. An analysis technique based on the Modi®ed Equation Method is outlined in Appendix A for linear systems. This backward-error analysis, if applicable, provides the global accuracy order directly. A related research area is the study of tradeoffs between inter®eld iteration versus timestep reduction. For nonlinear problems stability and accuracy are often interwined and should be studied concurrently. The most promising approach seems to be the use of energy methods applied either to the entire system [36], or to inter®eld energy exchanges [55]. A general theory of stability of discrete and semidiscrete nonlinear coupled systems remains to be developed. Interface modeling. This topic has received increased attention with the development of domain decomposition solvers over the past 15 years. These solvers exploit information transfer between matching or non-matching intra®eld meshes. For example: structure to structure, and  ̄uid to  ̄uid. Much remains to be done, however, for inter®eld non-matching discretizations as well as silent boundaries. Non-smooth problems. The use of partitioned analysis procedures in applications involving contact and impact merits study to assess whether those methods can provide breakthroughs in modeling and computational power. Related to this topic are problems involving sliding solid and  ̄uid meshes, as in turbomachinery, parachuting, and store separation. Treatment of volume and non-local couplings. Problems of  ̄uid turbulence, transport and mixing fall into this category, as do applications in metal and plastic forming and thermochemical processes such as combustion. The propagation of non-local effects across partition boundaries can incur signi®cant computational overhead unless clever mesh overlappings or rezoning techniques are developed.
+8. Concluding remarks
+It is hoped that the present article will give the reader a feel for the largely unexplored subject of coupled system simulation. Even with our stated restriction to mechanical systems of importance in engineering, there remains a great wealth of opportunity for theory, physical modeling, algorithms and simulation. Further multidisciplinary richness pours forth if multiphysics e ects are considered. The availability of high performance parallel computers of tera ̄op power and beyond promises to be a source of exciting theoretical, modeling and algorithmic advances. But any such development must necessarily be subjected to the ultimate test of experimental validation.
+Acknowledgements
+The preparation of this article was supported by the National Science Foundation under Grant ECS9725004 and by Sandia National Laboratories under ASCI Contract AS-9991.
+3266 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+Appendix A. Spectral techniques for stability and accuracy analysis
+It is well known that the analysis of stability and accuracy of time integration schemes for linear, semidiscrete, undamped structural dynamics: Mu Ku f t , is reduced to that of a model 9test) scalar ODE: xi xi2xi 0, where i runs over the free-vibration modes. If that structure is coupled to an acoustic medium modeled by a ®rst-order symmetric BEM, as in problem 95), spectral techniques can be used to obtain a 2-equation coupled model system: xi x2xi ayi 0 and ny_j lyj bxj 0, where i runs over structural modes and j over  ̄uid-boundary modes [8]. For a linear coupled system with n ®elds, each satisfying diagonalization conditions, the model system will generally contain n coupled ODEs of generally different orders. As an example, if the components of a 3-®eld system have 106, 105 and 104 freedoms, respectively, there will be 1015 model systems of 3 equations each. If this reduction is possible a precise analysis of stability and accuracy of partitioned methods can be done using spectral techniques. The methodology o ers some novel aspects that are illustrated below for a test system of two coupled ®rst-order ODEs.
+A.1. Stability by the Ampli®cation Method
+Suppose that the analysis of a semidiscrete system of two coupled ®rst-order ODE systems can be reduced to the model system:
+x_ y_
+axx axy
+ayx ayy
+x y
+0
+0 ; or _z Az 0: A:1
+Here x and y are modal amplitudes of a generic fxi; yjg mode pair, while axx through ayy are constant real coef®cients satisfying axx > 0, ayy > 0, det A axxayy axyayx > 0. These conditions insure exponentially decaying solutions, that is, physical stability. Homogeneous equations can be used because non-interaction forces can be ignored in questions of stability and accuracy. We study the one-step implicit integrator with constant stepsize h: xn 1 xn ahx_n 1 bh_xn, yn 1 yn ahy_n 1 bhy_n, with a > 0 and b 1 a. Apply this to 9A.1) to eliminate temporal derivatives. The resulting monolithic difference scheme, called the modal ampli®cation system or MAS, is
+1 ahaxx ahaxy ahayx 1 ahayy
+xn 1
+yn 1
+1 bhaxx bhaxy bhayx 1 bhayy
+xn yn
+; or Bmzn 1 Cmzn: A:2
+The stability of 9A.2) can be studied through standard techniques. Set zn 1 kzn, where k is a 9generally complex) ampli®cation factor, expand the homogeneous system determinant as a quadratic polynomial in k, and transform to a Routh polynomial C0 C1s C2s2 through the involutory mapping k s 1 = s 1 . The time-stepping scheme is A-stable if the coe cients fC0; C1; C2g are non-negative for any h > 0 and all combinations of faxx; ayy; axy; ayxg that make A positive de®nite. This analysis leads to the well-known condition a P 1=2. On the other hand, treating 9A.1) by an x-staggered integrator with predictor ynP 1 yn cy_n, in which c P 0, leads to a differential-difference MAS:
+1 ahaxx 0 ahayx 1 ahayy
+xn 1
+yn 1
+1 bhaxx bhaxy bhayx 1 bhayy
+xn yn
+0 ach2axy 00
+_xn y_n
+A:3
+or Bsz_ Csz. If c 6 0, y_n comes in through the predictor. This situation is typical of partitioned procedures. It leads to the question: how is the derivative y_n computed? This decision pertains to the topic of computational paths, initially studied in the context of structural dynamics integration schemes [56]. For such second-order ODEs there are four choices. For ®rst-order ODEs there are only two: Path 0: Compute from the di erential equation 9A.1): y_n ayyyn ayxxn. Path 1: Compute from the di erence equation 9A.2): y_n yn yn 1 bhy_n 1 = ah .
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3267
+
+
+For the Path 0 choice, 9A.3) reduces to
+1 ahaxx 0 ahayx 1 ahayy
+xn 1
+yn 1
+1 bhaxx ach2axyayx haxy ach2ayy axy bhayx 1 bhayy
+xn yn
+; A:4
+or B0
+s zn 1 C0
+s zn. This is a standard form MAS. The ampli®cation analysis then leads to the A-stability conditions
+aP 1
+2 ; 1 P c P 1 2a: A:5
+For example, the Trapezoidal Rule: a 1=2, is A-stable if c is in the range 0; 1 . The analysis of Path 1 is more elaborate because it couples previous solutions, and operational methods must be used [1]. The novel feature of partitioned schemes is that stability may depend on the computational path. On the other hand, such dependence disappears in the monolitic scheme 9A.2).
+A.2. Accuracy by the modi®ed equation method
+The accuracy of monolithic schemes is normally studied by standard truncation error analysis. This approach, however, conveys little information as regards the physical model in questions such as dissipativity or dispersion, or whether rigid body motions are preserved. More insight can be obtained with the Modi®ed Equation Method, also called the Limit Di erential Equation Method in previous accuracy studies [1,23]. This approach ®ts the spirit of backward error analysis: ®nd a system of di erential equations, called the modi®ed system, which would be exactly sampled by the time-stepping difference system. This system of course depends on the stepsize h. If the difference between the modi®ed and original ODE is, say, O hp then the integration scheme is globally p-order accurate [57]. Furthermore the differences can be traced to speci®c matrices such as mass, damping and stiffness, and directly compared to physical uncertainties. Although the Modi®ed Equation Method was introduced over 20 years ago [58], it has not received much attention. A recent revival has been prompted by growing interest in chaotic dynamical systems, for which forward error analysis is meaningless [59]. For our example problem, a modi®ed ODE can be obtained from the original model ODE 9A.1) and a di erence scheme generically denoted by Bhzn 1 Chzn, as follows. De®ne D B 1
+h Ch I =h, which is a
+function of h. Formally expand the matrix logarithm: log I Dh D 1=2 Dh 1=3 Dh2 in ascending powers of h: A0 A1h A2h2 , in which the Ai are independent of h. The modi®ed ODE is Iz_ A0 A1h A2h2 z 0. The time integrator is consistent if A0 A. It is globally ®rst-order accurate if A0 A but A1 6 0. It is globally second-order accurate if A0 A, A1 0 and A2 6 0. These matrices are functions of the parameters a and c as well as the modal coef®cients. Taking Bh Bm and Ch Cm one recovers the well known result that the monolithic scheme 9A.2) is
+second-order accurate if and only if a 1=2, i.e., the Trapezoidal Rule. Taking Bh B0
+s and Ch C0
+s one ®nds that the Path 0 staggered scheme 9A.4) becomes second-order accurate if and only if a 1=2 and c 1, which lie on the boundary of A-stability. To illustrate the resulting forms, if axx ayy 1 and axy ayx j, the modi®ed ODEs including up to O h2 terms are:
+monolithic : 1 0
+0 1 z_ 1 j
+j 1 z h2
+12
+1 3j2 j 3 j2
+j 3 j2 1 3j2 z 0;
+staggered : 1 0
+0 1 z_ 1 j
+j 1 z h2
+12
+1 3j2 2j2
+j 3 j2 1 3j2 z 0:
+A:6
+This shows that the backward-error accuracy is similar except for the axy term. Numerical experiments show that the two schemes are roughly equivalent in accuracy if the timestep of the staggered scheme is about 30% smaller than that of the monolithic scheme. Because the former displays higher computational e ciency 9which can reach into orders of magnitude depending on problem size and sparsity), the staggered approach is obviously superior for this example. As noted in the main text, conclusions favoring one approach over the other are problem dependent.
+3268 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
+
+
+Many coupled systems, notably those involving  ̄uid- ̄ow/structure interaction, do not meet the linearity and diagonalization assumptions and the foregoing spectral techniques do not apply. As noted in Section 7, the development of analysis techniques targeted to those cases represents a fertile ground for research.
+References
+[1] K.C. Park, C.A. Felippa, Partitioned analysis of coupled systems, in: T. Belytschko, T.J.R. Hughes 9Eds.), Computational Methods for Transient Analysis, North-Holland, Amsterdam, 1983, pp. 157±219 9Chapter 3). [2] K.C. Park, C.A. Felippa, A variational principle for the formulation of partitioned structural systems, Int. J. Numer. Methods Engrg. 47 92000) 395±418. [3] K.C. Park, C.A. Felippa, R. Ohayon, Partitioned formulation of internal  ̄uid±structure interaction problems via localized Lagrange multipliers, Comput. Methods Appl. Mech. Engrg. 190 92001) 2989±3007. [4] D.W. Peaceman, H.H. Rachford Jr., The numerical solution of parabolic and elliptic di erential equations, SIAM J. 3 91955) 28±41. [5] J. Douglas, H.H. Rachford Jr., On the numerical solution of the heat equation in two and three space variables, Trans. Amer. Math. Soc. 82 91956) 421±439. [6] N.N. Yanenko, The Method of Fractional Steps, Springer, Berlin, 1991. [7] R.L. Richtmyer, K.W. Morton, Di erence Methods for Initial Value Problems, second ed., Interscience, New York, 1967. [8] K.C. Park, C.A. Felippa, J.A. DeRuntz, Stabilization of staggered solution procedures for  ̄uid±structure interaction analysis, in: T. Belytschko, T.L. Geers 9Eds.), Computational Methods for Fluid±Structure Interaction Problems, AMD vol. 26, American Society of Mechanical Engineers, New York, 1977, pp. 95±124. [9] T. Belytschko, R. Mullen, Mesh partitions of explicit±implicit time integration, in: K.-J. Bathe, J.T. Oden, W. Wunderlich 9Eds.), Formulations and Computational Algorithms in Finite Element Analysis, MITPress, Cambridge, 1976, pp. 673±690. [10] T. Belytschko, R. Mullen, Stability of explicit±implicit mesh partitions in time integration, Int. J. Numer. Methods Engrg. 12 91978) 1575±1586. [11] T. Belytschko, T. Yen, R. Mullen, Mixed methods for time integration, Comput. Methods Appl. Mech. Engrg. 17/18 91979) 259±275. [12] T.J.R. Hughes, W.-K. Liu, Implicit±explicit ®nite elements in transient analysis: I. Stability theory; II. Implementation and numerical examples, J. Appl. Mech. 45 91978) 371±378. [13] T.J.R. Hughes, K.S. Pister, R.L. Taylor, Implicit±explicit ®nite elements in nonlinear transient analysis, Comput. Methods Appl. Mech. Engrg. 17/18 91979) 159±182. [14] T.J.R. Hughes, R.S. Stephenson, Stability of implicit±explicit ®nite elements in nonlinear transient analysis, Int. J. Engrg. Sci. 19 91981) 295±302. [15] T.J.R. Hughes, The Finite Element Method ± Linear Static and Dynamic Finite Element Analysis, Prentice-Hall, Englewood Cli s, NJ, 1987. [16] T.L. Geers, Residual potential and approximate methods for three-dimensional  ̄uid±structure interaction, J. Acoust. Soc. Am. 45 91971) 1505±1510. [17] T.L. Geers, Doubly asymptotic approximations for transient motions of general structures, J. Acoust. Soc. Am. 45 91980) 1500± 1508. [18] T.L. Geers, C.A. Felippa, Doubly asymptotic approximations for vibration analysis of submerged structures, J. Acoust. Soc. Am. 73 91980) 1152±1159. [19] T.L. Geers, Boundary element methods for transient response analysis, in: T. Belytschko, T.J.R. Hughes 9Eds.), Computational Methods for Transient Analysis, North-Holland, Amsterdam, 1983, pp. 221±244 9Chapter 4). [20] C.A. Felippa, K.C. Park, Staggered transient analysis procedures for coupled-®eld mechanical systems: formulation, Comput. Methods Appl. Mech. Engrg. 24 91980) 61±111. [21] C.A. Felippa, J.A. DeRuntz, Finite element analysis of shock-induced hull cavitation, Comput. Methods Appl. Mech. Engrg. 44 91984) 297±337. [22] K.C. Park, Partitioned transient analysis procedures for coupled-®eld problems: stability analysis, J. Appl. Mech. 47 91980) 370±376. [23] K.C. Park, C.A. Felippa, Partitioned transient analysis procedures for coupled-®eld problems: accuracy analysis, J. Appl. Mech. 47 91980) 919±926. [24] K.C. Park, C.A. Felippa, Recent advances in partitioned analysis procedures, in: R. Lewis, P. Bettess, E. Hinton 9Eds.), Numerical Methods in Coupled Problems, Wiley, London, 1984, pp. 327±352 9Chapter 11). [25] C.A. Felippa, T.L. Geers, Partitioned analysis of coupled mechanical systems, Eng. Comput. 5 91988) 123±133. [26] W.K. Belvin, K.C. Park, Structural tailoring and feedback control synthesis: an interdisciplinary approach, J. Guidance, Control & Dynamics 13 93) 91990) 424±429. [27] K.C. Park, W. Belvin, A partitioned solution procedure for control±structure interaction simulations, J. Guidance, Control & Dynamics 14 91991) 59±67. [28] J.J. Schuler, C.A. Felippa, Superconducting ®nite elements based on a gauged potential variational principle, I. Formulation, II. Computational results, J. Comput. Syst. Engrg. 5 91994) 215±237.
+C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270 3269
+
+
+[29] C. Farhat, K.C. Park, Y.D. Pelerin, An unconditionally stable staggered algorithm for transient ®nite element analysis of coupled thermoelastic problems, Comput. Methods Appl. Mech. Engrg. 85 91991) 349±365. [30] C. Farhat, T.Y. Lin, Transient aeroelastic computations using multiple moving frames of reference, in: AIAA Eighth Applied Aerodynamics Conference, Portland, OR, August 1990, AIAA Paper No. 90-3053. [31] C. Farhat, F.-X. Roux, Implicit parallel processing in structural mechanics, Comput. Mech. Adv. 2 91994) 1±124. [32] C. Farhat, P.S. Chen, J. Mandel, A scalable Lagrange multiplier based domain decomposition method for implicit time-dependent problems, Int. J. Numer. Methods Engrg. 38 91995) 3831±3854. [33] M. Lesoinne, C. Farhat, Stability analysis of dynamic meshes for transient aeroelastic computations, in: 11th AIAA Computational Fluid Dynamics Conference, Orlando, FL, July 1993, AIAA Paper No. 93-3325. [34] C. Farhat, S. Lanteri, Simulation of compressible viscous  ̄ows on a variety of MPPs: computational algorithms for unstructured dynamic meshes and performance results, Comput. Methods Appl. Mech. Engrg. 119 91994) 35±60. [35] N. Maman, C. Farhat, Matching  ̄uid and structure meshes for aeroelastic computations: a parallel approach, Comput. Struct. 54 91995) 779±785. [36] S. Piperno, C. Farhat, B. Larrouturou, Partitioned procedures for the transient solution of coupled aeroelastic problems, Comput. Methods Appl. Mech. Engrg. 124 91995) 11±79. [37] M. Lesoinne, C. Farhat, Geometric conservation laws for  ̄ow problems with moving boundaries and deformable meshes, and their impact on aeroelastic computations, Comput. Methods Appl. Mech. Engrg. 134 91996) 71±90. [38] C. Farhat, M. Lesoinne, P. LeTallec, Load and motion transfer algorithms for  ̄uid/structure interaction problems with nonmatching discrete interfaces: momentum and energy conservation, optimal discretization and application to aeroelasticity, Comput. Methods Appl. Mech. Engrg. 157 91998) 95±114. [39] M. Lesoinne, C. Farhat, A higher order subiteration free staggered algorithm for nonlinear transient aeroelastic problems, AIAA J. 36 98) 91998) 1754±1756. [40] J.T. Batina, Unsteady Euler airfoil solutions using unstructured dynamic meshes, in: AIAA 27th Aerospace Sciences Meeting, Reno, NV, January 1989, AIAA Paper No. 89-0115. [41] R.G. Menon, K.C. Park, Parallel solution of control structure interaction for massively actuated structures, in: T. Kawai, et al. 9Eds.), Proceedings of the Third World Congress on Computational Mechanics, Chiba, Japan, August 1994, pp. 562±563. [42] K.F. Alvin, K.C. Park, A second-order structural identi®cation procedure via system theory-based realization, AIAA J. 32 91994) 397±406. [43] W.K. Wilkie, K.C. Park, W.K. Belvin, Helicopter dynamic stall suppression using piezoelectric active ®ber composite rotor blades, in: Proceedings of the 1998 AIAA SDM Conference, 20±24 April, Long Beach, CA, 1998, Paper No. AIAA-98-2002. [44] W.K. Wilkie, W.K. Belvin, K.C. Park, Torsional sti ness optimization of piezoelectric active twist helicopter rotor blades, in: N. Hagood 9Ed.), Adaptive Structures and Technologies, Technomic, Lancaster, PA, 1999. [45] D.G. Carmichael, Structural Modeling and Optimization, Ellis Horwood, London, 1981. [46] K.S. Pister, Mathematical modeling for structural analysis and design, Nucl. Eng. Des. 18 91972) 353±375. [47] E. Hinton, P. Bettess, R.W. Lewis 9Eds.), Numerical Methods in Coupled Problems, Pineridge Press, Swansea, UK, 1981. [48] R.W. Lewis 9Ed.), Numerical Methods in Coupled Problems, Wiley, London, 1984. [49] R.W. Lewis 9Ed.), Numerical Methods for Transient and Coupled Problems, Wiley, London, 1987. [50] B.A. Schre ̄er, A partitioned solution procedure for geothermal reservoir analysis, Comm. Appl. Numer. Methods 1 91985) 47±59. [51] B.A. Schre ̄er, Partitioned solution procedure and in®nite elements in the mechanics of porous media, in: Proceedings of the VIII Conference on Computational Methods in Structural Mechanics, Iadwisin, Poland, 1987. [52] R.W. Lewis, B. Schre ̄er, The Finite Element Method in the Static and Dynamics of Deformation and Consolidation of Porous Media, second ed., Wiley, Chichester, 1998. [53] O.C. Zienkiewicz, R.L. Taylor, The Finite Element Method, fourth ed., vol. 2, McGraw-Hill, London, 1991. [54] F. Armero, Numerical analysis of dissipative dynamical systems in solid and  ̄uid mechanics, with a special emphasis on coupled problems, Ph.D. Dissertation, Department of Mechanical Engineering, Stanford University, 1993. [55] S. Piperno, C. Farhat, Partitioned procedures for the trasnsient solultion of coupled aeroelastic problems ± Part II: energy transfer analysis and three-dimensional applications, Comput. Methods Appl. Mech. Engrg. 190 92001) 3147±3160. [56] C.A. Felippa, K.C. Park, Computational aspects of time integration procedures in structural dynamics: I. Implementation, J. Appl. Mech. 45 91978) 595±602. [57] A.M. Stuart, A.R. Humphries, Dynamic Systems and Numerical Analysis, Cambridge University Press, Cambridge, 1996. [58] R.F. Warming, B.J. Hyett, The modi®ed equation approach to the stability and accuracy of ®nite di erence methods, J. Comput. Phys. 14 91974) 159±169. [59] P.E. Kloeden, K.J. Palmer 9Eds.), Chaotic Numerics, American Mathematical Society, Providence, RI, 1994.
+3270 C.A. Felippa et al. / Comput. Methods Appl. Mech. Engrg. 190 32001) 3247±3270
