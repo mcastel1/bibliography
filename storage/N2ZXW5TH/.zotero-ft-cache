@@ -1,0 +1,4095 @@
+MATH  ́EMATIQUES
+&
+APPLICATIONS
+Directeurs de la collection : G. Allaire et J. Garnier
+69
+For other titles published in this series, go to www.springer.com/series/2966
+
+
+MATHE ́ MATIQUES & APPLICATIONS Comit ́e de Lecture 2008–2011/Editorial Board 2008–2011
+R  ́EMI ABGRALL INRIAet Mathe ́matiques, Univ. Bordeaux 1, FR abgrall@math.u-bordeaux.fr
+GR  ́EGOIRE ALLAIRE
+CMAP,  ́Ecole Polytechnique, Palaiseau, FR gregoire.allaire@polytechnique.edu
+MICHEL BENAI ̈M Mathe ́matiques, Univ. de Neuchaˆtel, CH michel.benaim@unine.ch
+OLIVIER CATONI Proba. et Mod. Ale ́atoires, Univ. Paris 6, FR catoni@ccr.jussieu.fr
+THIERRY COLIN Mathe ́matiques, Univ. Bordeaux 1, FR colin@math.u-bordeaux1.fr
+MARIE-CHRISTINE COSTA UMA, ENSTA, Paris, FR marie-christine.costa@ensta.fr
+ARNAUD DEBUSSCHE ENS Cachan, Antenne de Bretagne Avenue Robert Schumann, 35170 Bruz, FR arnaud.debussche@bretagne.ens-cachan.fr
+JACQUES DEMONGEOT TIMC, IMAG, Univ. Grenoble I, FR jacques.demongeot@imag.fr
+NICOLE EL KAROUI
+CMAP,  ́Ecole Polytechnique, Palaiseau, FR elkaroui@cmapx.polytechnique.fr
+JOSSELIN GARNIER Proba. et Mod. Ale ́atoires, Univ. Paris 6 et 7, FR garnier@math.jussieu.fr
+ST  ́EPHANE GAUBERT
+INRIA, Saclay, ˆIles-de-France, Orsay et CMAP,  ́Ecole Polytechnique, Palaiseau, FR stephane.gaubert@inria.fr
+CLAUDE LE BRIS CERMICS, ENPC et INRIA Marne la Valle ́e, FR lebris@cermics.enpc.fr
+CLAUDE LOBRY INRA, INRIA, Sophia-Antipolis et Analyse Syste`mes et Biome ́trie Montpellier, FR lobrinria@wanadoo.fr
+LAURENT MICLO Analyse, Topologie et Proba., Univ. Provence, FR miclo@cmi.univ-mrs.fr
+FELIX OTTO Institute for Applied Mathematics Universit y o f Bonn , DE otto@iam.uni-bonn.de
+VAL  ́ERIE PERRIER Mod.. et Calcul, ENSIMAG, Grenoble, FR valerie.perrier@imag.fr
+BERNARD PRUM Statist. et Ge ́nome, CNRS, INRA, Univ. Evry, FR bernard.prum@genopole.cnrs.fr
+PHILIPPE ROBERT INRIA, Domaine de Voluceau, Rocquencourt, FR philippe.robert@inria.fr
+PIERRE ROUCHON
+Automatique et Syste`mes,  ́Ecole Mines, Paris, FR pierre.rouchon@ensmp.fr
+ANNICK SARTENAER Mathe ́matiques, Univ. Namur, BE annick.sartenaer@fundp.ac.be
+ERIC SONNENDR  ̈UCKER IRMA, Strasbourg, FR sonnen@math.u-strasbg.fr
+SYLVAIN SORIN Combinat. et Optimisation, Univ. Paris 6, FR sorin@math.jussieu.fr
+ALAIN TROUV  ́E CMLA, ENS Cachan, FR trouve@cmla.ens-cachan.fr
+C  ́EDRIC VILLANI UMPA, ENS Lyon, FR cedric.villani@umpa.ens-lyon.fr
+ENRIQUE ZUAZUA Basque Center for Applied Mathematics, Bilbao, Basque, ES enrique.zuazua@uam.es
+Directeurs de la collection : G. ALLAIRE et J. GARNIER Instructions aux auteurs : Les textes ou projets peuvent ˆetre soumis directement a` l’un des membres du comite ́ de lecture avec copie a` G. ALLAIRE OU J. GARNIER. Les manuscrits devront ˆetre remis a` l’  ́Editeur sous format LATEX2e (cf. ftp://ftp.springer.de/pub/tex/latex/svmonot1/).
+
+
+Daniele Antonio Di Pietro · Alexandre Ern
+Mathematical Aspects
+of Discontinuous
+Galerkin Methods
+123
+
+
+Daniele Antonio Di Pietro IFP Energies nouvelles Department of Applied Mathematics 1 & 4, avenue du Bois Pre ́au 92852 Rueil-Malmaison France dipietrd@ifpen.fr
+Alexandre Ern Universite ́ Paris Est CERMICS, Ecole des Ponts ParisTech 6 & 8, avenue Blaise Pascal 77455 Marne la Valle ́ cedex 2 France ern@cermics.enpc.fr
+ISSN 1154-483X ISBN 978-3-642-22979-4 e-ISBN 978-3-642-22980-0 DOI 10.1007/978-3-642-22980-0 Springer Heidelberg Dordrecht Lodnon New York
+Library of Congress Control Number: 2011940956
+Mathematics Subject Classification (2010): 65N30, 65M60, 65N08, 65M08, 65N12, 65N15, 65M12, 65M15, 76M10, 76M12
+©c Springer-Verlag Berlin Heidelberg 2012 This work is subject to copyright. All rights are reserved, whether the whole or part of the material is concerned, specifically the rights of translation, reprinting, reuse of illustrations, recitation, broadcasting, reproduction on microfilm or in any other way, and storage in data banks. Duplication of this publication or parts thereof is permitted only under the provisions of the German Copyright Law of September 9, 1965, in its current version, and permission for use must always be obtained from Springer. Violations are liable to prosecution under the German Copyright Law. The use of general descriptive names, registered names, trademarks, etc. in this publication does not imply, even in the absence of a specific statement, that such names are exempt from the relevant protective laws and regulations and therefore free for general use.
+Cover design: deblik, Berlin
+Printed on acid-free paper
+Springer is part of Springer Science + Business Media (www.springer.com)
+
+
+Preface
+Discontinuous Galerkin (dG) methods can be viewed as finite element methods allowing for discontinuities in the discrete trial and test spaces. Localizing test functions to single mesh elements and introducing numerical fluxes at interfaces, they can also be viewed as finite volume methods in which the approximate solution is represented on each mesh element by a polynomial function and not only by a constant function. From a practical viewpoint, working with discontinuous discrete spaces leads to compact discretization stencils and, at the same time, offers a substantial amount of flexibility, making the approach appealing for multi-domain and multi-physics simulations. Moreover, basic conservation principles can be incorporated into the method. Applications of dG methods cover a vast realm in engineering sciences. Examples can be found in the conference proceedings edited by Cockburn, Karniadakis, and Shu [106] and in recent special volumes of leading journals, e.g., those edited by Cockburn and Shu [114] and by Dawson [120]. There is also an increasing number of open source libraries implementing dG methods. A non-exhaustive list includes deal.II [27], Dune [36], FEniCS [251], freeFEM [118], libmesh [213], and Life [262].
+A Brief Historical Perspective
+Although dG methods have existed in various forms for more than 30 years, they have experienced a vigorous development only over the last decade, as illustrated in Fig. 1. The first dG method to approximate first-order PDEs has been introduced by Reed and Hill in 1973 [268] in the context of steady neutron transport, while the first analysis for steady first-order PDEs was performed by Lesaint and Raviart in 1974 [227–229]. The error estimate was improved by Johnson and Pitkäranta in 1986 [204] who established an order of convergence in the L2-norm of (k + 1
+2 ) if polynomials of degree k are used and the exact solution is smooth enough. Few years later, the method was further developed by Caussignac and Touzani [84,85] to approximate the three-dimensional boundary-layer equations for incompressible steady fluid flows. At around the same time, dG methods were extended to time-dependent hyperbolic PDEs by Chavent and Cockburn [86] using the forward Euler scheme for time discretization together with limiters. The order of accuracy was improved by Cockburn and Shu [110, 111] using
+V
+
+
+VI Preface
+Fig. 1: Yearly number of entries with the keyword “discontinuous Galerkin” in the MathSciNet database
+explicit Runge–Kutta schemes for time discretization, while a convergence proof to the entropy solution was obtained by Jaffré, Johnson, and Szepessy [200]. Extensions are discussed in a series of papers by Cockburn, Shu, and coworkers; see, e.g., [99, 108, 113]. For PDEs with diffusion, dG methods originated from the work of Nitsche on boundary-penalty methods in the early 1970s [248, 249] and the use of Interior Penalty (IP) techniques to weakly enforce continuity conditions imposed on the solution or its derivatives across interfaces, as in the work of Babuška [20], Babuška and Zlámal [24], Douglas and Dupont [134], Baker [25], Wheeler [306], and Arnold [14]. This latter work constitutes a milestone in the development of IP dG methods. In the late 1990s, following an approach more closely related to hyperbolic problems, dG methods were formulated using numerical fluxes by considering the mixed formulation of the diffusion term. Examples include the work of Bassi and Rebay [34] on the compressible Navier–Stokes equations and that of Cockburn and Shu [112] on convection-diffusion systems, leading to a new thrust in the development of dG methods. A unified analysis of dG methods for the Poisson problem can be found in the work of Arnold, Brezzi, Cockburn, and Marini [16], while a unified analysis encompassing both diffusive and first-order PDEs in the framework of Friedrichs’ systems has been derived by Ern and Guermond [142–144].
+Goals
+The goal of this book is to provide the reader with the basic mathematical concepts to design and analyze dG methods for various model problems, starting at an introductory level and further elaborating on more advanced topics. Since the focus is on mathematical aspects of dG methods, linear model problems involving first-order PDEs and PDEs with diffusion play a central role.
+
+
+Preface VII
+Nonlinear problems, e.g., the incompressible Navier–Stokes equations and nonlinear conservation laws, are also treated, but in less detail for the latter, since very few mathematical results are yet available. This book also covers basic facts concerning the practical aspects of dG methods related to implementation; a more detailed treatment can be found in the recent textbook by Hesthaven and Warburton [192]. Some of the topics covered in this book stem from (very) recent work by the authors, e.g., on discrete functional analysis and convergence to minimal regularity solutions for PDEs with diffusion [131], the above-mentioned work with Guermond on Friedrichs’ systems, and joint work with Vohralík on diffusive flux reconstruction and a posteriori error estimates for elliptic PDEs [147, 149, 151]. Another salient feature of this book is to bridge, as much as possible, the gap between dG methods and finite volume methods, where many important theoretical advances have been accomplished over the last decade (see, e.g., the work of Eymard, Gallouët, and Herbin [156,157,159]). In particular, we present so-called cell-centered Galerkin methods for elliptic PDEs with one degree of freedom per mesh cell, following recent work by Di Pietro and coworkers [5, 6, 128]. For the approximation of unsteady problems, we focus on the method of lines, whereby dG space semidiscretization is combined with various schemes to march in time. One important goal is to show how the stability of dG schemes interacts with the stability of the temporal scheme. This is reflected, for instance, in our covering the analysis based on energy estimates for explicit Runge–Kutta dG methods applied to first-order, linear PDEs, following the recent work of Burman, Ern, and Fernández [66]. For a description and analysis of space-time dG methods as an alternative to the method of lines, we refer the reader to the textbook by Thomée [294]. Finally, we consider a rather general setting for the underlying meshes so as to exploit, as much as possible, the flexibility offered by the dG setting.
+Outline
+Chapter 1 introduces basic concepts to formulate and analyze dG methods. In this chapter, we present:
+(a) Two important results to assert the well posedness of linear model problems, namely the so-called Banach–Nečas–Babuška Theorem and the Lax– Milgram Lemma.
+(b) The basic ingredients related to meshes and polynomials to build discrete functional spaces and, in particular, broken polynomial spaces.
+(c) The three key properties for the convergence analysis of dG methods in the context of nonconforming finite elements, namely discrete stability, consistency, and boundedness.
+(d) The basic analysis tools, in particular inverse and trace inequalities needed to assert discrete stability and boundedness, together with optimal polynomial
+
+
+VIII Preface
+approximation results, thereby leading to the concept of admissible mesh sequences.
+In this book, we focus on mesh refinement as the main parameter to achieve convergence. Convergence analysis using, e.g., high-degree polynomials is possible by further tracking the dependency of the inverse and trace inequalities on the underlying polynomial degree and, in some cases, modifying accordingly the penalty strategy in the dG method to achieve discrete stability. Important tools in this direction can be found in the work of Babuška and Dorr [22], Babuška, Szabó, and Katz [23], Szabó and Babuška [288] and Schwab [275], and, in the context of dG methods, in the recent textbook of Hesthaven and Warburton [192]. The remaining chapters of this book are organized into three parts, each comprising two chapters. PartI, which comprises Chaps. 2 and 3, deals with scalar first-order PDEs. Chapter 2 focuses on the steady advection-reaction equation as a simple model problem. Therein, we present some mathematical tools to achieve a well-posed formulation at the continuous level and show how these ideas are built into the design of dG methods. Two methods are analyzed thoroughly, which correspond in the finite volume terminology to the use of centered and upwind fluxes. Chapter 3 deals with unsteady first-order PDEs. Within the method of lines, we consider a dG method for space semidiscretization combined with an explicit scheme to march in time. We first present a detailed analysis in the linear case whereby the upwind dG method of Chap. 2 is used for space semidiscretization. Following the seminal work of Levy and Tadmor [231], the stability analysis hinges on energy estimates, and not on the more classical approach based on regions of absolute stability for explicit Runge–Kutta (RK) schemes. In particular, we show how the stability provided by the upwind dG scheme can compensate the anti-dissipative nature of the explicit time-marching scheme. We also show how this stability can be used to achieve quasi-optimal error estimates for smooth solutions. We present results for the forward Euler method combined with a finite volume scheme as an example of low-order approximation and then move on to explicit two- and three-stage RK schemes combined with a high-order dG approximation. The second part of Chap. 3 deals with nonlinear conservation laws. Taking inspiration from the linear case, we first design dG methods for space semidiscretization using the concept of numerical fluxes and provide various classical examples thereof, including Godunov, Rusanov, Lax–Friedrichs, and Roe fluxes. Then, we consider explicit RK schemes for time discretization and discuss Strong Stability-Preserving (SSP) RK schemes following the ideas of Gottlieb, Shu, and Tadmor [175, 176]. Finally, we discuss the use of limiters in the framework of one-dimensional total variation analysis and possible extensions to the multidimensional case. PartII, which comprises Chaps. 4 and 5, addresses scalar, second-order PDEs. Chapter 4 covers various model problems with diffusion. We first present a heuristic derivation and a convergence analysis to smooth solutions for a purely diffusive problem approximated by the Symmetric Interior Penalty
+
+
+Preface IX
+(SIP) method of Arnold [14]. Then, we introduce the central concept of discrete gradients and present some important applications, including the link with the mixed dG approach and the local formulation of the discrete problem using numerical fluxes. Hybrid mixed dG methods are also briefly discussed. Focusing next on heterogeneous diffusion problems, we analyze a modification of the SIP method, the Symmetric Weighted Interior Penalty (SWIP) method, using weighted averages in the consistency term and harmonic means of the diffusion coefficient at interfaces in the penalty term. The SWIP method is then combined with the upwind dG method of Chap. 2 to approximate diffusionadvection-reaction problems. We examine singularly perturbed regimes due to dominant advection, and include in the analysis the case where the diffusion actually vanishes in some parts of the domain. Finally, as a simple example of time-dependent problem with diffusion, we consider the heat equation approximated by the SIP method in space and implicit time-marching schemes (backward Euler and BDF2). Chapter 5 covers some additional topics related to diffusive PDEs, and, for the sake of simplicity, the scope is limited to purely diffusive problems. First, we present discrete functional analysis tools in broken polynomial spaces, namely discrete Sobolev embeddings, a discrete Rellich–Kondrachov compactness result, and a weak asymptotic consistency result for discrete gradients. As an example of application, we prove the convergence, as the meshsize goes to zero, of the sequence of discrete SIP solutions to minimal regularity solutions. These ideas are instrumental in Chap. 6 when analyzing the convergence of dG approximations for the steady incompressible Navier–Stokes equations. Then, we present some possible variations on symmetry and penalty for the SIP method. A further topic concerns the so-called cell-centered Galerkin methods which use a single degree of freedom per mesh cell and a suitable discrete gradient reconstruction, thereby providing a closer connection between dG and finite volume methods for elliptic PDEs. The last two topics covered in Chap. 5 are local postprocessing of the dG solution and a posteriori error estimates. One salient feature of local postprocessing is the possibility to reconstruct locally an accurate and conservative diffusive flux. An important application is contaminant transport where the diffusive flux resulting from a Darcy flow model is used as advection velocity. In turn, a posteriori error estimates provide fully computable error upper bounds that can be used to certify the accuracy of the simulation and to adapt the mesh. These last two topics can be nicely combined together since local postprocessing provides an efficient tool for deriving constant-free a posteriori error estimates. PartIII, which comprises Chaps. 6 and 7, deals with systems of PDEs. Chapter 6 is devoted to incompressible flows. Focusing first on the steady Stokes equations, we examine how the divergence-free constraint on the velocity field can be tackled using dG methods. We detail the analysis of equal-order approximations using both discontinuous velocities and pressures, whereby pressure jumps need to be penalized, and then briefly discuss alternative formulations avoiding the need for pressure jump penalty. The next step is the discretization of the nonlinear convection term in the momentum equation. To this purpose,
+
+
+X Preface
+we derive a discrete trilinear form that leads to the correct kinetic energy balance, using the so-called Temam’s device to handle the fact that discrete velocities are only weakly divergence-free. Moreover, since the model problem is now nonlinear, the convergence analysis is performed under minimal regularity assumptions on the exact solution and without any smallness assumption on the data using the discrete functional analysis tools of Chap. 5. Finally, we discuss the approximation of the unsteady Navier–Stokes equations in the context of pressure-correction methods. Chapter 7 presents a unified approach for the design and analysis of dG methods based on the class of symmetric positive systems of first-order PDEs introduced by Friedrichs [163]. Focusing first on the steady case, we review some examples of Friedrichs’ systems and derive the main mathematical tools for asserting well posedness at the continuous level. Using these tools, we derive and analyze dG methods, and, in doing so, we follow a similar path of ideas to that undertaken in Chap. 2. Then, we consider more specifically the setting of two-field Friedrichs’ systems and highlight the common ideas with the mixed dG approximation of elliptic PDEs. Finally, we consider unsteady Friedrichs’ systems with explicit RK schemes in time and then specialize the setting to twofield Friedrichs’ systems related to linear wave propagation, thereby addressing energy conservation and the possibility to accommodate local time stepping in the context of leap-frog schemes. Appendix A covers practical implementation aspects of dG methods, focusing on matrix assembly and choice of local bases for which we discuss selection criteria and present various examples including both nodal and modal basis functions. A bibliography comprising about 300 entries closes the manuscript. The amount of literature on dG methods is so vast that this bibliography is by no means exhaustive. We hope that the selected entries provide the reader with additional reading paths to examine more deeply the topics covered herein and to explore new ones. We mention, in particular, the recent textbooks by Hesthaven and Warburton [192], Kanschat [205], and Rivière [269].
+Audience
+This book is primarily geared to graduate students and researchers in applied mathematics and numerical analysis. It can be valuable also to graduate students and researchers in engineering sciences who are interested in further understanding the mathematical aspects that underlie the construction of dG methods, since these aspects are often important to formulate such methods when faced with new challenging applications. The reader is assumed to be familiar with conforming finite elements including weak formulations of model problems and error analysis (as presented, e.g., in the textbooks of Braess [49], Brenner and Scott [54], Ciarlet [92], or Ern and Guermond [141]) and to have some acquaintance with the basic PDEs in engineering and applied sciences. Special care has been devoted to making the material as much self-contained as possible. The general level of the book is best suited for a graduate-level course which can
+
+
+Preface XI
+be built by drawing on some of the present chapters. The material is actually an elaboration on the lecture notes by the authors for a graduate course on dG methods at University Pierre et Marie Curie.
+Acknowledgments
+We are grateful to several colleagues for their constructive remarks that helped improve the manuscript. In particular, our warmest thanks go to Léo Agélas (IFP Énergies nouvelles), Erik Burman (University of Sussex), Miguel Fernández (INRIA), Jean-Luc Guermond (Texas A&M University), Rémi Joubaud (University Paris-Est), Olivier Le Maître (LIMSI), Serge Piperno (University Paris-Est), Quang Huy Tran (IFP Énergies nouvelles), and Martin Vohralík (University Pierre et Marie Curie). We are also thankful to Rémi Abgrall for offering us the opportunity to publish this book.
+
+
+•
+
+
+Contents
+1 Basic Concepts 1 1.1 Well-Posedness for Linear Model Problems . . . . . . . . . . . . . 2 1.1.1 The Banach-Nečas-Babuška Theorem . . . . . . . . . . . 2 1.1.2 The Lax–Milgram Lemma . . . . . . . . . . . . . . . . . . 3 1.1.3 Lebesgue and Sobolev Spaces . . . . . . . . . . . . . . . . 4 1.2 The Discrete Setting . . . . . . . . . . . . . . . . . . . . . . . . . 7 1.2.1 The Domain Ω . . . . . . . . . . . . . . . . . . . . . . . . 7 1.2.2 Meshes . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8 1.2.3 Mesh Faces, Averages, and Jumps . . . . . . . . . . . . . 9 1.2.4 Broken Polynomial Spaces . . . . . . . . . . . . . . . . . . 12 1.2.5 Broken Sobolev Spaces . . . . . . . . . . . . . . . . . . . . 13 1.2.6 The Function Space H(div; Ω) and Its Broken Version . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 1.3 Abstract Nonconforming Error Analysis . . . . . . . . . . . . . . 18 1.3.1 The Discrete Problem . . . . . . . . . . . . . . . . . . . . 18 1.3.2 Discrete Stability . . . . . . . . . . . . . . . . . . . . . . . 19 1.3.3 Consistency . . . . . . . . . . . . . . . . . . . . . . . . . . 21 1.3.4 Boundedness . . . . . . . . . . . . . . . . . . . . . . . . . 21 1.3.5 Error Estimate . . . . . . . . . . . . . . . . . . . . . . . . 22 1.4 Admissible Mesh Sequences . . . . . . . . . . . . . . . . . . . . . 22 1.4.1 Shape and Contact Regularity . . . . . . . . . . . . . . . 23 1.4.2 Geometric Properties . . . . . . . . . . . . . . . . . . . . 24 1.4.3 Inverse and Trace Inequalities . . . . . . . . . . . . . . . . 26 1.4.4 Polynomial Approximation . . . . . . . . . . . . . . . . . 30 1.4.5 The One-Dimensional Case . . . . . . . . . . . . . . . . . 34
+I Scalar First-Order PDEs 35
+2 Steady Advection-Reaction 37 2.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . . . . . 38 2.1.1 Assumptions on the Data . . . . . . . . . . . . . . . . . . 38 2.1.2 The Graph Space . . . . . . . . . . . . . . . . . . . . . . . 39 2.1.3 Traces in the Graph Space . . . . . . . . . . . . . . . . . . 40
+XIII
+
+
+XIV Contents
+2.1.4 Weak Formulation and Well-Posedness . . . . . . . . . . . 42 2.1.5 Proof of Main Results . . . . . . . . . . . . . . . . . . . . 43 2.1.6 Nonhomogeneous Boundary Condition . . . . . . . . . . . 46 2.2 Centered Fluxes . . . . . . . . . . . . . . . . . . . . . . . . . . . 47 2.2.1 Heuristic Derivation . . . . . . . . . . . . . . . . . . . . . 50 2.2.2 Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . 53 2.2.3 Numerical Fluxes . . . . . . . . . . . . . . . . . . . . . . . 55 2.3 Upwinding . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56 2.3.1 Tightened Stability Using Penalties . . . . . . . . . . . . . 57 2.3.2 Error Estimates Based on Coercivity . . . . . . . . . . . . 58 2.3.3 Error Estimates Based on Inf-Sup Stability . . . . . . . . 61 2.3.4 Numerical Fluxes . . . . . . . . . . . . . . . . . . . . . . . 65
+3 Unsteady First-Order PDEs 67 3.1 Unsteady Advection-Reaction . . . . . . . . . . . . . . . . . . . . 68 3.1.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 69 3.1.2 Space Semidiscretization . . . . . . . . . . . . . . . . . . . 72 3.1.3 Time Discretization . . . . . . . . . . . . . . . . . . . . . 74 3.1.4 Main Convergence Results . . . . . . . . . . . . . . . . . . 78 3.1.5 Analysis of Forward Euler and Finite Volume Schemes . . . . . . . . . . . . . . . . . . . . . . . 83 3.1.6 Analysis of Explicit RK2 Schemes . . . . . . . . . . . . . 89 3.2 Nonlinear Conservation Laws . . . . . . . . . . . . . . . . . . . . 98 3.2.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 99 3.2.2 Numerical Fluxes for Space Semidiscretization . . . . . . 100 3.2.3 Time Discretization . . . . . . . . . . . . . . . . . . . . . 106 3.2.4 Limiters . . . . . . . . . . . . . . . . . . . . . . . . . . . . 108
+II Scalar Second-Order PDEs 117
+4 PDEs with Diffusion 119 4.1 Pure Diffusion: The Continuous Setting . . . . . . . . . . . . . . 120 4.1.1 Weak Formulation and Well-Posedness . . . . . . . . . . . 120 4.1.2 Potential and Diffusive Flux . . . . . . . . . . . . . . . . . 121 4.2 Symmetric Interior Penalty . . . . . . . . . . . . . . . . . . . . . 122 4.2.1 Heuristic Derivation . . . . . . . . . . . . . . . . . . . . . 122 4.2.2 Other Boundary Conditions . . . . . . . . . . . . . . . . . 126 4.2.3 Basic Energy-Error Estimate . . . . . . . . . . . . . . . . 128 4.2.4 L2-Norm Error Estimate . . . . . . . . . . . . . . . . . . . 133 4.2.5 Analysis for Low-Regularity Solutions . . . . . . . . . . . 134 4.3 Liftings and Discrete Gradients . . . . . . . . . . . . . . . . . . . 137 4.3.1 Liftings: Definition and Stability . . . . . . . . . . . . . . 138 4.3.2 Discrete Gradients: Definition and Stability . . . . . . . . 140 4.3.3 Reformulation of the SIP Bilinear Form . . . . . . . . . . 140 4.3.4 Numerical Fluxes . . . . . . . . . . . . . . . . . . . . . . . 142
+
+
+Contents XV
+4.4 Mixed dG Methods . . . . . . . . . . . . . . . . . . . . . . . . . . 143 4.4.1 The SIP Method As a Mixed dG Method . . . . . . . . . 143 4.4.2 Numerical Fluxes . . . . . . . . . . . . . . . . . . . . . . . 145 4.4.3 Hybrid Mixed dG Methods . . . . . . . . . . . . . . . . . 148 4.5 Heterogeneous Diffusion . . . . . . . . . . . . . . . . . . . . . . . 150 4.5.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 151 4.5.2 Discretization . . . . . . . . . . . . . . . . . . . . . . . . . 153 4.5.3 Error Estimates for Smooth Solutions . . . . . . . . . . . 156 4.5.4 Error Estimates for Low-Regularity Solutions . . . . . . . 160 4.5.5 Numerical Fluxes . . . . . . . . . . . . . . . . . . . . . . . 162 4.5.6 Anisotropy . . . . . . . . . . . . . . . . . . . . . . . . . . 163 4.6 Diffusion-Advection-Reaction . . . . . . . . . . . . . . . . . . . . 163 4.6.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 163 4.6.2 Discretization . . . . . . . . . . . . . . . . . . . . . . . . . 165 4.6.3 Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . 166 4.6.4 Locally Vanishing Diffusion . . . . . . . . . . . . . . . . . 171 4.7 An Unsteady Example: The Heat Equation . . . . . . . . . . . . 176 4.7.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 176 4.7.2 Discretization . . . . . . . . . . . . . . . . . . . . . . . . . 177 4.7.3 Error Estimates . . . . . . . . . . . . . . . . . . . . . . . . 179 4.7.4 BDF2 Time Discretization . . . . . . . . . . . . . . . . . . 182 4.7.5 Improved C0(L2(Ω))-Error Estimate . . . . . . . . . . . . 184
+5 Additional Topics on Pure Diffusion 187 5.1 Discrete Functional Analysis . . . . . . . . . . . . . . . . . . . . . 188 5.1.1 The BV Space and the ‖·‖dG,p-Norms . . . . . . . . . . . 188 5.1.2 Discrete Sobolev Embeddings . . . . . . . . . . . . . . . . 190 5.1.3 Discrete Compactness . . . . . . . . . . . . . . . . . . . . 193 5.2 Convergence to Minimal Regularity Solutions . . . . . . . . . . . 195 5.2.1 Consistency Revisited . . . . . . . . . . . . . . . . . . . . 195 5.2.2 Convergence . . . . . . . . . . . . . . . . . . . . . . . . . 197 5.3 Variations on Symmetry and Penalty . . . . . . . . . . . . . . . . 198 5.3.1 Variations on Symmetry . . . . . . . . . . . . . . . . . . . 199 5.3.2 Variations on Penalty . . . . . . . . . . . . . . . . . . . . 203 5.3.3 Synopsis . . . . . . . . . . . . . . . . . . . . . . . . . . . . 206 5.4 Cell-Centered Galerkin . . . . . . . . . . . . . . . . . . . . . . . . 207 5.5 Local Postprocessing . . . . . . . . . . . . . . . . . . . . . . . . . 211 5.5.1 Local Residuals . . . . . . . . . . . . . . . . . . . . . . . . 211 5.5.2 Potential Reconstruction . . . . . . . . . . . . . . . . . . . 214 5.5.3 Diffusive Flux Reconstruction by Prescription . . . . . . . 217 5.5.4 Diffusive Flux Reconstruction by Solving Local Problems . . . . . . . . . . . . . . . . . . . . . . . . . . . 222 5.6 A Posteriori Error Estimates . . . . . . . . . . . . . . . . . . . . 227 5.6.1 Overview . . . . . . . . . . . . . . . . . . . . . . . . . . . 228 5.6.2 Energy-Norm Error Upper Bounds . . . . . . . . . . . . . 229 5.6.3 Error Lower Bounds . . . . . . . . . . . . . . . . . . . . . 236
+
+
+XVI Contents
+III Systems 239
+6 Incompressible Flows 241 6.1 Steady Stokes Flows . . . . . . . . . . . . . . . . . . . . . . . . . 243 6.1.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 243 6.1.2 Equal-Order Discontinuous Velocities and Pressures . . . 248 6.1.3 Convergence to Smooth Solutions . . . . . . . . . . . . . . 255 6.1.4 Convergence to Minimal Regularity Solutions . . . . . . . 260 6.1.5 Formulations Without Pressure Stabilization . . . . . . . 266 6.2 Steady Navier–Stokes Flows . . . . . . . . . . . . . . . . . . . . . 267 6.2.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 267 6.2.2 The Discrete Setting . . . . . . . . . . . . . . . . . . . . . 271 6.2.3 Convergence Analysis . . . . . . . . . . . . . . . . . . . . 276 6.2.4 A Conservative Formulation . . . . . . . . . . . . . . . . . 280 6.3 The Unsteady Case . . . . . . . . . . . . . . . . . . . . . . . . . . 283 6.3.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 284 6.3.2 The Projection Method . . . . . . . . . . . . . . . . . . . 284
+7 Friedrichs’ Systems 293 7.1 Basic Ingredients and Examples . . . . . . . . . . . . . . . . . . . 294 7.1.1 Basic Ingredients . . . . . . . . . . . . . . . . . . . . . . . 294 7.1.2 Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . 296 7.2 The Continuous Setting . . . . . . . . . . . . . . . . . . . . . . . 301 7.2.1 Friedrichs’ Operators . . . . . . . . . . . . . . . . . . . . . 302 7.2.2 The Cone Formalism . . . . . . . . . . . . . . . . . . . . . 304 7.2.3 The Boundary Operator M . . . . . . . . . . . . . . . . . 306 7.2.4 The Well-Posedness Result . . . . . . . . . . . . . . . . . 308 7.2.5 Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . 309 7.3 Discretization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 312 7.3.1 Assumptions on the Data and the Exact Solution . . . . . 312 7.3.2 Design of the Discrete Bilinear Form . . . . . . . . . . . . 314 7.3.3 Convergence Analysis . . . . . . . . . . . . . . . . . . . . 318 7.3.4 Numerical Fluxes . . . . . . . . . . . . . . . . . . . . . . . 320 7.3.5 Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . 320 7.4 Two-Field Systems . . . . . . . . . . . . . . . . . . . . . . . . . . 322 7.4.1 The Continuous Setting . . . . . . . . . . . . . . . . . . . 323 7.4.2 Discretization . . . . . . . . . . . . . . . . . . . . . . . . . 324 7.4.3 Partial Coercivity . . . . . . . . . . . . . . . . . . . . . . 329 7.5 The Unsteady Case . . . . . . . . . . . . . . . . . . . . . . . . . . 331 7.5.1 Explicit Runge–Kutta Schemes . . . . . . . . . . . . . . . 331 7.5.2 Explicit Leap-Frog Schemes for Two-Field Systems . . . . 334
+Appendix A: Implementation 343 A.1 Matrix Assembly . . . . . . . . . . . . . . . . . . . . . . . . . . . 343 A.1.1 Basic Notation . . . . . . . . . . . . . . . . . . . . . . . . 343 A.1.2 Mass Matrix . . . . . . . . . . . . . . . . . . . . . . . . . 344 A.1.3 Stiffness Matrix . . . . . . . . . . . . . . . . . . . . . . . . 344
+
+
+Contents XVII
+A.2 Choice of Basis Functions . . . . . . . . . . . . . . . . . . . . . . 347 A.2.1 Requirements . . . . . . . . . . . . . . . . . . . . . . . . . 347 A.2.2 Jacobi and Legendre Polynomials . . . . . . . . . . . . . . 349 A.2.3 Nodal Basis Functions . . . . . . . . . . . . . . . . . . . . 350 A.2.4 Modal Basis Functions . . . . . . . . . . . . . . . . . . . . 352
+Bibliography 355
+Author Index 375
+Index . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 381
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . ..
+. . . ..
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . .. . . ..
+
+
+Chapter 1
+Basic Concepts
+This chapter introduces the basic concepts to build discontinuous Galerkin (dG) approximations for the model problems examined in the subsequent chapters. In Sect. 1.1, we present two important results to assert the well-posedness of linear model problems, namely the so-called Banach–Nečas–Babuška (BNB) Theorem, which provides necessary and sufficient conditions for well-posedness, and the Lax–Milgram Lemma, which hinges on coercivity in a Hilbertian setting and provides sufficient conditions for well-posedness. We also state some basic results on Lebesgue and Sobolev spaces. In Sect. 1.2, we describe the main ideas to build finite-dimensional function spaces in the dG setting. The two ingredients are discretizing the domain Ω over which the model problem is posed using a mesh and then choosing a local functional behavior within each mesh element. For simplicity, we focus on a polynomial behavior, thereby leading to so-called broken polynomial spaces. We also introduce important concepts to be used extensively in this book, including mesh faces, jump and average operators, broken Sobolev spaces, and a broken gradient operator. In Sect. 1.3, we outline the key ingredients in the error analysis of nonconforming finite element methods. The error estimates are derived in the spirit of the Second Strang Lemma using discrete stability, (strong) consistency, and boundedness. The advantage of this approach is to deliver error estimates and (quasi-)optimal convergence rates for smooth solutions. This framework for error analysis is frequently used in what follows. Yet, it is not the only tool for analyzing the convergence of dG approximations. In Chaps. 5 and 6, we consider an alternative approach in the context of PDEs with diffusion based on a compactness argument and a different notion of consistency. This approach allows us to prove convergence (without delivering error estimates) with minimal regularity assumptions on the exact solution. Finally, in Sect. 1.4, we present technical, yet important, tools to analyze the convergence of dG methods as the meshsize goes to zero (the so-called h-convergence). A crucial issue is then to ensure that some key properties of the mesh hold uniformly in this limit, thereby leading to the important concept of admissible mesh sequences.
+D.A. Di Pietro and A. Ern, Mathematical Aspects of Discontinuous Galerkin
+Methods, Mathématiques et Applications 69, DOI 10.1007/978-3-642-22980-0_1, ©c Springer-Verlag Berlin Heidelberg 2012
+1
+
+
+2 Chapter 1. Basic Concepts
+1.1 Well-Posedness for Linear Model Problems
+Let X and Y be two Banach spaces equipped with their respective norms ‖·‖X and ‖·‖Y and assume that Y is reflexive. In many applications, X and Y are actually Hilbert spaces. We recall that L(X, Y ) is the vector space spanned by bounded linear operators from X to Y , and that this space is equipped with the usual norm
+‖A‖L(X,Y ) := sup
+v∈X \{0}
+‖Av‖Y ‖v‖X
+∀A ∈ L(X, Y ).
+We are interested in the abstract linear model problem
+Find u ∈ X s.t. a(u, w) = 〈f, w〉Y ′,Y for all w ∈ Y , (1.1)
+where a ∈ L(X × Y, ) is a bounded bilinear form, f ∈ Y ′ := L(Y, ) is a bounded linear form, and 〈·, ·〉Y ′,Y denotes the duality pairing between Y ′ and Y . Alternatively, it is possible to introduce the bounded linear operator A ∈ L(X, Y ′) such that
+〈Av, w〉Y ′,Y := a(v, w) ∀(v, w) ∈ X × Y, (1.2)
+and to consider the following problem:
+Find u ∈ X s.t. Au = f in Y ′. (1.3)
+Problems (1.1) and (1.3) are equivalent, that is, u solves (1.1) if and only if u solves (1.3). Problem (1.1), or equivalently (1.3), is said to be well-posed if it admits one and only one solution u ∈ X. The well-posedness of problem (1.3) amounts to A being an isomorphism. In Banach spaces, if A ∈ L(X, Y ′) is an isomorphism, then A−1 is bounded, that is, ‖A−1‖L(Y ′,X) ≤ C (see, e.g., Ern and Guermond [141, Remark A.37]). As a result, the unique solution u ∈ X satisfies the a priori estimate
+‖u‖X = ‖A−1f ‖X ≤ C‖f ‖Y ′.
+1.1.1 The Banach–Nečas–Babuška Theorem
+The key result for asserting the well-posedness of (1.1), or equivalently (1.3), is the so-called Banach–Nečas–Babuška (BNB) Theorem. We stress that this result provides necessary and sufficient conditions for well-posedness.
+Theorem 1.1 (Banach–Nečas–Babuška (BNB)). Let X be a Banach space and let Y be a reflexive Banach space. Let a ∈ L(X × Y, ) and let f ∈ Y ′. Then, problem (1.1) is well-posed if and only if:
+(i) There is Csta > 0 such that
+∀v ∈ X, Csta‖v‖X ≤ sup
+w∈Y \{0}
+a(v, w) ‖w‖Y
+, (1.4)
+
+
+1.1. Well-Posedness for Linear Model Problems 3
+(ii) For all w ∈ Y ,
+(∀v ∈ X, a(v, w) = 0) =⇒ (w = 0). (1.5)
+Equivalently, the bounded linear operator A ∈ L(X, Y ′) defined by (1.2) is an isomorphism if and only if:
+(i) There is Csta > 0 such that
+∀v ∈ X, Csta‖v‖X ≤ ‖Av‖Y ′ , (1.6)
+(ii) For all w ∈ Y ,
+(∀v ∈ X, 〈Av, w〉Y ′,Y = 0) =⇒ (w = 0). (1.7)
+Moreover, the following a priori estimate holds true:
+‖u‖X ≤ 1
+Csta
+‖f ‖Y ′ .
+Condition (1.4) is often called an inf-sup condition since it is equivalent to
+Csta ≤ inf
+v∈X\{0} sup
+w∈Y \{0}
+a(v, w) ‖v‖X ‖w‖Y
+.
+Furthermore, owing to the reflexivity of Y and introducing the adjoint operator At ∈ L(Y, X′) such that, for all (v, w) ∈ X × Y ,
+〈Atw, v〉X′,X = 〈Av, w〉Y ′,Y ,
+condition (1.7) means that, for all w ∈ Y , Atw = 0 in X′ implies w = 0, or equivalently that At is injective. Moreover, a classical result (see, e.g., [141, Lemma A.39]) is that condition (1.6) means that A is injective and that the range of A is closed.
+Remark 1.2 (Name of Theorem 1.1). The terminology, proposed in [141], indicates that, from a functional analysis point of view, this theorem hinges on two key results of Banach, the Open Mapping Theorem and the Closed Range Theorem, while the theorem in the form stated above was derived by Nečas [243] and Babuška [21].
+1.1.2 The Lax–Milgram Lemma
+A simpler, yet less general, condition to assert the well-posedness of (1.1), or equivalently (1.3), is provided by the Lax–Milgram Lemma [222]. In this setting, X is a Hilbert space, Y = X, and the following coercivity property is invoked.
+Definition 1.3 (Coercivity). Let X be a Hilbert space and let a ∈ L(X × X, ). We say that the bilinear form a is coercive on X if there is Csta > 0 such that
+∀v ∈ X, Csta‖v‖2
+X ≤ a(v, v).
+
+
+4 Chapter 1. Basic Concepts
+Equivalently, we say that the bounded linear operator A ∈ L(X, X′) defined by (1.2) is coercive if there is Csta > 0 such that
+∀v ∈ X, Csta‖v‖2
+X ≤ 〈Av, v〉X′,X .
+We can now state the Lax–Milgram Lemma. We stress that this result only provides sufficient conditions for well-posedness.
+Lemma 1.4 (Lax–Milgram). Let X be a Hilbert space, let a ∈ L(X × X, ), and let f ∈ X′. Then, problem (1.1) is well-posed if the bilinear form a is coercive on X. Equivalently, problem (1.3) is well-posed if the linear operator A ∈ L(X, X′) is coercive. Moreover, the following a priori estimate holds true:
+‖u‖X ≤ 1
+Csta
+‖f ‖X′ .
+Proof. Let us verify that if a is coercive, conditions (1.4) and (1.5) hold true. To prove (1.4), we observe that, for all v ∈ X \ {0},
+Csta‖v‖X ≤ a(v, v)
+‖v‖X
+≤ sup w ∈X \{0}
+a(v, w) ‖w‖X
+,
+and that (1.4) trivially holds true if v = 0. To prove (1.5), let w ∈ X be such that a(v, w) = 0, for all v ∈ X. Then, picking v = w yields by coercivity that ‖w‖X = 0, i.e., w = 0.
+Remark 1.5 (Lax–Milgram Lemma and Hilbert spaces). Coercivity is essentially a Hilbertian property. Precisely, if X is a Banach space, then X can be equipped with a Hilbert structure with the same topology if and only if there is a coercive operator in L(X, X′); see, e.g., [141, Proposition A.49].
+1.1.3 Lebesgue and Sobolev Spaces
+In practice, the model problem (1.1) corresponds to a PDE posed over a domain Ω ⊂ d with space dimension d ≥ 1. The domain Ω is a bounded, connected, open subset of d with Lipschitz boundary ∂Ω. The spaces X and Y in (1.1) are then function spaces spanned by functions defined over Ω. For simplicity, we consider scalar-valued functions; the case of vector-valued functions can be treated similarly. In this section, we briefly present two important classes of function spaces to be used in what follows, namely Lebesgue and Sobolev spaces. We only state the basic properties of such spaces, and we refer the reader to Evans [153, Chap. 5] or Brézis [55, Chaps. 8 and 9] for further background. A thorough presentation can also be found in the textbook of Adams [4].
+
+
+1.1. Well-Posedness for Linear Model Problems 5
+1.1.3.1 Lebesgue Spaces
+We consider functions v : Ω → that are Lebesgue measurable and we denote
+by ∫
+Ω v the (Lebesgue) integral of v over Ω. Let 1 ≤ p ≤ ∞ be a real number. We set
+‖v‖Lp(Ω) :=
+(∫
+Ω
+|v|p
+)1/p
+1 ≤ p < ∞,
+and
+‖v‖L∞(Ω) := sup ess{|v(x)| for a.e. x ∈ Ω}
+= inf{M > 0 | |v(x)| ≤ M for a.e. x ∈ Ω}.
+In either case, we define the Lebesgue space
+Lp(Ω) := {v Lebesgue measurable | ‖v‖Lp(Ω) < ∞}.
+Equipped with the norm ‖·‖Lp(Ω), Lp(Ω) is a Banach space for all 1 ≤ p ≤ ∞ (see Evans [153, p. 249] or Brézis [55, p. 150]). Moreover, for all 1 ≤ p < ∞, the space C∞
+0 (Ω) spanned by infinitely differentiable functions with compact
+support in Ω is dense in Lp(Ω). In the particular case p = 2, L2(Ω) is a (real) Hilbert space when equipped with the scalar product
+(v, w)L2(Ω) :=
+∫
+Ω
+vw.
+A useful tool in Lebesgue spaces is Hölder’s inequality which states that, for all 1 ≤ p, q ≤ ∞ such that 1/p + 1/q = 1, all v ∈ Lp(Ω), and all w ∈ Lq(Ω), there holds vw ∈ L1(Ω) and
+∫
+Ω
+vw ≤ ‖v‖Lp(Ω)‖w‖Lq(Ω).
+The particular case p = q = 2 yields the Cauchy–Schwarz inequality, namely, for all v, w ∈ L2(Ω), vw ∈ L1(Ω) and
+(v, w)L2(Ω) ≤ ‖v‖L2(Ω)‖w‖L2(Ω).
+1.1.3.2 Sobolev Spaces
+On the Cartesian basis of d with coordinates (x1, . . . , xd), the symbol ∂i with i ∈ {1, . . . , d} denotes the distributional partial derivative with respect to xi.
+For a d-uple α ∈ d, ∂αv denotes the distributional derivative ∂α1
+1 . . . ∂αd
+d v of v,
+with the convention that ∂(0,...,0)v = v. For any real number 1 ≤ p ≤ ∞, we define, for all ξ ∈ d with components (ξ1, . . . , ξd) in the Cartesian basis of d, the norm
+|ξ| p :=
+(∑d
+i=1
+|ξi|p
+)1/p
+1 ≤ p < ∞,
+
+
+6 Chapter 1. Basic Concepts
+and |ξ| ∞ := max1≤i≤d |ξi|. The index is dropped for the Euclidean norm obtained with p = 2. Let m ≥ 0 be an integer and let 1 ≤ p ≤ ∞ be a real number. We define the Sobolev space
+W m,p(Ω) := {v ∈ Lp(Ω) | ∀α ∈ Am
+d , ∂αv ∈ Lp(Ω)} ,
+where
+Am
+d :=
+{
+α ∈ d | |α| 1 ≤ m
+}
+. (1.8)
+Thus, W m,p(Ω) is spanned by functions with derivatives of global order up to m in Lp(Ω). In particular, W 0,p(Ω) = Lp(Ω). The Sobolev space W m,p(Ω) is a Banach space when equipped with the norm
+‖v‖W m,p(Ω) :=
+⎛
+⎝∑
+α∈Am
+d
+‖∂ α v ‖p
+Lp (Ω)
+⎞
+⎠
+1/p
+1 ≤ p < ∞,
+and ‖v‖W m,∞(Ω) := maxα∈Am
+d ‖∂αv‖L∞(Ω). We also consider the seminorm
+|·|W m,p(Ω) by restricting the above definitions to d-uples in the set Am
+d :=
+{
+α ∈ d | |α| 1 = m
+}
+, that is, by keeping only the derivatives of global order equal to m. For p = 2, we use the notation Hm(Ω) := W m,2(Ω), so that
+Hm(Ω) =
+{
+v ∈ L2(Ω) | ∀α ∈ Am
+d , ∂αv ∈ L2(Ω)
+}
+.
+Hm(Ω) is a Hilbert space when equipped with the scalar product
+(v, w)Hm(Ω) :=
+∑
+α∈Am
+d
+(∂αv, ∂αw)L2(Ω),
+leading to the norm and seminorm
+‖v‖Hm(Ω) :=
+⎛
+⎝∑
+α∈Am
+d
+‖∂ α v ‖2
+L2(Ω)
+⎞
+⎠
+1/2
+, |v|Hm(Ω) :=
+⎛
+⎝∑
+α∈Am
+d
+‖∂αv‖2
+L2 (Ω)
+⎞
+⎠
+1/2
+.
+To allow for a more compact notation in the case m = 1, we consider the gradient ∇v = (∂1v, . . . , ∂dv)t with values in d. The norm on W 1,p(Ω) becomes
+‖v‖W 1,p(Ω) =
+(
+‖v‖p
+Lp(Ω) + ‖∇v‖p
+[Lp (Ω)]d
+)
+1/p
+1 ≤ p < ∞,
+with
+‖∇v‖[Lp(Ω)]d :=
+(∫
+Ω
+|∇v|p
+p
+)
+1/p
+=
+(∫
+Ω
+d ∑
+i=1
+|∂iv|p
+)1/p
+.
+In the case p = 2, we obtain
+(v, w)H1(Ω) = (v, w)L2(Ω) + (∇v, ∇w)[L2(Ω)]d .
+
+
+1.2. The Discrete Setting 7
+Boundary values of functions in the Sobolev space W 1,p(Ω) can be given a meaning (at least) in Lp(∂Ω). More precisely (see, e.g., Brenner and Scott [54, Chap. 1]), for all 1 ≤ p ≤ ∞, there is C such that
+‖v‖Lp(∂Ω) ≤ C ‖v‖1−1/p
+Lp (Ω) ‖v ‖1/p
+W 1,p(Ω) ∀v ∈ W 1,p(Ω). (1.9)
+In particular, for p = 2, we obtain
+‖v‖L2(∂Ω) ≤ C‖v‖1/2
+L2 (Ω) ‖v ‖1/2
+H1(Ω) ∀v ∈ H1(Ω). (1.10)
+The bounds (1.9) and (1.10) are called continuous trace inequalities. Finally, at some instances, we consider Hilbert Sobolev spaces Hs(Ω) where the exponent s is a positive real number. We refer the reader, e.g., to Ern and Guermond [141, p. 484] for the definition of such spaces. In what follows, we use the fact that functions in H1/2+ (Ω), > 0, admit a trace in L2(∂Ω).
+1.2 The Discrete Setting
+In this section, we present the main ingredients to build finite-dimensional function spaces to approximate the model problem (1.1) using dG methods. The construction of such spaces hinges on discretizing the domain Ω (over which the PDE is posed) using a mesh and choosing a local functional behavior (e.g., polynomial) within each mesh element. This leads to broken polynomial spaces. We also introduce broken Sobolev spaces and a broken gradient operator. Finally, we briefly discuss the function space H(div; Ω) and its broken version; such spaces are particularly relevant in the context of PDEs with diffusion.
+1.2.1 The Domain Ω
+To simplify the presentation, we focus, throughout this book, on polyhedra.
+Definition 1.6 (Polyhedron in d). We say that the set P is a polyhedron in d if P is an open, connected, bounded subset of d such that its boundary ∂P is a finite union of parts of hyperplanes, say {Hi}1≤i≤nP . Moreover, for all 1 ≤ i ≤ nP , at each point in the interior of ∂P ∩ Hi, the set P is assumed to lie on only one side of its boundary.
+Assumption 1.7 (Domain Ω). The domain Ω is a polyhedron in d.
+The advantage of Assumption 1.7 is that polyhedra can be exactly covered by a mesh consisting of polyhedral elements. PDEs posed over domains with curved boundary can also be approximated by dG methods using, e.g., isoparametric finite elements to build the mesh near curved boundaries as described, e.g., by Ciarlet [92, p. 224] and Brenner and Scott [54, p. 117].
+Definition 1.8 (Boundary and outward normal). The boundary of Ω is denoted by ∂Ω and its (unit) outward normal, which is defined a.e. on ∂Ω, by n.
+
+
+8 Chapter 1. Basic Concepts
+1.2.2 Meshes
+The first step is to discretize the domain Ω using a mesh. Various types of meshes can be considered. We examine first the most familiar case, that of simplicial meshes. Such meshes should be familiar to the reader since they are one of the key ingredients to build continuous finite element spaces.
+Definition 1.9 (Simplex). Given a family {a0, . . . , ad} of (d + 1) points in d such that the vectors {a1 − a0, . . . , ad − a0} are linearly independent, the interior of the convex hull of {a0, . . . , ad} is called a non-degenerate simplex of d, and the points {a0, . . . , ad} are called its vertices.
+By its definition, a non-degenerate simplex is an open subset of d. In dimension 1, a non-degenerate simplex is an interval, in dimension 2 a triangle, and in dimension 3 a tetrahedron. The unit simplex of d is the set (cf. Fig. 1.1)
+Sd :=
+{
+(x1, . . . , xd) ∈ d | xi > 0 ∀i ∈ {1, . . . , d} and x1 + . . . + xd < 1
+}
+.
+Any non-degenerate simplex of d is the image of the unit simplex by a bijective affine transformation of d.
+Definition 1.10 (Simplex faces). Let S be a non-degenerate simplex with vertices {a0, . . . , ad}. For each i ∈ {0, . . . , d}, the convex hull of {a0, . . . , ad} \ {ai} is called a face of the simplex S.
+Thus, a non-degenerate simplex has (d + 1) faces, and, by construction, a simplex face is a closed subset of d. A simplex face has zero d-dimensional Hausdorff measure, but positive (d − 1)-dimensional Hausdorff measure. In dimension 2, a simplex face is also called an edge, while in dimension 1, a simplex face is a point and its 0-dimensional Hausdorff measure is conventionally set to 1.
+Definition 1.11 (Simplicial mesh). A simplicial mesh T of the domain Ω is a finite collection of disjoint non-degenerate simplices T = {T } forming a partition of Ω,
+x2
+x1
+x3
+x2
+x1
+Fig. 1.1: Unit simplex in two (left) and three (right) space dimensions
+
+
+1.2. The Discrete Setting 9
+Ω=
+⋃
+T ∈T
+T . (1.11)
+Each T ∈ T is called a mesh element.
+While simplicial meshes are quite convenient in the context of continuous finite elements, dG methods more easily accommodate general meshes.
+Definition 1.12 (General mesh). A general mesh T of the domain Ω is a finite collection of disjoint polyhedra T = {T } forming a partition of Ω as in (1.11). Each T ∈ T is called a mesh element.
+Obviously, a simplicial mesh is just a particular case of a general mesh.
+Definition 1.13 (Element diameter, meshsize). Let T be a (general) mesh of the domain Ω. For all T ∈ T , hT denotes the diameter of T , and the meshsize is defined as the real number
+h := max
+T ∈T hT .
+We use the notation Th for a mesh T with meshsize h.
+Definition 1.14 (Element outward normal). Let Th be a mesh of the domain Ω and let T ∈ Th. We define nT a.e. on ∂T as the (unit) outward normal to T .
+Faces of a single polyhedral mesh element are not needed in what follows, and we leave them undefined to avoid confusion with the important concept of mesh faces introduced in Sect. 1.2.3. The key difference is that mesh faces depend on the way neighboring mesh elements come into contact.
+Remark 1.15 (General hexahedra). In the present setting, general hexahedra in 3 cannot be mesh elements since their faces are not parts of (hyper)planes (since four distinct points do not generally belong to the same plane). One possibility is to approximate general hexahedra by subdividing nonplanar faces into two or four triangles.
+1.2.3 Mesh Faces, Averages, and Jumps
+The concepts of mesh faces, averages, and jumps play a central role in the design and analysis of dG methods.
+Definition 1.16 (Mesh faces). Let Th be a mesh of the domain Ω. We say that a (closed) subset F of Ω is a mesh face if F has positive (d − 1)-dimensional Hausdorff measure (in dimension 1, this means that F is nonempty) and if either one of the two following conditions is satisfied:
+(i) There are distinct mesh elements T1 and T2 such that F = ∂T1 ∩ ∂T2; in such a case, F is called an interface.
+(ii) There is T ∈ Th such that F = ∂T ∩ ∂Ω; in such a case, F is called a boundary face.
+
+
+10 Chapter 1. Basic Concepts
+Interfaces are collected in the set F i
+h, and boundary faces are collected in the
+set F b
+h. Henceforth, we set
+Fh := F i
+h ∪ Fb
+h.
+Moreover, for any mesh element T ∈ Th, the set
+FT := {F ∈ Fh | F ⊂ ∂T }
+collects the mesh faces composing the boundary of T . The maximum number of mesh faces composing the boundary of mesh elements is denoted by
+N∂ := max
+T ∈Th
+card(FT ). (1.12)
+Finally, for any mesh face F ∈ Fh, we define the set
+TF := {T ∈ Th | F ⊂ ∂T } , (1.13)
+and observe that TF consists of two mesh elements if F ∈ F i
+h and of one mesh
+element if F ∈ F b
+h.
+Figure 1.2 depicts an interface between two mesh elements belonging to a simplicial mesh (left) or to a general mesh (right). We observe that in the case of simplicial meshes, interfaces are always parts of hyperplanes, but this is not necessarily the case for general meshes containing nonconvex polyhedra. We now define averages and jumps across interfaces of piecewise smooth functions; cf. Fig. 1.3 for a one-dimensional illustration.
+Definition 1.17 (Interface averages and jumps). Let v be a scalar-valued function defined on Ω and assume that v is smooth enough to admit on all F ∈ F i
+ha possibly two-valued trace. This means that, for all T ∈ Th, the restriction v|T of v to the open set T can be defined up to the boundary ∂T . Then, for all F ∈ F i
+h
+and a.e. x ∈ F , the average of v is defined as
+{{v}}F (x) := 1
+2
+(
+v|T1 (x) + v|T2 (x)
+) ,
+Fig. 1.2: Examples of interface for a simplicial mesh (left ) and a general mesh (right )
+
+
+1.2. The Discrete Setting 11
+Fig. 1.3: One-dimensional example of average and jump operators; the face reduces to a point separating two adjacent intervals
+T1
+T2
+F
+nF
+Fig. 1.4: Notation for an interface
+and the jump of v as
+v F (x) := v|T1 (x) − v|T2 (x).
+When v is vector-valued, the above average and jump operators act componentwise on the function v. Whenever no confusion can arise, the subscript F and the variable x are omitted, and we simply write {{v}} and v .
+Definition 1.18 (Face normals). For all F ∈ Fh and a.e. x ∈ F , we define the (unit) normal nF to F at x as
+(i) nT1, the unit normal to F at x pointing from T1 to T2 if F ∈ F i
+h with F = ∂T1 ∩ ∂T2; the orientation of nF is arbitrary depending on the choice of T1 and T2, but kept fixed in what follows. See Fig. 1.4.
+(ii) n, the unit outward normal to Ω at x if F ∈ F b
+h.
+Remark 1.19 (Boundary averages and jumps). Averages and jumps can also be defined for boundary faces (this is particularly useful when discretizing PDEs with diffusion as in Chaps. 4–6). One possible definition is to set for a.e. x ∈ F with F ∈ F b
+h, F = ∂T ∩ ∂Ω, {{v}}F (x) = v F (x) := v|T (x).
+
+
+12 Chapter 1. Basic Concepts
+Remark 1.20 (Alternative definition of jumps). An alternative definition of jumps consists in setting for all F ∈ F i
+h with F = ∂T1 ∩ ∂T2,
+v ∗ := v|T1 nT1 + v|T2 nT2 ,
+so that v ∗ = nF v . This alternative definition allows T1 and T2 to play symmetric roles; however, the jump of a scalar-valued function is a vector-valued function.
+1.2.4 Broken Polynomial Spaces
+After having built a mesh of the domain Ω, the second step in the construction of discrete function spaces consists in choosing a certain functional behavior within each mesh element. For the sake of simplicity, we restrict ourselves to polynomial functions; more general cases can also be accommodated (see, e.g., Yuan and Shu [309]). The resulting spaces, consisting of piecewise polynomial functions, are termed broken polynomial spaces.
+1.2.4.1 The Polynomial Space k
+d
+Let k ≥ 0 be an integer. Recalling the set Ak
+d defined by (1.8), we define the space of polynomials of d variables, of total degree at most k, as
+k
+d :=
+⎧
+⎨
+⎩p : d x → p(x) ∈ | ∃(γα)α∈Ak
+d ∈ card(Ak
+d) s.t. p(x) =
+∑
+α∈Ak
+d
+γαxα
+⎫
+⎬ ⎭,
+with the convention that, for x = (x1, . . . , xd) ∈ d, xα := ∏d
+i=1 xαi
+i . The
+dimension of the vector space k
+d is
+dim( k
+d) = card(Ak
+d) =
+(k + d k
+)
+= (k + d)!
+k!d! . (1.14)
+The first few values of dim( k
+d) are listed in Table 1.1.
+1.2.4.2 The Broken Polynomial Space k
+d (Th )
+In what follows, we often consider the broken polynomial space
+k
+d(Th) :=
+{
+v ∈ L2(Ω) | ∀T ∈ Th, v|T ∈ k
+d(T )
+}
+, (1.15)
+Table 1.1: Dimension of the polynomial space k
+d for d ∈ {1, 2, 3} and k ∈ {0, 1, 2, 3} k d=1 d=2 d=3 01 1 1 12 3 4 2 3 6 10 3 4 10 20
+
+
+1.2. The Discrete Setting 13
+where k
+d(T ) is spanned by the restriction to T of polynomials in k
+d. It is clear that
+dim( k
+d(Th)) = card(Th) × dim( k
+d ),
+since the restriction of a function v ∈ k
+d(Th) to each mesh element can be chosen independently of its restriction to other elements.
+1.2.4.3 Other Broken Polynomial Spaces
+It is possible to consider other broken polynomial spaces. Such spaces are encountered, e.g., when defining local bases using a reference element, e.g., nodalbased local bases associated with quadratures (see Gassner, Lörcher, Munz, and Hesthaven [164]). Further motivations for considering other broken polynomial spaces include, among others, bubble-stabilization techniques (see Burman and Stamm [70]) and inf-sup stable discretizations for incompressible flows (see Toselli [296]). A relevant example is the space of polynomials of d variables, of degree at most k in each variable, namely
+k
+d :=
+⎧
+⎨
+⎩p : d x → p(x) ∈ | ∃(γα)α∈Bk
+d ∈ card(Bk
+d ) s.t. p(x) =
+∑
+α∈Bk
+d
+γαxα
+⎫
+⎬ ⎭,
+where Bk
+d denotes the set of d-uples of ∞-norm smaller than or equal to k,
+Bk
+d :=
+{
+α ∈ d | |α| ∞ ≤ k
+}
+.
+The dimension of the vector space k
+d is
+dim( k
+d) = card(Bk
+d ) = (k + 1)d.
+The first few values of dim( k
+d) are listed in Table 1.2.
+1.2.5 Broken Sobolev Spaces
+In this section, we introduce broken Sobolev spaces and a broken gradient operator. We also state the main properties of broken Sobolev spaces to be used in what follows.
+Table 1.2: Dimension of the polynomial space k
+d for d ∈ {1, 2, 3} and k ∈ {0, 1, 2, 3} k d=1 d=2 d=3 01 1 1 12 4 8 2 3 9 27 3 4 16 64
+
+
+14 Chapter 1. Basic Concepts
+Let Th be a mesh of the domain Ω. For any mesh element T ∈ Th, the Sobolev spaces Hm(T ) and W m,p(T ) can be defined as above by replacing Ω by T . We then define the broken Sobolev spaces
+Hm(Th) :=
+{
+v ∈ L2(Ω) | ∀T ∈ Th, v|T ∈ Hm(T )
+}
+, (1.16)
+W m,p(Th) := {v ∈ Lp(Ω) | ∀T ∈ Th, v|T ∈ W m,p(T )} , (1.17)
+where m ≥ 0 is an integer and 1 ≤ p ≤ ∞ a real number. In the context of broken Sobolev spaces, the continuous trace inequality (1.9) can be used to infer that, for all v ∈ W 1,p(Th) and all T ∈ Th,
+‖v‖Lp(∂T ) ≤ C ‖v‖1−1/p
+Lp(T )‖v‖1/p
+W 1,p(T ), (1.18)
+while for p = 2, we obtain, for all v ∈ H1(Th) and all T ∈ Th,
+‖v‖L2(∂T ) ≤ C‖v‖1/2
+L2(T )‖v‖1/2
+H1(T ). (1.19)
+In what follows, it is implicitly understood that expressions such as ‖v‖L2(∂T ) (or such as ‖v‖L2(F ) for a mesh face F ∈ FT of a given mesh element T ∈ Th) should be evaluated using the restriction of v to T . A different version of the continuous trace inequality (1.19) is presented in Lemma 1.49 below. Continuous trace inequalities such as (1.18) or (1.19) are important in the context of dG methods to give a meaning to the traces of the exact solution or of its (normal) gradient on mesh faces. It is natural to define a broken gradient operator acting on the broken Sobolev space W 1,p(Th). In particular, this operator also acts on broken polynomial spaces.
+Definition 1.21 (Broken gradient). The broken gradient ∇h : W 1,p(Th) → [Lp(Ω)]d is defined such that, for all v ∈ W 1,p(Th),
+∀T ∈ Th, (∇hv)|T := ∇(v|T ). (1.20)
+In what follows, we drop the index h in the broken gradient when this operator appears inside an integral over a fixed mesh element T ∈ Th.
+It is important to observe that the usual Sobolev spaces are subspaces of the broken Sobolev spaces, and that on the usual Sobolev spaces, the broken gradient coincides with the distributional gradient. For completeness, we detail the proof of this result.
+Lemma 1.22 (Broken gradient on usual Sobolev spaces). Let m ≥ 0 and let 1 ≤ p ≤ ∞. There holds W m,p(Ω) ⊂ W m,p(Th). Moreover, for all v ∈ W 1,p(Ω), ∇hv = ∇v in [Lp(Ω)]d.
+Proof. It is sufficient to prove the inclusion for m = 1. Let v ∈ W 1,p(Ω). We first observe that ∇(v|T ) = (∇v)|T for all T ∈ Th. Indeed, for all Φ ∈ [C∞
+0 (T )]d,
+
+
+1.2. The Discrete Setting 15
+the extension of Φ by zero to Ω, say EΦ, is in [C∞
+0 (Ω)]d, so that ∫
+T
+∇(v|T )·Φ = −
+∫
+T
+v(∇·Φ) = −
+∫
+Ω
+v(∇·(EΦ))
+=
+∫
+Ω
+∇v·EΦ =
+∫
+T
+(∇v)|T ·Φ.
+Since Φ is arbitrary, this implies ∇(v|T ) = (∇v)|T and, since T ∈ Th is arbitrary, we infer ∇hv = ∇v. This equality also shows that v ∈ W 1,p(Th).
+The reverse inclusion of Lemma 1.22 does not hold true in general (except obviously for m = 0). The reason is that functions in the broken Sobolev space W 1,p(Th) can have nonzero jumps across interfaces, while functions in the usual Sobolev space W 1,p(Ω) have zero jumps across interfaces. We now give a precise statement of this important result.
+Lemma 1.23 (Characterization of W 1,p(Ω)). Let 1 ≤ p ≤ ∞. A function v ∈ W 1,p(Th) belongs to W 1,p(Ω) if and only if
+v = 0 ∀F ∈ F i
+h. (1.21)
+Proof. The proof is again based on a distributional argument. Let v ∈ W 1,p(Th). Then, for all Φ ∈ [C∞
+0 (Ω)]d, we observe integrating by parts elementwise that ∫
+Ω
+∇hv·Φ =
+∑
+T ∈Th
+∫
+T
+∇(v|T )·Φ = −
+∑
+T ∈Th
+∫
+T
+v(∇·Φ) +
+∑
+T ∈Th
+∫
+∂T
+v|T (Φ·nT )
+=−
+∫
+Ω
+v(∇·Φ) +
+∑
+F ∈F i
+h
+∫
+F
+(Φ·nF ) v , (1.22)
+since Φ is continuous across interfaces and vanishes on boundary faces. Assume first that (1.21) holds true. Then, (1.22) implies ∫
+Ω
+∇hv·Φ = −
+∫
+Ω
+v(∇·Φ) ∀Φ ∈ [C∞
+0 (Ω)]d,
+meaning that ∇v = ∇hv in [Lp(Ω)]d. Hence, v ∈ W 1,p(Ω). Conversely, if v ∈ W 1,p(Ω), ∇v = ∇hv in [Lp(Ω)]d owing to Lemma 1.22, so that (1.22) now implies
+∑
+F ∈F i
+h
+∫
+F
+(Φ·nF ) v =
+∫
+Ω
+∇hv·Φ +
+∫
+Ω
+v(∇·Φ)
+=
+∫
+Ω
+∇hv·Φ −
+∫
+Ω
+∇v·Φ = 0,
+whence we infer (1.21) by choosing the support of Φ intersecting a single interface and since Φ is arbitrary.
+
+
+16 Chapter 1. Basic Concepts
+1.2.6 The Function Space H(div; Ω) and Its Broken Version
+In the context of PDEs with diffusion, the vector-valued field σ = −∇u can be interpreted as the diffusive flux; here, u solves, e.g., the Poisson problem presented in Sect. 4.1. From a physical viewpoint, it is expected that the normal component of the diffusive flux does not jump across interfaces. From a mathematical viewpoint, the diffusive flux belongs to the function space
+H(div; Ω) := {τ ∈ [L2(Ω)]d | ∇·τ ∈ L2(Ω)}. (1.23)
+It is therefore important to specify the meaning of the normal component on mesh faces of functions in H(div; Ω). For all T ∈ Th, we define the function space H(div; T ) by replacing Ω by T in (1.23). We then introduce the broken space
+H(div; Th) := {τ ∈ [L2(Ω)]d | ∀T ∈ Th, τ |T ∈ H(div; T )},
+and the broken divergence operator ∇h· : H(div; Th) → L2(Ω) such that, for all τ ∈ H(div; Th),
+∀T ∈ Th, (∇h·τ )|T := ∇·(τ |T ).
+Proceeding as in the proof of Lemma 1.22, we can verify that, if τ ∈ H(div; Ω), then τ ∈ H(div; Th) and ∇h·τ = ∇·τ . Since the diffusive flux σ belongs to H(div; Ω), we infer that, for all T ∈ Th, σT := σ|T belongs to H(div; T ). This property allows us to give a weak meaning to the normal component σ∂T := σT ·nT on ∂T ; cf. Remark 1.26 below for further insight. However, in the context of dG methods, we would like to give a meaning to the restriction σF := σ∂T |F independently on any face F ∈ FT , and additionally, it is convenient to assert σF ∈ L1(F ). The fact that σT ∈ H(div; T ) does not provide enough regularity to assert this, as reflected by the counterexample in Remark 1.25 below. A suitable assumption to achieve σF ∈ L1(F ) is
+σ ∈ [W 1,1(Th)]d.
+Indeed, owing to the trace inequality (1.18), we infer, for all T ∈ Th, σ∂T ∈ L1(∂T ) so that, for all F ∈ FT , σF ∈ L1(F ). We can now characterize functions in H(div; Ω) ∩ [W 1,1(Th)]d using the jump of the normal component across interfaces.
+Lemma 1.24 (Characterization of H(div; Ω)). A function τ ∈ H(div; Th) ∩ [W 1,1(Th)]d belongs to H(div; Ω) if and only if
+τ ·nF = 0 ∀F ∈ F i
+h. (1.24)
+Proof. The proof is similar to that of Lemma 1.23. Let τ ∈ H(div; Th) ∩ [W 1,1(Th)]d and let φ ∈ C∞
+0 (Ω). Integrating by parts on each mesh element and accounting for the fact that φ is smooth inside Ω and vanishes on ∂Ω, we
+
+
+1.2. The Discrete Setting 17
+obtain
+∫
+Ω
+τ ·∇φ =
+∑
+T ∈Th
+∫
+T
+τ ·∇φ = −
+∑
+T ∈Th
+∫
+T
+(∇·τ )φ +
+∑
+T ∈Th
+∫
+∂T
+(τ ·nT )φ
+=−
+∫
+Ω
+(∇h·τ )φ +
+∑
+F ∈F i
+h
+∫
+F
+τ ·nF φ,
+where we have used the fact that τ ·nT ∈ L1(∂T ) to write a boundary integral and break it into face integrals. Hence, if (1.24) holds true, ∫
+Ω
+τ ·∇φ = −
+∫
+Ω
+(∇h·τ )φ ∀φ ∈ C∞
+0 (Ω),
+implying that ∇·τ = ∇h·τ ∈ L2(Ω), so that τ ∈ H(div; Ω). Conversely, if τ ∈ H(div; Ω), since ∇h·τ = ∇·τ , the above identity yields
+∑
+F ∈F i
+h
+∫
+F
+τ ·nF φ = 0,
+whence (1.24) is obtained by choosing the support of φ intersecting a single interface and since φ is arbitrary.
+Remark 1.25 (Counter-example for σF ∈ L1(F )). Following an idea by Carstensen and Peterseim [78], we consider the triangle
+T = {(x1, x2) ∈ 2 | 0 < x1 < 1, 0 < x2 < x1}.
+For all > 0, letting r2 = x2
+1 + x2
+2, we define the vector field
+σ = ( + r2)−1(x2, −x1)t.
+A direct calculation shows that σ is divergence-free and, since 0 ≤ r2 ≤ 1,
+‖σ ‖2
+[L2(T )]d =
+∫
+π/4
+0
+∫ cos(θ)−1
+0
+r3
+( + r2)2 dr dθ
+≤
+∫
+π/4
+0
+∫√
+2
+0
+r
+( + r2) dr dθ = π
+8 ln(1 + 2 −1).
+Hence, letting σ ̃ = ln(1 + 2 −1)−1/2σ , we infer that ‖σ ̃ ‖[L2(T )]d is uniformly bounded in . Moreover, considering the face F = {(x1, x2) ∈ ∂T | x1 = x2} with normal nF = (−2−1/2, 2−1/2)t, we obtain
+‖σ ̃ ·nF ‖L1(F ) = ln(1 + 2 −1)−1/2
+∫√
+2
+0
+r
++ r2 dr = 1
+2 ln(1 + 2 −1)1/2,
+which grows unboundedly as → 0+.
+
+
+18 Chapter 1. Basic Concepts
+Remark 1.26 (Weak meaning of σT ·nT on ∂T ). Let T ∈ Th and let σT ∈ H(div; T ). Let H1/2(∂T ) be the vector space spanned by the traces on ∂T of functions in H1(T ). Then, the normal component σ∂T := σT ·nT can be defined in the dual space H−1/2(∂T ) := (H1/2(∂T ))′ in such a way that, for all g ∈ H1/2(∂T ),
+〈σ∂T , g〉 =
+∫
+T
+σT ·∇gˆ +
+∫
+T
+(∇·σT )gˆ, (1.25)
+where gˆ ∈ H1(T ) is such that its trace on ∂T is equal to g (the right-hand side of (1.25) is independent of the choice of gˆ). Consider now a face F ∈ FT and let
+H 1/2
+00 (F ) be spanned by functions defined on F whose extension by zero to ∂T is
+in H1/2(∂T ). Then, the restriction σF := σ∂T |F can be given a meaning in the
+dual space H −1/2(F ) := (H 1/2
+00 (F ))′ in such a way that, for all g ∈ H1/2
+00 (F ),
+〈σF , g〉 =
+∫
+T
+σT ·∇gˆ +
+∫
+T
+(∇·σT )gˆ,
+where gˆ ∈ H1(T ) is such that its trace on ∂T is equal to g on F and to zero elsewhere. However, this definition is of little use in the context of dG methods where the normal component σF has to act on polynomials on F which do not generally belong to H1/2
+00 (F ) (unless they vanish on ∂F ).
+1.3 Abstract Nonconforming Error Analysis
+The goal of this section is to present the key ingredients for the error analysis when approximating the linear model problem (1.1) by dG methods. We assume that (1.1) is well-posed; cf. Sect. 1.1. The error analysis presented in this section is derived in the spirit of Strang’s Second Lemma [285] (see also Ern and Guermond [141, Sect. 2.3]). The three ingredients are (1) Discrete stability, (2) (Strong) consistency, and (3) Boundedness.
+1.3.1 The Discrete Problem
+Let Vh ⊂ L2(Ω) denote a finite-dimensional function space; typically, Vh is a broken polynomial space (cf. Sect. 1.2.4). We are interested in the discrete problem
+Find uh ∈ Vh s.t. ah(uh, wh) = lh(wh) for all wh ∈ Vh, (1.26)
+with discrete bilinear form ah defined (so far) only on Vh × Vh and discrete linear form lh defined on Vh. We observe that we consider the so-called standard Galerkin approximation where the discrete trial and test spaces coincide. Moreover, since functions in Vh can be discontinuous across mesh elements, Vh ⊂ X and Vh ⊂ Y in general; cf., e.g., Lemma 1.23. In the terminology of finite elements, we say that the approximation is nonconforming.
+
+
+1.3. Abstract Nonconforming Error Analysis 19
+Alternatively, it is possible to introduce the discrete (linear) operator Ah : Vh → Vh such that, for all vh, wh ∈ Vh,
+(Ahvh, wh)L2(Ω) := ah(vh, wh), (1.27)
+and the discrete function Lh ∈ Vh such that, for all wh ∈ Vh, (Lh, wh)L2(Ω) = lh(wh). This leads to the following problem (obviously equivalent to (1.26)):
+Find uh ∈ Vh s.t. Ahuh = Lh in Vh. (1.28)
+In what follows, we are often concerned with model problems where Y ↪→ L2(Ω) with dense and continuous injection. Identifying L2(Ω) with its topological dual space L2(Ω)′ by means of the Riesz–Fréchet representation theorem, we are thus in the situation where
+Y ↪→ L2(Ω) ≡ L2(Ω)′ ↪→ Y ′,
+with dense and continuous injections. For simplicity (cf. Remark 1.27 for further discussion), we often assume that the datum f is in L2(Ω), so that the righthand side of the model problem (1.1) becomes (f, w)L2(Ω), while the right-hand sides of the discrete problems (1.26) and (1.28) become, respectively,
+lh(wh) = (f, wh)L2(Ω), Lh = πhf.
+Here, πh denotes the L2(Ω)-orthogonal projection onto Vh, that is, πh : L2(Ω) → Vh is defined so that, for all v ∈ L2(Ω), πhv ∈ Vh with
+(πhv, yh)L2(Ω) = (v, yh)L2(Ω) ∀yh ∈ Vh. (1.29)
+We observe that the restriction of πhv to a given mesh element T ∈ Th can be computed independently from other mesh elements. For instance, if Vh =
+k
+d(Th), we obtain that, for all T ∈ Th, πhv|T ∈ k
+d(T ) is such that
+(πhv|T , ξ)L2(T ) = (v, ξ)L2(T ) ∀ξ ∈ k
+d(T ).
+We refer the reader to Sect. A.1.2 for further insight.
+Remark 1.27 (Rough right-hand side). The assumption f ∈ L2(Ω) is convenient so as to define the right-hand side of (1.26) using the L2(Ω)-scalar product. For rough right-hand sides, i.e., f ∈ Y ′ but f ∈ L2(Ω), the right-hand side of (1.26) needs to be modified since the quantity 〈f, wh〉Y ′,Y is in general not defined. One possibility is to consider the right-hand side 〈f, Ihwh〉Y ′,Y for some smoothing linear operator Ih : Vh → Vh ∩ Y (cf. Remark 4.9 for an example in the context of diffusive PDEs).
+1.3.2 Discrete Stability
+To formulate discrete stability, we introduce a norm, say |||·|||, defined (at least) on Vh.
+
+
+20 Chapter 1. Basic Concepts
+Definition 1.28 (Discrete stability). We say that the discrete bilinear form ah enjoys discrete stability on Vh if there is Csta > 0 such that
+∀vh ∈ Vh, Csta|||vh||| ≤ sup
+wh ∈Vh \{0}
+ah(vh, wh)
+|||wh||| . (1.30)
+Remark 1.29 (h-dependency). In Definition 1.28, Csta can depend on the meshsize h. In view of convergence analysis, it is important to ensure that Csta be independent of h.
+Property (1.30) is referred to as a discrete inf-sup condition since it is equivalent to
+Csta ≤ inf
+vh∈Vh\{0} sup
+wh ∈Vh \{0}
+ah(vh, wh)
+|||vh||| |||wh||| .
+An important fact is that (1.30) is a necessary and sufficient condition for discrete well-posedness.
+Lemma 1.30 (Discrete well-posedness). The discrete problem (1.26), or equivalently (1.28), is well-posed if and only if the discrete inf-sup condition (1.30) holds true.
+Proof. Condition (1.30) is the discrete counterpart of condition (1.4) in the BNB Theorem. Hence, owing to this theorem, discrete well-posedness implies (1.30). Conversely, to prove that (1.30) implies discrete well-posedness, we first observe that (1.30) implies that the discrete operator Ah defined by (1.27) is injective. Indeed, Ahvh = 0 yields ah(vh, wh) = 0, for all wh ∈ Vh. Hence, vh = 0 by (1.30). In finite dimension, this implies that Ah is surjective. Hence, Ah is bijective.
+We observe that discrete well-posedness is equivalent to only one condition, namely (1.30), while two conditions appear in the continuous case. This is because injectivity is equivalent to bijectivity when the test and trial spaces have the same finite dimension. A sufficient, and often easy to verify, condition for discrete stability is coercivity. This property can be stated as follows: There is Csta > 0 such that
+∀vh ∈ Vh, Csta|||vh|||2 ≤ ah(vh, vh). (1.31)
+Discrete coercivity implies the discrete inf-sup condition (1.30) since, for all vh ∈ Vh \ {0},
+Csta|||vh||| ≤ ah(vh, vh)
+|||vh||| ≤ sup
+wh ∈Vh \{0}
+ah(vh, wh)
+|||wh||| .
+Property (1.31) is the discrete counterpart of that invoked in the Lax–Milgram Lemma.
+
+
+1.3. Abstract Nonconforming Error Analysis 21
+1.3.3 Consistency
+For the time being, we consider a rather strong form of consistency, namely that the exact solution u satisfies the discrete equations in (1.26). To formulate consistency, it is thus necessary to plug the exact solution into the first argument of the discrete bilinear form ah, and this may not be possible in general since the discrete bilinear form ah is so far defined on Vh × Vh only. Therefore, we assume that there is a subspace X∗ ⊂ X such that the exact solution u belongs to X∗ and such that the discrete bilinear form ah can be extended to X∗ × Vh (it is not possible in general to extend ah to X × Vh). Consistency can now be formulated as follows.
+Definition 1.31 (Consistency). We say that the discrete problem (1.26) is consistent if for the exact solution u ∈ X∗,
+ah(u, wh) = lh(wh) ∀wh ∈ Vh. (1.32)
+Remark 1.32 (Galerkin orthogonality). Consistency is equivalent to the usual Galerkin orthogonality property often considered in the context of finite element methods. Indeed, (1.32) holds true if and only if
+ah(u − uh, wh) = 0 ∀wh ∈ Vh.
+1.3.4 Boundedness
+The last ingredient in the error analysis is boundedness. We introduce the vector space
+X∗h := X∗ + Vh,
+and observe that the approximation error (u − uh) belongs to this space. We aim at measuring the approximation error using the discrete stability norm |||·|||. Therefore, we assume in what follows that this norm can be extended to the space X∗h. In the present setting, we want to assert boundedness in the product space X∗h × Vh, and not just in Vh × Vh. It turns out that in most situations, it is not possible to assert boundedness using only the discrete stability norm |||·|||. This is the reason why we introduce a second norm, say |||·|||∗.
+Definition 1.33 (Boundedness). We say that the discrete bilinear form ah is bounded in X∗h × Vh if there is Cbnd such that
+∀(v, wh) ∈ X∗h × Vh, |ah(v, wh)| ≤ Cbnd|||v|||∗|||wh|||,
+for a norm |||·|||∗ defined on X∗h and such that, for all v ∈ X∗h, |||v||| ≤ |||v|||∗.
+Remark 1.34 (h-dependency). In Definition 1.33, Cbnd can depend on the meshsize h. As mentioned above, in view of convergence analysis, it is important to ensure that Cbnd be independent of h.
+
+
+22 Chapter 1. Basic Concepts
+1.3.5 Error Estimate
+We can now state the main result of this section.
+Theorem 1.35 (Abstract error estimate). Let u solve (1.1) with f ∈ L2(Ω). Let uh solve (1.26). Let X∗ ⊂ X and assume that u ∈ X∗. Set X∗h = X∗ + Vh and assume that the discrete bilinear form ah can be extended to X∗h × Vh. Let |||·||| and |||·|||∗ be two norms defined on X∗h and such that, for all v ∈ X∗h, |||v||| ≤ |||v|||∗. Assume discrete stability, consistency, and boundedness. Then, the following error estimate holds true:
+|||u − uh||| ≤ C inf
+yh ∈Vh
+|||u − yh|||∗, (1.33)
+with C = 1 + C−1
+sta Cbnd.
+Proof. Let yh ∈ Vh. Owing to discrete stability and consistency,
+|||uh − yh||| ≤ C−1
+sta sup
+wh∈Vh\{0}
+ah(uh − yh, wh)
+|||wh||| = C−1
+sta sup
+wh ∈Vh \{0}
+ah(u − yh, wh)
+|||wh||| .
+Hence, owing to boundedness,
+|||uh − yh||| ≤ C−1
+sta Cbnd|||u − yh|||∗.
+Estimate (1.33) then results from the triangle inequality, the fact that |||u−yh||| ≤ |||u − yh|||∗, and that yh is arbitrary in Vh.
+1.4 Admissible Mesh Sequences
+The goal of this section is to derive some technical, yet important, tools to analyze the convergence of dG methods as the meshsize goes to zero. We consider a mesh sequence
+TH := (Th)h∈H,
+where H denotes a countable subset of >0 := {x ∈ | x > 0} having 0 as only accumulation point. Our analysis tools are, on the one hand, inverse and trace inequalities that are instrumental to assert discrete stability and boundedness uniformly in h and, on the other hand, optimal polynomial approximation properties so as to infer from error estimates of the form (1.33) h-convergence rates for the approximation error whenever the exact solution is smooth enough. In Sects. 1.4.1–1.4.4, we consider the case d ≥ 2. We first introduce the concept of shape- and contact-regular mesh sequences, which is sufficient to derive inverse and trace inequalities, and then we combine it with an additional requirement on optimal polynomial approximation properties, leading to the concept of admissible mesh sequences. Finally, in Sect. 1.4.5, we deal with the case d = 1, where the requirements on admissible mesh sequences are much simpler.
+
+
+1.4. Admissible Mesh Sequences 23
+1.4.1 Shape and Contact Regularity
+A useful concept encountered in the context of conforming finite element methods is that of matching simplicial meshes.
+Definition 1.36 (Matching simplicial mesh). We say that Th is a matching simplicial mesh if it is a simplicial mesh and if for any T ∈ Th with vertices {a0, . . . , ad}, the set ∂T ∩ ∂T ′ for any T ′ ∈ Th, T ′ = T , is the convex hull of a (possibly empty) subset of {a0, . . . , ad}.
+For instance, in dimension 2, the set ∂T ∩ ∂T ′ for two distinct elements of a matching simplicial mesh is either empty, or a common vertex, or a common edge of the two elements. We now turn to the matching simplicial submesh of a general mesh.
+Definition 1.37 (Matching simplicial submesh). Let Th be a general mesh. We say that Sh is a matching simplicial submesh of Th if
+(i) Sh is a matching simplicial mesh,
+(ii) For all T ′ ∈ Sh, there is only one T ∈ Th such that T ′ ⊂ T ,
+(iii) For all F ′ ∈ Fh, the set collecting the mesh faces of Sh, there is at most one F ∈ Fh such that F ′ ⊂ F .
+The simplices in Sh are called subelements, and the mesh faces in Fh are called subfaces. We set, for all T ∈ Th,
+ST := {T ′ ∈ Sh | T ′ ⊂ T },
+FT := {F ′ ∈ Fh | F ′ ⊂ ∂T }.
+We also set, for all F ∈ Fh,
+FF := {F ′ ∈ Fh | F ′ ⊂ F }.
+Figure 1.5 illustrates the matching simplicial submesh for two polygonal mesh elements, say T1 and T2, that come into contact. The triangular subelements composing the sets ST1 and ST2 are indicated by dashed lines. We observe that the mesh face F = ∂T1 ∩ ∂T2 (highlighted in bold) is not a part of a hyperplane and that the set FF contains two subfaces.
+T1
+T2
+F
+Fig. 1.5: Two polygonal mesh elements that come into contact with corresponding subelements indicated by dashed lines and interface indicated in bold
+
+
+24 Chapter 1. Basic Concepts
+Definition 1.38 (Shape and contact regularity). We say that the mesh sequence TH is shape- and contact-regular if for all h ∈ H, Th admits a matching simplicial submesh Sh such that
+(i) The mesh sequence SH is shape-regular in the usual sense of Ciarlet [92], meaning that there is a parameter 1 > 0, independent of h, such that, for all T ′ ∈ Sh,
+1hT ′ ≤ rT ′ ,
+where hT ′ is the diameter of T ′ and rT ′ the radius of the largest ball inscribed in T ′,
+(ii) There is a parameter 2 > 0, independent of h, such that, for all T ∈ Th and for all T ′ ∈ ST ,
+2hT ≤ hT ′ .
+Henceforth, the parameters 1 and 2 are called the mesh regularity parameters and are collectively denoted by the symbol . Finally, if Th is itself matching and simplicial, then Sh = Th and the only requirement is shape-regularity with parameter 1 > 0 independent of h.
+As elaborated in Sect. 1.4.2, the two conditions in Definition 1.38 allow one to control the shape of the elements in Th and the way these elements come into contact. The idea of considering a matching simplicial submesh has been proposed, e.g., by Brenner [51] to derive generalized Poincaré–Friedrichs inequalities in broken Sobolev spaces. More recently, in the context of dG methods, a matching simplicial submesh has been considered by Buffa and Ortner [61] for nonlinear minimization problems and by Ern and Vohralík [151] for a posteriori error estimates in the context of PDEs with diffusion.
+Remark 1.39 (Anisotropic meshes). Definition 1.38 implies that the mesh is isotropic in the sense that, for all T ∈ Th, the d-dimensional measure |T |d is uniformly equivalent to hd
+T . In applications featuring sharp layers, anisotropic meshes can be advantageous. We refer the reader, e.g., to van der Vegt and van der Ven [297], Sun and Wheeler [287], Georgoulis [166], Georgoulis, Hall, and Houston [167], and Leicht and Hartmann [226] for various aspects of dG methods on anisotropic meshes.
+1.4.2 Geometric Properties
+This section collects some useful geometric properties of shape- and contactregular mesh sequences. The first result is a uniform bound on card(ST ).
+Lemma 1.40 (Bound on card(ST )). Let TH be a shape- and contact-regular mesh sequence. Then, for all h ∈ H and all T ∈ Th, card(ST ) is bounded uniformly in h.
+
+
+1.4. Admissible Mesh Sequences 25
+Proof. Let |·|d denote the d-dimensional Hausdorff measure and let Bd be the unit ball in d. Then,
+hd
+T ≥ |T |d =
+∑
+T ′∈ST
+|T ′|d ≥
+∑
+T ′∈ST
+|Bd|drd
+T′ ≥
+∑
+T ′∈ST
+|Bd|d
+d
+1 hd
+T′
+≥
+∑
+T ′∈ST
+|Bd|d d
+1
+d
+2 hd
+T ≥ |Bd|d d
+1
+d
+2 card(ST )hd
+T,
+yielding the assertion.
+Our next result is a uniform bound on card(FT ), card(FT ), the parameter N∂ defined by (1.12), and card(FF ).
+Lemma 1.41 (Bound on card(FT ), card(FT ), N∂, and card(FF )). Let TH be a shape- and contact-regular mesh sequence with parameters . Then, for all h ∈ H and all T ∈ Th, card(FT ), card(FT ), and N∂ are bounded uniformly in h, while, for all F ∈ Fh, card(FF ) is bounded uniformly in h.
+Proof. We observe that
+card(FT ) ≤ card(FT ) ≤ (d + 1) card(ST ),
+so that the assertion on card(FT ) and card(FT ) follows from Lemma 1.40. The bound on N∂ results from its definition (1.12) and the bound on card(FT ). Finally, to bound card(FF ) for all F ∈ Fh, we pick T ∈ Th such that F ∈ FT and observe that card(FF ) ≤ (d + 1) card(ST ), so that the bound on card(FF ) results from the bound on card(ST ).
+Our next result is a lower bound on the diameter of mesh faces.
+Lemma 1.42 (Lower bound on face diameters). Let TH be a shape- and contactregular mesh sequence with parameters . Then, for all h ∈ H, all T ∈ Th, and all F ∈ FT ,
+δF ≥ 1 2hT , (1.34)
+where δF denotes the diameter of F .
+Proof. Let T ∈ Th and let F ∈ FT . Then, we pick F ′ ∈ FF and denote by T ′ ∈ ST the simplex to which the subface F ′ belongs. We obtain
+δF ≥ δF ′ ≥ rT ′ ≥ 1hT ′ ≥ 1 2hT ,
+yielding the assertion.
+A direct consequence of Lemma 1.42 is a comparison result on the diameter of neighboring elements.
+
+
+26 Chapter 1. Basic Concepts
+Lemma 1.43 (Diameter comparison for neighboring elements). Let TH be a shape- and contact-regular mesh sequence with parameters . Then, for all h ∈ H and all T, T ′ ∈ Th sharing a face F , there holds
+min(hT , hT ′ ) ≥ 1 2 max(hT , hT ′ ). (1.35)
+Proof. Since F is a common face to both T and T ′, owing to (1.34),
+1 2 max(hT , hT ′ ) ≤ δF ≤ min(hT , hT ′ ),
+yielding (1.35).
+1.4.3 Inverse and Trace Inequalities
+Inverse and trace inequalities are useful tools to analyze dG methods. For simplicity, we derive these inequalities on the broken polynomial space k
+d (Th ) defined by (1.15); other broken polynomial spaces can be considered. We begin with the following inverse inequality that delivers a local upper bound on the gradient of discrete functions.
+Lemma 1.44 (Inverse inequality). Let TH be a shape- and contact-regular mesh sequence with parameters . Then, for all h ∈ H, all vh ∈ k
+d(Th), and all T ∈ Th,
+‖∇vh‖[L2(T )]d ≤ Cinvh−1
+T ‖vh‖L2(T ), (1.36)
+where Cinv only depends on , d, and k.
+Proof. Let vh ∈ k
+d(Th) and let T ∈ Th. For all T ′ ∈ ST , the restriction vh|T ′ is
+in k
+d(T ′). Hence, owing to the usual inverse inequality on simplices (see Brenner and Scott [54, Sect. 4.5] or Ern and Guermond [141, Sect. 1.7]),
+‖∇vh‖[L2(T ′)]d ≤ Cinv,sh−1
+T ′ ‖vh‖L2(T ′),
+where Cinv,s only depends on 1, d, and k. Using point (ii) in Definition 1.38 yields
+‖∇vh‖[L2(T ′)]d ≤ −1
+2 Cinv,sh−1
+T ‖vh‖L2(T ′).
+Squaring this inequality and summing over T ′ ∈ ST yields (1.36).
+Remark 1.45 (Nature of (1.36)). The inverse inequality (1.36) is local to mesh elements. As such, it depends on the shape of the mesh elements but not on the way mesh elements come into contact.
+We now turn to the following discrete trace inequality that delivers an upper bound on the face values of discrete functions.
+
+
+1.4. Admissible Mesh Sequences 27
+Lemma 1.46 (Discrete trace inequality). Let TH be a shape- and contact-regular mesh sequence with parameters . Then, for all h ∈ H, all vh ∈ k
+d(Th), all T ∈ Th, and all F ∈ FT ,
+h1/2
+T ‖vh‖L2(F ) ≤ Ctr‖vh‖L2(T ), (1.37)
+where Ctr only depends on , d, and k.
+Proof. Let vh ∈ k
+d(Th), let T ∈ Th, and let F ∈ FT . We first assume that Th
+is a matching simplicial mesh. Let T̂ be the unit simplex of d and let FT be
+the bijective affine map such that FT (T̂) = T . Let F̂ be any face of T̂. Since the unit sphere in k
+d(T̂) for the L2(T̂)-norm is a compact set, there is Ĉd,k(F̂),
+only depending on d, k, and F̂, such that, for all v̂ ∈ k
+d (T̂),
+‖v̂‖L2(F̂) ≤ Ĉd,k(F̂)‖v̂‖L2(T̂).
+Applying the above inequality to the function v̂ = vh|T ◦ F −1
+T which is in k
+d (T̂), we infer
+|F |−1/2
+d−1 ‖vh‖L2(F ) ≤ Ĉd,k|T |−1/2
+d ‖vh‖L2(T ),
+where Ĉd,k := maxF̂∈FT̂
+Ĉd,k(F̂). Moreover, we observe that
+|T |d
+|F |d−1
+=1
+d hT,F ≥ 1
+d rT ≥ 1
+d 1hT , (1.38)
+where hT,F denotes the distance of the vertex opposite to F to that face and rT the radius of the largest ball inscribed in T . As a result,
+h1/2
+T ‖vh‖L2(F ) ≤ Ctr,s‖vh‖L2(T ), (1.39)
+where Ctr,s := d1/2 −1/2
+1 Ĉd,k only depends on 1, d, and k. We now consider the
+case of general meshes. For each F ′ ∈ FF , let T ′ denote the simplex in ST of which F ′ is a face. Since the restriction vh|T ′ is in k
+d(T ′), the discrete trace inequality (1.39) yields
+h1/2
+T ′ ‖vh‖L2(F ′) ≤ Ctr,s‖vh‖L2(T ′) ≤ Ctr,s‖vh‖L2(T ).
+Squaring this inequality and summing over F ′ ∈ FF yields
+(∑
+F ′∈FF
+hT ′ ‖vh‖2
+L2(F ′)
+)
+1/2
+≤ Ctr,s card(FF )1/2‖vh‖L2(T ),
+whence the assertion follows, since hT ′ ≥ 2hT and card(FF ) is bounded uniformly owing to Lemma 1.41.
+
+
+28 Chapter 1. Basic Concepts
+Remark 1.47 (Variant of (1.37)). Summing over F ∈ FT , we infer from (1.37) and the Cauchy–Schwarz inequality that
+h1/2
+T ‖vh‖L2(∂T ) ≤ CtrN 1/2
+∂ ‖vh‖L2(T ), (1.40)
+and we recall from Lemma 1.41 that N∂ is bounded uniformly in h.
+Remark 1.48 (k-dependency). When working with high-degree polynomials, it is important to determine the dependency of Cinv and Ctr on the polynomial degree k. This turns out to be a delicate question, and precise answers are available only in specific cases. Concerning the discrete trace inequality (1.37), it is proven by Warburton and Hesthaven [304] that on k
+d(Th), Ctr scales as
+√
+k(k + d). Moreover, on k
+d(Th) with the mesh elements being affine images
+of the unit hypercube in d, one-dimensional results can be exploited using tensor-product polynomials, yielding that Ctr scales as
+√
+k(k + 1); see Canuto and Quarteroni [75], Bernardi and Maday [42], and Schwab [275]. One difficulty concerns the behavior of polynomials near the end points of an interval, and this can be dealt with by considering weighted norms in (1.37); see, e.g., Melenk and Wohlmuth [235]. Concerning the inverse inequality (1.36), Cinv scales as k2 on triangles and parallelograms; see, e.g., Schwab [275].
+We also need the following continuous trace inequality, which delivers an upper bound on the face values of functions in the broken Sobolev space H1(Th). We present here a simple proof inspired by Monk and Süli [238] and Carstensen and Funken [77] (see also Stephansen [283, Lemma 3.12]).
+Lemma 1.49 (Continuous trace inequality). Let TH be a shape- and contactregular mesh sequence. Then, for all h ∈ H, all v ∈ H1(Th), all T ∈ Th, and all F ∈ FT ,
+‖v‖2
+L2(F ) ≤ Ccti(2‖∇v‖[L2(T )]d + dh−1
+T ‖v‖L2(T ))‖v‖L2(T ), (1.41)
+with Ccti := −1
+1 if Th is matching and simplicial, while Ccti := (1 + d)( 1 2)−1 otherwise.
+Proof. Let v ∈ H1(Th), let T ∈ Th, and let F ∈ FT . Assume first that T is a simplex and consider the d-valued function
+σF = |F |d−1
+d|T |d
+(x − aF ),
+where aF is the vertex of T opposite to F ; cf. Fig. 1.6. The normal component of σF is constant and equal to one on F , and it vanishes on all the remaining faces in FT . (The function σF is proportional to the lowest-order Raviart–Thomas– Nédélec shape function in T ; see, e.g., Brezzi and Fortin [57, p. 116] or Ern and Guermond [141, Sect. 1.2.7] and also cf. Sect. 5.5.3.) Owing to the divergence theorem,
+‖v‖2
+L2(F ) =
+∫
+F
+|v|2 =
+∫
+∂T
+|v|2(σF ·nT ) =
+∫
+T
+∇·(|v|2σF )
+=
+∫
+T
+2vσF ·∇v +
+∫
+T
+|v|2(∇·σF ).
+
+
+1.4. Admissible Mesh Sequences 29
+F
+aF
+T
+Fig. 1.6: Notation for the proof of Lemma 1.49
+Since
+‖σF ‖[L∞(T )]d ≤ |F |d−1hT
+d|T |d
+, ∇·σF = |F |d−1
+|T |d
+,
+we infer using the Cauchy–Schwarz inequality that
+‖v‖2
+L2(F ) ≤ |F |d−1hT
+d|T |d
+(
+2‖∇v‖[L2(T )]d + dh−1
+T ‖v‖L2(T )
+)
+‖v‖L2(T ). (1.42)
+Using (1.38) yields (1.41) with Ccti = −1
+1 on matching simplicial meshes. Con
+sider now the case where T belongs to a general mesh. For each F ′ ∈ FF , let T ′ denote the simplex in ST of which F ′ is a face. Applying the continuous trace inequality using F ′ and T ′ yields
+‖v‖2
+L2(F ′) ≤ −1
+1
+(
+2‖∇v‖[L2(T ′)]d + dh−1
+T ′ ‖v‖L2(T ′)
+)
+‖v‖L2(T ′).
+Since hT ′ ≥ 2hT and 2 ≤ 1, we infer
+‖v‖2
+L2(F ′) ≤ ( 1 2)−1 (
+2‖∇v‖[L2(T ′)]d + dh−1
+T ‖v‖L2(T ′)
+)
+‖v‖L2(T ′).
+Summing over F ′ ∈ FF and using the Cauchy–Schwarz inequality yields (1.41) since each T ′ ∈ ST appears at most (d + 1) times in the summation.
+We close this section with some useful inverse and trace inequalities in a non-Hilbertian setting. Our first result allows us to compare the ‖·‖Lp(T )- and ‖·‖Lq(T )-norms. The proof is skipped since it hinges again on the simplicial submesh and the corresponding inverse inequality on simplices.
+Lemma 1.50 (Comparison of ‖·‖Lp(T )- and ‖·‖Lq(T )-norms). Let TH be a shapeand contact-regular mesh sequence with parameters . Let 1 ≤ p, q ≤ ∞ be two real numbers. Then, for all h ∈ H, all vh ∈ k
+d(Th), and all T ∈ Th,
+‖vh‖Lp(T ) ≤ Cinv,p,q hd(1/p−1/q)
+T ‖vh‖Lq(T ), (1.43)
+where Cinv,p,q only depends on , d, k, p, and q.
+Remark 1.51 (Dependency on p and q). The quantity Cinv,p,q in (1.43) can be uniformly bounded in p and q. We first observe that owing to Hölder’s inequality, Cinv,p,q = 1 if p < q. Additionally, it is shown by Verfürth [299] that
+
+
+30 Chapter 1. Basic Concepts
+on simplices, for p > 2 and q = 2, Cinv,p,2 ≤ C1−2/p
+d,k and for p = 2 and q < 2,
+Cinv,2,q ≤ C 2/q−1
+d,k , where Cd,k := ((2k + 2)(4k + 2)d−1)1/2. Hence, the largest value for Cinv,p,q is obtained in the case where p > 2 > q, and observing that |1 − 2/p| ≤ 1, |1 − 2/q| ≤ 1, and Cd,k ≥ 1, we infer that the quantity Cinv,p,q can always be bounded by C2
+d,k. A uniform upper bound in p and q can also be derived on general meshes by summing over the simplicial subelements.
+Our second and last result is a non-Hilbertian version of the discrete trace inequality (1.37).
+Lemma 1.52 (Discrete trace inequality in Lp(F )). Let TH be a shape- and contact-regular mesh sequence with parameters . Let 1 ≤ p ≤ ∞ be a real number. Then, for all h ∈ H, all vh ∈ k
+d(Th), all T ∈ Th, and all F ∈ FT ,
+h1/p
+T ‖vh‖Lp(F ) ≤ Ctr,p‖vh‖Lp(T ), (1.44)
+where Ctr,p only depends on , d, k, and p.
+Proof. We combine the discrete trace inequality (1.37) with the inverse inequality (1.43) (in F ) to infer
+h1/p
+T ‖vh‖Lp(F ) ≤ Cinv,p,2h1/p
+T δ(d−1)(1/p−1/2)
+F ‖vh‖L2(F )
+≤ Cinv,p,2Ctrh1/p−1/2
+T δ(d−1)(1/p−1/2)
+F ‖vh‖L2(T )
+≤ Cinv,p,2CtrCinv,2,ph1/p−1/2
+T δ(d−1)(1/p−1/2)
+F hd(1/2−1/p)
+T ‖vh‖Lp(T ).
+The assertion follows by observing that δF in uniformly equivalent to hT .
+Remark 1.53 (Dependency on p). The quantity Ctr,p in (1.44) can be uniformly bounded in p. This is a direct consequence of the above proof and Remark 1.51.
+1.4.4 Polynomial Approximation
+To infer from estimate (1.33) a convergence rate in h for the approximation error (u − uh) measured in the |||·|||-norm when the exact solution u is smooth enough, we need to estimate the right-hand side given by
+inf
+yh ∈Vh
+|||u − yh|||∗,
+when Vh is typically the broken polynomial space k
+d(Th) defined by (1.15); other broken polynomial spaces can be considered. Since uh ∈ Vh, we infer from (1.33) that
+inf
+yh ∈Vh
+|||u − yh||| ≤ |||u − uh||| ≤ C inf
+yh ∈Vh
+|||u − yh|||∗. (1.45)
+Definition 1.54 (Optimality, quasi-optimality, and suboptimality of the error estimate). We say that the error estimate (1.45) is
+
+
+1.4. Admissible Mesh Sequences 31
+(i) Optimal if |||·||| = |||·|||∗,
+(ii) Quasi-optimal if the two norms are different, but the lower and upper bounds in (1.45) converge, for smooth u, at the same convergence rate as h → 0,
+(iii) Suboptimal if the upper bound converges at a slower rate than the lower bound.
+The analysis of the upper bound infyh∈Vh |||u − yh|||∗ depends on the polynomial approximation properties that can be achieved in the broken polynomial space Vh.
+Definition 1.55 (Optimal polynomial approximation). We say that the mesh sequence TH has optimal polynomial approximation properties if, for all h ∈ H, all T ∈ Th, and all polynomial degree k, there is a linear interpolation operator Ik
+T : L2(T ) → k
+d(T ) such that, for all s ∈ {0, . . . , k + 1} and all v ∈ Hs(T ), there holds
+|v − Ik
+T v|Hm(T ) ≤ Capphs−m
+T |v|Hs(T ) ∀m ∈ {0, . . . , s}, (1.46)
+where Capp is independent of both T and h.
+Remark 1.56 (Nature of (1.46)). As for the inverse inequality (1.36), the optimal polynomial approximation property (1.46) is local to mesh elements. As such, it depends on the shape of the mesh elements, but not on the way mesh elements come into contact.
+Definition 1.57 (Admissible mesh sequences). We say that the mesh sequence TH is admissible if it is shape- and contact-regular and if it has optimal polynomial approximation properties.
+In what follows, we often consider the L2-orthogonal projection onto the broken polynomial space k
+d(Th). One reason is that its definition (cf. (1.29)) is very simple, even on general meshes.
+Lemma 1.58 (Optimality of L2-orthogonal projection). Let TH be an admissible mesh sequence. Let πh be the L2-orthogonal projection onto k
+d(Th). Then, for
+all s ∈ {0, . . . , k + 1} and all v ∈ Hs(T ), there holds
+|v − πhv|Hm(T ) ≤ C′
+apphs−m
+T |v|Hs(T ) ∀m ∈ {0, . . . , s}, (1.47)
+where C′
+app is independent of both T and h.
+Proof. For m = 0, we obtain by definition of the L2-orthogonal projection,
+‖v − πhv‖L2(T ) ≤ ‖v − Ik
+T v‖L2(T ) ≤ Capphs
+T |v|Hs(T ).
+
+
+32 Chapter 1. Basic Concepts
+For m ≥ 1, we use m times the inverse inequality (1.36) together with the triangle inequality to infer
+|v − πhv|Hm(T ) ≤ |v − Ik
+T v|Hm(T ) + |Ik
+T v − πhv|Hm(T )
+≤ |v − Ik
+T v|Hm(T ) + C ′h−m
+T ‖Ik
+T v − πhv‖L2(T )
+≤ |v − Ik
+T v|Hm(T ) + 2C′h−m
+T ‖v − Ik
+T v‖L2(T ),
+where C′ has the same dependencies as C′
+app, whence (1.47) owing to (1.46).
+In the analysis of dG methods, we often need to bound polynomial approximation errors on mesh faces. The following result is a direct consequence of (1.47) and of the continuous trace inequality in Lemma 1.49.
+Lemma 1.59 (Polynomial approximation on mesh faces). Under the hypotheses of Lemma 1.58, assume additionally that s ≥ 1. Then, for all h ∈ H, all T ∈ Th, and all F ∈ FT , there holds
+‖v − πhv‖L2(F ) ≤ C′′
+apphs−1/2
+T |v|Hs(T ),
+and if s ≥ 2,
+‖∇(v − πhv)|T ·nT ‖L2(F ) ≤ C′′′
+apphs−3/2
+T |v|Hs(T ),
+where C′′
+app and C′′′
+app are independent of both T and h.
+Lemmata 1.58 and 1.59 are instrumental in deriving convergence rates, as the meshsize goes to zero, for the approximation error owing to the error estimate (1.33) which yields
+|||u − uh||| ≤ inf
+yh ∈Vh
+|||u − yh|||∗ ≤ |||u − πhu|||∗.
+On general meshes, asserting optimal polynomial approximation is a delicate question since this property depends on the shape of mesh elements. In practice, meshes are generated by successive refinements of an initial mesh, and the shape of mesh elements depends on the refinement procedure. It is convenient to identify sufficient conditions on the mesh sequence TH to assert optimal polynomial approximation in broken polynomial spaces. One approach is based on the star-shaped property with respect to a ball.
+Definition 1.60 (Star-shaped property with respect to a ball). We say that a polyhedron P is star-shaped with respect to a ball if there is a ball BP ⊂ P such that, for all x ∈ P , the convex hull of {x} ∪ BP is included in P .
+Figure 1.7 displays two polyhedra. The one on the left is star-shaped with respect to the ball indicated in black. Instead, the one on the right is not starshaped with respect to any ball.
+
+
+1.4. Admissible Mesh Sequences 33
+Fig. 1.7: Example (left ) and counter-example (right ) of a polyhedron which is star-shaped with respect to a ball
+Lemma 1.61 (Mesh sequences with star-shaped property). Let TH be a shapeand contact-regular mesh sequence. Assume that, for all h ∈ H and all T ∈ Th, the mesh element T is star-shaped with respect to a ball with uniformly comparable diameter with respect to hT . Then, the mesh sequence TH is admissible.
+Proof. Optimal polynomial approximation is proven by Brenner and Scott [54, Chap. 4] using averaged Taylor polynomials.
+Another sufficient condition ensuring optimal polynomial approximation, but somewhat less general than the star-shaped property, is that of finitely shaped mesh sequences. A simple example is that of shape- and contact-regular mesh sequences whose elements are either simplices or parallelotopes in d.
+Lemma 1.62 (Finitely shaped mesh sequences). Let TH be a shape- and contactregular mesh sequence. Assume that TH is finitely shaped in the sense that there
+is a finite set R̂ = {T̂} whose elements are reference polyhedra in d and such that, for all h ∈ H, each T ∈ Th is the image of a reference polyhedron in R̂ by an affine bijective map FT . Then, the mesh sequence TH is admissible.
+Proof. The proof is sketched since it uses classical finite element techniques. Let
+h ∈ H and let T ∈ Th. Let v ∈ Hs(T ). Since T is such that T = FT (T̂) for some T̂ ∈ R̂, we set v̂ = v ◦ FT and observe that v̂ ∈ Hs(T̂). Let k ≥ 0 and let s ∈ {0, . . . , k + 1}. Owing to the Deny–Lions Lemma (see Deny and Lions [123] or Ern and Guermond [141, Lemma B.67]), we infer
+|v̂ − πk
+T̂ v̂|Hm(T̂) ≤ CT̂ |v̂|Hs(T̂) ∀m ∈ {0, . . . , s},
+where πk
+T̂ is the L2-orthogonal projection onto k
+d(T̂). Since T contains a ball with diameter comparable to hT , transforming back to T yields
+|v − Ik
+T v|Hm(T ) ≤ C ′
+T̂ hs−m
+T |v|Hs(T ),
+where Ik
+T v = (πk
+T̂ v̂) ◦ F −1
+T . The assertion follows by taking the maximal value of
+C′
+T̂ for all T̂ ∈ R̂, and this yields a bounded quantity since the set R̂ is finite.
+
+
+34 Chapter 1. Basic Concepts
+Remark 1.63 (Role of finitely-shaped assumption). As reflected in the above proof, the assumption that the mesh sequence is finitely shaped allows us to derive a uniform upper bound on the quantities C′
+T̂ resulting from the application
+of the Deny–Lions Lemma in each mesh element.
+Remark 1.64 (Quadrangular meshes). In dimension 2, it is possible to consider more general quadrangular meshes, where the elements are generated using bilinear mappings from the reference unit square in 2. Then, under the regularity conditions derived by Girault and Raviart [170, Sect. A.2], optimal polynomial approximation is achieved using polynomials in k
+d.
+1.4.5 The One-Dimensional Case
+The situation is much simpler in dimension 1 where all the mesh elements are intervals which can come into contact only through their endpoints. Thus, shape and contact regularity are void concepts. Moreover, optimal polynomial approximation properties can be classically asserted. However, we need the counterpart of Lemma 1.43 to compare the diameter of neighboring mesh intervals. This is the only requirement for admissibility of mesh sequences.
+Definition 1.65 (Admissible mesh sequences, d = 1). We say that the mesh sequence TH is admissible if there is > 0 such that, for all h ∈ H and all
+T, T ′ ∈ Th with T ∩ T ′ nonempty,
+min(hT , hT ′ ) ≥ max(hT , hT ′ ).
+The important properties derived in Sects. 1.4.3 and 1.4.4 are available on admissible mesh sequences in dimension 1, namely:
+(a) The inverse inequality (1.36) holds true.
+(b) The discrete trace inequality (1.37) holds true (recalling that, in dimension 1, face integrals reduce to pointwise evaluation) and the continuous trace inequality (1.41) also holds true (recalling that the 0-dimensional Hausdorff measure of a face is conventionally set to 1).
+(c) The optimal polynomial approximation property (1.46) holds true, together with the optimal bounds on the L2-projection (cf. Lemmata 1.58 and 1.59).
+
+
+Part I
+Scalar First-Order PDEs
+
+
+Chapter 2
+Steady Advection-Reaction
+The steady advection-reaction equation with homogeneous inflow boundary condition
+β·∇u + μu = f in Ω, (2.1a)
+u = 0 on ∂Ω−, (2.1b)
+is one of the simplest model problems based on a linear, scalar, steady first-order PDE. Here, the unknown function u is scalar-valued and represents, e.g., a solute concentration; β is the d-valued advective velocity, μ the reaction coefficient, f the source term, and ∂Ω− denotes the inflow part of the boundary of Ω, namely
+∂Ω− := {x ∈ ∂Ω | β(x)·n(x) < 0} . (2.2)
+The main goal of this chapter is to design and analyze dG methods to approximate the model problem (2.1). The mathematical analysis of this problem entails some subtleties. Since dG methods are essentially tailored to approximate PDEs in an L2-setting where discrete stability is enhanced by suitable least-squares penalties, the most natural weak formulation at the continuous level is that based on the concept of graph space. A further question concerns the mathematical sense of the boundary condition (2.1b) for functions belonging to the graph space. To this purpose, we introduce reasonably mild, sufficient conditions on the advective field β to achieve a well-posed weak formulation. We formulate the boundary condition (2.1b) weakly in the continuous problem since this is the way boundary conditions are enforced in dG methods. Then, we present a step-by-step derivation of suitable dG bilinear forms that match the discrete stability, consistency, and boundedness properties outlined in Sect. 1.3 for nonconforming finite element error analysis. We also discuss an alternative viewpoint using local (elementwise) problems and numerical fluxes. Two dG methods are analyzed, resulting from the use of so-called centered or upwind fluxes.
+D.A. Di Pietro and A. Ern, Mathematical Aspects of Discontinuous Galerkin
+Methods, Mathématiques et Applications 69, DOI 10.1007/978-3-642-22980-0_2, ©c Springer-Verlag Berlin Heidelberg 2012
+37
+
+
+38 Chapter 2. Steady Advection-Reaction
+We observe that it is possible to consider instead of (2.1a) the PDE
+∇·(βu) + μ ̃u = f in Ω, (2.3)
+with the reaction coefficient μ ̃ := μ−∇·β so that, at least formally, ∇·(βu)+μ ̃u = β·∇u+μu. The advection operator in (2.1a) is in nonconservative form, whereas, in (2.3), it is in conservative form. In the present framework of graph spaces, both forms are equivalent regarding the well-posedness of the weak formulation and the design and analysis of the dG approximation. Therefore, we focus on (2.1a), and occasionally indicate equivalent reformulations associated with (2.3).
+2.1 The Continuous Setting
+The purpose of this section is to specify the assumptions on the data for the model problem (2.1), to formulate this problem in weak form, and to show that it is well-posed. Most of the material is drawn from Ern and Guermond [142]; we also refer the reader to the earlier work of Bardos [28].
+2.1.1 Assumptions on the Data
+Concerning the data μ and β, we assume that
+μ ∈ L∞(Ω), β ∈ [Lip(Ω)]d, (2.4)
+where Lip(Ω) denotes the space spanned by Lipschitz continuous functions, that is, v ∈ Lip(Ω) means that there is Lv such that, for all x, y ∈ Ω, |v(x) − v(y)| ≤ Lv|x−y| where |x−y| denotes the Euclidean norm of (x−y) in d. The quantity Lv is called the Lipschitz module of v. Since β ∈ [Lip(Ω)]d, there holds (see, e.g., Brenner and Scott [54, Chap. 1] for further insight)
+β ∈ [W 1,∞(Ω)]d
+with ‖∇βi‖[L∞(Ω)]d ≤ Lβi for all i ∈ {1, . . . , d}, (β1, . . . , βd) being the components of β in the Cartesian basis of d. In what follows, we set
+Lβ := max
+1≤i≤d Lβi . (2.5)
+The assumption on the regularity of β can be weakened (at least, a bound on ‖β‖[L∞(Ω)]d and on ‖∇·β‖L∞(Ω) is needed), but the fact that all the components of β are Lipschitz continuous functions simplifies the presentation. In addition to (2.4), we assume that there is a real number μ0 > 0 such that
+Λ := μ − 1
+2 ∇·β ≥ μ0 a.e. in Ω. (2.6)
+Concerning the source term f , we assume that
+f ∈ L2(Ω).
+
+
+2.1. The Continuous Setting 39
+Finally, we recall that Ω is a polyhedron in d (cf. Definition 1.6). This assumption is solely made to facilitate the meshing of Ω and is not used in the continuous setting. In what follows, we consider a reference time τc and a reference velocity βc defined as
+τc := {max(‖μ‖L∞(Ω), Lβ )}−1, βc := ‖β‖[L∞(Ω)]d . (2.7)
+Since μ and Lβ scale as the reciprocal of a time, τc can be interpreted as the (fastest) time scale in the problem. Moreover, βc represents the maximum velocity. We observe that τc is finite since ‖μ‖L∞(Ω) = Lβ = 0 implies Λ = 0 which contradicts (2.6). We keep track of the parameters τc and βc in the convergence analysis of dG approximations. This allows us to work with norms consisting of terms having the same physical dimension. Keeping track of these parameters is also useful when dealing with singularly perturbed regimes. For simplicity, the reader can assume that both parameters are of order unity and discard them in what follows.
+2.1.2 The Graph Space
+Our first goal is to specify the functional space in which the solution to the model problem (2.1) is sought. Let C∞
+0 (Ω) denote the space of infinitely differentiable
+functions with compact support in Ω and recall that this space is dense in L2(Ω). For a function v ∈ L2(Ω), the statement β·∇v ∈ L2(Ω) means that the linear form
+C∞
+0 (Ω) φ −→ −
+∫
+Ω
+v∇·(βφ) ∈
+is bounded in L2(Ω), that is, there is Cv such that
+∀φ ∈ C∞
+0 (Ω),
+∫
+Ω
+v∇·(βφ) ≤ Cv‖φ‖L2(Ω).
+The function β·∇v is then defined as the function representing this linear form in L2(Ω) by means of the Riesz–Fréchet theorem.
+Definition 2.1 (Graph space). The graph space is defined as
+V :=
+{
+v ∈ L2(Ω) | β·∇v ∈ L2(Ω)
+}
+, (2.8)
+and is equipped with the natural scalar product: For all v, w ∈ V ,
+(v, w)V := (v, w)L2(Ω) + (β·∇v, β·∇w)L2(Ω), (2.9)
+and the associated graph norm ‖v‖V = (v, v)1/2
+V.
+Proposition 2.2 (Hilbertian structure of graph space). The graph space V defined by (2.8) and equipped with the scalar product (2.9) is a Hilbert space.
+
+
+40 Chapter 2. Steady Advection-Reaction
+Proof. Let (vn)n∈ be a Cauchy sequence in V . Then, (vn)n∈ and (β·∇vn)n∈ are Cauchy sequences in L2(Ω). Let v and w be their respective limits in L2(Ω). Let φ ∈ C∞
+0 (Ω). Then, by definition, we obtain, for all n ∈ , ∫
+Ω
+vn∇·(βφ) = −
+∫
+Ω
+(β·∇vn)φ,
+so that
+∫
+Ω
+v∇·(βφ) ←
+∫
+Ω
+vn∇·(βφ) = −
+∫
+Ω
+(β·∇vn)φ → −
+∫
+Ω
+wφ.
+This means that v ∈ V with β·∇v = w.
+Remark 2.3 (Conservative form (2.3)). When working with (2.3), the natural graph space is defined as
+V ̃ :=
+{
+v ∈ L2(Ω) | ∇·(βv) ∈ L2(Ω)
+}
+,
+the second assertion meaning that the linear form
+C∞
+0 (Ω) φ −→ −
+∫
+Ω
+v(β·∇φ) ∈
+is bounded in L2(Ω). Since
+−
+∫
+Ω
+v(β·∇φ) = −
+∫
+Ω
+v∇·(βφ) +
+∫
+Ω
+(∇·β)vφ,
+and the last term is always bounded by ‖∇·β‖L∞(Ω)‖v‖L2(Ω)‖φ‖L2(Ω), it is clear that V ̃ = V . Hence, all the developments presented herein can be applied to the conservative form (2.3).
+Remark 2.4 (Gelfand triple). Since C∞
+0 (Ω) ⊂ V ⊂ L2(Ω) and C∞
+0 (Ω) is dense in
+L2(Ω), V is dense in L2(Ω). Hence, denoting by V ′ the topological dual space of V (spanned by the continuous linear forms on V ), we are in the situation where
+V ↪→ L2(Ω) ≡ L2(Ω)′ ↪→ V ′,
+with dense and continuous injections. In the literature, the triple {V, L2(Ω), V ′} is sometimes referred to as a Gelfand triple.
+2.1.3 Traces in the Graph Space
+The next step is to specify mathematically the meaning of the boundary condition (2.1b). To this purpose, we need to investigate the trace on ∂Ω of functions in the graph space V . Our aim is to give a meaning to such traces in the space
+L2(|β·n|; ∂Ω) :=
+{
+v is measurable on ∂Ω |
+∫
+∂Ω
+|β·n|v2 < ∞
+}
+. (2.10)
+
+
+2.1. The Continuous Setting 41
+Recalling definition (2.2) of the inflow boundary, we also define the outflow boundary as
+∂Ω+ := {x ∈ ∂Ω | β(x)·n(x) > 0} ,
+and following [142], we assume that the inflow and outflow boundaries are wellseparated, namely
+dist(∂Ω−, ∂Ω+) := min
+(x,y)∈∂Ω−×∂Ω+ |x − y| > 0.
+The following result is very important since it allows us to define traces of functions belonging to the graph space and to use an integration by parts formula. The proof is postponed to Sect. 2.1.5.
+Lemma 2.5 (Traces and integration by parts). In the above framework, the trace operator
+γ : C0(Ω) v −→ γ(v) := v|∂Ω ∈ L2(|β·n|; ∂Ω)
+extends continuously to V , meaning that there is Cγ such that, for all v ∈ V ,
+‖γ(v)‖L2(|β·n|;∂Ω) ≤ Cγ ‖v‖V .
+Moreover, the following integration by parts formula holds true: For all v, w ∈ V ,
+∫
+Ω
+[(β·∇v)w + (β·∇w)v + (∇·β)vw] =
+∫
+∂Ω
+(β·n)γ(v)γ(w).
+To alleviate the notation, we omit henceforth the trace operator γ when writing boundary integrals, so that the above integration by parts formula becomes,
+for all v, w ∈ V ,
+∫
+Ω
+[(β·∇v)w + (β·∇w)v + (∇·β)vw] =
+∫
+∂Ω
+(β·n)vw. (2.11)
+Remark 2.6 (Counter-example for inflow/outflow separation). The separation assumption on inflow and outflow boundaries cannot be circumvented if we wish to work with traces in L2(|β·n|; ∂Ω). Consider for instance the triangular domain
+Ω=
+{
+(x1, x2) ∈ 2 | 0 < x2 < 1 s.t. |x1| < x2
+}
+,
+and the field β = (1, 0)t; cf. Fig. 2.1. Then, the function u(x1, x2) = xα
+2 is in V
+provided α > −1, but it has a trace in L2(|β·n|; ∂Ω) only if α > −1/2. Indeed, a
+direct calculation shows that
+∫
+Ω
+u2 dx1 dx2 =
+∫1
+0
+x2α
+2
+(∫ x2
+−x2
+dx1
+)
+dx2 =
+∫1
+0
+2x2α+1
+2 dx2,
+which is finite if and only if 2α + 1 > −1, that is, α > −1. Hence, under this condition, u ∈ L2(Ω), and since β·∇u = 0, we infer u ∈ V . Furthermore, ∂Ω− = {(x1, x2) ∈ 2 | x2 = −x1, x1 ∈ (−1, 0)}, and a direct calculation yields ∫
+∂Ω−
+|β·n|u2 =
+∫1
+0
+x2α
+2 dx2,
+which is finite if and only if 2α > −1, that is, α > −1/2. The same condition is obtained for the integral over ∂Ω+.
+
+
+42 Chapter 2. Steady Advection-Reaction
+x1
+x2
+β
+Ω
+Fig. 2.1: Counter-example for inflow/outflow separation: constant advection field β, triangular domain Ω, and, in dashed lines, contour lines of u
+2.1.4 Weak Formulation and Well-Posedness
+The goal of this section is to derive a well-posed weak formulation of the model problem (2.1). For a real number x, we define its positive and negative parts respectively as
+x⊕ := 1
+2 (|x| + x), x := 1
+2 (|x| − x). (2.12)
+We observe that both quantities are, by definition, nonnegative. We introduce the following bilinear form: For all v, w ∈ V ,
+a(v, w) :=
+∫
+Ω
+μvw +
+∫
+Ω
+(β·∇v)w +
+∫
+∂Ω
+(β·n) vw. (2.13)
+This bilinear form is bounded in V × V owing to Lemma 2.5. Precisely, for all v, w ∈ V , the Cauchy–Schwarz inequality yields
+|a(v, w)| ≤ (1 + ‖μ‖2
+L∞(Ω))1/2‖v‖V ‖w‖L2(Ω) + C 2
+γ ‖v‖V ‖w‖V .
+Using the graph space V and the bilinear form a, the model problem (2.1) can be cast into the weak form
+Find u ∈ V s.t. a(u, w) =
+∫
+Ω
+f w for all w ∈ V . (2.14)
+This problem turns out to be well-posed (cf. Theorem 2.9 and Sect. 2.1.5). Before addressing this, we examine in which sense does a solution to (2.14) solve the original problem (2.1). In particular, we observe that the boundary condition is weakly enforced in (2.14).
+Proposition 2.7 (Characterization of the solution to (2.14)). Assume that u ∈ V solves (2.14). Then,
+β·∇u + μu = f a.e. in Ω, (2.15)
+u = 0 a.e. in ∂Ω−. (2.16)
+
+
+2.1. The Continuous Setting 43
+Proof. Taking w = φ ∈ C∞
+0 (Ω) in (2.14) yields ∫
+Ω
+(μu + β·∇u − f )φ = 0,
+whence (2.15) follows from the density of C∞
+0 (Ω) in L2(Ω). Using (2.15) in (2.14) implies that, for all w ∈ V ,
+∫
+∂Ω
+(β·n) uw = 0.
+Using w = u as test function yields
+∫
+∂Ω(β·n) u2 = 0, whence (2.16).
+An important (yet, not sufficient) ingredient for the well-posedness of the weak problem (2.14) is the L2-coercivity of a in the graph space V .
+Lemma 2.8 (L2-coercivity of a). The bilinear form a defined by (2.13) is L2coercive on V , namely,
+∀v ∈ V, a(v, v) ≥ μ0‖v‖2
+L2(Ω) +
+∫
+∂Ω
+1
+2 |β·n|v2. (2.17)
+Proof. This is a straightforward consequence of assumption (2.6) and the integration by parts formula (2.11) since, for all v ∈ V ,
+a(v, v) =
+∫
+Ω
+(
+μ− 1
+2 ∇·β
+)
+v2 +
+∫
+∂Ω
+1
+2 (β·n)v2 +
+∫
+∂Ω
+(β·n) v2
+=
+∫
+Ω
+Λv2 +
+∫
+∂Ω
+1
+2 |β·n|v2 ≥ μ0‖v‖2
+L2(Ω) +
+∫
+∂Ω
+1
+2 |β·n|v2,
+completing the proof.
+A consequence of Lemma 2.8 is that the weak problem (2.14) admits at most one solution. We are now in a position to state the main result of this section. The proof of existence is postponed to Sect. 2.1.5.
+Theorem 2.9 (Well-posedness). Problem (2.14) is well-posed.
+Remark 2.10 (Conservative form (2.3)). When working with (2.3), the bilinear form a can be rewritten as
+a(v, w) =
+∫
+Ω
+μ ̃vw +
+∫
+Ω
+∇·(βv)w +
+∫
+∂Ω
+(β·n) vw.
+2.1.5 Proof of Main Results
+In this section, we prove Lemma 2.5 and Theorem 2.9.
+
+
+44 Chapter 2. Steady Advection-Reaction
+Proof of Lemma 2.5. Owing to the separation assumption on inflow and outflow boundaries, there are two functions ψ− and ψ+ in C∞(Ω) such that
+ψ− + ψ+ ≡ 1 in Ω, ψ−|∂Ω+ = 0, ψ+|∂Ω− = 0. (2.18)
+Let v ∈ C∞(Ω). Observe that ∫
+∂Ω
+v2|β·n| =
+∫
+∂Ω
+v2(ψ− + ψ+)|β·n| =
+∫
+∂Ω−
+v2ψ−|β·n| +
+∫
+∂Ω+
+v2ψ+|β·n|
+=
+∫
+∂Ω
+(ψ+ − ψ−)v2(β·n) =
+∫
+Ω
+∇·(v2(ψ+ − ψ−)β)
+=
+∫
+Ω
+∇·((ψ+ − ψ−)β)v2 +
+∫
+Ω
+2(ψ+ − ψ−)(β·∇v)v
+≤ C2
+γ ‖v‖2
+V,
+with C2
+γ = ‖∇·((ψ+ −ψ−)β)‖L∞(Ω)+‖ψ+−ψ−‖L∞(Ω). Hence, for all v ∈ C∞(Ω),
+‖v‖L2(|β·n|;∂Ω) ≤ Cγ ‖v‖V .
+Let now v ∈ V . Since the space C∞(Ω) is dense in V (see Jensen [201, Theorem 4, p. 21], there is a sequence (vn)n∈ in C∞(Ω) converging to v in V . The inequality
+‖γ(vn)‖L2(|β·n|;∂Ω) ≤ Cγ ‖vn‖V ,
+implies that (γ(vn))n∈ is a Cauchy sequence in L2(|β·n|; ∂Ω). Letting γ(v) be its limit, it is clear that this defines a continuous extension of the trace operator γ to V . Finally, the integration by parts formula (2.11) is also proven by a density argument since it holds true on C∞(Ω) and all the terms pass to the limit in V . This concludes the proof.
+Proof of Theorem 2.9. The proof proceeds in four steps. (i) We first prove that a variant of (2.14), where the boundary condition is strongly enforced, is well-posed. Specifically, letting V0 = {v ∈ V | v|∂Ω− = 0} and using L2(Ω) as test space, we consider the problem:
+Find u ∈ V0 s.t. a0(u, w) =
+∫
+Ω
+f w for all w ∈ L2(Ω), (2.19)
+with the bilinear form
+a0(v, w) =
+∫
+Ω
+μvw +
+∫
+Ω
+(β·∇v)w. (2.20)
+To prove that (2.19) is well-posed, we use the BNB Theorem (cf. Theorem 1.1) with spaces X = V0 and Y = L2(Ω). Since V0 is, by construction, closed in V owing to Lemma 2.5, V0 is a Hilbert space. Moreover, L2(Ω) is reflexive, and the right-hand side in (2.19) is a bounded linear form in L2(Ω). It remains to
+
+
+2.1. The Continuous Setting 45
+verify conditions (1.4) and (1.5) of the BNB Theorem. (ii) Proof of condition (1.4). Let v ∈ V0 and set
+= sup
+w ∈L2 (Ω)\{0}
+a0(v, w)
+‖w ‖L2 (Ω)
+.
+Proceeding as in the proof of Lemma 2.8, we observe that, for all v ∈ V0,
+a0(v, v) =
+∫
+Ω
+(
+μ− 1
+2 ∇·β
+)
+v2 +
+∫
+∂Ω
+1
+2 (β·n)v2
+≥ μ0‖v‖2
+L2(Ω) +
+∫
+∂Ω
+1
+2 (β·n)v2
+= μ0‖v‖2
+L2(Ω) +
+∫
+∂Ω+
+1
+2 (β·n)v2 ≥ μ0‖v‖2
+L2 (Ω) ,
+since v|∂Ω− = 0. As a result, for v = 0,
+‖v‖2
+L2(Ω) ≤ μ−1
+0 a0(v, v) ≤ μ−1
+0
+a0(v, v)
+‖v ‖L2 (Ω)
+‖v‖L2(Ω) ≤ μ−1
+0 ‖v‖L2(Ω),
+whence ‖v‖L2(Ω) ≤ μ−1
+0 for all v ∈ V0. Moreover,
+‖β·∇v‖L2(Ω) = sup
+w∈L2(Ω)\{0}
+∫
+Ω(β·∇v)w
+‖w ‖L2 (Ω)
+= sup
+w∈L2(Ω)\{0}
+a0(v, w) −
+∫
+Ω μvw
+‖w ‖L2 (Ω)
+≤ + ‖μ‖L∞(Ω)‖v‖L2(Ω) ≤ (1 + μ−1
+0 ‖μ‖L∞(Ω)) .
+Collecting these bounds yields
+‖v‖2
+V ≤ (μ−2
+0 + (1 + μ−1
+0 ‖μ‖L∞(Ω))2) 2,
+whence we infer condition (1.4). (iii) Proof of condition (1.5). Let w ∈ L2(Ω) be such that a0(v, w) = 0 for all v ∈ V0. Since C∞
+0 (Ω) ⊂ V0, a distributional argument yields μw − ∇·(βw) = 0
+in Ω. Hence, β·∇w = (μ − ∇·β)w ∈ L2(Ω), so that w ∈ V . Combining this expression for β·∇w with the integration by parts formula (2.11), we infer that, for all v ∈ V0, ∫
+∂Ω
+(β·n)vw =
+∫
+Ω
+[(β·∇v)w + (β·∇w)v + (∇·β)vw]
+= a0(v, w) −
+∫
+Ω
+(μ − ∇·β)vw +
+∫
+Ω
+(β·∇w)v = a0(v, w) = 0.
+Taking v = ψ+w with ψ+ defined by (2.18) (so that v ∈ V0) yields
+∫
+∂ Ω (β ·n)⊕ w2
+= 0 so that w|∂Ω+ = 0. Finally, since μw − ∇·(βw) = 0, we observe that
+0=
+∫
+Ω
+[μw2 − ∇·(βw)w] =
+∫
+Ω
+(
+μ− 1
+2 ∇·β
+)
+w2 −
+∫
+∂Ω
+1
+2 (β·n)w2 ≥ μ0‖w‖2
+L2 (Ω) ,
+
+
+46 Chapter 2. Steady Advection-Reaction
+where we have used the fact that
+∫
+∂Ω(β·n)w2 ≤ 0 since w|∂Ω+ = 0. The above inequality implies that w = 0, thereby completing the proof of condition (1.5). (iv) Let us finally prove that (2.14) is well-posed. Existence of a solution results from the fact that u, the unique solution to (2.19), solves (2.14) since u ∈ V0 implies that, for all w ∈ V , a(u, w) = a0(u, w). Moreover, uniqueness of the solution has already been deduced from the L2-coercivity of a on V .
+2.1.6 Nonhomogeneous Boundary Condition
+In this section, we consider the nonhomogeneous boundary condition
+u = g on ∂Ω−.
+We extend the boundary datum g to ∂Ω by setting it to zero outside ∂Ω− and we assume that
+g ∈ L2(|β·n|; ∂Ω).
+The model problem in weak form now becomes:
+Find u ∈ V s.t. a(u, w) =
+∫
+Ω
+fw +
+∫
+∂Ω
+(β·n) gw for all w ∈ V . (2.21)
+The key result to investigate nonhomogeneous boundary conditions is the surjectivity of the trace operator γ : V → L2(|β·n|; ∂Ω) identified in Lemma 2.5.
+Lemma 2.11 (Surjectivity of traces). For all g ∈ L2(|β·n|; ∂Ω), there is ug ∈ V such that ug = g a.e. in ∂Ω− ∪ ∂Ω+. Moreover, there is C, only depending on Ω and β, such that ‖ug‖V ≤ C‖g‖L2(|β·n|;∂Ω).
+Proof. Let g ∈ L2(|β·n|; ∂Ω) and let ψg : V → be the linear map such that, for all w ∈ V ,
+ψg(w) =
+∫
+∂Ω
+(β·n)gw.
+Using the Cauchy–Schwarz inequality and the fact that ‖w‖L2(|β·n|;∂Ω) ≤ Cγ‖w‖V owing to Lemma 2.5, we infer that
+|ψg (w)| ≤ ‖g‖L2(|β·n|;∂Ω)‖w‖L2(|β·n|;∂Ω)
+≤ Cγ ‖g‖L2(|β·n|;∂Ω)‖w‖V .
+Hence, ψg ∈ V ′ and ‖ψg‖V ′ ≤ Cγ‖g‖L2(|β·n|;∂Ω). Owing to the Riesz–Fréchet representation theorem, there exists z ∈ V such that, for all w ∈ V ,
+(z, w)V =
+∫
+Ω
+zw +
+∫
+Ω
+(β·∇z)(β·∇w) =
+∫
+∂Ω
+(β·n)gw.
+Set ug := β·∇z ∈ L2(Ω) and let us verify that ug ∈ V . Taking w = φ ∈ C∞
+0 (Ω) yields ∫
+Ω
+ug(β·∇φ) = −
+∫
+Ω
+zφ,
+
+
+2.2. Centered Fluxes 47
+so that ∫
+Ω
+ug∇·(βφ) = −
+∫
+Ω
+zφ +
+∫
+Ω
+(∇·β )ug φ.
+Since the right-hand side is a bounded linear form in L2(Ω) acting on φ, we infer that β·∇ug = z − (∇·β)ug ∈ L2(Ω), so that ug ∈ V . Furthermore, it is easily seen that
+‖ug‖V ≤ C′‖z‖V = C′‖ψg ‖V ′ ≤ C‖g‖L2(|β·n|;∂Ω),
+where C′ and C only depend on Ω and β. Moreover, for all w ∈ V , we obtain from the integration by parts formula (2.11) that ∫
+∂Ω
+(β·n)ugw =
+∫
+Ω
+(β·∇w)ug +
+∫
+Ω
+(β·∇ug)w +
+∫
+Ω
+(∇·β )ug w
+=
+∫
+Ω
+(β·∇w)(β·∇z) +
+∫
+Ω
+zw =
+∫
+∂Ω
+(β·n)gw.
+The fact that
+∫
+∂Ω(β·n)(ug − g)w = 0 for all w ∈ V and the density of C∞(Ω) in
+V imply that ug = g a.e. in ∂Ω− ∪ ∂Ω+.
+Theorem 2.12 (Well-posedness). Problem (2.21) is well-posed. Moreover, its unique solution u ∈ V satisfies (2.15) and u = g a.e. in ∂Ω−.
+Proof. Let ug be given by Lemma 2.11. We consider the problem:
+Find v ∈ V s.t. a(v, w) =
+∫
+Ω
+f w − a0(ug, w) for all w ∈ V , (2.22)
+where the bilinear form a0 is defined by (2.20). The map V w −→ a0(ug, w) ∈ is bounded in L2(Ω) since, for all w ∈ L2(Ω),
+|a0(ug, w)| ≤ (1 + ‖μ‖2
+L∞(Ω))1/2‖ug ‖V ‖w‖L2(Ω) ≤ C ‖g‖L2(|β·n|;∂Ω)‖w‖L2(Ω).
+Hence, by the Riesz–Fréchet representation theorem, the right-hand side of (2.22) can be written as
+∫
+Ω f ̃w for some f ̃ ∈ L2(Ω). Owing to Theorem 2.9, problem (2.22) is therefore well-posed. Proceeding as in the proof of Proposition 2.7, we infer that the function u = v + ug satisfies μu + β·∇u = f in Ω, and, since v = 0 and ug = g on ∂Ω−, we obtain u = g on ∂Ω−. This proves the existence of a solution to (2.21), while uniqueness results, as before, from the L2-coercivity of a in V .
+2.2 Centered Fluxes
+The goal of this section is to design and analyze the simplest dG method to approximate the model problem (2.14). Referring the reader to Sect. 1.3, the method is designed so as to be consistent, and a minimal discrete stability is ensured by L2-coercivity. Using the terminology of Definition 1.54, the resulting error estimate turns out to be suboptimal. Alternatively, the method can be
+
+
+48 Chapter 2. Steady Advection-Reaction
+viewed as based on the use of centered fluxes. As in the previous section, we assume that the data μ and β satisfy (2.4) and (2.6). We seek an approximate solution in the broken polynomial space k
+d (Th ) defined by (1.15); other choices are possible. We assume that k ≥ 1 and that Th belongs to an admissible mesh sequence. We set
+Vh := k
+d (Th )
+and consider the discrete problem:
+Find uh ∈ Vh s.t. ah(uh, vh) =
+∫
+Ω
+f vh for all vh ∈ Vh,
+for a discrete bilinear form ah yet to be designed. To analyze the method, we make a slightly more stringent regularity assumption on the exact solution u than just belonging to the graph space V . This assumption is needed to formulate the consistency of the method by directly plugging in the exact solution into the discrete bilinear form ah. In particular, we need to consider the trace of the exact solution on each mesh face.
+Assumption 2.13 (Regularity of exact solution and space V∗). We assume that there is a partition PΩ = {Ωi}1≤i≤NΩ of Ω into disjoint polyhedra such that, for the exact solution u,
+u ∈ V∗ := V ∩ H1(PΩ).
+In the spirit of Sect. 1.3, we set V∗h := V∗ + Vh.
+Owing to the trace inequality (1.18) with p = 2, Assumption 2.13 implies that, for all T ∈ Th, the restriction u|T has traces a.e. on each face F ∈ FT , and these traces belong to L2(F ) (even if the mesh Th is not fitted to PΩ). Weaker regularity assumptions on u can be made; cf. Remark 2.16 below. We now examine the jumps of u across interfaces.
+Lemma 2.14 (Jumps of u across interfaces). The exact solution u ∈ V∗ is such that, for all F ∈ F i
+h,
+(β·nF ) u (x) = 0 for a.e. x ∈ F . (2.23)
+Proof. Let F ∈ F i
+h with F = ∂T1 ∩ ∂T2. This interface can be partitioned into a finite number of subsets {Fj}1≤j≤NF such that each Fj is shared by at most two elements of the partition PΩ. For instance, in the situation depicted in Fig. 2.2, the interface F is partitioned into two subsets, one of which belongs to only one element of the partition, while the other belongs to two elements. We now prove that, a.e. on each Fj, (2.23) holds true. We consider the case where Fj is shared by two elements of the partition, say Ω1 and Ω2 (the case where Fj belongs to only one element is similar). Let φ ∈ C∞
+0 (Ω) with support intersecting only Fj
+and only Ω1 and Ω2; cf. Fig. 2.2. Since φ ∈ C∞
+0 (Ω) and u ∈ V , there holds ∫
+Ω
+{
+(∇·β)uφ + (β·∇u)φ + u(β·∇φ)
+}
+= 0.
+
+
+2.2. Centered Fluxes 49
+Fig. 2.2: Interface F ∈ F i
+h separating two triangles; the partition PΩ in Assumption 2.13 consists of three polygons, and the support of the test function φ in the proof of Lemma 2.14 is represented by a grey ball
+b
+Fig. 2.3: Fitted (left ) and unfitted (right ) simplicial mesh; the partition PΩ consists of two polygons, and the exact solution can jump across the thick line
+Moreover, owing to the choice for the support of φ, the integral over Ω is the sum of the integrals over T1 ∩ Ω1 and T2 ∩ Ω2. On both of these sets, u is smooth enough to integrate by parts, yielding
+0=
+∫
+Ω
+{
+...
+} =
+∫
+T1 ∩Ω1
+{
+...
+} +
+∫
+T2 ∩Ω2
+{
+...
+} =
+∫
+Fj
+(β·nF ) u φ.
+The assertion then follows from a density argument.
+Remark 2.15 (Singularities of exact solution). Condition (2.23) does not say anything on the jumps of the exact solution across interfaces to which the advective velocity β is tangential. We also observe that Assumption 2.13 does not require the mesh to be fitted to solution singularities, that is, both situations depicted in Fig. 2.3 are admissible.
+Remark 2.16 (Weaker regularity assumption). A weaker regularity assumption on the exact solution is u ∈ V ∩ H1/2+ (PΩ), > 0, since this assumption suffices to assert the existence of traces in L2(F ) for all F ∈ Fh. Another possibility is to assume that
+u ∈ V ∩ W 1,1(PΩ),
+
+
+50 Chapter 2. Steady Advection-Reaction
+which yields the existence of traces in L1(F ) for all F ∈ Fh. This latter property is sufficient to prove Lemma 2.14; however, the norm introduced to assert boundedness in the convergence analysis of Sect. 2.2.2 needs to be modified following the ideas presented in Sect. 4.2.5.
+Remark 2.17 (Nonhomogeneous boundary condition). When working with the nonhomogeneous boundary condition u = g on ∂Ω− (cf. Sect. 2.1.6), the discrete problem becomes
+Find uh ∈ Vh s.t. ah(uh, vh) =
+∫
+Ω
+f vh +
+∫
+∂Ω
+(β·n) gvh for all vh ∈ Vh.
+2.2.1 Heuristic Derivation
+The main idea in the design of the discrete bilinear form ah is to mimic at the discrete level the L2-coercivity that holds at the continuous level (cf. (2.17)), while, at the same time, ensuring consistency. Our starting point is a discrete bilinear form a(0)
+h simply derived from the exact bilinear form a by replacing the advective derivative β·∇ by its broken counterpart β·∇h, namely, we define on V∗h × Vh,
+a(0)
+h (v, wh) :=
+∫
+Ω
+{
+μvwh + (β·∇hv)wh
+} +
+∫
+∂Ω
+(β·n) vwh.
+That a(0)
+h yields consistency is clear since the exact solution satisfies (2.15) and (2.16). Let us now focus on discrete coercivity. An important observation is that this property is not transferred from a to a(0)
+h . Indeed, integration by parts on each mesh element yields, for all vh ∈ Vh,
+a(0)
+h (vh, vh) =
+∫
+Ω
+{
+μv2
+h + (β·∇hvh)vh
+} +
+∫
+∂Ω
+(β·n) v2
+h
+=
+∫
+Ω
+μv2
+h+
+∑
+T ∈Th
+∫
+T
+(β·∇vh)vh +
+∫
+∂Ω
+(β·n) v2
+h
+=
+∫
+Ω
+Λv2
+h+
+∑
+T ∈Th
+∫
+∂T
+1
+2 (β·nT )v2
+h+
+∫
+∂Ω
+(β·n) v2
+h,
+where we recall that Λ = μ − 1
+2 ∇·β and that nT denotes the outward normal to T on ∂T . The second term on the right-hand side can be reformulated as a sum over mesh faces. Indeed, exploiting the continuity of (the normal component of) β across interfaces leads to ∑
+T ∈Th
+∫
+∂T
+1
+2 (β·nT )v2
+h=
+∑
+F ∈F i
+h
+∫
+F
+1
+2 (β·nF ) v2
+h+
+∑
+F ∈F b
+h
+∫
+F
+1
+2 (β·n)v2
+h.
+For all F ∈ F i
+h with F = ∂T1 ∩ ∂T2, vi = vh|Ti , i ∈ {1, 2}, there holds
+1
+2 v2
+h =1
+2 (v2
+1 − v2
+2) = 1
+2 (v1 − v2)(v1 + v2) = vh {{vh}}.
+
+
+2.2. Centered Fluxes 51
+As a result,
+a(0)
+h (vh, vh) =
+∫
+Ω
+Λv2
+h+
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) vh {{vh}}
++
+∑
+F ∈F b
+h
+∫
+F
+1
+2 (β·n)v2
+h+
+∫
+∂Ω
+(β·n) v2
+h,
+and combining the two rightmost terms, we arrive at
+a(0)
+h (vh, vh) =
+∫
+Ω
+Λv2
+h+
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) vh {{vh}} +
+∫
+∂Ω
+1
+2 |β·n|v2
+h.
+The second term on the right-hand side, involving interfaces, has no sign a priori. Therefore, it must be removed, and this can be achieved while maintaining consistency if we set, for all (v, wh) ∈ V∗h × Vh,
+acf
+h (v, wh) :=
+∫
+Ω
+{
+μvwh + (β·∇hv)wh
+} +
+∫
+∂Ω
+(β·n) vwh
+−
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) v {{wh}}, (2.24)
+since (β·nF ) u = 0 for all F ∈ F i
+h owing to (2.23). The superscript indicates the use of centered fluxes, as detailed in Sect. 2.2.3. We can now summarize the properties of the discrete bilinear form acf
+h estab
+lished so far. The coercivity of acf
+h is expressed using the following norm defined on V∗h:
+|||v|||2
+cf := τ −1
+c ‖v‖2
+L2(Ω) +
+∫
+∂Ω
+1
+2 |β·n|v2, (2.25)
+with the time scale τc defined by (2.7). We observe that |||·|||cf is indeed a norm since it controls the L2-norm.
+Lemma 2.18 (Consistency and discrete coercivity). The discrete bilinear form
+acf
+h defined by (2.24) satisfies the following properties:
+(i) Consistency, namely for the exact solution u ∈ V∗,
+acf
+h (u, vh) =
+∫
+Ω
+f vh ∀vh ∈ Vh,
+(ii) Coercivity on Vh with respect to the |||·|||cf -norm, namely
+∀vh ∈ Vh, acf
+h (vh, vh) ≥ Csta|||vh|||2
+cf ,
+with Csta := min(1, τcμ0).
+
+
+52 Chapter 2. Steady Advection-Reaction
+Proof. Consistency has already been verified. Concerning coercivity, we observe that the above calculation yields, for all vh ∈ Vh,
+acf
+h (vh, vh) =
+∫
+Ω
+Λv2
+h+
+∫
+∂Ω
+1
+2 |β·n|v2
+h,
+whence the assertion follows from assumption (2.6).
+Remark 2.19 (Definition of |||·|||cf ). Defining the |||·|||cf -norm as
+|||v|||2
+cf := μ0‖v‖2
+L2(Ω) +
+∫
+∂Ω
+1
+2 |β·n|v2
+yields coercivity in the simpler form acf
+h (vh, vh) ≥ |||vh|||2
+cf . The present defini
+tion using the time scale τc instead of μ−1
+0 is more convenient to examine the
+boundedness of the discrete bilinear form acf
+h.
+Before proceeding further, we record an equivalent expression of the discrete bilinear form acf
+h obtained after integrating by parts the advective derivative in each mesh element. This expression is useful when introducing the notion of fluxes in Sect. 2.2.3 and when analyzing the dG method based on upwinding in Sect. 2.3.
+Lemma 2.20 (Equivalent expression for acf
+h ). For all (v, wh) ∈ V∗h × Vh, there holds
+acf
+h (v, wh) =
+∫
+Ω
+{
+(μ − ∇·β)vwh − v(β·∇hwh)
+} +
+∫
+∂Ω
+(β·n)⊕vwh
++
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ){{v}} wh . (2.26)
+Proof. Integrating by parts in each mesh element the advective derivative in (2.24) leads to
+acf
+h (v, wh) =
+∫
+Ω
+{
+(μ − ∇·β)vwh − v(β·∇hwh)
+} +
+∑
+T ∈Th
+∫
+∂T
+(β·nT )vwh
++
+∫
+∂Ω
+(β·n) vwh −
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) v {{wh}}. (2.27)
+The third term on the right-hand side can be reformulated as a sum over mesh faces, namely
+∑
+T ∈Th
+∫
+∂T
+(β·nT )vwh =
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) vwh +
+∑
+F ∈F b
+h
+∫
+F
+(β·n)vwh,
+
+
+2.2. Centered Fluxes 53
+exploiting the continuity of the normal component of β across interfaces. For all F ∈ Fi
+h with F = ∂T1 ∩ ∂T2, vi = v|Ti , wi = wh|Ti , i ∈ {1, 2}, we observe that
+vwh = v1w1 − v2w2
+=1
+2 (v1 − v2)(w1 + w2) + 1
+2 (v1 + v2)(w1 − w2)
+= v {{wh}} + {{v}} wh .
+The expression (2.26) then results from the combination of the three rightmost in (2.27).
+Remark 2.21 (Conservative form (2.3)). When working with (2.3), the righthand side of (2.24) can be rewritten as ∫
+Ω
+{
+μ ̃vwh + ∇h·(βv)wh
+} +
+∫
+∂Ω
+(β·n) vwh −
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) v {{wh}}.
+2.2.2 Error Estimates
+We consider the discrete problem:
+Find uh ∈ Vh s.t. acf
+h (uh, vh) =
+∫
+Ω
+f vh for all vh ∈ Vh. (2.28)
+This problem is well-posed owing to the discrete coercivity of acf
+h on Vh. Our goal is to estimate the approximation error (u − uh) in the |||·|||cf -norm. The convergence analysis is performed in the spirit of Theorem 1.35. Owing to Lemma 2.18, it only remains to address the boundedness of the discrete bilinear form acf
+h . To this purpose, we define on V∗h the norm
+|||v|||2
+cf,∗ = |||v|||2
+cf +
+∑
+T ∈Th
+τc‖β·∇v‖2
+L2(T ) +
+∑
+T ∈Th
+τcβ2
+c h−1
+T ‖v‖2
+L2(∂T ),
+with time scale τc and reference velocity βc defined by (2.7).
+Lemma 2.22 (Boundedness). There holds
+∀(v, wh) ∈ V∗h × Vh, acf
+h (v, wh) ≤ Cbnd|||v|||cf,∗|||wh|||cf ,
+with Cbnd independent of h and of the data μ and β.
+Proof. Let (v, wh) ∈ V∗h × Vh. We bound the terms on the right-hand side of (2.24). Using the Cauchy–Schwarz inequality, it is clear that ∫
+Ω
+{
+μvwh + (β·∇hv)wh
+} +
+∫
+∂Ω
+(β·n) vwh ≤ 2|||v|||cf,∗|||wh|||cf .
+
+
+54 Chapter 2. Steady Advection-Reaction
+To bound the last term in (2.24), we first use the Cauchy–Schwarz inequality to infer
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) v {{wh}} ≤
+⎛
+⎝∑
+F ∈F i
+h
+1
+2 τcβ2
+c {{h}}−1‖ v ‖2
+L2 (F )
+⎞
+⎠
+1/2
+×
+⎛
+⎝∑
+F ∈F i
+h
+2τ −1
+c {{h}}‖{{wh}}‖2
+L2 (F )
+⎞
+⎠
+1/2
+,
+where for all F ∈ F i
+h with F = ∂T1 ∩ ∂T2, {{h}} = 1
+2 (hT1 + hT2 ). We also set
+vi = v|Ti and wi = wh|Ti , i ∈ {1, 2}, and observe that 1
+2 v 2 ≤ (v2
+1 + v2
+2) and
+2{{wh}}2 ≤ (w2
+1 + w2
+2). Moreover, owing to Lemma 1.43,
+C−1 max(hT1 , hT2 ) ≤ {{h}} ≤ C min(hT1 , hT2 ),
+where C only depends on mesh regularity. As a result,
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) v {{wh}} ≤ C |||v|||cf,∗
+(∑
+T ∈Th
+τ −1
+c hT ‖wh‖2
+L2(∂T )
+)
+1/2
+,
+To conclude, we use the discrete trace inequality (1.40) to bound the last factor
+on the right-hand side by τ −1/2
+c CtrN 1/2
+∂ ‖wh‖L2(Ω).
+A straightforward consequence of Theorem 1.35 is the following error estimate.
+Theorem 2.23 (Error estimate). Let u solve (2.14) and let uh solve (2.28) where acf
+h is defined by (2.24) and Vh = k
+d(Th) with k ≥ 1 and Th belonging to an admissible mesh sequence. Then, there holds
+|||u − uh|||cf ≤ C inf
+yh ∈Vh
+|||u − yh|||cf,∗, (2.29)
+with C independent of h and depending on the data only through the factor {min(1, τcμ0)}−1.
+To infer a convergence result from (2.29), we assume that the exact solution is smooth enough, take yh = πhu, the L2-orthogonal projection of u onto Vh, in (2.29), and use Lemmata 1.58 and 1.59.
+Corollary 2.24 (Convergence rate for smooth solutions). Besides the hypotheses of Theorem 2.23, assume u ∈ Hk+1(Ω). Then, there holds
+|||u − uh|||cf ≤ Cuhk, (2.30)
+with Cu = C‖u‖Hk+1(Ω) and C independent of h and depending on the data only
+through the factor {min(1, τcμ0)}−1.
+
+
+2.2. Centered Fluxes 55
+Estimate (2.30) yields the convergence of the dG approximation for k ≥ 1. The result is not quasi-optimal, but suboptimal since the L2-norm of the error should converge with order (k + 1) and the boundary contribution with order (k + 1/2) if the exact solution is smooth enough. A sharper estimate is obtained in Sect. 2.3 using upwinding.
+2.2.3 Numerical Fluxes
+At this stage, it is instructive to consider an alternative viewpoint based on numerical fluxes. Because we are working with broken polynomial spaces, the discrete problem (2.28) admits a local formulation obtained by considering an arbitrary mesh element T ∈ Th and an arbitrary polynomial ξ ∈ k
+d(T ). For a set S ⊂ Ω, we denote by χS its characteristic function, namely
+χS(x) =
+{
+1 if x ∈ S,
+0 otherwise.
+Then, using the test function vh = ξχT in the discrete problem (2.28), observing that
+ξχT = T,F ξ with T,F := nT ·nF ,
+and owing to the expression (2.26) for the discrete bilinear form acf
+h , we infer
+∫
+T
+{
+(μ − ∇·β)uhξ − uh(β·∇ξ)
+} +
+∑
+F ∈FT
+T ,F
+∫
+F
+φF (uh)ξ =
+∫
+T
+f ξ, (2.31)
+where the numerical fluxes φF (uh) are given by
+φF (uh) :=
+{
+(β·nF ){{uh}} if F ∈ F i
+h, (β·n)⊕uh if F ∈ F b
+h.
+The numerical fluxes φF (uh) are called centered fluxes because the average value of uh is used on each F ∈ F i
+h. Since these fluxes are single-valued and since for
+all F ∈ F i
+h with F = ∂T1 ∩ ∂T2, T1,F + T2,F = 0, the local formulation (2.31) is conservative in the sense that whatever “flows” out of a mesh element through one of its faces “flows” into the neighboring element through that face. Finally, taking ξ ≡ 1 in (2.31) leads to the usual balance formulation encountered in
+finite volume methods, namely ∫
+T
+(μ − ∇·β)uh +
+∑
+F ∈FT
+T ,F
+∫
+F
+φF (uh) =
+∫
+T
+f.
+Remark 2.25 (Conservative form (2.3)). When working with (2.3), the local
+problems (2.31) can be rewritten as ∫
+T
+{
+μ ̃uhξ − uh(β·∇ξ)
+} +
+∑
+F ∈FT
+T ,F
+∫
+F
+φF (uh)ξ =
+∫
+T
+fξ.
+Observe that the numerical fluxes have not been modified.
+
+
+56 Chapter 2. Steady Advection-Reaction
+Fig. 2.4: Example of stencil of an element T ∈ Th when Th is a matching triangular mesh; the mesh element is highlighted in dark grey, and its three neighbors, which all belong to the stencil, are highlighted in light grey; the other triangles do not belong to the stencil
+A useful concept in practical implementations is that of stencil (cf. Appendix A for further insight).
+Definition 2.26 (Stencil). For a given element T ∈ Th, we define the elementary stencil S(acf
+h ; T ) associated with the bilinear form acf
+h as
+S (acf
+h ; T ) :=
+{
+T ′ ∈ Th | ∃q ∈ k
+d(T ), ∃r ∈ k
+d(T ′), acf
+h (qχT , rχT ′ ) = 0
+}
+,
+where χT and χT ′ denote characteristic functions.
+Owing to the local formulation (2.31), the stencil of a given element T ∈ Th consists of T itself and its neighbors in the sense of faces. For instance, on a matching simplicial mesh, the stencil contains (d + 2) mesh elements; cf. Fig. 2.4 for a two-dimensional illustration.
+2.3 Upwinding
+The goal of this section is to strengthen the stability of the dG bilinear form so as to arrive at quasi-optimal error estimates in the sense of Definition 1.54. This goal is achieved by penalizing in a least-squares sense the interface jumps of the discrete solution. In terms of fluxes, this approach can be interpreted as upwinding. We keep assumptions (2.4) and (2.6) on the data μ and β as well as Assumption 2.13 on the regularity of the exact solution u, but the polynomial degree k is here such that k ≥ 0. For k = 0, the dG method considered in this section coincides with a finite volume approximation with upwinding. The idea of presenting dG methods with upwinding through a suitable penalty of interface jumps has been highlighted recently by Brezzi, Marini, and Süli [60]. Therein, a quasi-optimal error estimate on the norm comprising the L2-error and the jumps is derived. As reflected in Sect. 2.3.2, this analysis
+
+
+2.3. Upwinding 57
+hinges on discrete coercivity to establish stability. To tighten the error estimate further by including an optimal bound on the advective derivative of the error, a discrete inf-sup condition is needed; this condition is established in Sect. 2.3.3 following the ideas of Johnson and Pitkäranta [204].
+2.3.1 Tightened Stability Using Penalties
+We consider the new bilinear form
+aupw
+h (vh, wh) := acf
+h (vh, wh) + sh(vh, wh), (2.32)
+with the stabilization bilinear form
+sh(vh, wh) =
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | vh wh , (2.33)
+where η > 0 is a user-dependent parameter. Specifically, using (2.24),
+aupw
+h (vh, wh) :=
+∫
+Ω
+{
+μvhwh + (β·∇hvh)wh
+} +
+∫
+∂Ω
+(β·n) vhwh (2.34)
+−
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) vh {{wh}} +
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | vh wh ,
+or, equivalently, using (2.26),
+aupw
+h (vh, wh) =
+∫
+Ω
+{
+(μ − ∇·β)vhwh − vh(β·∇hwh)
+} +
+∫
+∂Ω
+(β·n)⊕vhwh (2.35)
++
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ){{vh}} wh +
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | vh wh .
+We observe that the discrete bilinear forms acf
+h and aupw
+h lead to the same stencil (cf. Definition 2.26). The numerical flux associated with the discrete bilinear form aupw
+h depends on the penalty parameter η (cf. Sect. 2.3.4). Choosing η = 1 is particularly interesting since it leads to the usual upwind fluxes in the context of finite volume schemes. More generally, the discrete bilinear form aupw
+h is henceforth referred to as the upwind dG bilinear form. We consider the discrete problem:
+Find uh ∈ Vh s.t. aupw
+h (uh, vh) =
+∫
+Ω
+f vh for all vh ∈ Vh. (2.36)
+We first examine the consistency and discrete coercivity of the upwind dG bilinear form. Recalling definition (2.25) of the |||·|||cf -norm considered for centered fluxes, we now assert coercivity with respect to the following stronger norm, also defined on V∗h:
+|||v|||2
+uw := |||v|||2
+cf +
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | v 2. (2.37)
+
+
+58 Chapter 2. Steady Advection-Reaction
+Lemma 2.27 (Consistency and discrete coercivity). The upwind dG bilinear form aupw
+h defined by (2.32) and (2.33) satisfies the following properties:
+(i) Consistency, namely for the exact solution u ∈ V∗,
+aupw
+h (u, vh) =
+∫
+Ω
+f vh ∀vh ∈ Vh,
+(ii) Coercivity on Vh with respect to the |||·|||uw -norm, namely
+∀vh ∈ Vh, aupw
+h (vh, vh) ≥ Csta|||vh|||2
+uw ,
+with Csta = min(1, τcμ0) as in Lemma 2.18.
+Proof. The consistency of aupw
+h results from the consistency of acf
+h established in Lemma 2.18 and the fact that (β·nF ) u vanishes across interfaces owing
+to (2.23). Furthermore, the coercivity of aupw
+h results from that of acf
+h established
+in Lemma 2.18 and the fact that sh(vh, vh) = ∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | vh 2.
+The discrete coercivity of aupw
+h on Vh implies the well-posedness of the discrete problem (2.36). In the following two subsections, we estimate the approximation error (u − uh), first using coercivity and then a tightened stability property hinging on a discrete inf-sup condition.
+Remark 2.28 (Choice of penalty parameter). Assigning a large value to the penalty parameter η is not appropriate since this choice significantly reduces the accuracy of the discrete solution. This issue has been examined by Burman, Quarteroni, and Stamm [68] where it is shown (on matching simplicial meshes) that the dG solution solving (2.36) converges to the discrete solution produced by the standard continuous Galerkin approach as the penalty parameter tends to infinity. Furthermore, we refer the reader to Burman and Stamm [69] for a study on minimal stabilization for dG approximations of the two-dimensional advection-reaction equation. In particular, on matching triangulations with polynomial degree k ≥ 2, a high-pass filter can be applied to the jumps before penalizing them. One motivation for minimal stabilization is achieving numerical fluxes with a moderate dependency on the penalty parameter.
+2.3.2 Error Estimates Based on Coercivity
+It turns out that the discrete coercivity norm |||·|||uw defined by (2.37) is not strong enough to establish a boundedness result for the upwind dG bilinear form aupw
+h leading to quasi-optimal error estimates (this is why we denote this norm by |||·|||uw ; a stronger norm, denoted by |||·|||uw , is introduced in Sect. 2.3.3). To circumvent this difficulty, one idea consists in establishing boundedness by restricting the functions in the first argument of aupw
+h to those functions in V∗h
+that are L2-orthogonal to the discrete space Vh, that is, to functions of the form v − πhv for v ∈ V∗ (recall that πh denotes the L2-orthogonal projection onto Vh). Functions of the form v − πhv are termed orthogonal subscales.
+
+
+2.3. Upwinding 59
+Definition 2.29 (Boundedness on orthogonal subscales). We say that boundedness on orthogonal subscales holds true for aupw
+h (uniformly in h, μ, and β) if there is Cbnd, independent of h, μ, and β, such that, for all (v, wh) ∈ V∗ × Vh,
+|aupw
+h (v − πhv, wh)| ≤ Cbnd|||v − πhv|||uw ,∗|||wh|||uw , (2.38)
+for a norm |||·|||uw ,∗ defined on V∗h such that, for all v ∈ V∗h, |||v|||uw ≤ |||v|||uw ,∗.
+Lemma 2.30 (Boundedness on orthogonal subscales). Boundedness on orthogonal subscales holds true for the upwind dG bilinear form aupw
+h when defining on V∗h the norm
+|||v|||2
+uw ,∗ = |||v|||2
+uw +
+∑
+T ∈Th
+βc‖v‖2
+L2(∂T ).
+Proof. Let (v, wh) ∈ V∗ × Vh and set y = v − πhv. We consider the expression (2.26) for acf
+h and bound the various terms on the right-hand side. First, it is clear using the Cauchy–Schwarz inequality that ∫
+Ω
+(μ − ∇·β)ywh +
+∫
+∂Ω
+(β·n)⊕ywh ≤ C1|||y|||uw |||wh|||uw ,
+with C1 independent of h, μ, and β. Moreover, letting 〈β〉T denote the mean value of β on each T ∈ Th, we observe, on the one hand, that ‖β − 〈β〉T ‖L∞(T ) ≤ Lβ hT ≤ τ −1
+c hT since β is Lipschitz continuous and, on the other hand, that, for
+all wh ∈ Vh, 〈β〉T ·∇wh ∈ k−1
+d (T ) ⊂ k
+d(T ) so that
+∀T ∈ Th,
+∫
+T
+y〈β〉T ·∇wh = 0.
+Hence, owing to the inverse inequality (1.36), ∫
+Ω
+yβ·∇hwh =
+∑
+T ∈Th
+∫
+T
+yβ·∇wh =
+∑
+T ∈Th
+∫
+T
+y(β − 〈β〉T )·∇wh
+≤
+∑
+T ∈Th
+‖y‖L2(T )τ −1
+c hT ‖∇wh‖[L2(T )]d
+≤
+∑
+T ∈Th
+‖y‖L2(T )τ −1
+c Cinv‖wh‖L2(T )
+≤ Cinv|||y|||uw |||wh|||uw .
+In addition, the Cauchy–Schwarz inequality yields
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ){{y}} wh ≤
+⎛
+⎝∑
+F ∈F i
+h
+∫
+F
+2η−1|β·nF |{{y}}2
+⎞
+⎠
+1/2
+|||wh|||uw
+≤
+(
+η−1 ∑
+T ∈Th
+βc‖y‖2
+L2 (∂T )
+)1/2
+|||wh|||uw .
+
+
+60 Chapter 2. Steady Advection-Reaction
+Collecting the above bounds yields
+acf
+h (y, wh) ≤ C2|||y|||uw ,∗|||wh|||uw ,
+with C2 independent of h, μ, and β. Finally, observing that
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | y wh ≤ |||y|||uw |||wh|||uw ,
+the desired bound is obtained.
+We can now state the main result of this section.
+Theorem 2.31 (Error estimate). Let u solve (2.14) and let uh solve (2.36)
+where aupw
+h is defined by (2.34) and Vh = k
+d(Th) with k ≥ 0 and Th belonging to an admissible mesh sequence. Then, there holds
+|||u − uh|||uw ≤ C|||u − πhu|||uw ,∗, (2.39)
+with C independent of h and depending on the data only through the factor {min(1, τcμ0)}−1.
+Proof. The proof is similar to that of Theorem 1.35. Assume first that πhu = uh. Then, owing to discrete coercivity and consistency (cf. Lemma 2.27), we infer
+|||uh−πhu|||uw ≤ C−1
+sta
+aupw
+h (uh − πhu, uh − πhu) |||uh − πhu|||uw
+= C−1
+sta
+aupw
+h (u − πhu, uh − πhu) |||uh − πhu|||uw
+,
+recalling that Csta = min(1, τcμ0). Hence, using boundedness on orthogonal subscales,
+|||uh − πhu|||uw ≤ C−1
+sta Cbnd|||u − πhu|||uw ,∗,
+and this inequality holds true also if πhu = uh. Estimate (2.39) then results from the triangle inequality and the fact that |||u − πhu|||uw ≤ |||u − πhu|||uw ,∗.
+To infer a convergence result from (2.39), we assume that the exact solution is smooth enough and use Lemmata 1.58 and 1.59.
+Corollary 2.32 (Convergence rate for smooth solutions). Besides the hypotheses of Theorem 2.31, assume u ∈ Hk+1(Ω). Then, there holds
+|||u − uh|||uw ≤ Cuhk+1/2, (2.40)
+with Cu = C‖u‖Hk+1(Ω) and C independent of h and depending on the data only
+through the factor {min(1, τcμ0)}−1.
+Estimate (2.40) yields the convergence of the dG approximation for any polynomial degree k ≥ 0. The result is quasi-optimal for the boundary and jump terms that dominate the stability norm |||·|||uw , but suboptimal by a factor h1/2 for the L2-norm. The L2-norm error estimate turns out to be sharp, as confirmed by
+
+
+2.3. Upwinding 61
+Peterson [258] on specific meshes. However, one drawback of the present error estimate is that it does not convey information on the behavior of first-order derivatives, and more specifically on the advective derivative. This shortcoming is remedied in the next subsection upon strengthening the discrete stability result.
+Remark 2.33 (On the error estimate). The error estimate in Theorem 2.31 is less sharp than that derived in Theorem 1.35 since the infimum on the right-hand side is replaced by the projection error u− πhu. However, this bound is sufficient to infer quasi-optimal convergence rates for smooth solutions (cf. Corollary 2.32).
+2.3.3 Error Estimates Based on Inf-Sup Stability
+The convergence analysis is now performed in the spirit of Theorem 1.35. Consistency has already been established, and it remains to address discrete stability and boundedness. We augment the |||·|||uw -norm defined by (2.37) by adding a scaled advective derivative and define the stronger norm
+|||v|||2
+uw := |||v|||2
+uw +
+∑
+T ∈Th
+β−1
+c hT ‖β·∇v‖2
+L2(T ).
+We are now in a position to state the main stability result regarding dG methods with upwinding. The proof, which elaborates on the ideas of Johnson and Pitkäranta [204] using locally the scaled advective derivative as a test function, follows the recent presentation by Ern and Guermond [142]. To simplify the arguments while keeping track of the dependency of the estimates on μ and β, we assume that h ≤ βcτc. (2.41)
+Remark 2.34 (Meaning of assumption (2.41)). Recalling (2.7), (2.41) yields
+max(h‖μ‖L∞ (Ω) ‖β ‖−1
+[L∞(Ω)]d , hLβ ‖β‖−1
+[L∞(Ω)]d ) ≤ 1.
+The quantity h‖μ‖L∞(Ω)‖β‖−1
+[L∞(Ω)]d is termed the local Damköhler number (the term local indicates here the use of the meshsize as reference length), and assuming that this quantity is bounded (e.g., by 1) means that we are not concerned with dominant reactions, but instead with tempered or mild reactions. Furthermore, assuming that hLβ‖β‖−1
+[L∞(Ω)]d ≤ 1 means that the meshsize resolves the spatial variations of the advective velocity.
+Lemma 2.35 (Discrete inf-sup condition). There is C′
+sta > 0, independent of h, μ, and β, such that
+∀vh ∈ Vh, C′
+staCsta|||vh|||uw ≤ sup
+wh∈Vh\{0}
+aupw
+h (vh, wh) |||wh|||uw
+,
+with Csta = min(1, τcμ0) as in Lemma 2.27.
+
+
+62 Chapter 2. Steady Advection-Reaction
+Proof. Let vh ∈ Vh \ {0} and set = supwh∈Vh\{0}
+aupw
+h (vh,wh)
+|||wh|||uw . Lemma 2.27 implies that
+Csta|||vh|||2
+uw ≤ aupw
+h (vh, vh) = aupw
+h (vh, vh) |||vh|||uw
+|||vh|||uw ≤ |||vh|||uw . (2.42)
+It remains to bound the contribution of the advective derivative in the expression for |||vh|||uw . To this purpose, we consider the function wh ∈ Vh such that, for all T ∈ Th, wh|T = β−1
+c hT 〈β〉T ·∇vh, where we recall that 〈β〉T denotes the mean value of β over T . To alleviate the notation, we abbreviate as a b the inequality a ≤ Cb with positive C independent of h, μ, and β. The dependency on the penalty parameter η is not tracked since in practice this parameter can be taken equal to one. (i) Let us bound |||wh|||uw by |||vh|||uw . We first observe that
+∑
+T ∈Th
+βch−1
+T ‖wh‖2
+L2(T ) |||vh|||2
+uw . (2.43)
+Indeed, using the triangle inequality, the regularity of β, and the inverse inequality (1.36), we obtain ∑
+T ∈Th
+βch−1
+T ‖wh‖2
+L2(T ) =
+∑
+T ∈Th
+β−1
+c hT ‖〈β〉T ·∇vh‖2
+L2(T )
+≤2
+∑
+T ∈Th
+β−1
+c
+(
+hT ‖β·∇vh‖2
+L2(T )+hT ‖(β−〈β〉T )·∇vh‖2
+L2(T )
+)
+∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T ) +
+∑
+T ∈Th
+τ −2
+c β−1
+c hT ‖vh‖2
+L2(T )
+≤
+∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T )+
+∑
+T ∈Th
+τ −1
+c ‖vh‖2
+L2(T ) ≤ |||vh|||2
+uw ,
+where we have used (2.41) to simplify the last term. A first consequence of (2.43) is that using the discrete trace inequality (1.37), we infer ∫
+∂Ω
+1
+2 |β·n|w2
+h+
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | wh 2 ∑
+T ∈Th
+βch−1
+T ‖wh‖2
+L2(T ) |||vh|||2
+uw .
+Moreover, the inverse inequality (1.36) yields ‖wh‖L2(Ω) ‖vh‖L2(Ω) and
+∑
+T ∈Th
+β−1
+c hT ‖β·∇wh‖2
+L2(T )
+∑
+T ∈Th
+βch−1
+T ‖wh‖2
+L2(T ) |||vh|||2
+uw .
+Collecting these bounds, we infer
+|||wh|||uw |||vh|||uw . (2.44)
+
+
+2.3. Upwinding 63
+(ii) Now, using the definition (2.32) and (2.33) of aupw
+h and the expression (2.24)
+of acf
+h , we obtain
+∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T ) = aupw
+h (vh, wh) −
+∫
+Ω
+μvhwh
++
+∑
+T ∈Th
+β−1
+c hT
+∫
+T
+(β·∇vh)(β − 〈β〉T )·∇vh
+−
+∫
+∂Ω
+(β·n) vhwh +
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) vh {{wh}}
+−
+∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | vh wh = T1 + . . . + T6,
+and we estimate the terms T1, . . . , T6 on the right-hand side. Owing to (2.44),
+|T1| = |aupw
+h (vh, wh)| = |aupw
+h (vh, wh)| |||wh|||uw
+|||wh|||uw ≤ |||wh|||uw |||vh|||uw .
+Moreover, using the Cauchy–Schwarz inequality and the definition of the |||·|||uw norm yields
+|T2| + |T4| + |T6| |||vh|||uw |||wh|||uw |||vh|||uw |||vh|||uw .
+Using again the Cauchy–Schwarz inequality, together with the discrete trace inequality (1.37), leads to
+|T5| ≤
+⎛
+⎝∑
+F ∈F i
+h
+∫
+F
+η
+2 |β·nF | vh
+2
+⎞
+⎠
+1/2 ⎛
+⎝∑
+F ∈F i
+h
+∫
+F
+2
+η |β·nF |{{wh}}2
+⎞
+⎠
+1/2
+|||vh|||uw
+(∑
+T ∈Th
+βch−1
+T ‖wh‖2
+L2(T )
+)1/2
+,
+so that, owing to (2.43),
+|T5| |||vh|||uw |||vh|||uw .
+Finally, to bound T3, we use the Cauchy–Schwarz inequality, the inverse inequality (1.36), and assumption (2.41) to obtain
+|T3|
+(∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T )
+)1/2 ( ∑
+T ∈Th
+β−1
+c hT τ −2
+c ‖vh‖2
+L2(T )
+)1/2
+(∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T )
+)1/2
+|||vh|||uw .
+
+
+64 Chapter 2. Steady Advection-Reaction
+Using Young’s inequality in the form ab ≤ γa2 + (4γ)−1b2 where γ > 0 can be chosen as small as desired, we infer
+|T3| − 1
+2
+∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T ) |||vh|||2
+uw .
+Collecting the above bounds leads to ∑
+T ∈Th
+β−1
+c hT ‖β·∇vh‖2
+L2(T ) |||vh|||uw + |||vh|||uw |||vh|||uw + |||vh|||2
+uw .
+(iii) Combining the above result with (2.42) and since Csta ≤ 1 yields
+Csta|||vh|||2
+uw |||vh|||uw + Csta|||vh|||uw |||vh|||uw .
+Using Young’s inequality for the last term together with (2.42) yields
+Csta|||vh|||2
+uw |||vh|||uw + Csta|||vh|||2
+uw |||vh|||uw ,
+whence the assertion.
+To formulate a boundedness result, we define the following norm:
+|||v|||2
+uw ,∗ := |||v|||2
+uw +
+∑
+T ∈Th
+βc
+(
+h−1
+T ‖v‖2
+L2(T ) + ‖v‖2
+L2(∂T )
+) .
+Lemma 2.36 (Boundedness). There holds
+∀(v, wh) ∈ V∗h × Vh, |aupw
+h (v, wh)| ≤ Cbnd|||v|||uw ,∗|||wh|||uw ,
+with Cbnd independent of h, μ, and β.
+Proof. We proceed as in the proof of Lemma 2.30. The only difference lies in bounding the contribution of the advective derivative. Here, using the Cauchy– Schwarz inequality, we infer
+∫
+Ω v(β·∇hwh) ≤ |||v|||uw ,∗|||wh|||uw .
+A straightforward consequence of Theorem 1.35 is the following error estimate.
+Theorem 2.37 (Error estimate). Let u solve (2.14) and let uh solve (2.36)
+where aupw
+h is defined by (2.34) and Vh = k
+d(Th) with k ≥ 0 and Th belonging to an admissible mesh sequence. Then, there holds
+|||u − uh|||uw ≤ C inf
+yh ∈Vh
+|||u − yh|||uw ,∗, (2.45)
+with C independent of h and depending on the data only through the factor {min(1, τcμ0)}−1.
+To infer a convergence result from (2.45), we assume, as in Sect. 2.3.2, that the exact solution is smooth enough and use Lemmata 1.58 and 1.59.
+
+
+2.3. Upwinding 65
+Corollary 2.38 (Convergence rate for smooth solutions). Besides the hypotheses of Theorem 2.37, assume that u ∈ Hk+1(Ω). Then, there holds
+|||u − uh|||uw ≤ Cuhk+1/2, (2.46)
+with Cu = C‖u‖Hk+1(Ω) and C independent of h and depending on the data only
+through the factor {min(1, τcμ0)}−1.
+Estimate (2.46) improves (2.40) since it provides an optimal convergence estimate for the scaled advective derivative.
+2.3.4 Numerical Fluxes
+To conclude this section, we examine how the additional penalty term on the interface jumps modifies the numerical fluxes. Proceeding as in Sect. 2.2.3, we obtain the following local formulation: For all T ∈ Th and all ξ ∈ k
+d(T ), ∫
+T
+{
+(μ − ∇·β)uhξ − uh(β·∇ξ)
+} +
+∑
+F ∈FT
+T ,F
+∫
+F
+φF (uh)ξ =
+∫
+T
+f ξ, (2.47)
+where the numerical fluxes now take the form
+φF (uh) =
+{
+β·nF {{uh}} + 1
+2 η|β·nF | uh if F ∈ F i
+h, (β·n)⊕uh if F ∈ F b
+h.
+The choice η = 1 leads to the so-called upwind fluxes
+φF (uh) =
+{
+β·nF u↑
+h if F ∈ F i
+h, (β·n)⊕uh if F ∈ F b
+h,
+where u↑
+h = uh|T1 if β·nF > 0 and u↑
+h = uh|T2 otherwise (recall that F = ∂T1 ∩ ∂T2 and that nF points from T1 toward T2). The upwind fluxes can also be written as
+φF (uh) =
+{
+(β·nF )⊕uh|T1 − (β·nF ) uh|T2 if F ∈ F i
+h, (β·n)⊕uh if F ∈ F b
+h.
+Remark 2.39 (Nonhomogeneous boundary condition). When working with the nonhomogeneous boundary condition u = g on ∂Ω− (cf. Sect. 2.1.6), the local formulation can still be written in the form (2.47), and the boundary datum g incorporated in the numerical flux. This yields
+φF (uh) =
+{
+(β·nF )⊕uh|T1 − (β·nF ) uh|T2 if F ∈ F i
+h, (β·n)⊕uh − (β·nF ) g if F ∈ F b
+h.
+
+
+Chapter 3
+Unsteady First-Order PDEs
+This chapter is devoted to the approximation of unsteady, scalar, first-order PDEs. We focus on the so-called method of lines in which the evolution problem is first semidiscretized in space yielding a system of coupled ordinary differential equations (ODEs) which is then discretized in time. Specifically, we consider space semidiscretization by a dG method together with an explicit Runge–Kutta (RK) scheme for time discretization. Space-time dG methods provide an alternative to the method of lines. Such methods are not covered herein, and we refer the reader to the textbook by Thomée [294]. In Sect. 3.1, we consider linear PDEs and examine the unsteady version of the advection-reaction equation studied in Chap. 2. Namely, for a given finite time tF > 0, we consider the time evolution problem:
+∂tu + β·∇u + μu = f in Ω × (0, tF), (3.1a)
+u = 0 on ∂Ω− × (0, tF), (3.1b)
+u(·, t = 0) = u0 in Ω, (3.1c)
+with advective velocity β, reaction coefficient μ, source term f , and initial datum u0. We recall that ∂Ω− := {x ∈ ∂Ω | β(x)·n(x) < 0} denotes the inflow part of the boundary ∂Ω. Space semidiscretization is achieved using the upwind dG method introduced in Sect. 2.3 for the steady case. Then, we analyze some explicit RK schemes for time discretization. We consider the forward Euler method combined with a finite volume scheme in space as an example of loworder approximation and then explicit two- and three-stage RK schemes combined with a dG scheme with polynomial degree k ≥ 1 in space as examples of higher-order approximations. In all cases, we derive quasi-optimal error estimates for smooth solutions in the natural energy norm comprising the L2-norm and the jumps. These results are achieved under Courant–Friedrichs–Lewy (CFL) conditions restricting the size of the time step in terms of the advective velocity and the meshsize. Two points in the analysis deserve comments. First, as pointed out in the seminal work of Levy and Tadmor [231], the classical
+D.A. Di Pietro and A. Ern, Mathematical Aspects of Discontinuous Galerkin
+Methods, Mathématiques et Applications 69, DOI 10.1007/978-3-642-22980-0_3, ©c Springer-Verlag Berlin Heidelberg 2012
+67
+
+
+68 Chapter 3. Unsteady First-Order PDEs
+stability analysis hinging on the eigenvalues of the space semidiscrete linear operator and absolute stability regions for the RK schemes can be misleading in the case of nonnormal operators such as semidiscrete first-order PDEs. Following the recent work by Burman, Ern, and Fernández [66], our stability analysis instead hinges on energy (that is, L2-norm) estimates in physical space. The main idea is that the energy production resulting from the explicit nature of the RK scheme can be compensated under a CFL condition by the dissipativity of the dG scheme. Second, as in the steady case, the boundedness of the space semidiscrete operator is needed to derive quasi-optimal error estimates (and not only stability estimates). In Sect. 3.2, we consider nonlinear conservation laws of the form
+∂tu + ∇· (u) = 0.
+The unknown u is a scalar-valued function and the flux function is d-valued. In the linear case where f (u) = βu for some d-valued field β, we recover the unsteady advection-reaction equation (3.1a) with μ = ∇·β and zero source term. Nonlinear conservation laws, and hyperbolic systems of nonlinear conservation laws, are of interest in many contexts, ranging from compressible fluid dynamics to gas dynamics and trafic modeling. For the mathematical theory of nonlinear conservation laws (and systems thereof), we refer the reader to the textbooks by Godlewski and Raviart [172], LeFloch [225], and LeVeque [230]. The application of dG methods to such problems has been propelled by the pioneering works of Cockburn, Shu, and coworkers [99, 108, 110, 111, 113]. Taking inspiration from finite volume schemes and the local formulation of dG methods using numerical fluxes, the dG method for space semidiscretization is formulated using suitably designed numerical fluxes. Classical examples, discussed in the textbooks by LeVeque [230] and Toro [295], include Godunov, Rusanov, Lax–Friedrichs, and Roe fluxes. Then, an explicit RK scheme can be used for time discretization. In particular, we consider Strong Stability-Preserving (SSP) RK schemes following the ideas of Gottlieb, Shu, and Tadmor [175, 176]; see also Spiteri and Ruuth [281]. Finally, we discuss the use of limiters, i.e., devices which help preventing the appearance of spurious oscillations when approximating rough solutions. Although dG discretizations of hyperbolic conservation laws have been used for over two decades, their theoretical analysis is far from being accomplished. Part of the material in Sect. 3.2 is based on heuristics, and only in some cases a rigorous mathematical justification is available (often in space dimension d = 1 only).
+3.1 Unsteady Advection-Reaction
+The goal of this section is to analyze an approximation of the linear time evolution problem (3.1) using the upwind dG method for space semidiscretization together with an explicit RK scheme for time discretization. Most of the results presented in this section are drawn from [66].
+
+
+3.1. Unsteady Advection-Reaction 69
+3.1.1 The Continuous Setting
+Herein, we introduce some basic notation for space-time functions, specify the assumptions on the data and on the regularity of the exact solution, and present an energy estimate for the latter.
+3.1.1.1 Notation for Space-Time Functions
+Let ψ be a function defined on the space-time cylinder Ω × (0, tF). Then, it is convenient to consider ψ as a function of the time variable with values in a Hilbert space, say V , spanned by functions of the space variable, in such a way that
+ψ : (0, tF) t −→ ψ(t) ≡ ψ(·, t) ∈ V.
+In what follows, for an integer l ≥ 0, we consider the space
+Cl(V ) := Cl([0, tF]; V )
+spanned by V -valued functions that are l times continuously differentiable in the interval [0, tF]. For ψ ∈ Cl(V ), we denote by dm
+t ψ, m ∈ {0, . . . , l}, the
+time derivative of ψ of order m with the convention that d0
+t ψ = ψ; clearly
+dm
+t ψ ∈ Cl−m(V ). The space C0(V ) is a Banach space when equipped with the norm
+‖ψ‖C0(V ) := max
+t∈[0,tF] ‖ψ(t)‖V ,
+and the space Cl(V ) is a Banach space when equipped with the norm
+‖ψ‖Cl(V ) := max
+0≤m≤l ‖dm
+t ψ‖C0(V ).
+3.1.1.2 Assumptions on the Data and the Exact Solution
+We consider the time evolution problem (3.1) with source term
+f ∈ C0(L2(Ω)).
+We assume for simplicity that the data μ and β are time-independent and that they satisfy the regularity assumption (2.4), namely
+μ ∈ L∞(Ω), β ∈ [Lip(Ω)]d.
+However, we no longer assume (2.6) so that
+Λ=μ− 1
+2 ∇·β ∈ L∞(Ω)
+does not necessarily take positive values. As in the steady case, we consider the reference time τc and the reference velocity βc such that (cf. (2.7))
+τc = {max(‖μ‖L∞(Ω), Lβ )}−1, βc = ‖β‖[L∞(Ω)]d ,
+
+
+70 Chapter 3. Unsteady First-Order PDEs
+where Lβ is the Lipschitz module of β (cf. (2.5)). In the absence of assumption (2.6) providing a uniform positive lower bound on Λ = μ − 1
+2 ∇·β, it is possi
+ble that ‖μ‖L∞(Ω) = Lβ = 0 (this corresponds to the case of constant advective velocity and no reaction), yielding τc = ∞. We introduce an additional time scale
+τ∗ := min(tF, τc),
+which is always finite. Moreover, in what follows, we use the quantity τc with the convention that expressions involving τ −1
+c are evaluated as zero if τc = ∞. An important point is that we focus on smooth solutions, that is, we assume
+u ∈ C0(H1(Ω)) ∩ C1(L2(Ω)). (3.2)
+If such a solution exists, it is unique; this is a straightforward consequence of the energy estimate derived below in Lemma 3.2. The regularity assumption (3.2) implies that the PDE (3.1a) and the boundary condition (3.1b) hold up to the initial time t = 0. Assumption (3.2) also implies that u0 ∈ H1(Ω) with u0|∂Ω− = 0; the initial datum is said to be well-prepared. Introducing the bounded operator A ∈ L(H1(Ω), L2(Ω)) such that for all v ∈ H1(Ω), Av := μv + β·∇v, the PDE (3.1a) can be rewritten as
+dtu(t) + Au(t) = f (t) ∀t ∈ [0, tF]. (3.3)
+More general mathematical settings for the unsteady advection equation allowing for rough solutions have been investigated, e.g., by Ambrosio [10], Boyer [48], and Crippa [117].
+Remark 3.1 (Using H1(Ω) instead of the graph space). At the continuous level, it is also possible to assume for the exact solution that u ∈ C0(V ) instead of u ∈ C0(H1(Ω)), where V is the graph space introduced for the steady advectionreaction equation and defined by (2.8).
+3.1.1.3 Energy Estimate on the Exact Solution
+At any time t ∈ [0, tF], we define the energy of the exact solution as the quantity ‖u(t)‖2
+L2(Ω). We now establish a basic energy estimate on the exact solution under the regularity assumption (3.2).
+Lemma 3.2 (Energy estimate). Let u ∈ C0(H1(Ω)) ∩ C1(L2(Ω)) solve (3.1). Then, introducing the time scale ς := (t−1
+F + 2‖Λ‖L∞(Ω))−1, there holds
+‖u(t)‖2
+L2(Ω) ≤ et/ς (‖u0‖2
+L2(Ω) + ςtF‖f ‖2
+C0(L2(Ω))) ∀t ∈ [0, tF]. (3.4)
+Proof. For all t ∈ [0, tF], we take the L2-scalar product of (3.3) with u(t) yielding
+1
+2 dt‖u(t)‖2
+L2(Ω) + (Au(t), u(t))L2 (Ω) = (f (t), u(t))L2 (Ω).
+
+
+3.1. Unsteady Advection-Reaction 71
+Integrating by parts and accounting for the boundary condition (3.1b) yields
+(Au(t), u(t))L2 (Ω) =
+∫
+Ω
+(
+μ− 1
+2 ∇·β
+)
+u(t)2 +
+∫
+∂Ω+
+1
+2 (β·n)u(t)2
+=
+∫
+Ω
+Λu(t)2 +
+∫
+∂Ω+
+1
+2 (β·n)u(t)2 ≥
+∫
+Ω
+Λu(t)2,
+where ∂Ω+ := {x ∈ ∂Ω | β(x)·n(x) > 0} denotes the outflow part of the boundary. Hence,
+1
+2 dt‖u(t)‖2
+L2(Ω) = (f (t), u(t))L2 (Ω) − (Au(t), u(t))L2 (Ω)
+≤ (f (t), u(t))L2 (Ω) + ‖Λ‖L∞(Ω)‖u(t)‖2
+L2(Ω). (3.5)
+Using the Cauchy–Schwarz followed by Young’s inequality for the first term on the right-hand side leads to
+1
+2 dt‖u(t)‖2
+L2(Ω) ≤ ‖f (t)‖L2(Ω)‖u(t)‖L2(Ω) + ‖Λ‖L∞(Ω)‖u(t)‖2
+L2 (Ω)
+≤ tF
+2 ‖f (t)‖2
+L2(Ω) + 1
+2tF
+‖u(t)‖2
+L2(Ω) + ‖Λ‖L∞(Ω)‖u(t)‖2
+L2 (Ω)
+= tF
+2 ‖f (t)‖2
+L2(Ω) + 1
+2ς ‖u(t)‖2
+L2(Ω). (3.6)
+Setting φ(t) = ‖u(t)‖2
+L2(Ω) and α = tF‖f ‖2
+C0(L2(Ω)), we obtain
+dtφ(t) ≤ α + ς−1φ(t).
+Hence, dt(e−t/ς φ(t)) = e−t/ς (dtφ(t) − ς−1φ(t)) ≤ e−t/ς α, so that integrating in time, we arrive at
+φ(t) ≤ et/ς φ(0) + α
+∫t
+0
+e(t−s)/ς ds ≤ et/ς (φ(0) + ςα),
+whence the assertion follows.
+Remark 3.3 (Gronwall’s Lemma and long-time behavior). The argument by which a bound on ‖u(t)‖2
+L2(Ω) is inferred from an estimate of the form (3.6) is often referred to as Gronwall’s Lemma. This approach is not suitable for longtime stability estimates (that is, for tF ‖Λ‖−1
+L∞(Ω)) because it leads to the
+exponential factor et/ς in (3.4) which becomes extremely large in this situation. When interested in the long-time behavior of the solution, an assumption on Λ is needed to obtain sharper energy estimates, for instance assumption (2.6) (i.e., Λ ≥ μ0 > 0 a.e. in Ω) as in the steady case. Then, (3.5) can be replaced by
+1
+2 dt‖u(t)‖2
+L2(Ω) + μ0‖u(t)‖2
+L2(Ω) ≤ (f (t), u(t))L2 (Ω).
+
+
+72 Chapter 3. Unsteady First-Order PDEs
+Using the Cauchy–Schwarz inequality followed by Young’s inequality on the right-hand side leads to
+1
+2 dt‖u(t)‖2
+L2(Ω) ≤ 1
+4μ0
+‖f (t)‖2
+L2 (Ω) ,
+whence we infer a (much) sharper energy estimate than (3.4).
+3.1.2 Space Semidiscretization
+Space semidiscretization is achieved by means of the upwind dG method introduced in Sect. 2.3 in the context of the steady advection-reaction equation. Thus, the discrete space Vh is taken to be the broken polynomial space k
+d(Th) defined by (1.15) with polynomial degree k ≥ 0 and Th belonging to an admissible mesh sequence. We consider quasi-uniform mesh sequences, meaning that there is C such that, for all h ∈ H,
+max
+T ∈Th
+hT ≤ C min
+T ∈Th
+hT .
+It is possible to relax this assumption; cf. Remark 3.6 below for further discussion. As in the steady case (cf. Sect. 2.3.3), we also make the mild assumption that
+h ≤ βcτ∗,
+recalling that the assumption h ≤ βcτc means that the local Damköhler number is not too large (thereby avoiding strong reaction regimes) and that the meshsize resolves the spatial variations of the advective velocity, while the assumption h ≤ βctF means that a particle advected at speed βc crosses at least one mesh element over the time interval (0, tF). Instead of working with discrete bilinear forms, we consider discrete (differential) operators to allow for a more compact notation. In what follows, we often manipulate functions of the form (u(t) − vh) where t ∈ [0, tF] and vh ∈ Vh. Recalling that u ∈ C0(H1(Ω)) owing to assumption (3.2), the function (u(t)−vh) belongs to the space
+V∗h := H1(Ω) + Vh.
+We define the discrete operator Aupw
+h : V∗h → Vh such that for all (v, wh) ∈ V∗h × Vh,
+(Aupw
+h v, wh)L2(Ω) =
+∫
+Ω
+μvwh +
+∫
+Ω
+(β·∇hv)wh +
+∫
+∂Ω
+(β·n) vwh (3.7)
+−
+∑
+F ∈F i
+h
+∫
+F
+(β·nF ) v {{wh}} +
+∑
+F ∈F i
+h
+∫
+F
+1
+2 |β·nF | v wh .
+In terms of the discrete bilinear forms considered in Chap. 2, this yields
+(Aupw
+h v, wh)L2(Ω) = aupw
+h (v, wh) = acf
+h (v, wh) + sh(v, wh),
+where aupw
+h is the upwind dG bilinear form (cf. (2.34)), acf
+h the dG bilinear form associated with centered fluxes (cf. (2.24)), and sh the stabilization bilinear form
+
+
+3.1. Unsteady Advection-Reaction 73
+defined by (2.33). The penalty parameter η in the stabilization bilinear form sh has been set to 1 for simplicity. The discrete operator Aupw
+h can be used to formulate the space semidiscrete problem in the form (compare with (3.3))
+dtuh(t) + Aupw
+h uh(t) = fh(t) ∀t ∈ [0, tF], (3.8)
+with initial condition uh(0) = πhu0 and source term
+fh(t) = πhf (t) ∀t ∈ [0, tF],
+where πh denotes the L2-orthogonal projection onto Vh. Choosing a basis for Vh, the space semidiscrete evolution problem (3.8) can be transformed into a system of coupled ODEs for the time-dependent components of uh(t) on the selected basis. Written in component form, (3.8) leads to the appearance of the block-diagonal mass matrix on its left-hand side; cf. Sect. A.1.2. Two important properties of the discrete operator Aupw
+h are consistency and discrete dissipation. These two properties are the counterpart of the consistency and discrete coercivity established in the steady case for the discrete bilinear form aupw
+h (cf. Lemma 2.27).
+Lemma 3.4 (Consistency and discrete dissipation for Aupw
+h ). The discrete oper
+ator Aupw
+h satisfies the following properties:
+(i) Consistency: For the exact solution u ∈ C0(H1(Ω)) ∩ C1(L2(Ω)),
+πhdtu(t) + Aupw
+h u(t) = fh(t) ∀t ∈ [0, tF]. (3.9)
+(ii) Discrete dissipation: For all vh ∈ Vh,
+(Aupw
+h vh, vh)L2(Ω) = |vh|2
+β + (Λvh, vh)L2(Ω), (3.10)
+where we have defined on V∗h the seminorm
+|v|2
+β :=
+∫
+∂Ω
+1
+2 |β·n|v2 +
+∑
+F ∈F i
+h
+∫
+F
+1
+2 |β·nF | v 2. (3.11)
+Proof. (i) Let wh ∈ Vh. Taking the L2-scalar product of (3.3) with wh implies for all t ∈ [0, tF],
+(dtu(t), wh)L2(Ω) + (Au(t), wh)L2(Ω) = (f (t), wh)L2(Ω).
+Since u ∈ C0(H1(Ω)) and accounting for the boundary condition u(t)|∂Ω− = 0 and the fact that u(t) = 0 for all F ∈ F i
+h, the expression (3.7) yields
+(Aupw
+h u(t), wh)L2(Ω) =
+∫
+Ω
+(μu(t) + β·∇u(t), wh)L2(Ω) = (Au(t), wh)L2(Ω).
+
+
+74 Chapter 3. Unsteady First-Order PDEs
+Moreover, owing to the definition of πh, (f (t), wh)L2(Ω) = (πhf (t), wh)L2(Ω) and similarly for dtu(t). Hence,
+(πhdtu(t), wh)L2(Ω) + (Aupw
+h u(t), wh)L2(Ω) = (fh(t), wh)L2(Ω),
+thereby proving (3.9). (ii) To prove (3.10), we observe that, for all vh ∈ Vh, integrating by parts on each mesh element the advective derivative yields, similarly to the steady case,
+(Aupw
+h vh, vh)L2(Ω) =
+∫
+Ω
+(
+μ− 1
+2 ∇·β
+)
+v2
+h+
+∫
+∂Ω
+1
+2 (β·n)v2
+h+
+∫
+∂Ω
+(β·n) v2
+h
++
+∑
+F ∈F i
+h
+∫
+F
+1
+2 |β·nF | vh
+2
+=
+∫
+Ω
+Λv2
+h+
+∫
+∂Ω
+1
+2 |β·n|v2
+h+
+∑
+F ∈F i
+h
+∫
+F
+1
+2 |β·nF | vh 2,
+and the assertion follows from the definition of the |·|β-seminorm.
+Remark 3.5 (Discrete dissipation). We slightly abuse the terminology when referring to (3.10) as discrete dissipation since the term (Λvh, vh)L2(Ω) has no a priori sign. The important point, however, is that the term |vh|2
+β is nonnegative. This latter term plays a crucial role in the stability analysis of explicit RK schemes.
+3.1.3 Time Discretization
+Let δt be the time step, taken to be constant for simplicity and such that tF = N δt where N is an integer. For n ∈ {0, . . . , N }, we define the discrete times tn := nδt. A superscript n indicates the value of a function at the discrete time nδt, so that, e.g., un = u(tn) and f n = f (tn). We make the mild assumption that
+δt ≤ τ∗,
+and observe that the inequality δt ≤ tF is trivial, while the inequality δt ≤ τc means that the time step resolves the reference time τc. The simplest scheme to discretize in time is the forward (also called explicit ) Euler scheme which takes the form
+un+1
+h = un
+h − δtAupw
+h un
+h + δtf n
+h , (3.12)
+with the initial condition u0
+h = πhu0. The forward Euler scheme can be derived by replacing the time derivative by a forward finite difference in (3.8); indeed, (3.12) can be equivalently rewritten as
+un+1
+h − un
+h
+δt + Aupw
+h un
+h = fn
+h.
+To improve the accuracy of time discretization, one possibility is to consider explicit Runge–Kutta (RK) schemes. Such schemes are one-step methods where,
+
+
+3.1. Unsteady Advection-Reaction 75
+at each time step, starting from un
+h, s stages, s ≥ 1, are performed to compute
+un+1
+h . Explicit RK schemes can be formulated in various forms. Herein, we consider two approaches. The first one takes the form
+ki = −Aupw
+h
+⎛
+⎝un
+h + δt
+∑s
+j=1
+aij kj
+⎞
+⎠ + fh(tn + ciδt) ∀i ∈ {1, . . . , s},
+(3.13a)
+un+1
+h = un
+h + δt
+∑s
+i=1
+biki. (3.13b)
+Here, (aij)1≤i,j≤s are real numbers, (bi)1≤i≤s are real numbers such that
+∑s
+i=1 bi = 1, and (ci)1≤i≤s are real numbers in [0, 1] such that ci = ∑s
+j=1 aij
+for all i ∈ {1, . . . , s}. These quantities are usually collected in the so-called Butcher’s array ⎡
+⎢⎢⎢⎣
+c1 a11 . . . a1s
+... ... ...
+cs as1 . . . ass b1 . . . bs
+⎤
+⎥⎥⎥⎦ .
+The scheme is explicit whenever aij = 0 for all j ≥ i. We observe that explicit schemes still require the inversion of the mass matrix at each of the s stages (3.13a). In the context of dG methods, mass matrices are blockdiagonal and with a suitable choice of basis functions can be made diagonal; cf. Sects. A.1.2 and A.2. The forward Euler scheme is actually a one-stage RK method for which
+[
+00 1
+]{
+k1 = −Aupw
+h un
+h + fn
+h un+1
+h = un
+h + δtk1
+Two examples of two-stage RK schemes are, on the one hand, the two-stage Runge scheme (also called the improved forward Euler scheme) for which
+⎡
+⎢⎣
+0 00
+1/2 1/2 0
+01
+⎤
+⎥⎦
+⎧
+⎪⎨
+⎪⎩
+k1 = −Aupw
+h un
+h + fn
+h
+k2 = −Aupw
+h (un
+h+1
+2 δtk1) + f n+1/2
+h un+1
+h = un
+h + δtk2
+(3.14)
+with the notation f n+1/2
+h = fh(tn + 1
+2 δt) and, on the other hand, the two-stage Heun scheme for which ⎡
+⎢⎣
+00 0 11 0
+1/2 1/2
+⎤
+⎥⎦
+⎧
+⎪⎨
+⎪⎩
+k1 = −Aupw
+h un
+h + fn
+h
+k2 = −Aupw
+h (un
+h + δtk1) + f n+1
+h un+1
+h = un
+h + δt1
+2 (k1 + k2)
+(3.15)
+
+
+76 Chapter 3. Unsteady First-Order PDEs
+In the absence of external forcing (f = 0) and since the discrete operator Aupw
+h is
+linear, the schemes (3.14) and (3.15) produce the same result for un+1
+h . Indeed, straightforward algebra shows that both (3.14) and (3.15) yield
+un+1
+h = un
+h − δtAupw
+h un
+h+1
+2 δt2(Aupw
+h )2un
+h.
+On the right-hand side, we recognize a second-order Taylor expansion in time at tn where the time derivatives have been substituted using the space semidiscrete scheme (3.8) without forcing (that is, dtu(tn) = −Aupw
+h u(tn) and dttu(tn) =
+(Aupw
+h )2u(tn)). Furthermore, an example of three-stage RK scheme is the threestage Heun scheme for which ⎡
+⎢⎢⎢⎢⎣
+0000
+1/3 1/3 0 0
+2/3 0 2/3 0
+1/4 0 3/4
+⎤
+⎥⎥⎥⎥⎦
+⎧
+⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎩
+k1 = −Aupw
+h un
+h + fn
+h,
+k2 = −Aupw
+h (un
+h+1
+3 δtk1) + f n+1/3
+h
+k3 = −Aupw
+h (un
+h+2
+3 δtk2) + f n+2/3
+h un+1
+h = un
+h+1
+4 δt(k1 + 3k3)
+(3.16)
+with obvious notation for the source term. In the absence of external forcing (f = 0), straightforward algebra shows that (3.16) yields
+un+1
+h = un
+h − δtAupw
+h un
+h+ 1
+2 δt2(Aupw
+h )2un
+h−1
+6 δt3(Aupw
+h )3un
+h.
+On the right-hand side, we recognize now a third-order Taylor expansion in time. Finally, an example of four-stage RK scheme is ⎡
+⎢⎢⎢⎢⎢⎢⎣
+00000
+1/2 1/2 0 0 0
+1/2 0 1/2 0 0
+10010
+1/6 1/3 1/3 1/6
+⎤
+⎥⎥⎥⎥⎥⎥⎦
+⎧
+⎪⎪⎪⎪⎪⎪⎪⎨
+⎪⎪⎪⎪⎪⎪⎪⎩
+k1 = −Aupw
+h un
+h + fn
+h,
+k2 = −Aupw
+h (un
+h+1
+2 δtk1) + f n+1/2
+h
+k3 = −Aupw
+h (un
+h+1
+2 δtk2) + f n+1/2
+h
+k4 = −Aupw
+h (un
+h + δtk3) + f n+1
+h un+1
+h = un
+h+ 1
+6 δt(k1 + 2k2 + 2k3 + k4)
+leading to a fourth-order Taylor expansion in time in the absence of external forcing. A consequence of these Taylor expansions is that the above s-stage RK schemes with s ≤ 4 have formal order of accuracy equal to s. Unfortunately, it is not possible to devise an s-stage RK scheme with formal order of accuracy s for s ≥ 5; this is possible using more than s steps (see Butcher [74]). In practice, values of s ≤ 4 are most often considered. An alternative formulation of RK schemes consists in introducing intermediate stages for the discrete solution instead of the intermediate increments ki. Following Shu and Osher [279], we write in the absence of external forcing the s-stage explicit RK scheme in the form
+un,0
+h = un
+h,
+un,i
+h=
+i− ∑1
+j=0
+(
+αij un,j
+h − δtβijAupw
+h un,j
+h
+)
+∀i ∈ {1, . . . , s},
+un+1
+h = un,s
+h.
+
+
+3.1. Unsteady Advection-Reaction 77
+The scheme is specified through the lower triangular matrices (αij)1≤i≤s,0≤j≤i−1 and (βij)1≤i≤s,0≤j≤i−1. Two examples are the two-stage scheme for which
+α=
+[
+1
+1/2 1/2
+]
+, β=
+[
+1
+0 1/2
+] ,
+yielding (eliminating un,0
+h = un
+h and un,2
+h = un+1
+h and observing that the diagonal of α and β corresponds to the coefficients αi,i−1 and βi,i−1)
+un,1
+h = un
+h − δtAupw
+h un
+h, (3.17a)
+un+1
+h =1
+2 (un
+h + un,1
+h )− 1
+2 δtAupw
+h un,1
+h , (3.17b)
+and the three-stage scheme for which
+α=
+⎡
+⎣
+1
+1/2 1/2 1/3 1/3 1/3
+⎤
+⎦, β =
+⎡
+⎣
+1
+0 1/2 0 0 1/3
+⎤
+⎦,
+yielding
+un,1
+h = un
+h − δtAupw
+h un
+h, (3.18a)
+un,2
+h =1
+2 (un
+h + un,1
+h )− 1
+2 δtAupw
+h un,1
+h , (3.18b)
+un+1
+h =1
+3 (un
+h + un,1
+h + un,2
+h )− 1
+3 δtAupw
+h un,2
+h . (3.18c)
+Since Aupw
+h is linear, (3.17) produces the same result for un+1
+h as the two-stage Runge and Heun schemes (3.14) and (3.15), while (3.18) produces the same result for un+1
+h as the three-stage Heun scheme (3.16). Moreover, the schemes (3.17) and (3.18) produce, as intermediate stages, Taylor expansions of increasing order in time. For instance, (3.18) can be equivalently rewritten as
+un,1
+h = un
+h − δtAupw
+h un
+h, un,2
+h = un
+h − δtAupw
+h un
+h+ 1
+2 δt2(Aupw
+h )2un
+h, un+1
+h = un
+h − δtAupw
+h un
+h+ 1
+2 δt2(Aupw
+h )2un
+h−1
+6 δt3(Aupw
+h )3un
+h.
+As a result, a natural way to account for external forcing (f = 0) is to set for the two-stage scheme (3.17),
+un,1
+h = un
+h − δtAupw
+h un
+h + δtf n
+h , (3.19a)
+un+1
+h =1
+2 (un
+h + un,1
+h )− 1
+2 δtAupw
+h un,1
+h +1
+2 δtψn
+h , (3.19b)
+and to require that ψn
+h provides, for smooth f , a second-order accurate approxi
+mation of f n
+h + δtdtf n
+h (cf. (3.24) below for the precise statement). For instance,
+the two-stage Runge scheme (3.14) corresponds to (3.19) with ψn
+h = 2f n+1/2
+h −fn
+h,
+while the two-stage Heun scheme corresponds to (3.19) with ψn
+h = f n+1
+h . Similarly, for the three-stage scheme (3.17), one possibility is to set
+un,1
+h = un
+h − δtAupw
+h un
+h + δtf n
+h , (3.20a)
+un,2
+h =1
+2 (un
+h + un,1
+h )− 1
+2 δtAupw
+h un,1
+h +1
+2 δt(f n
+h + δtdtf n
+h ), (3.20b)
+un+1
+h =1
+3 (un
+h + un,1
+h + un,2
+h )− 1
+3 δtAupw
+h un,2
+h +1
+3 δtψn
+h , (3.20c)
+
+
+78 Chapter 3. Unsteady First-Order PDEs
+and to require that ψn
+h provides, for smooth f , a third-order accurate approx
+imation of f n
+h + δtdtf n
+h +1
+2 δt2dttf n
+h (cf. (3.28) for the precise statement). The three-stage Heun scheme (3.16) fits this form; see [66]. Henceforth, (3.17)–(3.20) are termed explicit RK2 and explicit RK3 schemes, respectively. When the discrete operator Aupw
+h is linear, the two formulations of explicit RK methods, using either intermediate increments or intermediate stages for the discrete solution, are equivalent in the absence of external forcing (differences do appear in the handling of the external forcing). The situation is different in the nonlinear case, e.g., when the discrete operator Aupw
+h results from the space semidiscretization of a nonlinear conservation law. Then, the second form, based on intermediate stages for the discrete solution, is more appropriate; cf. Sect. 3.2.3 for further discussion.
+3.1.4 Main Convergence Results
+In this section, we present convergence results for the forward Euler and the explicit RK2 and RK3 schemes for time discretization combined with the discrete operator Aupw
+h resulting from the upwind dG method for space semidiscretization. In particular, we derive quasi-optimal error estimates for smooth solutions under CFL-type restrictions on the time step of the form
+δt ≤ h
+βc
+, (3.21)
+for some positive real number . For the forward Euler scheme, we only consider finite volume schemes (that is, dG schemes with polynomial degree k = 0) for space semidiscretization. The reason for this is that the restriction on the time step to achieve stability (or, in other words, to compensate the anti-dissipative nature of the forward Euler scheme) is too stringent whenever polynomials with degree k ≥ 1 are employed because there is not enough dissipation produced by the space semidiscretization; cf. Remark 3.21 below for a detailed discussion. For explicit RK2 and RK3 schemes, we consider dG schemes with polynomial degree k ≥ 1 for space semidiscretization. It is also possible to use finite volume schemes, but this is seldom considered in practice because, in such an approach, the error estimates are dominated by space approximation errors. Herein, we only state the convergence results. Proofs for the forward Euler scheme and the explicit RK2 scheme are presented in Sects. 3.1.5 and 3.1.6, respectively, while the proof for the explicit RK3 scheme can be found in [66]. General convergence results for forward Euler and finite volume schemes have been obtained recently by Després [124,125] and by Merlet and Vovelle [236]. The convergence result for explicit RK2 and RK3 schemes was proven, using different arguments, by Zhang and Shu [310, 311] for nonlinear conservation laws. In what follows, we abbreviate as a b the inequality a ≤ Cb with positive C independent of h, δt, and the data f , μ, and β; the actual value of C can change at each occurrence.
+Remark 3.6 (Mesh quasi-uniformity and CFL condition). It is possible to discard the assumption on mesh quasi-uniformity and to consider admissible mesh
+
+
+3.1. Unsteady Advection-Reaction 79
+sequences to build the broken polynomial spaces Vh. In this case, the local length scale in the CFL condition is no longer the largest mesh element diameter, but the smallest. It is also possible, with additional technicalities, to consider in the CFL condition the lowest ratio ‖β‖−1
+[L∞(T )]d hT over T ∈ Th.
+3.1.4.1 Forward Euler and Finite Volume Schemes
+We are interested in the forward Euler scheme (3.12),
+un+1
+h = un
+h − δtAupw
+h un
+h + δtf n
+h,
+with initial condition u0
+h = πhu0. We focus on finite volume schemes for space
+semidiscretization so that Vh = 0
+d(Th).
+Theorem 3.7 (Convergence for forward Euler). Assume u ∈ C0(H1(Ω)) ∩ C2(L2(Ω)). Set Vh = 0
+d(Th). Assume the CFL condition (3.21) with ≤ Eul
+for a suitable threshold Eul, independent of h, δt, and the data f , μ, and β. Then, there holds
+‖uN − uN
+h ‖L2(Ω) +
+(N −1
+∑
+m=0
+δt|um − um
+h |2
+β
+)
+1/2
+eCstatF/τ∗ (χ1δt + χ2h1/2), (3.22)
+where χ1 = t1/2
+F τ 1/2
+∗ ‖d2
+t u‖C0(L2(Ω)) and χ2 = t1/2
+F β1/2
+c ‖u‖C0(H1(Ω)), the |·|β -seminorm is defined by (3.11), and the quantity Csta is independent of h, δt, and the data f , μ, and β.
+Remark 3.8 (Convergence rate with CFL condition). Under the CFL condition (3.21), the first term on the right-hand side of the error estimate (3.22) converges as h, while the second one converges as h1/2 and is, therefore, dominant as h → 0.
+Remark 3.9 (Long-time behavior). The exponential factor eCstatF/τ∗ in the error estimate (3.22) means that the estimate deteriorates in long time, that is, whenever tF τc (recall that τc can be interpreted as the fastest time-scale in the time evolution problem (3.1)). In practice, it is reasonable to assume that τc is not too small with respect to tF.
+3.1.4.2 Explicit RK2 Schemes
+We are interested in explicit RK2 schemes of the form (3.19) (for later use, we introduce a specific symbol for the intermediate stage)
+wn
+h = un
+h − δtAupw
+h un
+h + δtf n
+h , (3.23a)
+un+1
+h =1
+2 (un
+h + wn
+h) − 1
+2 δtAupw
+h wn
+h+1
+2 δtψn
+h , (3.23b)
+with initial condition u0
+h = πhu0.
+
+
+80 Chapter 3. Unsteady First-Order PDEs
+Theorem 3.10 (Convergence for RK2). Assume f ∈ C2(L2(Ω)) and that the source term ψn
+h in (3.23b) is such that
+‖ψn
+h − fn
+h − δtdtf n
+h ‖L2(Ω) δt2‖d2
+t f (t)‖C0(L2(Ω)). (3.24)
+Assume u ∈ C3(L2(Ω)) ∩ C0(H1(Ω)). Set Vh = k
+d(Th) with k ≥ 1.
+(i) In the case k ≥ 2, assume the 4/3-CFL condition
+δt ≤ ′τ −1/3
+∗
+(h
+βc
+)
+4/3
+, (3.25)
+for some positive real number ′.
+(ii) In the case k = 1, assume the CFL condition (3.21), that is,
+δt ≤ RK2 h
+βc
+,
+for a threshold RK2 independent of h, δt, and the data f , μ, and β.
+Finally, assume ds
+t u ∈ C0(Hk+1−s(Ω)) for s ∈ {0, 1}. Then,
+‖uN −uN
+h ‖L2(Ω) +
+(N −1
+∑
+m=0
+δt|um − um
+h |2
+β
+)
+1/2
+eCstatF/τ∗ (χ1δt2 +χ2hk+1/2), (3.26)
+where
+χ1 = t1/2
+F τ 1/2
+∗ (‖d2
+t f ‖C0(L2(Ω)) + ‖d3
+t u‖C0(L2(Ω))),
+χ2 = t1/2
+F β1/2
+c
+∑
+s∈{0,1}
+β−s
+c ‖ds
+t u‖C0(Hk+1−s(Ω)),
+and the quantity Csta is independent of h, δt, and the data f , μ, and β.
+Remark 3.11 (Convergence rate with 4/3-CFL condition). Under the 4/3-CFL condition, the convergence rate with respect to h of the upper bound in (3.26) is h8/3 + hk+1/2. For k = 2, this yields h8/3 + h5/2, so that the second contribution, related to space approximation, is slightly dominant, although in practice, the two contributions can be considered to be equilibrated. For k ≥ 3, the first contribution, related to the time error, is dominant, so that equilibrating both contributions actually imposes a more stringent restriction on the time step than the 4/3-CFL condition.
+Remark 3.12 (Upper bound on ′ in the 4/3-CFL condition). Although there is no specific upper bound on the value of parameter ′ in the 4/3-CFL condition in the statement of Theorem 3.10, the quantity Csta in the error estimate (3.26) depends on this parameter. Hence, in practice, a small enough value should be considered.
+
+
+3.1. Unsteady Advection-Reaction 81
+3.1.4.3 Explicit RK3 Schemes
+We are interested in explicit RK3 schemes of the form (3.20) (for later use, we introduce a specific symbol for the intermediates stages)
+wn
+h = un
+h − δtAupw
+h un
+h + δtf n
+h , (3.27a)
+yn
+h=1
+2 (un
+h + wn
+h) − 1
+2 δtAupw
+h wn
+h+1
+2 δt(f n
+h + δtdtf n
+h ), (3.27b)
+un+1
+h =1
+3 (un
+h + wn
+h + yn
+h) − 1
+3 δtAupw
+h yn
+h+1
+3 δtψn
+h , (3.27c)
+with initial condition u0
+h = πhu0.
+Theorem 3.13 (Convergence for RK3). Assume f ∈ C3(L2(Ω)) and that the source term ψn
+h in (3.27c) is such that
+‖ψn
+h − fn
+h − δtdtf n
+h −1
+2 δt2d2
+tfn
+h ‖L2(Ω) δt3‖d3
+t f ‖C0(L2(Ω)). (3.28)
+Assume u ∈ C4(L2(Ω)) ∩ C0(H1(Ω)). Set Vh = k
+d(Th) for k ≥ 1. Assume the usual CFL condition (3.21), that is,
+δt ≤ RK3 h
+βc
+,
+for a threshold RK3 independent of h, δt, and the data f , μ, and β. Finally, assume ds
+t u ∈ C0(Hk+1−s(Ω)) for s ∈ {0, 1, 2}. Then,
+‖uN −uN
+h ‖L2(Ω) +
+(N −1
+∑
+m=0
+δt|um − um
+h |2
+β
+)
+1/2
+eCstatF/τ∗ (χ1δt3 +χ2hk+1/2), (3.29)
+where
+χ1 = t1/2
+F τ 1/2
+∗ (‖d3
+t f ‖C0(L2(Ω)) + ‖d4
+t u‖C0(L2(Ω))),
+χ2 = t1/2
+F β1/2
+c
+∑
+s∈{0,1,2}
+β−s
+c ‖ds
+t u‖C0(Hk+1−s(Ω)),
+and the quantity Csta is independent of h, δt, and the data f , μ, and β.
+Remark 3.14 (Stability of explicit RK3 schemes). Explicit RK3 schemes enjoy stronger stability properties than explicit RK2 schemes. This is for instance reflected by the fact that explicit RK3 schemes are stable under the usual CFL condition (3.21) even in the absence of stabilization; see, e.g., Tadmor [289, Theorem 2]). Stability alone is, however, not sufficient to derive quasi-optimal error estimates. Indeed, in the absence of stabilization (that is, if centered fluxes are used), the source terms in the error equation cannot be controlled properly, and this leads to suboptimal error estimates of the form χ1δt3 + χ2hk (compare with (3.29)). The stability of explicit RK3 schemes in the presence of stabilization has been studied recently in [66].
+
+
+82 Chapter 3. Unsteady First-Order PDEs
+Remark 3.15 (Influence of polynomial degree). The threshold RK3 depends on the polynomial degree k, and the larger k, the lower RK3. This dependency results from the fact that the actual value for RK3 depends on some boundedness properties of the discrete operator Aupw
+h , and that these properties are established using inverse and discrete trace inequalities where the factors depend on the polynomial degree (cf. Remark 1.48).
+3.1.4.4 Numerical Illustration for Rough Solutions
+Numerical results illustrating the convergence rates predicted by Theorems 3.10 and 3.13 for smooth solutions are reported in [66] for polynomial degrees k ∈ {1, 2} in the dG scheme. Numerical experiments indicate that the 4/3-CFL condition for explicit RK2 schemes and polynomial degree k = 2 appears to be sharp. Here, we focus instead on approximating rough solutions. We consider the unsteady advection-reaction equation (3.1) with (divergence-free) advective velocity β = (x2, −x1)t, reaction coefficient μ = 0, source term f = 0, and circular domain Ω = {x ∈ 2 : x2
+1 + x2
+2 ≤ 1} (a polygonal domain can be considered as well). The initial datum is
+u0(x) = 1
+2 (tanh(103(e−φ(x) − 0.5)) + 1),
+with φ(x) = 10((x1 − 0.3)2 + (x2 − 0.3)2) so that the solution exhibits a sharp inner layer with thickness of order 0.001. We consider a fixed uniform mesh with 256 elements along the boundary of Ω (h ≈ 0.025). The inner layer is thus under-resolved. Approximate solutions obtained using explicit RK2 and RK3 schemes combined with polynomial degrees k ∈ {1, 2} for the dG scheme are reported in Fig. 3.1. The results illustrate the fact that the present methods are able to avoid the global spreading of spurious oscillations, so that the discrete solution after a complete rotation still exhibits a sharp inner layer. In all cases, the largest possible time step has been used; the corresponding value of in the CFL condition is reported in the caption of Fig. 3.1. This figure also shows that the present schemes do not avoid spurious oscillations in the vicinity of the inner layer. To eliminate such oscillations, limiters can be employed. These techniques are discussed in Sect. 3.2.4 in the context of nonlinear conservation laws.
+Fig. 3.1: Contour lines of discrete solution after a complete rotation of the initial datum. From left to right : RK2, k = 1, δt = 0.2h; RK3, k = 1, δt = 0.26h; RK2, k = 2, δt = 0.12h; RK3, k = 2, δt = 0.15h
+
+
+3.1. Unsteady Advection-Reaction 83
+3.1.5 Analysis of Forward Euler and Finite Volume Schemes
+The goal of this section is to prove Theorem 3.7. Although this section is restricted to finite volume schemes, we recommend reading it before tackling the more elaborate analysis of Sect. 3.1.6.
+3.1.5.1 The Error Equation
+Define
+ξn
+h := un
+h − πhun, ξn
+π := un − πhun,
+so that the approximation error at the discrete time tn can be decomposed as
+un − un
+h = ξn
+π − ξn
+h.
+The convergence analysis proceeds as follows. Since a bound on ξn
+π can be
+inferred from polynomial approximation properties and the smoothness of un, an error upper bound is derived by first obtaining a bound on ξn
+h in terms of ξn
+π
+and then using the triangle inequality. Our first step consists in identifying the error equation for the time evolution of ξn
+h . The form of this equation is similar to the forward Euler scheme (3.12)
+with data depending on ξn
+π and u.
+Lemma 3.16 (Error equation). Assume u ∈ C0(H1(Ω)) ∩ C2(L2(Ω)). Then,
+ξn+1
+h = ξn
+h − δtAupw
+h ξn
+h + δtαn
+h, (3.30)
+where
+αn
+h := Aupw
+h ξn
+π − πhθn, (3.31)
+with θn := δt−1 ∫ tn+1
+tn (tn+1 − t)d2
+t u(t) dt.
+Proof. A second-order Taylor expansion in time with integral remainder for the exact solution u yields
+un+1 = un + δtdtun + δtθn.
+Projecting onto Vh and using the consistency property (3.9) at the discrete time tn leads to
+πhun+1 = πhun + δtπhdtun + δtπhθn
+= πhun + δt(−Aupw
+h un + f n
+h ) + δtπhθn.
+Subtracting this equation from (3.12), we infer that
+ξn+1
+h = ξn
+h − δtAupw
+h (ξn
+h − ξn
+π ) − δtπhθn,
+whence the assertion.
+
+
+84 Chapter 3. Unsteady First-Order PDEs
+3.1.5.2 Energy Identity
+Our second step consists in deriving an energy identity for the scheme (3.30). This identity is obtained by taking the L2-scalar product of (3.30) with ξn
+h.
+Lemma 3.17 (Energy identity). There holds
+1
+2 ‖ξn+1
+h ‖2
+L2(Ω) − 1
+2 ‖ξn
+h ‖2
+L2(Ω) + δt|ξn
+h |2
+β=1
+2 ‖ξn+1
+h − ξn
+h ‖2
+L2 (Ω)
++ δt(αn
+h, ξn
+h )L2(Ω) − δt(Λξn
+h, ξn
+h )L2(Ω). (3.32)
+Proof. Taking the L2-scalar product of (3.30) with ξn
+h and using discrete dissipation (cf. (3.10)) yields
+(ξn+1
+h , ξn
+h )L2(Ω) = ‖ξn
+h ‖2
+L2(Ω) − δt(Aupw
+h ξn
+h, ξn
+h )L2(Ω) + δt(αn
+h, ξn
+h )L2(Ω)
+= ‖ξn
+h ‖2
+L2(Ω) − δt|ξn
+h |2
+β − δt(Λξn
+h, ξn
+h )L2(Ω) + δt(αn
+h, ξn
+h )L2(Ω).
+Using on the left-hand side the algebraic identity ab = 1
+2 a2 + 1
+2 b2 − 1
+2 (a − b)2 valid for arbitrary real numbers a and b leads to
+1
+2 ‖ξn+1
+h ‖2
+L2(Ω) + 1
+2 ‖ξn
+h ‖2
+L2(Ω) − 1
+2 ‖ξn+1
+h − ξn
+h ‖2
+L2(Ω) = ‖ξn
+h ‖2
+L2 (Ω)
+− δt|ξn
+h |2
+β − δt(Λξn
+h, ξn
+h )L2(Ω) + δt(αn
+h, ξn
+h )L2(Ω),
+whence the assertion.
+3.1.5.3 Boundedness of Aupw
+h
+Before proceeding further, we need to obtain suitable bounds on the discrete operator Aupw
+h . To this purpose, we consider the following norms: For all v ∈ V∗h,
+|||v|||2
+uw = τ −1
+c ‖v‖2
+L2(Ω) + |v|2
+β,
+|||v|||2
+uw ,∗ = |||v|||2
+uw +
+∑
+T ∈Th
+βc‖v‖2
+L2(∂T ),
+where the |·|β-seminorm is defined by (3.11). The |||·|||uw - and |||·|||uw ,∗-norms coincide with those considered in Sect. 2.3 in the steady case.
+Lemma 3.18 (Boundedness of Aupw
+h ). There holds
+(i) For all (v, wh) ∈ V∗h × Vh,
+(Aupw
+h v, wh)L2(Ω) ≤ C∗,1|||v|||uw ,∗|||wh|||uw , (3.33)
+(ii) For all vh ∈ Vh,
+‖Aupw
+h vh‖L2(Ω) ≤ C∗,2β1/2
+c h−1/2|||vh|||uw . (3.34)
+Here, C∗,1 and C∗,2 are independent of h, δt, and the data f , μ, and β.
