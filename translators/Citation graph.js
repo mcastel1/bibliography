@@ -16,10 +16,10 @@
 	},
 	"configOptions": {
 		"getCollections": true,
-		"hash": "0f1447cc066abd4ac694de7e4043b9a01c93840919512a1ff5e16ffb1d38613f"
+		"hash": "d727f5383480551d12a7041c3ac59446e033089023985e5ca7fdf3e764a6e459"
 	},
 	"priority": 100,
-	"lastUpdated": "2026-09-30"
+	"lastUpdated": "2026-10-31"
 }
 
 if (typeof ZOTERO_CONFIG === 'undefined') ZOTERO_CONFIG = {"GUID":"zotero@zotero.org","ID":"zotero","CLIENT_NAME":"Zotero","DOMAIN_NAME":"zotero.org","PRODUCER":"Digital Scholar","PRODUCER_URL":"https://digitalscholar.org","REPOSITORY_URL":"https://repo.zotero.org/repo/","BASE_URI":"http://zotero.org/","WWW_BASE_URL":"https://www.zotero.org/","PROXY_AUTH_URL":"https://zoteroproxycheck.s3.amazonaws.com/test","API_URL":"https://api.zotero.org/","STREAMING_URL":"wss://stream.zotero.org/","SERVICES_URL":"https://services.zotero.org/","API_VERSION":3,"CONNECTOR_MIN_VERSION":"5.0.39","PREF_BRANCH":"extensions.zotero.","BOOKMARKLET_ORIGIN":"https://www.zotero.org","BOOKMARKLET_URL":"https://www.zotero.org/bookmarklet/","START_URL":"https://www.zotero.org/start","QUICK_START_URL":"https://www.zotero.org/support/quick_start_guide","PDF_TOOLS_URL":"https://www.zotero.org/download/xpdf/","SUPPORT_URL":"https://www.zotero.org/support/","SYNC_INFO_URL":"https://www.zotero.org/support/sync","TROUBLESHOOTING_URL":"https://www.zotero.org/support/getting_help","FEEDBACK_URL":"https://forums.zotero.org/","CONNECTORS_URL":"https://www.zotero.org/download/connectors","CHANGELOG_URL":"https://www.zotero.org/support/changelog","CREDITS_URL":"https://www.zotero.org/support/credits_and_acknowledgments","LICENSING_URL":"https://www.zotero.org/support/licensing","GET_INVOLVED_URL":"https://www.zotero.org/getinvolved","DICTIONARIES_URL":"https://download.zotero.org/dictionaries/","PLUGINS_URL":"https://www.zotero.org/support/plugins","NEW_FEATURES_URL":"https://www.zotero.org/blog/zotero-{version}/","READ_ALOUD_URL":"https://www.zotero.org/settings/readaloud"}
@@ -1079,7 +1079,7 @@ var { doExport } = (() => {
     strings: "",
     stringsOverride: "",
     testing: false,
-    verbatimFields: "url,doi,file,pdf,ids,eprint,/^verb[a-z]$/,groups,/^citeulike-linkout-[0-9]+$/,/^bdsk-url-[0-9]+$/, keywords",
+    verbatimFields: "url,doi,file,pdf,ids,eprint,verb?,groups,citeulike-linkout-*,bdsk-url-*, keywords",
     warnBulkModify: 10,
     warnTitleCased: false
   };
@@ -1749,9 +1749,10 @@ ${err.stack}
     constructor(collected, mode) {
       this.collected = collected;
       this.mode = mode;
-      this[collected.translator.label.replace(/[^a-z]/ig, "")] = true;
-      this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX || false;
-      this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML || false;
+      const label = collected.translator.label;
+      this[label.replace(/[^a-z]/ig, "")] = this[label.replace(/^Better /, "").replace(/[^a-z]/ig, "")] = true;
+      this.TeX = this.BetterTeX = this.BetterBibTeX || this.BetterBibLaTeX || false;
+      this.CSL = this.BetterCSL = this.BetterCSLJSON || this.BetterCSLYAML || false;
       this.options = { ...collected.displayOptions };
       this.preferences = { ...collected.preferences };
       this.isJurisM = slug === "jurism";
@@ -1797,7 +1798,7 @@ ${err.stack}
           return "";
         }).filter((field) => field).join("|") + ")$");
       }
-      this.verbatimFields = this.collected.preferences.verbatimFields.toLowerCase().split(",").map((field) => (m = field.trim().match(/^[/](.+)[/]$/)) ? new RegExp(m[1], "i") : this.typefield(field)).filter((s) => s);
+      this.verbatimFields = this.collected.preferences.verbatimFields.toLowerCase().split(/\s*,\s*/).filter(Boolean);
       if (!this.verbatimFields.length) delete this.verbatimFields;
       this.csquotes = this.collected.preferences.csquotes ? { open: this.collected.preferences.csquotes[0], close: this.collected.preferences.csquotes[1] } : void 0;
     }
@@ -1814,12 +1815,19 @@ ${err.stack}
     };
     charmap;
     BetterBibLaTeX;
+    BibLaTeX;
     BetterBibTeX;
+    BibTeX;
     BetterTeX;
+    TeX;
     BetterCSLJSON;
+    CSLJSON;
     BetterCSLYAML;
+    CSLYAML;
     BetterHayagriva;
+    Hayagriva;
     BetterCSL;
+    CSL;
     BetterBibTeXCitationKeyQuickCopy;
     BetterBibTeXJSON;
     Citationgraph;

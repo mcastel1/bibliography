@@ -1,0 +1,1162 @@
+Interaction between fluids and Helfrich membranes
+Dennis W ̈orthmuller,1, 2 Pierre Sens,1, 2 and Michele Castellana1, 2, ∗
+1Institut Curie, PSL Research University, Paris, France
+2CNRS UMR168, 11 rue Pierre et Marie Curie, 75005, Paris, France
+(Dated: November 6, 2026)
+We propose afinite elementmethod to determine the dynamics of a fluid interacting with a membrane—a fluid layer equipped with a Helfrich elastic free energy [W. Helfrich,Z. F ̈ur Naturforschung C, 28, 693, (1973)]. Our analysis is based on a partitioned approach, where the state of the fluid, of the membrane, and of the mesh, are solved for at staggered steps. We show the predicting capabilities of the method by considering a macroscopic example of of an elastomer membrane, which bulges as it interacts with air injected through a channel. In particular, we demonstrate that our method allows for describing large membrane deformations which are not accessible by perturbative methods. We discuss the limitations of our method, by characterizing its added-mass instability. Finally, we show how our analysis allows for understanding the physical mechanism of bulge formation, which is due to a combination of elastic stresses and membrane boundary conditions.
+I. INTRODUCTION
+A. State of the art
+A number of existing studies rely on the hypothesis that thefluidsurrounding theHelfrich membraneis inertialess. For instance, Arroyo et al. study the interaction between aHelfrich membraneand bulk fluid in the Stokes approximation, for simple membrane geometries that can be described by a single parameter [1]. Boedec and coauthors combined FE andboundary element( BE) methods describe anHelfrich membraneinteracting with an inertialessfluid[ 2]. In there, the membrane surface rheology, such as viscous effects and flows induced by surface-tension gradients, is neglected. AHelfrich membranecoupled to afluidhas been recently studied by Zhou and co-authors with BE and FE methods, under the assumption that thefluidis inertialess and thatHelfrich membraneis inextensible [ 3]. Barakat and Shaqfeh modelled vesicles in a circular tube by means of BE methods and lubrication theory, by neglectingHelfrich membrane rheology and describingfluidas inertialess [ 4]. Finally, Rodrigues et al., studied the interaction between an inertialess, closedHelfrich membranes andfluidswith FE methods, by adopting a minimal description for the fluid, which is solely modelled as a volume constraint [5].
+Other studies go beyond the inertialess approximation, and rely on simplifying assumptions for theHelfrich membrane. For instance, Bonito et al. propose a FE model for aHelfrich membraneinteracting anfluid, the latter being in the inertial regime [6, 7]. In this
+∗ Corresponding author:michele.castellana@curie.fr
+studyHelfrich membraneis treated as a purelyelastic body, characterized solely by bending rigidity, area and volume constraints—its fluid features, such as tangential and normal flows, are neglected. Laadhari extended the analyses above to the interaction between a Helfrich membraneand a non-Newtonianfluid, in which membrane rheology is still neglected [8]. The interaction between aHelfrich membraneand afluid—both in the inertial regime—has been studied by Barrett and co-authors, [9], under the assumption that the M is perfectly inextensible. Such analysis is based on a fluidic approach, in which theHelfrich membranedoes not obey its own, intrinsic rheology—see below—but it is advected by the surroundingfluid. As a result, the membrane tangential and normal velocities are not determined as the result of the surfacialNavier-Stokes( NS) equations, but they match the respective components of thefluid velocity.
+In this study, we propose a novel FE study of the interaction between afluid( F) and aHelfrich membrane (M)—a deformable fluid layer whose material elements can flow, and whose elastic energy is given by the Helfrich model [10]. Our approach is based on thearbitrary Lagrangian-Eulerian( ALE) method [11, 12]. Our analysis includes a complete description of the physical features of both M and F, it may describe the inertial regime of both, and it accounts for a detailed description of M elasticity, rheology, and extensibility. Unlike fluidic approaches where the M dynamics is determined by the F, here both the flows and shape of M are determined by intrinsic physical evolution equations. In addition, our study can account for both closed and open surfaces, by leveraging the flexibility of itsFEformulation [13].
+
+
+2
+We solve for the system rheology by implementing a splitting scheme [13, 14] for the NS equations, applied simultaneously to the M and F flow dynamics, and show that it is numerically stable under given conditions. As for the membrane shape, we generalize thearc length (AL) gauge—previously proposed to describe the steady state of membrane tubes [15]—to the system dynamics, by means of a time-dependent gauge fixing. Overall, this implementation allows for handling strongly turbulent M andFflows, as well as largeMdeformations.
+The paper is structured as follows. In SectionIIwe discuss the ALE method, and present two illustrative examples: The interaction between F and arigid body( B) in SectionII A, and that between F and E in SectionII B. In SectionII Cwe present our approach for the interaction between F and M. In particular, in SectionsII C 1toII C 3, we discuss the splitting scheme and gauge-fixing procedure for the M,Fluid domain( D) and F, respectively. Finally, SectionIIIis devoted to the discussion of the results, and future directions. All acronyms used are listed in SectionIV.
+II. RESULTS
+In all systems that we will consider, we will introduce thereference( r) andcurrent( c) configuration [16–18], see Fig.A.1. All quantities relative to the r and c configuration will be denoted by the superscript r and c, respectively. In the r configuration, the region occupied by F is described by Cartesian coordinates xr. In the c configuration, the region occupied by F is described by Cartesian coordinates xc.
+The r configuration is related to the c one as follows [16], see Fig.A.1. At time t, the point xc corresponds to a point xr in the r configuration through the deformation field [19]
+ut
+D(xr) ≡ xc − xr. (1)
+and the deformation-gradient tensor
+Fαβ(u) ≡ δαβ + ∂uα
+∂xr β
+. (2)
+In what follows, Greek indices α, β, · · · will be used to denote vectors and tensors in two-dimensional Euclidean space—their position as upper or lower indices is thus immaterial [17,20].
+We will characterize the mapping between xc and xr configurations in Eq. (1) with the fields
+xc = φt(xr), (3)
+xr = ψt(xc). (4)
+We denote the F velocity and surface tension, the negative of the pressure, by vFc(xc) and ςFc(xc), respectively, where the subscript c specifies that these fields depend on the coordinate xc in thecconfiguration.
+For each field vFc(xc), ςFc(xc) which depends on the coordinate xc in the c configuration, we introduce its counterpart in therconfiguration:
+vF r(xr, t) ≡ vFc(φt(xr), t), (5)
+ςFr(xr, t) ≡ ςFc(φt(xr), t). (6)
+The solution of the interaction dynamics between F and B, E or M is involved because of the presence of a moving boundary, cf. Figs.3,A.1andB.1, respectively. Following the ALE procedure, we will bridge between the Lagrangian description used to describe B, E or M, and the Eulerian description of F [16]. To achieve this, in what follows we will consider the equations of motion for B, E or M and F—which are naturally formulated the c configuration—and rewrite them in therconfiguration.
+A.Fluidandrigid body
+In this Section, we will discuss the interaction between afluid( F) and the simplest structure—arigid body( B) which is only allowed to turn about one point. Only the main results will be presented here; details can be found in AppendicesA 1toA 3, respectively, and the temporal discretization is discussed in AppendixA 4.
+As shown in Fig.A.1, in thereference( r) configuration the axis of the ellipse, e..g, B, lies parallel to the xc 1 axis, while in thecurrent( c) configuration, such axis forms an angle θ (red arc) with respect to the xc 1 axis,
+An example of the system dynamics is shown in Fig.1, where we study the interaction between air (F) and an aerogel (B)—an ultra light solid material involving a large porous structure [21]. The channel dimension are L = 2.2 m, h = 0.41 m, which have been taken from the Finite Element Analysis Tools 2D( FEAT2D) DFG 2D-3 benchmark example for a fluid flow around a cylinder [22, 23], see Fig.A.1. Given that the materials, such as F and B, are two dimensional, in what follows we will estimate their parameter values by considering their threedimensional counterparts, and assume a unit thickness in the out-of-plane direction. The parameters for B have been estimated from the properties of air: ρF = 1 kg/m2, ηF = 10−5 Pa m s [24]. The inflow velocity profile is chosen as a Poiseuille flow
+vF (xc) = 6v0
+h2 xc 2(xc 2 − h), (7)
+with v0 = 1 m/s. The mesh of theFluid domain( D)
+
+
+3
+deforms in time, and its rigidity is determined by the stiffness exponent ζ [16], which has been chosen to be ζ = 3, see SectionII C 2for details. Finally, B is an ellipse with semi-axes a = 0.1 m, b = 0.075 m, center located at xr = (0.25 m, 0.2 m), and moment of inertia I = 10−3 kg m2, which corresponds to an aerogel density of ρB = 6 kg/m3 [25]. As shown in Fig.A.2, B has an oscillatory behavior, whose period can be understood with scaling arguments—see AppendixA 5.
+B.Fluidandelastic body
+In this Section, we will build on the analysis of SectionII Aand put F into interaction with a more complex physical object—anelastic body( E); only the main results will be presented here.
+The r and c configurations are shown in Fig.B.1. Here, the E boundary ∂Ω may deform, but the inner E boundary ∂Ω is pinned to the xc 1, xc 2 plane. The equations of motion are reported in AppendixB 1, and the system dynamics is discussed in AppendixB 2.
+An example of the coupled dynamics of F and E is shown in Fig.2, where we show the interaction of a F with a hydrogel (E). Here, ∂Ωr is an ellipse with semi-axes a = 0.2 m, b = 0.1 m and center located at xr = (0.4 m, 0.2 m), and ∂Ωr has radius r = 0.0125 m and center located at xr. Channel dimensions are the same as in Fig.1, and F parameters have been taken from the FEAT2D DFG 2D-3 benchmark example for a fluid flow around a cylinder [22, 23]: ρF = 1 kg/m2, ηF = 10−3 Pa m s. The E density is ρE = 103 kg/m2 [26]. The storage modulus, which approximates the shear modulus μ [27] is ∼ 10 kg/s2 [28]. Given a E Poisson ratio [17] of νP ∼ 0.49 [29], we obtain K ∼ 5 × 102 kg/s2 from the relation K = 2μ(1 + νP)/[3(2νP − 1)] [17]. The F inflow velocity profile is a Poiseuille flow, Eq. (7), with v0 = 1 m/s. Finally, the D mesh stiffness exponent has been chosen to be ζ = 3 [16].
+C.FluidandHelfrich membrane
+In this Section, we will build on the analysis of SectionII B, and complexify the structure of theelastic body with which F interacts. We consider, instead of an elastic material, an M; a deformable fluid layer whose elements can flow, equipped with an elastic, bending energy given by the Helfrich model [10,15].
+For this problem, we will consider the geometry depicted in Fig.3. A vertical channel with mirror symmetry about its mid axis is considered. The left boundary of
+the channel is ∂Ω , and the right boundary ∂Ω lies on the symmetry axis. Fluid is injected from bottom to top on ∂Ω . Here, M lies on the top boundary of F, ∂Ω , which coincides with the M manifold ∂Ω . Finally, we denote by Ω the region enclosed by the boundaries, and all the quantities above will be considered in the r and c configurations.
+The geometry of Fig.3may represent F being confined in a large reservoir, lying below the channel, where the channel is a vertical neck of the reservoir, covered on top byM.
+1.Helfrich membranemotion
+Both the physical nature and mathematical description of M is significantly more complex than that of E. First, unlike E, M has a fluid structure: Its material elements can flow tangentially to the M shape, which also moves subjected to bending-rigidity forces, and to the force exerted on it by F. While the tangential motion is naturally suited to an Eulerian description [19], the shape motion—reminiscent of that of an elastic body—is best described with a Lagrangian approach [30]. Also, such shape motion needs to be connected to the Lagrangian approach used to describe D. Second, M is described by fourth-orderpartial differential equations( PDEs) [31]. From the mathematical and numerical point of view, such PDEs are significantly more complex than the secondorder PDEs which describe E [32]. On top of this, from the physical standpoint, such fourth-order PDEs require moreboundary conditions( BCs) than the second-order ones for E: Such BCs may specify a number of physical features of the M system, such as forces, positions, torques, or stresses. Third, the geometrical description of M requires fixing an appropriate gauge. In fact, a general parametrization of M is given by two functions—the two Cartesian components of xM
+c (x1). Both of these functions
+depend on the curvilinear coordinate x1 which is defined in the r domain of M, ∂Ωr , see Fig.3—note that here xi differs from the Cartesian coordinate xα. Despite this pair of functions, a single PDE determines the M shape [31]. To understand this redundancy, consider the stretching field ν > 0, defined by
+ν2 ≡ e1 · e1, (8)
+ei ≡ ∂xM
+c
+∂xi . (9)
+It is then easy to realize that two parametrizations with different νs can yield the same physical shape. Such redundancy may be removed by a gauge fixing, i.e., by adding a constraint on xM
+c , or its derivatives. Two common gauge choices are the Monge [33, 34], or the arc-length
+
+
+4
+FIG. 1: Interaction between afluid(F) and a rigidrigid body(B), whose material properties roughly correspond to air (F) and an aerogel (B). A) Temporal snapshot of the mesh (black lines) and velocity field (arrows) at thecurrenttime t, shown on top. The direction of the velocity field is indicated by the arrows, and its norm by their color; the direction of arrows with velocity close to zero is not defined. Here,B(ellipse) is allowed to pivot about its left focal point (red dot), and the related angle with respect to the xc 1 direction is denoted by a black dashed arc. Here, the Reynolds number is R ∼ 2 × 102. B) Color map of the surface tension at thecurrentinstant of time t.
+parametrization [15], in which one sets
+ν = 1. (10)
+The arc-length gauge has been used to describe, for instance, the steady state for membrane tubules [15]. However, while a static constraint such as (10) is suited to static shapes, it cannot describe the M dynamics, such as the one of M interacting with F. In fact, as M is deformed, it will also stretch: as a result, Eq. (10) must be replaced by a time-dependent gauge—see below.
+We describe M with the Lagrangian approach, along the lines of the description of D in SectionII Aand E in SectionII B. TheMdisplacement field is
+uM(x1) ≡ xM
+c (x1) − xM
+r (x1). (11)
+At the beginning of the dynamics, we choose the r configuration as a straight line
+xM
+r (x1) ≡ (x1, h), 0 ≤ x1 ≤ L, (12)
+see Fig.3A. The mesh will then be deformed with time: As the deformation becomes large, we will remesh the F domain. The c configuration right before remeshing will then become the r configuration after remeshing, which will be, in general, different from (12).
+In addition, we introduce the angle ψ formed by the tangent toMwith the x1 axis [15], defined by
+e1
+1 = ν cos ψ, (13)
+e2
+1 = −ν sin ψ. (14)
+Finally, theMmetric tensor is defined by [20]
+gij ≡ ei · ej. (15)
+In what follows, Latin indices i, j, k, · · · will be used to denote vectors and tensors related to the M manifold; their position as upper and lower indexes is thus important [20]. Because the differential manifold of M is one dimensional, indexes i, j, k, · · · may take only one value, i.e., i = j = k = · · · = 1. However, in formal relations such as Eq. (15), we will use the general notation i, j, k, · · · for the sake of generality, and for potential extensions of such relations to two-dimensional manifolds [34].
+In order to work out the dynamical equations for M, let us derive the force exerted by F on M. The force exerted on a line element dlc ofMis [19]
+fF α(σF c, ν, ψ) = −σF c αβ ˆnc β(ν, ψ), (16)
+
+
+5
+FIG. 2: Interaction between afluidand anelastic body(E) (a hydrogel). The notation is the same as in Fig.1, and the elastic bodyis depicted as a red mesh. Here, the Reynolds number is R ∼ 2 × 102. The E deformation is not symmetric under the mirror symmetry xc 2 → h − xc 2, where h is the height of the F domain, because the center of E is not located at xc 2 = h/2.
+where
+σF c αβ ≡ ςFcδαβ + ηF
+∂vFα
+c ∂xc β
++ ∂vFβ
+c ∂xc α
+(17)
+is the F stress tensor [19] and nˆc the unit normal to ∂Ωc pointing outside Ωc, see Fig.3B. In Eq. (16), σF c is evaluated at the c coordinate xM
+c ∈ ∂Ωc corresponding
+to x1. The components of the force (16) tangential and normal toMare [34]
+fi
+F t(σF c, ν, ψ) = gij (ν)eα
+j (ν, ψ)fα(σF c, ν, ψ) (18)
+fF n(σF c, ν, ψ) = nˆc α(ν, ψ)fα(σF c, ν, ψ), (19)
+where in Eq. (18) we used the feature that the metric tensor depends on ν only, see Eqs. (8) and (15).
+The equations of motion forMare [1,32,35]
+∇ivi
+M − 2HwM =0, (20)
+ρM
+∂vi
+M
+∂t + vj
+M∇j vi
+M − 2vj
+MwM bi
+j − wM∇iwM =f i
+Mt + fi
+F t, (21)
+ρM
+∂wM
+∂t + vi
+M(vj
+Mbji + ∇iwM) =fL + fκ + f η
+M n + fF n, (22)
+∂uM
+∂t =wM ˆnc , (23)
+∂u1
+M
+∂x1 = − ∂xM 1
+r
+∂x1 + ν cos ψ, (24)
+∂u2
+M
+∂x1 = − ∂xM 2
+r
+∂x1 − ν sin ψ, (25)
+
+
+6
+and they hold for x1 ∈ Ωr . Here, vi
+M and w are the M tangential and normal velocity, respectively, ∇ is the covariant derivative related to the Levi-Civita connection associated to g, and H the mean curvature. We refer to [1, 20, 32, 34] for details on the differential-geometry formulation. We will now discuss each line in Eqs. (20) to (25), and we set
+fL(ςM, ν, ψ) ≡ 2 ςMH, (26)
+fκ(ν, ψ) ≡ −2κ[∇i∇iH + 2H(H2 − K)],
+(27)
+fi
+M t(vM, wM, ςM, ν, ψ) ≡ −∇j Πij (vM, wM, ςM, ν, ψ) (28)
+fη
+M n(vM, wM, ν, ψ) ≡ 2ηM[(∇ivj
+M)bij − 2wM(2H2 − K)], (29)
+where
+Πij (vM, wM, ςM, ν, ψ) ≡ −gij ςM − 2ηMdij (vM, wM, ν, ψ),
+(30)
+dij(vM, wM, ν, ψ) ≡ 1
+2 (∇ivj
+M + ∇j vi
+M) − wMbij . (31)
+In Eq. (30) Π, is the momentum-flux density tensor [19], which is given by a line-tension term and by a viscous term, where the latter is expressed in terms of the rateof-deformation tensor d [35]. Finally, in Eq. (31), b is the second fundamental form [20,36].
+In Eqs. (20) to (25), ρM, ςM, ηM and κ are, respectively, the density, line tension, viscosity, and bending rigidity of M. Equation (20) enforces mass conservation [19]. Equations (21) and (22) are the tangential and normal components of theNavier-Stokes( NS) equations, respectively. The term fM t in Eq. (21) represents the force on M elements induced by gradients of line tension and viscous effects, cf. Eq. (28), while fF t is the force exerted on M elements by F. In Eq. (22), fL constitutes Laplace pressure [19, 37], fκ the resistance of M to bending [10], cf.
+Eq. (27), while f η
+M n and fF n are the normal components of the viscous force resulting from in-membrane flows [1] and of the force exerted by F on M, respectively. Equation (23) is the time-evolution equation for the M shape, which moves according to the normal ˆnc , and it has been obtained from Eq. (11). We observe that the M shape velocity, ∂uM/∂t, coincides with the normal displacement velocity of M, but it is independent of the tangential flow velocity vM of M elements along the M shape. This implies that the M shape and F motions allowing for a slip [19], while being geometrically conforming [16]. Finally, Eqs. (24) and (25) re-express the definitions of ν and ψ, and they result from Eqs. (9), (11), (13) and (14), and from the fact that the r shape xM
+r is independent of time.
+For future reference, we define the inertial terms [19]
+in theleft-hand side(LHS) of Eq. (22) as follows:
+Iv ≡ ρMvi
+Mvj
+Mbji, (32)
+Iw ≡ ρMvi
+M∇iwM. (33)
+We choose the followingBCsfor Eqs. (20) to (25):
+nMjΠij = 0 on ∂Ωr , (34)
+vi
+M = 0 on ∂Ωr , (35)
+wM = 0 on ∂Ωr , (36)
+∇iwM = 0 on ∂Ωr , (37)
+ςM = 0 on ∂Ωr , (38)
+uM = 0 on ∂Ωr , (39)
+u1
+M = 0 on ∂Ωr , (40)
+∂u2
+M
+∂x1 = 0 on ∂Ωr . (41)
+Equations (36) and (39) enforce the condition that the left extremity of theMshape is clamped on the channel wall ∂Ω . Equations (34) and (38) imply that theleft (L) extremity of M is not subject to eternal forces [19], i.e., it can freely flow tangentially. Equations (35), (37), (40) and (41) enforce the mirror symmetry about ∂Ω . Namely, Eq. (35) ensures that the vM vector field vanishes on ∂Ω , because a nonzero value of this field there would break the axial symmetry. The condition (40) follows the same lines. In addition, the symmetry requires that scalar fields and vertical components of vector fields in Ω have zero slope with respect to x1 at ∂Ω , see Eqs. (37) and (41).
+2.Fluid domainmotion
+We will determine uD as the solution of aboundaryvalue problem( BVP) given by the following elastic model [16,38]
+∂SDαβ (uD)
+∂xr β
+= 0 in Ωr, (42)
+where the elastic stress tensor SD is given by
+SDαβ ≡ Fαγ Tγβ, (43)
+where F is defined in Eq. (2), and
+Tαβ ≡K(uD)Eγγ δαβ+ (44)
+2μ(uD) Eαβ − 1
+2 δαβ Eγγ ,
+Eαβ ≡ 1
+2 (FγαFγβ − δαβ) , (45)
+
+
+7
+K(u) ≡ 1
+[det(F (u))]ζ , (46)
+μ(u) ≡ 1
+[det(F (u))]ζ . (47)
+In Eqs. (46) and (47), the bulk and shear modulus, K and μ, respectively, depend on the deformation-gradient tensor (2). In the absence of this dependence, the elastic model above would be unstable under local mesh compression [16], such as the one shown below B in Fig.A.1B. In fact, the model’s Lagrangian would not penalize configurations with small det F . The inclusion of the dependence (46) and (47) on det F allows for penalizing these configurations—the larger the exponent ζ > 0, the stronger the penalty.
+The equation of motion for u ̇ D is obtained by deriving Eq. (42) with respect to time, and using the fact that r coordinates are time independent:
+∂
+∂xr β
+dSDαβ (uD)
+dt = 0 in Ωr. (48)
+We impose the followingBCsfor Eqs. (42) and (48):
+uD = 0 on ∂Ωr ∪ ∂Ωr , (49)
+u1
+D = 0 on ∂Ωr , (50)
+∂u2
+D
+∂xr 1
+= 0 on ∂Ωr , (51)
+uD = uM on ∂Ωr , (52)
+u ̇ D = 0 on ∂Ωr ∪ ∂Ωr , (53)
+u ̇ 1
+D = 0 on ∂Ωr , (54)
+∂u ̇ 2
+D
+∂xr 1
+= 0 on ∂Ωr , (55)
+u ̇ D = u ̇ M on ∂Ωr . (56)
+Equation (49) ensures that D is not deformed on ∂Ωr ∪ ∂Ωr , cf. Eq. (A.18). Equations (50) and (51) follow from axial symmetry. Equation (52) derives from the requirement that D and M deformations are conforming [16]: In Eq. (52), uD is evaluated at a reference coordinate
+xr ∈ ∂Ωr , and uM is evaluated at the curvilinear coordinate x1 such that xM
+r (x1) = xr. Finally, the BCs for u ̇ D, Eqs. (53) to (56), are derived along the same lines as Eqs. (49) to (52).
+3.Fluidmotion
+We will now discuss the F equations of motion, and present them first in c configuration coordinates, and then transform them inrcoordinates.
+FIG. 3: Reference(r) andcurrent(c) configuration for the interaction between afluid( F) and aHelfrich membrane( M). The Figure follows the same notation as Fig.A.1, and it represents a vertical channel with mirror symmetry about its mid axis, which coincides with ∂Ω ; the right, mirrored part of the channel is not shown, cf. Fig.4A. The top edge of the Fmesh, ∂Ωr , coincides with the one-dimensional manifold Ωr ofM. The bottom-left point of theFdomain ∂Ωc (brown cross), is marked in both therandcconfiguration. TheMprofile is purposely, strongly deformed without remeshing in order to illustrate mesh deformation. The unit normals in the r and c configuration, ˆnr and ˆnc , respectively, are also shown, and their plotted length has been adjusted for clarity.
+a. Equations of motion incurrentconfiguration coordinates In c coordinates, the F equations of motion are theNSand continuity equations [19]:
+ρF
+∂vFα
+c
+∂t + vF
+β c
+∂vFα
+c ∂xc β
+= ∂σF c αβ
+∂xc β
+, (57)
+∂vFα
+c ∂xc α
+= 0, (58)
+and they hold for xc ∈ Ωc. Equations (57) and (58) describe the F motion in a flat, two-dimensional geometry [19]—an example of the corresponding NS equations on a curved geometry is given by Eq. (21).
+
+
+8
+FIG. 4: Interaction between afluid( F) and a M. Here we show the M fields, and F is air and M an elastomer. A) Initial and current(c) configuration ofM(solid blue and dashed red curve, respectively). Only thelefthalf of the system is shown, the righthalf is obtained by mirror symmetry from thelefthalf through the symmetry axis (green dotted and dashed line). B) and C) Stretch field and tangent angle ofM, respectively. D), E) and F):Mtangential velocity, normal velocity and tension, respectively. All panels refer to the same instant of time, shown on top, and they display the mesh. In panels B-F, the initial M configuration is also shown (dim blue line).
+We enforce the followingBCsfor Eqs. (57) and (58):
+vFc = vF on ∂Ωc , (59)
+vFc = 0 on ∂Ωc , (60)
+vF
+1
+c = 0 on ∂Ωc , (61)
+∂vF2
+c ∂xc 1
+= 0 on ∂Ωc , (62)
+vFc = u ̇ D on ∂Ωc , (63)
+ςFc = ςF on ∂Ωc , (64)
+where ςF is chosen such that
+ρF
+" Z
+dx1wM
+dxc
+dx1 +
+Z
+∂Ωc
+dlc vF · ˆnc
+#
+= 0, (65)
+and dlc id the boundary length-element in the c configu
+
+
+9
+FIG. 5: Interaction between afluid(F) and aHelfrich membrane(M):Ffields. The solution and notation is the same as Fig.4. A) and B):Fvelocity and surface tension, respectively. The initialMconfiguration (blue line) is also shown.
+ration [16].
+Equation (59) implies that F is injected at constant velocity from the bottom edge ∂Ωc . Equation (60) is a no-slip BC on the left edge ∂Ωc , and Eqs. (61) and (62) follow from axial symmetry, cf., for example, Eqs. (50) and (51). Equation (63) implies that the motion of F is geometrically conforming to that of M [16], while allowing for a slip between the tangential flow of M and F material elements—see SectionII C 1. Also, in Eq. (63), vFc is evaluated at a c location xc, and u ̇ D at the corresponding rlocation xr related to xc by uD through Eq. (1).
+Finally, we discuss Eq. (64). Let us consider the overall BVP for the three sectors—M, D and F—given by Eqs. (20) to (25), (42), (48), (57) and (58) and the BCs, Eqs. (34) to (41), (49) to (56) and (59) to (63). Let us consider a translation of theFpressure field
+ςFc → ςFc + C, (66)
+where C is independent of xc. The only components of the BVP which break its invariance with respect to Eq. (66)
+are theright-hand sides( RHSs) of Eqs. (21) and (22), where fF t and fF n depend on the absolute value of ςFc, see Eqs. (16) to (19). All the remaining equations in the BVP depend on ςFc through its derivatives only, and are thus invariant with respect to Eq. (66).
+By pinning the F pressure to the point ∂Ωc , we thus tune the force exerted by F on M. We chose the pinned value, ςF , in such a way that the amount of F matter
+per unit time which flows into Ωc through ∂Ωc is equal to the amount of F matter per unit time which flows through ∂Ωc . This condition is expressed by Eq. (65), and it physically reflects of the known role of pressure as Lagrange multiplier enforcing mass conservation.
+Overall, we will thus consider Eqs. (59) to (65) as BCs forF.
+b. Equations of motion inreferenceconfiguration coordinates We will now rewrite the equations of motion and the BCs of SectionII C 3 ain terms of vF r, ςFr, and the r coordinate xr. The equations of motion (57) and (58) yield, respectively,
+ρF
+∂vα
+F r(xr, t)
+∂t + vγ
+F r(xr, t) − dφγ t(xr)
+dt Gβγ (ut
+D(xr)) ∂vα
+F r(xr, t)
+∂xr β
+= Gγβ(ut
+D(xr)) ∂σF r αβ
+∂xr γ
+, (67)
+Gβα(ut
+D(xr)) ∂vα
+F r(xr, t)
+∂xr β
+= 0, (68)
+which hold in Ωr. In Eqs. (67) and (68) the tensor G is given by the inverse of F [16]:
+Gαβ(u) ≡ [F (u)]−1
+αβ . (69)
+
+
+10
+4. Temporal discretization
+To numerically solve for the dynamics in a time span 0 ≤ t ≤ T , we discretize time by setting ∆t ≡ T /N , tn ≡ n ∆t, with n = 0, 1, · · · , N .
+We combine theCrank-Nicolson( CN) discretization method for NS equations [13, 39] with thearbitrary Lagrangian-Eulerian( ALE) formulation, by discretizing the dynamical equations for M, D and F. The dynamics of the system is obtained as follows.
+Following the CN temporal-discretization scheme [39],
+we define fields at staggered, integer and semi-integer time steps [13]: For example, we set
+vn
+F r(xr) ≡ vF r(xr, tn), (70)
+ς n−1/2
+Fr (xr) ≡ ςFr xr, tn + tn−1
+2 , (71)
+and similarly for otherFandMfields.
+a.Fluid The discretization of the equations of motion for F proceeds along the same lines as in SectionII A, and it is split into three steps according to theincremental pressure correction scheme( IPCS) scheme [13, 14]: Approximated velocity, pressure correction and velocity correction, see AppendixA 4 b. We will show only the main steps of the IPCS scheme here, see SectionII A and SectionII C 4 bfor details.
+ThePDEsfor vF and ςFr are
+ρF
+(
+vα
+F − vn−1, α
+Fr
+∆t + 3
+2 (vn−1, γ
+F r − u ̇ n−1, γ
+D ) Gβγ (un−1
+D )− 1
+2 (vn−2, γ
+F r − u ̇ n−2, γ
+D ) Gβγ (un−2
+D ) ∂V α
+F
+∂xr β
+)
+= (72)
+Gγβ (un−1
+D )∂
+∂xr γ
+σF r αβ (VF, ς∗
+Fr, un−1),
+ρF
+∆t Gβα(un−1
+D ) ∂vα
+F
+∂xr β
+= (73)
+Gγα(un−1
+D )∂
+∂xr γ
+Gβα(un−1
+D ) ∂φF
+∂xr β
+,
+where we have set
+VF ≡ vF + vn−1
+Fr
+2 , (74)
+ς∗
+Fr ≡ ς n−3/2
+Fr , (75)
+φF ≡ ς∗
+Fr − ς n−1/2
+Fr . (76)
+TheBCsfor Eqs. (72) and (73) are [13]
+vF = vF on ∂Ωr , (77)
+vF = 0 on ∂Ωr , (78)
+v1
+F = 0 on ∂Ωr , (79)
+G(un−1
+D )α1
+∂V 2
+F
+∂xr α
+= 0 on ∂Ωr , (80)
+vF = u ̇ n−1
+D on ∂Ωr , (81)
+ˆnr γ Gγα(un−1
+D )Gβα(un−1
+D ) ∂φF
+∂xr β
+= 0 (82)
+on ∂Ωr ∪ ∂Ωr ∪ ∂Ωr ,
+G(un−1
+D )α1
+∂φF
+∂xr α
+= 0 on ∂Ωr , (83)
+ςFc = φF on ∂Ωc , (84)
+where in Eq. (84), φF is chosen so as to satisfy the mass-conservation relation
+ρF
+" Z
+dx1wn
+M
+d
+dx1 (xr + un−1/2
+M )+
+Z
+∂Ωr
+dlr vF · ˆnr
+#
+= 0,
+(85) and lr is the boundary length-element in the r configuration [16]. Equation (85) is Eq. (65) expressed in terms of rquantities.
+Finally, vn
+F r is determined from vF and ςn−1/2
+Fr by means
+
+
+11
+of the relation
+ρF
+vα
+F − vn, α
+Fr
+∆t = Gβα(un−1
+D ) ∂φF
+∂xr β
+in Ωr. (86)
+b.Helfrich membrane We discretize Eqs. (20) to (25) as follows
+∇n−1/2
+i vi
+M − 2H n−1/2wn
+M =0, (87)
+ρM
+vn, i
+M − vn−1, i
+M
+∆t + 3
+2 vn−1, j
+M ∇n−1/2
+j vn−1, i
+M −1
+2 vn−2, j
+M ∇n−1/2
+j vn−2, i
+M − 2vn−1, j
+M wn−1
+M bn−1/2, i
+j− (88)
+wn−1
+M ∇n−1/2, iwn−1
+M=
+−∇n−1/2
+j Πij vn
+M + vn−1
+M
+2 , wn
+M + wn−1
+M
+2 , ςn−1/2
+M , νn−1/2, ψn−1/2 +
+fi
+F t(σF r(vn
+F r, ς n−1/2
+Fr , un−1
+D ), νn−1/2, ψn−1/2),
+ρM
+wn
+M − wn−1
+M
+∆t + vn−1, i
+M vn−1, j
+M bn−1/2
+ji + 3
+2 vn−1, i
+M ∇n−1/2
+i wn−1
+M −1
+2 vn−2, i
+M ∇n−1/2
+i wn−2
+M = (89)
+fL(ς n−1/2
+M , νn−1/2, ψn−1/2) + fκ(νn−1/2, ψn−1/2) + f η
+Mn
+vn
+M + vn−1
+M
+2 , wn
+M + wn−1
+M
+2 , νn−1/2, ψn−1/2 +
+fF n(σF r(vn
+F r, ς n−1/2
+Fr , un−1
+D ), νn−1/2, ψn−1/2),
+un−1/2
+M − un−3/2
+M
+∆t =wn
+M ˆnc n−1/2, (90)
+∂un−1/2, 1
+M
+∂x1 = − ∂xM 1
+r
+∂x1 + νn−1/2 cos ψn−1/2, (91)
+∂un−1/2, 2
+M
+∂x1 = − ∂xM 2
+r
+∂x1 − νn−1/2 sin ψn−1/2. (92)
+In Eqs. (88) and (89), σF r denotes the F stress tensor in therconfiguration:
+σt
+F r αβ(xr) ≡σF c αβ(φt(xr)) (93)
+=ςFr(xr, t)δαβ + ηF
+h
+Gγβ (ut
+D(xr)) ∂vα
+Fr ∂xr γ
++
+Gγα(ut
+D(xr)) ∂vβ
+Fr
+∂xr γ
+i
+.
+Proceeding along the same lines, the discrete forms of theBCs(34) to (41) read, respectively,
+nM
+n−1/2
+j Πij vn
+M + vn−1
+M
+2 , wn
+M + wn−1
+M
+2 , ςn−1/2
+M , νn−1/2, ψn−1/2 = 0 on ∂Ωr (94)
+vn, i
+M = 0 on ∂Ωr , (95)
+wn
+M = 0 on ∂Ωr , (96)
+∇n−1/2
+i wn
+M = 0 on ∂Ωr , (97)
+
+
+12
+ς n−1/2
+M = 0 on ∂Ωr , (98)
+un−1/2
+M = 0 on ∂Ωr , (99)
+un−1/2, 1
+M = 0 on ∂Ωr , (100)
+∂un−1/2, 2
+M
+∂x1 = 0 on ∂Ωr . (101)
+Following the IPCS scheme, in what follows we will split theBVPabove into three steps [13,14]:
+II.C.4.1 Approximated velocities. Proceeding along
+the lines of the splitting scheme for F, we introduce the auxiliary velocities vM and wM, which approximate, respectively, vn
+M and wn
+M [14]. We define vM and wM as solutions of thePDEs
+ρM
+h vi
+M − vn−1, i
+M
+∆t + 3
+2 vn−1, j
+M −1
+2 vn−2, j
+M ∇n−1/2
+j Vi
+M − 2V j
+M WMbn−1/2, i
+j − WM∇n−1/2, iWM
+i
+= (102)
+−∇n−1/2
+j Πij (VM, WM, ς∗
+M, νn−1/2, ψn−1/2)+
+fi
+F t(σF r(vn
+F r, ς n−1/2
+Fr , un−1
+D ), νn−1/2, ψn−1/2),
+ρM
+wM − wn−1
+M
+∆t + V i
+MV j
+M bn−1/2
+ji + 3
+2 vn−1, i
+M −1
+2 vn−2, i
+M ∇n−1/2
+i WM = (103)
+fL (ς ∗
+M, νn−1/2, ψn−1/2) + fκ(νn−1/2, ψn−1/2) + f η
+M n(VM, WM, νn−1/2, ψn−1/2)+
+fF n(σF r(vn
+F r, ς n−1/2
+Fr , un−1
+D ), νn−1/2, ψn−1/2),
+where we have set
+Vi
+M ≡ vi
+M + vn−1, i
+M
+2 , (104)
+WM ≡ wM + wn−1
+M
+2 , (105)
+ς∗
+M ≡ ς n−3/2
+M , (106)
+Equations (102) and (103) are the analog of Eqs. (88) and (89), respectively, with a fixed pressure field ς∗
+M
+obtained from the preceding step. In what follows, we will synonymously use the terms ‘pressure’ and ‘tension’ for conciseness [32].
+Overall, Eqs. (102) and (103) determine vM and wM.
+II.C.4.2 Pressure correction. Subtracting Eqs. (88) and (102) and neglecting O(∆t) [32], we obtain
+ρM
+vn, i
+M − vi
+M
+∆t = −∇n−1/2, iφM, (107)
+where we have defined the pressure increment as
+φM ≡ ς∗
+M − ς n−1/2
+M . (108)
+Proceeding along the same lines for Eqs. (89) and (103), we obtain
+wn
+M = wM. (109)
+By taking the covariant derivative of Eq. (107) and using the mass-conservation equation (87) and Eq. (109), we obtain
+∇n−1/2
+i ∇n−1/2, iφM = (110)
+ρM
+∆t (∇n−1/2
+i vi
+M − 2Hn−1/2wM).
+Equation (110) is a second-order PDE which de
+termines φM, and thus the tension ςn−1/2
+M through Eq. (108).
+II.C.4.3 Velocity correction. The M velocity vn
+M is determined by means of Eq. (107) in terms of vM and φM.
+
+
+13
+The BCs for Eqs. (90) to (92), (102), (103), (107), (109) and (110) are
+nM
+n−1/2
+j Πij (VM, WM, ς∗
+M, νn−1/2, ψn−1/2) = 0 on ∂Ωr (111)
+vi
+M = 0 on ∂Ωr , (112)
+wM = 0 on ∂Ωr , (113)
+∇n−1/2
+i wM = 0 on ∂Ωr , (114)
+φM = 0 on ∂Ωr , (115)
+nM
+n−1/2
+i ∇n−1/2, iφM = 0 on ∂Ωr , (116)
+Eqs. (99) to (101).
+In Eq. (116), nM is the unit normal to ∂Ω : It lies in the tangent bundle of Ω , it is directed outside Ω , and it is normalized according to nMinMi = 1 [20,32,40].
+c.Fluid domain The discretization of the equations of motion for D proceeds along the same lines as in SectionII A—see AppendixA 4 cfor details. The discrete version of thePDEs(42) and (48) is
+∂SDαβ (un
+D)
+∂xr β
+= 0 in Ωr, (117)
+∂
+∂xr β
+dSDαβ (un
+D)
+dt = 0 in Ωr, (118)
+with BCs given by the discrete version of Eqs. (49) to (56):
+un
+D = 0 on ∂Ωr ∪ ∂Ωr , (119)
+un, 1
+D = 0 on ∂Ωr , (120)
+∂un, 2
+D
+∂xr 1
+= 0 on ∂Ωr , (121)
+un
+D = un−1/2
+M on ∂Ωr , (122)
+u ̇ n
+D = 0 on ∂Ωr ∪ ∂Ωr , (123)
+u ̇ n, 1
+D = 0 on ∂Ωr , (124)
+∂u ̇ n, 2
+D
+∂xr 1
+= 0 on ∂Ωr , (125)
+u ̇ n
+D = wn
+M ˆnc n−1/2 on ∂Ωr . (126)
+In Eqs. (122) and (126) the LHS is evaluated at a r coordinate xr, and the RHS at the corresponding M curvilinear coordinate x1 such that xM
+r (x1) = xr.
+Given the M fields vn−1,i
+M , wn−1, i
+M , ς n−3/2
+M , un−3/2
+M,
+νn−3/2, ψn−3/2, the D fields un−1
+D , u ̇ n−1
+D , and the F fields
+vn−1
+F r , ς n−3/2
+Fr , we determine the fields at the next time step n → n + 1 as follows:
+1. Update F. We determine the F fields vn
+M and
+ς n−1/2
+Fr by solving the BVP given by Eqs. (72), (73) and (77) to (86),
+2. Update M. The M fields vn,i
+M , wn, i
+M , ς n−1/2
+M, un−1/2
+M , νn−1/2, ψn−1/2 are determined by solving the BVP given by Eqs. (90) to (92), (99) to (103), (107) and (109) to (116).
+3. Update D. We determine the D displacement field and its time derivative, un
+D and u ̇ n
+D, from the BVPsgiven by Eqs. (117) to (126).
+The fields vFc
+n, ςFcn−1/2 in the c configuration are then obtained from the respective fields in the r configuration through Eqs. (5) and (6).
+An example of this dynamics is shown in Fig.4, where we show the interaction between air (F) and an elastomer (M). The channel has dimensions L = 1 m, h = 0.2 m. Proceeding along the lines of SectionII A, M parameters have been estimated by considering a three-dimensional material, multiplying its parameters by a unit length corresponding to the out-of-plane depth, and by the M thickness, chosen to be δ = 10−3 m.
+The M bending rigidity κ2d for a two-dimensional plate has been estimated from the relation κ2d = Eδ3/[12(1 − ν2
+P)], which expresses κ2d as a function of the Young modulus E, the Poisson ratio νP, and δ [17]. Typical values for an elastomer are E ∼ 107 Pa [41] and νP ∼ 0.5 [42], yielding κ2d = 10−3 kg m2/s2, and thus κ =
+
+
+14
+10−3 kg m3/s2. We chose ρM = 1 kg/m and ηM = 1 kg m/s as the density [43] and viscosity [44] of an elastomer, respectively. The F parameters have been estimated from the air parameters: ρF = 1 kg/m2, ηF = 10−5 kg/s [24]. Also, we take v1
+F = 0, and v2
+F corresponds to a
+Poiseuille flow [19], i.e., v2
+F (xc) = 3
+2L2 xc 1(2L − xc 1)v0,
+where v0 = 10−1 m/s. Finally, the D exponent is ζ = 3 [16].
+Figure4corresponds to a fully inertial regime. In fact, the length scale to which the F flow is constrained is the radius of curvature rM ∼ 1 m of the M shape in the c configuration. Combined with the parameters of SectionII C 4 c, this yields a Reynolds number R ∼ ρFv0rM/ηF ∼ 104 [19].
+III. DISCUSSION
+We developed a numerical study on the interaction between afluid( F) and aHelfrich membrane( M). Our analysis is based on thefinite element( FE) method, and it leverages theFinite Element Computational Software( FEniCS) [13], combined with thefluId layeR finitEElement softwarE( IRENE) [32]. In order to guide and introduce the reader to the interaction problem between afluidandHelfrich membrane, we provided two introductory examples of fluid-structure interaction [16], in which thefluidinteracts with arigid bodyand with anelastic body, see SectionsII AandII B. These Sections allow to introduce the necessary physical an mathematical quantities, as well as to assess the stability of our numerical scheme.
+In particular, the time-iteration scheme that we propose implies a partitioned resolution scheme [45] well known influid-structure interaction( FSI) problems. In this regard, we denote by B, E or M the ‘structure’ with which F interacts, respectively, in SectionsII AtoII C. In such partitioned scheme one solves—for example—for the structure degrees of freedom in a given, fixed configuration of F andFluid domain( D), and similarly for F and D, see for example Cases1to3in SectionII C 4.
+Partitioned solutions are known to suffer for numerical instabilities [46]. Qualitatively speaking, as the structure movement displaces F elements, for the structure to accelerate with an acceleration a, an effective ‘added’ F mass, mA, needs to be displaced. This mass results into an effective force ∼ a mA that F exerts on the structure. The partitioned scheme turns out to be stable if such force is significantly smaller than the structure inertia, a mS [47], i.e., if
+mA
+mS
+≪ 1. (127)
+First, for the motion of B in F of SectionII A, mA ∼ ρFAS ∼ 2.3 × 10−2 kg, and mS = ρBAS = 1.4 × 10−1 kg,
+where AS = πab is the area of B. The stability condition (127) is thus satisfied with an accuracy of mA/mS ∼ 10−2. Second, in the analysis of SectionII B, where E moves in F, mA ∼ ρFAS ∼ 6.2×10−2 kg, and mS = ρEAS = 6.2×101 kg, where AS ∼ π(ab − r2) is the area of E. The stability condition (127) is thus satisfied with an accuracy of mA/mS ∼ 0.1.
+Third, we discuss the added-mass instability for the interaction between F and M of SectionII C. At the time shown in Fig.4, we have mS ∼ ρMl ∼ 1 kg, mA ∼ ρFl2 ∼ 1 kg, where l ∼ 1 m is the average M length in thecurrentconfiguration. As a result, Eq. (127) is border line; added and structure mass are comparable, mA/mS ∼ 1. More importantly, theboundary conditions used in SectionII C 1allow for M elements to freely flow in through theleftextremity: as a result, l grows in time. Given that mS and mA scale with l as ∼ l and ∼ l2, respectively, the longer the system evolves, the more the condition (127) will be violated.
+We will now show how our model allows for understanding the physics of the bulge formation in Fig.4. The BCs (34) to (41) are such that the L extremity of M, ∂Ωr , is pinned, but its tangent angle ψ is free. As a result, M tilts upwards under the force exerted by F in the vicinity of ∂Ωr , taking advantage of the free angle. The M shape thus bends in the vicinity of the symmetry axis ∂Ωr , accumulating an elastic stress. The normal acceleration ∂wM/∂t, which is referred to the outwards direction of the current normal nˆc shown in Fig.3, receives contributions from multiple terms, see Eq. (22). These are the forces, which appear in theright-hand sideof Eq. (22), and inertial terms in theleft-hand side. First, the forces are the Laplace force fL, Eq. (26), the elastic force fκ, Eq. (27), the viscous force due to the flow of M elements
+fη
+M n [35], Eq. (29), and the force fF n exerted by F on M, Eq. (19). Second, the inertial terms Iv, Iw are given in (32) and (33). Figure6depicts all such terms in an early stage of the bulge formation, showing that the elastic force fκ dominates over all terms. Such force releases the accumulated elastic stress above: It pushes M inwards in the vicinity of ∂Ωr and outwards close to ∂Ωr —see Fig.6B. Given that M is pinned at ∂Ωr , the force at ∂Ωr is neutralized by an equal and opposite force, cf. Eq. (39). On the other hand, at ∂Ωr , M is free to move upwards driven by the elastic force, cf. Eq. (40), resulting into an increase of the M bulge. As a result, the inflation mechanism is due to a combination of the free-angle BC and elastic forces.
+As a future direction of this work, we plan to go beyond the partitioned approach by using a monolithic scheme, where the degrees of freedom of the M, F and D are solved for at the same time [48]. For a monolithic scheme, no added-mass instability exists, allowing for a characterization of a broader range of physical regimes, e.g., deformation even larger than that of Fig.4. This would allow for studying a large variety of physically sensible
+
+
+15
+FIG. 6: Forces exerted on theHelfrich membrane(M) andMinertial terms, for the dynamics of Fig.4. The Figure follows the same notation as Fig.4. A)-D): Laplace, elastic and viscous force, and force exerted onMby thefluid, respectively, see Eqs. (19), (26), (27) and (29). E) and F): InertialMterms, see Eqs. (32) and (33).
+scenarios, e.g., the formation of spikes in lipid membranes [49], and membrane tubes [15]. Another natural future direction is the extension to three dimensions. Importantly, such extension would require a two-dimensional generalization of thearc length( AL) gauge for M, see SectionII C 1. To achieve this, a natural parametrization would be the isothermal gauge [32, 50]. A time-dependent version of the isothermal gauge should then be worked out along the lines of the time-dependent AL gauge of SectionII C 1. This extension would allow for studying a large variety of additional phenomena, such non-axisymmetric, three-dimensional vesicle formation.
+IV. LIST OF ACRONYMS
+c: current r: reference AL: arc length ALE: arbitrary Lagrangian-Eulerian B: rigid body BC: boundary condition BE: boundary element BVP: boundary-value problem CN: Crank-Nicolson D: Fluid domain
+E: elastic body F: fluid FE: finite element FEAT2D: Finite Element Analysis Tools 2D FEniCS: Finite Element Computational Software FSI: fluid-structure interaction IPCS: incremental pressure correction scheme IRENE: fluId layeR finitE-Element softwarE L: left LHS: left-hand side M: Helfrich membrane NS: Navier-Stokes PDE: partial differential equation R: right RHS: right-hand side
+ACKNOWLEDGMENTS
+We would like to thank S. Al-Izzi and S. Astruc for useful discussions, and the FEniCS online community for its precious support.
+This work was granted access to the high-performance computing resources of MesoPSL financed by the Region Iˆle de France, and to the Abacus cluster at Institut Curie.
+P. Sens and D. Wo ̈rthmu ̈ller received funding from European Research Council (ERC) grant ERC-SyG 101071793, awarded to P. Sens.
+
+
+16
+Appendix A: Fluid and rigid body
+1.Rigid bodymotion
+In this Section, we will work out the equations of motion forB.
+a. Equation of motion incurrent-configuration coordinates
+The dynamics of B is given by the equations of motion for a rigid body which, inccoordinates, read [51]
+I dω
+dt = −
+Z
+∂Ωc
+dlc ε3αβ σF c βγ nˆc γ , (A.1)
+ω ≡ dθ
+dt . (A.2)
+Equation (A.1) relates the angular acceleration of B to the torque of external forces. The moment of inertia of B is denoted by I. Theright-hand side( RHS) of Eq. (A.1) contains the line integral along the boundary of B, of the torque of the local force exerted byfluid( F) on B with respect to the left focal point f of B [19], and nˆc is the normal to ∂Ωc pointing towards Ωc.
+This force is expressed in terms of the F stress tensor [19] in c coordinates σF c, given by Eq. (17), where ηF and ρF are the two-dimensional viscosity and density of F, respectively. Also, εαβγ is the three-dimensional Levi
+Civita symbol. Finally, dlc is the line element of ∂Ωc in the c configuration, and ˆnc the unit boundary normal to ∂Ωc pointing outside Ωc.
+b. Equation of motion in thereference-configuration coordinates
+Inrcoordinates, Eq. (A.1) reads
+I dω
+dt =
+Z
+∂Ωr
+ds εαβ φα, t(ξ(s)) − f α σF r βγ (ξ(s))εγλFλμ(ut
+D(ξ(s))) dξμ(s)
+ds . (A.3)
+In Eq. (A.3), the integral in the RHS is over the curvilinear boundary ∂Ωr , which is parameterized as xr = ξ(s), where s is the curvilinear coordinate. Also, εαβ is the two-dimensional Levi-Civita symbol [20], and σF r denotes the stress tensor in the r configuration, which is given by Eq. (93), where G is given by Eq. (69).
+2. Fluid motion
+In this Section, we will work out the equations of motion forF.
+a. Equations of motion in thecurrent-configuration coordinates
+The equations of motion, expressed in terms of the c fields vFc and ςFc, are Eqs. (57) and (58), see SectionII C 3 for details.
+Theboundary conditions( BCs) for Eqs. (57) and (58)
+and Eqs. (A.1) and (A.2) are
+vF
+1
+c(xc) = vF on ∂Ωc , (A.4)
+vF
+2
+c(xc) = 0 on ∂Ωc , (A.5)
+vFc(xc) = 0 on ∂Ωc , (A.6)
+vF
+α
+c (xc) = d[R(θ)]αβ
+dt [ψt β(xc) − f β] on ∂Ωc , (A.7)
+ηF
+∂vFα
+c ∂xc 1
+= 0 on ∂Ωc , (A.8)
+ςFc(xc) = 0 on ∂Ωc . (A.9)
+Equations (A.4) and (A.5) ensure that F is injected on the boundary ∂Ωc in a direction parallel to the xc 1 axis, and Eq. (A.6) is a no-slip BC [19] along the channel walls ∂Ωc , see Fig.A.1. Equation (A.7) ensures that, at the boundary ∂Ωc , the F velocity matches the rotational velocity of B. Given that B can only rotate about its left focal point f , the B rotational velocity of a point xc ∈ ∂Ωc is given by
+d[R(θ)]αβ
+dt [ψt β(xc) − cβ], (A.10)
+
+
+17
+where R is the rotation matrix corresponding to a counterclockwise rotation:
+R(θ) ≡ cos θ − sin θ
+sin θ cos θ . (A.11)
+Finally, Eqs. (A.8) and (A.9) ensure, respectively, that on ∂Ωc there is zero traction and tension; this corresponds to the hypothesis that there is free flow at ∂Ωc [13,19].
+b. Equations of motion in thereference-configuration coordinates
+We will now rewrite the equations of motion and the BCs in terms of vF r, ςFr, and the r coordinate xr. The equations of motion (57) and (58) yield, respectively, Eqs. (67) and (68), see SectionII C 3 b. The BCs (A.4) to (A.9) yield as
+v1
+F r(xr) = vF on ∂Ωr , (A.12)
+v2
+F r(xr) = 0 on ∂Ωr , (A.13)
+vF r(xr) = 0 on ∂Ωr , (A.14)
+vα
+F r(xr) = d[R(θ)]αβ
+dt (xr β − f β) on ∂Ωr ,
+(A.15)
+ηFGβ1(ut
+D(xr)) ∂vα
+Fr ∂xr β
+= 0 on ∂Ωr , (A.16)
+ςFr(xr) = 0 on ∂Ωr . (A.17)
+3. Motion ofFluid domain
+The equations of motion (67), (68), (A.3) and (A.12) to (A.17) involve the displacement field uD, which describes how the region—or domain—which contains F, is deformed in time, cf. Fig.A.1. We will denote this region as the D. We observe that this field has, so far, been left arbitrary, and we have the freedom to choose it.
+Here, uD will be determined with an analogy with the theory of elasticity [16]. We imagine that, as B rotates about its focal point, each point xr ∈ Ωr moves into a point xc ∈ Ωc, and that the domain Ωr is deformed, e.g., locally stretched and compressed, into Ωc, like an elastic medium. We will determine uD as the solution of aboundary-value problem( BVP) given by the elastic model (42), see SectionII C 2for details.
+The BCs for thepartial differential equation( PDE) (42) are
+uD = 0 on ∂Ωr , (A.18)
+uD = f − xr + R(θ) · (xr − f ) on ∂Ωr . (A.19)
+Equation (A.18) enforces the fact that the mesh is not deformed at the boundary ∂Ωr . Finally, Eq. (A.19) ensures that the mesh deformation at ∂Ωr matches the deformation induced by the rotation ofB.
+Equations (42), (A.18) and (A.19) constitute the BVP which determines uD. Along the lines of BVPs in the theory of elasticity, such BVP is already, naturally formulated in therconfiguration [17].
+From the BVP above, we obtain a BVP for u ̇D, which will be needed in the following to describe the D motion. By deriving both sides of Eqs. (42), (A.18) and (A.19), we obtain, respectively, Eq. (48) and
+u ̇ D = 0 on ∂Ωr , (A.20)
+u ̇ D = ω dR
+dθ · (xr − f ) on ∂Ωr , (A.21)
+where in Eqs. (A.20) and (A.21) we used the fact that xr is independent of time, and in Eq. (A.21) we substituted Eq. (A.2). Theleft-hand side( LHS) of Eq. (48) depends on the second partial derivatives of uD and u ̇ D—see Eqs. (43) to (47). As a result, given θ, ω, and uD from Eqs. (42), (A.18) and (A.19), the BVP (48), (A.20) and (A.21) determines u ̇ D.
+Overall Eqs. (42), (48), (67), (68), (A.2), (A.3) and (A.12) to (A.21) constitute a BVP for θ, ω, vF r, ςFr, uD and u ̇ D which, combined with the temporalBCs
+θ(t = 0) = θ0 (A.22)
+ω(t = 0) = ω0 (A.23)
+vF r(xr, t = 0) = vF r0(xr), (A.24)
+ςFr(xr, t = 0) = ςFr0(xr), (A.25)
+determine the dynamics of the system.
+4. Temporal discretization
+To numerically solve for the dynamics in a time span 0 ≤ t ≤ T , we discretize time by setting ∆t ≡ T /N , tn ≡ n ∆t, with n = 0, 1, · · · , N .
+We combine theCrank-Nicolson( CN) discretization method forNavier-Stokes( NS) equations [13, 39] with thearbitrary Lagrangian-Eulerian( ALE) formulation, by discretizing the dynamical equations for B, F and D—see below.
+
+
+18
+a.Rigid body
+Proceeding along the lines of the CN scheme [39], we define fields at staggered, integer and semi-integer time steps [13]—see for example Eqs. (70) and (71) for vF r and ςFr—and similarly for other quantities. We discretize Eqs. (A.2) and (A.3) and, neglecting O(∆t), we obtain
+θn − θn−1
+∆t =ωn, (A.26)
+ωn − ωn−1
+∆t =I
+Z
+∂Ωr
+ds εαβ ξα(s) + un−1, α(ξ(s)) − f α σn−1
+F r βγ (ξ(s); vn−1
+F r , ς n−3/2
+Fr )× (A.27)
+εγλFλμ(un−1
+D (ξ(s))) dξμ(s)
+ds ,
+where in Eq. (A.27) we used Eqs. (1) and (3) and we explicitly indicated the dependence of the stress tensor (93) on vFc and ςFc.
+b.Fluid
+To discretize in time the F problem, we will apply the CN splitting scheme [13, 39] to the NS equations (67)
+and (68) in the r configurations. This splitting scheme is derived form theincremental pressure correction scheme [52], in which the solution of the NS equations is split into three intermediate steps. In what follows, we will synonymously use the terms ‘pressure’ and ‘surface tension’ for conciseness [32].
+The discrete form of thePDEsEqs. (67) and (68) is
+ρF
+"
+vn, α
+F r − vn−1, α
+Fr
+∆t + 3
+2 (vn−1, γ
+F r − u ̇ n−1, γ ) Gβγ (un−1
+D ) ∂vn−1, α
+Fr
+∂xr β
+−1
+2 (vn−2, γ
+F r − u ̇ n−2, γ )× (A.28)
+Gβγ (un−2
+D ) ∂vn−2, α
+Fr
+∂xr β
+#
+=
+Gβα(un−1
+D ) ∂ς n−1/2
+Fr
+∂xr β
++ ηF Gδβ (un−1
+D )∂
+∂xr δ
+"
+Gγβ (un−1
+D )∂
+∂xr γ
+vn, α
+F r + vn−1, α
+Fr
+2
+!#
+,
+Gβα(un−1
+D ) ∂vn, α
+Fr
+∂xr β
+= 0, (A.29)
+where we omitted the dependence on xr for clarity. Also, in the LHS of Eq. (A.28) we rewrote the convective term
+according to the Adams-Bashforth discretization scheme [13, 53], and we used Eqs. (1) and (3) to rewrite the time
+
+
+19
+derivative of φ in terms of u ̇ D.
+The discrete form of theBCs(A.12) to (A.17) reads
+vn, 1
+F r = vF on ∂Ωr , (A.30)
+vn, 2
+F r = 0 on ∂Ωr , (A.31) vn
+F r = 0 on ∂Ωr , (A.32)
+vF r = ωn dR
+dθ θ=θn
+· (xr − f ) on ∂Ωr , (A.33)
+ηF Gβ1(un−1
+D )∂
+∂xr β
+vn, α
+F r + vn−1, α
+Fr
+2
+!
+= 0 on ∂Ωr , (A.34)
+ς n−1/2
+Fr = 0 on ∂Ωr . (A.35)
+We will now split theBVPinto three steps [13,14]:
+1. Approximated velocity. We introduce the velocity vF, which approximates the true velocity vF r, and which satisfies the BVP given by Eq. (72) andBCs
+v1
+F = vF on ∂Ωr , (A.36)
+v2
+F = 0 on ∂Ωr , (A.37)
+vF = 0 on ∂Ωr , (A.38)
+vF = ωn dR
+dθ θ=θn
+· (xr − f ) on ∂Ωr , (A.39)
+ηF Gβ1(un−1
+D ) ∂V α
+F
+∂xr β
+= 0 on ∂Ωr . (A.40)
+where VF and ς∗
+Fr are given by Eqs. (74) and (75).
+2. Pressure correction.
+Subtracting Eqs. (72) and (A.28) and neglecting O(∆t), we obtain Eq. (86), where the surfacetension increment φF is defined by Eq. (76). By
+applying Gγα(un−1
+D )∂/∂xr γ to both sides of Eq. (86) and using Eq. (A.29), we obtain the second-order PDE(73) for φF.
+We will now work out the BCs for Eq. (73). Equations (75), (76) and (A.35) imply theBC
+φF = 0 on ∂Ωr . (A.41)
+We multiply Eq. (86) by Gγα(un−1
+D )nˆr γ , where ˆnr is the unit boundary normal in the r configuration
+pointing outside Ωr, see Fig.3A. We obtain
+ρF
+∆t Gγα(un−1
+D )ˆnr γ (vα
+F − vn, α
+F r ) = (A.42)
+nˆr γ Gγα(un−1
+D )Gβα(un−1
+D ) ∂φF
+∂xr β
+.
+Combining Eq. (A.42) with Eqs. (A.30) to (A.33) and (A.36) to (A.39), we obtain the secondBC
+ˆnr γ Gγα(un−1
+D )Gβα(un−1
+D ) ∂φF
+∂xr β
+= (A.43)
+0 on ∂Ωr ∪ ∂Ωr ∪ ∂Ωr .
+The BVP (73), (A.41) and (A.43) determines φF and, through the definition (76), the surface tension
+
+
+20
+ςcn−1/2.
+3. Velocity correction. The velocity vn
+F r is determined from the approximate velocity vF from Eq. (86).
+c.Fluid domain
+The discrete version of the BVP for uD, Eqs. (42), (A.18) and (A.19), is given by Eq. (117) and
+un
+D = 0 on ∂Ωr , (A.44) un
+D = f − xr + R(θn) · (xr − f ) on ∂Ωr . (A.45)
+The discrete version of the BVP for u ̇ D, Eqs. (48), (A.20) and (A.21), is given by Eq. (118) and
+u ̇ n
+D = 0 on ∂Ωr , (A.46)
+u ̇ n
+D = ω dR
+dθ · (xr − f ) on ∂Ωr . (A.47)
+We can now iterate in time for the ensemble of fields of the F-B system as follows. At each step n, given θn−1,
+ωn−1, vn−1
+F r , ς n−3/2
+Fr , un−1
+D and u ̇ n−1
+D from the preceding step, we
+1. Update B. Solve the algebraic equations Eqs. (A.26) and (A.27) for θn and ωn.
+2. Update D. Solve the BVPs (117), (118) and (A.44) to (A.47) for un
+D and u ̇ n
+D.
+3. Update F. Solve the BVPs (72) and (A.36)
+to (A.40) and (A.41) to (A.43) for vF and ςn−1/2
+Fr ,
+and obtain vn
+F r from Eq. (86).
+The fields vFc
+n−1, ςFcn−3/2 in the c configuration are then obtained from the respective fields in the r configuration through Eqs. (5) and (6).
+5. Characteristic time scale
+As shown in Fig.A.2, the dynamics of Fig.1involves a characteristic time scales τB, i.e., the period of the angular oscillations of B. This time scale can be estimated by considering the dynamical equation (A.1) for B, and approximating its LHS as I/τ 2
+B and its RHS as (ηFv0/a 2πa)a. Here, ηFv0/a is the viscous component of the force per unit length exerted by F on B, cf. Eq. (17), 2πa estimates the total length of the boundary of B, and a approximates the lever arm of the force above. Putting
+everything together, we obtain
+τB ∼
+s
+I
+2πaηFv0
+. (A.48)
+For the parameters of Fig.1, Eq. (A.48) yields τB ∼ 130 s, which is in agreement with the period of the oscillations in Fig.A.2.
+Appendix B: Fluid and elastic body
+1. Equations of motion
+The equations of motion for the dynamics of F and elastic body(E) are the following.
+First, the dynamics of F is governed by the NS and massconservation equations (57) and (58), respectively. Their BCs are Eqs. (A.4) to (A.6), (A.8) and (A.9), which stay unchanged with respect to SectionII A. On the other hand, BC (A.7), which ensures that the F velocity matches the Bvelocity at the interface betweenFandB, now reads
+vFc(xc) = duE(xr)
+dt xr=ψt(xc)
+on ∂Ωc (B.1)
+Second, the motion of E is governed by Newton’s equations of motion for an elastic body [17]
+ρE
+d2uα
+E (xr)
+dt2 = ∂SEαβ(uE)
+∂xr β
+, (B.2)
+where ρE is the density of E, which is assumed to be independent of space. Also, uE is the deformation field of E, which is defined along the lines of Eq. (1). The E stress tensor is derived from a compressible neo-Hookean model [54], and it reads
+SEαβ ≡ μ
+det F − 1
+2 Cγγ Gαβ + Fβα + (B.3)
+K[(det(F ))2 − 1]Gαβ,
+where
+Cαβ ≡ δαβ + 2Eαβ. (B.4)
+We have chosen this model because it is stable under compression, i.e., its potential energy diverges as det F → 0 [54]. As opposed to linear models [17] and to the elastic model of AppendixA 3, this model proves to yield a stable dynamics for E as it is compressed by F, see below and Fig.2. TheBCsfor Eq. (B.2) are
+uE(xr) = 0 on ∂Ωr , (B.5)
+
+
+21
+FIG. A.1: Reference(r) andcurrent(c) configuration for the interaction between afluidand arigid body(B). A)r configuration. The region Ωr is given by the rectangle 0 ≤ xr 1 ≤ L, 0 ≤ xr 2 ≤ h with the elliptical hole (B), and is delimited by the mesh (gray lines). Boundaries in therconfiguration are denoted by ∂Ωr , ∂Ωr , ∂Ωr , ∂Ωr and ∂Ωr (colored dashed lines). The ellipse focal point f (light green dot) is also shown. B) c configuration. The region Ωc is delimited by the mesh (gray lines). Boundaries in the c configuration are denoted by ∂Ωc , ∂Ωc , ∂Ωc , ∂Ωc and ∂Ωc (colored dashed lines), and the rotational angle θ ofBis shown as an arc (black dotted line). The Cartesian coordinates xc are also shown.
+FIG. A.2: Angle of therigid bodyas a function of time for the interaction between afluidand arigid bodyshown in Fig.1.
+SEαβ (ut
+E) xr=ξ(s) εβγ
+dξγ
+ds = (B.6)
+σF c αβ(φt(ξ(s)))εβγ
+dφt, γ (ξ(s))
+ds on ∂Ωr .
+In the LHS of Eq. (B.6), the quantity εβγ
+dξγ
+ds represents
+the unit normal to ∂Ωr , and similarly for theRHS.
+Finally, the equations of motion for D are (42) and (48), withBCs(A.18) and (A.20) and
+ut
+D(xr) = ut
+E(xr) on ∂Ωr , (B.7)
+u ̇ t
+D(xr) = u ̇ t
+E(xr) on ∂Ωr . (B.8)
+Equation (B.7) and Eq. (B.8) ensure that the displacement and velocity of E and D are conforming at the E-D interface, and they replace Eqs. (A.19) and (A.21), respectively.
+2. Dynamics
+The system dynamics is obtained as follows: given vn−1
+Fr , ς n−3/2
+Fr , un−1
+E , u ̇ n−1
+E , u ̇ n−1
+D and u ̇ n−1
+D from the preceding step, we
+• Update E. Solve for un
+E and u ̇ n
+E the discrete version of Eq. (B.2)
+ρE
+u ̇ n, α
+E − u ̇ n−1, α
+E
+∆t = ∂SEαβ(un
+E)
+∂xr β
+, (B.9)
+
+
+22
+un
+E − un−1
+E
+∆t = u ̇ E, (B.10)
+withBCsobtained from Eqs. (B.5) and (B.6):
+un
+E = 0 on ∂Ωr , (B.11)
+εβγ SEαβ (un
+E ) xr=ξ(s)
+dξγ
+ds = (B.12)
+σF r αβ (ξ(s); vn−1
+F r , ς n−3/2
+Fr , un
+E )εβγ Fγδ(un−1
+E ) xr=ξ(s)
+dξδ
+ds on ∂Ωr .
+In Eq. (B.12), we have used Eqs. (2) and (3) to rewrite the derivative of φ(ξ(s)).
+• Update D. Solve for un
+D and u ̇ n
+D the BVPs given by Eqs. (117) and (118) with BCs (A.44), (A.46) and
+un
+D = un
+E on ∂Ωr , (B.13)
+u ̇ n
+D = u ̇ n
+E on ∂Ωr . (B.14)
+• Update F. Solve the BVPs given by (72) and (73) and BCs (A.36) to (A.38), (A.40), (A.41) and (A.43) and
+vF = u ̇ n
+E on ∂Ωr , (B.15)
+which replaces Eq. (A.40) for a rigid body, and solve Eq. (86).
+[1] M. Arroyo and A. DeSimone, Relaxation dynamics of fluid membranes,Phys. Rev. E Stat. Phys. Plasmas Fluids Relat. Interdiscip. Top. 79, 031915 (2009). [2] G. Boedec, M. Leonetti, and M. Jaeger, Isogeometric FEM-BEM simulations of drop, capsule and vesicle dynamics in Stokes flow,J. Comput. Phys. 342, 117 (2017). [3] H. Zhou, Y.-N. Young, and Y. Mori,Modeling and Simulation of Open Membranes in Stokes Flow with MixedDimensional Coupling(2026),arXiv:2504.16823 [math]. [4] J. M. Barakat and E. S. G. Shaqfeh, Stokes flow of vesicles in a circular tube,J. Fluid Mech. 851, 606 (2018). [5] D. S. Rodrigues, R. F. Ausas, F. Mut, and G. C. Buscaglia, A semi-implicit finite element method for viscous lipid membranes,J. Comput. Phys. 298, 565 (2015). [6] A. Bonito, R. Nochetto, and M. Pauletti, Dynamics of Biomembranes: Effect of the Bulk Fluid,Math. Model. Nat. Phenom. 6, 25 (2011). [7] A. Bonito, R. H. Nochetto, and M. Sebastian Pauletti, Parametric FEM for geometric biomembranes,J. Comput. Phys. 229, 3171 (2010). [8] A. Laadhari, Finite-Element Method for the Simulation of Lipid Vesicle/Fluid Interactions in a Quasi–Newtonian Fluid Flow,Mathematics 11, 1950 (2023). [9] J. W. Barrett, H. Garcke, and R. Nu ̈rnberg, Finite element approximation for the dynamics of asymmetric fluidic biomembranes,Math. Comput. 86, 1037 (2016).
+[10] W. Helfrich, Elastic Properties of Lipid Bilayers: Theory and Possible Experiments,Z. Naturforschung C 28, 693 (1973).
+[11] L. E. Malvern, Introduction to the Mechanics of a Continuous Medium (Prentice Hall, Englewood Cliffs, NJ, 1969). [12] P. Howell, G. Kozyreff, and J. Ockendon, Applied Solid Mechanics (Cambridge University Press, 2008). [13] A. Logg, K.-A. Mardal, and G. Wells, eds., Automated Solution of Differential Equations by the Finite Element Method: The FEniCS Book , Lecture Notes in Computational Science and Engineering, Vol. 84 (Springer Berlin Heidelberg, Berlin, Heidelberg, 2012). [14] A. J. Chorin, Numerical solution of the Navier-Stokes equations,Math. Comput. 22, 745 (1968). [15] I. Dere ́nyi, F. Ju ̈licher, and J. Prost, Formation and Interaction of Membrane Tubes,Phys. Rev. Lett. 88, 238101 (2002). [16] D. Kamensky, Lecture notes for MAE 207: Finite element analysis for coupled problems (2022). [17] L. D. Landau and E. M. Lifshitz, Theory of Elasticity (Elsevier, 1986).
+[18] W. S. Slaughter, The Linearized Theory of Elasticity (Birkha ̈user Boston, Boston, MA, 2002). [19] L. D. Landau and E. M. Lifshitz, Fluid Mechanics (Pergamon, 1987).
+
+
+23
+FIG. B.1: Referenceandcurrentconfiguration for the interaction between afluidand anelastic body. The figures follows the same notation as Fig.A.1.
+[20]S. Marchiafava, Appunti di Geometria Differenziale, Vol. I, II, III (Edizioni Nuova Cultura, 2005). [21] S. S. KISTLER, Coherent Expanded Aerogels and Jellies, Nature 127, 741 (1931). [22] H. Blum, J. Harig., S. Mu ̈ller, S. Schreiber, and S. Turek, FEAT2D, Finite Element Analysis Tools User Manual (1995). [23] M. Schafer and S. Turek, Benchmark Computations of Laminar Flow Around a Cylinder (1996).
+[24] J. Hilsenrath, Tables of Thermal Properties of Gases: Comprising Tables of Thermodynamic and Transport Properties of Air, Argon, Carbon Dioxide, Carbon Monoxide, Hydrogen, Nitrogen, Oxygen, and Steam, Vol. 564 (US Department of Commerce, National Bureau of Standards, 1955). [25] A.-G. Niculescu, D.-I. Tudorache, M. Bocioag ̆a, D. E. Mihaiescu, T. Hadibarata, and A. M. Grumezescu, An Updated Overview of Silica Aerogel-Based Nanomaterials, Nanomaterials 14, 469 (2024). [26] S. Xu, Z. Zhou, Z. Liu, and P. Sharma, Concurrent stiffening and softening in hydrogels under dehydration,Sci. Adv. 9, eade3240 (2023). [27] G. Rehage, Elastic properties of crosslinked polymers, in Macromolecular Chemistry–9 , edited by L. Cross (Butterworth-Heinemann, 1974) pp. 161–178. [28] C. Licht, J. C. Rose, A. O. Anarkoli, D. Blondel, M. Roccio, T. Haraszti, D. B. Gehlen, J. A. Hubbell, M. P. Lutolf, and L. De Laporte, Synthetic 3D PEG-Anisogel Tailored with Fibronectin Fragments Induce Aligned Nerve Extension,Biomacromolecules 20, 4075 (2019). [29] U. Chippada, B. Yurke, and N. A. Langrana, Simultaneous determination of Young’s modulus, shear modulus, and Poisson’s ratio of soft hydrogels,J. Mater. Res. 25, 545
+(2010).
+[30] W. Lacarbonara, Nonlinear Structural Mechanics: Theory, Dynamical Phenomena and Modeling (Springer US, Boston, MA, 2013). [31] O.-Y. Zhong-can and W. Helfrich, Bending energy of vesicle membranes: General expressions for the first, second, and third variation of the shape energy and applications to spheres and cylinders,Phys. Rev. A 39, 5280 (1989). [32] D. Wo ̈rthmu ̈ller, G. Ferraro, P. Sens, and M. Castellana, IRENE: A fluId layeR finitE-elemeNt softwarE,Comput. Phys. Commun. 330, 110366 (2027).
+[33] C.-C. Hsiung, A First Course in Differential Geometry (John Wiley & Sons, New York, USA, 1981). [34] M. Deserno, Fluid lipid membranes: From differential geometry to curvature stresses,Chem. Phys. Lipids 185, 11 (2015). [35] S. C. Al-Izzi, P. Sens, and M. S. Turner, Shear-Driven Instabilities of Membrane Tubes and Dynamin-Induced Scission,Phys. Rev. Lett. 125, 018101 (2020). [36] M. Deserno, Notes on Differential Geometry, https://www.cmu.edu/biolphys/deserno/pdf/diff geom.pdf (2004). [37] P.-G. De Gennes, F. Brochard-Wyart, and D. Qu ́er ́e, Capillarity and Wetting Phenomena (Springer New York, New York, NY, 2004). [38] J. E. Marsden and T. J. R. Hughes, Mathematical Foundations of Elasticity (Dover, New York, 1994). [39] J. Crank and P. Nicolson, A practical method for numerical evaluation of solutions of partial differential equations of the heat-conduction type,Math. Proc. Camb. Philos. Soc. 43, 50 (1947). [40] H. Reall, General Relativity, https://www.damtp.cam.ac.uk/user/hsr1000/teaching.html
+
+
+24
+(2022). [41] L. Feng, S. Li, and S. Feng, Preparation and characterization of silicone rubber with high modulus via tension spring-type crosslinking,RSC Adv. 7, 13130 (2017). [42] A. M ̈uller, M. C. Wapler, and U. Wallrabe, A quick and accurate method to determine the Poisson’s ratio and the coefficient of thermal expansion of PDMS,Soft Matter 15, 779 (2019). [43] L.-H. Cai, T. E. Kodger, R. E. Guerra, A. F. Pegoraro, M. Rubinstein, and D. A. Weitz, Soft Poly(dimethylsiloxane) Elastomers from ArchitectureDriven Entanglement Free Design,Adv. Mater. 27, 5132 (2015). [44] K. V. Pochivalov, A. N. Shilov, T. N. Lebedeva, A. N. Ilyasova, R. Y. Golovanov, A. V. Basko, and Y. V. Kudryavtsev, Development of vibration damping materials based on butyl rubber: A study of the phase equilibrium, rheological, and dynamic properties of compositions, J. Appl. Polym. Sci. 138, 50196 (2021). [45] C. A. Felippa, K. Park, and C. Farhat, Partitioned analysis of coupled mechanical systems,Comput. Methods Appl. Mech. Eng. 190, 3247 (2001). [46] C. F ̈orster, W. A. Wall, and E. Ramm, Artificial added mass instabilities in sequential staggered coupling of nonlinear structures and incompressible viscous flows,Com
+put. Methods Appl. Mech. Eng. 196, 1278 (2007). [47] P. Causin, J. Gerbeau, and F. Nobile, Added-mass effect in the design of partitioned algorithms for fluid–structure problems,Comput. Methods Appl. Mech. Eng. 194, 4506 (2005). [48] M. Heil, An efficient solver for the fully coupled solution of large-displacement fluid–structure interaction problems, Comput. Methods Appl. Mech. Eng. 193, 1 (2004). [49] C. Simon, R. Kusters, V. Caorsi, A. Allard, M. AbouGhali, J. Manzi, A. Di Cicco, D. L ́evy, M. Lenz, J.-F. Joanny, C. Campillo, J. Plastino, P. Sens, and C. Sykes, Actin dynamics drive cell-like membrane deformation, Nat. Phys. 15, 602 (2019).
+[50] M. P. do Carmo, Differential geometry of curves and surfaces (Prentice-Hall, Englewood Cliffs, N.J, 1976). [51] H. Goldstein, C. P. Poole, and J. L. Safko, Classical Mechanics (Pearson, 2004). [52] K. Goda, A multistep technique with implicit difference schemes for calculating two- or three-dimensional cavity flows,J. Comput. Phys. 30, 76 (1979).
+[53] Solving Ordinary Differential Equations I , Springer Series in Computational Mathematics, Vol. 8 (Springer Berlin Heidelberg, Berlin, Heidelberg, 1993). [54] Y. Bazilevs, V. M. Calo, T. J. R. Hughes, and Y. Zhang, Isogeometric fluid-structure interaction: Theory, algorithms, and computations,Comput. Mech. 43, 3 (2008).
